@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.carnot.ag/workflowmodel/3.1/dms"
+	xmlns:tns="http://www.carnot.ag/workflowmodel/3.1/dms">
+
+	<complexType name='ResourceProperty'>
+		<sequence>
+			<element name='name' type='string' />
+			<element name='stringValue' type='string' />
+			<element name='typeKey' type='int' />
+		</sequence>
+	</complexType>
+
+   <complexType name='ResourceProperties'>
+      <sequence>
+         <element maxOccurs='unbounded' name='properties' type='tns:ResourceProperty' />
+      </sequence>
+   </complexType>
+
+	<complexType name='Folder'>
+		<sequence>
+			<element name='id' type='string' />
+			<element name='path' type='string' />
+			<element name='name' type='string' />
+			<element maxOccurs='unbounded' name='properties'
+				type='tns:ResourceProperty' />
+			<element name='description' type='string' />
+			<element name='owner' type='string' />
+			<element name='dateCreated' type='dateTime' />
+			<element name='dateLastModified' type='dateTime' />
+			<element name='documentCount' type='int' />
+			<element name='folderCount' type='int' />
+			<!-- CRNT-8785 (parentId and parentPath in jcr-vfs throw exception) -->
+			<!-- <element name='parentId' type='string'/> -->
+			<!-- <element name='parentPath' type='string'/> -->
+			<element maxOccurs='unbounded' name='documents'
+				type='tns:Document' />
+			<element maxOccurs='unbounded' name='subFolders'>
+				<complexType>
+					<sequence>
+						<element name='id' type='string' />
+						<element name='path' type='string' />
+						<element name='name' type='string' />
+						<element maxOccurs='unbounded' name='properties'
+							type='tns:ResourceProperty' />
+						<element name='description' type='string' />
+						<element name='owner' type='string' />
+						<element name='dateCreated' type='dateTime' />
+						<element name='dateLastModified'
+							type='dateTime' />
+						<element name='documentCount' type='int' />
+						<element name='folderCount' type='int' />
+						<!-- CRNT-8785 (parentId and parentPath in jcr-vfs throw exception) -->
+						<!-- <element name='parentId' type='string'/> -->
+						<!-- <element name='parentPath' type='string'/> -->
+						<element maxOccurs='unbounded' name='documents'
+							type='tns:Document' />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name='FolderInfo'>
+		<sequence>
+			<element name='id' type='string' />
+			<element name='path' type='string' />
+			<element name='name' type='string' />
+			<element maxOccurs='unbounded' name='properties'
+				type='tns:ResourceProperty' />
+			<element name='description' type='string' />
+			<element name='owner' type='string' />
+			<element name='dateCreated' type='dateTime' />
+			<element name='dateLastModified' type='dateTime' />
+		</sequence>
+	</complexType>
+
+	<complexType name='FolderList'>
+		<sequence>
+			<element maxOccurs='unbounded' name='folders'
+				type='tns:Folder' />
+		</sequence>
+	</complexType>
+
+	<complexType name='DocumentList'>
+		<sequence>
+			<element maxOccurs='unbounded' name='documents'
+				type='tns:Document' />
+		</sequence>
+	</complexType>
+
+	<complexType name='Document'>
+		<sequence>
+			<element name='id' type='string' />
+			<element name='path' type='string' />
+			<element name='name' type='string' />
+			<element maxOccurs='unbounded' name='properties'
+				type='tns:ResourceProperty' />
+			<element name='description' type='string' />
+			<element name='owner' type='string' />
+			<element name='size' type='long' />
+			<element name='contentType' type='string' />
+			<element name='dateCreated' type='dateTime' />
+			<element name='dateLastModified' type='dateTime' />
+			<element name='revisionId' type='string' />
+			<element name='revisionName' type='string' />
+			<element name='versionLabels' type='string'
+				maxOccurs='unbounded' />
+			<!-- CRNT-8785 (parentId and parentPath in jcr-vfs throw exception) -->
+			<!-- <element name='parentId' type='string'/>  -->
+			<!-- <element name='parentPath' type='string'/> -->
+			<element name='lockOwner' type='string' />
+			<element name='encoding' type='string' />
+			<element maxOccurs='unbounded' name='documentAnnotations'
+				type='tns:ResourceProperty' />
+			<element name="documentType">
+				<complexType>
+					<sequence>
+						<element name="documentTypeId" type='string'/>
+						<element name="schemaLocation" type='string'/>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name='Versioning'>
+		<sequence>
+			<element name='createRevision' type='boolean' />
+			<element name='versionLabel' type='string' />
+		</sequence>
+	</complexType>
+
+</schema>

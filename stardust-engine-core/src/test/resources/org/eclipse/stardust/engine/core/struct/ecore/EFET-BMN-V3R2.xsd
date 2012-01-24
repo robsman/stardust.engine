@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:ecc="http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd" elementFormDefault="qualified" xml:lang="EN">
+	<xsd:import namespace="http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd" schemaLocation="EFET-CoreCmpts-V3R2.xsd"/>
+	<xsd:include schemaLocation="EFET-CoreElements-V3R2.xsd"/>
+	<!-- EFET BrokerMatchNotification Document Version 3 release 2 -->
+	<!--______________________________________-->
+	<xsd:element name="BrokerMatchNotification">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:group ref="DocumentHeader"/>
+				<xsd:element name="NotificationType" type="ecc:NotificationFieldType"/>
+				<xsd:element name="ProcessType" type="ecc:ProcessFieldType"/>
+				<xsd:element name="ReferencedCNFDocumentID" type="ecc:IdentificationType"/>
+				<xsd:element name="ReferencedCNFDocumentVersion" type="ecc:VersionType"/>
+				<xsd:element name="ReferencedBCNDocumentID" type="ecc:IdentificationType"/>
+				<xsd:element name="ReferencedBCNDocumentVersion" type="ecc:VersionType"/>
+				<xsd:element name="ReferencedTraderBFIDocumentID" type="ecc:IdentificationType"/>
+				<xsd:element name="ReferencedTraderBFIDocumentVersion" type="ecc:VersionType"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref="ecc:SchemaDescription"/>
+		</xsd:complexType>
+	</xsd:element> 
+</xsd:schema>

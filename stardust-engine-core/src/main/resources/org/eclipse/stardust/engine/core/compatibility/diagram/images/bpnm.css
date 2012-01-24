@@ -1,0 +1,54 @@
+Transition
+{
+    style: bpnm;
+    end-type: arrow;
+    end-type-arrow-width: 5;
+    end-type-arrow-length: 5;
+    edge-type: round;
+    edge-radius: 5
+    default-path-color: #FFFFFF;
+    critical-path-color: #FFFFFF;
+    traversed-path-color: #FFFFFF;
+    condition-color: #FFFFFF;
+}
+
+Activity
+{
+    style: bpmn;
+    top-margin: 10;
+    bottom-margin: 20;
+    left-margin: 10;
+    right-margin: 10;
+    edge-type: round;
+    edge-type-radius: 5;
+    fill-color: #FFFFFF;
+    line-color: #000000;
+    default-stroke-width: 1.0;
+    selected-stroke-width: 2.0;
+    name-font-size: 11;
+    name-font-family: SansSerif;
+    name-font-style: plain
+}
+
+Annotation
+{
+    top-margin: 10;
+    bottom-margin: 10;
+    left-margin: 10;
+    right-margin: 10;
+    fill-color: #FFFFFF;
+    line-color: #000000
+}
+
+Data
+{
+    style: bpmn;
+    top-margin: 10;
+    bottom-margin: 10;
+    left-margin: 10;
+    right-margin: 10;
+    edge-width: 10;
+    edge-height: 10;
+    fill-color: #FFFFFF;
+    line-color: #000000
+}

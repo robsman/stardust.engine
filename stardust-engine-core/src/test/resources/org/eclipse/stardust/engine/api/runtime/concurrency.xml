@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!DOCTYPE MODEL SYSTEM "WorkflowModel.dtd">
+<MODEL author="hneureiter" carnot_xml_version="1.0.0"
+   created="Fri Nov 09 15:46:06 GMT+01:00 2001" id="test1" name="test1"
+   oid="17179869184" status="open" valid_from_time_stamp="996066845662"
+   vendor="CARNOT AG: CARNOT: 1.0" wpdl-version="7.0">
+<DESCRIPTION><![CDATA[
+      ]]></DESCRIPTION>
+   <DATA class="ag.carnot.workflow.User" id="LAST_ACTIVITY_PERFORMER"
+      is_predefined="true" jndi_path="ag.carnot.workflow.User"
+      length="0" local="true" name="LAST_ACTIVITY_PERFORMER"
+      oid="17179879191" type="Entity Bean">
+      <DESCRIPTION><![CDATA[User performing the last activity of the current process.]]></DESCRIPTION>
+   </DATA>
+   <DATA class="ag.carnot.workflow.User" id="STARTING_USER"
+      is_predefined="true" jndi_path="ag.carnot.workflow.User"
+      length="0" local="true" name="STARTING_USER" oid="17179879192" type="Entity Bean">
+      <DESCRIPTION><![CDATA[User starting the current process.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="PROCESS_ID" is_predefined="true" length="0" local="false"
+      name="PROCESS_ID" oid="17179879193" type="long">
+      <DESCRIPTION><![CDATA[ID assigned to the current process.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="ROOT_PROCESS_ID" is_predefined="true" length="0"
+      local="false" name="ROOT_PROCESS_ID" oid="17179879194" type="long">
+      <DESCRIPTION><![CDATA[ID assigned to the root process of the current process.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="CURRENT_DATE" is_predefined="true" length="0" local="false"
+      name="CURRENT_DATE" oid="17179879195" type="Date">
+      <DESCRIPTION><![CDATA[Current Date.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="CURRENT_LOCALE" is_predefined="true" length="0"
+      local="false" name="CURRENT_LOCALE" oid="17179879196" type="String">
+      <DESCRIPTION><![CDATA[String representing the current locale.]]></DESCRIPTION>
+   </DATA>
+   <DATA class="ag.carnot.document.Document" id="TRIGGER_XML_CONTENT"
+      is_predefined="true" jndi_path="ag.carnot.document.Document"
+      length="0" local="true" name="TRIGGER_XML_CONTENT"
+      oid="17179879197" type="Entity Bean">
+      <DESCRIPTION><![CDATA[XML Context data retrieved from a Wf-XML request.]]></DESCRIPTION>
+   </DATA>
+   <DATA class="ag.carnot.mail.Mail" id="TRIGGER_EMAIL"
+      is_predefined="true" jndi_path="ag.carnot.mail.Mail" length="0"
+      local="true" name="TRIGGER_EMAIL" oid="17179879198" type="Entity Bean">
+      <DESCRIPTION><![CDATA[EMail object representing all data of the email which triggered the top-level process.]]></DESCRIPTION>
+   </DATA>
+   <APPLICATION class="ag.carnot.workflow.gui.UserManagementPanel"
+      html_path="/carnot_webex/user_management.jsp"
+      id="Predefined_User_Management_Application" local="false"
+      method="saveUserData" name="User Management" oid="17179879188"
+      type="User Defined" user_definition_type="Both">
+      <DESCRIPTION><![CDATA[Creates or modifies users at runtime.]]></DESCRIPTION>
+   </APPLICATION>
+   <PARTICIPANTS>
+      <HUMAN id="motu" name="motu" oid="17179879185" password="motu">
+         <DESCRIPTION><![CDATA[Master for workflow modeling.]]></DESCRIPTION>
+      </HUMAN>
+      <ROLE id="Administrator" name="Administrator" oid="17179879186">
+         <DESCRIPTION><![CDATA[In charge of all workflow administration activities.]]></DESCRIPTION>
+      </ROLE>
+      <ROLE id="Role1" name="Role1" oid="17179879211"/>
+      <ROLE id="Role2" name="Role2" oid="17179879221"/>
+      <ROLE id="Role3" name="Role3" oid="17179879283"/>
+   </PARTICIPANTS>
+   <WORKFLOW id="Predefined_User_Management_Process"
+      name="User Management Process" oid="17179879187"
+      remote_host_emulation="" remote_host_port="23">
+      <DESCRIPTION><![CDATA[Creates or modifies users at runtime.]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="true"
+         application="Predefined_User_Management_Application"
+         breakpoint="false" completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="true"
+         id="Predefined_Create_Or_Modify_Users"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Create Or Modify Users"
+         notify_participant_on_assignment="false" oid="17179879189"
+         performer="Administrator" split="None"/>
+      <TRIGGER_MANUAL oid="17179879190" participant="Administrator"/>
+      <DIAGRAM name="Default"/>
+   </WORKFLOW>
+   <WORKFLOW id="testprozess1" name="testprozess1" oid="17179879199"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity1"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity1" notify_participant_on_assignment="false"
+         oid="17179879201" performer="Role1" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity2"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity2" notify_participant_on_assignment="false"
+         oid="17179879203" performer="Role1" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity3"
+         implementation="Manual" join="AND" loop_type="No Loop"
+         name="Activity3" notify_participant_on_assignment="false"
+         oid="17179879205" performer="Role2" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity4"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity4" notify_participant_on_assignment="false"
+         oid="17179879217" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity5"
+         implementation="Subprocess" implementation_process="sub1"
+         join="None" loop_type="No Loop" name="Activity5"
+         notify_participant_on_assignment="false" oid="17179879224" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity6"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity6" notify_participant_on_assignment="false"
+         oid="17179879226" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity7"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity7" notify_participant_on_assignment="false"
+         oid="17179879228" performer="Role2" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity8"
+         implementation="Subprocess" implementation_process="sub2"
+         join="AND" loop_type="No Loop" name="Activity8"
+         notify_participant_on_assignment="false" oid="17179879230" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity15"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity15" notify_participant_on_assignment="false"
+         oid="17179879267" performer="Role2" split="None"/>
+      <TRANSITION condition="TRUE" from="Activity1" id="Transition1"
+         name="Transition1" oid="17179879206" to="Activity2"/>
+      <TRANSITION condition="TRUE" from="Activity2" id="Transition2"
+         name="Transition2" oid="17179879208" to="Activity3"/>
+      <TRANSITION condition="TRUE" from="Activity3" id="Transition3"
+         name="Transition3" oid="17179879218" to="Activity4"/>
+      <TRANSITION condition="TRUE" from="Activity2" id="Transition4"
+         name="Transition4" oid="17179879231" to="Activity5"/>
+      <TRANSITION condition="TRUE" from="Activity2" id="Transition5"
+         name="Transition5" oid="17179879233" to="Activity6"/>
+      <TRANSITION condition="TRUE" from="Activity6" id="Transition6"
+         name="Transition6" oid="17179879235" to="Activity7"/>
+      <TRANSITION condition="TRUE" from="Activity7" id="Transition7"
+         name="Transition7" oid="17179879237" to="Activity8"/>
+      <TRANSITION condition="TRUE" from="Activity8" id="Transition9"
+         name="Transition9" oid="17179879241" to="Activity3"/>
+      <TRANSITION condition="TRUE" from="Activity15" id="Transition15"
+         name="Transition15" oid="17179879268" to="Activity8"/>
+      <TRANSITION condition="TRUE" from="Activity5" id="Transition16"
+         name="Transition16" oid="17179879270" to="Activity15"/>
+      <TRIGGER_MANUAL oid="17179879215" participant="Role1"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="17179879200" refer="Activity1" x="55" y="21"/>
+         <ACTIVITY_SYMBOL id="17179879202" refer="Activity2" x="62" y="155"/>
+         <ACTIVITY_SYMBOL id="17179879204" refer="Activity3" x="226" y="360"/>
+         <ROLE_SYMBOL id="17179879210" refer="Role1" x="228" y="52"/>
+         <ACTIVITY_SYMBOL id="17179879216" refer="Activity4" x="405" y="360"/>
+         <ROLE_SYMBOL id="17179879220" refer="Role2" x="296" y="306"/>
+         <ACTIVITY_SYMBOL id="17179879223" refer="Activity5" x="260" y="128"/>
+         <ACTIVITY_SYMBOL id="17179879225" refer="Activity6" x="259" y="218"/>
+         <ACTIVITY_SYMBOL id="17179879227" refer="Activity7" x="426" y="218"/>
+         <ACTIVITY_SYMBOL id="17179879229" refer="Activity8" x="580" y="180"/>
+         <ACTIVITY_SYMBOL id="17179879266" refer="Activity15" x="422" y="128"/>
+         <TRANSITION_CONNECTION id="17179879207"
+            source_activity_symbol="17179879200"
+            target_activity_symbol="17179879202" transition="Transition1"/>
+         <TRANSITION_CONNECTION id="17179879209"
+            source_activity_symbol="17179879202"
+            target_activity_symbol="17179879204" transition="Transition2"/>
+         <PERFORMS_CONNECTION activity_symbol="17179879200"
+            id="17179879212" participant_symbol="17179879210"/>
+         <PERFORMS_CONNECTION activity_symbol="17179879202"
+            id="17179879213" participant_symbol="17179879210"/>
+         <TRANSITION_CONNECTION id="17179879219"
+            source_activity_symbol="17179879204"
+            target_activity_symbol="17179879216" transition="Transition3"/>
+         <PERFORMS_CONNECTION activity_symbol="17179879204"
+            id="17179879222" participant_symbol="17179879220"/>
+         <TRANSITION_CONNECTION id="17179879232"
+            source_activity_symbol="17179879202"
+            target_activity_symbol="17179879223" transition="Transition4"/>
+         <TRANSITION_CONNECTION id="17179879234"
+            source_activity_symbol="17179879202"
+            target_activity_symbol="17179879225" transition="Transition5"/>
+         <TRANSITION_CONNECTION id="17179879236"
+            source_activity_symbol="17179879225"
+            target_activity_symbol="17179879227" transition="Transition6"/>
+         <TRANSITION_CONNECTION id="17179879238"
+            source_activity_symbol="17179879227"
+            target_activity_symbol="17179879229" transition="Transition7"/>
+         <TRANSITION_CONNECTION id="17179879242"
+            source_activity_symbol="17179879229"
+            target_activity_symbol="17179879204" transition="Transition9"/>
+         <TRANSITION_CONNECTION id="17179879269"
+            source_activity_symbol="17179879266"
+            target_activity_symbol="17179879229" transition="Transition15"/>
+         <TRANSITION_CONNECTION id="17179879271"
+            source_activity_symbol="17179879223"
+            target_activity_symbol="17179879266" transition="Transition16"/>
+         <PERFORMS_CONNECTION activity_symbol="17179879227"
+            id="17179879272" participant_symbol="17179879220"/>
+         <PERFORMS_CONNECTION activity_symbol="17179879266"
+            id="17179879273" participant_symbol="17179879220"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="sub1" name="sub1" oid="17179879243"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="sub1.1"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="sub1.1" notify_participant_on_assignment="false"
+         oid="17179879245" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="sub1.2"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="sub1.2" notify_participant_on_assignment="false"
+         oid="17179879247" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="sub1.3"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="sub1.3" notify_participant_on_assignment="false"
+         oid="17179879249" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="sub1.4"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="sub1.4" notify_participant_on_assignment="false"
+         oid="17179879251" performer="Role3" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="sub1.5"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="sub1.5" notify_participant_on_assignment="false"
+         oid="17179879253" performer="Role3" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="sub1.6"
+         implementation="Subprocess" implementation_process="sub2"
+         join="None" loop_type="No Loop" name="sub1.6"
+         notify_participant_on_assignment="false" oid="17179879255" split="None"/>
+      <TRANSITION condition="TRUE" from="sub1.1" id="Transition10"
+         name="Transition10" oid="17179879256" to="sub1.2"/>
+      <TRANSITION condition="TRUE" from="sub1.2" id="Transition11"
+         name="Transition11" oid="17179879258" to="sub1.3"/>
+      <TRANSITION condition="TRUE" from="sub1.3" id="Transition12"
+         name="Transition12" oid="17179879260" to="sub1.4"/>
+      <TRANSITION condition="TRUE" from="sub1.3" id="Transition13"
+         name="Transition13" oid="17179879262" to="sub1.5"/>
+      <TRANSITION condition="TRUE" from="sub1.5" id="Transition14"
+         name="Transition14" oid="17179879264" to="sub1.6"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="17179879244" refer="sub1.1" x="138" y="104"/>
+         <ACTIVITY_SYMBOL id="17179879246" refer="sub1.2" x="245" y="179"/>
+         <ACTIVITY_SYMBOL id="17179879248" refer="sub1.3" x="338" y="243"/>
+         <ACTIVITY_SYMBOL id="17179879250" refer="sub1.4" x="482" y="315"/>
+         <ACTIVITY_SYMBOL id="17179879252" refer="sub1.5" x="483" y="178"/>
+         <ACTIVITY_SYMBOL id="17179879254" refer="sub1.6" x="600" y="117"/>
+         <ROLE_SYMBOL id="17179879282" refer="Role3" x="614" y="262"/>
+         <TRANSITION_CONNECTION id="17179879257"
+            source_activity_symbol="17179879244"
+            target_activity_symbol="17179879246" transition="Transition10"/>
+         <TRANSITION_CONNECTION id="17179879259"
+            source_activity_symbol="17179879246"
+            target_activity_symbol="17179879248" transition="Transition11"/>
+         <TRANSITION_CONNECTION id="17179879261"
+            source_activity_symbol="17179879248"
+            target_activity_symbol="17179879250" transition="Transition12"/>
+         <TRANSITION_CONNECTION id="17179879263"
+            source_activity_symbol="17179879248"
+            target_activity_symbol="17179879252" transition="Transition13"/>
+         <TRANSITION_CONNECTION id="17179879265"
+            source_activity_symbol="17179879252"
+            target_activity_symbol="17179879254" transition="Transition14"/>
+         <PERFORMS_CONNECTION activity_symbol="17179879252"
+            id="17179879284" participant_symbol="17179879282"/>
+         <PERFORMS_CONNECTION activity_symbol="17179879250"
+            id="17179879285" participant_symbol="17179879282"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="sub2" name="sub2" oid="17179879274"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity17"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity17" notify_participant_on_assignment="false"
+         oid="17179879239" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity18"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity18" notify_participant_on_assignment="false"
+         oid="17179879275" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity19"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity19" notify_participant_on_assignment="false"
+         oid="17179879277" split="None"/>
+      <TRANSITION condition="TRUE" from="Activity17" id="Transition17"
+         name="Transition17" oid="17179879278" to="Activity18"/>
+      <TRANSITION condition="TRUE" from="Activity18" id="Transition18"
+         name="Transition18" oid="17179879280" to="Activity19"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="17179879214" refer="Activity17" x="147" y="132"/>
+         <ACTIVITY_SYMBOL id="17179879240" refer="Activity18" x="322" y="147"/>
+         <ACTIVITY_SYMBOL id="17179879276" refer="Activity19" x="510" y="176"/>
+         <TRANSITION_CONNECTION id="17179879279"
+            source_activity_symbol="17179879214"
+            target_activity_symbol="17179879240" transition="Transition17"/>
+         <TRANSITION_CONNECTION id="17179879281"
+            source_activity_symbol="17179879240"
+            target_activity_symbol="17179879276" transition="Transition18"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <DIAGRAM name="Default Diagram"/>
+</MODEL>

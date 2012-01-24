@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+ <xs:element name="root">
+  <xs:complexType>
+   <xs:sequence>
+    <xs:element name="Tag_20_Transaction_Reference_Number" minOccurs="1" maxOccurs="1">
+     <xs:complexType>
+      <xs:sequence>
+       <xs:element name="Tag" minOccurs="1" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" Constant_Value=":20:" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" Character_Group="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-?:().,\'+" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%1.16ValidChars" Max_Length="16" Min_Length="1" Content_Type="Has Data Model" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+      </xs:sequence>
+     </xs:complexType>
+     <xs:annotation>
+      <xs:appinfo>
+       <formatInfo mandatory="true" />
+      </xs:appinfo>
+     </xs:annotation>
+    </xs:element>
+    <xs:element name="Further_Information" minOccurs="1" maxOccurs="1">
+     <xs:complexType>
+      <xs:sequence>
+       <xs:element name="Further_Information" minOccurs="1" maxOccurs="unbounded">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Tag_25_Account_Identification" minOccurs="1" maxOccurs="1">
+           <xs:complexType>
+            <xs:sequence>
+             <xs:element name="Tag" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Constant_Value=":25:" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-?:().,\'+" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%1.35ValidChars" Max_Length="35" Min_Length="1" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+            </xs:sequence>
+           </xs:complexType>
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Tag_62F_Final_Closing_Balance" minOccurs="1" maxOccurs="1">
+           <xs:complexType>
+            <xs:sequence>
+             <xs:element name="Tag" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Constant_Value=":62F:" Max_Length="5" Min_Length="5" Content_Type="Pure Syntax" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Credit_Debit_Indication" minOccurs="1" maxOccurs="1" type="xs:boolean">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="CD" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%T[C]%F[D]" Max_Length="1" Min_Length="1" Content_Type="Has Data Model" Valid_Values="C=,D=," />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Start_Date" minOccurs="1" maxOccurs="1" type="xs:date">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="0123456789" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%y%m%d" Max_Length="6" Min_Length="6" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Currency_Code" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%CUR" Max_Length="3" Min_Length="3" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Price" minOccurs="1" maxOccurs="1" type="xs:decimal">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="0123456789,." Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%2.15ln%n%f%dp," Max_Length="15" Min_Length="2" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+            </xs:sequence>
+           </xs:complexType>
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo>
+           <separator Separator="\r\n" Also_After_Last_Child="false" Also_Before_First_Child="false">
+            <right_context String_Constraint=":" Is_Negative_Constraint="false" />
+            <left_context Is_Negative_Constraint="false" />
+           </separator>
+          </formatInfo>
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+      </xs:sequence>
+     </xs:complexType>
+     <xs:annotation>
+      <xs:appinfo>
+       <formatInfo mandatory="true">
+        <separator Separator="\r\n" Also_After_Last_Child="false" Also_Before_First_Child="false">
+         <right_context String_Constraint=":" Is_Negative_Constraint="false" />
+         <left_context Is_Negative_Constraint="false" />
+        </separator>
+       </formatInfo>
+      </xs:appinfo>
+     </xs:annotation>
+    </xs:element>
+   </xs:sequence>
+  </xs:complexType>
+  <xs:annotation>
+   <xs:appinfo>
+    <formatInfo>
+     <separator Separator="\r\n" Also_After_Last_Child="false" Also_Before_First_Child="false">
+      <right_context String_Constraint=":" Is_Negative_Constraint="false" />
+      <left_context Is_Negative_Constraint="false" />
+     </separator>
+    </formatInfo>
+   </xs:appinfo>
+  </xs:annotation>
+ </xs:element>
+</xs:schema>
+

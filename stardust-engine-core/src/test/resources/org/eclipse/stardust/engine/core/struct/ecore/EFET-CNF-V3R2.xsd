@@ -1,0 +1,546 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<xsd:schema xml:lang="EN" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:ecc="http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd"
+    elementFormDefault="qualified">
+    <xsd:import
+        namespace="http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd"
+        schemaLocation="EFET-CoreCmpts-V3R2.xsd" />
+    <xsd:include schemaLocation="EFET-CoreElements-V3R2.xsd" />
+    <!-- EFET Trade Confirmation Document Version 3 release 2 -->
+    <!--______________________________________-->
+
+    <xsd:element name="TradeConfirmation">
+        <xsd:annotation>
+            <xsd:documentation>
+                Object used for the transmission of trade confirmations
+                between traders or matching service providers.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:sequence>
+                    <xsd:group ref="DocumentHeader" />
+                    <xsd:element name="DocumentVersion"
+                        type="ecc:VersionType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Version of the document being sent. A
+                                document may be sent several times with
+                                the same identification. The version is
+                                used to distinguish one instance of the
+                                same document from another with the same
+                                identification.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="Market"
+                        type="ecc:CountryCodeType" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The identification of the market where
+                                the commodity is traded. The market
+                                generally corresponds to a country
+                                except where there are regional
+                                practises within the country.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="Commodity"
+                        type="ecc:EnergyProductType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The identification of the nature of an
+                                energy product such as Power, energy,
+                                reactive power, etc.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="TransactionType"
+                        type="ecc:TransactionType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The Transaction type describes the
+                                principal characteristic of a trade..
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="DeliveryPointArea"
+                        type="ecc:AreaType" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The area (hub) where the delivery is
+                                being made.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="BuyerParty"
+                        type="ecc:PartyType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The party that is buying the commodity.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="SellerParty"
+                        type="ecc:PartyType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The party that is selling the commodity.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="LoadType" type="ecc:ContractType"
+                        minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The load type defines the conditions
+                                under whichenergy is purchased,
+                                allocated and handled.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="Agreement"
+                        type="ecc:AgreementType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The identification of an agreement
+                                between two parties.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element ref="Currency" />
+                    <xsd:element name="TotalVolume"
+                        type="ecc:QuantityType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The total volume of a commodity that has
+                                been negociated in the transaction.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="TotalVolumeUnit"
+                        type="ecc:UnitOfMeasureType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The unit of measure that is in which the
+                                total volume is expressed. The
+                                measurement units shall be in compliance
+                                with UN/ECE Recommendation 20.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="TradeDate" type="ecc:DateType">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The date that the transaction was
+                                cocluded. It must be expressed in local
+                                time.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="CapacityUnit"
+                        type="ecc:UnitOfMeasureType" minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The unit of measure that is in which
+                                capacity is expressed. The measurement
+                                units shall be in compliance with UN/ECE
+                                Recommendation 20.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="PriceUnit" minOccurs="0">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element ref="Currency" />
+                                <xsd:element name="CapacityUnit"
+                                    type="ecc:UnitOfMeasureType" />
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="TimeIntervalQuantities" minOccurs="0">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element ref="TimeIntervalQuantity"
+                                    maxOccurs="unbounded" />
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:choice>
+                        <xsd:element name="TotalContractValue"
+                            type="ecc:PriceType" />
+                        <xsd:element name="PricingScheme">
+                            <xsd:annotation>
+                                <xsd:documentation>
+                                    The coded pricing scheme used in
+                                    determining the proce of the trade..
+                                </xsd:documentation>
+                            </xsd:annotation>
+                            <xsd:complexType>
+                                <xsd:sequence>
+                                    <xsd:element name="PricingSchemeIndex" maxOccurs="unbounded">
+                                        <xsd:complexType>
+                                            <xsd:sequence>
+                                                <xsd:element name="ID" type="ecc:IndexIDType" />
+                                                <xsd:element name="Name" type="ecc:NameType" />
+                                                <xsd:element name="Currency" type="ecc:CurrencyCodeType" />
+                                                <xsd:element name="PriceUnit" minOccurs="0" >
+                                                    <xsd:complexType>
+                                                        <xsd:sequence>
+                                                            <xsd:element ref="Currency" />
+                                                            <xsd:element name="Capacity" type="ecc:UnitOfMeasureType" />
+                                                        </xsd:sequence>
+                                                    </xsd:complexType>
+                                                </xsd:element>
+                                                <xsd:element name="Increment" type="ecc:PriceType" />
+                                                <xsd:element name="Cap" type="ecc:PriceType" minOccurs="0" />
+                                                <xsd:element name="Collar" type="ecc:PriceType" minOccurs="0" />
+                                                <xsd:element name="BasketRatio" type="ecc:Ratio" />
+                                                
+                                            </xsd:sequence>
+                                        </xsd:complexType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:choice>
+                    <xsd:element name="EUATradeDetails" minOccurs="0">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="Price" type="ecc:PriceType" minOccurs="0" />
+                                <xsd:element name="EmissionsDeliveryDate" type="ecc:DateType" />
+                                <xsd:element name="BuyerDeliveryAccount" type="ecc:EUAAccountCodeType" minOccurs="0"/>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+
+                    <xsd:element ref="HubCodificationInformation"
+                        minOccurs="0">
+
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                additional fields for the commodity
+                                'Gas'
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element ref="AccountAndChargeInformation"
+                        minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                additional fields for the commodity
+                                'Power'
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element ref="OptionDetails" minOccurs="0" />
+                    <xsd:element name="Agents" minOccurs="0">
+                        <xsd:complexType>
+                            <xsd:sequence>
+                                <xsd:element name="Agent"
+                                    maxOccurs="unbounded">
+                                    <xsd:complexType>
+                                        <xsd:sequence>
+                                            <xsd:element name="AgentType" type="ecc:AgentType" />
+                                            <xsd:element name="AgentName" type="ecc:NameType" minOccurs="0" />
+                                            <xsd:choice>
+                                                <xsd:element name="Broker">
+                                                    <xsd:complexType>
+                                                        <xsd:sequence>
+                                                            <xsd:element name="BrokerID" type="ecc:BrokerIDType" />
+                                                        </xsd:sequence>
+                                                    </xsd:complexType>
+                                                </xsd:element>
+                                                <xsd:element name="ECVNA">
+                                                    <xsd:complexType>
+                                                        <xsd:sequence>
+                                                            <xsd:element
+                                                                name="BSCPartyID"
+                                                                type="ecc:BSCPartyIDType" />
+                                                            <xsd:element
+                                                                name="BuyerEnergyAccount"
+                                                                type="ecc:EnergyAccountType" />
+                                                            <xsd:element
+                                                                name="SellerEnergyAccount"
+                                                                type="ecc:EnergyAccountType" />
+                                                            <xsd:element
+                                                                name="SellerID"
+                                                                type="ecc:BSCPartyIDType" />
+                                                            <xsd:element
+                                                                name="BuyerID"
+                                                                type="ecc:BSCPartyIDType" />
+                                                        </xsd:sequence>
+                                                    </xsd:complexType>
+                                                </xsd:element>
+                                            </xsd:choice>
+                                        </xsd:sequence>
+                                    </xsd:complexType>
+                                </xsd:element>
+                            </xsd:sequence>
+                        </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="TradeTime" type="ecc:TimeType"
+                        minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The time that the transaction was
+                                concluded. It must be expressed in local
+                                time.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="TraderName" type="ecc:NameType"
+                        minOccurs="0">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                The specific name of the person that
+                                concluded the transaction.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:sequence>
+            <xsd:attributeGroup ref="ecc:SchemaDescription" />
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="Currency">
+        <xsd:annotation>
+            <xsd:documentation>
+                The identification of the currency of the price. The
+                currency code shall respect ISO 3166 2 character coding
+                scheme.
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:simpleContent>
+                <xsd:extension base="ecc:CurrencyCodeType">
+                    <xsd:attribute name="UseFractionUnit"
+                        type="xsd:boolean" />
+                </xsd:extension>
+            </xsd:simpleContent>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="TimeIntervalQuantity">
+        <xsd:annotation>
+            <xsd:documentation>
+                The traded quantities and prices per period
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="DeliveryStartDateAndTime"
+                    type="ecc:ClockDateTimeType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The start date and time of the time interval
+                            for which the contract capacity contract
+                            applies. The time of the start of the period
+                            is expressed in local time as:
+                            YYYY-MM-DDTHH:MM:SS.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="DeliveryEndDateAndTime"
+                    type="ecc:ClockDateTimeType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The end date and time of the time interval
+                            for which the contract capacity contract
+                            applies. The time of the end of the period
+                            is expressed in local time as:
+                            YYYY-MM-DDTHH:MM:SS..
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="ContractCapacity"
+                    type="ecc:QuantityType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The contract capacity quantity of the
+                            commodity traded for the time interval in
+                            question. Positive quantities shall not have
+                            a sign.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="Price" type="ecc:PriceType"
+                    minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The price per unit of volume
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="AccountAndChargeInformation">
+        <xsd:annotation>
+            <xsd:documentation>
+                Account and charge information only used in the England
+                and Wales power market
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="SellerEnergyAccountIdentification"
+                    type="ecc:IdentificationType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identification if a seller consumption or
+                            production account
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="BuyerEnergyAccountIdentification"
+                    type="ecc:IdentificationType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identification if a buyer consumption or
+                            production account
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="NotificationAgent"
+                    type="ecc:PartyType" minOccurs="0">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The identification of the party responsible
+                            for notifying the transaction to the ECVAA.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="TransmissionChargeIdentification"
+                    type="ecc:IdentificationType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identification of how transmission charges
+                            are allocated.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="HubCodificationInformation">
+        <xsd:annotation>
+            <xsd:documentation>
+                Gas hub Network mandatory information
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="BuyerHubCode"
+                    type="ecc:IdentificationType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identification of a buyer using the hub
+                            network coding scheme.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="SellerHubCode"
+                    type="ecc:IdentificationType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            Identification of a seller using the hub
+                            network coding scheme.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name="OptionDetails">
+        <xsd:annotation>
+            <xsd:documentation>
+                The information defining the nature and exercise dates
+                for an option
+            </xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="OptionsType" type="ecc:OptionType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The type of option being used.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="OptionWriter" type="ecc:PartyType" />
+                <xsd:element name="OptionHolder" type="ecc:PartyType" />
+                <xsd:element name="OptionStyle"
+                    type="ecc:OptionStyleType" />
+                <xsd:element name="StrikePrice" type="ecc:PriceType" />
+                <xsd:element name="PremiumRate" type="ecc:PriceType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The rate used to calculate the premium.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="PremiumCurrency"
+                    type="ecc:CurrencyCodeType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The identification of the currency of the
+                            premium.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="PremiumUnit" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element ref="Currency" />
+                            <xsd:element name="Capacity"
+                                type="ecc:UnitOfMeasureType" />
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="TotalPremiumValue"
+                    type="ecc:PriceType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The total amount of the premium.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="PremiumPaymentDate"
+                    type="ecc:DateType">
+                    <xsd:annotation>
+                        <xsd:documentation>
+                            The date that the transaction was cocluded.
+                            It must be expressed in local time.
+                        </xsd:documentation>
+                    </xsd:annotation>
+                </xsd:element>
+                <xsd:element name="ExerciseDateTime" type="ecc:ClockDateTimeType" minOccurs="0"/>
+                <xsd:element name="ExerciseSchedule" minOccurs="0">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="Exercise"
+                                maxOccurs="unbounded">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:element
+                                            name="DeliveryStartDateTime"
+                                            type="ecc:ClockDateTimeType" />
+                                        <xsd:element
+                                            name="DeliveryEndDateTime"
+                                            type="ecc:ClockDateTimeType" />
+                                        <xsd:element
+                                            name="ExerciseDateTime"
+                                            type="ecc:ClockDateTimeType" />
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <!--______________________________________-->
+
+</xsd:schema>

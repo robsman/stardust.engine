@@ -1,0 +1,154 @@
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.carnot.ag/workflowmodel/3.1/struct" xmlns:tns="http://www.carnot.ag/workflowmodel/3.1/struct">
+	<complexType name="AllDataTypesMetadata">
+		<sequence>
+			<element name="p1_string" type="string">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p2_boolean" type="boolean">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p3_int" type="int">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p4_long" type="long">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p5_short" type="short">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p6_byte" type="byte">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p7_double" type="double">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p8_float" type="float">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p9_dateTime" type="dateTime">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p10_date" type="date">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p11_time" type="time">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+			<element maxOccurs="1" name="p12_duration"
+				type="duration">
+				<annotation>
+					<appinfo>
+						<scope
+							xmlns="http://www.carnot.ag/workflowmodel/3.1/struct"
+							name="global">
+							<entry name="indexed" value="true" />
+							<entry name="persistent" value="true" />
+						</scope>
+					</appinfo>
+				</annotation>
+			</element>
+		</sequence>
+	</complexType>
+	<element name="AllDataTypesMetadata"
+		type="tns:AllDataTypesMetadata" />
+</schema>

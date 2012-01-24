@@ -1,0 +1,1246 @@
+<?xml encoding="ISO-8859-1"?>
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!--
+    Workflow model description for CARNOT version 3.0.0
+-->
+
+<!--
+    The model declaration defines a complete  workflow model consisting of the following elements:
+    - an optional description
+    - dynamic attributes for vendor specific properties
+    - data type declarations
+    - application type declarations
+    - application context type declarations
+    - trigger type declarations
+    - event condition type declarations
+    - event action type declarations
+    - workflow data declarations
+    - application declarations
+    - modeler declarations
+    - role declarations
+    - organization declarations
+    - conditional performer declarations
+    - process definition declarations
+    - diagram declarations
+    - link type declarations
+    - view declarations
+
+-->
+<!ELEMENT model (description?, attribute*,
+                 dataType*, applicationType*, applicationContextType*, triggerType*,
+                 eventConditionType*, eventActionType*,
+                 data*, application*,
+                 modeler*, role*, organization*, conditionalPerformer*,
+                 processDefinition*,
+                 diagram*, linkType*, view*)>
+
+<!--
+    The attributes of the model declaration
+   (+) required (-) optional:
+
+    + id                        An identifier for the model
+    + name                      The name of the model
+    + oid                       The unique object id of the model
+    - version                   The model version, unversioned models start with "1.0"
+    - carnotVersion        The version of the runtime which created the model
+    - vendor                    The name of the vendor who created the model
+    - created                   Date of creation 'ddd mmm dd hh:MM:ss GMT+00:00 yyyy'
+    - author                    The author of the model
+    - status                    'open' or 'released'
+                                jars to be loaded for the model
+    - validFrom     The date from which this model is valid
+    - validTo       The date until which this model is valid to
+-->
+<!ATTLIST model
+    oid CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    carnotVersion CDATA #IMPLIED
+    vendor CDATA #IMPLIED
+    created CDATA #IMPLIED
+    author CDATA #IMPLIED
+    modelOID CDATA #IMPLIED
+>
+
+<!-- 
+    The description declaration defines a generic element which is used to specify the
+    description of a model element.
+    encloses only PCDATA text
+ -->
+<!ELEMENT description (#PCDATA)>
+
+<!ELEMENT dataType (description?, attribute*)>
+<!ATTLIST dataType
+    oid CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    panelClass CDATA #IMPLIED
+    instanceClass CDATA #IMPLIED
+    predefined (true | false) #IMPLIED
+    accessPathEditor CDATA #IMPLIED
+    evaluator CDATA #IMPLIED
+    storageStrategy CDATA #IMPLIED
+    validatorClass CDATA #IMPLIED
+    valueCreator CDATA #IMPLIED
+    writable (true | false) #IMPLIED
+    readable (true | false) #IMPLIED
+>
+
+<!ELEMENT applicationType (description?, attribute*)>
+<!ATTLIST applicationType
+    oid CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    panelClass CDATA #IMPLIED
+    instanceClass CDATA #IMPLIED
+    predefined (true | false) #IMPLIED
+    synchronous (true | false) #IMPLIED
+    accessPointProviderClass CDATA #IMPLIED
+    validatorClass CDATA #IMPLIED
+>
+
+<!ELEMENT applicationContextType (description?, attribute*)>
+<!ATTLIST applicationContextType
+    oid CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    predefined (true | false) #IMPLIED
+    accessPointProviderClass CDATA #IMPLIED
+    panelClass CDATA #IMPLIED
+    validatorClass CDATA #IMPLIED
+    hasApplicationPath (true | false) #IMPLIED
+    hasMappingId (true | false) #IMPLIED
+>
+
+<!ELEMENT triggerType (description?, attribute*)>
+<!ATTLIST triggerType
+    oid CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    panelClass CDATA #IMPLIED
+    predefined (true | false) #IMPLIED
+    pullTrigger (true | false) #IMPLIED
+    pullTriggerEvaluator CDATA #IMPLIED
+    rule CDATA #IMPLIED
+>
+
+<!ELEMENT eventConditionType (description?, attribute*)>
+<!ATTLIST eventConditionType
+    oid CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    panelClass CDATA #IMPLIED
+    binderClass CDATA #IMPLIED
+    pullEventEmitterClass CDATA #IMPLIED
+    implementation (push | pull | engine) #IMPLIED
+    processCondition (true | false) #IMPLIED
+    activityCondition (true | false) #IMPLIED
+    predefined (true | false) #IMPLIED
+    rule CDATA #IMPLIED
+>
+
+<!ELEMENT eventActionType (description?, attribute*)>
+<!ATTLIST eventActionType
+    oid CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    panelClass CDATA #IMPLIED
+    predefined (true | false) #IMPLIED
+    actionClass CDATA #IMPLIED
+    activityAction (true | false) #IMPLIED
+    processAction (true | false) #IMPLIED
+    supportedConditionTypes CDATA #IMPLIED
+    unsupportedContexts CDATA #IMPLIED
+>
+<!--
+    The data declaration defines a data element for the workflow model
+    consists of the following elements:
+    - 0..n attribute elements
+    - 0..1 description
+-->
+<!ELEMENT data (description?, attribute*)>
+
+<!-- 
+    The attributes of the data declaration
+    + id                        The unique model element id of the data
+    + name                      The name of the defined data element
+    + oid                       The unique object id of the model object
+    + type                      The type of the data element as java class name
+-->    
+<!ATTLIST data
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    type CDATA #REQUIRED
+    predefined (true | false) #IMPLIED
+>
+
+<!-- 
+    The application declaration defines an application for a workflow activity in a workflow process
+    consists of the following elements:
+    - 0..1 description
+    - 0..n context
+    - 0..n attribute declarations for the varying list of application related attributes
+    - 0..n accessPoint declarations
+-->
+<!ELEMENT application (description?, attribute*, context*, accessPoint*)>
+
+<!--
+    The attributes of the application declaration
+    + id                        The unique model element id of the application
+    + name                      The name of the application
+    + oid                       The unique object id of the application object
+    - type                      The type of the application as java class name,
+                                allowed are subinterfaces of ag.carnot.workflow.spi.ApplicationType
+    - interactive               a boolean that indicates whether this application is interactive or not
+-->
+<!ATTLIST application
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    type CDATA #IMPLIED
+    interactive CDATA #IMPLIED
+>
+
+<!--
+    The context declaration defines a context for interactive applications
+    where context related attributes and access points can be specified
+    consist of the following elements:
+    - 0..n attribute declarations for context related attributes
+    - 0..n accessPoint declarations for context related access points
+-->
+<!ELEMENT context (description?, attribute*, accessPoint*)>
+
+<!--
+    The attributes of the context declaration
+    + id                        the id of the context either JFC or JSP
+-->
+<!ATTLIST context
+    type CDATA #REQUIRED
+    oid CDATA #REQUIRED
+>
+
+<!--
+    The attribute declaration defines generic attributes which is used a subelement
+    by other elements to define a type-safe list of attributes
+    Used by:
+             application
+             context
+             data
+             trigger
+   
+   consists of no subelements
+-->
+<!ELEMENT attribute EMPTY>
+
+<!--
+    The attributes of the attribute declaration
+    + name                     the name of the attribute
+    + class                    the type of the attribute a java class name
+    + value                    the current value of the attribute
+-->
+<!ATTLIST attribute
+    name CDATA #REQUIRED
+    type CDATA #IMPLIED
+    value CDATA #REQUIRED
+>
+
+<!--
+    The accessPoint declaration defines an access point for the
+    following elements:
+           application
+           context
+           trigger
+
+    has optionally attributes
+-->
+<!ELEMENT accessPoint (attribute*)>
+
+<!--
+    The attrbiutes of the accessPoint declaration
+    + id                  The unique ID of the access point
+    + name                The human readable name of the access point
+    - class               The type as java class name of the object exposed at the access point
+    - direction           The direction of the access point, possible values are IN, OUT or INOUT
+    - browsable           The browsable property for an OUT access point indicates that the access
+                          point can be 'browsed' to be used in a DataMapping with IN direction 
+                          relative to the access point.
+
+-->
+<!ATTLIST accessPoint
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    direction CDATA #IMPLIED
+    type CDATA #IMPLIED
+>
+
+<!--
+    The modeler declaration defines a person
+    consists of the following elements:
+    - 0..1 description
+-->
+<!ELEMENT modeler (description?, attribute*)>
+
+<!-- 
+    The attributes of the modeler declaration
+    + id                        The unique model element id of the modeler
+    + name                      The name of the element
+    - oid                       The unique object id of the modeler object
+    - password                  The password for the modeler object
+    - email                     The e-mail address of the modeler 
+-->
+<!ATTLIST modeler
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    password CDATA #IMPLIED
+    email CDATA #IMPLIED
+>
+
+<!-- 
+    The role declaration defines a role
+    consists of the following elements:
+    - 0..1 description
+-->
+<!ELEMENT role (description?, attribute*)>
+
+<!-- 
+    The attributes of the role declaration
+    + id                        The unique model element id of the role
+    + name                      The name of the role
+    - oid                       The unique object id of the role object
+    - cardinality               The cardinality of the role, possible values are :
+                                - "*:1" to one
+                                - "*:N" to many
+-->
+<!ATTLIST role
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    cardinality CDATA #IMPLIED
+>
+
+<!--
+    The conditionalPerformer declaration defines a perfomer under certain circumstances
+    consists of the following elements:
+    - 0..1 description
+-->
+<!ELEMENT conditionalPerformer (description?, attribute*)>
+
+<!-- 
+    The attributes of the conditionalPerformer declaration
+    + id                        The unique model element id of the cond. performer
+    + name                      The name of the conditional performer
+    - oid                       The unique oid of the cond. performer
+    - data 
+    - user
+-->
+<!ATTLIST conditionalPerformer
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    data CDATA #IMPLIED
+    dataPath CDATA #IMPLIED
+    is_user (true | false) #IMPLIED
+>
+
+<!-- 
+    The organization declaration defines an organization item for grouping participants
+    consists of the following elements:
+    - 0..1 description
+    - 0..n PARTICIPANT
+-->
+<!ELEMENT organization (description?, attribute*, participant*)>
+
+<!-- 
+    The attributes of the organization declaration
+    + id                        The unique model element id of the organization
+    + name                      The name of the organization
+    - oid                       The unique object id of the organization object
+-->
+<!ATTLIST organization
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+>
+
+<!-- 
+    The view declaration defines a view
+    consists of the following elements:
+    - 0..1 description
+    - 0..n view declarations to define further dependent views
+    - 0..n viewable declarations to define containing viewables -->
+<!ELEMENT view (description?, attribute*, view*, viewable*)>
+
+<!-- 
+    The attributes of the view declaration
+    + id                        The unique model element id of the view
+    + name                      The name of the view
+    - oid                       The unique object id of the view object 
+-->
+<!ATTLIST view
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+>
+
+<!-- 
+    The viewable declaration defines a viewable.
+    consists of no elements 
+-->
+<!ELEMENT viewable EMPTY>
+
+<!-- 
+    The attributes of the viewable declaration
+    + id                        The unique model element id of the viewable
+    + type                      The type of the viewable, possible values are
+                                - activity
+                                - application
+                                - data
+                                - PARTICIPANT
+                                - workflow
+-->
+<!ATTLIST viewable
+    viewable CDATA #REQUIRED
+>
+
+<!ELEMENT participant EMPTY>
+
+<!ATTLIST participant
+    participant CDATA #REQUIRED
+>
+
+<!--
+    The workflow declaration defines a workflow process
+    consists of the following elements:
+    - 0..1 description
+    - 0..n activity declaration to define activities
+    - 0..n transition declaration to define transitions between activities
+    - 0..n dataMapping declarations to define data mapping between data and activies
+    - 0..n trigger declarations to define process triggers
+    - 0..n dataPath declarations to define process data paths
+    - 0..n diagram declarations to define diagram information
+-->
+<!ELEMENT processDefinition (description?, attribute*, activity*, transition*, trigger*,
+    dataPath*, eventHandler*, diagram*)>
+
+<!-- 
+    The attributes of the workflow declaration
+    + id                        The unique model element id of the process
+    + name                      The name of the process
+    + oid                       The unique object id of the process object
+-->
+<!ATTLIST processDefinition
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    defaultPriority CDATA #IMPLIED
+>
+
+<!-- 
+    The activity declaration defines a workflow activity
+    consists of the following elements:
+    - 0..1 description
+-->
+<!ELEMENT activity (description?, attribute*, dataMapping*, eventHandler*)>
+
+<!-- 
+    The attributes of the activity declaration
+    + id                        The unique model element id of the activity
+    + name                      The name of the activity
+    - oid                       The unique object id of the activity object
+    - split                     The type of activity split, possible values are :
+                                - "None"
+                                - "XOR"
+                                - "AND"
+    - join                      The type of activity join, possible values are :
+                                - "None"
+                                - "XOR"
+                                - "AND"
+    - implementation            The implementation type of the activity, possible
+                                values are :
+                                - "Manual" a manual activity
+                                - "Application" executes an application
+                                - "Subprocess" represents a subprocess
+                                - "Route" defines a route activity
+    - loopType                 The type of loop, possible values are :
+                                - "No Loop"
+                                - "While"
+                                - "Repeat"
+    - loopCondition            Determines the logical condition for looping
+    - performer                 The participant who is assigned to the activity
+    - application               The model id of the application to execute
+    - implementationProcess    The model id of the subprocess implementing the activity
+    - subProcessMode           The execution mode of the subprocess:
+                               - "sync_shared" executes the process synchronously (the default mode)
+                               - "asynch_separate" just triggers a fully independent instance
+                                 of the implementing process
+    - allowsAbortByPerformer Determines if the activity is allowed to be aborted,
+                                possible values are :
+                                - "true"
+                                - "false"
+    - forceAssignmentToHuman Determines if the activity is forced assigned to
+                                human, possible values are :
+                                - "true"
+                                - "false"
+-->
+<!ATTLIST activity
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    oid CDATA #REQUIRED
+    split CDATA #IMPLIED
+    join CDATA #IMPLIED
+    implementation CDATA #IMPLIED
+    loopType CDATA #IMPLIED
+    loopCondition CDATA #IMPLIED
+    performer CDATA #IMPLIED
+    application CDATA #IMPLIED
+    implementationProcess CDATA #IMPLIED
+    subProcessMode CDATA #IMPLIED
+    allowsAbortByPerformer (true | false) #IMPLIED
+    hibernateOnCreation (true | false) #IMPLIED
+>
+
+<!ELEMENT eventHandler (description?, attribute*, bindAction*, eventAction*, unbindAction*)>
+<!ATTLIST eventHandler
+    id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    oid CDATA #REQUIRED
+    type CDATA #REQUIRED
+    autoBind CDATA #IMPLIED
+    consumeOnMatch CDATA #IMPLIED
+    logHandler CDATA #IMPLIED
+    unbindOnMatch CDATA #IMPLIED
+>
+
+<!ELEMENT bindAction (description?, attribute*)>
+<!ATTLIST bindAction
+    oid CDATA #REQUIRED
+    type CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT unbindAction (description?, attribute*)>
+<!ATTLIST unbindAction
+    oid CDATA #REQUIRED
+    type CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+>
+
+<!ELEMENT eventAction (description?, attribute*)>
+<!ATTLIST eventAction
+    oid CDATA #REQUIRED
+    type CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+>
+
+<!-- 
+    The expression element may contain arbitrary complex transition conditions
+ -->
+<!ELEMENT expression (#PCDATA)>
+
+<!--
+    The transition declaration defines a transition between two activities
+    consists of the following elements:
+    - 0..1 description
+    - 0..n attribute
+    - 0..1 expression, only valid if no condition attribute is existing
+-->
+<!ELEMENT transition (description?, attribute*, expression?)>
+
+<!-- 
+    The attributes of the transition declaration
+    + id                        The unique model element id of the transition
+    + name                      The name of the transition
+    + from                      The unique model id of the starting activity
+    + to                        The unique model id of the ending activity
+    - oid                       The unique object id of the transition
+    - condition                 The condition used to verify transition,
+                                default value is "TRUE"
+                                Now deprecated for conditions beside TRUE and FALSE, more
+                                complex conditions should be put into an expression
+                                element. 
+-->
+<!ATTLIST transition
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    from CDATA #REQUIRED
+    to CDATA #REQUIRED
+    condition CDATA #IMPLIED
+    forkOnTraversal (true | false) "false"
+>
+
+<!--
+    The DESCRIPTOR declaration defines a dataPath for a process definition
+    consists of no elements
+-->
+<!ELEMENT dataPath EMPTY>
+
+<!--
+    The attributes of the DESCRIPTOR declaration
+    + id                        The unique model element id of the dataPath
+    + name                      The name of the dataPath
+    + path                      The path of the dataPath
+-->
+
+<!ATTLIST dataPath
+    id CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    name CDATA #REQUIRED
+    data CDATA #REQUIRED
+    dataPath CDATA #IMPLIED
+    direction CDATA #REQUIRED
+    descriptor (true | false) #IMPLIED
+>
+
+<!--
+    The dataMapping declaration defines a mapping between data and activity
+    consists of the following elements:
+-->
+<!ELEMENT dataMapping EMPTY>
+
+<!-- 
+    The attributes of the dataMapping declaration
+    - oid                       The unique object id of the data mapping object
+    - id                        The id of the data mapping
+    + data                      The unique model id of the corresponding data
+    - dataPath                 The method of the data object to retrieve or put
+                                the data, can be left empty, if the whole object
+                                is used
+    + activity                  The unique model id of the corresponding activity
+    - applicationAccessPoint  The name of the access point for the application in
+                                scope of the activity
+    - applicationPath          The method of the application to retrieve or put the data
+                                to/from the application
+    - context                   if the activity is a interactive activity then the context specifies
+                                for which type of interactive activity, this data mapping is used
+                                possible value: "JFC" | "JSP"
+    + direction                 The direction of the mapping, possible values are:
+                                "IN" | "OUT"
+
+-->
+<!ATTLIST dataMapping
+    oid CDATA #REQUIRED
+    id CDATA #IMPLIED
+    name CDATA #IMPLIED
+    data CDATA #REQUIRED
+    dataPath CDATA #IMPLIED
+    applicationAccessPoint CDATA #IMPLIED
+    applicationPath CDATA #IMPLIED
+    context CDATA #IMPLIED
+    direction CDATA #REQUIRED
+>
+
+<!-- 
+    The trigger declaration defines a process trigger
+    consists of the following elements:
+    - 0..n attribute declarations
+    - 0..n accessPoint declarations
+    - 0..n parameterMapping declarations
+-->
+<!ELEMENT trigger (description?, attribute*, accessPoint*, parameterMapping*)>
+
+<!-- 
+   The attributes of the trigger declaration
+    - oid                       The unique object id of the trigger object
+    + type                      The trigger-type
+    + id                        The unique human-readable ID of the trigger
+    + name                      The name of the trigger
+-->
+<!ATTLIST trigger
+    id CDATA #REQUIRED
+    oid CDATA #REQUIRED
+    type CDATA #REQUIRED
+    name CDATA #REQUIRED
+>
+
+<!--
+    The parameterMapping declaration defines a parameter mapping for trigger parameters.
+    consists of no subelements
+-->
+<!ELEMENT parameterMapping EMPTY>
+
+<!--
+    The attributes of the parameterMapping declaration
+     - data               The ID of the data object
+     - parameter          The name of the parameter the data is mapped to
+     - parameterPath     The access path (data mapping) to the data
+-->
+<!ATTLIST parameterMapping
+    oid CDATA #REQUIRED
+    data CDATA #IMPLIED
+    parameter CDATA #IMPLIED
+    parameterPath CDATA #IMPLIED
+>
+
+
+<!-- 
+    The linkType declaration defines a link type. This the type of a generic link between two
+    model elements.
+    consists of no elements 
+-->
+<!ELEMENT linkType EMPTY>
+
+<!-- The attributes of the linkType declaration
+    + oid                      The unique object oid of the link type object
+    + id                       The unique oid of the link type object
+    + name                     The name of the link type
+    + source_classname         The classname of the source @fixme
+    + source_cardinality       The cardinality to the source
+    + target_classname         The classname of the target
+    + target_cardinality       The cardinality to the target
+    - source_rolename          The model id of the role of the source
+    - source_symbol            The model id of the source symbol
+    - target_rolename          The model id of the role of the target
+    - target_symbol            The model id of the target symbol
+    - lineColor                The color of the line as serialized color
+    - lineType                 The type of the line, possible values are :
+                                - "normal line"
+                                - "short strokes"
+                                - "long strokes"
+    - show_linktype_name       Determines if the name is to be shown
+    - show_role_names          Determines if the names of the roles are to be
+                               shown 
+-->
+<!ATTLIST linkType
+    oid CDATA #REQUIRED
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    source_classname CDATA #REQUIRED
+    source_cardinality CDATA #REQUIRED
+    source_rolename CDATA #IMPLIED
+    source_symbol CDATA #IMPLIED
+    target_classname CDATA #REQUIRED
+    target_cardinality CDATA #REQUIRED
+    target_rolename CDATA #IMPLIED
+    target_symbol CDATA #IMPLIED
+    lineColor CDATA #IMPLIED
+    lineType CDATA #IMPLIED
+    show_linktype_name CDATA #IMPLIED
+    show_role_names CDATA #IMPLIED
+>
+
+<!--
+    The diagram declaration defines a GUI representation of a process
+    consists of the following elements:
+    - 0..n activitySymbol declarations to define symbols for activities
+    - 0..n modelerSymbol declarations to define symbols for modelers
+    - 0..n roleSymbol declarations to define symbols for roles
+    - 0..n conditionalPerformerSymbol declarations to define symbols for cond. perf.
+    - 0..n organizationSymbol declarations to define symbols for organizations
+    - 0..n dataSymbol declarations to define symbols for data
+    - 0..n textSymbol declarations to define symbols for text
+    - 0..n groupSymbol declarations to define symbols for grouping
+    - 0..n processSymbol declarations to define symbols for processes
+    - 0..n applicationSymbol declarations to define symbols for applications
+    - 0..n annotationSymbol declarations to define symbols for annotations
+    - 0..n dataMappingConnection declarations to define symbols for data mappings
+    - 0..n executedByConnection declarations to define symbols for executed by connections
+    - 0..n partOfConnection declarations to define symbols for part of connections
+    - 0..n performsConnection declarations to define symbols for performs connection
+    - 0..n worksForConnection declarations to define symbols for works for connection
+    - 0..n transitionConnection declarations to define symbols for transition connection
+    - 0..n refersToConnection declarations to define symbols for refers to connection
+    - 0..n genericLinkConnection declarations to define symbols for generic links
+    - 0..n subProcessOfConnection declarations to define symbols for subprocess of connection
+-->
+<!ELEMENT diagram ((activitySymbol | modelerSymbol | roleSymbol |
+    conditionalPerformerSymbol | organizationSymbol |
+    dataSymbol | textSymbol | groupSymbol | processSymbol |
+    applicationSymbol | annotationSymbol | dataMappingConnection |
+    executedByConnection | partOfConnection | performsConnection |
+    worksForConnection | transitionConnection | teamLeadConnection | triggersConnection |
+    refersToConnection | genericLinkConnection | subProcessOfConnection)*)>
+
+<!-- 
+    The attributes of the diagram declaration
+    + name                The name of the diagram
+-->
+<!ATTLIST diagram
+    oid  CDATA #REQUIRED
+    name CDATA #REQUIRED
+    mode CDATA #IMPLIED
+>
+
+<!-- 
+    The activitySymbol declaration defines an activity symbol (GUI)
+    consists of no elements 
+-->
+<!ELEMENT activitySymbol EMPTY>
+
+<!-- 
+    The attributes of the activitySymbol declaration
+    + id                        The unique model element id of the activity symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding activity
+    - oid                       The object id of the activity symbol object 
+-->
+<!ATTLIST activitySymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+
+<!-- 
+    The annotationSymbol declaration defines an annotation symbol (GUI)
+    consists of the foll owing elements:
+    - 0..1 text declaration to define text elements
+-->
+<!ELEMENT annotationSymbol (text?)>
+
+<!-- 
+    The attributes of the annotationSymbol declaration
+    + id                        The unique model element id of the annotation symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram 
+-->
+<!ATTLIST annotationSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+>
+
+<!-- 
+    The text declaration defines a text element
+    consists of no elements 
+-->
+<!ELEMENT text (#PCDATA)>
+
+<!-- The modelerSymbol declaration defines a modeler symbol (GUI)
+    consists of no elements 
+-->
+<!ELEMENT modelerSymbol EMPTY>
+
+<!-- 
+    The attributes of the modelerSymbol declaration
+    + id                        The unique model element id of the modeler symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding modeler 
+-->
+<!ATTLIST modelerSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+
+<!-- 
+    The roleSymbol declaration
+    defines a role symbol (GUI)
+    consists of no elements 
+-->
+<!ELEMENT roleSymbol EMPTY>
+
+<!-- 
+    The attributes of the roleSymbol declaration
+    + id                        The unique model element id of the role symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding role 
+-->
+<!ATTLIST roleSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+
+<!-- 
+    The conditionalPerformerSymbol declaration
+    defines a conditional performer symbol (GUI)
+    consists of no elements
+-->
+<!ELEMENT conditionalPerformerSymbol EMPTY>
+
+<!-- 
+    The attributes of the conditionalPerformerSymbol declaration
+    + id                        The unique model element id of the conditional performer symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding cond. perf.
+-->
+<!ATTLIST conditionalPerformerSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+
+<!-- 
+    The organizationSymbol declaration
+    defines an organization symbol (GUI)
+    consists of no elements 
+-->
+<!ELEMENT organizationSymbol EMPTY>
+
+<!-- 
+    The attributes of the organizationSymbol declaration
+    + id                        The unique model element id of the organization symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding organization
+-->
+<!ATTLIST organizationSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+
+<!-- 
+    The dataSymbol declaration defines a data symbol (GUI)
+    consists of no elements 
+-->
+<!ELEMENT dataSymbol EMPTY>
+
+<!-- 
+    The attributes of the dataSymbol declaration
+    + id                        The unique model element id of the data symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding data 
+-->
+<!ATTLIST dataSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+
+<!-- 
+    The textSymbol declaration defines a text symbol (GUI)
+    consists of no elements 
+-->
+<!ELEMENT textSymbol EMPTY>
+
+<!-- 
+    The attributes of the textSymbol declaration
+    + id                        The unique model element id of the text symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + text                      The model id of the corresponding text 
+-->
+<!ATTLIST textSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    text CDATA #REQUIRED
+>
+
+<!-- 
+    The groupSymbol declaration defines a group symbol (GUI)
+    consists of the following elements:
+    - 0..n activitySymbol declarations to define activity symbols
+    - 0..n modelerSymbol declarations to define modeler symbols
+    - 0..n roleSymbol declarations to define role symbols
+    - 0..n conditionalPerformerSymbol declarations to define cond. perf. symbols
+    - 0..n organizationSymbol declarations to define organization symbols
+    - 0..n dataSymbol declarations to define data symbols
+    - 0..n textSymbol declarations to define text symbols
+    - 0..n groupSymbol declarations to define group symbols
+    - 0..n processSymbol declarations to define process symbols
+    - 0..n applicationSymbol declarations to define application symbols
+    - 0..n annotationSymbol declarations to define annotation symbols
+    - 0..n dataMappingConnection declarations to define data mapping connections
+    - 0..n executedByConnection declarations to define executed by connections
+    - 0..n partOfConnection declarations to define part of connections
+    - 0..n performsConnection declarations to define performs connections
+    - 0..n worksForConnection declarations to define works for connections
+    - 0..n transitionConnection declarations to define transition connections
+    - 0..n refersToConnection declarations to define refers to connections
+    - 0..n genericLinkConnection declarations to define generic link connections
+-->
+<!ELEMENT groupSymbol (
+    (activitySymbol |
+     modelerSymbol |
+     roleSymbol |
+     conditionalPerformerSymbol |
+     organizationSymbol |
+     dataSymbol |
+     textSymbol |
+     groupSymbol |
+     processSymbol |
+     applicationSymbol |
+     annotationSymbol |
+     dataMappingConnection |
+     executedByConnection |
+     partOfConnection |
+     performsConnection |
+     worksForConnection |
+     transitionConnection |
+     teamLeadConnection |
+	 triggersConnection |     
+     refersToConnection |
+     genericLinkConnection
+    )*)>
+<!ATTLIST groupSymbol
+    oid CDATA #REQUIRED
+>
+
+<!--
+    The processSymbol declaration defines a process symbol (GUI)
+    consists of no elements
+-->
+<!ELEMENT processSymbol EMPTY>
+
+<!-- The attributes of the processSymbol declaration
+    + id                        The unique model element id of the process symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding process 
+-->
+<!ATTLIST processSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+
+<!-- 
+    The applicationSymbol declaration defines an application symbol (GUI)
+    consists of no elements 
+-->
+<!ELEMENT applicationSymbol EMPTY>
+
+<!-- 
+    The attributes of the applicationSymbol declaration
+    + id                        The unique model element id of the application symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding application 
+-->
+<!ATTLIST applicationSymbol
+    oid CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+
+<!-- 
+    The transitionConnection declaration defines a transition connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT transitionConnection (coordinate* | points?)>
+
+<!--
+    The attributes of the transitionConnection declaration
+    + id                        The unique model element id of the transition connection
+    + points                    A comma separated list of routing coordinates
+    + sourceActivitySymbol    The model id of the first activity
+    + targetActivitySymbol    The model id of the second activity
+    + transition                The model id of the corresponding transition
+-->
+<!ATTLIST transitionConnection
+    oid CDATA #REQUIRED
+    points CDATA #IMPLIED
+    sourceActivitySymbol CDATA #REQUIRED
+    targetActivitySymbol CDATA #REQUIRED
+    transition CDATA #REQUIRED
+>
+
+<!ELEMENT coordinate EMPTY>
+
+<!ATTLIST coordinate
+    XPos CDATA #REQUIRED
+    YPos CDATA #REQUIRED
+>
+
+<!ELEMENT points (#PCDATA)>
+
+<!-- 
+    The genericLinkConnection declaration defines a generic link connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT genericLinkConnection EMPTY>
+
+<!-- 
+    The attributes of the genericLinkConnection declaration
+    + id                        The unique model element id of the generic link connection
+    + sourceSymbol             The model id of the first linked element
+    + targetSymbol             The model id of the second linked element
+    + linkType                 The model id of the corresponding link type
+-->
+<!ATTLIST genericLinkConnection
+    oid CDATA #REQUIRED
+    sourceSymbol CDATA #REQUIRED
+    targetSymbol CDATA #REQUIRED
+    linkType CDATA #REQUIRED
+>
+
+<!-- 
+    The dataMappingConnection declaration defines a data mapping connection (GUI)
+    consists of no elements
+-->
+<!ELEMENT dataMappingConnection EMPTY>
+
+<!-- 
+    The attributes of the dataMappingConnection declaration
+    + id                        The unique model element id of the data mapping connection
+    + dataSymbol               The model id of the corresponding data symbol
+    + activitySymbol           The model id of the corresponding activity symbol
+-->
+<!ATTLIST dataMappingConnection
+    oid CDATA #REQUIRED
+    dataSymbol CDATA #REQUIRED
+    activitySymbol CDATA #REQUIRED
+>
+
+<!-- 
+    The executedByConnection declaration defines an executed by connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT executedByConnection EMPTY>
+
+<!-- 
+    The attributes of the executedByConnection declaration
+    + id                        The unique model element id of the executed by connection
+    + applicationSymbol        The model id of the corresponding application symbol
+    + activitySymbol           The model id of the corresponding activity symbol
+-->
+<!ATTLIST executedByConnection
+    oid CDATA #REQUIRED
+    applicationSymbol CDATA #REQUIRED
+    activitySymbol CDATA #REQUIRED
+>
+
+<!-- 
+    The partOfConnection declaration defines a part of connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT partOfConnection EMPTY>
+
+<!-- 
+    The attributes of the partOfConnection declaration
+    + id                        The unique model element id of the part of connection
+    + suborganizationSymbol    The model id of the sub organization symbol
+    + organizationSymbol       The model id of the organization symbol -->
+<!ATTLIST partOfConnection
+    oid CDATA #REQUIRED
+    suborganizationSymbol CDATA #REQUIRED
+    organizationSymbol CDATA #REQUIRED
+>
+
+<!-- 
+    The subProcessOfConnection declaration defines a subprocess of connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT subProcessOfConnection EMPTY>
+
+<!-- 
+    The attributes of the subProcessOfConnection declaration
+    + id                        The unique model element id of the subprocess of connection
+    + subprocessSymbol         The model id of the subprocess symbol
+    + processSymbol            The model id of the process symbol
+-->
+<!ATTLIST subProcessOfConnection
+    oid CDATA #REQUIRED
+    subprocessSymbol CDATA #REQUIRED
+    processSymbol CDATA #REQUIRED
+>
+
+<!-- 
+    The refersToConnection declaration defines a refers to connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT refersToConnection EMPTY>
+
+<!-- 
+    The attributes of the refersToConnection declaration
+    + id                        The unique model element id of the refers to connection
+    + from                      The model id of the first element symbol
+    + to                        The model id of the second element symbol 
+-->
+<!ATTLIST refersToConnection
+    oid CDATA #REQUIRED
+    from CDATA #REQUIRED
+    to CDATA #REQUIRED
+>
+
+<!-- 
+    The worksForConnection declaration defines a works for connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT worksForConnection EMPTY>
+
+<!-- 
+    The attributes of the worksForConnection declaration
+    + id                        The unique model element id of the works for connection
+    + participantSymbol        The model id of the participant symbol
+    + organizationSymbol       The model id of the organization symbol
+-->
+<!ATTLIST worksForConnection
+    oid CDATA #REQUIRED
+    participantSymbol CDATA #REQUIRED
+    organizationSymbol CDATA #REQUIRED
+>
+
+<!-- 
+    The teamLeadConnection declaration defines a teamLead connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT teamLeadConnection EMPTY>
+
+<!-- 
+    The attributes of the teamLeadConnection declaration
+    + id                        The unique model element id of the teamLead connection
+    + teamSymbol        		The model id of the teamSymbol symbol
+    + teamLeadSymbol           	The model id of the teamLeadSymbol symbol
+-->
+<!ATTLIST teamLeadConnection
+    oid CDATA #REQUIRED
+    teamSymbol CDATA #REQUIRED
+    teamLeadSymbol CDATA #REQUIRED
+>
+
+<!-- 
+    The triggersConnection declaration defines a triggers connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT triggersConnection EMPTY>
+
+<!-- 
+    The attributes of the triggersConnection declaration
+    + id                        The unique model element id of the triggersConnection connection
+    + startEventSymbol        	The model id of the teamSymbol symbol
+    + participantSymbol         The model id of the teamLeadSymbol symbol
+-->
+<!ATTLIST triggersConnection
+    oid CDATA #REQUIRED
+    startEventSymbol CDATA #REQUIRED
+    participantSymbol CDATA #REQUIRED
+>
+
+<!-- 
+    The performsConnection declaration defines a performs connection (GUI)
+    consists of no elements 
+-->
+<!ELEMENT performsConnection EMPTY>
+
+<!-- 
+    The attributes of the performsConnection declaration
+    + id                        The unique model element id of the performs connection
+    + participantSymbol        The model id of the participant symbol
+    + activitySymbol           The model id of the activity symbol
+-->
+<!ATTLIST performsConnection
+    oid CDATA #REQUIRED
+    participantSymbol CDATA #REQUIRED
+    activitySymbol CDATA #REQUIRED
+>

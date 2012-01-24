@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0"
+   xmlns:m="http://ant.apache.org/ivy/maven"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+   <info organisation="com.infinity.bpm" module="infinity-common-artifacts" revision="${ipp.version.full}"/>
+
+   <configurations>
+      <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+      <!--  Private                                                        -->
+      <!--                                                                 -->
+      <!--         ######################  #####################           -->
+      <!--         #                    #  #                   #           -->
+      <!--         #  Interface Config  #  #  Provider Config  #           -->
+      <!--         #                    #  #                   #           -->
+      <!--         ######################  #####################           -->
+      <!--                * |                          | *                 -->
+      <!--                  |                          |                   -->
+      <!--                  |                          |                   -->
+      <!--                  |      ################    |                   -->
+      <!--                  |      #              #    |                   -->
+      <!--                  +- - - #  Dependency  #- - +                   -->
+      <!--                    1..* #              # 1..*                   -->
+      <!--                         ################                        -->
+      <!--                                                                 -->
+      <!-- *************************************************************** -->
+
+      <!-- *********************** -->
+      <!--    Interface Configs    -->
+      <!-- *********************** -->
+      <conf name="web-client-interface-provided" visibility="private" />
+
+      <conf name="jta-interface-compile" visibility="private" />
+
+      <conf name="jcr-interface-compile" visibility="private" />
+
+      <conf name="jms-interface-runtime" visibility="private" />
+
+      <conf name="2nd-level-cache-interface-compile" visibility="private" />
+
+      <conf name="ejb21-interface-provided" visibility="private" />
+
+      <conf name="ejb30-interface-compile" visibility="private" />
+
+      <!-- ********************** -->
+      <!--    Provider Configs    -->
+      <!-- ********************** -->
+      <conf name="base-provider-compile" visibility="private" />
+      <conf name="base-provider-runtime" visibility="private" />
+
+      <conf name="logging-log4j-provider-compile" visibility="private" />
+
+      <conf name="logging-slf4j-log4j-provider-compile" visibility="private" />
+
+      <conf name="web-client-provider-runtime" visibility="private" />
+
+      <conf name="swing-client-provider-compile" visibility="private" />
+
+      <conf name="jencks-provider-runtime" visibility="private" />
+
+      <conf name="jcr-vfs-provider-compile" visibility="private" />
+
+      <conf name="activemq-provider-runtime" visibility="private" />
+
+      <conf name="hazelcast-provider-compile" visibility="private" />
+
+      <conf name="visual-rules-provider-compile" visibility="private" />
+
+      <conf name="snowdrop-provider-runtime" visibility="private" />
+
+      <conf name="ant-provider-runtime" visibility="private" />
+
+      <conf name="qdox-provider-compile" visibility="private" />
+      
+      <conf name="js-provider-runtime" visibility="private" />
+      
+      <conf name="xerces-provider-runtime" visibility="private" />
+      
+      <conf name="jackrabbit-provider-runtime" visibility="private" />
+      
+      <conf name="jackrabbit-webapp-provider-runtime" visibility="private" />
+            
+   </configurations>
+   
+   <publications/>
+
+   <dependencies>
+   
+      <!-- **************************** -->
+      <!--    Interface Dependencies    -->
+      <!-- **************************** -->
+      
+      <!-- web-client-interface-provided -->
+      <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="web-client-interface-provided->default" />
+      <dependency org="javax.servlet" name="jsp-api" rev="2.0" conf="web-client-interface-provided->default"/>
+
+      <!-- jta-interface-compile -->
+      <dependency org="org.apache.geronimo.specs" name="geronimo-jta_1.1_spec" rev="1.1.1" conf="jta-interface-compile->default" />
+
+      <!-- jcr-interface-compile -->
+      <dependency org="javax.jcr" name="jcr" rev="2.0" conf="jcr-interface-compile->default" />
+
+      <!-- jms-interface-runtime -->
+      <dependency org="org.apache.geronimo.specs" name="geronimo-jms_1.1_spec" rev="1.1.1" conf="jms-interface-runtime->default" />
+
+      <!-- ejb21-interface-provided -->
+      <dependency org="javax.ejb" name="ejb" rev="2.1" conf="ejb21-interface-provided->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" conf="ejb21-interface-provided->default" />
+
+      <!-- ejb30-interface-compile -->
+      <dependency org="javax.persistence" name="persistence-api" rev="1.0" conf="ejb30-interface-compile->default" />
+
+      <!-- *************************** -->
+      <!--    Provider Dependencies    -->
+      <!-- *************************** -->
+      
+      <!-- base-provider-compile -->
+      <dependency org="javax.xml.bind" name="jaxb-api" rev="2.1" conf="base-provider-compile->default" />
+      <dependency org="javax.xml.stream" name="stax-api" rev="1.0-2" conf="base-provider-compile->default" />
+      <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="base-provider-compile->default" />
+      <dependency org="rhino" name="js" rev="1.7R2" conf="base-provider-compile,js-provider-runtime->default" />
+      <dependency org="commons-jxpath" name="commons-jxpath" rev="1.3" conf="base-provider-compile->default">
+         <exclude org="xml-apis" module="xml-apis" />
+         <exclude org="xerces" module="xercesImpl" />
+         <exclude org="jdom" module="jdom" />
+         <exclude org="javax.servlet" module="servlet-api" />
+         <exclude org="javax.servlet" module="jsp-api" />
+         <exclude org="commons-beanutils" module="commons-beanutils" />
+         <exclude org="junit" module="junit" />
+         <exclude org="com.mockrunner" module="mockrunner-jdk1.3-j2ee1.3" />
+      </dependency>
+
+      <!-- base-provider-runtime -->
+      <dependency org="javax.activation" name="activation" rev="1.1" conf="base-provider-runtime->default"/>
+      <dependency org="javax.mail" name="mail" rev="1.4" conf="base-provider-runtime->default"/>
+      <dependency org="org.codehaus.woodstox" name="wstx-asl" rev="3.2.1" conf="base-provider-runtime->default">
+         <exclude org="stax" module="stax-api"/>
+      </dependency>
+      <dependency org="org.bouncycastle" name="bcprov-jdk15" rev="1.28" conf="base-provider-runtime->default" />
+
+      <!-- logging-log4j-provider-compile -->
+      <dependency org="log4j" name="log4j" rev="1.2.15" conf="logging-log4j-provider-compile->default">
+         <exclude org="com.sun.jmx" module="jmxri"/>
+         <exclude org="com.sun.jdmk" module="jmxtools"/>
+         <exclude org="javax.jms" module="jms"/>
+      </dependency>
+
+      <!-- logging-slf4j-log4j-provider-compile -->
+      <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.11" conf="logging-slf4j-log4j-provider-compile->default">
+         <exclude org="log4j" module="log4j"/>
+      </dependency>
+
+      <!-- web-client-provider-runtime -->
+      <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="web-client-provider-runtime->default"/>
+
+      <!-- swing-client-provider-compile -->
+      <dependency org="jgoodies" name="forms" rev="1.0.2" conf="swing-client-provider-compile->default" />
+
+      <!-- jencks-provider-runtime -->
+      <dependency org="org.tranql" name="tranql-connector" rev="1.4" conf="jencks-provider-runtime->default" />
+      <dependency org="org.apache.geronimo.components" name="geronimo-connector" rev="2.1.1" conf="jencks-provider-runtime->default"/>
+      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" conf="jencks-provider-runtime->default"/>
+      <dependency org="org.jencks" name="jencks" rev="2.1" conf="jencks-provider-runtime->default">
+         <artifact name="jencks" type="jar" m:classifier="all"/>
+         <exclude org="aopalliance" module="aopalliance"/>
+         <exclude org="commons-dbcp" module="commons-dbcp"/>
+         <exclude org="commons-pool" module="commons-pool"/>
+         <exclude org="jencks" module="xapool-without-pool"/>
+         <exclude org="org.apache.geronimo.specs" module="geronimo-jta_1.0.1B_spec"/>
+         <exclude org="org.apache.geronimo.specs" module="geronimo-jms_1.1_spec"/>
+         <exclude org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec"/>
+         <exclude org="org.apache.geronimo.components" module="geronimo-transaction"/>
+         <exclude org="org.springframework" module="spring-jms"/>
+         <exclude org="org.springframework" module="spring-aop"/>
+         <exclude org="org.springframework" module="spring-beans"/>
+         <exclude org="org.springframework" module="spring-context"/>
+         <exclude org="org.springframework" module="spring-context-support"/>
+         <exclude org="org.springframework" module="spring-core"/>
+         <exclude org="org.springframework" module="spring-dao"/>
+         <exclude org="org.springframework" module="spring-support"/>
+         <exclude org="org.springframework" module="spring-web"/>
+      </dependency>
+      <dependency org="org.apache.geronimo.components" name="geronimo-transaction" rev="2.1.1" conf="jencks-provider-runtime->default"/>
+
+      <!-- jcr-vfs-provider-compile -->
+      <dependency org="com.sungard.infinity.bpm" name="jcr-vfs" rev="2.0.6-SNAPSHOT" conf="jcr-vfs-provider-compile->default">
+          <exclude org="org.apache.jackrabbit" module="jackrabbit-api"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-core"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-jca"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-jcr-commons"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-spi-commons"/>
+         <exclude org="commons-httpclient" module="commons-httpclient"/>
+      </dependency>
+      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="jcr-vfs-provider-compile->default"/>
+
+      <!-- activemq-provider-runtime -->
+      <dependency org="org.apache.activemq" name="activemq-core" rev="5.2.0" conf="activemq-provider-runtime->default">
+         <exclude org="org.apache.camel" module="camel-core" />
+         <exclude org="org.apache.activemq" module="activeio-core" />
+         <exclude org="commons-logging" module="commons-logging-api" />
+         <exclude org="org.apache.geronimo.specs" module="geronimo-jms_1.1_spec" />
+         <exclude org="org.apache.geronimo.specs" module="geronimo-j2ee-management_1.0_spec"/>
+      </dependency>
+      <dependency org="org.apache.activemq" name="activemq-ra" rev="5.2.0" conf="activemq-provider-runtime->default">
+         <exclude org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec"/>
+      </dependency>
+      <dependency org="org.apache.xbean" name="xbean-spring" rev="3.4" conf="activemq-provider-runtime->default">
+         <exclude org="commons-logging" module="commons-logging-api" />
+      </dependency>
+
+      <!-- hazelcast-provider-compile -->
+      <dependency org="com.hazelcast" name="hazelcast" rev="1.9" conf="hazelcast-provider-compile->default" />
+
+      <!-- visual-rules-provider-compile -->
+      <dependency org="de.visualrules" name="visualrules-runtime" rev="5.0.1" conf="visual-rules-provider-compile->default" />
+
+      <!-- snowdrop-provider-runtime -->
+      <dependency org="org.jboss.snowdrop" name="snowdrop-vfs" rev="1.0.0.GA" conf="snowdrop-provider-runtime->default">
+         <exclude org="org.springframework" module="spring-web"/>
+         <exclude org="org.springframework" module="spring-beans"/>
+         <exclude org="org.springframework" module="spring-context"/>
+         <exclude org="org.springframework" module="spring-core"/>
+         <exclude org="aopalliance" module="aopalliance"/>
+      </dependency>
+
+      <!-- ant-provider-runtime -->
+      <dependency org="ant" name="ant" rev="1.6.1" conf="ant-provider-runtime->default" />
+      <dependency org="ant" name="ant-commons-net" rev="1.6.1" conf="ant-provider-runtime->default" />
+      <dependency org="ant" name="ant-launcher" rev="1.6.1" conf="ant-provider-runtime->default" />
+
+      <!-- qdox-provider-compile -->
+      <dependency org="com.thoughtworks.qdox" name="qdox" rev="1.10" conf="qdox-provider-compile->default" />
+      
+      <!-- xerces-provider-runtime -->
+      <dependency org="xerces" name="xercesImpl" rev="2.8.1" conf="xerces-provider-runtime->default">
+         <exclude org="xml-apis" module="xml-apis" />
+      </dependency>
+      
+      <!-- jackrabbit-provider-runtime -->
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5" conf="jackrabbit-provider-runtime->default">
+         <exclude org="org.apache.derby" module="derby"/>
+         <exclude org="log4j" module="log4j"/>
+         <!-- the following entries prevents version conflicts -->
+         <exclude org="commons-httpclient" module="commons-httpclient"/>
+         <exclude org="commons-codec" module="commons-codec"/>
+         <exclude org="org.bouncycastle" module="bcprov-jdk15"/>
+         <exclude org="commons-pool" module="commons-pool"/>
+      </dependency>
+      <dependency org="commons-httpclient" name="commons-httpclient" rev="3.0" conf="jackrabbit-provider-runtime->default">
+         <exclude org="commons-codec" module="commons-codec"/>
+      </dependency>
+      <dependency org="commons-codec" name="commons-codec" rev="1.3" conf="jackrabbit-provider-runtime->default"/>
+      <dependency org="commons-pool" name="commons-pool" rev="1.5.2" conf="jackrabbit-provider-runtime->default"/>
+      <dependency org="org.bouncycastle" name="bcprov-jdk15" rev="1.28" conf="jackrabbit-provider-runtime->default"/>
+
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-jca" rev="2.2.5" conf="jackrabbit-provider-runtime->default">
+         <artifact name="jackrabbit-jca" type="jar"/>
+         <exclude org="org.apache.derby" module="derby"/>
+         <exclude org="log4j" module="log4j"/>
+         <exclude org="com.sun.jmx" module="jmxri"/>
+         <exclude org="com.sun.jdmk" module="jmxtools"/>
+         <exclude org="javax.jms" module="jms"/>
+         <exclude org="ch.qos.logback" module="logback-classic"/>
+      </dependency>
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-webapp" rev="2.2.5" conf="jackrabbit-provider-runtime->default">
+         <artifact name="jackrabbit-webapp" type="jar"/>
+         <exclude org="org.apache.derby" module="derby"/>
+         <exclude org="log4j" module="log4j"/>
+         <exclude org="org.slf4j" module="log4j-over-slf4j"/>
+         <exclude org="ch.qos.logback" module="logback-classic"/>
+      </dependency>
+      
+      <!-- jackrabbit-webapp-provider-runtime -->
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-webapp" rev="2.2.5" conf="jackrabbit-webapp-provider-runtime->default">
+         <artifact name="jackrabbit-webapp" type="jar"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-core"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-jcr-commons"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-jcr-rmi"/>
+         <exclude org="org.apache.derby" module="derby"/>
+         <exclude org="log4j" module="log4j"/>
+         <exclude org="org.slf4j" module="log4j-over-slf4j"/>
+         <exclude org="ch.qos.logback" module="logback-classic"/>
+         <exclude org="junit" module="junit"/>
+      </dependency>
+
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
+      <override org="log4j" module="log4j" rev="1.2.15" />
+
+      <override org="org.slf4j" module="slf4j-api" rev="1.5.11" />
+
+      <override org="commons-collections" module="commons-collections" rev="3.2" />
+      <override org="commons-logging" module="commons-logging" rev="1.1.1" />
+      <override org="commons-pool" module="commons-pool" rev="1.5.2" />
+
+      <override org="org.apache.derby" module="derby" rev="10.4.2.0" />
+
+      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="1.0.1" />
+      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
+      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
+      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.1.1" />
+      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.1.1" />
+
+      <override org="org.objenesis" module="objenesis" rev="1.2" />
+
+      <!-- *************** -->
+      <!--    Conflicts    -->
+      <!-- *************** -->
+      <conflict org="org.apache.geronimo.components" module="geronimo-transaction" manager="strict" />
+      <conflict org="org.apache.geronimo.components" module="geronimo-connector" manager="strict" />
+      <conflict org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" manager="strict" />
+   </dependencies>
+</ivy-module>
+

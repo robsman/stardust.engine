@@ -1,0 +1,406 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<schema xmlns = "http://www.w3.org/2001/XMLSchema"
+	 targetNamespace = "http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd"
+	 xmlns:ecc = "http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd"
+	 xmlns:xsd = "http://www.w3.org/2001/XMLSchema"
+	 elementFormDefault = "qualified">
+	<attributeGroup name = "SchemaDescription">
+		<attribute name = "SchemaVersion" use = "required" type = "string"/>
+		<attribute name = "SchemaRelease" use = "required" type = "string"/>
+	</attributeGroup>
+	<!--                    EFET CORE COMPONENTS          V3  R2      -->
+    <simpleType name="s5">
+        <restriction base="string">
+            <maxLength value="5" />
+            <minLength value="1" />
+            <whiteSpace value="preserve" />
+        </restriction>
+    </simpleType>
+	<simpleType name="s16">
+		<restriction base="string">
+			<maxLength value="16" />
+			<minLength value="1" />
+			<whiteSpace value="preserve" />
+		</restriction>
+	</simpleType>
+	<simpleType name="s35">
+		<restriction base="string">
+			<maxLength value="35" />
+			<minLength value="1" />
+			<whiteSpace value="preserve" />
+		</restriction>
+	</simpleType>
+	<simpleType name = "s255">
+		<restriction base = "string">
+			<maxLength value = "255"/>
+			<minLength value = "1" />
+			<whiteSpace value = "preserve"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "s512">
+		<restriction base = "string">
+			<maxLength value = "512"/>
+			<minLength value = "1"/>
+			<whiteSpace value = "preserve"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "UsageType">
+		<annotation>
+			<documentation>Options are "Test" or "Live"</documentation>
+		</annotation>
+		<restriction base = "NMTOKEN">
+			<enumeration value = "Test"/>
+			<enumeration value = "Live"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "AgentType">
+		<annotation>
+			<documentation>Options are "Broker" or "ECVNA"</documentation>
+		</annotation>
+		<restriction base = "NMTOKEN">
+			<enumeration value = "Broker"/>
+			<enumeration value = "ECVNA"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "AgentFeeType">
+		<annotation>
+			<documentation>Options are "Relative" or "Absolute"</documentation>
+			<!-- this type is currently not used; it is intended for the
+				broker confirmation processed, that is planned for 2005
+			-->
+		</annotation>
+		<restriction base = "NMTOKEN">
+			<enumeration value = "Relative"/>
+			<enumeration value = "Absolute"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="VersionType">
+		<annotation>
+			<documentation>
+				Uid: ET0002 Definition: A code that distinguishes one
+				evolution of an identified object from another.
+				Information about a specific object may be sent several
+				times, each transmission being identified by a different
+				version number.
+			</documentation>
+		</annotation>
+		<restriction base="integer">
+			<maxInclusive value="999" />
+			<minInclusive value="1" />
+		</restriction>
+	</simpleType>
+	<simpleType name="TransactionType">
+		<annotation>
+			<documentation>
+				The coded type of the business nature of a transaction..
+			</documentation>
+		</annotation>
+		<restriction base="NMTOKEN">
+			<enumeration value="DAH" />
+			<enumeration value="IND" />
+			<enumeration value="FOR" />
+			<enumeration value="OPT" />
+		</restriction>
+	</simpleType>
+	<simpleType name="TrueFalseType">
+		<annotation> 
+			<documentation>
+				The coded type of the business nature of a transaction..
+			</documentation>
+		</annotation>
+		<restriction base="NMTOKEN">
+			<enumeration value="true" />
+			<enumeration value="false" />
+		</restriction>
+	</simpleType>
+	
+	<simpleType name="AgreementType">
+		<annotation>
+			<documentation>
+				The coded type of the business nature of a transaction..
+			</documentation>
+		</annotation>
+		<restriction base="NMTOKEN">
+			<enumeration value="GTMA" />
+			<enumeration value="NBP97" />
+			<enumeration value="EFET" />
+			<enumeration value="Zebrugge" />
+			<enumeration value="Other" />
+            <enumeration value="ISDA" />
+            <enumeration value="IETA" />
+		</restriction>
+	</simpleType>
+	<simpleType name="OptionType">
+		<restriction base="NMTOKEN">
+			<enumeration value="Call" />
+			<enumeration value="Put" />
+		</restriction>
+	</simpleType>
+	<simpleType name="DocumentType">
+		<restriction base="NMTOKEN">
+			<enumeration value="ACK"/>
+			<enumeration value="REJ"/>
+			<enumeration value="CNF"/>
+			<enumeration value="MSU"/>
+			<enumeration value="MSA"/>
+			<enumeration value="MSR"/>
+			<enumeration value="CAN"/>
+			<enumeration value="BMN"/>
+			<enumeration value="BFI"/>
+			<enumeration value="BCN"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "OptionStyleType">
+		<restriction base = "NMTOKEN">
+			<enumeration value = "American"/>
+			<enumeration value = "European"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "EnergyAccountType">
+		<restriction base = "NMTOKEN">
+			<enumeration value = "Production"/>
+			<enumeration value = "Consumption"/>
+		</restriction>
+	</simpleType>
+    <simpleType name = "EUAAccountCodeType">
+      <xsd:restriction base="xsd:string">
+        <xsd:pattern value="[A-Z]{2}-[0-9]{3}-[0-9]{3}([0-9]|-0)?"/>
+      </xsd:restriction>
+    </simpleType>
+	<simpleType name = "ContractType">
+		<annotation>
+			<documentation>
+				Uid: ET0010
+				Definition: (synonyme EFET Load-Type) The contract type defines the conditions under which the capacity is allocated and handled. EG: daily auction, weekly auction, monthly auction, yearly auction, etc. The significance of this type is dependent on area specific coded working methods
+			</documentation>
+		</annotation>
+		<restriction base = "NMTOKEN">
+			<enumeration value = "Base"/>
+			<enumeration value = "Peak"/>
+			<enumeration value = "OffPeak"/>
+			<enumeration value = "Custom"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "CountryCodeType">
+	    <annotation>
+	    	<documentation>
+	    		ISO 3166-1 2 alpha codes.
+	    	</documentation>
+	    </annotation>
+		<restriction base = "NMTOKEN">
+            <maxLength value = "2"/>
+            <minLength value = "2"/>
+        </restriction>
+	</simpleType>
+	<simpleType name="CurrencyCodeType">
+		<annotation>
+			<documentation>
+				Uid: EF0003 Definition: The specification of a monetary
+				unit respecting ISO 4217 3 alpha codes
+			</documentation>
+		</annotation>
+		<restriction base="NMTOKEN">
+            <maxLength value = "3"/>
+            <minLength value = "3"/>
+        </restriction>
+	</simpleType>
+	<simpleType name = "EnergyProductType">
+		<restriction base = "NMTOKEN">
+			<!-- Values for the TradeConfirmation -->
+            <enumeration value = "Power"/>
+			<enumeration value = "Gas"/>
+			<enumeration value = "Oil"/>
+			<enumeration value = "ReactivePower"/>
+            <!-- Values for the EUA TradeConfirmation -->
+            <enumeration value = "EUAPhase_1"/>
+            <enumeration value = "EUAPhase_2"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "ReasonCodeType">
+		<restriction base = "NMTOKEN">
+			<enumeration value = "XML:ValidationFailure"/>
+			<enumeration value = "ebxml:ValueNotRecognized"/>
+			<enumeration value = "ebxml:NotSupported"/>
+			<enumeration value = "ebxml:Inconsistent"/>
+			<enumeration value = "ebxml:OtherXML"/>
+			<enumeration value = "ebxml:DeliveryFailure"/>
+			<enumeration value = "ebxml:TimeToLiveExpired"/>
+			<enumeration value = "ebxml:SecurityFailure"/>
+			<enumeration value = "ebxml:MimeProblem"/>
+			<enumeration value = "ebxml:Unknown"/>
+			<enumeration value = "efet:InvalidData"/>
+			<enumeration value = "efet:TimeOut"/>
+			<enumeration value = "efet:InvalidMatchAttempt"/>
+			<enumeration value = "efet:AmendmentError"/>
+			<enumeration value = "efet:IDNotFound"/>
+			<enumeration value = "efet:UniquenessViolation"/>
+			<enumeration value = "efet:NoMatch"/>
+			<enumeration value = "efet:ReferencedDocNotExists"/>
+			<enumeration value = "efet:RefDocInvalidState"/>			
+			<enumeration value = "efet:MinorVersionInInvalidState"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "RoleType">
+		<restriction base = "NMTOKEN">
+			<enumeration value = "Trader"/>
+			<enumeration value = "Broker"/>
+			<enumeration value = "ClearingHouse"/>
+			<enumeration value = "ECVNA"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="NotificationFieldType">
+		<restriction base="NMTOKEN">
+			<enumeration value = "preliminary"/>
+			<enumeration value = "final"/>
+			<enumeration value = "reverse"/>
+		</restriction>		
+	</simpleType>
+	<simpleType name="ProcessFieldType">
+		<restriction base="NMTOKEN">
+			<enumeration value = "withCp"/>
+			<enumeration value = "withoutCp"/>
+		</restriction>		
+	</simpleType>
+	<simpleType name="MatchFieldType">
+		<restriction base="NMTOKEN">
+			<enumeration value = "tradeData"/>
+			<enumeration value = "fee"/>
+		</restriction>		
+	</simpleType>
+	<simpleType name = "UnitOfMeasureType">
+		<restriction base = "NMTOKEN">
+			<enumeration value = "Therm"/>
+			<enumeration value = "KWh"/>
+			<enumeration value = "MWh"/>
+			<enumeration value = "GWh"/>
+			<enumeration value = "MJ"/>
+			<enumeration value = "100MJ"/>
+			<enumeration value = "MMJ"/>
+			<enumeration value = "GJ"/>
+			<enumeration value = "ThermPerDay"/>
+			<enumeration value = "KWhPerDay"/>
+			<enumeration value = "GWhPerDay"/>
+			<enumeration value = "MJPerDay"/>
+			<enumeration value = "100MJPerDay"/>
+			<enumeration value = "MMJPerDay"/>
+			<enumeration value = "GJPerDay"/>
+			<enumeration value = "MW"/>
+			<enumeration value = "KW"/>
+			<enumeration value = "GW"/>
+            <enumeration value = "EUA"/>
+		</restriction>
+	</simpleType>
+	<simpleType name = "ClockDateTimeType">
+		<annotation>
+			<documentation>
+				Definition: Date and time value that explicitly does not use a time zone indication (and also not the UTC indicator). The format is: YYYY-MM-DDTHH:MM:SS
+			</documentation>
+		</annotation>
+		<restriction base = "dateTime">
+			<pattern value = "20..-..-..T..:..:.."/>
+		</restriction>
+	</simpleType>
+	<complexType name = "IdentificationType">
+		<simpleContent>
+			<extension base = "ecc:s255"/>
+		</simpleContent>
+	</complexType>
+	<complexType name = "AreaType">
+		<simpleContent>
+			<extension base = "ecc:s16"/>
+		</simpleContent>
+	</complexType>
+	<complexType name = "PartyType">
+		<simpleContent>
+			<extension base = "ecc:s16"/>
+		</simpleContent>
+	</complexType>
+	<complexType name = "QuantityType">
+		<simpleContent>
+			<extension base = "decimal"/>
+		</simpleContent>
+	</complexType>
+    <simpleType name = "EUAQuantityType">
+       <restriction base='integer'>
+           <maxExclusive value='100000000'/>
+           <minExclusive value='0'/>
+       </restriction>
+    </simpleType>
+	<complexType name = "PriceType">
+		<simpleContent>
+			<extension base = "decimal"/>
+		</simpleContent>
+	</complexType>
+	<complexType name = "IndexIDType" >
+		<simpleContent>
+			<extension base = "string" />
+		</simpleContent>
+	</complexType>
+	<simpleType name = "Ratio" >
+		<restriction base = "integer">
+			<maxInclusive value = "100"/>
+			<minInclusive value = "1"/>
+		</restriction>
+	</simpleType>
+	<complexType name = "BrokerIDType" >
+		<simpleContent>
+			<extension base = "ecc:s5" />
+		</simpleContent>
+	</complexType>
+	<complexType name="BSCPartyIDType">
+		<simpleContent>
+			<extension base="ecc:s255" />
+		</simpleContent>
+	</complexType>
+    <simpleType name = "DateType">
+        <restriction base = "date">
+            <pattern value = "....-..-.."/>
+        </restriction>
+    </simpleType>
+    <!-- 
+	<complexType name="DateType">
+		<simpleContent>
+			<extension base="date" />
+		</simpleContent>
+	</complexType>
+    -->
+    <simpleType name = "TimeType">
+        <restriction base = "time">
+            <pattern value = "..:..:..Z?"/>
+        </restriction>
+    </simpleType>
+<!-- 
+	<complexType name = "TimeType">
+		<annotation>
+			<documentation>
+				Uid: ET0006
+				Definition: Time in a given day expressed HH:MM:SS(Z)
+			</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base = "time"/>
+		</simpleContent>
+	</complexType>-->
+	<complexType name = "NameType">
+		<annotation>
+			<documentation>
+				Uid: ET0016
+				Definition: A word or combination of words constituting the individual designation by which a person, animal, place, or thing is known.
+			</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base = "ecc:s35"/>
+		</simpleContent>
+	</complexType>
+	<complexType name = "ReasonTextType">
+		<annotation>
+			<documentation>
+				Uid: ET0016
+				Definition: The textual explanation of an act.
+			</documentation>
+		</annotation>
+		<simpleContent>
+			<extension base = "ecc:s512"/>
+		</simpleContent>
+	</complexType>
+</schema>

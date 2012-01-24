@@ -1,0 +1,2685 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!DOCTYPE MODEL SYSTEM "WorkflowModel.dtd">
+<MODEL author="Administrator" carnot_xml_version="1.0.0"
+   created="Thu Jan 24 22:24:00 GMT+01:00 2002" id="Package_Test_Model"
+   name="Package Test Model" oid="8589934592" status="open"
+   valid_from_time_stamp="987606812446" vendor="CARNOT AG: CARNOT: 1.0" wpdl-version="7.0">
+   <DESCRIPTION><![CDATA[
+      ]]></DESCRIPTION>
+   <DATA class="ag.carnot.workflow.User" id="LAST_ACTIVITY_PERFORMER"
+      is_predefined="false" jndi_path="ag.carnot.workflow.User"
+      length="0" local="true" name="LAST_ACTIVITY_PERFORMER"
+      oid="8589944599" type="Entity Bean">
+      <DESCRIPTION><![CDATA[User performing the last activity of the current process.]]></DESCRIPTION>
+   </DATA>
+   <DATA class="ag.carnot.workflow.User" id="STARTING_USER"
+      is_predefined="false" jndi_path="ag.carnot.workflow.User"
+      length="0" local="true" name="STARTING_USER" oid="8589944600" type="Entity Bean">
+      <DESCRIPTION><![CDATA[User starting the current process.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="PROCESS_ID" is_predefined="false" length="0" local="false"
+      name="PROCESS_ID" oid="8589944601" type="long">
+      <DESCRIPTION><![CDATA[ID assigned to the current process.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="ROOT_PROCESS_ID" is_predefined="false" length="0"
+      local="false" name="ROOT_PROCESS_ID" oid="8589944602" type="long">
+      <DESCRIPTION><![CDATA[ID assigned to the root process of the current process.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="CURRENT_DATE" is_predefined="false" length="0"
+      local="false" name="CURRENT_DATE" oid="8589944603" type="Date">
+      <DESCRIPTION><![CDATA[Current Date.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="CURRENT_LOCALE" is_predefined="false" length="0"
+      local="false" name="CURRENT_LOCALE" oid="8589944604" type="String">
+      <DESCRIPTION><![CDATA[String representing the current locale.]]></DESCRIPTION>
+   </DATA>
+   <DATA class="ag.carnot.document.Document" id="TRIGGER_XML_CONTENT"
+      is_predefined="false" jndi_path="ag.carnot.document.Document"
+      length="0" local="true" name="TRIGGER_XML_CONTENT"
+      oid="8589944605" type="Entity Bean">
+      <DESCRIPTION><![CDATA[XML Context data retrieved from a Wf-XML request.]]></DESCRIPTION>
+   </DATA>
+   <DATA class="ag.carnot.mail.Mail" id="TRIGGER_EMAIL"
+      is_predefined="false" jndi_path="ag.carnot.mail.Mail" length="0"
+      local="true" name="TRIGGER_EMAIL" oid="8589944606" type="Entity Bean">
+      <DESCRIPTION><![CDATA[EMail object representing all data of the email which triggered the top-level process.]]></DESCRIPTION>
+   </DATA>
+   <DATA id="Data1" is_predefined="false" length="0" local="false"
+      name="Data1" oid="8589944620" type="int"/>
+   <DATA id="Data10" is_predefined="false" length="0" local="false"
+      name="Data10" oid="8589944720" type="int"/>
+   <DATA id="Data11" is_predefined="false" length="0" local="false"
+      name="Data11" oid="8589944725" type="int"/>
+   <DATA id="Data12" is_predefined="false" length="0" local="false"
+      name="Data12" oid="8589944730" type="int"/>
+   <DATA class="ag.carnot.workflow.gui.test.TestSerializable" id="Data13"
+      is_predefined="false" length="0" local="false" name="Data13"
+      oid="8589944760" type="Serializable"/>
+   <DATA id="INTEGER" is_predefined="false" length="0" local="false"
+      name="INTEGER" oid="8589944661" type="int"/>
+   <DATA id="ROLE_ID" is_predefined="false" length="0" local="false"
+      name="Role ID" oid="8589944965" type="String"/>
+   <DATA id="USER_ID" is_predefined="false" length="0" local="false"
+      name="User ID" oid="8589944967" type="String"/>
+   <DATA id="ORGANISATION_ID" is_predefined="false" length="0"
+      local="false" name="Organisation ID" oid="8589944994" type="String"/>
+   <DATA id="Data18" is_predefined="false" length="0" local="false"
+      name="STRING" oid="8589945045" type="String"/>
+   <DATA class="java.io.Serializable" id="ERROR_CODE"
+      is_predefined="false" length="0" local="false" name="ERROR_CODE"
+      oid="8589945067" type="Serializable"/>
+   <DATA id="FLAG" is_predefined="false" length="0" local="false"
+      name="FLAG" oid="8589945141" type="int"/>
+   <DATA id="STATE" is_predefined="false" length="0" local="false"
+      name="State" oid="8589945190" type="int"/>
+   <DATA id="STRING_DATA1" is_predefined="false" length="0"
+      local="false" name="STRING_DATA1" oid="8589945284" type="String"/>
+   <DATA id="STRING_DATA2" is_predefined="false" length="0"
+      local="false" name="STRING_DATA2" oid="8589945286" type="String"/>
+   <APPLICATION class="ag.carnot.workflow.gui.UserManagementPanel"
+      html_path="user_management.jsp"
+      id="Predefined_User_Management_Application" local="false"
+      method="saveUserData" name="User Management" oid="8589944596"
+      type="User Defined" user_definition_type="Both">
+      <DESCRIPTION><![CDATA[Creates or modifies users at runtime.]]></DESCRIPTION>
+   </APPLICATION>
+   <APPLICATION class="ag.carnot.workflow.gui.test.TestSession"
+      id="Application1" jndi_path="ag.carnot.workflow.gui.test.TestSession"
+      local="true" method="alternatingExecution"
+      name="TestSession_alternatingExecution" oid="8589944652"
+      type="Session Bean" user_definition_type="None"/>
+   <APPLICATION class="ag.carnot.workflow.gui.test.TestSession"
+      id="Application3" jndi_path="ag.carnot.workflow.gui.test.TestSession"
+      local="true" method="complete" name="TestSession_complete"
+      oid="8589944762" type="Session Bean" user_definition_type="None"/>
+   <APPLICATION class="ag.carnot.workflow.OISFunctionMapping"
+      id="Application4" local="false" name="Application4"
+      oid="8589945038" ois_function_mapping="CustomerCreation"
+      type="IMPRESS Function Mapping" user_definition_type="None"/>
+   <APPLICATION class="ag.carnot.workflow.OISFunctionMapping"
+      id="Application5" local="false" name="Application5"
+      oid="8589945098" ois_function_mapping="CustomerCreation"
+      type="IMPRESS Function Mapping" user_definition_type="None"/>
+   <APPLICATION class="ag.carnot.workflow.gui.test.TestSession"
+      id="Application6" jndi_path="ag.carnot.workflow.gui.test.TestSession"
+      local="true" method="sleep" name="TestSession_sleep"
+      oid="8589945308" type="Session Bean" user_definition_type="None"/>
+   <PARTICIPANTS>
+      <HUMAN id="motu" name="motu" oid="8589944593" password="motu">
+         <DESCRIPTION><![CDATA[Master for workflow modeling.]]></DESCRIPTION>
+      </HUMAN>
+      <ROLE id="Administrator" name="Administrator" oid="8589944594">
+         <DESCRIPTION><![CDATA[In charge of all workflow administration activities.]]></DESCRIPTION>
+      </ROLE>
+      <ROLE cardinality="1000" id="Role1" name="Role1" oid="8589944614"/>
+      <ORGANISATION id="Organisation1" name="Organisation1" oid="8589944676">
+         <ASSOCIATED_PARTICIPANT id="Organisation2"/>
+         <ASSOCIATED_PARTICIPANT id="Organisation19"/>
+      </ORGANISATION>
+      <ORGANISATION id="Organisation2" name="Organisation2" oid="8589944679">
+         <ASSOCIATED_PARTICIPANT id="Organisation3"/>
+      </ORGANISATION>
+      <ORGANISATION id="Organisation3" name="Organisation3" oid="8589944682">
+         <ASSOCIATED_PARTICIPANT id="Role18"/>
+      </ORGANISATION>
+      <CONDITIONAL_PERFORMER data="ROLE_ID" id="ConditionalPerformer18"
+         is_user="false" name="Conditional Role Performer" oid="8589944961"/>
+      <CONDITIONAL_PERFORMER data="USER_ID" id="ConditionalPerformer19"
+         is_user="true" name="Conditional User Performer" oid="8589944963"/>
+      <ROLE id="Role18" name="Role18" oid="8589944983"/>
+      <CONDITIONAL_PERFORMER data="ORGANISATION_ID"
+         id="ConditionalPerformer20" is_user="false"
+         name="Conditional Organisation Performer" oid="8589945002"/>
+      <ORGANISATION id="Organisation18" name="Organisation18" oid="8589945009"/>
+      <ORGANISATION id="Organisation19" name="Organisation19" oid="8589945011">
+         <ASSOCIATED_PARTICIPANT id="Organisation18"/>
+      </ORGANISATION>
+      <ROLE id="Role19" name="Role19" oid="8589945101"/>
+      <ROLE id="CONDITIONAL_PERFORMER_ROLE"
+         name="Conditional Performer Role" oid="8589945168"/>
+      <ROLE id="Role2" name="Role2" oid="8589945250"/>
+      <ROLE id="Role3" name="Role3" oid="8589945252"/>
+   </PARTICIPANTS>
+   <WORKFLOW id="Predefined_User_Management_Process"
+      name="User Management Process" oid="8589944595"
+      remote_host_emulation="" remote_host_port="23">
+      <DESCRIPTION><![CDATA[Creates or modifies users at runtime.]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="true"
+         application="Predefined_User_Management_Application"
+         breakpoint="false" completion_recovery_timeout="0"
+         duration_recovery_timeout="0" force_assignment_to_human="true"
+         id="Predefined_Create_Or_Modify_Users"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Create Or Modify Users"
+         notify_participant_on_assignment="false" oid="8589944597"
+         performer="Administrator" split="None"/>
+      <TRIGGER_MANUAL oid="8589944598" participant="Administrator"/>
+      <DIAGRAM name="Default"/>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition1" name="Simple" oid="8589944607"
+      remote_host_emulation="" remote_host_port="23">
+      <DESCRIPTION><![CDATA[
+         ]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity1"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity1" notify_participant_on_assignment="true"
+         oid="8589944609" performer="Role1" split="None"/>
+      <TRIGGER_MANUAL oid="8589944612" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944685" refer="Activity1" x="87" y="128"/>
+         <ROLE_SYMBOL id="8589944686" refer="Role1" x="135" y="18"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944685"
+            id="8589944687" participant_symbol="8589944686"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition2" name="AND" oid="8589944616"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity2"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity2" notify_participant_on_assignment="false"
+         oid="8589944618" performer="Administrator" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity3"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity3" notify_participant_on_assignment="false"
+         oid="8589944625" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity4"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity4" notify_participant_on_assignment="false"
+         oid="8589944627" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity5"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity5" notify_participant_on_assignment="false"
+         oid="8589944629" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity6"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity6" notify_participant_on_assignment="false"
+         oid="8589944631" performer="Administrator" split="None"/>
+      <TRANSITION condition="Data1 &gt; 1" fork_on_traversal="false"
+         from="Activity2" id="Transition1" name="Transition1"
+         oid="8589944632" to="Activity3"/>
+      <TRANSITION condition="Data1 &gt; 2" fork_on_traversal="false"
+         from="Activity2" id="Transition2" name="Transition2"
+         oid="8589944634" to="Activity4"/>
+      <TRANSITION condition="Data1 &gt; 3" fork_on_traversal="false"
+         from="Activity2" id="Transition3" name="Transition3"
+         oid="8589944636" to="Activity5"/>
+      <TRANSITION condition="Data1 &gt; 4" fork_on_traversal="false"
+         from="Activity2" id="Transition4" name="Transition4"
+         oid="8589944638" to="Activity6"/>
+      <DATA_MAPPING activity="Activity2" application_in_path="Data1()"
+         application_out_path="Data1()" data="Data1" data_in_path=""
+         data_out_path="" oid="8589944622" type="OUT"/>
+      <TRIGGER_MANUAL oid="8589944646" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944690" refer="Activity2" x="39" y="172"/>
+         <DATA_SYMBOL id="8589944691" refer="Data1" x="152" y="44"/>
+         <ACTIVITY_SYMBOL id="8589944692" refer="Activity3" x="290" y="62"/>
+         <ACTIVITY_SYMBOL id="8589944693" refer="Activity4" x="290" y="159"/>
+         <ACTIVITY_SYMBOL id="8589944694" refer="Activity5" x="290" y="256"/>
+         <ACTIVITY_SYMBOL id="8589944695" refer="Activity6" x="290" y="353"/>
+         <ROLE_SYMBOL id="8589944696" refer="Administrator" x="73" y="362"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944690"
+            data_symbol="8589944691" id="8589944697"/>
+         <TRANSITION_CONNECTION id="8589944698"
+            source_activity_symbol="8589944690"
+            target_activity_symbol="8589944692" transition="Transition1"/>
+         <TRANSITION_CONNECTION id="8589944699"
+            source_activity_symbol="8589944690"
+            target_activity_symbol="8589944693" transition="Transition2"/>
+         <TRANSITION_CONNECTION id="8589944700"
+            source_activity_symbol="8589944690"
+            target_activity_symbol="8589944694" transition="Transition3"/>
+         <TRANSITION_CONNECTION id="8589944701"
+            source_activity_symbol="8589944690"
+            target_activity_symbol="8589944695" transition="Transition4"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944690"
+            id="8589944702" participant_symbol="8589944696"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944692"
+            id="8589944703" participant_symbol="8589944696"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944693"
+            id="8589944704" participant_symbol="8589944696"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944694"
+            id="8589944705" participant_symbol="8589944696"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944695"
+            id="8589944706" participant_symbol="8589944696"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition3" name="Exception " oid="8589944647"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application1" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity7"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity7" notify_participant_on_assignment="false"
+         oid="8589944649" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity110"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity110" notify_participant_on_assignment="false"
+         oid="8589945321" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity110" id="Transition85" name="Transition85"
+         oid="8589945322" to="Activity7"/>
+      <TRIGGER_MANUAL oid="8589944659" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944708" refer="Activity7" x="298" y="151"/>
+         <ROLE_SYMBOL id="8589944709" refer="Administrator" x="62" y="54"/>
+         <APPLICATION_SYMBOL id="8589944710" refer="Application1"
+            x="242" y="279"/>
+         <ACTIVITY_SYMBOL id="8589945320" refer="Activity110" x="40" y="154"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589944708"
+            application_symbol="8589944710" id="8589944711"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944708"
+            id="8589944712" participant_symbol="8589944709"/>
+         <TRANSITION_CONNECTION id="8589945323"
+            source_activity_symbol="8589945320"
+            target_activity_symbol="8589944708" transition="Transition85"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ROUTES" name="Routes" oid="8589944615"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity9"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity9" notify_participant_on_assignment="false"
+         oid="8589944621" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity10"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity10" notify_participant_on_assignment="false"
+         oid="8589944624" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity11"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity11" notify_participant_on_assignment="false"
+         oid="8589944628" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity9" id="Transition5" name="Transition5"
+         oid="8589944630" to="Activity10"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity10" id="Transition6" name="Transition6"
+         oid="8589944635" to="Activity11"/>
+      <TRIGGER_MANUAL oid="8589944639" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944619" refer="Activity9" x="98" y="137"/>
+         <ACTIVITY_SYMBOL id="8589944623" refer="Activity10" x="276" y="138"/>
+         <ACTIVITY_SYMBOL id="8589944626" refer="Activity11" x="193" y="239"/>
+         <TRANSITION_CONNECTION id="8589944633"
+            source_activity_symbol="8589944619"
+            target_activity_symbol="8589944623" transition="Transition5"/>
+         <TRANSITION_CONNECTION id="8589944637"
+            source_activity_symbol="8589944623"
+            target_activity_symbol="8589944626" transition="Transition6"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition6" name="Subprocess" oid="8589944640"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity12"
+         implementation="Subprocess" implementation_process="ROUTES"
+         join="None" loop_type="No Loop" name="Activity12"
+         notify_participant_on_assignment="false" oid="8589944643"
+         performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity13"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity13" notify_participant_on_assignment="false"
+         oid="8589944650" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity12" id="Transition7" name="Transition7"
+         oid="8589944653" to="Activity13"/>
+      <TRIGGER_MANUAL oid="8589944655" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944642" refer="Activity12" x="68" y="126"/>
+         <ROLE_SYMBOL id="8589944644" refer="Administrator" x="134" y="34"/>
+         <ACTIVITY_SYMBOL id="8589944648" refer="Activity13" x="318" y="171"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944642"
+            id="8589944645" participant_symbol="8589944644"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944648"
+            id="8589944651" participant_symbol="8589944644"/>
+         <TRANSITION_CONNECTION id="8589944654"
+            source_activity_symbol="8589944642"
+            target_activity_symbol="8589944648" transition="Transition7"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition7" name="SubprocessWithActivities"
+      oid="8589944656" remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity17"
+         implementation="Subprocess"
+         implementation_process="THREE_MANUAL_ACTIVITIES" join="None"
+         loop_type="No Loop" name="Activity17"
+         notify_participant_on_assignment="false" oid="8589944680"
+         performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity18"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity18" notify_participant_on_assignment="false"
+         oid="8589944688" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity19"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity19" notify_participant_on_assignment="false"
+         oid="8589944715" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity17" id="Transition10" name="Transition10"
+         oid="8589944689" to="Activity18"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity19" id="Transition11" name="Transition11"
+         oid="8589944716" to="Activity17"/>
+      <DATA_MAPPING activity="Activity18" application_in_path="Data11()"
+         application_out_path="Data11()" data="Data11" data_in_path=""
+         data_out_path="" oid="8589944727" type="IN"/>
+      <DATA_MAPPING activity="Activity18" application_in_path="Data12()"
+         application_out_path="Data12()" data="Data12" data_in_path=""
+         data_out_path="" oid="8589944746" type="IN"/>
+      <DATA_MAPPING activity="Activity19" application_in_path="Data10()"
+         application_out_path="Data10()" data="Data10" data_in_path=""
+         data_out_path="" oid="8589944722" type="OUT"/>
+      <TRIGGER_MANUAL oid="8589944658" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944678" refer="Activity17" x="178" y="125"/>
+         <ROLE_SYMBOL id="8589944681" refer="Administrator" x="249" y="32"/>
+         <ACTIVITY_SYMBOL id="8589944684" refer="Activity18" x="261" y="211"/>
+         <ACTIVITY_SYMBOL id="8589944714" refer="Activity19" x="51" y="67"/>
+         <DATA_SYMBOL id="8589944719" refer="Data10" x="59" y="169"/>
+         <DATA_SYMBOL id="8589944724" refer="Data11" x="234" y="290"/>
+         <DATA_SYMBOL id="8589944744" refer="Data12" x="168" y="280"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944678"
+            id="8589944683" participant_symbol="8589944681"/>
+         <TRANSITION_CONNECTION id="8589944707"
+            source_activity_symbol="8589944678"
+            target_activity_symbol="8589944684" transition="Transition10"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944684"
+            id="8589944713" participant_symbol="8589944681"/>
+         <TRANSITION_CONNECTION id="8589944717"
+            source_activity_symbol="8589944714"
+            target_activity_symbol="8589944678" transition="Transition11"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944714"
+            id="8589944718" participant_symbol="8589944681"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944714"
+            data_symbol="8589944719" id="8589944723"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944684"
+            data_symbol="8589944724" id="8589944728"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944684"
+            data_symbol="8589944744" id="8589944747"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="THREE_MANUAL_ACTIVITIES" name="ThreeManualActivities"
+      oid="8589944660" remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity14"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="FirstActivity" notify_participant_on_assignment="false"
+         oid="8589944663" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity15"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="SecondActivity" notify_participant_on_assignment="false"
+         oid="8589944665" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity16"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="ThirdActivity" notify_participant_on_assignment="false"
+         oid="8589944667" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity14" id="Transition8" name="Transition8"
+         oid="8589944668" to="Activity15"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity15" id="Transition9" name="Transition9"
+         oid="8589944670" to="Activity16"/>
+      <DATA_MAPPING activity="Activity14" application_in_path="Data10()"
+         application_out_path="Data10()" data="Data10" data_in_path=""
+         data_out_path="" oid="8589944736" type="IN"/>
+      <DATA_MAPPING activity="Activity15" application_in_path="Data10()"
+         application_out_path="Data10()" data="Data10" data_in_path=""
+         data_out_path="" oid="8589944739" type="IN"/>
+      <DATA_MAPPING activity="Activity16" application_in_path="Data12()"
+         application_out_path="Data12()" data="Data12" data_in_path=""
+         data_out_path="" oid="8589944732" type="OUT"/>
+      <DATA_MAPPING activity="Activity16" application_in_path="Data10()"
+         application_out_path="Data10()" data="Data10" data_in_path=""
+         data_out_path="" oid="8589944742" type="IN"/>
+      <DATA_MAPPING activity="Activity16" application_in_path="Data11()"
+         application_out_path="Data11()" data="Data11" data_in_path=""
+         data_out_path="" oid="8589944750" type="OUT"/>
+      <TRIGGER_MANUAL oid="8589944677" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944662" refer="Activity14" x="65" y="141"/>
+         <ACTIVITY_SYMBOL id="8589944664" refer="Activity15" x="173" y="208"/>
+         <ACTIVITY_SYMBOL id="8589944666" refer="Activity16" x="511" y="299"/>
+         <ROLE_SYMBOL id="8589944672" refer="Administrator" x="237" y="31"/>
+         <DATA_SYMBOL id="8589944729" refer="Data12" x="188" y="311"/>
+         <DATA_SYMBOL id="8589944734" refer="Data10" x="52" y="249"/>
+         <DATA_SYMBOL id="8589944748" refer="Data11" x="276" y="355"/>
+         <TRANSITION_CONNECTION id="8589944669"
+            source_activity_symbol="8589944662"
+            target_activity_symbol="8589944664" transition="Transition8"/>
+         <TRANSITION_CONNECTION id="8589944671"
+            source_activity_symbol="8589944664"
+            target_activity_symbol="8589944666" transition="Transition9"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944662"
+            id="8589944673" participant_symbol="8589944672"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944664"
+            id="8589944674" participant_symbol="8589944672"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944666"
+            id="8589944675" participant_symbol="8589944672"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944666"
+            data_symbol="8589944729" id="8589944733"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944662"
+            data_symbol="8589944734" id="8589944737"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944664"
+            data_symbol="8589944734" id="8589944740"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944666"
+            data_symbol="8589944734" id="8589944743"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944666"
+            data_symbol="8589944748" id="8589944751"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition9" name="Serializable"
+      oid="8589944752" remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application3" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity20"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity20" notify_participant_on_assignment="false"
+         oid="8589944754" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity21"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity21" notify_participant_on_assignment="false"
+         oid="8589944756" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity22"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity22" notify_participant_on_assignment="false"
+         oid="8589944772" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity20" id="Transition12" name="Transition12"
+         oid="8589944757" to="Activity21"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity21" id="Transition13" name="Transition13"
+         oid="8589944773" to="Activity22"/>
+      <DATA_MAPPING activity="Activity20" application_in_path=""
+         application_out_path="getSerializable()" data="Data13"
+         data_in_path="" data_out_path="" oid="8589944764" type="OUT"/>
+      <DATA_MAPPING activity="Activity21" application_in_path="Data13()"
+         application_out_path="Data13()" data="Data13"
+         data_in_path="getString()" data_out_path="" oid="8589944766" type="IN"/>
+      <DATA_MAPPING activity="Activity22" application_in_path="Data13()"
+         application_out_path="Data13()" data="Data13"
+         data_in_path="getInteger()" data_out_path="setInteger()"
+         oid="8589944775" type="INOUT"/>
+      <TRIGGER_MANUAL oid="8589944768" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944753" refer="Activity20" x="64" y="147"/>
+         <ACTIVITY_SYMBOL id="8589944755" refer="Activity21" x="287" y="150"/>
+         <DATA_SYMBOL id="8589944759" refer="Data13" x="428" y="295"/>
+         <APPLICATION_SYMBOL id="8589944761" refer="Application3" x="56" y="252"/>
+         <ROLE_SYMBOL id="8589944769" refer="Administrator" x="523" y="43"/>
+         <ACTIVITY_SYMBOL id="8589944771" refer="Activity22" x="413" y="149"/>
+         <TRANSITION_CONNECTION id="8589944758"
+            source_activity_symbol="8589944753"
+            target_activity_symbol="8589944755" transition="Transition12"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589944753"
+            application_symbol="8589944761" id="8589944763"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944753"
+            data_symbol="8589944759" id="8589944765"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944755"
+            data_symbol="8589944759" id="8589944767"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944755"
+            id="8589944770" participant_symbol="8589944769"/>
+         <TRANSITION_CONNECTION id="8589944774"
+            source_activity_symbol="8589944755"
+            target_activity_symbol="8589944771" transition="Transition13"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944771"
+            data_symbol="8589944759" id="8589944776"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944771"
+            id="8589944777" participant_symbol="8589944769"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition10" name="WHILE-Loop" oid="8589944608"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity23"
+         implementation="Manual" join="None"
+         loop_condition="INTEGER &lt; 1000" loop_type="While"
+         name="Activity23" notify_participant_on_assignment="false"
+         oid="8589944641" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity25"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity25" notify_participant_on_assignment="false"
+         oid="8589944782" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity25" id="Transition14" name="Transition14"
+         oid="8589944783" to="Activity23"/>
+      <DATA_MAPPING activity="Activity23"
+         application_in_path="INTEGER()"
+         application_out_path="INTEGER()" data="INTEGER" data_in_path=""
+         data_out_path="" oid="8589944721" type="INOUT"/>
+      <DATA_MAPPING activity="Activity25"
+         application_in_path="INTEGER()"
+         application_out_path="INTEGER()" data="INTEGER" data_in_path=""
+         data_out_path="" oid="8589944786" type="OUT"/>
+      <TRIGGER_MANUAL oid="8589944611" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944617" refer="Activity23" x="326" y="124"/>
+         <DATA_SYMBOL id="8589944657" refer="INTEGER" x="129" y="53"/>
+         <ROLE_SYMBOL id="8589944749" refer="Administrator" x="280" y="247"/>
+         <ACTIVITY_SYMBOL id="8589944781" refer="Activity25" x="67" y="122"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944617"
+            data_symbol="8589944657" id="8589944726"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944617"
+            id="8589944778" participant_symbol="8589944749"/>
+         <TRANSITION_CONNECTION id="8589944784"
+            source_activity_symbol="8589944781"
+            target_activity_symbol="8589944617" transition="Transition14"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944781"
+            id="8589944785" participant_symbol="8589944749"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944781"
+            data_symbol="8589944657" id="8589944787"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition11" name="UNTIL-Loop" oid="8589944610"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity24"
+         implementation="Manual" join="None"
+         loop_condition="INTEGER &gt; 1000" loop_type="Repeat"
+         name="Activity24" notify_participant_on_assignment="false"
+         oid="8589944735" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity26"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity26" notify_participant_on_assignment="false"
+         oid="8589944789" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity26" id="Transition15" name="Transition15"
+         oid="8589944790" to="Activity24"/>
+      <DATA_MAPPING activity="Activity24"
+         application_in_path="INTEGER()"
+         application_out_path="INTEGER()" data="INTEGER" data_in_path=""
+         data_out_path="" oid="8589944741" type="INOUT"/>
+      <DATA_MAPPING activity="Activity26"
+         application_in_path="INTEGER()"
+         application_out_path="INTEGER()" data="INTEGER" data_in_path=""
+         data_out_path="" oid="8589944793" type="OUT"/>
+      <TRIGGER_MANUAL oid="8589944613" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944731" refer="Activity24" x="212" y="191"/>
+         <DATA_SYMBOL id="8589944738" refer="INTEGER" x="157" y="58"/>
+         <ROLE_SYMBOL id="8589944779" refer="Administrator" x="131" y="288"/>
+         <ACTIVITY_SYMBOL id="8589944788" refer="Activity26" x="57" y="177"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944731"
+            data_symbol="8589944738" id="8589944745"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944731"
+            id="8589944780" participant_symbol="8589944779"/>
+         <TRANSITION_CONNECTION id="8589944791"
+            source_activity_symbol="8589944788"
+            target_activity_symbol="8589944731" transition="Transition15"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944788"
+            id="8589944792" participant_symbol="8589944779"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944788"
+            data_symbol="8589944738" id="8589944794"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="NULL_REFERENCE" name="NULL Reference" oid="8589944795"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity27"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity27" notify_participant_on_assignment="false"
+         oid="8589944797" performer="Administrator" split="XOR"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity28"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Reference is NULL"
+         notify_participant_on_assignment="false" oid="8589944799"
+         performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity29"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Reference is not NULL"
+         notify_participant_on_assignment="false" oid="8589944803"
+         performer="Administrator" split="None"/>
+      <TRANSITION condition="TRIGGER_EMAIL = NULL"
+         fork_on_traversal="false" from="Activity27" id="Transition16"
+         name="Transition16" oid="8589944800" to="Activity28"/>
+      <TRANSITION condition="TRIGGER_EMAIL != NULL"
+         fork_on_traversal="false" from="Activity27" id="Transition17"
+         name="Transition17" oid="8589944804" to="Activity29"/>
+      <TRIGGER_MANUAL oid="8589944810" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944796" refer="Activity27" x="41" y="147"/>
+         <ACTIVITY_SYMBOL id="8589944798" refer="Activity28" x="285" y="77"/>
+         <ACTIVITY_SYMBOL id="8589944802" refer="Activity29" x="285" y="238"/>
+         <ROLE_SYMBOL id="8589944806" refer="Administrator" x="146" y="21"/>
+         <TRANSITION_CONNECTION id="8589944801"
+            source_activity_symbol="8589944796"
+            target_activity_symbol="8589944798" transition="Transition16"/>
+         <TRANSITION_CONNECTION id="8589944805"
+            source_activity_symbol="8589944796"
+            target_activity_symbol="8589944802" transition="Transition17"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944796"
+            id="8589944807" participant_symbol="8589944806"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944798"
+            id="8589944808" participant_symbol="8589944806"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944802"
+            id="8589944809" participant_symbol="8589944806"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="AND_Split_Join" name="AND-Split/Join" oid="8589944811"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity30"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity30" notify_participant_on_assignment="false"
+         oid="8589944814" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity31"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity31" notify_participant_on_assignment="false"
+         oid="8589944816" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity32"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity32" notify_participant_on_assignment="false"
+         oid="8589944818" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity33"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity33" notify_participant_on_assignment="false"
+         oid="8589944820" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity34"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity34" notify_participant_on_assignment="false"
+         oid="8589944822" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity35"
+         implementation="Manual" join="AND" loop_type="No Loop"
+         name="Activity35" notify_participant_on_assignment="false"
+         oid="8589944824" performer="Administrator" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity36"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity36" notify_participant_on_assignment="false"
+         oid="8589944838" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity37"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity37" notify_participant_on_assignment="false"
+         oid="8589944840" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity54"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity54" notify_participant_on_assignment="false"
+         oid="8589944936" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity55"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity55" notify_participant_on_assignment="false"
+         oid="8589944938" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity30" id="Transition18" name="Transition18"
+         oid="8589944825" to="Activity31"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity30" id="Transition19" name="Transition19"
+         oid="8589944827" to="Activity32"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity31" id="Transition20" name="Transition20"
+         oid="8589944829" to="Activity33"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity32" id="Transition21" name="Transition21"
+         oid="8589944831" to="Activity34"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity33" id="Transition22" name="Transition22"
+         oid="8589944833" to="Activity35"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity34" id="Transition23" name="Transition23"
+         oid="8589944835" to="Activity35"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity35" id="Transition24" name="Transition24"
+         oid="8589944841" to="Activity36"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity35" id="Transition25" name="Transition25"
+         oid="8589944843" to="Activity37"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity30" id="Transition38" name="Transition38"
+         oid="8589944939" to="Activity54"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity30" id="Transition39" name="Transition39"
+         oid="8589944941" to="Activity55"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity54" id="Transition40" name="Transition40"
+         oid="8589944944" to="Activity35"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity55" id="Transition41" name="Transition41"
+         oid="8589944946" to="Activity35"/>
+      <TRIGGER_MANUAL oid="8589944812" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944813" refer="Activity30" x="37" y="152"/>
+         <ACTIVITY_SYMBOL id="8589944815" refer="Activity31" x="168" y="72"/>
+         <ACTIVITY_SYMBOL id="8589944817" refer="Activity32" x="168" y="226"/>
+         <ACTIVITY_SYMBOL id="8589944819" refer="Activity33" x="275" y="72"/>
+         <ACTIVITY_SYMBOL id="8589944821" refer="Activity34" x="275" y="226"/>
+         <ACTIVITY_SYMBOL id="8589944823" refer="Activity35" x="551" y="164"/>
+         <ACTIVITY_SYMBOL id="8589944837" refer="Activity36" x="698" y="61"/>
+         <ACTIVITY_SYMBOL id="8589944839" refer="Activity37" x="803" y="412"/>
+         <ROLE_SYMBOL id="8589944845" refer="Administrator" x="426" y="21"/>
+         <ACTIVITY_SYMBOL id="8589944935" refer="Activity54" x="168" y="338"/>
+         <ACTIVITY_SYMBOL id="8589944937" refer="Activity55" x="168" y="414"/>
+         <TRANSITION_CONNECTION id="8589944826"
+            source_activity_symbol="8589944813"
+            target_activity_symbol="8589944815" transition="Transition18"/>
+         <TRANSITION_CONNECTION id="8589944828"
+            source_activity_symbol="8589944813"
+            target_activity_symbol="8589944817" transition="Transition19"/>
+         <TRANSITION_CONNECTION id="8589944830"
+            source_activity_symbol="8589944815"
+            target_activity_symbol="8589944819" transition="Transition20"/>
+         <TRANSITION_CONNECTION id="8589944832"
+            source_activity_symbol="8589944817"
+            target_activity_symbol="8589944821" transition="Transition21"/>
+         <TRANSITION_CONNECTION id="8589944834"
+            source_activity_symbol="8589944819"
+            target_activity_symbol="8589944823" transition="Transition22"/>
+         <TRANSITION_CONNECTION id="8589944836"
+            source_activity_symbol="8589944821"
+            target_activity_symbol="8589944823" transition="Transition23"/>
+         <TRANSITION_CONNECTION id="8589944842"
+            source_activity_symbol="8589944823"
+            target_activity_symbol="8589944837" transition="Transition24"/>
+         <TRANSITION_CONNECTION id="8589944844"
+            source_activity_symbol="8589944823"
+            target_activity_symbol="8589944839" transition="Transition25"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944823"
+            id="8589944846" participant_symbol="8589944845"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944821"
+            id="8589944847" participant_symbol="8589944845"/>
+         <TRANSITION_CONNECTION id="8589944940"
+            source_activity_symbol="8589944813"
+            target_activity_symbol="8589944935" transition="Transition38"/>
+         <TRANSITION_CONNECTION id="8589944942"
+            source_activity_symbol="8589944813"
+            target_activity_symbol="8589944937" transition="Transition39"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944937"
+            id="8589944943" participant_symbol="8589944845"/>
+         <TRANSITION_CONNECTION id="8589944945"
+            source_activity_symbol="8589944935"
+            target_activity_symbol="8589944823" transition="Transition40"/>
+         <TRANSITION_CONNECTION id="8589944947"
+            source_activity_symbol="8589944937"
+            target_activity_symbol="8589944823" transition="Transition41"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="Voided_Transitions" name="Voided Transitions"
+      oid="8589944848" remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity38"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity38" notify_participant_on_assignment="false"
+         oid="8589944851" performer="Administrator" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity39"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity39" notify_participant_on_assignment="false"
+         oid="8589944853" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity40"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity40" notify_participant_on_assignment="false"
+         oid="8589944855" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity41"
+         implementation="Route" join="AND" loop_type="No Loop"
+         name="Activity41" notify_participant_on_assignment="false"
+         oid="8589944857" split="None"/>
+      <TRANSITION condition="INTEGER = 0" fork_on_traversal="false"
+         from="Activity38" id="Transition26" name="Transition26"
+         oid="8589944858" to="Activity39"/>
+      <TRANSITION condition="INTEGER != 0" fork_on_traversal="false"
+         from="Activity38" id="Transition27" name="Transition27"
+         oid="8589944860" to="Activity40"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity39" id="Transition28" name="Transition28"
+         oid="8589944862" to="Activity41"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity40" id="Transition29" name="Transition29"
+         oid="8589944864" to="Activity41"/>
+      <DATA_MAPPING activity="Activity38"
+         application_in_path="INTEGER()"
+         application_out_path="INTEGER()" data="INTEGER" data_in_path=""
+         data_out_path="" oid="8589944867" type="OUT"/>
+      <TRIGGER_MANUAL oid="8589944849" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944850" refer="Activity38" x="74" y="156"/>
+         <ACTIVITY_SYMBOL id="8589944852" refer="Activity39" x="184" y="75"/>
+         <ACTIVITY_SYMBOL id="8589944854" refer="Activity40" x="184" y="239"/>
+         <ACTIVITY_SYMBOL id="8589944856" refer="Activity41" x="290" y="156"/>
+         <DATA_SYMBOL id="8589944866" refer="INTEGER" x="74" y="284"/>
+         <ROLE_SYMBOL id="8589944890" refer="Administrator" x="107" y="6"/>
+         <TRANSITION_CONNECTION id="8589944859"
+            source_activity_symbol="8589944850"
+            target_activity_symbol="8589944852" transition="Transition26"/>
+         <TRANSITION_CONNECTION id="8589944861"
+            source_activity_symbol="8589944850"
+            target_activity_symbol="8589944854" transition="Transition27"/>
+         <TRANSITION_CONNECTION id="8589944863"
+            source_activity_symbol="8589944852"
+            target_activity_symbol="8589944856" transition="Transition28"/>
+         <TRANSITION_CONNECTION id="8589944865"
+            source_activity_symbol="8589944854"
+            target_activity_symbol="8589944856" transition="Transition29"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944850"
+            data_symbol="8589944866" id="8589944868"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944852"
+            id="8589944891" participant_symbol="8589944890"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944850"
+            id="8589944892" participant_symbol="8589944890"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="Duplicate_Activity_Instantiation"
+      name="Duplicate Activity Instantiation" oid="8589944869"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity42"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity42" notify_participant_on_assignment="false"
+         oid="8589944872" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity43"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity43" notify_participant_on_assignment="false"
+         oid="8589944874" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity44"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity44" notify_participant_on_assignment="false"
+         oid="8589944876" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity45"
+         implementation="Manual" join="XOR" loop_type="No Loop"
+         name="Activity45" notify_participant_on_assignment="false"
+         oid="8589944878" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity42" id="Transition30" name="Transition30"
+         oid="8589944879" to="Activity43"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity42" id="Transition31" name="Transition31"
+         oid="8589944881" to="Activity44"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity44" id="Transition32" name="Transition32"
+         oid="8589944883" to="Activity45"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity43" id="Transition33" name="Transition33"
+         oid="8589944885" to="Activity45"/>
+      <TRIGGER_MANUAL oid="8589944870" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944871" refer="Activity42" x="54" y="154"/>
+         <ACTIVITY_SYMBOL id="8589944873" refer="Activity43" x="175" y="79"/>
+         <ACTIVITY_SYMBOL id="8589944875" refer="Activity44" x="175" y="215"/>
+         <ACTIVITY_SYMBOL id="8589944877" refer="Activity45" x="290" y="154"/>
+         <ROLE_SYMBOL id="8589944887" refer="Administrator" x="308" y="16"/>
+         <TRANSITION_CONNECTION id="8589944880"
+            source_activity_symbol="8589944871"
+            target_activity_symbol="8589944873" transition="Transition30"/>
+         <TRANSITION_CONNECTION id="8589944882"
+            source_activity_symbol="8589944871"
+            target_activity_symbol="8589944875" transition="Transition31"/>
+         <TRANSITION_CONNECTION id="8589944884"
+            source_activity_symbol="8589944875"
+            target_activity_symbol="8589944877" transition="Transition32"/>
+         <TRANSITION_CONNECTION id="8589944886"
+            source_activity_symbol="8589944873"
+            target_activity_symbol="8589944877" transition="Transition33"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944873"
+            id="8589944888" participant_symbol="8589944887"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944875"
+            id="8589944889" participant_symbol="8589944887"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944877"
+            id="8589944926" participant_symbol="8589944887"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="Recovery_Synchronous_AND_Join"
+      name="Recovery Synchronous AND Join" oid="8589944893"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity46"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity46" notify_participant_on_assignment="false"
+         oid="8589944896" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity47"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity47" notify_participant_on_assignment="false"
+         oid="8589944898" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity48"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity48" notify_participant_on_assignment="false"
+         oid="8589944900" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity49"
+         implementation="Manual" join="AND" loop_type="No Loop"
+         name="Activity49" notify_participant_on_assignment="false"
+         oid="8589944902" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity46" id="Transition34" name="Transition34"
+         oid="8589944903" to="Activity47"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity46" id="Transition35" name="Transition35"
+         oid="8589944905" to="Activity48"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity47" id="Transition36" name="Transition36"
+         oid="8589944907" to="Activity49"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity48" id="Transition37" name="Transition37"
+         oid="8589944909" to="Activity49"/>
+      <TRIGGER_MANUAL oid="8589944894" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944895" refer="Activity46" x="58" y="124"/>
+         <ACTIVITY_SYMBOL id="8589944897" refer="Activity47" x="190" y="62"/>
+         <ACTIVITY_SYMBOL id="8589944899" refer="Activity48" x="190" y="193"/>
+         <ACTIVITY_SYMBOL id="8589944901" refer="Activity49" x="314" y="125"/>
+         <ROLE_SYMBOL id="8589944911" refer="Administrator" x="375" y="244"/>
+         <TRANSITION_CONNECTION id="8589944904"
+            source_activity_symbol="8589944895"
+            target_activity_symbol="8589944897" transition="Transition34"/>
+         <TRANSITION_CONNECTION id="8589944906"
+            source_activity_symbol="8589944895"
+            target_activity_symbol="8589944899" transition="Transition35"/>
+         <TRANSITION_CONNECTION id="8589944908"
+            source_activity_symbol="8589944897"
+            target_activity_symbol="8589944901" transition="Transition36"/>
+         <TRANSITION_CONNECTION id="8589944910"
+            source_activity_symbol="8589944899"
+            target_activity_symbol="8589944901" transition="Transition37"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944901"
+            id="8589944912" participant_symbol="8589944911"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="Subprocess_Without_Other_Activities"
+      name="Subprocess without Other Activities" oid="8589944913"
+      remote_host_emulation="" remote_host_port="23">
+      <DESCRIPTION><![CDATA[
+         ]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity50"
+         implementation="Subprocess" implementation_process="ROUTES"
+         join="None" loop_type="No Loop" name="Activity50"
+         notify_participant_on_assignment="false" oid="8589944916" split="None"/>
+      <TRIGGER_MANUAL oid="8589944914" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944915" refer="Activity50" x="91" y="132"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="Standalone_While_Loop" name="Standalone WHILE-Loop"
+      oid="8589944917" remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity51"
+         implementation="Manual" join="None"
+         loop_condition="INTEGER = 0" loop_type="While"
+         name="Activity51" notify_participant_on_assignment="false"
+         oid="8589944920" performer="Administrator" split="None"/>
+      <DATA_MAPPING activity="Activity51"
+         application_in_path="INTEGER()"
+         application_out_path="INTEGER()" data="INTEGER" data_in_path=""
+         data_out_path="" oid="8589944922" type="INOUT"/>
+      <TRIGGER_MANUAL oid="8589944918" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944919" refer="Activity51" x="146" y="212"/>
+         <DATA_SYMBOL id="8589944921" refer="INTEGER" x="152" y="45"/>
+         <ROLE_SYMBOL id="8589944924" refer="Administrator" x="51" y="69"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944919"
+            data_symbol="8589944921" id="8589944923"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944919"
+            id="8589944925" participant_symbol="8589944924"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition19" name="Single Route"
+      oid="8589944927" remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity53"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Single Route" notify_participant_on_assignment="false"
+         oid="8589944934" split="None"/>
+      <TRIGGER_MANUAL oid="8589944928" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944933" refer="Activity53" x="143" y="129"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition20"
+      name="Subprocess with Single Route" oid="8589944929"
+      remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity52"
+         implementation="Subprocess"
+         implementation_process="ProcessDefinition19" join="None"
+         loop_type="No Loop" name="Activity52"
+         notify_participant_on_assignment="false" oid="8589944932" split="None"/>
+      <TRIGGER_MANUAL oid="8589944930" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944931" refer="Activity52" x="97" y="151"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition21" name="Conditional Performers"
+      oid="8589944948" remote_host_emulation="" remote_host_port="23">
+      <DESCRIPTION><![CDATA[
+         ]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity56"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity56" notify_participant_on_assignment="false"
+         oid="8589944951" performer="Administrator" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity57"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Performed By Role"
+         notify_participant_on_assignment="false" oid="8589944953"
+         performer="ConditionalPerformer18" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity58"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Performed By User"
+         notify_participant_on_assignment="false" oid="8589944955"
+         performer="ConditionalPerformer19" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity59"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Performed Directly By User"
+         notify_participant_on_assignment="false" oid="8589944986"
+         performer="Role18" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity60"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Performed By Organisation"
+         notify_participant_on_assignment="false" oid="8589944998"
+         performer="ConditionalPerformer20" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity61"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Performed Directly By Organisation"
+         notify_participant_on_assignment="false" oid="8589945005"
+         performer="Organisation18" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity56" id="Transition42" name="Transition42"
+         oid="8589944956" to="Activity57"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity56" id="Transition44" name="Transition44"
+         oid="8589944989" to="Activity58"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity56" id="Transition45" name="Transition45"
+         oid="8589944991" to="Activity59"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity56" id="Transition46" name="Transition46"
+         oid="8589944999" to="Activity60"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity56" id="Transition47" name="Transition47"
+         oid="8589945006" to="Activity61"/>
+      <DATA_MAPPING activity="Activity56"
+         application_in_path="ROLE_ID()"
+         application_out_path="ROLE_ID()" data="ROLE_ID" data_in_path=""
+         data_out_path="" oid="8589944968" type="OUT"/>
+      <DATA_MAPPING activity="Activity56"
+         application_in_path="USER_ID()"
+         application_out_path="USER_ID()" data="USER_ID" data_in_path=""
+         data_out_path="" oid="8589944970" type="OUT"/>
+      <DATA_MAPPING activity="Activity56"
+         application_in_path="ORGANISATION_ID()"
+         application_out_path="ORGANISATION_ID()" data="ORGANISATION_ID"
+         data_in_path="" data_out_path="" oid="8589944995" type="OUT"/>
+      <TRIGGER_MANUAL oid="8589944949" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589944950" refer="Activity56" x="88" y="256"/>
+         <ACTIVITY_SYMBOL id="8589944952" refer="Activity57" x="305" y="109"/>
+         <ACTIVITY_SYMBOL id="8589944954" refer="Activity58" x="305" y="303"/>
+         <CONDITIONAL_PERFORMER_SYMBOL id="8589944960"
+            refer="ConditionalPerformer18" x="547" y="25"/>
+         <CONDITIONAL_PERFORMER_SYMBOL id="8589944962"
+            refer="ConditionalPerformer19" x="546" y="217"/>
+         <DATA_SYMBOL id="8589944964" refer="ROLE_ID" x="147" y="334"/>
+         <DATA_SYMBOL id="8589944966" refer="USER_ID" x="44" y="339"/>
+         <ROLE_SYMBOL id="8589944974" refer="Administrator" x="117" y="168"/>
+         <ACTIVITY_SYMBOL id="8589944985" refer="Activity59" x="305" y="400"/>
+         <ROLE_SYMBOL id="8589944987" refer="Role18" x="594" y="313"/>
+         <DATA_SYMBOL id="8589944993" refer="ORGANISATION_ID" x="108" y="408"/>
+         <ACTIVITY_SYMBOL id="8589944997" refer="Activity60" x="305" y="206"/>
+         <CONDITIONAL_PERFORMER_SYMBOL id="8589945001"
+            refer="ConditionalPerformer20" x="527" y="121"/>
+         <ACTIVITY_SYMBOL id="8589945004" refer="Activity61" x="305" y="497"/>
+         <ORGANISATION_SYMBOL id="8589945014" refer="Organisation18"
+            x="574" y="409"/>
+         <ROLE_SYMBOL id="8589945167" refer="CONDITIONAL_PERFORMER_ROLE"
+            x="18" y="69"/>
+         <ANNOTATION_SYMBOL id="8589945169" x="220" y="13">
+            <TEXT><![CDATA[Diese Rolle darf nirgendswo sonst verwendet werden.]]></TEXT>
+         </ANNOTATION_SYMBOL>
+         <TRANSITION_CONNECTION id="8589944957"
+            source_activity_symbol="8589944950"
+            target_activity_symbol="8589944952" transition="Transition42"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944950"
+            data_symbol="8589944964" id="8589944969"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944950"
+            data_symbol="8589944966" id="8589944971"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944952"
+            id="8589944972" participant_symbol="8589944960"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944954"
+            id="8589944973" participant_symbol="8589944962"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944950"
+            id="8589944975" participant_symbol="8589944974"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944985"
+            id="8589944988" participant_symbol="8589944987"/>
+         <TRANSITION_CONNECTION id="8589944990"
+            source_activity_symbol="8589944950"
+            target_activity_symbol="8589944954" transition="Transition44"/>
+         <TRANSITION_CONNECTION id="8589944992"
+            source_activity_symbol="8589944950"
+            target_activity_symbol="8589944985" transition="Transition45"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944950"
+            data_symbol="8589944993" id="8589944996"/>
+         <TRANSITION_CONNECTION id="8589945000"
+            source_activity_symbol="8589944950"
+            target_activity_symbol="8589944997" transition="Transition46"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944997"
+            id="8589945003" participant_symbol="8589945001"/>
+         <TRANSITION_CONNECTION id="8589945007"
+            source_activity_symbol="8589944950"
+            target_activity_symbol="8589945004" transition="Transition47"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945004"
+            id="8589945015" participant_symbol="8589945014"/>
+         <REFERS_TO_CONNECTION from="8589945169" id="8589945170" to="8589945167"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="IMMEDIATE_SPLIT" name="Immediate Split"
+      oid="8589945016" remote_host_emulation="" remote_host_port="23">
+      <DESCRIPTION><![CDATA[Intended to be fired by batch tests.]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity62"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity62" notify_participant_on_assignment="false"
+         oid="8589945019" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity63"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity63" notify_participant_on_assignment="false"
+         oid="8589945021" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity64"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity64" notify_participant_on_assignment="false"
+         oid="8589945023" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity65"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity65" notify_participant_on_assignment="false"
+         oid="8589945025" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity62" id="Transition48" name="Transition48"
+         oid="8589945026" to="Activity63"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity62" id="Transition49" name="Transition49"
+         oid="8589945028" to="Activity64"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity62" id="Transition50" name="Transition50"
+         oid="8589945030" to="Activity65"/>
+      <TRIGGER_MANUAL oid="8589945017" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945018" refer="Activity62" x="53" y="173"/>
+         <ACTIVITY_SYMBOL id="8589945020" refer="Activity63" x="230" y="81"/>
+         <ACTIVITY_SYMBOL id="8589945022" refer="Activity64" x="230" y="173"/>
+         <ACTIVITY_SYMBOL id="8589945024" refer="Activity65" x="230" y="265"/>
+         <TRANSITION_CONNECTION id="8589945027"
+            source_activity_symbol="8589945018"
+            target_activity_symbol="8589945020" transition="Transition48"/>
+         <TRANSITION_CONNECTION id="8589945029"
+            source_activity_symbol="8589945018"
+            target_activity_symbol="8589945022" transition="Transition49"/>
+         <TRANSITION_CONNECTION id="8589945031"
+            source_activity_symbol="8589945018"
+            target_activity_symbol="8589945024" transition="Transition50"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition23" name="IMPRESS Function Mapping"
+      oid="8589945032" remote_host_emulation="" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application4" breakpoint="false"
+         completion_recovery_timeout="0" duration_recovery_timeout="0"
+         force_assignment_to_human="false" id="Activity66"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity66" notify_participant_on_assignment="false"
+         oid="8589945035" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity67"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity67" notify_participant_on_assignment="false"
+         oid="8589945049" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity68"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity68" notify_participant_on_assignment="false"
+         oid="8589945054" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application4" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity72"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity72" notify_participant_on_assignment="false"
+         oid="8589944959" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity73"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity73" notify_participant_on_assignment="false"
+         oid="8589945043" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity67" id="Transition51" name="Transition51"
+         oid="8589945050" to="Activity66"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity66" id="Transition52" name="Transition52"
+         oid="8589945055" to="Activity68"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity68" id="Transition54" name="Transition54"
+         oid="8589944976" to="Activity72"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity72" id="Transition57" name="Transition57"
+         oid="8589945058" to="Activity73"/>
+      <DATA_MAPPING activity="Activity66"
+         application_in_path="Customer().FirstName()"
+         application_out_path="" data="Data18" data_in_path=""
+         data_out_path="" oid="8589945046" type="IN"/>
+      <DATA_MAPPING activity="Activity66" application_in_path=""
+         application_out_path="Error().Code()" data="ERROR_CODE"
+         data_in_path="" data_out_path="" oid="8589945070" type="OUT"/>
+      <DATA_MAPPING activity="Activity67" application_in_path="Data18()"
+         application_out_path="Data18()" data="Data18" data_in_path=""
+         data_out_path="" oid="8589945060" type="OUT"/>
+      <DATA_MAPPING activity="Activity68" application_in_path="Data18()"
+         application_out_path="Data18()" data="Data18" data_in_path=""
+         data_out_path="" oid="8589945062" type="IN"/>
+      <DATA_MAPPING activity="Activity72"
+         application_in_path="Customer().BankAccount().BankID()"
+         application_out_path="" data="Data18" data_in_path=""
+         data_out_path="" oid="8589945069" type="IN"/>
+      <DATA_MAPPING activity="Activity72" application_in_path=""
+         application_out_path="Error().Code()" data="ERROR_CODE"
+         data_in_path="" data_out_path="" oid="8589945077" type="OUT"/>
+      <DATA_MAPPING activity="Activity73" application_in_path="Data18()"
+         application_out_path="Data18()" data="Data18" data_in_path=""
+         data_out_path="" oid="8589945083" type="IN"/>
+      <TRIGGER_MANUAL oid="8589945033" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945034" refer="Activity66" x="231" y="183"/>
+         <ROLE_SYMBOL id="8589945036" refer="Administrator" x="626" y="16"/>
+         <APPLICATION_SYMBOL id="8589945037" refer="Application4"
+            x="408" y="7"/>
+         <DATA_SYMBOL id="8589945044" refer="Data18" x="437" y="347"/>
+         <ACTIVITY_SYMBOL id="8589945048" refer="Activity67" x="35" y="232"/>
+         <ACTIVITY_SYMBOL id="8589945053" refer="Activity68" x="389" y="176"/>
+         <DATA_SYMBOL id="8589945066" refer="ERROR_CODE" x="538" y="347"/>
+         <ACTIVITY_SYMBOL id="8589944958" refer="Activity72" x="526" y="162"/>
+         <ACTIVITY_SYMBOL id="8589945042" refer="Activity73" x="602" y="244"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945034"
+            application_symbol="8589945037" id="8589945039"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945034"
+            id="8589945040" participant_symbol="8589945036"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945034"
+            data_symbol="8589945044" id="8589945047"/>
+         <TRANSITION_CONNECTION id="8589945051"
+            source_activity_symbol="8589945048"
+            target_activity_symbol="8589945034" transition="Transition51"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945048"
+            id="8589945052" participant_symbol="8589945036"/>
+         <TRANSITION_CONNECTION id="8589945056"
+            source_activity_symbol="8589945034"
+            target_activity_symbol="8589945053" transition="Transition52"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945053"
+            id="8589945057" participant_symbol="8589945036"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945048"
+            data_symbol="8589945044" id="8589945061"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945053"
+            data_symbol="8589945044" id="8589945063"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945034"
+            data_symbol="8589945066" id="8589945071"/>
+         <TRANSITION_CONNECTION id="8589945041"
+            source_activity_symbol="8589945053"
+            target_activity_symbol="8589944958" transition="Transition54"/>
+         <TRANSITION_CONNECTION id="8589945059"
+            source_activity_symbol="8589944958"
+            target_activity_symbol="8589945042" transition="Transition57"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589944958"
+            application_symbol="8589945037" id="8589945064"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944958"
+            data_symbol="8589945044" id="8589945076"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589944958"
+            data_symbol="8589945066" id="8589945082"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945042"
+            data_symbol="8589945044" id="8589945084"/>
+         <PERFORMS_CONNECTION activity_symbol="8589944958"
+            id="8589945091" participant_symbol="8589945036"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945042"
+            id="8589945092" participant_symbol="8589945036"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="BAHNDIREKT_RECOVERY" name="BahnDirekt Recovery"
+      oid="8589945072" remote_host_emulation="tn5250"
+      remote_host_port="23" remote_hostname="">
+      <DESCRIPTION><![CDATA[
+         ]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="START_ONLINE_BUCHUNG"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Start Online-Buchung"
+         notify_participant_on_assignment="false" oid="8589945075"
+         performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="FINISH_ONLINE_BUCHUNG"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Finish Online-Buchung"
+         notify_participant_on_assignment="false" oid="8589945079"
+         performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="FULFILLMENT"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Fulfillment" notify_participant_on_assignment="false"
+         oid="8589945081" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="FINISH_ONLINE_BUCHUNG" id="Transition55"
+         name="Transition55" oid="8589945086" to="FULFILLMENT"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="START_ONLINE_BUCHUNG" id="Transition56"
+         name="Transition56" oid="8589945105" to="FINISH_ONLINE_BUCHUNG"/>
+      <TRIGGER_MANUAL oid="8589945073" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945074" refer="START_ONLINE_BUCHUNG"
+            x="42" y="136"/>
+         <ACTIVITY_SYMBOL id="8589945078" refer="FINISH_ONLINE_BUCHUNG"
+            x="233" y="136"/>
+         <ACTIVITY_SYMBOL id="8589945080" refer="FULFILLMENT" x="429" y="136"/>
+         <ROLE_SYMBOL id="8589945088" refer="Administrator" x="279" y="280"/>
+         <TRANSITION_CONNECTION id="8589945087"
+            source_activity_symbol="8589945078"
+            target_activity_symbol="8589945080" transition="Transition55"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945080"
+            id="8589945089" participant_symbol="8589945088"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945078"
+            id="8589945103" participant_symbol="8589945088"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945074"
+            id="8589945104" participant_symbol="8589945088"/>
+         <TRANSITION_CONNECTION id="8589945106"
+            source_activity_symbol="8589945074"
+            target_activity_symbol="8589945078" transition="Transition56"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="NON_INTERACTIVE_OIS_PROCESS"
+      name="Non-Interactive OIS Process" oid="8589945093"
+      remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application5" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity74"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity74" notify_participant_on_assignment="false"
+         oid="8589945096" performer="Role19" split="None"/>
+      <DATA_MAPPING activity="Activity74" application_in_path=""
+         application_out_path="" data="Data1" data_in_path=""
+         data_out_path="" oid="8589945108" type="IN"/>
+      <TRIGGER_MANUAL oid="8589945094" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945095" refer="Activity74" x="179" y="216"/>
+         <APPLICATION_SYMBOL id="8589945097" refer="Application5"
+            x="180" y="74"/>
+         <ROLE_SYMBOL id="8589945100" refer="Role19" x="94" y="335"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945095"
+            application_symbol="8589945097" id="8589945099"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945095"
+            id="8589945102" participant_symbol="8589945100"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition26" name="JOIN and Subprocess"
+      oid="8589945112" remote_host_emulation="tn5250"
+      remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity75"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity75" notify_participant_on_assignment="false"
+         oid="8589945116" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity76"
+         implementation="Subprocess"
+         implementation_process="ProcessDefinition27" join="None"
+         loop_type="No Loop" name="Activity76"
+         notify_participant_on_assignment="false" oid="8589945118" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity77"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity77" notify_participant_on_assignment="false"
+         oid="8589945120" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity78"
+         implementation="Manual" join="AND" loop_type="No Loop"
+         name="Activity78" notify_participant_on_assignment="false"
+         oid="8589945122" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity75" id="Transition58" name="Transition58"
+         oid="8589945123" to="Activity76"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity75" id="Transition59" name="Transition59"
+         oid="8589945125" to="Activity77"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity76" id="Transition60" name="Transition60"
+         oid="8589945127" to="Activity78"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity77" id="Transition61" name="Transition61"
+         oid="8589945129" to="Activity78"/>
+      <TRIGGER_MANUAL oid="8589945114" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945115" refer="Activity75" x="56" y="179"/>
+         <ACTIVITY_SYMBOL id="8589945117" refer="Activity76" x="249" y="95"/>
+         <ACTIVITY_SYMBOL id="8589945119" refer="Activity77" x="249" y="264"/>
+         <ACTIVITY_SYMBOL id="8589945121" refer="Activity78" x="439" y="173"/>
+         <ROLE_SYMBOL id="8589945131" refer="Administrator" x="477" y="351"/>
+         <TRANSITION_CONNECTION id="8589945124"
+            source_activity_symbol="8589945115"
+            target_activity_symbol="8589945117" transition="Transition58"/>
+         <TRANSITION_CONNECTION id="8589945126"
+            source_activity_symbol="8589945115"
+            target_activity_symbol="8589945119" transition="Transition59"/>
+         <TRANSITION_CONNECTION id="8589945128"
+            source_activity_symbol="8589945117"
+            target_activity_symbol="8589945121" transition="Transition60"/>
+         <TRANSITION_CONNECTION id="8589945130"
+            source_activity_symbol="8589945119"
+            target_activity_symbol="8589945121" transition="Transition61"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945121"
+            id="8589945132" participant_symbol="8589945131"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945119"
+            id="8589945133" participant_symbol="8589945131"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition27" name="Subprocess fro JOIN"
+      oid="8589945113" remote_host_emulation="tn5250"
+      remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity79"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity79" notify_participant_on_assignment="false"
+         oid="8589945135" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity80"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity80" notify_participant_on_assignment="false"
+         oid="8589945137" performer="Administrator" split="None"/>
+      <TRANSITION condition="FLAG = 42" fork_on_traversal="false"
+         from="Activity79" id="Transition62" name="Transition62"
+         oid="8589945138" to="Activity80"/>
+      <DATA_MAPPING activity="Activity80" application_in_path="FLAG()"
+         application_out_path="FLAG()" data="FLAG" data_in_path=""
+         data_out_path="" oid="8589945142" type="IN"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945134" refer="Activity79" x="92" y="166"/>
+         <ACTIVITY_SYMBOL id="8589945136" refer="Activity80" x="278" y="254"/>
+         <DATA_SYMBOL id="8589945140" refer="FLAG" x="218" y="335"/>
+         <ROLE_SYMBOL id="8589945144" refer="Administrator" x="299" y="76"/>
+         <TRANSITION_CONNECTION id="8589945139"
+            source_activity_symbol="8589945134"
+            target_activity_symbol="8589945136" transition="Transition62"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945136"
+            data_symbol="8589945140" id="8589945143"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945136"
+            id="8589945145" participant_symbol="8589945144"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="NOTIFICATIONS" name="Notifications" oid="8589945146"
+      remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity81"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity81" notify_participant_on_assignment="false"
+         oid="8589945149" performer="Administrator" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity82"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity82" notify_participant_on_assignment="false"
+         oid="8589945151" performer="Administrator" split="None">
+         <NOTIFICATION notification_action_type="1" oid="8589945166"
+            timeout_in_sec="30000" triggered_process_definition="THREE_MANUAL_ACTIVITIES"/>
+      </ACTIVITY>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity83"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity83" notify_participant_on_assignment="false"
+         oid="8589945158" performer="Administrator" split="None">
+         <NOTIFICATION notification_action_type="1" oid="8589945161"
+            timeout_in_sec="30000" triggered_process_definition="THREE_MANUAL_ACTIVITIES"/>
+      </ACTIVITY>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity81" id="Transition63" name="Transition63"
+         oid="8589945152" to="Activity82"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity81" id="Transition64" name="Transition64"
+         oid="8589945159" to="Activity83"/>
+      <DATA_MAPPING activity="Activity81" application_in_path="Data10()"
+         application_out_path="Data10()" data="Data10" data_in_path=""
+         data_out_path="" oid="8589945164" type="IN"/>
+      <TRIGGER_MANUAL oid="8589945147" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945148" refer="Activity81" x="59" y="82"/>
+         <ACTIVITY_SYMBOL id="8589945150" refer="Activity82" x="285" y="119"/>
+         <ROLE_SYMBOL id="8589945154" refer="Administrator" x="113" y="223"/>
+         <ACTIVITY_SYMBOL id="8589945157" refer="Activity83" x="285" y="33"/>
+         <DATA_SYMBOL id="8589945163" refer="Data10" x="42" y="177"/>
+         <TRANSITION_CONNECTION id="8589945153"
+            source_activity_symbol="8589945148"
+            target_activity_symbol="8589945150" transition="Transition63"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945148"
+            id="8589945155" participant_symbol="8589945154"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945150"
+            id="8589945156" participant_symbol="8589945154"/>
+         <TRANSITION_CONNECTION id="8589945160"
+            source_activity_symbol="8589945148"
+            target_activity_symbol="8589945157" transition="Transition64"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945157"
+            id="8589945162" participant_symbol="8589945154"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945148"
+            data_symbol="8589945163" id="8589945165"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition29" name="Subprocess-Loop"
+      oid="8589945171" remote_host_emulation="tn5250"
+      remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity84"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity84" notify_participant_on_assignment="false"
+         oid="8589945173" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity85"
+         implementation="Subprocess"
+         implementation_process="ProcessDefinition30" join="None"
+         loop_condition="STATE != 1" loop_type="Repeat"
+         name="Activity85" notify_participant_on_assignment="false"
+         oid="8589945175" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity86"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity86" notify_participant_on_assignment="false"
+         oid="8589945177" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity84" id="Transition65" name="Transition65"
+         oid="8589945178" to="Activity85"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity85" id="Transition66" name="Transition66"
+         oid="8589945180" to="Activity86"/>
+      <TRIGGER_MANUAL oid="8589945197" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945172" refer="Activity84" x="86" y="170"/>
+         <ACTIVITY_SYMBOL id="8589945174" refer="Activity85" x="282" y="177"/>
+         <ACTIVITY_SYMBOL id="8589945176" refer="Activity86" x="490" y="181"/>
+         <ROLE_SYMBOL id="8589945182" refer="Administrator" x="530" y="92"/>
+         <TRANSITION_CONNECTION id="8589945179"
+            source_activity_symbol="8589945172"
+            target_activity_symbol="8589945174" transition="Transition65"/>
+         <TRANSITION_CONNECTION id="8589945181"
+            source_activity_symbol="8589945174"
+            target_activity_symbol="8589945176" transition="Transition66"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945176"
+            id="8589945183" participant_symbol="8589945182"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition30" name="Clearing" oid="8589945184"
+      remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity87"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity87" notify_participant_on_assignment="false"
+         oid="8589945186" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity88"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Clearing" notify_participant_on_assignment="false"
+         oid="8589945188" performer="Administrator" split="None"/>
+      <TRANSITION condition="STATE = 1" fork_on_traversal="false"
+         from="Activity87" id="Transition67" name="Transition67"
+         oid="8589945193" to="Activity88"/>
+      <DATA_MAPPING activity="Activity87" application_in_path="STATE()"
+         application_out_path="STATE()" data="STATE" data_in_path=""
+         data_out_path="" oid="8589945191" type="OUT"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945185" refer="Activity87" x="101" y="202"/>
+         <ACTIVITY_SYMBOL id="8589945187" refer="Activity88" x="369" y="202"/>
+         <DATA_SYMBOL id="8589945189" refer="STATE" x="213" y="282"/>
+         <ROLE_SYMBOL id="8589945195" refer="Administrator" x="238" y="109"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945185"
+            data_symbol="8589945189" id="8589945192"/>
+         <TRANSITION_CONNECTION id="8589945194"
+            source_activity_symbol="8589945185"
+            target_activity_symbol="8589945187" transition="Transition67"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945187"
+            id="8589945196" participant_symbol="8589945195"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945185"
+            id="8589945198" participant_symbol="8589945195"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition31"
+      name="Interactive and Non-Interactive" oid="8589945199"
+      remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity89"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity89" notify_participant_on_assignment="false"
+         oid="8589945202" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity90"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity90" notify_participant_on_assignment="false"
+         oid="8589945204" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity91"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity91" notify_participant_on_assignment="false"
+         oid="8589945206" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity92"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity92" notify_participant_on_assignment="false"
+         oid="8589945208" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity93"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity93" notify_participant_on_assignment="false"
+         oid="8589945210" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity94"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity94" notify_participant_on_assignment="false"
+         oid="8589945220" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity89" id="Transition68" name="Transition68"
+         oid="8589945211" to="Activity90"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity90" id="Transition69" name="Transition69"
+         oid="8589945213" to="Activity91"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity91" id="Transition70" name="Transition70"
+         oid="8589945215" to="Activity92"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity92" id="Transition71" name="Transition71"
+         oid="8589945217" to="Activity93"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity93" id="Transition72" name="Transition72"
+         oid="8589945221" to="Activity94"/>
+      <TRIGGER_MANUAL oid="8589945200" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945201" refer="Activity89" x="79" y="81"/>
+         <ACTIVITY_SYMBOL id="8589945203" refer="Activity90" x="237" y="81"/>
+         <ACTIVITY_SYMBOL id="8589945205" refer="Activity91" x="395" y="81"/>
+         <ACTIVITY_SYMBOL id="8589945207" refer="Activity92" x="553" y="81"/>
+         <ACTIVITY_SYMBOL id="8589945209" refer="Activity93" x="711" y="81"/>
+         <ACTIVITY_SYMBOL id="8589945219" refer="Activity94" x="869" y="81"/>
+         <ROLE_SYMBOL id="8589945223" refer="Administrator" x="474" y="274"/>
+         <TRANSITION_CONNECTION id="8589945212"
+            source_activity_symbol="8589945201"
+            target_activity_symbol="8589945203" transition="Transition68"/>
+         <TRANSITION_CONNECTION id="8589945214"
+            source_activity_symbol="8589945203"
+            target_activity_symbol="8589945205" transition="Transition69"/>
+         <TRANSITION_CONNECTION id="8589945216"
+            source_activity_symbol="8589945205"
+            target_activity_symbol="8589945207" transition="Transition70"/>
+         <TRANSITION_CONNECTION id="8589945218"
+            source_activity_symbol="8589945207"
+            target_activity_symbol="8589945209" transition="Transition71"/>
+         <TRANSITION_CONNECTION id="8589945222"
+            source_activity_symbol="8589945209"
+            target_activity_symbol="8589945219" transition="Transition72"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945201"
+            id="8589945224" participant_symbol="8589945223"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945203"
+            id="8589945225" participant_symbol="8589945223"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945209"
+            id="8589945226" participant_symbol="8589945223"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945219"
+            id="8589945227" participant_symbol="8589945223"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition32"
+      name="Subprocess With Multiple Threads" oid="8589945228"
+      remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity95"
+         implementation="Subprocess"
+         implementation_process="ProcessDefinition2" join="None"
+         loop_type="No Loop" name="Activity95"
+         notify_participant_on_assignment="false" oid="8589945231" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity96"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity96" notify_participant_on_assignment="false"
+         oid="8589945233" performer="Administrator" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity95" id="Transition73" name="Transition73"
+         oid="8589945234" to="Activity96"/>
+      <TRIGGER_MANUAL oid="8589945229" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945230" refer="Activity95" x="134" y="119"/>
+         <ACTIVITY_SYMBOL id="8589945232" refer="Activity96" x="334" y="113"/>
+         <ROLE_SYMBOL id="8589945236" refer="Administrator" x="367" y="227"/>
+         <TRANSITION_CONNECTION id="8589945235"
+            source_activity_symbol="8589945230"
+            target_activity_symbol="8589945232" transition="Transition73"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945232"
+            id="8589945237" participant_symbol="8589945236"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="CONCURRENCY" name="Concurrency" oid="8589945065"
+      remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="">
+      <DESCRIPTION><![CDATA[
+         ]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity97"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity97" notify_participant_on_assignment="false"
+         oid="8589945090" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity98"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity98" notify_participant_on_assignment="false"
+         oid="8589945109" performer="Role2" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity99"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity99" notify_participant_on_assignment="false"
+         oid="8589945241" performer="Role1" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity100"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity100" notify_participant_on_assignment="false"
+         oid="8589945243" performer="Role3" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity101"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity101" notify_participant_on_assignment="false"
+         oid="8589945257" performer="Role2" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity102"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity102" notify_participant_on_assignment="false"
+         oid="8589945266" performer="Role3" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity103"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity103" notify_participant_on_assignment="false"
+         oid="8589945270" performer="Role1" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity121"
+         implementation="Route" join="AND" loop_type="No Loop"
+         name="Activity121" notify_participant_on_assignment="false"
+         oid="8589945376" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity97" id="Transition74" name="Transition74"
+         oid="8589945110" to="Activity98"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity97" id="Transition75" name="Transition75"
+         oid="8589945244" to="Activity99"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity97" id="Transition76" name="Transition76"
+         oid="8589945246" to="Activity100"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity99" id="Transition77" name="Transition77"
+         oid="8589945258" to="Activity101"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity98" id="Transition80" name="Transition80"
+         oid="8589945267" to="Activity102"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity100" id="Transition81" name="Transition81"
+         oid="8589945274" to="Activity103"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity101" id="Transition95" name="Transition95"
+         oid="8589945377" to="Activity121"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity102" id="Transition96" name="Transition96"
+         oid="8589945379" to="Activity121"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity103" id="Transition97" name="Transition97"
+         oid="8589945381" to="Activity121"/>
+      <TRIGGER_MANUAL oid="8589945068" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945085" refer="Activity97" x="77" y="157"/>
+         <ACTIVITY_SYMBOL id="8589945107" refer="Activity98" x="246" y="157"/>
+         <ACTIVITY_SYMBOL id="8589945240" refer="Activity99" x="246" y="76"/>
+         <ACTIVITY_SYMBOL id="8589945242" refer="Activity100" x="246" y="250"/>
+         <ROLE_SYMBOL id="8589945248" refer="Role1" x="416" y="25"/>
+         <ROLE_SYMBOL id="8589945249" refer="Role2" x="426" y="114"/>
+         <ROLE_SYMBOL id="8589945251" refer="Role3" x="396" y="217"/>
+         <ACTIVITY_SYMBOL id="8589945256" refer="Activity101" x="558" y="75"/>
+         <ACTIVITY_SYMBOL id="8589945265" refer="Activity102" x="558" y="196"/>
+         <ACTIVITY_SYMBOL id="8589945269" refer="Activity103" x="558" y="329"/>
+         <ACTIVITY_SYMBOL id="8589945375" refer="Activity121" x="783" y="196"/>
+         <TRANSITION_CONNECTION id="8589945111"
+            source_activity_symbol="8589945085"
+            target_activity_symbol="8589945107" transition="Transition74"/>
+         <TRANSITION_CONNECTION id="8589945245"
+            source_activity_symbol="8589945085"
+            target_activity_symbol="8589945240" transition="Transition75"/>
+         <TRANSITION_CONNECTION id="8589945247"
+            source_activity_symbol="8589945085"
+            target_activity_symbol="8589945242" transition="Transition76"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945242"
+            id="8589945253" participant_symbol="8589945251"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945107"
+            id="8589945254" participant_symbol="8589945249"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945240"
+            id="8589945255" participant_symbol="8589945248"/>
+         <TRANSITION_CONNECTION id="8589945259"
+            source_activity_symbol="8589945240"
+            target_activity_symbol="8589945256" transition="Transition77"/>
+         <TRANSITION_CONNECTION id="8589945268"
+            source_activity_symbol="8589945107"
+            target_activity_symbol="8589945265" transition="Transition80"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945269"
+            id="8589945271" participant_symbol="8589945248"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945265"
+            id="8589945272" participant_symbol="8589945251"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945256"
+            id="8589945273" participant_symbol="8589945249"/>
+         <TRANSITION_CONNECTION id="8589945275"
+            source_activity_symbol="8589945242"
+            target_activity_symbol="8589945269" transition="Transition81"/>
+         <TRANSITION_CONNECTION id="8589945378"
+            source_activity_symbol="8589945256"
+            target_activity_symbol="8589945375" transition="Transition95"/>
+         <TRANSITION_CONNECTION id="8589945380"
+            source_activity_symbol="8589945265"
+            target_activity_symbol="8589945375" transition="Transition96"/>
+         <TRANSITION_CONNECTION id="8589945382"
+            source_activity_symbol="8589945269"
+            target_activity_symbol="8589945375" transition="Transition97"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="INITIAL_DATA_PROCESSING" name="Initial Data Processing"
+      oid="8589945276" remote_host_emulation="tn5250"
+      remote_host_port="23" remote_hostname="">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity104"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Process Input Data"
+         notify_participant_on_assignment="false" oid="8589945279"
+         performer="Administrator" split="None"/>
+      <DATA_MAPPING activity="Activity104"
+         application_in_path="STRING_DATA1()"
+         application_out_path="STRING_DATA1()" data="STRING_DATA1"
+         data_in_path="" data_out_path="" oid="8589945287" type="IN"/>
+      <DATA_MAPPING activity="Activity104"
+         application_in_path="STRING_DATA2()"
+         application_out_path="STRING_DATA2()" data="STRING_DATA2"
+         data_in_path="" data_out_path="" oid="8589945289" type="IN"/>
+      <TRIGGER_MANUAL oid="8589945277" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945278" refer="Activity104" x="144" y="245"/>
+         <ROLE_SYMBOL id="8589945280" refer="Administrator" x="165" y="68"/>
+         <DATA_SYMBOL id="8589945283" refer="STRING_DATA1" x="54" y="50"/>
+         <DATA_SYMBOL id="8589945285" refer="STRING_DATA2" x="61" y="161"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945278"
+            id="8589945281" participant_symbol="8589945280"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945278"
+            data_symbol="8589945283" id="8589945288"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945278"
+            data_symbol="8589945285" id="8589945290"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition35"
+      name="Superprocess with Sleeping Non-Interactive Activity"
+      oid="8589945291" remote_host_emulation="tn5250" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity105"
+         implementation="Subprocess"
+         implementation_process="ProcessDefinition36" join="None"
+         loop_condition="STATE = 666" loop_type="Repeat"
+         name="Subprocess Loop" notify_participant_on_assignment="false"
+         oid="8589945295" split="None"/>
+      <TRIGGER_MANUAL oid="8589945293" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945294" refer="Activity105" x="139" y="205"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition36"
+      name="Subprocess with Sleeping Non-Interactive Activity"
+      oid="8589945292" remote_host_emulation="tn5250" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application6" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity106"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity106" notify_participant_on_assignment="false"
+         oid="8589945297" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity107"
+         implementation="Manual" join="None" loop_type="No Loop"
+         name="Activity107" notify_participant_on_assignment="false"
+         oid="8589945299" performer="Administrator" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity109"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity109" notify_participant_on_assignment="false"
+         oid="8589945317" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity106" id="Transition82" name="Transition82"
+         oid="8589945303" to="Activity107"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity107" id="Transition84" name="Transition84"
+         oid="8589945318" to="Activity109"/>
+      <DATA_MAPPING activity="Activity107" application_in_path="STATE()"
+         application_out_path="STATE()" data="STATE" data_in_path=""
+         data_out_path="" oid="8589945301" type="INOUT"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945296" refer="Activity106" x="56" y="166"/>
+         <ACTIVITY_SYMBOL id="8589945298" refer="Activity107" x="297" y="166"/>
+         <DATA_SYMBOL id="8589945300" refer="STATE" x="201" y="24"/>
+         <ROLE_SYMBOL id="8589945305" refer="Administrator" x="310" y="40"/>
+         <APPLICATION_SYMBOL id="8589945307" refer="Application6" x="76" y="63"/>
+         <ACTIVITY_SYMBOL id="8589945316" refer="Activity109" x="475" y="96"/>
+         <DATA_MAPPING_CONNECTION activity_symbol="8589945298"
+            data_symbol="8589945300" id="8589945302"/>
+         <TRANSITION_CONNECTION id="8589945304"
+            source_activity_symbol="8589945296"
+            target_activity_symbol="8589945298" transition="Transition82"/>
+         <PERFORMS_CONNECTION activity_symbol="8589945298"
+            id="8589945306" participant_symbol="8589945305"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945296"
+            application_symbol="8589945307" id="8589945309"/>
+         <TRANSITION_CONNECTION id="8589945319"
+            source_activity_symbol="8589945298"
+            target_activity_symbol="8589945316" transition="Transition84"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ProcessDefinition37" name="CMTD-Test" oid="8589945324"
+      remote_host_emulation="tn5250" remote_host_port="23">
+      <DESCRIPTION><![CDATA[
+         ]]></DESCRIPTION>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application3" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity111"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity111" notify_participant_on_assignment="false"
+         oid="8589945327" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application6" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity112"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity112" notify_participant_on_assignment="false"
+         oid="8589945329" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application3" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity113"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity113" notify_participant_on_assignment="false"
+         oid="8589945331" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application6" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity114"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity114" notify_participant_on_assignment="false"
+         oid="8589945333" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application6" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity115"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity115" notify_participant_on_assignment="false"
+         oid="8589945344" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application3" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity116"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity116" notify_participant_on_assignment="false"
+         oid="8589945352" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application3" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity117"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity117" notify_participant_on_assignment="false"
+         oid="8589945356" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application3" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity118"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity118" notify_participant_on_assignment="false"
+         oid="8589945358" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false"
+         application="Application3" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity119"
+         implementation="Application" join="None" loop_type="No Loop"
+         name="Activity119" notify_participant_on_assignment="false"
+         oid="8589945367" split="None"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity111" id="Transition86" name="Transition86"
+         oid="8589945334" to="Activity112"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity112" id="Transition87" name="Transition87"
+         oid="8589945336" to="Activity114"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity111" id="Transition88" name="Transition88"
+         oid="8589945338" to="Activity113"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity114" id="Transition89" name="Transition89"
+         oid="8589945345" to="Activity115"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity111" id="Transition90" name="Transition90"
+         oid="8589945353" to="Activity116"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity111" id="Transition91" name="Transition91"
+         oid="8589945359" to="Activity117"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity111" id="Transition92" name="Transition92"
+         oid="8589945361" to="Activity118"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity112" id="Transition93" name="Transition93"
+         oid="8589945368" to="Activity119"/>
+      <TRIGGER_MANUAL oid="8589945325" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945326" refer="Activity111" x="103" y="509"/>
+         <ACTIVITY_SYMBOL id="8589945328" refer="Activity112" x="314" y="509"/>
+         <ACTIVITY_SYMBOL id="8589945330" refer="Activity113" x="267" y="376"/>
+         <ACTIVITY_SYMBOL id="8589945332" refer="Activity114" x="514" y="509"/>
+         <APPLICATION_SYMBOL id="8589945340" refer="Application6"
+            x="518" y="597"/>
+         <ACTIVITY_SYMBOL id="8589945343" refer="Activity115" x="714" y="509"/>
+         <APPLICATION_SYMBOL id="8589945348" refer="Application3" x="55" y="144"/>
+         <ACTIVITY_SYMBOL id="8589945351" refer="Activity116" x="267" y="306"/>
+         <ACTIVITY_SYMBOL id="8589945355" refer="Activity117" x="267" y="236"/>
+         <ACTIVITY_SYMBOL id="8589945357" refer="Activity118" x="267" y="170"/>
+         <ACTIVITY_SYMBOL id="8589945366" refer="Activity119" x="513" y="356"/>
+         <TRANSITION_CONNECTION id="8589945335"
+            source_activity_symbol="8589945326"
+            target_activity_symbol="8589945328" transition="Transition86"/>
+         <TRANSITION_CONNECTION id="8589945337"
+            source_activity_symbol="8589945328"
+            target_activity_symbol="8589945332" transition="Transition87"/>
+         <TRANSITION_CONNECTION id="8589945339"
+            source_activity_symbol="8589945326"
+            target_activity_symbol="8589945330" transition="Transition88"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945328"
+            application_symbol="8589945340" id="8589945341"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945332"
+            application_symbol="8589945340" id="8589945342"/>
+         <TRANSITION_CONNECTION id="8589945346"
+            source_activity_symbol="8589945332"
+            target_activity_symbol="8589945343" transition="Transition89"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945343"
+            application_symbol="8589945340" id="8589945347"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945326"
+            application_symbol="8589945348" id="8589945349"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945330"
+            application_symbol="8589945348" id="8589945350"/>
+         <TRANSITION_CONNECTION id="8589945354"
+            source_activity_symbol="8589945326"
+            target_activity_symbol="8589945351" transition="Transition90"/>
+         <TRANSITION_CONNECTION id="8589945360"
+            source_activity_symbol="8589945326"
+            target_activity_symbol="8589945355" transition="Transition91"/>
+         <TRANSITION_CONNECTION id="8589945362"
+            source_activity_symbol="8589945326"
+            target_activity_symbol="8589945357" transition="Transition92"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945351"
+            application_symbol="8589945348" id="8589945363"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945355"
+            application_symbol="8589945348" id="8589945364"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945357"
+            application_symbol="8589945348" id="8589945365"/>
+         <TRANSITION_CONNECTION id="8589945369"
+            source_activity_symbol="8589945328"
+            target_activity_symbol="8589945366" transition="Transition93"/>
+         <EXECUTED_BY_CONNECTION activity_symbol="8589945366"
+            application_symbol="8589945348" id="8589945370"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <WORKFLOW id="ROUTE_SPLIT_JOIN" name="Route Split/Join"
+      oid="8589945383" remote_host_emulation="tn5250" remote_host_port="23">
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity122"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity122" notify_participant_on_assignment="false"
+         oid="8589945385" split="AND"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity123"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity123" notify_participant_on_assignment="false"
+         oid="8589945387" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity124"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity124" notify_participant_on_assignment="false"
+         oid="8589945389" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity125"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity125" notify_participant_on_assignment="false"
+         oid="8589945391" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity126"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity126" notify_participant_on_assignment="false"
+         oid="8589945393" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity127"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity127" notify_participant_on_assignment="false"
+         oid="8589945395" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity128"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity128" notify_participant_on_assignment="false"
+         oid="8589945397" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity129"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity129" notify_participant_on_assignment="false"
+         oid="8589945399" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity130"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity130" notify_participant_on_assignment="false"
+         oid="8589945401" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity131"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity131" notify_participant_on_assignment="false"
+         oid="8589945403" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity132"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity132" notify_participant_on_assignment="false"
+         oid="8589945405" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity133"
+         implementation="Route" join="AND" loop_type="No Loop"
+         name="Activity133" notify_participant_on_assignment="false"
+         oid="8589945428" split="AND">
+         <DESCRIPTION><![CDATA[]]></DESCRIPTION>
+      </ACTIVITY>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity134"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity134" notify_participant_on_assignment="false"
+         oid="8589945450" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity135"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity135" notify_participant_on_assignment="false"
+         oid="8589945452" split="AND">
+         <DESCRIPTION><![CDATA[]]></DESCRIPTION>
+      </ACTIVITY>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity136"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity136" notify_participant_on_assignment="false"
+         oid="8589945454" split="AND">
+         <DESCRIPTION><![CDATA[]]></DESCRIPTION>
+      </ACTIVITY>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity137"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity137" notify_participant_on_assignment="false"
+         oid="8589945456" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity138"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity138" notify_participant_on_assignment="false"
+         oid="8589945462" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity139"
+         implementation="Route" join="None" loop_type="No Loop"
+         name="Activity139" notify_participant_on_assignment="false"
+         oid="8589945464" split="None"/>
+      <ACTIVITY allows_abort_by_performer="false" breakpoint="false"
+         completion_recovery_timeout="300"
+         duration_recovery_timeout="300"
+         force_assignment_to_human="false" id="Activity140"
+         implementation="Route" join="AND" loop_type="No Loop"
+         name="Activity140" notify_participant_on_assignment="false"
+         oid="8589945474" split="None">
+         <DESCRIPTION><![CDATA[]]></DESCRIPTION>
+      </ACTIVITY>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition98" name="Transition98"
+         oid="8589945406" to="Activity131"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition99" name="Transition99"
+         oid="8589945408" to="Activity123"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition100" name="Transition100"
+         oid="8589945410" to="Activity124"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition101" name="Transition101"
+         oid="8589945412" to="Activity125"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition102" name="Transition102"
+         oid="8589945414" to="Activity126"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition103" name="Transition103"
+         oid="8589945416" to="Activity127"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition104" name="Transition104"
+         oid="8589945418" to="Activity128"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition105" name="Transition105"
+         oid="8589945420" to="Activity129"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition106" name="Transition106"
+         oid="8589945422" to="Activity130"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity122" id="Transition107" name="Transition107"
+         oid="8589945424" to="Activity132"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity131" id="Transition108" name="Transition108"
+         oid="8589945429" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity123" id="Transition109" name="Transition109"
+         oid="8589945431" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity124" id="Transition110" name="Transition110"
+         oid="8589945433" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity125" id="Transition111" name="Transition111"
+         oid="8589945435" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity126" id="Transition112" name="Transition112"
+         oid="8589945437" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity127" id="Transition113" name="Transition113"
+         oid="8589945439" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity128" id="Transition114" name="Transition114"
+         oid="8589945441" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity129" id="Transition115" name="Transition115"
+         oid="8589945443" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity130" id="Transition116" name="Transition116"
+         oid="8589945445" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity132" id="Transition117" name="Transition117"
+         oid="8589945447" to="Activity133"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity133" id="Transition118" name="Transition118"
+         oid="8589945457" to="Activity135"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity133" id="Transition119" name="Transition119"
+         oid="8589945459" to="Activity136"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity135" id="Transition120" name="Transition120"
+         oid="8589945465" to="Activity134"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity135" id="Transition121" name="Transition121"
+         oid="8589945467" to="Activity137"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity136" id="Transition122" name="Transition122"
+         oid="8589945469" to="Activity138"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity136" id="Transition123" name="Transition123"
+         oid="8589945471" to="Activity139"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity134" id="Transition124" name="Transition124"
+         oid="8589945475" to="Activity140"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity137" id="Transition125" name="Transition125"
+         oid="8589945477" to="Activity140"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity138" id="Transition126" name="Transition126"
+         oid="8589945479" to="Activity140"/>
+      <TRANSITION condition="TRUE" fork_on_traversal="false"
+         from="Activity139" id="Transition127" name="Transition127"
+         oid="8589945481" to="Activity140"/>
+      <TRIGGER_MANUAL oid="8589945426" participant="Administrator"/>
+      <DIAGRAM name="Default">
+         <ACTIVITY_SYMBOL id="8589945384" refer="Activity122" x="37" y="194"/>
+         <ACTIVITY_SYMBOL id="8589945386" refer="Activity123" x="223" y="104"/>
+         <ACTIVITY_SYMBOL id="8589945388" refer="Activity124" x="223" y="185"/>
+         <ACTIVITY_SYMBOL id="8589945390" refer="Activity125" x="223" y="266"/>
+         <ACTIVITY_SYMBOL id="8589945392" refer="Activity126" x="223" y="347"/>
+         <ACTIVITY_SYMBOL id="8589945394" refer="Activity127" x="223" y="428"/>
+         <ACTIVITY_SYMBOL id="8589945396" refer="Activity128" x="223" y="509"/>
+         <ACTIVITY_SYMBOL id="8589945398" refer="Activity129" x="223" y="590"/>
+         <ACTIVITY_SYMBOL id="8589945400" refer="Activity130" x="223" y="671"/>
+         <ACTIVITY_SYMBOL id="8589945402" refer="Activity131" x="223" y="23"/>
+         <ACTIVITY_SYMBOL id="8589945404" refer="Activity132" x="223" y="752"/>
+         <ACTIVITY_SYMBOL id="8589945427" refer="Activity133" x="517" y="234"/>
+         <TRANSITION_CONNECTION id="8589945407"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945402" transition="Transition98"/>
+         <TRANSITION_CONNECTION id="8589945409"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945386" transition="Transition99"/>
+         <TRANSITION_CONNECTION id="8589945411"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945388" transition="Transition100"/>
+         <TRANSITION_CONNECTION id="8589945413"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945390" transition="Transition101"/>
+         <TRANSITION_CONNECTION id="8589945415"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945392" transition="Transition102"/>
+         <TRANSITION_CONNECTION id="8589945417"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945394" transition="Transition103"/>
+         <TRANSITION_CONNECTION id="8589945419"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945396" transition="Transition104"/>
+         <TRANSITION_CONNECTION id="8589945421"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945398" transition="Transition105"/>
+         <TRANSITION_CONNECTION id="8589945423"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945400" transition="Transition106"/>
+         <TRANSITION_CONNECTION id="8589945425"
+            source_activity_symbol="8589945384"
+            target_activity_symbol="8589945404" transition="Transition107"/>
+         <TRANSITION_CONNECTION id="8589945430"
+            source_activity_symbol="8589945402"
+            target_activity_symbol="8589945427" transition="Transition108"/>
+         <TRANSITION_CONNECTION id="8589945432"
+            source_activity_symbol="8589945386"
+            target_activity_symbol="8589945427" transition="Transition109"/>
+         <TRANSITION_CONNECTION id="8589945434"
+            source_activity_symbol="8589945388"
+            target_activity_symbol="8589945427" transition="Transition110"/>
+         <TRANSITION_CONNECTION id="8589945436"
+            source_activity_symbol="8589945390"
+            target_activity_symbol="8589945427" transition="Transition111"/>
+         <TRANSITION_CONNECTION id="8589945438"
+            source_activity_symbol="8589945392"
+            target_activity_symbol="8589945427" transition="Transition112"/>
+         <TRANSITION_CONNECTION id="8589945440"
+            source_activity_symbol="8589945394"
+            target_activity_symbol="8589945427" transition="Transition113"/>
+         <TRANSITION_CONNECTION id="8589945442"
+            source_activity_symbol="8589945396"
+            target_activity_symbol="8589945427" transition="Transition114"/>
+         <TRANSITION_CONNECTION id="8589945444"
+            source_activity_symbol="8589945398"
+            target_activity_symbol="8589945427" transition="Transition115"/>
+         <TRANSITION_CONNECTION id="8589945446"
+            source_activity_symbol="8589945400"
+            target_activity_symbol="8589945427" transition="Transition116"/>
+         <TRANSITION_CONNECTION id="8589945448"
+            source_activity_symbol="8589945404"
+            target_activity_symbol="8589945427" transition="Transition117"/>
+         <ACTIVITY_SYMBOL id="8589945449" refer="Activity134" x="933" y="197"/>
+         <ACTIVITY_SYMBOL id="8589945451" refer="Activity135" x="725" y="220"/>
+         <ACTIVITY_SYMBOL id="8589945453" refer="Activity136" x="734" y="366"/>
+         <ACTIVITY_SYMBOL id="8589945455" refer="Activity137" x="933" y="281"/>
+         <TRANSITION_CONNECTION id="8589945458"
+            source_activity_symbol="8589945427"
+            target_activity_symbol="8589945451" transition="Transition118"/>
+         <TRANSITION_CONNECTION id="8589945460"
+            source_activity_symbol="8589945427"
+            target_activity_symbol="8589945453" transition="Transition119"/>
+         <ACTIVITY_SYMBOL id="8589945461" refer="Activity138" x="933" y="351"/>
+         <ACTIVITY_SYMBOL id="8589945463" refer="Activity139" x="933" y="457"/>
+         <TRANSITION_CONNECTION id="8589945466"
+            source_activity_symbol="8589945451"
+            target_activity_symbol="8589945449" transition="Transition120"/>
+         <TRANSITION_CONNECTION id="8589945468"
+            source_activity_symbol="8589945451"
+            target_activity_symbol="8589945455" transition="Transition121"/>
+         <TRANSITION_CONNECTION id="8589945470"
+            source_activity_symbol="8589945453"
+            target_activity_symbol="8589945461" transition="Transition122"/>
+         <TRANSITION_CONNECTION id="8589945472"
+            source_activity_symbol="8589945453"
+            target_activity_symbol="8589945463" transition="Transition123"/>
+         <ACTIVITY_SYMBOL id="8589945473" refer="Activity140" x="1172" y="328"/>
+         <TRANSITION_CONNECTION id="8589945476"
+            source_activity_symbol="8589945449"
+            target_activity_symbol="8589945473" transition="Transition124"/>
+         <TRANSITION_CONNECTION id="8589945478"
+            source_activity_symbol="8589945455"
+            target_activity_symbol="8589945473" transition="Transition125"/>
+         <TRANSITION_CONNECTION id="8589945480"
+            source_activity_symbol="8589945461"
+            target_activity_symbol="8589945473" transition="Transition126"/>
+         <TRANSITION_CONNECTION id="8589945482"
+            source_activity_symbol="8589945463"
+            target_activity_symbol="8589945473" transition="Transition127"/>
+      </DIAGRAM>
+   </WORKFLOW>
+   <DIAGRAM name="Diagram1">
+      <ORGANISATION_SYMBOL id="8589944977" refer="Organisation1" x="200" y="50"/>
+      <ORGANISATION_SYMBOL id="8589944978" refer="Organisation2" x="167" y="111"/>
+      <ORGANISATION_SYMBOL id="8589944980" refer="Organisation3" x="167" y="172"/>
+      <ROLE_SYMBOL id="8589944982" refer="Role18" x="153" y="376"/>
+      <ORGANISATION_SYMBOL id="8589945008" refer="Organisation18"
+         x="360" y="215"/>
+      <ORGANISATION_SYMBOL id="8589945010" refer="Organisation19"
+         x="337" y="105"/>
+      <PART_OF_CONNECTION id="8589944979"
+         organisation_symbol="8589944977" suborganisation_symbol="8589944978"/>
+      <PART_OF_CONNECTION id="8589944981"
+         organisation_symbol="8589944978" suborganisation_symbol="8589944980"/>
+      <WORKS_FOR_CONNECTION id="8589944984"
+         organisation_symbol="8589944980" participant_symbol="8589944982"/>
+      <PART_OF_CONNECTION id="8589945012"
+         organisation_symbol="8589944977" suborganisation_symbol="8589945010"/>
+      <PART_OF_CONNECTION id="8589945013"
+         organisation_symbol="8589945010" suborganisation_symbol="8589945008"/>
+   </DIAGRAM>
+</MODEL>

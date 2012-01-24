@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema elementFormDefault="qualified" xml:lang="EN"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:ecc="http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd">
+	<xsd:import 
+		namespace = "http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd" 
+		schemaLocation = "EFET-CoreCmpts-V3R2.xsd"/>
+<!-- All Core ELEMENTS should be defined here. They will be included in by all Schemas and use the same default Namespace 	-->	
+	
+	<xsd:group name="DocumentHeader">
+		<xsd:sequence>
+			<xsd:element name = "DocumentID" type = "ecc:IdentificationType">
+				<xsd:annotation>
+					<xsd:documentation>Unique identification of a document.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element> 
+			<xsd:element name = "DocumentUsage" type = "ecc:UsageType">
+				<xsd:annotation>
+					<xsd:documentation>Is this a test or a production document.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name = "SenderID" type = "ecc:PartyType">
+				<xsd:annotation>
+					<xsd:documentation>The party that is sending the transaction.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name = "ReceiverID" type = "ecc:PartyType">
+				<xsd:annotation>
+					<xsd:documentation>The party that is receiving the transaction.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name = "ReceiverRole" type = "ecc:RoleType">
+				<xsd:annotation>
+					<xsd:documentation>Identification of the role that is played by the receiver. </xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:group>
+	<xsd:element name="Reason">
+		<xsd:annotation>
+			<xsd:documentation>Object used for the transmission of status codes and comments.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name = "ReasonCode" type = "ecc:ReasonCodeType">
+					<xsd:annotation>
+						<xsd:documentation>The coded motivation of an act.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+				<xsd:element name="ErrorSource" type="xsd:string" minOccurs = "0"/>
+				<xsd:element name="Originator" type="xsd:string" minOccurs = "0"/>
+				<xsd:element name="ReasonText" type="ecc:ReasonTextType" minOccurs = "0">
+					<xsd:annotation>
+						<xsd:documentation>The textual explanation of an act.</xsd:documentation>
+					</xsd:annotation>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!--
+  This build script is used by build.xml of this project.
+-->
+<project name="ipp-engine-ivy">
+
+   <target name="dependencies:initClasspath" depends="-ivy-classpath-init" />
+
+   <target name="dependencies:publish-local" depends="-ivy-publish-local" />
+
+   <target name="dependencies:publish" depends="-ivy-publish" />
+
+   <target name="-ivy-classpath-init" depends="-ivy-init, -ivy-resolve">
+
+      <path id="carnot.classpath">
+      	<path refid="carnot-engine.compile" />
+      	<path refid="carnot-engine.provided" />
+         <path refid="carnot-engine.compile.optional" />
+      </path>
+
+      <path id="secret.classpath">
+      	<path refid="jta.classpath"/>
+      	<path refid="compile.secret" />
+      	<path refid="cache.interface" />
+      	<path refid="hazelcast.cache.provider" />
+      </path>
+
+      <path id="jta.classpath">
+      	<path refid="jencks.jta.provider" />
+      </path>
+
+      <path id="jms.classpath">
+         <path refid="activemq.jms.provider" />
+      </path>
+
+      <path id="test.classpath">
+         <path refid="test" />
+      </path>
+
+      <path id="run.test.classpath">
+         <path refid="test.classpath" />
+         <path refid="run.test" />
+      </path>
+      
+      <path id="jarjar.classpath">
+         <path refid="ant.build.deps" />
+      </path>
+      
+   </target>
+
+
+   <target name="-ivy-init">
+
+      <echo message="Using Ivy for dependency management." />
+      <init-ivy />
+   </target>
+
+   <target name="-ivy-resolve" xmlns:ivy="antlib:org.apache.ivy.ant" depends="-ivy-init">
+      <ivy:resolve file="${project.dir}/ivy.xml" refresh="true"/>
+      
+      <ivy:cachepath pathid="compile.secret" conf="compile-secret" />
+      <ivy:cachepath pathid="hazelcast.cache.provider" conf="hazelcast-provider-compile" />
+      <ivy:cachepath pathid="jencks.jta.provider" conf="jencks-provider-runtime" />
+
+      <ivy:cachepath pathid="carnot-engine.compile" conf="carnot-engine-compile" />
+      <ivy:cachepath pathid="carnot-engine.compile.optional" conf="carnot-engine-compile-optional" />
+      <ivy:cachepath pathid="carnot-engine.provided" conf="carnot-engine-provided" />
+
+      <ivy:cachepath pathid="activemq.jms.provider" conf="activemq-provider-runtime" />
+      <ivy:cachepath pathid="cache.interface" conf="2nd-level-cache-interface-compile" />
+      
+      <ivy:cachepath pathid="ant.build.deps" conf="ant-build-runtime" />
+
+      <ivy:retrieve pattern="${build.lib}/integration-jars/[artifact].[ext]"
+               conf="integration-jars"/>
+      <property name="emf-common.jar" location="${build.lib}/integration-jars/org.eclipse.emf.common.jar"/>
+      <property name="emf-ecore.jar" location="${build.lib}/integration-jars/org.eclipse.emf.ecore.jar"/>
+      <property name="emf-ecore-xmi.jar" location="${build.lib}/integration-jars/org.eclipse.emf.ecore.xmi.jar"/>
+      <property name="emf-xsd.jar" location="${build.lib}/integration-jars/org.eclipse.xsd.jar"/>
+      <property name="emf-xsd-schema-cache.jar" location="${build.lib}/integration-jars/emf-xsd-schema-cache.jar"/>
+      <property name="js.jar" location="${build.lib}/integration-jars/js.jar"/>
+      
+      <ivy:cachepath pathid="test" conf="test" />
+      <ivy:cachepath pathid="run.test" conf="run-test, base-provider-runtime" />
+
+   </target>
+
+   <target name="-ivy-publish-local" xmlns:ivy="antlib:org.apache.ivy.ant" depends="-ivy-init">
+      <ivy:resolve file="${project.dir}/interface-ivy.xml" />
+      <ivy:deliver deliverpattern="${build.lib}/interface-[artifact].[ext]" />
+      <ivy:publish resolver="buildenv" conf="*" overwrite="true" haltonmissing="true">
+         <artifacts pattern="${build.lib}/[artifact].[ext]"/>
+      </ivy:publish>
+      
+      <!-- Publish created JARs and their POMs (ivy.xml) -->
+      <ivy:resolve file="${project.dir}/ivy.xml" />
+      <ivy:deliver deliverpattern="${build.lib}/[artifact].[ext]" merge="false" />
+      <ivy-make-carnot-engine-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" />
+      <echo message="Publishing JARs and POMs ..." />
+      <ivy:publish resolver="buildenv" conf="*" overwrite="true" haltonmissing="true" 
+         srcivypattern="${project.dir}/ivy.xml" update="true" merge="false">
+         <artifacts pattern="${build.lib}/[artifact].[ext]"/>
+      </ivy:publish>
+      <ivy:report todir="${build.dir}/report/ivy" />
+      
+      <!-- retrieve dependencies for resolved Ivy: ivy.xml -->
+      <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]"
+         conf="base-provider-compile,base-provider-runtime,swing-client-provider-compile,logging-log4j-provider-compile,
+            2nd-level-cache-interface-compile,
+            build-lib,jcr-interface-compile,jcr-vfs-provider-compile,web-client-interface-provided,
+            web-client-provider-runtime,ant-provider-runtime,logging-slf4j-log4j-provider-compile" />
+      <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/ext/[artifact]-[revision].[ext]"
+         conf="base-provider-runtime,ejb21-interface-provided,jta-interface-compile,qdox-provider-compile,jms-interface-runtime" />
+      <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/spring/[artifact]-[revision].[ext]"
+         conf="jencks-provider-runtime,snowdrop-provider-runtime" />
+      <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/dms/[artifact]-[revision].[ext]"
+         conf="jackrabbit-webapp-provider-runtime,jackrabbit-provider-runtime" />
+      <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/jms/[artifact]-[revision].[ext]"
+         conf="activemq-provider-runtime" />
+      <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/misc/[artifact]-[revision].[ext]"
+         conf="xerces-provider-runtime" />
+
+      <!-- Same procedure for module POMs (module-ivy.xml) -->
+      <echo message="Publishing Module POMs ..." />
+      <ivy:resolve file="${project.dir}/module-ivy.xml" />
+      <ivy:deliver deliverpattern="${build.lib}/module-[artifact].[ext]" merge="false"/>
+      <ivy-make-carnot-engine-module-poms ivyFile="${build.lib}/module-ivy.xml" pomFilePath="${build.lib}" />
+      <ivy:publish resolver="buildenv" conf="*" overwrite="true" haltonmissing="true" 
+         srcivypattern="${project.dir}/module-ivy.xml" update="true" merge="false">
+         <artifacts pattern="${build.lib}/[artifact].[ext]"/>
+      </ivy:publish>
+      <ivy:report todir="${build.dir}/report/ivy" />
+      
+      <!-- retrieve dependencies for resolved Ivy: module-ivy.xml -->
+      <!--
+      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
+         pattern="${build.lib}/[artifact]-[revision].[ext]"
+         conf="base-module-compile,base-module-runtime,swing-client-module-compile,logging-log4j-module-compile,
+            2nd-level-cache-hazelcast-module-compile,jcr-api-module-compile,jcr-vfs-module-compile,web-client-module-provided,
+            web-client-module-runtime,ant-module-runtime,logging-slf4j-log4j-module-compile" />
+      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
+         pattern="${build.lib}/ext/[artifact]-[revision].[ext]"
+         conf="base-module-runtime,ejb21-module-runtime,jta-jencks-module-compile,qdox-module-compile" />
+      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
+         pattern="${build.lib}/spring/[artifact]-[revision].[ext]"
+         conf="jta-jencks-module-runtime,snowdrop-module-runtime" />
+      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
+         pattern="${build.lib}/jms/[artifact]-[revision].[ext]"
+         conf="jms-activemq-module-runtime" />
+      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
+         pattern="${build.lib}/dms/[artifact]-[revision].[ext]"
+         conf="jcr-jackrabbit-webapp-module-runtime,jcr-jackrabbit-module-runtime" />
+      <ivy:retrieve file="${build.lib}/module-ivy.xml" pattern="${build.lib}/misc/[artifact]-[revision].[ext]"
+         conf="xerces-module-runtime" />
+      -->
+      
+
+      <antcall target="-polish-up-dependencies"/>
+   </target>
+
+   <target name="-polish-up-dependencies">
+      <!-- delete duplicated archives; archives which are directly stored in lib remains -->
+      <delete>
+         <fileset dir="${build.lib}/spring">
+            <present present="both" targetdir="${build.lib}"/>
+         </fileset>
+         <fileset dir="${build.lib}/spring">
+            <present present="both" targetdir="${build.lib}/ext"/>
+         </fileset>
+         <fileset dir="${build.lib}/dms">
+            <present present="both" targetdir="${build.lib}"/>
+         </fileset>
+         <fileset dir="${build.lib}/jms">
+            <present present="both" targetdir="${build.lib}"/>
+         </fileset>
+         <fileset dir="${build.lib}">
+            <exclude name="misc/xercesImpl*.jar"/>
+            <include name="misc/bcprov-jdk15-*.jar"/>
+            <include name="misc/jsr250-api-*.jar"/>
+            <include name="**/xercesImpl*.jar"/>
+            <include name="**/xml-apis*.jar"/>
+            <include name="**/jmx*.jar"/>
+            <include name="dms/jms*.jar"/>
+            <include name="spring/howl*.jar"/>
+            <include name="xmlParserAPIs*.jar"/>
+            <include name="activation*.jar"/>
+            <include name="mail*.jar"/>
+            <include name="jdom*.jar"/>
+            <include name="xalan*.jar"/>
+            <include name="jcchart-*.jar"/>
+            <include name="js-*.jar"/>
+         </fileset>
+      </delete>
+      <move file="${build.lib}/spring/tranql-connector-1.4.jar" todir="${build.lib}" failonerror="false" />
+   </target>
+
+   <target name="-ivy-publish" xmlns:ivy="antlib:org.apache.ivy.ant" depends="-ivy-init, -ivy-publish-local">
+
+      <!-- Publish Ivy artifacts and descriptor -->
+      <ivy:publish resolver="push-snapshot-artifacts" overwrite="true" haltonmissing="true" conf="*, !pom">
+         <artifacts pattern="${build.lib}/[artifact].[ext]" />
+         <artifacts pattern="${build.dir}/webapps/[artifact].[ext]" />
+      </ivy:publish>
+
+      <!-- Publish POMs -->
+      <ivy:publish resolver="push-snapshot-artifacts" overwrite="true" haltonmissing="true" conf="pom" publishivy="false">
+         <artifacts pattern="${build.lib}/[artifact].[ext]" />
+         <artifacts pattern="${build.dir}/webapps/[artifact].[ext]" />
+      </ivy:publish>
+
+   </target>
+
+</project>

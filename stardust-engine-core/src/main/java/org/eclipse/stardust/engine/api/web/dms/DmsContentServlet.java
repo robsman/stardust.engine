@@ -1,0 +1,415 @@
+/*******************************************************************************
+ * Copyright (c) 2011 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
+package org.eclipse.stardust.engine.api.web.dms;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.stardust.common.Base64;
+import org.eclipse.stardust.common.Function;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
+import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.config.PropertyLayer;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+
+import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
+import com.sungard.infinity.bpm.vfs.IFile;
+import com.sungard.infinity.bpm.vfs.RepositoryOperationFailedException;
+import com.sungard.infinity.bpm.vfs.impl.jcr.web.AbstractVfsContentServlet;
+
+
+/**
+ * @author sauer
+ * @version $Revision$
+ */
+public class DmsContentServlet extends AbstractVfsContentServlet
+{
+
+   static final long serialVersionUID = 1L;
+
+   public static final String OP_DOWNLOAD = "dl";
+
+   public static final String OP_UPLOAD = "ul";
+
+   public static final String CLIENT_CONTEXT_PARAM = "clientContext";
+
+   public static String encodeDmsServletToken(String resourceId, String opcode,
+         long userOid, long timestamp)
+   {
+      // TODO encode sessionId/fileId
+
+      // as concrete session is currently not available, encode userOid/time/fileId
+      // and later verify that at least one of the sessions started by the user
+      // before time is still alive
+
+      StringBuffer buffer = new StringBuffer(100);
+      buffer.append(opcode);
+      buffer.append("/").append(userOid);
+      buffer.append("/").append(timestamp);
+      buffer.append("/").append(resourceId);
+
+      return new String(Base64.encode(buffer.toString().getBytes()));
+   }
+
+   private String context;
+
+   protected int doDownloadFileContent(final String fileUri,
+         final ContentDownloadController downloadManager) throws IOException
+   {
+      Integer status = (Integer) getForkingService().isolate(new Function<Integer>()
+      {
+         protected Integer invoke()
+         {
+            int result;
+
+            final DecodedRequest request = decodeRequest(fileUri);
+            if ((null != request) && OP_DOWNLOAD.equals(request.opcode))
+            {
+               if (isAuthorized(request))
+               {
+                  IUser user = findUser(request);
+
+                  if (user != null)
+                  {
+                     pushUserPropertyLayer(user);
+                  }
+                  try
+                  {
+                     
+                     // as token still seems to be valid, verify file exists and if yes,
+                     // provide its content
+                     BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+                     IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
+                     if (vfs == null)
+                     {
+                        throw new PublicException(
+                              "No JCR document repository service is set. Check the configuration.");
+                     }
+
+                     try
+                     {
+                        IFile file = vfs.getFile(request.resourceId);
+                        if (null != file)
+                        {
+                           downloadManager.setContentLength((int) file.getSize());
+                           downloadManager.setContentType(file.getContentType());
+
+                           if ( !StringUtils.isEmpty(file.getEncoding()))
+                           {
+                              downloadManager.setContentEncoding(file.getEncoding());
+                           }
+                           downloadManager.setFilename(file.getName());
+
+                           vfs.retrieveFileContent(request.resourceId,
+                                 downloadManager.getContentOutputStream());
+
+                           result = HttpServletResponse.SC_OK;
+                        }
+                        else
+                        {
+                           // file not found
+                           result = HttpServletResponse.SC_NOT_FOUND;
+                        }
+                     }
+                     catch (RepositoryOperationFailedException rofe)
+                     {
+                        throw new PublicException(MessageFormat.format(
+                              "Failed retrieving content for file ''{0}''.",
+                              new Object[] {request.resourceId}), rofe);
+                     }
+                     catch (IOException ioe)
+                     {
+                        throw new PublicException(MessageFormat.format(
+                              "Failed retrieving content for file ''{0}''.",
+                              new Object[] {request.resourceId}), ioe);
+                     }   
+                     
+                  }
+                  finally
+                  {
+                     if (user != null)
+                     {
+                        ParametersFacade.popLayer();
+                     }
+                  }
+               }
+               else
+               {
+                  // no qualifying session is active
+                  result = HttpServletResponse.SC_FORBIDDEN;
+               }
+            }
+            else
+            {
+               // request can not be decoded
+               result = HttpServletResponse.SC_BAD_REQUEST;
+            }
+
+            return result;
+         }
+
+
+
+      });
+
+      // report outcome
+      return status.intValue();
+   }
+         protected int doUploadFileContent(final String fileUri,
+         final InputStream contentStream, final int contentLength,
+         final String contentType, final String contentEncoding) throws IOException
+   {
+      Integer status = (Integer) getForkingService().isolate(new Function<Integer>()
+      {
+         protected Integer invoke()
+         {
+            int result;
+
+            final DecodedRequest request = decodeRequest(fileUri);
+            if ((null != request) && OP_UPLOAD.equals(request.opcode))
+            {
+               if (isAuthorized(request))
+               {
+                      
+                  IUser user = findUser(request);
+
+                  if (user != null)
+                  {
+                     pushUserPropertyLayer(user);
+                  }
+                  try
+                  {
+                                       
+                     BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+                     IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
+                     if (vfs == null)
+                     {
+                        throw new PublicException(
+                              "No JCR document repository service is set. Check the configuration.");
+                     }
+   
+                     try
+                     {
+                        IFile file = vfs.getFile(request.resourceId);
+                        if (null != file)
+                        {
+                           file.setContentType(contentType);
+   
+                           vfs.updateFile(file, contentStream, contentEncoding, false, false);
+   
+                           result = HttpServletResponse.SC_OK;
+                        }
+                        else
+                        {
+                           // file not found
+                           result = HttpServletResponse.SC_NOT_FOUND;
+                        }
+                     }
+                     catch (RepositoryOperationFailedException rofe)
+                     {
+                        throw new PublicException(MessageFormat.format(
+                              "Failed updating content for file ''{0}''.",
+                              new Object[] {request.resourceId}), rofe);
+                     }
+                  }
+                  finally
+                  {
+                     if (user != null)
+                     {
+                        ParametersFacade.popLayer();
+                     }
+                  }
+               }
+               else
+               {
+                  // no qualifying session is active
+                  result = HttpServletResponse.SC_FORBIDDEN;
+               }
+            }
+            else
+            {
+               // request can not be decoded
+               result = HttpServletResponse.SC_BAD_REQUEST;
+            }
+
+            return result;
+         }
+      });
+
+      // report outcome
+      return status.intValue();
+   }
+
+   private void pushUserPropertyLayer(IUser user)
+   {
+      PropertyLayer pushLayer = ParametersFacade.pushLayer(Collections.singletonMap(
+            SecurityProperties.CURRENT_USER, user));
+      pushLayer.setProperty(SecurityProperties.CURRENT_PARTITION_OID, user.getRealm()
+            .getPartition()
+            .getOID());
+      pushLayer.setProperty(SecurityProperties.CURRENT_DOMAIN_OID, user.getDomainOid());
+
+      pushLayer.setProperty(SynchronizationService.PRP_DISABLE_SYNCHRONIZATION, true);
+      pushLayer.setProperty(SecurityProperties.AUTHORIZATION_SYNC_LOAD_PROPERTY, false);
+   }
+
+   private ForkingService getForkingService()
+   {
+      ForkingServiceFactory factory = null;
+      ForkingService forkingService = null;
+      factory = (ForkingServiceFactory) Parameters.instance().get(
+            EngineProperties.FORKING_SERVICE_HOME);
+      if (factory == null)
+      {
+         List<ExecutionServiceProvider> exProviderList = ExtensionProviderUtils.getExtensionProviders(ExecutionServiceProvider.class);
+         for (ExecutionServiceProvider executionServiceProvider : exProviderList)
+         {
+            forkingService = executionServiceProvider.getExecutionService(context);
+            if(forkingService != null)
+            {
+               break;
+            }
+         }
+      }
+      else
+      {
+         forkingService = factory.get();
+      }
+      return forkingService;
+   }
+
+   public void init(ServletConfig config) throws ServletException
+   {
+      super.init(config);
+
+      context = config.getInitParameter(CLIENT_CONTEXT_PARAM);
+      context = context != null ? context.toLowerCase() : null;
+   }
+
+   private static DecodedRequest decodeRequest(String uri)
+   {
+      DecodedRequest result = new DecodedRequest();
+
+      String decodedToken;
+      try
+      {
+         decodedToken = new String(Base64.decode(uri.getBytes()));
+
+         int splitIdx = decodedToken.indexOf("/");
+         if ( -1 != splitIdx)
+         {
+            result.opcode = decodedToken.substring(0, splitIdx);
+            decodedToken = decodedToken.substring(splitIdx + 1);
+
+            splitIdx = decodedToken.indexOf("/");
+            if ( -1 != splitIdx)
+            {
+               result.userOid = Long.parseLong(decodedToken.substring(0, splitIdx));
+               decodedToken = decodedToken.substring(splitIdx + 1);
+
+               splitIdx = decodedToken.indexOf("/");
+               if ( -1 != splitIdx)
+               {
+                  result.timestamp = Long.parseLong(decodedToken.substring(0, splitIdx));
+                  result.resourceId = decodedToken.substring(splitIdx + 1);
+               }
+            }
+         }
+      }
+      catch (InternalException ie)
+      {
+         // invald URI
+         result = null;
+      }
+
+      return result;
+   }
+
+   private static boolean isAuthorized(DecodedRequest request)
+   {
+      QueryDescriptor query = QueryDescriptor.from(UserSessionBean.class).where(
+            Predicates.andTerm(Predicates.isEqual(UserSessionBean.FR__USER,
+                  request.userOid), Predicates.lessOrEqual(
+                  UserSessionBean.FR__START_TIME, request.timestamp),
+                  Predicates.greaterOrEqual(UserSessionBean.FR__EXPIRATION_TIME,
+                        System.currentTimeMillis())));
+
+      long nSessions = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(
+            query.getType(), query.getQueryExtension());
+
+      return 0 < nSessions;
+   }
+   
+   private static IUser findUser(DecodedRequest request)
+   {
+      QueryDescriptor query = QueryDescriptor.from(UserBean.class)//
+            .where(Predicates.isEqual(UserBean.FR__OID, request.userOid));
+
+      
+      IUser user;
+      try
+      {
+         PropertyLayer pushLayer = ParametersFacade.pushLayer(new HashMap());
+
+         pushLayer.setProperty(SynchronizationService.PRP_DISABLE_SYNCHRONIZATION, true);
+         pushLayer.setProperty(SecurityProperties.AUTHORIZATION_SYNC_LOAD_PROPERTY, false);
+         
+         user = (IUser) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).findFirst(
+               query.getType(), query.getQueryExtension());
+      }
+      catch (ObjectNotFoundException e)
+      {
+         user = null;
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+      
+      return user;
+   }
+
+   private static class DecodedRequest
+   {
+      public String opcode;
+
+      public long userOid;
+
+      public long timestamp;
+
+      public String resourceId;
+   }
+   
+   public static interface ExecutionServiceProvider
+   {
+      ForkingService getExecutionService(String clientContext);
+   }
+
+}

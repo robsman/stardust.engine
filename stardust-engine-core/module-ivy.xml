@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivy-module version="2.0"
+   xmlns:m="http://ant.apache.org/ivy/maven"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+   <info organisation="com.infinity.bpm" module="infinity-process-engine-module"
+      revision="${ipp.version.full}">
+      <extends organisation="com.infinity.bpm" module="infinity-common-artifacts" revision="latest.integration"
+         extendType="all" location="interface-ivy.xml"/>
+   </info>
+   
+   <configurations>
+      <conf name="base-module-compile" description="IPP Engine - Base Module - Compile Scope" />
+      <conf name="base-module-runtime" extends="base-module-compile" description="IPP Engine - Base Module - Runtime Scope" />
+
+      <conf name="client-module-compile" description="IPP Engine - Client Module - Compile Scope" />
+      <conf name="client-module-runtime" extends="client-module-compile" description="IPP Engine - Client Module - Runtime Scope" />
+
+      <conf name="engine-module-compile" description="IPP Engine - Engine Module - Compile Scope" />
+      <conf name="engine-module-runtime" extends="engine-module-compile" description="IPP Engine - Engine Module - Runtime Scope" />
+
+      <conf name="web-client-module-compile" extends="engine-module-compile, web-client-provider-runtime" description="IPP Engine - Web Client Module - Compile Scope" />
+      <conf name="web-client-module-runtime" extends="web-client-module-compile, engine-module-runtime" description="IPP Engine - Web Client Module - Runtime Scope" />
+      <conf name="web-client-module-provided" extends="web-client-interface-provided" description="IPP Engine - Web Client Module - Provided Scope" />
+
+      <conf name="swing-client-module-compile" extends="engine-module-compile, swing-client-provider-compile" description="IPP Engine - Swing Client Module - Compile Scope" />
+      <conf name="swing-client-module-runtime" extends="swing-client-module-compile, engine-module-runtime" description="IPP Engine - Swing Client Module - Runtime Scope" />
+
+      <conf name="logging-log4j-module-compile" extends="logging-log4j-provider-compile" description="IPP Engine - log4j Module - Compile Scope" />
+      <conf name="logging-log4j-module-runtime" extends="logging-log4j-module-compile" description="IPP Engine - log4j Module - Runtime Scope" />
+
+      <conf name="logging-slf4j-log4j-module-compile" extends="logging-slf4j-log4j-provider-compile" description="IPP Engine - slf4j-log4j Module - Compile Scope" />
+      <conf name="logging-slf4j-log4j-module-runtime" extends="logging-slf4j-log4j-module-compile" description="IPP Engine - slf4j-log4j Module - Runtime Scope" />
+
+      <conf name="jta-jencks-module-compile" extends="jta-interface-compile" description="IPP Engine - JTA Jencks Module - Compile Scope" />
+      <conf name="jta-jencks-module-runtime" extends="jta-jencks-module-compile, jencks-provider-runtime" description="IPP Engine - JTA Jencks Module - Runtime Scope" />
+
+      <conf name="jta-api-module-compile" extends="jta-interface-compile" description="IPP Engine - JTA API Module - Compile Scope" />
+      <conf name="jta-api-module-runtime" extends="jta-api-module-compile" description="IPP Engine - JTA API Module - Runtime Scope" />
+
+      <conf name="jcr-api-module-compile" extends="jcr-interface-compile" description="IPP Engine - JCR Module - Compile Scope" />
+      <conf name="jcr-api-module-runtime" extends="jcr-api-module-compile" description="IPP Engine - JCR Module - Runtime Scope" />
+
+      <conf name="jcr-jackrabbit-module-runtime" extends="jcr-api-module-runtime, jackrabbit-provider-runtime" 
+         description="IPP Engine - JCR Jackrabbit Module - Runtime Scope" />
+      <conf name="jcr-jackrabbit-webapp-module-runtime" extends="jackrabbit-webapp-provider-runtime, jcr-api-module-runtime" 
+         description="IPP Engine - JCR Jackrabbit Module for Web Deployments - Runtime Scope" />
+
+      <conf name="jcr-vfs-module-compile" extends="jcr-interface-compile, jcr-vfs-provider-compile" description="IPP Engine - JCR VFS Module - Compile Scope" />
+      <conf name="jcr-vfs-module-runtime" extends="jcr-vfs-module-compile" description="IPP Engine - JCR VFS Module - Runtime Scope" />
+
+      <conf name="jms-activemq-module-compile" description="IPP Engine - JMS ActiveMQ Module - Compile Scope" />
+      <conf name="jms-activemq-module-runtime" extends="jms-activemq-module-compile,jms-interface-runtime,activemq-provider-runtime" 
+         description="IPP Engine - JMS ActiveMQ Module - Runtime Scope" />
+
+      <conf name="jms-api-module-compile" extends="jms-interface-runtime" description="IPP Engine - JMS API Module - Compile Scope" />
+      <conf name="jms-api-module-runtime" extends="jms-api-module-compile" description="IPP Engine - JMS API Module - Runtime Scope" />
+
+      <conf name="2nd-level-cache-hazelcast-module-compile" extends="hazelcast-provider-compile, 2nd-level-cache-interface-compile" 
+         description="IPP Engine - Hazelcast 2nd Level Cache Module - Compile Scope" />
+      <conf name="2nd-level-cache-hazelcast-module-runtime" extends="2nd-level-cache-hazelcast-module-compile" 
+         description="IPP Engine - Hazelcast 2nd Level Cache Module - Runtime Scope" />
+
+      <conf name="ejb21-module-compile" extends="ejb21-interface-provided" description="IPP Engine - EJB 2.1 Module - Compile Scope" />
+      <conf name="ejb21-module-runtime" extends="ejb21-module-compile" description="IPP Engine - EJB 2.1 Module - Runtime Scope" />
+
+      <conf name="ejb30-module-compile" extends="ejb30-interface-compile" description="IPP Engine - EJB 3.0 Module - Compile Scope" />
+      <conf name="ejb30-module-runtime" extends="ejb30-module-compile" description="IPP Engine - EJB 3.0 Module - Runtime Scope" />
+
+      <conf name="visual-rules-module-compile" extends="visual-rules-provider-compile" description="IPP Engine - Visual Rules Module - Compile Scope" />
+      <conf name="visual-rules-module-runtime" extends="visual-rules-module-compile" description="IPP Engine - Visual Rules Module - Runtime Scope" />
+
+      <conf name="snowdrop-module-compile" description="IPP Engine - Snowdrop Module - Compile Scope" />
+      <conf name="snowdrop-module-runtime" extends="snowdrop-module-compile, snowdrop-provider-runtime" description="IPP Engine - Snowdrop Module - Runtime Scope" />
+
+      <conf name="carnot-dms-module-compile" extends="engine-module-compile" description="IPP Engine - Carnot DMS Module - Compile Scope" />
+      <conf name="carnot-dms-module-runtime" extends="carnot-dms-module-compile" description="IPP Engine - Carnot DMS Module - Runtime Scope" />
+
+      <conf name="carnot-emf-xsd-module-compile" extends="engine-module-compile" description="IPP Engine - Carnot EMF XSD Module - Compile Scope" />
+      <conf name="carnot-emf-xsd-module-runtime" extends="carnot-emf-xsd-module-compile" description="IPP Engine - Carnot EMF XSD Module - Runtime Scope" />
+
+      <conf name="ant-module-compile" description="IPP Engine - ANT Module - Compile Scope"/>
+      <conf name="ant-module-runtime" extends="ant-module-compile,ant-provider-runtime" description="IPP Engine - ANT Module - Runtime Scope"/>
+
+      <conf name="xerces-module-runtime" extends="xerces-provider-runtime" description="IPP Engine - Xerces Module - Runtime Scope"/>
+
+      <conf name="qdox-module-compile" extends="qdox-provider-compile" description="IPP Engine - Qdox Module - Compile Scope"/>
+      
+      <!-- ********** -->
+      <!--    POMs    -->
+      <!-- ********** -->
+      <conf name="module-pom" description="IPP Module POMs" />
+      
+   </configurations>
+   
+   <publications>
+      <artifact name="base-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="client-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="engine-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="web-client-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="swing-client-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="logging-log4j-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="logging-slf4j-log4j-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="jta-jencks-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="jta-api-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="jcr-api-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="jcr-jackrabbit-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="jcr-jackrabbit-webapp-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="jcr-vfs-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="jms-activemq-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="jms-api-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="2nd-level-cache-hazelcast-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="ejb21-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="ejb30-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="visual-rules-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="snowdrop-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="carnot-dms-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="carnot-emf-xsd-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="ant-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="xerces-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="qdox-module" type="pom" conf="module-pom" ext="pom" />
+   </publications>
+   
+   <dependencies>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="base-module-compile->carnot-base-compile"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="base-module-runtime->carnot-base-runtime"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-compile->carnot-client-compile"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-runtime->carnot-client-runtime"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-compile->carnot-engine-compile"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-runtime->carnot-engine-runtime"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-dms-module-compile->carnot-dms-compile"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-dms-module-runtime->carnot-dms-runtime"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-compile->carnot-emf-xsd-integration-compile"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-runtime->carnot-emf-xsd-integration-runtime"/>
+      
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
+      <override org="log4j" module="log4j" rev="1.2.15" />
+
+      <override org="org.slf4j" module="slf4j-api" rev="1.5.11" />
+
+      <override org="commons-collections" module="commons-collections" rev="3.2" />
+      <override org="commons-logging" module="commons-logging" rev="1.1.1" />
+      <override org="commons-pool" module="commons-pool" rev="1.5.2" />
+
+      <override org="org.apache.derby" module="derby" rev="10.4.2.0" />
+
+      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="1.0.1" />
+      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
+      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
+      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.1.1" />
+      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.1.1" />
+
+      <override org="org.objenesis" module="objenesis" rev="1.2" />
+
+      <!-- *************** -->
+      <!--    Conflicts    -->
+      <!-- *************** -->
+      <conflict org="org.apache.geronimo.components" module="geronimo-transaction" manager="strict" />
+      <conflict org="org.apache.geronimo.components" module="geronimo-connector" manager="strict" />
+      <conflict org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" manager="strict" />
+   </dependencies>
+</ivy-module>
+

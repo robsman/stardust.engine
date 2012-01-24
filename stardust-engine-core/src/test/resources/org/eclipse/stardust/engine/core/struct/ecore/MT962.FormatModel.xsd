@@ -1,0 +1,537 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+ <xs:element name="root">
+  <xs:complexType>
+   <xs:sequence>
+    <xs:element name="Tag_20_Transaction_Reference_Number" minOccurs="1" maxOccurs="1">
+     <xs:complexType>
+      <xs:sequence>
+       <xs:element name="Tag" minOccurs="1" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" Constant_Value=":20:" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" Character_Group="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-?:().,\'+" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%1.16ValidChars" Max_Length="16" Min_Length="1" Content_Type="Has Data Model" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+      </xs:sequence>
+     </xs:complexType>
+     <xs:annotation>
+      <xs:appinfo>
+       <formatInfo mandatory="true" />
+      </xs:appinfo>
+     </xs:annotation>
+    </xs:element>
+    <xs:element name="Tag_21_Related_Reference" minOccurs="1" maxOccurs="1">
+     <xs:complexType>
+      <xs:sequence>
+       <xs:element name="Tag" minOccurs="1" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" Constant_Value=":21:" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" Character_Group="abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789/-?:().,\'+" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%1.16ValidChars" Max_Length="16" Min_Length="1" Content_Type="Has Data Model" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+      </xs:sequence>
+     </xs:complexType>
+     <xs:annotation>
+      <xs:appinfo>
+       <formatInfo mandatory="true" />
+      </xs:appinfo>
+     </xs:annotation>
+    </xs:element>
+    <xs:element name="Tag_91C_Key_Service_Message" minOccurs="1" maxOccurs="1">
+     <xs:complexType>
+      <xs:sequence>
+       <xs:element name="Tag" minOccurs="1" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" Constant_Value=":91C:" Max_Length="5" Min_Length="5" Content_Type="Pure Syntax" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" Constant_Value="CSM(MCL/KSM " Max_Length="12" Min_Length="12" Content_Type="Pure Syntax" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="RCV" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="RCV/" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Default_Role" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Character_Group="ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%4.4ValidChars" Max_Length="4" Min_Length="4" Content_Type="Has Data Model" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Default_Role_1" minOccurs="1" maxOccurs="1">
+           <xs:complexType>
+            <xs:sequence>
+             <xs:element name="Default_Role" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%2.2ValidChars" Max_Length="2" Min_Length="2" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Default_Role_1" minOccurs="1" maxOccurs="1">
+              <xs:complexType>
+               <xs:sequence>
+                <xs:element name="Default_Role" minOccurs="1" maxOccurs="1" type="xs:string">
+                 <xs:annotation>
+                  <xs:appinfo>
+                   <formatInfo mandatory="true" Character_Group="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%2.2ValidChars" Max_Length="2" Min_Length="2" Content_Type="Has Data Model" />
+                  </xs:appinfo>
+                 </xs:annotation>
+                </xs:element>
+                <xs:element name="Default_Role_1" minOccurs="1" maxOccurs="1" type="xs:string">
+                 <xs:annotation>
+                  <xs:appinfo>
+                   <formatInfo Character_Group="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%1.8ValidChars" Max_Length="8" Min_Length="1" Content_Type="Has Data Model" />
+                  </xs:appinfo>
+                 </xs:annotation>
+                </xs:element>
+               </xs:sequence>
+              </xs:complexType>
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+            </xs:sequence>
+           </xs:complexType>
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="ORG" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="ORG/" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Default_Role" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Character_Group="ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%4.4ValidChars" Max_Length="4" Min_Length="4" Content_Type="Has Data Model" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Default_Role_1" minOccurs="1" maxOccurs="1">
+           <xs:complexType>
+            <xs:sequence>
+             <xs:element name="Default_Role" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%2.2ValidChars" Max_Length="2" Min_Length="2" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Default_Role_1" minOccurs="1" maxOccurs="1">
+              <xs:complexType>
+               <xs:sequence>
+                <xs:element name="Default_Role" minOccurs="1" maxOccurs="1" type="xs:string">
+                 <xs:annotation>
+                  <xs:appinfo>
+                   <formatInfo mandatory="true" Character_Group="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%2.2ValidChars" Max_Length="2" Min_Length="2" Content_Type="Has Data Model" />
+                  </xs:appinfo>
+                 </xs:annotation>
+                </xs:element>
+                <xs:element name="Default_Role_1" minOccurs="1" maxOccurs="1" type="xs:string">
+                 <xs:annotation>
+                  <xs:appinfo>
+                   <formatInfo Character_Group="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%1.8ValidChars" Max_Length="8" Min_Length="1" Content_Type="Has Data Model" />
+                  </xs:appinfo>
+                 </xs:annotation>
+                </xs:element>
+               </xs:sequence>
+              </xs:complexType>
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+            </xs:sequence>
+           </xs:complexType>
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="CV" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="CV/" Max_Length="3" Min_Length="3" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Character_Group="0123456789ABCDEF" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%160.288ValidChars" Max_Length="288" Min_Length="160" Content_Type="Has Data Model" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="BE" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="BE/" Max_Length="3" Min_Length="3" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Character_Group="0123456789ABCDEF" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%128.256ValidChars" Max_Length="256" Min_Length="128" Content_Type="Has Data Model" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="BES" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="BES/" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Character_Group="0123456789ABCDEF" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%128.256ValidChars" Max_Length="256" Min_Length="128" Content_Type="Has Data Model" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="ND" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="ND/" Max_Length="3" Min_Length="3" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Default_Role" minOccurs="1" maxOccurs="1">
+           <xs:complexType>
+            <xs:sequence>
+             <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Constant_Value="." Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="0123456789" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%1.1ValidChars" Max_Length="1" Min_Length="1" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Constant_Value="." Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+            </xs:sequence>
+           </xs:complexType>
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Default_Role_1" minOccurs="1" maxOccurs="1">
+           <xs:complexType>
+            <xs:sequence>
+             <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%16.16ValidChars" Max_Length="16" Min_Length="16" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+            </xs:sequence>
+           </xs:complexType>
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="EDK" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="EDK/" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Character_Group="0123456789" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%12.12ValidChars" Max_Length="12" Min_Length="12" Content_Type="Has Data Model" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="CTP" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="CTP/" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Character_Group="0123456789ABCDEF" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%1.14ValidChars" Max_Length="14" Min_Length="1" Content_Type="Has Data Model" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+       <xs:element name="MAC" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+         <xs:sequence>
+          <xs:element name="Prefix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value="MAC/" Max_Length="4" Min_Length="4" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Default_Role" minOccurs="1" maxOccurs="1">
+           <xs:complexType>
+            <xs:sequence>
+             <xs:element name="Content" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Character_Group="0123456789ABCDEF" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%4.4ValidChars" Max_Length="4" Min_Length="4" Content_Type="Has Data Model" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+             <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+              <xs:annotation>
+               <xs:appinfo>
+                <formatInfo mandatory="true" Constant_Value=" " Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+               </xs:appinfo>
+              </xs:annotation>
+             </xs:element>
+            </xs:sequence>
+           </xs:complexType>
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Default_Role_1" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Character_Group="0123456789ABCDEF" Empty_Field_Policy="Empty Field Must Not Appear" Format_Descriptor="%4.4ValidChars" Max_Length="4" Min_Length="4" Content_Type="Has Data Model" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+          <xs:element name="Suffix" minOccurs="1" maxOccurs="1" type="xs:string">
+           <xs:annotation>
+            <xs:appinfo>
+             <formatInfo mandatory="true" Constant_Value=")" Max_Length="1" Min_Length="1" Content_Type="Pure Syntax" />
+            </xs:appinfo>
+           </xs:annotation>
+          </xs:element>
+         </xs:sequence>
+        </xs:complexType>
+        <xs:annotation>
+         <xs:appinfo>
+          <formatInfo mandatory="true" />
+         </xs:appinfo>
+        </xs:annotation>
+       </xs:element>
+      </xs:sequence>
+     </xs:complexType>
+     <xs:annotation>
+      <xs:appinfo>
+       <formatInfo mandatory="true" />
+      </xs:appinfo>
+     </xs:annotation>
+    </xs:element>
+   </xs:sequence>
+  </xs:complexType>
+  <xs:annotation>
+   <xs:appinfo>
+    <formatInfo>
+     <separator Separator="\r\n" Also_After_Last_Child="false" Also_Before_First_Child="false">
+      <right_context String_Constraint=":" Is_Negative_Constraint="false" />
+      <left_context Is_Negative_Constraint="false" />
+     </separator>
+    </formatInfo>
+   </xs:appinfo>
+  </xs:annotation>
+ </xs:element>
+</xs:schema>
+

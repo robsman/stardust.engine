@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!DOCTYPE MODEL SYSTEM "WorkflowModel.dtd">
+<MODEL author="ubirkemeyer" carnot_xml_version="@major@.@minor@.@micro@" created="Tue Mar 25 12:50:33 CET 2003" id="laokoon" is_root="true" model_version="1.0" name="laokoon" oid="55834574848" status="open" valid_from_time_stamp="1048065813114" vendor="CARNOT AG, CARNOT @major@.@minor@.@micro@">
+<DATA id="LAST_ACTIVITY_PERFORMER" name="Last Activity Performer" oid="55834584849" type="ag.carnot.workflow.EntityBeanDataType">
+<ATTRIBUTE class="java.lang.String" name="className" value="ag.carnot.workflow.User"/>
+<ATTRIBUTE class="java.lang.String" name="jndiPath" value="ag.carnot.workflow.User"/>
+<ATTRIBUTE class="java.lang.Boolean" name="isLocal" value="true"/>
+<DESCRIPTION><![CDATA[User performing the last activity of the current process.]]></DESCRIPTION>
+</DATA>
+<DATA id="STARTING_USER" name="Starting User" oid="55834584850" type="ag.carnot.workflow.EntityBeanDataType">
+<ATTRIBUTE class="java.lang.String" name="className" value="ag.carnot.workflow.User"/>
+<ATTRIBUTE class="java.lang.String" name="jndiPath" value="ag.carnot.workflow.User"/>
+<ATTRIBUTE class="java.lang.Boolean" name="isLocal" value="true"/>
+<DESCRIPTION><![CDATA[User starting the current process.]]></DESCRIPTION>
+</DATA>
+<DATA id="PROCESS_ID" name="Process OID" oid="55834584851" type="ag.carnot.workflow.SerializableDataType">
+<ATTRIBUTE class="java.lang.String" name="className" value="java.lang.Long"/>
+<ATTRIBUTE class="java.lang.Boolean" name="isPredefined" value="true"/>
+<ATTRIBUTE class="java.lang.String" name="defaultValue" value=""/>
+<ATTRIBUTE class="ag.carnot.workflow.TypeKey" name="type" value="long"/>
+<DESCRIPTION><![CDATA[ID assigned to the current process.]]></DESCRIPTION>
+</DATA>
+<DATA id="ROOT_PROCESS_ID" name="Root Process OID" oid="55834584852" type="ag.carnot.workflow.SerializableDataType">
+<ATTRIBUTE class="java.lang.String" name="className" value="java.lang.Long"/>
+<ATTRIBUTE class="java.lang.Boolean" name="isPredefined" value="true"/>
+<ATTRIBUTE class="java.lang.String" name="defaultValue" value=""/>
+<ATTRIBUTE class="ag.carnot.workflow.TypeKey" name="type" value="long"/>
+<DESCRIPTION><![CDATA[ID assigned to the root process of the current process.]]></DESCRIPTION>
+</DATA>
+<DATA id="CURRENT_DATE" name="Current Date" oid="55834584853" type="ag.carnot.workflow.SerializableDataType">
+<ATTRIBUTE class="java.lang.String" name="className" value="java.util.Calendar"/>
+<ATTRIBUTE class="java.lang.Boolean" name="isPredefined" value="true"/>
+<ATTRIBUTE class="java.lang.String" name="defaultValue" value=""/>
+<ATTRIBUTE class="ag.carnot.workflow.TypeKey" name="type" value="Date"/>
+<DESCRIPTION><![CDATA[Current Date.]]></DESCRIPTION>
+</DATA>
+<DATA id="CURRENT_LOCALE" name="Current Locale" oid="55834584854" type="ag.carnot.workflow.SerializableDataType">
+<ATTRIBUTE class="java.lang.String" name="className" value="java.lang.String"/>
+<ATTRIBUTE class="java.lang.Boolean" name="isPredefined" value="true"/>
+<ATTRIBUTE class="java.lang.String" name="defaultValue" value=""/>
+<ATTRIBUTE class="ag.carnot.workflow.TypeKey" name="type" value="String"/>
+<DESCRIPTION><![CDATA[String representing the current locale.]]></DESCRIPTION>
+</DATA>
+<DATA id="counter" name="counter" oid="55834584855" type="ag.carnot.workflow.SerializableDataType">
+<ATTRIBUTE class="java.lang.String" name="className" value="java.lang.Integer"/>
+<ATTRIBUTE class="java.lang.Boolean" name="isPredefined" value="false"/>
+<ATTRIBUTE class="java.lang.String" name="defaultValue" value="2"/>
+<ATTRIBUTE class="ag.carnot.workflow.TypeKey" name="type" value="int"/>
+</DATA>
+<APPLICATION id="Predefined_User_Management_Application" interactive="true" name="User Management" oid="55834584856">
+<DESCRIPTION><![CDATA[Creates or modifies users at runtime.]]></DESCRIPTION>
+<CONTEXT id="JFC">
+<ATTRIBUTE class="java.lang.String" name="methodName" value="saveUserData"/>
+<ATTRIBUTE class="java.lang.String" name="className" value="ag.carnot.workflow.gui.UserManagementPanel"/>
+</CONTEXT>
+<CONTEXT id="JSP">
+<ATTRIBUTE class="java.lang.String" name="htmlPath" value="user_management.jsp"/>
+</CONTEXT>
+</APPLICATION>
+<APPLICATION id="Application1" name="Application1" oid="55834584857" type="ag.carnot.workflow.spi.providers.sessionbean.SessionBeanApplicationType">
+<ATTRIBUTE class="java.lang.String" name="homeInterface" value="ag.carnot.workflow.beans.test.CounterHome"/>
+<ATTRIBUTE class="java.lang.String" name="methodName" value="decrement(int)"/>
+<ATTRIBUTE class="java.lang.String" name="createMethodName" value="create()"/>
+<ATTRIBUTE class="java.lang.String" name="jndiPath" value="ag.carnot.workflow.beans.test.Counter"/>
+<ATTRIBUTE class="java.lang.String" name="className" value="ag.carnot.workflow.beans.test.Counter"/>
+<ATTRIBUTE class="java.lang.Boolean" name="isLocal" value="true"/>
+</APPLICATION>
+<PARTICIPANTS>
+<MODELER id="motu" name="motu" oid="55834584858" password="motu">
+<DESCRIPTION><![CDATA[Master for workflow modeling.]]></DESCRIPTION>
+</MODELER>
+<ROLE id="Administrator" name="Administrator" oid="55834584859" target_queue_depth="0" target_work_time_per_day="0.0" target_work_time_per_week="0.0" working_weeks_per_year="0">
+<DESCRIPTION><![CDATA[In charge of all workflow administration activities.]]></DESCRIPTION>
+</ROLE>
+</PARTICIPANTS>
+<WORKFLOW id="Predefined_User_Management_Process" name="User Management" oid="55834584860" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<DESCRIPTION><![CDATA[Creates or modifies users at runtime.]]></DESCRIPTION>
+<ACTIVITY allows_abort_by_performer="true" application="Predefined_User_Management_Application" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Predefined_Create_Or_Modify_Users" implementation="Application" join="None" loop_type="No Loop" name="Manage Users" notify_participant_on_assignment="false" oid="55834584861" performer="Administrator" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0">
+<DESCRIPTION><![CDATA[Creates or modifies users at runtime.]]></DESCRIPTION>
+</ACTIVITY>
+<DATA_MAPPING activity="Predefined_Create_Or_Modify_Users" application_access_point="setImpersonationID(java.lang.String)" application_path="" context="JFC" data="STARTING_USER" data_access_point="this" data_path="getAccount()" direction="IN" id="IMPERSONATION_ID" oid="0"/>
+<DATA_MAPPING activity="Predefined_Create_Or_Modify_Users" application_access_point="setImpersonationPassword(java.lang.String)" application_path="" context="JFC" data="STARTING_USER" data_access_point="this" data_path="getAccount()" direction="IN" id="IMPERSONATION_PWD" oid="0"/>
+<DATA_MAPPING activity="Predefined_Create_Or_Modify_Users" application_path="" context="JSP" data="STARTING_USER" data_access_point="this" data_path="getAccount()" direction="IN" id="IMPERSONATION_ID" oid="0"/>
+<DATA_MAPPING activity="Predefined_Create_Or_Modify_Users" application_path="" context="JSP" data="STARTING_USER" data_access_point="this" data_path="getAccount()" direction="IN" id="IMPERSONATION_PWD" oid="0"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584862" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default"/>
+</WORKFLOW>
+<WORKFLOW id="linear-route" name="linear-route" oid="55834584863" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity1" implementation="Route" join="None" loop_type="No Loop" name="Activity1" notify_participant_on_assignment="false" oid="55834584864" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity2" implementation="Route" join="None" loop_type="No Loop" name="Activity2" notify_participant_on_assignment="false" oid="55834584865" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity1" id="Transition1" name="Transition1" oid="55834584866" to="Activity2">
+<DESCRIPTION><![CDATA[nasenbaer]]></DESCRIPTION>
+</TRANSITION>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584867" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="55834584868" refer="Activity1" x="90" y="75"/>
+<ACTIVITY_SYMBOL id="55834584869" refer="Activity2" x="310" y="93"/>
+<TRANSITION_CONNECTION id="55834584870" points="152, 97, 97, 231, 115, 310, 115" source_activity_symbol="55834584868" target_activity_symbol="55834584869" transition="Transition1"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="and-split-route" name="and-split-route" oid="55834584871" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity3" implementation="Route" join="None" loop_type="No Loop" name="Activity3" notify_participant_on_assignment="false" oid="55834584872" split="AND" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity4" implementation="Route" join="None" loop_type="No Loop" name="Activity4" notify_participant_on_assignment="false" oid="55834584873" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity5" implementation="Route" join="None" loop_type="No Loop" name="Activity5" notify_participant_on_assignment="false" oid="55834584874" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity3" id="Transition2" name="Transition2" oid="55834584875" to="Activity4"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity3" id="Transition3" name="Transition3" oid="55834584876" to="Activity5"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584877" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="55834584878" refer="Activity3" x="142" y="141"/>
+<ACTIVITY_SYMBOL id="4294977320" refer="Activity4" x="336" y="108"/>
+<ACTIVITY_SYMBOL id="55834584879" refer="Activity5" x="351" y="214"/>
+<TRANSITION_CONNECTION id="4294977325" points="204, 163, 163, 270, 130, 336, 130" source_activity_symbol="55834584878" target_activity_symbol="4294977320" transition="Transition2"/>
+<TRANSITION_CONNECTION id="55834584880" points="204, 163, 163, 277, 236, 351, 236" source_activity_symbol="55834584878" target_activity_symbol="55834584879" transition="Transition3"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="simple-cycle" name="simple-cycle" oid="55834584881" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity6" implementation="Route" join="XOR" loop_type="No Loop" name="Activity6" notify_participant_on_assignment="false" oid="55834584882" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity7" implementation="Route" join="None" loop_type="No Loop" name="Activity7" notify_participant_on_assignment="false" oid="55834584883" split="XOR" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" application="Application1" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity8" implementation="Application" join="None" loop_type="No Loop" name="Activity8" notify_participant_on_assignment="false" oid="55834584884" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity9" implementation="Route" join="None" loop_type="No Loop" name="Activity9" notify_participant_on_assignment="false" oid="55834584885" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity10" implementation="Route" join="None" loop_type="No Loop" name="Activity10" notify_participant_on_assignment="false" oid="55834584886" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity6" id="Transition4" name="Transition4" oid="55834584887" to="Activity7"/>
+<TRANSITION condition="counter &gt; 0" fork_on_traversal="false" from="Activity7" id="Transition5" name="Transition5" oid="55834584888" to="Activity8"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity8" id="Transition6" name="Transition6" oid="55834584889" to="Activity6"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity9" id="Transition7" name="Transition7" oid="55834584890" to="Activity6"/>
+<TRANSITION condition="counter &lt;= 0" fork_on_traversal="false" from="Activity7" id="Transition8" name="Transition8" oid="55834584891" to="Activity10"/>
+<DATA_MAPPING activity="Activity8" application_access_point="iParam1" application_path="" context="engine" data="counter" data_access_point="this" data_path="" direction="IN" id="counter" oid="0"/>
+<DATA_MAPPING activity="Activity8" application_access_point="returnValue" application_path="" context="engine" data="counter" data_access_point="this" data_path="" direction="OUT" id="counter" oid="0"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584892" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="4294977331" refer="Activity6" x="208" y="78"/>
+<ACTIVITY_SYMBOL id="55834584893" refer="Activity7" x="373" y="78"/>
+<ACTIVITY_SYMBOL id="55834584894" refer="Activity8" x="669" y="123"/>
+<ACTIVITY_SYMBOL id="55834584895" refer="Activity9" x="20" y="76"/>
+<ACTIVITY_SYMBOL id="55834584896" refer="Activity10" x="644" y="32"/>
+<DATA_SYMBOL id="4294977351" refer="counter" x="563" y="315"/>
+<APPLICATION_SYMBOL id="55834584897" refer="Application1" x="726" y="299"/>
+<TRANSITION_CONNECTION id="4294977338" points="270, 100, 100, 321, 100, 373, 100" source_activity_symbol="4294977331" target_activity_symbol="55834584893" transition="Transition4"/>
+<TRANSITION_CONNECTION id="55834584898" points="435, 100, 100, 488, 272, 234, 146, 669, 146" source_activity_symbol="55834584893" target_activity_symbol="55834584894" transition="Transition5"/>
+<TRANSITION_CONNECTION id="55834584899" points="731, 146, 146, 336, 326, 188, 100, 208, 100" source_activity_symbol="55834584894" target_activity_symbol="4294977331" transition="Transition6"/>
+<TRANSITION_CONNECTION id="4294977346" points="82, 98, 98, 145, 100, 208, 100" source_activity_symbol="55834584895" target_activity_symbol="4294977331" transition="Transition7"/>
+<TRANSITION_CONNECTION id="4294977350" points="435, 100, 100, 539, 54, 644, 54" source_activity_symbol="55834584893" target_activity_symbol="55834584896" transition="Transition8"/>
+<EXECUTED_BY_CONNECTION activity_symbol="55834584894" application_symbol="55834584897" id="55834584900"/>
+<DATA_MAPPING_CONNECTION activity_symbol="55834584894" data_symbol="4294977351" id="55834584901"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="and-split-join" name="and-split-join" oid="55834584902" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity11" implementation="Route" join="None" loop_type="No Loop" name="Activity11" notify_participant_on_assignment="false" oid="55834584903" split="AND" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity12" implementation="Route" join="None" loop_type="No Loop" name="Activity12" notify_participant_on_assignment="false" oid="55834584904" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity13" implementation="Route" join="None" loop_type="No Loop" name="Activity13" notify_participant_on_assignment="false" oid="55834584905" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity14" implementation="Route" join="AND" loop_type="No Loop" name="Activity14" notify_participant_on_assignment="false" oid="55834584906" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity11" id="Transition9" name="Transition9" oid="55834584907" to="Activity12"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity11" id="Transition10" name="Transition10" oid="55834584908" to="Activity13"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity12" id="Transition11" name="Transition11" oid="55834584909" to="Activity14"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity13" id="Transition12" name="Transition12" oid="55834584910" to="Activity14"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584911" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="4294977359" refer="Activity11" x="63" y="146"/>
+<ACTIVITY_SYMBOL id="4294977361" refer="Activity12" x="251" y="76"/>
+<ACTIVITY_SYMBOL id="4294977363" refer="Activity13" x="244" y="200"/>
+<ACTIVITY_SYMBOL id="4294977365" refer="Activity14" x="451" y="137"/>
+<TRANSITION_CONNECTION id="4294977368" points="131, 168, 168, 191, 98, 251, 98" source_activity_symbol="4294977359" target_activity_symbol="4294977361" transition="Transition9"/>
+<TRANSITION_CONNECTION id="4294977370" points="131, 168, 168, 187, 222, 244, 222" source_activity_symbol="4294977359" target_activity_symbol="4294977363" transition="Transition10"/>
+<TRANSITION_CONNECTION id="4294977372" points="319, 98, 98, 385, 159, 451, 159" source_activity_symbol="4294977361" target_activity_symbol="4294977365" transition="Transition11"/>
+<TRANSITION_CONNECTION id="4294977374" points="312, 222, 222, 381, 159, 451, 159" source_activity_symbol="4294977363" target_activity_symbol="4294977365" transition="Transition12"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="and-split-xor-join" name="and-split-xor-join" oid="55834584912" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity15" implementation="Route" join="None" loop_type="No Loop" name="Activity15" notify_participant_on_assignment="false" oid="55834584913" split="AND" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity16" implementation="Route" join="None" loop_type="No Loop" name="Activity16" notify_participant_on_assignment="false" oid="55834584914" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity17" implementation="Route" join="None" loop_type="No Loop" name="Activity17" notify_participant_on_assignment="false" oid="55834584915" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity18" implementation="Route" join="XOR" loop_type="No Loop" name="Activity18" notify_participant_on_assignment="false" oid="55834584916" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity15" id="Transition13" name="Transition13" oid="55834584917" to="Activity16"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity15" id="Transition14" name="Transition14" oid="55834584918" to="Activity17"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity16" id="Transition15" name="Transition15" oid="55834584919" to="Activity18"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity17" id="Transition16" name="Transition16" oid="55834584920" to="Activity18"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584921" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="4294977376" refer="Activity15" x="100" y="97"/>
+<ACTIVITY_SYMBOL id="4294977378" refer="Activity16" x="302" y="28"/>
+<ACTIVITY_SYMBOL id="55834584922" refer="Activity17" x="289" y="140"/>
+<ACTIVITY_SYMBOL id="4294977382" refer="Activity18" x="493" y="97"/>
+<TRANSITION_CONNECTION id="4294977385" points="168, 119, 119, 235, 50, 302, 50" source_activity_symbol="4294977376" target_activity_symbol="4294977378" transition="Transition13"/>
+<TRANSITION_CONNECTION id="4294977387" points="168, 119, 119, 228, 162, 289, 162" source_activity_symbol="4294977376" target_activity_symbol="55834584922" transition="Transition14"/>
+<TRANSITION_CONNECTION id="4294977389" points="370, 50, 50, 431, 119, 493, 119" source_activity_symbol="4294977378" target_activity_symbol="4294977382" transition="Transition15"/>
+<TRANSITION_CONNECTION id="4294977391" points="357, 162, 162, 425, 119, 493, 119" source_activity_symbol="55834584922" target_activity_symbol="4294977382" transition="Transition16"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="manual-split" name="manual-split" oid="55834584923" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity19" implementation="Manual" join="None" loop_type="No Loop" name="Activity19" notify_participant_on_assignment="false" oid="55834584924" performer="Administrator" split="AND" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity20" implementation="Manual" join="None" loop_type="No Loop" name="Activity20" notify_participant_on_assignment="false" oid="55834584925" performer="Administrator" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity21" implementation="Manual" join="None" loop_type="No Loop" name="Activity21" notify_participant_on_assignment="false" oid="55834584926" performer="Administrator" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity19" id="Transition17" name="Transition17" oid="55834584927" to="Activity20"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity19" id="Transition18" name="Transition18" oid="55834584928" to="Activity21"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584929" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="4294977395" refer="Activity19" x="95" y="112"/>
+<ACTIVITY_SYMBOL id="4294977397" refer="Activity20" x="292" y="43"/>
+<ACTIVITY_SYMBOL id="4294977399" refer="Activity21" x="296" y="181"/>
+<ROLE_SYMBOL id="4294977405" refer="Administrator" x="212" y="278"/>
+<TRANSITION_CONNECTION id="4294977402" points="163, 134, 134, 227, 65, 292, 65" source_activity_symbol="4294977395" target_activity_symbol="4294977397" transition="Transition17"/>
+<TRANSITION_CONNECTION id="4294977404" points="163, 134, 134, 229, 203, 296, 203" source_activity_symbol="4294977395" target_activity_symbol="4294977399" transition="Transition18"/>
+<PERFORMS_CONNECTION activity_symbol="4294977395" id="4294977406" participant_symbol="4294977405"/>
+<PERFORMS_CONNECTION activity_symbol="4294977397" id="4294977407" participant_symbol="4294977405"/>
+<PERFORMS_CONNECTION activity_symbol="4294977399" id="4294977408" participant_symbol="4294977405"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="subproc" name="subproc" oid="55834584930" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity22" implementation="Subprocess" implementation_process="linear-route" join="None" loop_type="No Loop" name="Activity22" notify_participant_on_assignment="false" oid="55834584931" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584932" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="4294977411" refer="Activity22" x="161" y="179"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="concurrent-split" name="concurrent-split" oid="55834584933" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity23" implementation="Route" join="None" loop_type="No Loop" name="Activity23" notify_participant_on_assignment="false" oid="55834584934" split="AND" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity24" implementation="Route" join="None" loop_type="No Loop" name="Activity24" notify_participant_on_assignment="false" oid="55834584935" split="AND" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity25" implementation="Route" join="None" loop_type="No Loop" name="Activity25" notify_participant_on_assignment="false" oid="55834584936" split="AND" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity26" implementation="Route" join="None" loop_type="No Loop" name="Activity26" notify_participant_on_assignment="false" oid="55834584937" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity27" implementation="Route" join="None" loop_type="No Loop" name="Activity27" notify_participant_on_assignment="false" oid="55834584938" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity28" implementation="Route" join="None" loop_type="No Loop" name="Activity28" notify_participant_on_assignment="false" oid="55834584939" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity23" id="Transition19" name="Transition19" oid="55834584940" to="Activity24"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity24" id="Transition20" name="Transition20" oid="55834584941" to="Activity25"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity23" id="Transition21" name="Transition21" oid="55834584942" to="Activity26"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity24" id="Transition22" name="Transition22" oid="55834584943" to="Activity27"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity25" id="Transition23" name="Transition23" oid="55834584944" to="Activity28"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584945" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="4294977415" refer="Activity23" x="111" y="149"/>
+<ACTIVITY_SYMBOL id="4294977417" refer="Activity24" x="374" y="150"/>
+<ACTIVITY_SYMBOL id="4294977419" refer="Activity25" x="657" y="157"/>
+<ACTIVITY_SYMBOL id="4294977425" refer="Activity26" x="207" y="329"/>
+<ACTIVITY_SYMBOL id="4294977427" refer="Activity27" x="493" y="338"/>
+<ACTIVITY_SYMBOL id="4294977429" refer="Activity28" x="790" y="347"/>
+<TRANSITION_CONNECTION id="4294977422" points="179, 171, 171, 276, 172, 374, 172" source_activity_symbol="4294977415" target_activity_symbol="4294977417" transition="Transition19"/>
+<TRANSITION_CONNECTION id="4294977424" points="442, 172, 172, 549, 179, 657, 179" source_activity_symbol="4294977417" target_activity_symbol="4294977419" transition="Transition20"/>
+<TRANSITION_CONNECTION id="4294977432" points="179, 171, 171, 193, 351, 207, 351" source_activity_symbol="4294977415" target_activity_symbol="4294977425" transition="Transition21"/>
+<TRANSITION_CONNECTION id="4294977434" points="442, 172, 172, 467, 360, 493, 360" source_activity_symbol="4294977417" target_activity_symbol="4294977427" transition="Transition22"/>
+<TRANSITION_CONNECTION id="4294977436" points="725, 179, 179, 757, 369, 790, 369" source_activity_symbol="4294977419" target_activity_symbol="4294977429" transition="Transition23"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="while-loop" name="while-loop" oid="55834584946" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" application="Application1" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity29" implementation="Application" join="None" loop_type="No Loop" name="Activity29" notify_participant_on_assignment="false" oid="55834584947" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity30" implementation="Route" join="None" loop_type="No Loop" name="Activity30" notify_participant_on_assignment="false" oid="55834584948" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity29" id="Transition24" name="Transition24" oid="55834584949" to="Activity30"/>
+<DATA_MAPPING activity="Activity29" application_access_point="iParam1" application_path="" context="engine" data="counter" data_access_point="this" data_path="" direction="IN" id="counter" oid="0"/>
+<DATA_MAPPING activity="Activity29" application_access_point="returnValue" application_path="" context="engine" data="counter" data_access_point="this" data_path="" direction="OUT" id="counter" oid="0"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584950" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="4294977439" refer="Activity29" x="108" y="136"/>
+<ACTIVITY_SYMBOL id="4294977441" refer="Activity30" x="338" y="146"/>
+<APPLICATION_SYMBOL id="4294977445" refer="Application1" x="131" y="235"/>
+<DATA_SYMBOL id="4294977447" refer="counter" x="10" y="51"/>
+<TRANSITION_CONNECTION id="4294977444" points="176, 158, 158, 257, 168, 338, 168" source_activity_symbol="4294977439" target_activity_symbol="4294977441" transition="Transition24"/>
+<EXECUTED_BY_CONNECTION activity_symbol="4294977439" application_symbol="4294977445" id="4294977446"/>
+<DATA_MAPPING_CONNECTION activity_symbol="4294977439" data_symbol="4294977447" id="4294977448"/>
+</DIAGRAM>
+</WORKFLOW>
+<WORKFLOW id="empty-while-loop" name="empty-while-loop" oid="55834584951" process_category="-2147483648" remote_host_emulation="tn5250" remote_host_port="23" remote_hostname="" target_cost_driver_quantity="0" target_execution_time="0.0" target_idle_time="0.0" target_processing_time="0.0">
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity31" implementation="Route" join="None" loop_condition="FALSE" loop_type="While" name="Activity31" notify_participant_on_assignment="false" oid="55834584952" split="AND" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity32" implementation="Route" join="None" loop_condition="FALSE" loop_type="While" name="Activity32" notify_participant_on_assignment="false" oid="55834584953" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<ACTIVITY allows_abort_by_performer="false" breakpoint="false" difficulty="0" force_assignment_to_human="false" id="Activity33" implementation="Route" join="None" loop_condition="FALSE" loop_type="While" name="Activity33" notify_participant_on_assignment="false" oid="55834584954" split="None" target_execution_time="0.0" target_idle_time="0.0" target_measure_quantity="0" target_processing_time="0.0" target_queue_depth="0" target_waiting_time="0.0"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity31" id="Transition25" name="Transition25" oid="55834584955" to="Activity32"/>
+<TRANSITION condition="TRUE" fork_on_traversal="false" from="Activity31" id="Transition26" name="Transition26" oid="55834584956" to="Activity33"/>
+<TRIGGER id="trigger1" name="trigger1" oid="55834584957" type="ag.carnot.workflow.beans.ManualTriggerType">
+<ATTRIBUTE class="java.lang.String" name="participant" value="Administrator"/>
+</TRIGGER>
+<DIAGRAM name="Default">
+<ACTIVITY_SYMBOL id="4294977451" refer="Activity31" x="97" y="141"/>
+<ACTIVITY_SYMBOL id="4294977453" refer="Activity32" x="295" y="75"/>
+<ACTIVITY_SYMBOL id="4294977455" refer="Activity33" x="318" y="231"/>
+<TRANSITION_CONNECTION id="4294977458" points="165, 163, 163, 230, 97, 295, 97" source_activity_symbol="4294977451" target_activity_symbol="4294977453" transition="Transition25"/>
+<TRANSITION_CONNECTION id="4294977460" points="165, 163, 163, 241, 253, 318, 253" source_activity_symbol="4294977451" target_activity_symbol="4294977455" transition="Transition26"/>
+</DIAGRAM>
+</WORKFLOW>
+<DIAGRAM name="Default Diagram"/>
+</MODEL>

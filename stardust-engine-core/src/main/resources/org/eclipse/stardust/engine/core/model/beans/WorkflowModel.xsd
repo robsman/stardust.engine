@@ -1,0 +1,4625 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<xs:schema xmlns="http://www.carnot.ag/workflowmodel/3.1"
+   xmlns:xs="http://www.w3.org/2001/XMLSchema"
+   targetNamespace="http://www.carnot.ag/workflowmodel/3.1"
+   elementFormDefault="qualified"
+   xmlns:xpdl="http://www.wfmc.org/2002/XPDL1.0">
+   <xs:import namespace="http://www.wfmc.org/2002/XPDL1.0" schemaLocation="../xpdl/xpdl.xsd" />
+   <xs:group name="grDescrAttr">
+      <xs:sequence>
+         <xs:element ref="description" minOccurs="1" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>An optional description of the model element.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>The list of extension attributes.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:group>
+   <xs:group name="grAttrDescr">
+      <xs:sequence>
+         <xs:element ref="attribute" minOccurs="1" maxOccurs="unbounded">
+            <xs:annotation>
+               <xs:documentation>The list of extension attributes.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+         <xs:element ref="description" minOccurs="0" maxOccurs="1">
+            <xs:annotation>
+               <xs:documentation>An optional description of the model element.</xs:documentation>
+            </xs:annotation>
+         </xs:element>
+      </xs:sequence>
+   </xs:group>
+   <xs:simpleType name="connectionRoutingType">
+      <xs:annotation>
+         <xs:documentation>
+            Available routing algorithms for connection symbols.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:restriction base="xs:NCName">
+         <xs:enumeration value="Default"/>
+         <xs:enumeration value="ShortestPath"/>
+         <xs:enumeration value="Manhattan"/>
+         <xs:enumeration value="Explicit"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="flowControlType">
+      <xs:restriction base="xs:NCName">
+         <xs:enumeration value="none"/>
+         <xs:enumeration value="join"/>
+         <xs:enumeration value="split"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="joinSplitType">
+      <xs:restriction base="xs:NCName">
+         <xs:enumeration value="None"/>
+         <xs:enumeration value="XOR"/>
+         <xs:enumeration value="AND"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:simpleType name="swimlaneOrientationType">
+      <xs:restriction base="xs:NCName">
+         <xs:enumeration value="Vertical"/>
+         <xs:enumeration value="Horizontal"/>
+      </xs:restriction>
+   </xs:simpleType>
+   <xs:element name="accessPoint">
+      <xs:annotation>
+         <xs:documentation>
+            The accessPoint declaration defines an access point for the following
+            elements: application, context und trigger.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the access point.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the access point.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human readable name of the access point.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="direction" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The direction of the access point. Valid values are &quot;IN&quot;,
+                  &quot;OUT&quot; or &quot;INOUT&quot;
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of one of the previously defined dataType elements.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="activity">
+      <xs:annotation>
+         <xs:documentation>
+            The activity declaration defines an activity in the workflow process
+            definition.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="dataMapping" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>The list of data mappings.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="eventHandler" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of event handlers of the activity definition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the workflow process definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the activity definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the activity definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="split" type="joinSplitType">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of activity split. Valid values are: &quot;None&quot;,
+                  &quot;XOR&quot; or &quot;AND&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="join" type="joinSplitType">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of activity join. Valid values are: &quot;None&quot;,
+                  &quot;XOR&quot; or &quot;AND&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="implementation" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  Description of how the activity is implemented. Valid values are
+                  &quot;Application&quot;, &quot;Subprocess&quot;, &quot;Route&quot; or
+                  &quot;Manual&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="loopType" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  Description of whether the activity shall be executed in a loop. Valid
+                  values are &quot;NO LOOP&quot;, &quot;WHILE&quot; or &quot;REPEAT&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="loopCondition" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  Logical condition for the loop when attribute loopType is
+                  &quot;WHILE&quot; or &quot;REPEAT&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="performer" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of a participant (role, organization or conditional
+                  performer) who is assigned to the activity.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="application" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the application to execute when the attribute
+                  &quot;implementation&quot; is set to &quot;Application&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="implementationProcess" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the subprocess implementing the activity when the
+                  attribute &quot;implementation&quot; is set to &quot;Subprocess&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="subProcessMode">
+            <xs:annotation>
+               <xs:documentation>
+                  The execution mode of the subprocess. &quot;sync_shared&quot; executes
+                  the process synchronously (the default mode).
+                  &quot;asynch_separate&quot; just triggers a fully independent instance
+                  of the implementing process. This attribute is valid only when the
+                  attribute &quot;implementation&quot; is set to &quot;Subprocess&quot;.
+               </xs:documentation>
+            </xs:annotation>
+            <xs:simpleType>
+               <xs:restriction base="xs:NMTOKEN">
+                  <xs:enumeration value="sync_shared" />
+                  <xs:enumeration value="sync_separate" />
+                  <xs:enumeration value="async_separate" />
+               </xs:restriction>
+            </xs:simpleType>
+         </xs:attribute>
+         <xs:attribute name="allowsAbortByPerformer" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  Determines whether the activity is allowed to be aborted.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="hibernateOnCreation" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  Determines whether an activity instance is hibernated immediately after
+                  beeing created.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="application">
+      <xs:annotation>
+         <xs:documentation>
+            The application declaration defines an application for a workflow activity in
+            a workflow process.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="context" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>The list of application contexts.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="accessPoint" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>The list of access points.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the application definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the application definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the application definition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of the application as java class name. Allowed are
+                  subinterfaces of ag.carnot.workflow.spi.ApplicationType
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="interactive" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether this application is interactive or not.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="applicationContextType">
+      <xs:annotation>
+         <xs:documentation>
+            The applicationContextType declaration defines an application context type for
+            a workflow activity in a workflow process.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the application contect type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the application context type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the application context type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="predefined" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the application context type element is
+                  predefined or created by modeling.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="hasApplicationPath" type="xs:boolean" />
+         <xs:attribute name="hasMappingId" type="xs:boolean" />
+         <xs:attribute name="panelClass" type="xs:string" />
+         <xs:attribute name="accessPointProviderClass" type="xs:string" />
+         <xs:attribute name="validatorClass" type="xs:string" />
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="applicationType">
+      <xs:annotation>
+         <xs:documentation>
+            The applicationType declaration defines an application type for a workflow
+            activity in a workflow process.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the application type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the application type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the application type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="predefined" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the application type element is
+                  predefined or created by modeling.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="synchronous" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the application type element describes
+                  a synchronously executed application or not.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="panelClass" type="xs:string" />
+         <xs:attribute name="accessPointProviderClass" type="xs:string" />
+         <xs:attribute name="validatorClass" type="xs:string" />
+         <xs:attribute name="instanceClass" type="xs:string" />
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="attribute">
+      <xs:annotation>
+         <xs:documentation>
+            Defines the syntax for extension attributes. Basically being tagged values,
+            attributes allow a nondisruptive evolution of the model file format as well as
+            Carnot and third party vendor extensions.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType mixed="true">
+         <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:any processContents="lax" minOccurs="0" maxOccurs="unbounded" />
+         </xs:choice>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The name of this attributes. It is recommended to use names with a
+                  structure like
+                  <code>vendor:component:sub-component:..:property</code>
+                  , i.e.
+                  <code>carnot:defdesk:icon</code>
+                  vs.
+                  <code>carnot:engine:defaultValue</code>
+                  .
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The optional type of this attribute. Will be used as hint while
+                  attribute value evaluation, if existent.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="value" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The value of this attribute, if it can be represented as a single line
+                  string. Alterntively arbitrary complex child element nodes may be used
+                  to represent more complex values.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="bindAction">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the bind action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the bind action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the bind action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of the bind action. Valid values are the model id's of
+                  previously defined eventActionType elements whose
+                  unsupportedContexts-attribute does not contain "bind".
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="conditionalPerformer">
+      <xs:annotation>
+         <xs:documentation>
+            The conditionalPerformer declaration defines a perfomer under certain
+            circumstances.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the conditional performer.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the conditional performer.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the conditional performer.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="is_user" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether this conditional performer is a user or
+                  not.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="data" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the data which determines the runtime identity of the
+                  performer.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="dataPath" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The data path the data which determines the runtime identity of the
+                  performer. This must evaluate to String (id) or long (oid).
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="context">
+      <xs:annotation>
+         <xs:documentation>
+            The context declaration defines a context for interactive applications where
+            context related attributes and access points can be specified.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="accessPoint" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>The list of access points.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the context.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of the context for interactive applications. Valid values are
+                  the following model id's of previously defined applicationContextType
+                  elements: &quot;jfc&quot; | &quot;jsp&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="data">
+      <xs:annotation>
+         <xs:documentation>
+            The data declaration defines a data element for the workflow model.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>A 32-bit number assigned to the data.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the data element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the data element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  Abstract description of the data type of the data element (e.g.
+                  primitive, entity). Depending on that type class names are given as
+                  attribute elements.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="predefined" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the data element is predefined or
+                  created by modeling.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="dataMapping">
+      <xs:annotation>
+         <xs:documentation>
+            The dataMapping declaration defines a mapping between data and activity.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the data mapping.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the data mapping.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the data mapping.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="data" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The unique model id of the corresponding data element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="direction" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The direction of the mapping. Valid values are &quot;IN&quot; |
+                  &quot;OUT&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="context" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  If the activity is an interactive activity then the context specifies
+                  for which type of interactive activity this data mapping is used. Valid
+                  values are the following model id's of previously defined
+                  applicationContextType elements: &quot;jfc&quot; | &quot;jsp&quot;
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="dataPath" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The method of the data object to retrieve or put the data. Can be left
+                  empty, if the whole object is used.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="applicationAccessPoint" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The name of the access point for the application in scope of the
+                  activity.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="applicationPath" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The method of the application to retrieve or put the data to/from the
+                  application.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="dataPath">
+      <xs:annotation>
+         <xs:documentation>
+            The dataPath declaration defines a data path (data element with a chain of
+            accessing methods) for a process definition.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence minOccurs="0">
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the data path.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the data path.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the data path.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="direction" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The direction of the data path. Valid values are &quot;IN&quot; |
+                  &quot;OUT&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="descriptor" type="xs:boolean" />
+         <xs:attribute name="data" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The unique model id of the corresponding data element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="dataPath" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The method of the data object to retrieve or put the data. Can be left
+                  empty, if the whole object is used.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="dataType">
+      <xs:annotation>
+         <xs:documentation>
+            The dataType declaration defines a data type for data elements.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:group ref="grDescrAttr" />
+            <xs:group ref="grAttrDescr" />
+         </xs:choice>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the data type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the data type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the data type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="predefined" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the data type is predefined or created
+                  by modeling.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="panelClass" type="xs:string" />
+         <xs:attribute name="accessPathEditor" type="xs:string" />
+         <xs:attribute name="validatorClass" type="xs:string" />
+         <xs:attribute name="evaluator" type="xs:string" />
+         <xs:attribute name="instanceClass" type="xs:string" />
+         <xs:attribute name="valueCreator" type="xs:string" />
+         <xs:attribute name="storageStrategy" type="xs:string" />
+         <xs:attribute name="writable" type="xs:boolean" />
+         <xs:attribute name="readable" type="xs:boolean" />
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="description">
+      <xs:annotation>
+         <xs:documentation>
+            The description declaration defines a generic element which is used to specify
+            the description of a model element.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType mixed="true">
+         <xs:choice minOccurs="0" maxOccurs="unbounded" />
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="eventAction">
+      <xs:annotation>
+         <xs:documentation>
+            The eventAction declaration defines an event action which is executed by an
+            event handler.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the event action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the event action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the event action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of the event action. Valid values are the model id's of
+                  previously defined eventActionType elements whose
+                  unsupportedContexts-attribute does not contain "event".
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="eventActionType">
+      <xs:annotation>
+         <xs:documentation>
+            The eventActionType declaration defines an action type for
+            eventAction-elements, bindAction-elements and unbindAction-elements.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the event action type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the event action type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the event action type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="predefined" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the event action type is predefined or
+                  created by modeling.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="processAction" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether actions of this event action type are
+                  available for workflow processes.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="activityAction" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether actions of this event action type are
+                  available for workflow activities.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="panelClass" type="xs:string" />
+         <xs:attribute name="actionClass" type="xs:string" />
+         <xs:attribute name="supportedConditionTypes" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  A comma separated list of model id's of supported event condition types.
+                  Valid values are taken from previously defined eventConditionType
+                  elements.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="unsupportedContexts" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  A comma separated list of unsupported event contexts (actions). Valid
+                  values are &quot;bind&quot;, &quot;unbind&quot; and &quot;event&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="eventConditionType">
+      <xs:annotation>
+         <xs:documentation>
+            The eventConditionType declaration defines an event condition type for
+            eventHandler elements.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the event condition type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the event condition type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the event condition type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="predefined" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the event condition type is predefined
+                  or created by modeling.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="processCondition" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether event handlers of this event condition
+                  type are available for workflow processes.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="activityCondition" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether event handlers of this event condition
+                  type are available for workflow activities.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="implementation">
+            <xs:simpleType>
+               <xs:restriction base="xs:NMTOKEN">
+                  <xs:enumeration value="engine" />
+                  <xs:enumeration value="pull" />
+                  <xs:enumeration value="push" />
+               </xs:restriction>
+            </xs:simpleType>
+         </xs:attribute>
+         <xs:attribute name="panelClass" type="xs:string" />
+         <xs:attribute name="binderClass" type="xs:string" />
+         <xs:attribute name="pullEventEmitterClass" type="xs:string" />
+         <xs:attribute name="rule" type="xs:string" />
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="eventHandler">
+      <xs:annotation>
+         <xs:documentation>
+            The eventHandler declaration defines an event handler for workflow processes
+            and workflow activities.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="bindAction" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of bind actions which are associated with this event
+                     handler.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="eventAction" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of event actions which are associated with this event
+                     handler.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="unbindAction" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of unbind actions which are associated with this event
+                     handler.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the event handler.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the event handler.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the event handler.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of the event handler. Valid values are the model id's of
+                  previously defined eventConditionType elements.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="autoBind" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the event handler is automatically
+                  bound on activity or workflow process startup.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="consumeOnMatch" type="xs:boolean" />
+         <xs:attribute name="logHandler" type="xs:boolean" />
+         <xs:attribute name="unbindOnMatch" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the event handler is automatically
+                  unbound on matching an event.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="expression">
+      <xs:annotation>
+         <xs:documentation>
+            The expression element may contain arbitrary complex transition conditions.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType mixed="true">
+         <xs:choice minOccurs="0" maxOccurs="unbounded" />
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="linkType">
+      <xs:annotation>
+         <xs:documentation>
+            The linkType declaration defines a link type. This is the type of a generic
+            link between two model elements.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the link type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the link type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the link type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="lineType" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of the line. Valid values are &quot;normal line&quot;,
+                  &quot;short strokes&quot;, &quot;long strokes&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="lineColor" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  he color of the line as serialized color.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="show_linktype_name" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  Determines whether the name is to be shown.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="show_role_names" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  Determines whether the names of the roles are to be shown.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="source_classname" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The classname of the source model element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="source_cardinality" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The cardinality to the source model element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="source_rolename" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the role of the source model element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="source_symbol" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the source model element symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="target_classname" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The classname of the target model element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="target_cardinality" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The cardinality to the target model element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="target_rolename" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the role of the target model element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="target_symbol" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the target model element symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="model">
+      <xs:annotation>
+         <xs:documentation>
+            The model declaration defines the root element of a model file.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="dataType" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of data types registered for use with this model.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="applicationType" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of application types registered for use with this model.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="applicationContextType" minOccurs="0"
+               maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of aplication context types regisred for use with this
+                     model.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="triggerType" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of process trigger types registered for use with this model.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="eventConditionType" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of event condition types registered for use with this model.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="eventActionType" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of event action types registered for use with this model.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="data" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of workflow data defined at model scope.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="application" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of workflow applications defined at model scope.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="modeler" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of users having granted rights to check out this model from
+                     the model repository.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="role" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of workflow participant roles defined at model scope.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="organization" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of workflow participant organizations defined at model
+                     scope.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="conditionalPerformer" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of conditional (late bound) workflow participants defined at
+                     model scope.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="processDefinition" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of workflow process definitions.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="xpdl:Script" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>
+                     The script language is used for transition condition.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="xpdl:TypeDeclarations" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of type declarations.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="diagram" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of diagrams defined at model scope.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="linkType" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of user defined link types registered for use with this
+                     model.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="view" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of user defined views on the model structure.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 64-bit number uniquely identifying the model in the model repository.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the model. This identifier will usually
+                  be used to refer to the model neutrally to its version.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of this model. Usually used as the label for the
+                  model.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="modelOID" type="xs:int">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the model during deployment to an audit
+                  trail. This number may be changed if the model is deployed to different
+                  audit trails or even to the same audit trail multiple times.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="carnotVersion" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The software version used to create and edit this model. Opening this
+                  model in another version of the software may require an explicit
+                  conversion.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="vendor" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The vendor of the software used to create and edit this model. Usually
+                  this will be &quot;carnot&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="author" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The name of the user editing this model last.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="created" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The date this model was created.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="modeler">
+      <xs:annotation>
+         <xs:documentation>
+            The modeler declaration defines a person with the privileges to modify the
+            model.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the modeler.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the modeler.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the modeler.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="password" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The password for the modeler.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="email" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The e-mail address of the modeler.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="organization">
+      <xs:annotation>
+         <xs:documentation>
+            The organization declaration defines an organization item for grouping
+            participants.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="participant" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of participants for the organization.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the organization.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the organization.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the organization.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="teamLead" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The role of the team lead for this organization.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="parameterMapping">
+      <xs:annotation>
+         <xs:documentation>
+            The parameterMapping declaration defines a parameter mapping for trigger
+            parameters.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the parameter mapping.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="data" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The model id of the data element.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="parameter" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The name of the parameter the data element is mapped to.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="parameterPath" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The access path (data mapping) to the data element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="participant">
+      <xs:annotation>
+         <xs:documentation>
+            The participant declaration defines a model participant
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="participant" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of either an organization or role.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="processDefinition">
+      <xs:annotation>
+         <xs:documentation>
+            The processDefinition declaration defines a workflow process in the model.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+      	<xs:sequence>
+      		<xs:choice minOccurs="0" maxOccurs="1">
+      			<xs:group ref="grDescrAttr" />
+      			<xs:group ref="grAttrDescr" />
+      		</xs:choice>
+      		<xs:element ref="activity" minOccurs="0"
+      			maxOccurs="unbounded">
+      			<xs:annotation>
+      				<xs:documentation>
+      					The list of activity definitions of the
+      					workflow process definition.
+      				</xs:documentation>
+      			</xs:annotation>
+      		</xs:element>
+      		<xs:element ref="transition" minOccurs="0"
+      			maxOccurs="unbounded">
+      			<xs:annotation>
+      				<xs:documentation>
+      					The list of transitions between the activity
+      					definitions of the workflow process
+      					definition.
+      				</xs:documentation>
+      			</xs:annotation>
+      		</xs:element>
+      		<xs:element ref="trigger" minOccurs="0"
+      			maxOccurs="unbounded">
+      			<xs:annotation>
+      				<xs:documentation>
+      					The list of triggers of the workflow process
+      					definition.
+      				</xs:documentation>
+      			</xs:annotation>
+      		</xs:element>
+      		<xs:element ref="dataPath" minOccurs="0"
+      			maxOccurs="unbounded">
+      			<xs:annotation>
+      				<xs:documentation>
+      					The list of data paths of the workflow process
+      					definition.
+      				</xs:documentation>
+      			</xs:annotation>
+      		</xs:element>
+      		<xs:element ref="eventHandler" minOccurs="0"
+      			maxOccurs="unbounded">
+      			<xs:annotation>
+      				<xs:documentation>
+      					The list of event handlers of the workflow
+      					process definition.
+      				</xs:documentation>
+      			</xs:annotation>
+      		</xs:element>
+      		<xs:element ref="diagram" minOccurs="0"
+      			maxOccurs="unbounded">
+      			<xs:annotation>
+      				<xs:documentation>
+      					The list of diagrams of the workflow process
+      					definition.
+      				</xs:documentation>
+      			</xs:annotation>
+      		</xs:element>
+      	</xs:sequence>
+      	<xs:attribute name="oid" type="xs:long" use="required">
+      		<xs:annotation>
+      			<xs:documentation>
+      				A 32-bit number assigned to the workflow process
+      				definition.
+      			</xs:documentation>
+      		</xs:annotation>
+      	</xs:attribute>
+      	<xs:attribute name="id" type="xs:string" use="required">
+      		<xs:annotation>
+      			<xs:documentation>
+      				The human usable identifier of the workflow
+      				process definition.
+      			</xs:documentation>
+      		</xs:annotation>
+      	</xs:attribute>
+      	<xs:attribute name="name" type="xs:string" use="required">
+      		<xs:annotation>
+      			<xs:documentation>
+      				The human friendly name of the workflow process
+      				definition.
+      			</xs:documentation>
+      		</xs:annotation>
+      	</xs:attribute>
+      	<xs:attribute name="defaultPriority" type="xs:int"></xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="role">
+      <xs:annotation>
+         <xs:documentation>The role declaration defines a role.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>A 32-bit number assigned to the role.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the role.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>The human friendly name of the role.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="cardinality" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The cardinality of the role. Valid values are &quot;*:1&quot; (to one) |
+                  &quot;*:N&quot; (to many)
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="transition">
+      <xs:annotation>
+         <xs:documentation>
+            The transition declaration defines a transition between two activities.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+           <!-- rsauer: older releases wrote expression element before description -->
+           <xs:sequence>
+             <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                 <xs:documentation>The list of extension attributes.</xs:documentation>
+               </xs:annotation>
+             </xs:element>
+             <xs:element ref="description" minOccurs="0" maxOccurs="1">
+               <xs:annotation>
+                 <xs:documentation>An optional description of the model element.</xs:documentation>
+               </xs:annotation>
+             </xs:element>
+           </xs:sequence>
+           <xs:element ref="expression" minOccurs="0" maxOccurs="1">
+             <xs:annotation>
+               <xs:documentation>
+                  An optional expression for transition condition. Only valid if no
+                  condition attribute is existing.
+               </xs:documentation>
+             </xs:annotation>
+           </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the transition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the transition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the transition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="forkOnTraversal" type="xs:boolean" default="false" />
+         <xs:attribute name="from" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The unique model id of the starting activity.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="to" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The unique model id of the ending activity.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="condition" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The condition used to verify transition, default value is
+                  &quot;TRUE&quot;. Now deprecated for conditions beside TRUE and FALSE,
+                  more complex conditions should be put into an expression element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="trigger">
+      <xs:annotation>
+         <xs:documentation>
+            The trigger declaration defines a workflow process trigger.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="accessPoint" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>The list of access points.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="parameterMapping" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>The list of parameter mappings.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the trigger.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the workflow process trigger.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the workflow process trigger.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of one of the previously defined triggerType elements.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="triggerType">
+      <xs:annotation>
+         <xs:documentation>
+            The triggerType declaration defines a trigger type. They are used for
+            classification of trigger elements (see attribute &quot;type&quot;).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the trigger type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the trigger type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the trigger type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="predefined" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the trigger type is predefined or
+                  created by modeling.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="pullTrigger" type="xs:boolean">
+            <xs:annotation>
+               <xs:documentation>
+                  A boolean that indicates whether the trigger type describes a
+                  pulltrigger. A pull trigger (e.g. mail) has its own trigger daemon.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="panelClass" type="xs:string" />
+         <xs:attribute name="pullTriggerEvaluator" type="xs:string" />
+         <xs:attribute name="rule" type="xs:string" />
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="unbindAction">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the unbind action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the unbind action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the unbind action.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of the unbind action. Valid values are the model id's of
+                  previously defined eventActionType elements whose
+                  unsupportedContexts-attribute does not contain "unbind".
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="view">
+      <xs:annotation>
+         <xs:documentation>
+            The view declaration defines a view which can hold references to viewable
+            model elements to groups them loosely.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="1">
+               <xs:group ref="grDescrAttr" />
+               <xs:group ref="grAttrDescr" />
+            </xs:choice>
+            <xs:element ref="view" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>
+                     The list of further dependent views.
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:element>
+            <xs:element ref="viewable" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>The list of viewables.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>A 32-bit number assigned to the view.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>The human friendly name of the view.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="viewable">
+      <xs:annotation>
+         <xs:documentation>
+            The viewable declaration defines a thin wrapper for certain model elements for
+            use in a view.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="viewable" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the viewable. Valid viewable model elements are
+                  &quot;activity&quot;, &quot;application&quot;, &quot;data&quot;,
+                  &quot;participant&quot;, &quot;workflow process&quot;.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="coordinate">
+      <xs:annotation>
+         <xs:documentation>
+            A point in 2D space.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="x" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The location on the x-axis.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>The location on the y-axis.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="diagram">
+      <xs:annotation>
+         <xs:documentation>
+            The diagram declaration defines a GUI representation of a workflow process.
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+      	<xs:sequence>
+      		<xs:choice minOccurs="0" maxOccurs="unbounded">
+      			<xs:element ref="activitySymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of activity symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="annotationSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of annotation symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="applicationSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of application symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="conditionalPerformerSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of conditional performer symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="dataSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of data symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="endEventSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of end event symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="gatewaySymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of gateway symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="groupSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of group symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="intermediateEventSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of intermediate event symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="modelerSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of modeler symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="organizationSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of organization symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="processSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of workflow process symbols. Only
+      						possible for diagrams in workflow model
+      						scope.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="roleSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of role symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="startEventSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of start event symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="textSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of text symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="dataMappingConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of data mapping connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="executedByConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of &quot;executed
+      						by&quot;-connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="genericLinkConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of generic link connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="partOfConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of &quot;part
+      						of&quot;-connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="performsConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of performs-connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="refersToConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of &quot;refers
+      						to&quot;-connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="subProcessOfConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of &quot;subprocess
+      						of&quot;-connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="transitionConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of transition connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      			<xs:element ref="worksForConnection">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of &quot;works
+      						for&quot;-connections.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+               <xs:element ref="teamLeadConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;teamLead&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="triggersConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;triggers&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>      			
+      			<xs:element ref="poolSymbol">
+      				<xs:annotation>
+      					<xs:documentation>
+      						The list of contained pool symbols.
+      					</xs:documentation>
+      				</xs:annotation>
+      			</xs:element>
+      		</xs:choice>
+      	</xs:sequence>
+      	<xs:attribute name="oid" type="xs:long" use="required">
+      		<xs:annotation>
+      			<xs:documentation>
+      				A 32-bit number assigned to the diagram.
+      			</xs:documentation>
+      		</xs:annotation>
+      	</xs:attribute>
+      	<xs:attribute name="name" type="xs:string" use="required">
+      		<xs:annotation>
+      			<xs:documentation>
+      				The human friendly name of the diagram.
+      			</xs:documentation>
+      		</xs:annotation>
+      	</xs:attribute>
+      	<xs:attribute name="orientation"
+      		type="swimlaneOrientationType" use="optional">
+      		<xs:annotation>
+      			<xs:documentation>
+      				The default orientation of the diagram.
+      			</xs:documentation>
+      		</xs:annotation>
+      	</xs:attribute>
+      	<xs:attribute name="mode" type="modeType">
+      	</xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="poolSymbol">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+               <xs:element ref="activitySymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of activity symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="annotationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of annotation symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="applicationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of application symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="conditionalPerformerSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of conditional performer symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dataSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of data symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="endEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of end event symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="gatewaySymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of gateway symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="groupSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of group symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="intermediateEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of intermediate event symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="modelerSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of modeler symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="organizationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of organization symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="processSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of workflow process symbols. Only possible for diagrams
+                        in workflow model scope.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="roleSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of role symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="startEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of start event symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="textSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of text symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dataMappingConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of data mapping connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="executedByConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;executed by&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="genericLinkConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of generic link connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="partOfConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;part of&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="performsConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of performs-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="refersToConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;refers to&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="subProcessOfConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;subprocess of&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="transitionConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of transition connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="worksForConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;works for&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="teamLeadConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;teamLead&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="triggersConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;triggers&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>               
+               <xs:element ref="laneSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of lanes contained in this pool.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the diagram.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the pool.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the diagram.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="orientation" type="swimlaneOrientationType" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The orientation of the swimlane.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="participant" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A reference to the associated participant, if existing.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="boundaryVisible" type="xs:boolean" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  Indicates if the pool boundary is drawn or not.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="process" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A reference to the associated process definition, if existing.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="laneSymbol">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+               <xs:element ref="activitySymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of activity symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="annotationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of annotation symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="applicationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of application symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="conditionalPerformerSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of conditional performer symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dataSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of data symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="endEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of end event symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="gatewaySymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of gateway symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="groupSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of group symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="intermediateEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of intermediate event symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="modelerSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of modeler symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="organizationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of organization symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="processSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of workflow process symbols. Only possible for diagrams
+                        in workflow model scope.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="roleSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of role symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="startEventSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of start event symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="textSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of text symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dataMappingConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of data mapping connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="executedByConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;executed by&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="genericLinkConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of generic link connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="partOfConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;part of&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="performsConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of performs-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="refersToConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;refers to&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="subProcessOfConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;subprocess of&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="transitionConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of transition connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="worksForConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;works for&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the diagram.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="id" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The human usable identifier of the lane.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="name" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The human friendly name of the diagram.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="orientation" type="swimlaneOrientationType" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The orientation of the swimlane.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="participant" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A reference to the associated participant, if existing.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="parentLane" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A reference to the associated parent swimlane from the same pool, either a lane or the pool itself.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="activitySymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The activitySymbol declaration defines an activity symbol (GUI)
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the activity definition symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding activity.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="annotationSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The annotationSymbol declaration defines an annotation symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="text" minOccurs="0" />
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the annotation symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="text">
+      <xs:annotation>
+         <xs:documentation>The text declaration defines a text element.</xs:documentation>
+      </xs:annotation>
+      <xs:complexType mixed="true">
+         <xs:choice minOccurs="0" maxOccurs="unbounded" />
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="applicationSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The applicationSymbol declaration defines an application symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the application symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding application.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="conditionalPerformerSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The conditionalPerformerSymbol declaration defines a conditional performer
+            symbol (GUI)
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the conditional performer symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding conditional performer.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="dataSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The dataSymbol declaration defines a data symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the data symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding data.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="endEventSymbol">
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the event symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="gatewaySymbol">
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the event symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="flowKind" type="flowControlType" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The type of flow control represented by this gateway.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The OID of the associated activity symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="groupSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The groupSymbol declaration defines a group symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+               <xs:element ref="activitySymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of activity symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="annotationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of annotation symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="applicationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of application symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="conditionalPerformerSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of conditional performer symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dataSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of data symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="endEventSymbol" />
+               <xs:element ref="gatewaySymbol" />
+               <xs:element ref="groupSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of group symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="intermediateEventSymbol" />
+               <xs:element ref="modelerSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of modeler symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="organizationSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of organization symbols.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="processSymbol">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of workflow process symbols. Only possible for diagrams
+                        in workflow model scope.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="roleSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of role symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="startEventSymbol" />
+               <xs:element ref="textSymbol">
+                  <xs:annotation>
+                     <xs:documentation>The list of text symbols.</xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="dataMappingConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of data mapping connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="executedByConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;executed by&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="genericLinkConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of generic link connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="partOfConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;part of&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="performsConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of performs-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="refersToConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;refers to&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="subProcessOfConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;subprocess of&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="transitionConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of transition connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+               <xs:element ref="worksForConnection">
+                  <xs:annotation>
+                     <xs:documentation>
+                        The list of &quot;works for&quot;-connections.
+                     </xs:documentation>
+                  </xs:annotation>
+               </xs:element>
+            </xs:choice>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the group symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="intermediateEventSymbol">
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the event symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="modelerSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The modelerSymbol declaration defines a modeler symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the modeler symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding modeler.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="organizationSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            he organizationSymbol declaration defines an organization symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the organization symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding organization.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="processSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The processSymbol declaration defines a workflow process symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the workflow process symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding workflow process.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="roleSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The roleSymbol declaration defines a role symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the role symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding role.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="startEventSymbol">
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the event symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="refer" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding trigger, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="textSymbol">
+      <xs:annotation>
+         <xs:documentation>
+            The textSymbol declaration defines a text symbol (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the text symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="x" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The x position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="y" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The y position in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="width" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node width in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="height" type="xs:int" use="optional">
+            <xs:annotation>
+               <xs:documentation>The node height in the diagram.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="shape" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A hint on the shape to be used, if applicable.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="text" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding text.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="dataMappingConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The dataMappingConnection declaration defines a data mapping connection (GUI)
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the data mapping connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="dataSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding data symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="activitySymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding activity symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="executedByConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The executedByConnection declaration defines an &quot;executed
+            by&quot;-connection (GUI)
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the &quot;executed by&quot;-connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="applicationSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding application symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="activitySymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding activity symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="genericLinkConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The genericLinkConnection declaration defines a generic link connection (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the generic link connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the first linked element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the second linked element.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="linkType" type="xs:string" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding link type.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="partOfConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The partOfConnection declaration defines a &quot;part of&quot;-connection
+            (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the &quot;part of&quot;-connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="suborganizationSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the sub organization symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="organizationSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the organization symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="performsConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The performsConnection declaration defines a performs connection (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the performs-connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="participantSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the participant symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="activitySymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The model oid of the activity symbol.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="refersToConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The refersToConnection declaration defines a &quot;refers to&quot;-connection
+            (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the &quot;refers to&quot;-connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="from" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the first element symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="to" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the second element symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="subProcessOfConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The subProcessOfConnection declaration defines a &quot;subprocess
+            of&quot;-connection (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the &quot;subprocess of&quot;-connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="subprocessSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the subprocess symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="processSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>The model oid of the process symbol.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="teamLeadConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The teamLeadConnection declaration defines a &quot;team lead&quot;-connection
+            (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the &quot;team lead&quot;-connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="teamLeadSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the participant symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="teamSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the organization symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="transitionConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The transitionConnection declaration defines a transition connection (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0" maxOccurs="unbounded">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the transition connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceActivitySymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the first activity symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetActivitySymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the second activity symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="transition" type="xs:string">
+            <xs:annotation>
+               <xs:documentation>
+                  The model id of the corresponding transition.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="points" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>
+                  A comma separated list of routing coordinates.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="worksForConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The worksForConnection declaration defines a &quot;works for&quot;-connection
+            (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the &quot;works for&quot;-connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="participantSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the participant symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="organizationSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the organization symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+   <xs:element name="triggersConnection">
+      <xs:annotation>
+         <xs:documentation>
+            The triggersConnection declaration defines a &quot;triggers&quot;-connection
+            (GUI).
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="coordinate" minOccurs="0">
+               <xs:annotation>
+                  <xs:documentation>The routing coordinates of the connection symbol.</xs:documentation>
+               </xs:annotation>
+            </xs:element>
+         </xs:sequence>
+         <xs:attribute name="oid" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  A 32-bit number assigned to the &quot;works for&quot;-connection.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="borderColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The border color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="fillColor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The fill color, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="style" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The drawing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="sourceAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The source node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="targetAnchor" type="xs:string" use="optional">
+            <xs:annotation>
+               <xs:documentation>The target node anchor, if set. Defaults to "center".</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="routing" type="connectionRoutingType" use="optional">
+            <xs:annotation>
+               <xs:documentation>The routing style, if applicable.</xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="startEventSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the startEvent symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <xs:attribute name="participantSymbol" type="xs:long" use="required">
+            <xs:annotation>
+               <xs:documentation>
+                  The model oid of the participant symbol.
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:simpleType name="modeType">
+   	<xs:restriction base="xs:NCName">
+   		<xs:enumeration value="MODE_4_0_0"></xs:enumeration>
+   		<xs:enumeration value="MODE_4_5_0"></xs:enumeration>
+   	</xs:restriction>
+   </xs:simpleType>
+</xs:schema>

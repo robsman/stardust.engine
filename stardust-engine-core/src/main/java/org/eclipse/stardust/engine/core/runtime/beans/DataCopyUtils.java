@@ -1,0 +1,681 @@
+/*******************************************************************************
+ * Copyright (c) 2011 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
+package org.eclipse.stardust.engine.core.runtime.beans;
+
+import java.util.*;
+
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataPath;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
+
+
+import com.sungard.infinity.bpm.vfs.VfsUtils;
+
+public class DataCopyUtils
+{
+   private static final Logger trace = LogManager.getLogger(DataCopyUtils.class);
+
+   private DataCopyUtils()
+   {
+   }
+
+   protected static void copyDataUsingDocumentCopyHeuristics(
+         IProcessInstance sourceProcessInstance, IProcessInstance targetProcessInstance,
+         Set<String> ignoreDataIds)
+   {
+      Map<String, DataCopyMappingRule> mappingRules = DataCopyUtils.createCopyDataHeuristicRules(
+            sourceProcessInstance, targetProcessInstance);
+
+      copyData(sourceProcessInstance, targetProcessInstance, ignoreDataIds, mappingRules);
+   }
+
+   protected static void copyDataUsingNoOverrideHeuristics(
+         IProcessInstance sourceProcessInstance, IProcessInstance targetProcessInstance,
+         Set<String> ignoreDataIds)
+   {
+      Map<String, DataCopyMappingRule> mappingRules = new HashMap<String, DataCopyMappingRule>();
+
+      Set<String> ignoreDataIds2 = new HashSet<String>();
+
+      if (ignoreDataIds != null)
+      {
+         ignoreDataIds2.addAll(ignoreDataIds);
+      }
+
+      for (Iterator iterator = sourceProcessInstance.getAllDataValues(); iterator.hasNext();)
+      {
+         IDataValue srcValue = (IDataValue) iterator.next();
+         IData srcData = srcValue.getData();
+         String srcDataId = srcData.getId();
+         // only if target data value is not initialized and only for document data
+         if ( !ignoreDataIds2.contains(srcDataId) && isDmsDocument(srcData))
+         {
+            if (hasOutDataMapping(srcValue, targetProcessInstance)
+                  && !isInitializedInTarget(srcValue, targetProcessInstance)
+                  && hasSameDocumentType(srcData,
+                        getDataFromProcessInstance(targetProcessInstance, srcDataId)))
+            {
+               // Will be copied 1:1.
+            }
+            else if (supportsProcessAttachments(targetProcessInstance))
+            {
+               addCopyToProcessAttachmentsRule(srcData, targetProcessInstance,
+                     mappingRules);
+            }
+            else
+            {
+               // No out data mapping exists, target supports no process attachments: no
+               // copy.
+               ignoreDataIds2.add(srcDataId);
+            }
+         }
+         else if (DmsConstants.DATA_ID_ATTACHMENTS.equals(srcDataId)
+               && supportsProcessAttachments(targetProcessInstance))
+         {
+            IData targetData = getDataFromProcessInstance(targetProcessInstance,
+                  DmsConstants.DATA_ID_ATTACHMENTS);
+            if (targetData != null)
+            {
+               mappingRules.put(srcDataId, new DataCopyMappingRule(srcData, targetData,
+                     false, true));
+            }
+            else
+            {
+               ignoreDataIds2.add(srcDataId);
+            }
+         }
+         else
+         {
+            ignoreDataIds2.add(srcDataId);
+         }
+
+      }
+
+      copyData(sourceProcessInstance, targetProcessInstance, ignoreDataIds2, mappingRules);
+   }
+
+   private static boolean supportsProcessAttachments(IProcessInstance processInstance)
+   {
+      return null != getDataFromProcessInstance(processInstance,
+            DmsConstants.DATA_ID_ATTACHMENTS);
+   }
+
+   private static boolean hasOutDataMapping(IDataValue srcValue,
+         IProcessInstance processInstance)
+   {
+      IModel model = (IModel) srcValue.getProcessInstance()
+            .getProcessDefinition()
+            .getModel();
+      IModel targetModel = (IModel) processInstance.getProcessDefinition().getModel();
+      if (model.getId() != null && model.getId().equals(targetModel.getId()))
+      {
+         String srcDataId = srcValue.getData().getId();
+         Iterator allOutDataPaths = processInstance.getProcessDefinition()
+               .getAllOutDataPaths();
+         while (allOutDataPaths.hasNext())
+         {
+            IDataPath dataPath = (IDataPath) allOutDataPaths.next();
+            if (dataPath.getDirection().isCompatibleWith(Direction.OUT)
+                  && dataPath.getData().getId().equals(srcDataId)
+                  && StringUtils.isEmpty(dataPath.getAccessPath()))
+            {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   private static boolean isInitializedInTarget(IDataValue srcValue,
+         IProcessInstance processInstance)
+   {
+      String srcDataId = srcValue.getData().getId();
+
+      IData targetData = getDataFromProcessInstance(processInstance, srcDataId);
+
+      IDataValue dataValue = processInstance.getDataValue(targetData);
+
+      return null != dataValue.getValue();
+   }
+
+   private static void addCopyToProcessAttachmentsRule(IData srcData,
+         IProcessInstance targetProcessInstance,
+         Map<String, DataCopyMappingRule> mappingRules)
+   {
+      if (isDmsDocument(srcData) || isDmsDocumentList(srcData))
+      {
+         IData targetProcessAttachmentsData = getDataFromProcessInstance(
+               targetProcessInstance, DmsConstants.DATA_ID_ATTACHMENTS);
+
+         if (null != targetProcessAttachmentsData)
+         {
+            mappingRules.put(srcData.getId(), new DataCopyMappingRule(srcData,
+                  targetProcessAttachmentsData, false, true));
+         }
+      }
+   }
+
+   private static IData getDataFromProcessInstance(IProcessInstance processInstance,
+         String dataId)
+   {
+      IModel model = (IModel) processInstance.getProcessDefinition().getModel();
+      return model.findData(dataId);
+   }
+
+   private static void copyData(IProcessInstance sourceProcessInstance,
+         IProcessInstance targetProcessInstance, Set<String> ignoreDataIds,
+         Map<String, DataCopyMappingRule> mappingRules)
+   {
+      // copy all data
+      for (Iterator iterator = sourceProcessInstance.getAllDataValues(); iterator.hasNext();)
+      {
+         IDataValue srcValue = (IDataValue) iterator.next();
+
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("Data value '" + srcValue.getData().getId() + "' retrieved.");
+         }
+
+         String dataId = srcValue.getData().getId();
+         // do not copy data already initialized by the data map.
+         if ( !ignoreDataIds.contains(dataId))
+         {
+            IData targetData = null;
+            Object targetValue = null;
+            if ( !mappingRules.containsKey(dataId))
+            {
+               targetData = srcValue.getData();
+               targetValue = srcValue.getSerializedValue();
+               targetProcessInstance.setOutDataValue(targetData, "", targetValue);
+            }
+            else
+            {
+               DataCopyMappingRule dataCopyMappingRule = mappingRules.get(dataId);
+               targetData = dataCopyMappingRule.getTargetData();
+
+               Object modifiedValue = processMappingRule(srcValue, dataCopyMappingRule,
+                     targetProcessInstance);
+               if (modifiedValue != null)
+               {
+                  targetValue = modifiedValue;
+               }
+               else
+               {
+                  targetValue = srcValue.getSerializedValue();
+               }
+               targetProcessInstance.setOutDataValue(targetData, "", targetValue);
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug("Data copy Heuristic in effect: Mapping data '" + dataId
+                        + "' to '" + targetData.getId() + "'");
+               }
+            }
+         }
+      }
+   }
+
+   private static Object processMappingRule(IDataValue srcValue,
+         DataCopyMappingRule dataCopyMappingRule, IProcessInstance targetProcessInstance)
+   {
+      Object modifiedDataValueObject = null;
+      if (dataCopyMappingRule.isRemoveMetaData())
+      {
+       EmbeddedServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
+         DocumentManagementService dms = sf.getDocumentManagementService();
+
+         if (isDmsDocument(dataCopyMappingRule.getSourceData()))
+         {
+            Object value = srcValue.getProcessInstance().getInDataValue(
+                  dataCopyMappingRule.getSourceData(), "");
+            if (value instanceof Document)
+            {
+               Document document = (Document) value;
+
+               document.setProperties(Collections.EMPTY_MAP);
+               document.setDocumentType(null);
+
+               if ( !isVersioned(document))
+               {
+                  dms.versionDocument(document.getId(), null);
+               }
+
+               modifiedDataValueObject = dms.updateDocument(document, true, null, false);
+            }
+         }
+         if (isDmsDocumentList(dataCopyMappingRule.getSourceData()))
+         {
+            Object value = srcValue.getProcessInstance().getInDataValue(
+                  dataCopyMappingRule.getSourceData(), "");
+            if (value instanceof List)
+            {
+               List<Document> docList = (List<Document>) value;
+               List<Document> updatedDocList = new ArrayList<Document>();
+               for (Document document : docList)
+               {
+                  document.setProperties(Collections.EMPTY_MAP);
+                  document.setDocumentType(null);
+
+                  if ( !isVersioned(document))
+                  {
+                     dms.versionDocument(document.getId(), null);
+                  }
+
+                  updatedDocList.add(dms.updateDocument(document, true, null, false));
+               }
+
+               modifiedDataValueObject = updatedDocList;
+            }
+         }
+      }
+      else if (dataCopyMappingRule.isMergeListTypeData())
+      {
+         if (isDmsDocumentList(dataCopyMappingRule.getTargetData()))
+         {
+            if (isDmsDocumentList(dataCopyMappingRule.getSourceData()))
+            {
+               Object srcValueObj = srcValue.getProcessInstance().getInDataValue(
+                     dataCopyMappingRule.getSourceData(), "");
+               List<Document> srcDocList = null;
+               if (srcValueObj instanceof List)
+               {
+                  srcDocList = (List<Document>) srcValueObj;
+               }
+
+               Object targetValueObj = targetProcessInstance.getInDataValue(
+                     dataCopyMappingRule.getTargetData(), "");
+               List<Document> targetDocList = null;
+               if (targetValueObj instanceof List)
+               {
+                  targetDocList = (List<Document>) targetValueObj;
+               }
+               else if (null == targetValueObj)
+               {
+                  targetDocList = new ArrayList<Document>();
+               }
+
+               if (srcDocList != null)
+               {
+                  // Merge both lists
+                  List<Document> updatedDocList = new ArrayList<Document>(targetDocList);
+                  for (Document srcDocument : srcDocList)
+                  {
+                     if ( !existsInTarget(srcDocument.getId(), targetDocList))
+                     {
+                        updatedDocList.add(srcDocument);
+                     }
+                  }
+                  modifiedDataValueObject = updatedDocList;
+               }
+               else
+               {
+                  // nothing added, but targetDocList needs to be returned so the default source value does not overwrite it.
+                  modifiedDataValueObject = targetDocList;
+               }
+            }
+            else if (isDmsDocument(dataCopyMappingRule.getSourceData()))
+            {
+               Object srcValueObj = srcValue.getProcessInstance().getInDataValue(
+                     dataCopyMappingRule.getSourceData(), "");
+               Document srcDoc = null;
+               if (srcValueObj instanceof Document)
+               {
+                  srcDoc = (Document) srcValueObj;
+               }
+
+               Object targetValueObj = targetProcessInstance.getInDataValue(
+                     dataCopyMappingRule.getTargetData(), "");
+               List<Document> targetDocList = null;
+               if (targetValueObj instanceof List)
+               {
+                  targetDocList = (List<Document>) targetValueObj;
+               }
+               else if (targetValueObj == null)
+               {
+                  targetDocList = new ArrayList<Document>();
+               }
+
+               if (srcDoc != null)
+               {
+                  // Merge both lists
+                  List<Document> updatedDocList = new ArrayList<Document>(targetDocList);
+
+                  if ( !existsInTarget(srcDoc.getId(), targetDocList))
+                  {
+                     updatedDocList.add(srcDoc);
+                  }
+
+                  modifiedDataValueObject = updatedDocList;
+               }
+               else
+               {
+                  // nothing added, but targetDocList needs to be returned so the default
+                  // source value does not overwrite it.
+                  modifiedDataValueObject = targetDocList;
+               }
+            }
+         }
+      }
+
+      return modifiedDataValueObject;
+   }
+
+   private static boolean existsInTarget(String documentId, List<Document> targetDocList)
+   {
+      boolean exists = false;
+      for (Document targetDocument : targetDocList)
+      {
+         if (documentId != null && documentId.equals(targetDocument.getId()))
+         {
+            exists = true;
+         }
+      }
+      return exists;
+   }
+
+   private static boolean isVersioned(Document doc)
+   {
+      boolean result = true;
+      if (VfsUtils.VERSION_UNVERSIONED.equals(doc.getRevisionId()))
+      {
+         result = false;
+      }
+      return result;
+   }
+
+   private static Map<String, DataCopyMappingRule> createCopyDataHeuristicRules(
+         IProcessInstance parentProcessInstance, IProcessInstance processInstance)
+   {
+      final List<IData> sourceUsedData = getDataUsedInProcess(parentProcessInstance);
+      final List<IData> targetUsedData = getDataUsedInProcess(processInstance);
+
+      Map<String, DataCopyMappingRule> mappingRules = new HashMap<String, DataCopyMappingRule>();
+      Map<String, Integer> numDocTypePerStructDefIdDoc = getNumDocTypePerStructDefIdForDoc(sourceUsedData);
+      Map<String, Integer> numDocTypePerStructDefIdDocList = getNumDocTypePerStructDefIdForDocList(sourceUsedData);
+
+      Iterator<IDataValue> allDataValues = parentProcessInstance.getAllDataValues();
+      if (allDataValues != null)
+      {
+         while (allDataValues.hasNext())
+         {
+            IDataValue value = allDataValues.next();
+            IData data = value.getData();
+
+            // 0.) implicit: if the data is used in the target, copy it into same data.
+            DataCopyMappingRule targetRule = evaluateSameIdRule(data, targetUsedData);
+            // 1.) same-type-rule
+            if (targetRule == null)
+            {
+               targetRule = evaluateSameTypeRule(data, numDocTypePerStructDefIdDoc,
+                     numDocTypePerStructDefIdDocList, targetUsedData);
+            }
+            // 2.) one-document-rule
+            if (targetRule == null)
+            {
+               targetRule = evaluateOneDocumentRule(data, sourceUsedData, targetUsedData);
+            }
+            // 3.) else merge to process attachments
+            if (targetRule == null)
+            {
+               addCopyToProcessAttachmentsRule(data, processInstance, mappingRules);
+            }
+            if (null != targetRule)
+            {
+               mappingRules.put(data.getId(), targetRule);
+            }
+         }
+      }
+
+      return mappingRules;
+   }
+
+   private static Map<String, Integer> getNumDocTypePerStructDefIdForDoc(
+         List<IData> sourceUsedData)
+   {
+      Map<String, Integer> map = new HashMap<String, Integer>();
+
+      for (IData data : sourceUsedData)
+      {
+         if (isDmsDocument(data))
+         {
+            String structTypeDefId = getStructTypeDefId(data);
+            if ( !StringUtils.isEmpty(structTypeDefId))
+            {
+               Integer integer = map.get(structTypeDefId);
+               if (integer == null)
+               {
+                  integer = Integer.valueOf(0);
+               }
+               integer++ ;
+               map.put(structTypeDefId, integer);
+            }
+         }
+      }
+
+      return map;
+   }
+
+   private static Map<String, Integer> getNumDocTypePerStructDefIdForDocList(
+         List<IData> sourceUsedData)
+   {
+      Map<String, Integer> map = new HashMap<String, Integer>();
+
+      for (IData data : sourceUsedData)
+      {
+         if (isDmsDocumentList(data))
+         {
+            String structTypeDefId = getStructTypeDefId(data);
+            if ( !StringUtils.isEmpty(structTypeDefId))
+            {
+               Integer integer = map.get(structTypeDefId);
+               if (integer == null)
+               {
+                  integer = Integer.valueOf(0);
+               }
+               integer++ ;
+               map.put(structTypeDefId, integer);
+            }
+         }
+      }
+
+      return map;
+   }
+
+   private static List<IData> getDataUsedInProcess(IProcessInstance processInstance)
+   {
+      List<IData> usedData = new ArrayList<IData>();
+      IModel model = (IModel) processInstance.getProcessDefinition().getModel();
+
+      Set<String> usedDataIds = DataUtils.getDataForProcess(processInstance.getProcessDefinition().getId(), model);
+
+      for (String dataId : usedDataIds)
+      {
+         IData data = model.findData(dataId);
+         usedData.add(data);
+      }
+
+      return usedData;
+   }
+
+   private static DataCopyMappingRule evaluateSameIdRule(IData data,
+         List<IData> targetUsedData)
+   {
+      for (IData iData : targetUsedData)
+      {
+         if (data.getId().equals(iData.getId())
+               && (isDmsDocument(iData) || isDmsDocumentList(iData))
+               && hasSameDocumentType(data, iData))
+         {
+            return new DataCopyMappingRule(data, iData, false, true);
+         }
+      }
+      return null;
+   }
+
+   private static DataCopyMappingRule evaluateSameTypeRule(IData data,
+         final Map<String, Integer> numDocTypePerStructDefIdForDoc,
+         final Map<String, Integer> numDocTypePerStructDefIdForDocList,
+         final List<IData> targetUsedData)
+   {
+      IData targetData = null;
+
+      // same-type-rule
+      int found = 0;
+      if (isDmsDocument(data))
+      {
+         String structTypeDefId = getStructTypeDefId(data);
+         if (!StringUtils.isEmpty(structTypeDefId))
+         {
+            // if more than one document data using the same doc type exist the rule does not apply.
+            Integer numSameDocTypeUsed = numDocTypePerStructDefIdForDoc.get(structTypeDefId);
+            if (numSameDocTypeUsed > 1)
+            {
+               return null;
+            }
+         }
+         for (IData iData : targetUsedData)
+         {
+            if (isDmsDocument(iData) && hasSameDocumentType(data, iData))
+            {
+               targetData = iData;
+               found++ ;
+            }
+         }
+      }
+      if (found == 0)
+      {
+      if (isDmsDocumentList(data))
+      {
+         String structTypeDefId = getStructTypeDefId(data);
+         if ( !StringUtils.isEmpty(structTypeDefId))
+         {
+            // if more than one documentList data using the same doc type exist the
+            // rule does not apply.
+            Integer numSameDocTypeUsed = numDocTypePerStructDefIdForDocList.get(structTypeDefId);
+            if (numSameDocTypeUsed > 1)
+            {
+               return null;
+            }
+         }
+         for (IData iData : targetUsedData)
+         {
+            if (isDmsDocumentList(iData) && hasSameDocumentType(data, iData))
+            {
+               targetData = iData;
+                  found++ ;
+               }
+            }
+         }
+      }
+      return found == 1 ? new DataCopyMappingRule(data, targetData, false, false) : null;
+
+   }
+
+   private static DataCopyMappingRule evaluateOneDocumentRule(IData data,
+         final List<IData> sourceUsedData, final List<IData> targetUsedData)
+   {
+      if (isDmsDocument(data) || isDmsDocumentList(data))
+      {
+         IData targetData = null;
+         int docSrc = 0;
+         int docListSrc = 0;
+         for (IData iData : sourceUsedData)
+         {
+            if (isDmsDocument(iData))
+            {
+               docSrc++ ;
+            }
+            if (isDmsDocumentList(iData))
+            {
+               docListSrc++ ;
+            }
+         }
+         int docTarget = 0;
+         int docListTarget = 0;
+         for (IData iData : targetUsedData)
+         {
+            if (isDmsDocument(iData) && isDmsDocument(data))
+            {
+               targetData = iData;
+               docTarget++ ;
+            }
+            if (isDmsDocumentList(iData) && isDmsDocumentList(data))
+            {
+               targetData = iData;
+               docListTarget++ ;
+            }
+         }
+
+         // exactly one document in source and target
+         if (isDmsDocument(data) && docSrc == 1 && docTarget == 1)
+         {
+            return new DataCopyMappingRule(data, targetData, true, false);
+         }
+         // exactly one document list in source and target
+         if (isDmsDocumentList(data) && docListSrc == 1 && docListTarget == 1)
+         {
+            return new DataCopyMappingRule(data, targetData, true, false);
+         }
+      }
+      return null;
+   }
+
+   private static boolean hasSameDocumentType(IData data, IData iData)
+   {
+      String structTypeDefId = getStructTypeDefId(data);
+      String structTypeDefId2 = getStructTypeDefId(iData);
+
+      if (StringUtils.isEmpty(structTypeDefId) && StringUtils.isEmpty(structTypeDefId2))
+      {
+         return true;
+      }
+      else if (structTypeDefId != null)
+      {
+         return structTypeDefId.equals(structTypeDefId2);
+      }
+      return false;
+   }
+
+   private static String getStructTypeDefId(IData data)
+   {
+      return (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
+   }
+
+   private static boolean isDmsDocument(IData data)
+
+   {
+      String dataTypeId = data.getType().getId();
+      if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
+      {
+         return true;
+      }
+      return false;
+   }
+
+   private static boolean isDmsDocumentList(IData data)
+
+   {
+      String dataTypeId = data.getType().getId();
+      if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
+      {
+         return true;
+      }
+      return false;
+   }
+
+}

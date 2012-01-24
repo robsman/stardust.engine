@@ -1,0 +1,3688 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<!--  ==========================================================================
+									Message headers
+	      ==========================================================================   -->
+
+	<xs:complexType name="abstractMessage" abstract="true">
+		<xs:complexContent>
+			<xs:extension base="abstractMessageItem">
+				<xs:sequence>
+					<xs:element name="messageHeader" type="MessageHeaderType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:complexType name="abstractMessageItem" />
+
+	<xs:complexType name="MessageHeaderType" final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessageItem">
+				<xs:sequence>
+					<xs:element name="messageTimeStamp" type="xs:dateTime" />
+					<xs:element name="messageType" type="messageType" />
+					<xs:element name="senderPk" type="SenderPkType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	<xs:simpleType name="messageType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="NOTIFICATION" />
+			<xs:enumeration value="ERROR" />
+			<xs:enumeration value="INTERNAL" />
+			<xs:enumeration value="SERVICE" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:complexType name="SenderPkType">
+		<xs:complexContent>
+			<xs:extension base="abstractMessageItem">
+				<xs:sequence>
+					<xs:element name="messageId" type="xs:long" />
+					<xs:element name="sender" type="xs:string" />
+					<xs:element name="serviceUserName" type="xs:string"
+						minOccurs="0" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+
+	
+	<!-- ==========================================================================
+								COMMON TYPES
+   		 ========================================================================== -->
+	
+	<xs:simpleType name="auditTrailType">
+		<xs:annotation>
+			<xs:documentation>external reference of the transaction; in that case GP3 one</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+			<xs:maxLength value="16" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="fundCodeType">
+		<xs:annotation>
+			<xs:documentation>GP3 Fund Id</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+			<xs:maxLength value="6" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<xs:simpleType name="currencyType">
+		<xs:annotation>
+			<xs:documentation>GP3 currency Id</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1" />
+			<xs:maxLength value="3" />
+		</xs:restriction>
+	</xs:simpleType>
+
+	<!-- ==========================================================================
+							CASH TRANSACTION MESSAGE
+		 ========================================================================== -->
+
+	<xs:element name="cashTransactionMessage" type="cashTransactionMessageType" />
+
+	<xs:complexType name="cashTransactionMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="cashTransactionBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="cashTransactionBodyType">
+		<xs:sequence>
+			<xs:element name="cashTransactionList" type="CashTransactionListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+
+	<xs:complexType name="CashTransactionListType">
+		<xs:sequence>
+			<xs:element name="cashTransaction" type="CashTransactionType" maxOccurs="unbounded" minOccurs="0" />
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="CashTransactionType">
+		<xs:all>
+			<xs:element name="auditTrail" type="auditTrailType"/>
+			<xs:element name="fundCode" type="fundCodeType"/>
+			<xs:element name="transactionType">
+				<xs:annotation>
+					<xs:documentation>GP3 transaction type</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1" />
+						<xs:maxLength value="4" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="transactionTypeShortDescription">
+				<xs:annotation>
+					<xs:documentation>GP3 transaction type short description</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="20" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="fundCurrency" type="currencyType">
+				<xs:annotation>
+					<xs:documentation>Currency of the Fund</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="assetCurrency" type="currencyType">
+				<xs:annotation>
+					<xs:documentation>Currency of the cash movement</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="movementType">
+				<xs:annotation>
+					<xs:documentation>Indicates if the movement is a cash entry or a cash exit; E for entry; S for exit</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="E" />
+						<xs:enumeration value="S" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="tradeDate">
+				<xs:annotation>
+					<xs:documentation>Indicates the cash movement trade date; YYYY-MM-DD</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:date"></xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="valueDate">
+				<xs:annotation>
+					<xs:documentation>Indicates the cash movement value date; YYYY-MM-DD</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:date"></xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="sharePar">
+				<xs:annotation>
+					<xs:documentation>cash movement quantity; not signed</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:totalDigits value="18" />
+						<xs:fractionDigits value="2" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="fundCostPrice">
+				<xs:annotation>
+					<xs:documentation>cash movement in Fund currency; not signed</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:totalDigits value="18" />
+						<xs:fractionDigits value="2" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="longDescription">
+				<xs:annotation>
+					<xs:documentation>GP3 transaction long description</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="50" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+	
+	<!-- ==========================================================================
+							TRANSACTION STATUS MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="transactionStatusMessage" type="transactionStatusMessageType" />
+
+	<xs:complexType name="transactionStatusMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="transactionStatusBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="transactionStatusBodyType">
+		<xs:sequence>
+			<xs:element name="transactionStatusList" type="transactionStatusListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="transactionStatusListType">
+		<xs:sequence>
+			<xs:element name="transactionStatus" type="transactionStatusType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="transactionStatusType">
+		<xs:all>
+			<xs:element name="auditTrail" type="auditTrailType"/>
+			<xs:element name="status">
+				<xs:annotation>
+					<xs:documentation>indicates if the trade is Booked; Settled or Deleted; expected values B;S or D</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="PBK" />
+						<xs:enumeration value="STD" />
+						<xs:enumeration value="PCA" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<!-- ==========================================================================
+							INSTRUMENT MASTER DATA MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="instrumentMasterDataMessage" type="instrumentMasterDataMessageType" />
+
+	<xs:complexType name="instrumentMasterDataMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="instrumentMasterDataBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="instrumentMasterDataBodyType">
+		<xs:sequence>
+			<xs:element name="instrumentMasterDataList" type="instrumentMasterDataListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="instrumentMasterDataListType">
+		<xs:sequence>
+			<xs:element name="instrumentMasterData" type="instrumentMasterDataType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="instrumentMasterDataType">
+		<xs:all>
+				<xs:element name="entityType">
+					<xs:annotation>
+						<xs:documentation>GP3 instrument category</xs:documentation>
+						<xs:documentation>categorie.valeur</xs:documentation>
+						<xs:documentation>TRES is changed into TRET</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="VMOB"/>
+							<xs:enumeration value="OPTI"/>
+							<xs:enumeration value="FUTU"/>
+							<xs:enumeration value="TRET"/>
+							<xs:enumeration value="SWAT"/>
+							<xs:enumeration value="FCHA"/>
+							<xs:enumeration value="FTAU"/>
+							<xs:enumeration value="FMAT"/>
+							<xs:enumeration value="FIND"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="entityId">
+					<xs:annotation>
+						<xs:documentation>GP3 instrument Id</xs:documentation>
+						<xs:documentation>code_valeur</xs:documentation>
+						<xs:documentation>code_compte_treso</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="12" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="shortDescription">
+					<xs:annotation>
+						<xs:documentation>Instrument short description</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Lib_valeur_c</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_option.Lib_option_c</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_future.Lib_option_c</xs:documentation>
+						<xs:documentation>TRET : Descriptif_compte_tresorerie.Lib_compte_treso</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Lib_swap_de_taux_c</xs:documentation>
+						<xs:documentation>DIVERS : Descriptif_divers.Lib_valeur_c</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="20" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="longDescription">
+					<xs:annotation>
+						<xs:documentation>Instrument long description</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Lib_valeur_l</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_option.Lib_option_l</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_future.Lib_option_l</xs:documentation>
+						<xs:documentation>TRET : Descriptif_compte_tresorerie.Lib_compte_treso</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Lib_swap_de_taux_c</xs:documentation>
+						<xs:documentation>DIVERS : Descriptif_divers.Lib_valeur_l</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="60" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="issuer">
+					<xs:annotation>
+						<xs:documentation>GP3 instrument issuer Id</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Code_emetteur</xs:documentation>
+						<xs:documentation>TRET : Parametre_champ_traitement.Valeur_par_defaut (REDBCK,GETMD,TRET ,Issuer)</xs:documentation>
+						<xs:documentation>SWAT : Parametre_champ_traitement.Valeur_par_defaut (REDBCK,GETMD,SWAT ,Issuer)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="issueCurrency">
+					<xs:annotation>
+						<xs:documentation>Instrument issue currency</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.devise_valeur</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.devise_cotation</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_contrat_future.devise_cotation</xs:documentation>
+						<xs:documentation>TRET : Descriptif_compte_tresorerie.Code_devise</xs:documentation>
+						<xs:documentation>DIVERS : Descriptif_divers.Devise_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="quotationCurrency">
+					<xs:annotation>
+						<xs:documentation>Instrument quotation currency</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.devise_cotation</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.devise_cotation</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_contrat_future.devise_cotation</xs:documentation>
+						<xs:documentation>TRET : Descriptif_compte_tresorerie.Code_devise</xs:documentation>
+						<xs:documentation>DIVERS : Descriptif_divers.Devise_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="currencyReceive">
+					<xs:annotation>
+						<xs:documentation>Currency of the receiving leg (SWAT only)Instrument issue currency</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Devise_recue</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="currencyPay">
+					<xs:annotation>
+						<xs:documentation>Currency of the paying leg (SWAT only)Instrument issue currency</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Devise_versee</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="stockExchange">
+					<xs:annotation>
+						<xs:documentation>GP3 Instrument stock exchange Id</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.place_cotation</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.place_cotation</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_contrat_future.place_cotation</xs:documentation>
+						<xs:documentation>TRET : Parametre_champ_traitement.Valeur_par_defaut (REDBCK,GETMD,TRET ,StockExchange)</xs:documentation>
+						<xs:documentation>SWAT : Parametre_champ_traitement.Valeur_par_defaut (REDBCK,GETMD,SWAT ,StockExchange)</xs:documentation>
+						<xs:documentation>DIVERS : Descriptif_divers.place_cotation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="classification">
+					<xs:annotation>
+						<xs:documentation>GP3 Instrument classification Id</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.classe</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.classe</xs:documentation>
+						<xs:documentation>FUTU : Donnees_complementaires_objet.valeur_zone WHERE Code_zone = 'CLASSE' and Code_valeur = Identifiant_contrat_future</xs:documentation>
+						<xs:documentation>TRET : Parametre_champ_traitement.Valeur_par_defaut (REDBCK,GETMD,TRET ,classification)</xs:documentation>
+						<xs:documentation>SWAT : Parametre_champ_traitement.Valeur_par_defaut (REDBCK,GETMD,SWAT ,classification)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="priceType">
+					<xs:annotation>
+						<xs:documentation>Instrument price expression</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.expression_cours</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.expression_cours</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_contrat_option.expression_cours</xs:documentation>
+						<xs:documentation>TRET : T</xs:documentation>
+						<xs:documentation>SWAT : T</xs:documentation>
+						<xs:documentation>DIVERS : P</xs:documentation>
+						<xs:documentation>Transcodification TYPCOU</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="H" />
+							<xs:enumeration value="%" />
+							<xs:enumeration value="T" />
+							<xs:enumeration value="P" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="quantityType">
+					<xs:annotation>
+						<xs:documentation>Instrument quantity expression; Q for quantity; N for nominal; C for contrat</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.expression_quantite</xs:documentation>
+						<xs:documentation>OPTI : C</xs:documentation>
+						<xs:documentation>FUTU : C</xs:documentation>
+						<xs:documentation>TRET : N</xs:documentation>
+						<xs:documentation>SWAT : N</xs:documentation>
+						<xs:documentation>DIVERS : Q</xs:documentation>
+						<xs:documentation>Transcodification EVALUA</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="C" />
+							<xs:enumeration value="N" />
+							<xs:enumeration value="Q" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="assetType">
+					<xs:annotation>
+						<xs:documentation>Instrument asset type</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.type_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="4" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="subCategory">
+					<xs:annotation>
+						<xs:documentation>VMOB sub category (OBLIG, ACTION, ...)</xs:documentation>
+						<xs:documentation>VMOB : Ensemble_table.Code_table_ref_resul (TYPVAL)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="faceValue">
+					<xs:annotation>
+						<xs:documentation>Instrument face value in issue currency</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.nominal</xs:documentation>
+						<xs:documentation>OPTI : 1</xs:documentation>
+						<xs:documentation>FUTU : 1</xs:documentation>
+						<xs:documentation>TRET : 1</xs:documentation>
+						<xs:documentation>DIVERS : Descriptif_divers.Nominal</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="18"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="nominalReceive">
+					<xs:annotation>
+						<xs:documentation>SWAP nominal leg to receive</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.nominal_recu</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="18"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="nominalPay">
+					<xs:annotation>
+						<xs:documentation>SWAP nominal leg to pay</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.nominal_verse</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="18"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="circulation">
+					<xs:annotation>
+						<xs:documentation>Number of shares in circulation</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.nombre_titre</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="20"/>
+							<xs:fractionDigits value="7"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="quota">
+					<xs:annotation>
+						<xs:documentation>Instrument lotsize</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.quotite_nego</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="votingRight">
+					<xs:annotation>
+						<xs:documentation>Number of voting rights</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.nombre_droits_vote</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="18"/>
+							<xs:fractionDigits value="7"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="issueCountry">
+					<xs:annotation>
+						<xs:documentation>Country of issue</xs:documentation>
+						<xs:documentation>VMOB : Donnees_compementaire_objet.valeur_zone (INVCTY)</xs:documentation>
+						<xs:documentation>TRET : Donnees_compementaire_objet.valeur_zone (INVCTY)</xs:documentation>
+						<xs:documentation>SWAT : Donnees_compementaire_objet.valeur_zone (INVCTY)</xs:documentation>
+						<xs:documentation>FUTU : Donnees_compementaire_objet.valeur_zone (INVCTY)</xs:documentation>
+						<xs:documentation>OPTI : Donnees_compementaire_objet.valeur_zone (INVCTY)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="direction">
+					<xs:annotation>
+						<xs:documentation>Indicates if the warrant or the Option is a Put or a Call</xs:documentation>
+						<xs:documentation>VMOB (WARRAN) : Descriptif_comp_valeur.sens_option</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_option.sens_option</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="C" />
+							<xs:enumeration value="P" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="maturityDate">
+					<xs:annotation>
+						<xs:documentation>Maturity date; YYYY-MM-DD</xs:documentation>
+						<xs:documentation>VMOB (WARRAN) : Descriptif_comp_valeur.Date_fin_conversion</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Descriptif_valeur.Date_echeance</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_option.Mois_echeance + Descriptif_option.Jour_echeance</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_future.Mois_echeance + Descriptif_future.Jour_echeance</xs:documentation>
+						<xs:documentation>TRET : Descriptif_remuneration_treso.Date_echeance</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Date_maturite</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="underlyingCategory">
+					<xs:annotation>
+						<xs:documentation>Underlying instrument category (Options, Futures, Warrants)</xs:documentation>
+						<xs:documentation>VMOB (WARRAN) : VMOB</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.Categorie_valeur_sous_jacente</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_contrat_future.Categorie_valeur_sous_jacente</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="4" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="underlyingCode">
+					<xs:annotation>
+						<xs:documentation>Underlying instrument Id (Options, Futures, Warrants)</xs:documentation>
+						<xs:documentation>VMOB (WARRAN) : Descriptif_comp_valeur.Code_valeur_sous_jacente</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.Code_valeur_sous_jacente</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_contrat_future.Code_valeur_sous_jacente</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="12" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="strikePrice">
+					<xs:annotation>
+						<xs:documentation>Strike price of the Option or Warrant</xs:documentation>
+						<xs:documentation>VMOB (WARRAN) : Descriptif_comp_valeur.Prix_exercice</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_option.Prix_exercice</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="18"/>
+							<xs:fractionDigits value="8"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="underlyingQuota">
+					<xs:annotation>
+						<xs:documentation>Underlying lotsize (for one option or one Warrant)</xs:documentation>
+						<xs:documentation>VMOB (WARRAN) : Descriptif_comp_valeur.Quantite_nouvelle / Descriptif_comp_valeur.Quantite_ancienne</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.Quotite_nego</xs:documentation>
+						<xs:documentation>FUTU : Descriptif_contrat_future.Quotite_nego</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="19"/>
+							<xs:fractionDigits value="7"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="redemptionType">
+					<xs:annotation>
+						<xs:documentation>Exercice type of the option (european or american)</xs:documentation>
+						<xs:documentation>OPTI : Descriptif_contrat_option.Type_option</xs:documentation>
+						<xs:documentation>Transcodification TYPOPT</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+
+
+				<xs:element name="couponAnniversaryDate">
+					<xs:annotation>
+						<xs:documentation>Date of first regular coupon (bonds only); YYYY-MM-DD</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Descriptif_valeur.Date_anniv_prem_cp</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="nextCouponDate">
+					<xs:annotation>
+						<xs:documentation>Next coupon date (based on today date); YYYY-MM-DD</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) / TRET : Echeancier_remboursement.Date_echeance</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="previousCouponDate">
+					<xs:annotation>
+						<xs:documentation>Previous coupon date (based on today date); YYYY-MM-DD</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) / TRET : Echeancier_remboursement.Date_echeance</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="issueDate">
+					<xs:annotation>
+						<xs:documentation>Date of issue (bonds only); YYYY-MM-DD</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Descriptif_valeur.Date_emission</xs:documentation>
+						<xs:documentation>TRET : Descriptif_remuneration_treso.Date_echeance_1</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Date_depart_interets</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="interestRate">
+					<xs:annotation>
+						<xs:documentation>Interest rate of the current period</xs:documentation>
+						<xs:documentation>VMOB (OBLIG / FIX, IND) : Descriptif_valeur.Spread_taux</xs:documentation>
+						<xs:documentation>VMOB (OBLIG / OTHER) : Echeancier_taux_variable.Spread_taux WHERE Date_echeance LE TODAY SORTED ON DESCENDING Date_echeance</xs:documentation>
+						<xs:documentation>TRET : Descriptif_remuneration_treso.Spread_taux_credit</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="interestRatePay">
+					<xs:annotation>
+						<xs:documentation>Interest rate of paying leg (SWAP)</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_remuneration_treso.Spread_taux_verse + </xs:documentation>
+						<xs:documentation>Echeancier_taux_variable(VERS).Spread_taux WHERE Date_echeance LE TODAY</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="interestRateReceive">
+					<xs:annotation>
+						<xs:documentation>Interest rate of receiving leg (SWAP)</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_remuneration_treso.Spread_taux_recu + </xs:documentation>
+						<xs:documentation>Echeancier_taux_variable(RECU).Spread_taux WHERE Date_echeance LE TODAY</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="rateNature">
+					<xs:annotation>
+						<xs:documentation>Rate nature of the Bond (Fix or Variable)</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Descriptif_valeur.Nature_indexation</xs:documentation>
+						<xs:documentation>Transcodification NATTAU</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="accrualMethod">
+					<xs:annotation>
+						<xs:documentation>accrual method for interest calculation</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Descriptif_valeur.Calcul_duree_interet</xs:documentation>
+						<xs:documentation>TRET : Descriptif_remuneration_treso.Quantieme_calcul</xs:documentation>
+						<xs:documentation>Transcodification CALDUR</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="accrualMethodPay">
+					<xs:annotation>
+						<xs:documentation>accrual method for interest calculation of the paying leg (SWAP)</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Quantieme_calcul_verse</xs:documentation>
+						<xs:documentation>Transcodification CALDUR</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="accrualMethodReceive">
+					<xs:annotation>
+						<xs:documentation>accrual method for interest calculation of the receiving leg (SWAP)</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Quantieme_calcul_recu</xs:documentation>
+						<xs:documentation>Transcodification CALDUR</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="couponFrequency">
+					<xs:annotation>
+						<xs:documentation>Coupon frequency</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Descriptif_valeur.Periodocite_cp</xs:documentation>
+						<xs:documentation>TRET : Descriptif_remuneration_treso.Periodicite_cp</xs:documentation>
+						<xs:documentation>Transcodification PERIOD</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="rateType">
+					<xs:annotation>
+						<xs:documentation>Type of rate of the Bond</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Descriptif_valeur.Base_indexation</xs:documentation>
+						<xs:documentation>Transcodification BASIND</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="rateTypePay">
+					<xs:annotation>
+						<xs:documentation>Rate nature of paying leg (SWAP)</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Nom_taux_verse</xs:documentation>
+						<xs:documentation>Transcodification NOMTAU</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="rateTypeReceive">
+					<xs:annotation>
+						<xs:documentation>Rate nature of receiving leg (SWAP)</xs:documentation>
+						<xs:documentation>SWAT : Descriptif_swap_de_taux.Nom_taux_recu</xs:documentation>
+						<xs:documentation>Transcodification NOMTAU</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="redemptionPrice">
+					<xs:annotation>
+						<xs:documentation>Bond redemption price (%)</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : 100 * Descriptif_valeur.Montant_remb / Descriptif_valeur.Nominal</xs:documentation>
+						<xs:documentation>TRET : 100</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="19"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="oddCouponType">
+					<xs:annotation>
+						<xs:documentation>odd coupon type of the bond (Nothing, FL, FS, LL, LS)</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Based on Echeancier_remboursement and Periodicite_cp</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="guaranty">
+					<xs:annotation>
+						<xs:documentation>Issue guaranty (Bonds)</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Contenu_ensemble_val.Type_garantie_valeur OR Descriptif_emetteur.Type_garantie (if Type_garantie_valeur empty)</xs:documentation>
+						<xs:documentation>Transcodification GARANT</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="guarantor">
+					<xs:annotation>
+						<xs:documentation>Issue guarantor (Bonds)</xs:documentation>
+						<xs:documentation>VMOB (OBLIG) : Contenu_ensemble_val.Tiers_garant</xs:documentation>
+						<xs:documentation>Transcodification GARANT</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="criteria1">
+					<xs:annotation>
+						<xs:documentation>Accounting criteria (TL1)</xs:documentation>
+						<xs:documentation>OPTI, FUTU, SWAT and TRET : Contenu_ensemble_val.Critere_tri_1</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="ratingList">
+					<xs:annotation>
+						<xs:documentation>For Bonds only</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="rating" maxOccurs="unbounded" minOccurs="0">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="agency">
+											<xs:annotation>
+												<xs:documentation>Agency identifier</xs:documentation>
+												<xs:documentation>VMOB (OBLIG) : Donnees_complementaires_objet.Code_zone where code_zone in ('AGRAT1','AGRAT2',' 'AGRAT3', 'AGRAT4')</xs:documentation>
+												<xs:documentation>Transcodification TABMAT</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1" />
+													<xs:maxLength value="6" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="ratingValue">
+											<xs:annotation>
+												<xs:documentation>Rating given by the agency</xs:documentation>
+												<xs:documentation>VMOB (OBLIG) : Donnees_complementaires_objet.Valeur_zone</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="6" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+
+				<xs:element name="codificationList">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="codification" maxOccurs="unbounded" minOccurs="0">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="server">
+											<xs:annotation>
+												<xs:documentation>external codification identifier</xs:documentation>
+												<xs:documentation>Lien_valeur_serveur.code_serveur</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1" />
+													<xs:maxLength value="6" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="externalCode">
+											<xs:annotation>
+												<xs:documentation>external codification</xs:documentation>
+												<xs:documentation>Lien_valeur_serveur.code_valeur_serveur</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="50" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="issuePrice">
+					<xs:annotation>
+						<xs:documentation>Issue price available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Prix_emission</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="18"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="taxation">
+					<xs:annotation>
+						<xs:documentation>Instrument taxation family, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Type_fiscalite_valeur</xs:documentation>
+						<xs:documentation>Transcodification TYPFVA</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="coordinatedFundFlag">
+					<xs:annotation>
+						<xs:documentation>Flag to indicate if the Fund share belongs to a UCITS Fund</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Type_fiscalite_valeur</xs:documentation>
+						<xs:documentation>Expected values : 0 and N</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="settlementTimeLag">
+					<xs:annotation>
+						<xs:documentation>Instrument regular settlement time lag, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Type_delai_reglement</xs:documentation>
+						<xs:documentation>Transcodification DELTYP</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="timeLagType">
+					<xs:annotation>
+						<xs:documentation>Accrual calculation time lag, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Type_decalage</xs:documentation>
+						<xs:documentation>Transcodification TYPDEC</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="ownershipDateType">
+					<xs:annotation>
+						<xs:documentation>Defines the type of date for the ownership, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Calcul_date_propriete</xs:documentation>
+						<xs:documentation>Transcodification CALDAT</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="outstandingIssue">
+					<xs:annotation>
+						<xs:documentation>Issue amount (origin) available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Montant_emission</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="20"/>
+							<xs:fractionDigits value="0"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="bondType">
+					<xs:annotation>
+						<xs:documentation>Type of Bonds, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Type_obligation</xs:documentation>
+						<xs:documentation>Transcodification TYPOBL</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="startAccrualDate">
+					<xs:annotation>
+						<xs:documentation>Starting date for accruals for bonds only; YYYY-MM-DD</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Date_jouissance_cp</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="rollConvention">
+					<xs:annotation>
+						<xs:documentation>Convention to apply when computing instrument scheduler dates, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Regle_calcul_ajustement</xs:documentation>
+						<xs:documentation>Transcodification ROLLCV</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="rollConventionCalendar">
+					<xs:annotation>
+						<xs:documentation>Calendar to use when computing instrument scheduler dates, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Type_calendrier</xs:documentation>
+						<xs:documentation>Transcodification TYPCAL</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="anticipatedRedemptionType">
+					<xs:annotation>
+						<xs:documentation>Type of redemption when anticipated, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Type_remb_anticipe</xs:documentation>
+						<xs:documentation>Transcodification TYPREM</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="rateFrequency">
+					<xs:annotation>
+						<xs:documentation>Frequency of rate changes for variable interests bonds, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Periode_chgt_taux</xs:documentation>
+						<xs:documentation>Transcodification PERIOD</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="valuationTimeLag">
+					<xs:annotation>
+						<xs:documentation>Indicates whether NAV date is included for accruals computation, available for VMOB only</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Delta_valo_vmob</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="rateMargin">
+					<xs:annotation>
+						<xs:documentation>Additional rate margin for variable rates bonds (VMOB)</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Marge_additive</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="issuePaymentDate">
+					<xs:annotation>
+						<xs:documentation>Payment date of the issue for bonds only (VMOB); YYYY-MM-DD</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Date_paiement_emission</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="redemptionType">
+					<xs:annotation>
+						<xs:documentation>Type of redemption , available for bonds only (VMOB)</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_valeur.Type_amortissement</xs:documentation>
+						<xs:documentation>Transcodification TYPAMO</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="matrixRateReferenceFlag">
+					<xs:annotation>
+						<xs:documentation>Flag to indicate whether the quotation of the bond is used to build a matrix rate</xs:documentation>
+						<xs:documentation>VMOB : Contenu_courbe_taux.Flag_val_ref</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="matrixRate">
+					<xs:annotation>
+						<xs:documentation>Matrix rate Id using the quotation of the bond</xs:documentation>
+						<xs:documentation>VMOB : Contenu_courbe_taux.Code_courbe_taux</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="endMatrixLinkDate">
+					<xs:annotation>
+						<xs:documentation>Date indicating when the bond is no more attached to the matrix rate; YYYY-MM-DD</xs:documentation>
+						<xs:documentation>VMOB : Contenu_courbe_taux.Date_fin_lien</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="poolFactor">
+					<xs:annotation>
+						<xs:documentation>Current pool factor(VMOB)</xs:documentation>
+						<xs:documentation>VMOB : Echeancier_remboursement.Quantite_residuelle WHERE Type_echeance in ('RE','RB')</xs:documentation>
+						<xs:documentation> AND Date_echeance LE Today</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="20"/>
+							<xs:fractionDigits value="8"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="dividendCurrency">
+					<xs:annotation>
+						<xs:documentation>Currency of the main Dividend (VMOB)</xs:documentation>
+						<xs:documentation>VMOB : Descriptif_coupon_valeur.Devise_coupon WHERE Code_coupon = Code_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="equityPercentage">
+					<xs:annotation>
+						<xs:documentation>Regular percentage of Equity in the Fund share</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'TXSHA'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="bondPercentage">
+					<xs:annotation>
+						<xs:documentation>Regular percentage of Bond in the Fund share</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'TXOBLI'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="investmentStrategy">
+					<xs:annotation>
+						<xs:documentation>Regular investment strategy of the Fund share</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'STRINV'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="economicSector1">
+					<xs:annotation>
+						<xs:documentation>First economic sector (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'ECOSE1'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="economicSector2">
+					<xs:annotation>
+						<xs:documentation>Second economic sector (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'ECOSE2'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="economicSector3">
+					<xs:annotation>
+						<xs:documentation>Third economic sector (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'ECOSE3'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="stockEchange1">
+					<xs:annotation>
+						<xs:documentation>First additional stock exchange (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'STKEX1'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="stockEchange2">
+					<xs:annotation>
+						<xs:documentation>Second additional stock exchange (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'STKEX2'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="stockEchange3">
+					<xs:annotation>
+						<xs:documentation>Third additional stock exchange (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'STKEX3'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="stockEchange4">
+					<xs:annotation>
+						<xs:documentation>Fourth additional stock exchange (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'STKEX4'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="stockEchange5">
+					<xs:annotation>
+						<xs:documentation>Fifth additional stock exchange (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'STKEX5'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="paidUpFlag">
+					<xs:annotation>
+						<xs:documentation>Flag to indicate whether the issue is fully paid (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'PAIDUP'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="votingRightFlag">
+					<xs:annotation>
+						<xs:documentation>Flag to indicate whether voting rights are attached to (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_complementaires_objet WHERE Code_zone = 'VOTRGH'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="redemptionRateFee">
+					<xs:annotation>
+						<xs:documentation>Regular percentage of fee applied on redemption (Fund share)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_comp_valeur.Taux_droit_rachat</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="subscriptionRateFee">
+					<xs:annotation>
+						<xs:documentation>Regular percentage of fee applied on subscription (Fund share)</xs:documentation>
+						<xs:documentation>VMOB : Donnees_comp_valeur.Taux_droit_rachat</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="10"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="sortingList">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="sorting" maxOccurs="unbounded" minOccurs="0">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="sortCriteria">
+											<xs:annotation>
+												<xs:documentation>GP3 sort criteria Id (VMOB only)</xs:documentation>
+												<xs:documentation>VMOB : Liste_tris.Type_tri OR </xs:documentation>
+												<xs:documentation> Descriptif_ensemble_val.Type_critere_tri_x OR Type_tri_personnel_x</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1" />
+													<xs:maxLength value="6" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="criteria">
+											<xs:annotation>
+												<xs:documentation>instrument criteria (VMOB only)</xs:documentation>
+												<xs:documentation>VMOB : Liste_tris.Critere_tri OR</xs:documentation>
+												<xs:documentation> Contenu_ensemble_val.Critere_tri_x OR Tri_personnel_x</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="10" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="valuationSort">
+					<xs:annotation>
+						<xs:documentation>valuation sort criteria (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Contenu_ensemble_val.Tri_valo</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="fiscalCode">
+					<xs:annotation>
+						<xs:documentation>Fiscal code criteria (VMOB only)</xs:documentation>
+						<xs:documentation>VMOB : Contenu_ensemble_val.Code_fiscal_val</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+		</xs:all>
+	</xs:complexType>
+
+
+	<!-- ==========================================================================
+							ISSUER MASTER DATA MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="issuerMasterDataMessage" type="issuerMasterDataMessageType" />
+
+	<xs:complexType name="issuerMasterDataMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="issuerMasterDataBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="issuerMasterDataBodyType">
+		<xs:sequence>
+			<xs:element name="issuerMasterDataList" type="issuerMasterDataListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="issuerMasterDataListType">
+		<xs:sequence>
+			<xs:element name="issuerMasterData" type="issuerMasterDataType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="issuerMasterDataType">
+		<xs:all>
+				<xs:element name="entityType">
+					<xs:annotation>
+						<xs:documentation>GP3 issuer category</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="ISSUER"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="entityId">
+					<xs:annotation>
+						<xs:documentation>GP3 issuer Id</xs:documentation>
+						<xs:documentation>code_emetteur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="shortDescription">
+					<xs:annotation>
+						<xs:documentation>Issuer short description</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Pseudonyme_tiers</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="20" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="longDescription">
+					<xs:annotation>
+						<xs:documentation>Issuer long description</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Nom_tiers</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="70" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="guaranty">
+					<xs:annotation>
+						<xs:documentation>issuer guaranty</xs:documentation>
+						<xs:documentation>Descriptif_emetteur.Type_garantie</xs:documentation>
+						<xs:documentation>Transcodification GARANT</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="country">
+					<xs:annotation>
+						<xs:documentation>Issuer country</xs:documentation>
+						<xs:documentation>Descriptif_emetteur.Code_pays_emetteur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="currentIssuedDebt">
+					<xs:annotation>
+						<xs:documentation>Issuer current issued debt</xs:documentation>
+						<xs:documentation>Descriptif_emetteur.Montant_circulation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="20"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="capitalisation">
+					<xs:annotation>
+						<xs:documentation>Issuer capitalisation</xs:documentation>
+						<xs:documentation>Descriptif_emetteur.Montant_emission</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="20"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="currency">
+					<xs:annotation>
+						<xs:documentation>Issuer currency</xs:documentation>
+						<xs:documentation>Descriptif_emetteur.Code_devise</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="type">
+					<xs:annotation>
+						<xs:documentation>Issuer type</xs:documentation>
+						<xs:documentation>Descriptif_emetteur.Type_emetteur</xs:documentation>
+						<xs:documentation>Transcodification TYPEMT</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="listedIssueFlag">
+					<xs:annotation>
+						<xs:documentation>Issuer has get listed issues (O/N)</xs:documentation>
+						<xs:documentation>Donnees_complementaires_objet.Valeur_zone WHERE Code_zone = 'ISSLIS'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="issuerGroup">
+					<xs:annotation>
+						<xs:documentation>Issuer's holding</xs:documentation>
+						<xs:documentation>Descriptif_complement_tiers.Code_maison_mere</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="issuerGroupShortDescription">
+					<xs:annotation>
+						<xs:documentation>Issuer's holding short description</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Pseudonyme_tiers where Descriptif_tiers.Code.tiers = Descriptif_complement_tiers.Code_maison_mere</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="20" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="votingStock">
+					<xs:annotation>
+						<xs:documentation>Issuer number of stock eligible for voting</xs:documentation>
+						<xs:documentation>Donnees_complementaires_objet.Valeur_zone (VOTISS)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="20"/>
+							<xs:fractionDigits value="7"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="nonVotingStock">
+					<xs:annotation>
+						<xs:documentation>Issuer number of stock not eligible for voting</xs:documentation>
+						<xs:documentation>Donnees_complementaires_objet.Valeur_zone (NVOTIS)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="20"/>
+							<xs:fractionDigits value="7"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="ratingList">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="rating" maxOccurs="unbounded" minOccurs="0">
+								<xs:complexType>
+									<xs:all>
+										<xs:element name="agency">
+											<xs:annotation>
+												<xs:documentation>Notation agency</xs:documentation>
+												<xs:documentation>Liste_tris_par_statut.Type_tri</xs:documentation>
+												<xs:documentation>Transcodification RATIAG</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:minLength value="1" />
+													<xs:maxLength value="4" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="ratingType">
+											<xs:annotation>
+												<xs:documentation>Local Short term, Foreign short term, ...</xs:documentation>
+												<xs:documentation>Liste_tris_par_statut.Statut_valeur+Statut_ligne</xs:documentation>
+												<xs:documentation>Transcodification TYPRAT</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="8" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+										<xs:element name="ratingValue">
+											<xs:annotation>
+												<xs:documentation>Rating value</xs:documentation>
+												<xs:documentation>Liste_tris_par_statut.Critere_tri</xs:documentation>
+												<xs:documentation>Transcodification Type_tri</xs:documentation>
+											</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+													<xs:maxLength value="8" />
+												</xs:restriction>
+											</xs:simpleType>
+										</xs:element>
+									</xs:all>
+								</xs:complexType>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+
+	<!-- ==========================================================================
+							ISSUER GROUP MASTER DATA MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="issuerGroupMasterDataMessage" type="issuerGroupMasterDataMessageType" />
+
+	<xs:complexType name="issuerGroupMasterDataMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="issuerGroupMasterDataBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="issuerGroupMasterDataBodyType">
+		<xs:sequence>
+			<xs:element name="issuerGroupMasterDataList" type="issuerGroupMasterDataListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="issuerGroupMasterDataListType">
+		<xs:sequence>
+			<xs:element name="issuerGroupMasterData" type="issuerGroupMasterDataType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="issuerGroupMasterDataType">
+		<xs:all>
+				<xs:element name="entityType">
+					<xs:annotation>
+						<xs:documentation>Issuer group category</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="ISSGRP"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="entityId">
+					<xs:annotation>
+						<xs:documentation>GP3 issuer group Id</xs:documentation>
+						<xs:documentation>Descriptif_tiers.code_tiers</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="shortDescription">
+					<xs:annotation>
+						<xs:documentation>Issuer group short description</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Pseudonyme_tiers</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="20" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<!-- ==========================================================================
+							FUND MASTER DATA MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="fundMasterDataMessage" type="fundMasterDataMessageType" />
+
+	<xs:complexType name="fundMasterDataMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="fundMasterDataBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="fundMasterDataBodyType">
+		<xs:sequence>
+			<xs:element name="fundMasterDataList" type="fundMasterDataListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="fundMasterDataListType">
+		<xs:sequence>
+			<xs:element name="fundMasterData" type="fundMasterDataType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="fundMasterDataType">
+		<xs:all>
+				<xs:element name="entityType">
+					<xs:annotation>
+						<xs:documentation>Funds have got a FUND category</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="FUND"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="entityId">
+					<xs:annotation>
+						<xs:documentation>GP3 fund Id</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.code_portefeuille</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="shortDescription">
+					<xs:annotation>
+						<xs:documentation>Fund short description</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.Libelle_port_c</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="20" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="longDescription">
+					<xs:annotation>
+						<xs:documentation>Fund long description</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.Libelle_port_l</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="fundCurrency">
+					<xs:annotation>
+						<xs:documentation>Fund base currency</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.Devise_portefeuille</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="mainManager">
+					<xs:annotation>
+						<xs:documentation>GP3 Fund main manager Id</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.Code_gestionnaire</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="investmentPolicy">
+					<xs:annotation>
+						<xs:documentation>Fund investment policy</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.Orientation_gestion</xs:documentation>
+						<xs:documentation>Transcodification OPCORI</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="custodian">
+					<xs:annotation>
+						<xs:documentation>Fund custodian</xs:documentation>
+						<xs:documentation>Descriptif_compte_depot.Code_teneur_compte WHERE Descriptif_compte_depot.Code_compte = Descriptif_portefeuille.Code_depositaire_fonds</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="inceptionDate">
+					<xs:annotation>
+						<xs:documentation>Fund inception Date; YYYY-MM-DD</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.Date_creation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date">
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="legalType">
+					<xs:annotation>
+						<xs:documentation>Fund legal type</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.Type_fonds</xs:documentation>
+						<xs:documentation>Transcodification TYPFON</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="clientLanguage">
+					<xs:annotation>
+						<xs:documentation>Fund owner language</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Langue_messagerie WHERE Descriptif_tiers.Code_tiers = Descriptif_client.Code_tiers AND Descriptif_client.Code_intervenant = Descriptif_portefeuille.Code_client</xs:documentation>
+						<xs:documentation>Transcodification MSGLAN</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="1" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="mainUnitIsinCode">
+					<xs:annotation>
+						<xs:documentation>Main unit ISIN code</xs:documentation>
+						<xs:documentation>Lien_valeur_serveur.Code_valeur_serveur WHERE Lien_valeur_serveur.Code_serveur = 'ISIN' AND Lien_valeur_serveur.Categorie_valeur = 'VMOB' and Lien_valeur_serveur.Code_valeur = Descriptif_part.Code_valeur_majvac</xs:documentation>
+						<xs:documentation>AND Descriptif_part.Code_portefeuille = Descriptif_portefeuille.Code_portefeuille and Descriptif_part.Flag_part_ref = 'O'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="custodyAccount">
+					<xs:annotation>
+						<xs:documentation>Fund custody account</xs:documentation>
+						<xs:documentation>Descriptif_depot_portefeuille.Numero_compte_depot WHERE Descriptif_depot_portefeuille.Code_portefeuille = Descriptif_portefeuille.Code_portefeuille</xs:documentation>
+						<xs:documentation>AND Descriptif_depot_portefeuille.Code_compte = Descriptif_portefeuille.Code_depositaire_fonds</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="34" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="umbrellaCode">
+					<xs:annotation>
+						<xs:documentation>Umbrella Id, Fund is belonging to</xs:documentation>
+						<xs:documentation>Descriptif_portefeuille.Code_sicav</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="masterFundCode">
+					<xs:annotation>
+						<xs:documentation>Fund master fund Id when available</xs:documentation>
+						<xs:documentation>Ensemble_table.Lib_detail_c where Code_table = 'MAITRE' and Code_langue = 'F' and Code_detail = Code_portefeuille</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="parentFundCode">
+					<xs:annotation>
+						<xs:documentation>GP3 Fund id in case of multi fund manager</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="limitControl">
+					<xs:annotation>
+						<xs:documentation>compliance limit control</xs:documentation>
+						<xs:documentation>Descriptif_port_reporting.regime_ratios</xs:documentation>
+						<xs:documentation>Transcodification REGLEG</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="percentageMaxFundShare">
+					<xs:annotation>
+						<xs:documentation>Maximum percentage of Fund share </xs:documentation>
+						<xs:documentation>Donnees_complementaires_objet.Valeur_zone Where Code_zone = 'PCTMAX'</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="8"/>
+							<xs:fractionDigits value="5"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+
+	<!-- ==========================================================================
+							THIRD PARTY MASTER DATA MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="thirdpartyMasterDataMessage" type="thirdpartyMasterDataMessageType" />
+
+	<xs:complexType name="thirdpartyMasterDataMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="thirdpartyMasterDataBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="thirdpartyMasterDataBodyType">
+		<xs:sequence>
+			<xs:element name="thirdpartyMasterDataList" type="thirdpartyMasterDataListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="thirdpartyMasterDataListType">
+		<xs:sequence>
+			<xs:element name="thirdpartyMasterData" type="thirdpartyMasterDataType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="thirdpartyMasterDataType">
+		<xs:all>
+				<xs:element name="entityType">
+					<xs:annotation>
+						<xs:documentation>Third party category</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="BROKER"/>
+							<xs:enumeration value="CUSTODY"/>
+							<xs:enumeration value="COUNTER"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="entityId">
+					<xs:annotation>
+						<xs:documentation>GP3 third party Id</xs:documentation>
+						<xs:documentation>COUNTER : Descriptif_contrepartie.code_intervenant</xs:documentation>
+						<xs:documentation>CUSTODY, BROKER : Descriptif_intermediaire.code_intervenant</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="shortDescription">
+					<xs:annotation>
+						<xs:documentation>Issuer group short description</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Pseudonyme_tiers</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="20" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="longDescription">
+					<xs:annotation>
+						<xs:documentation>Issuer group long description</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Nom_tiers</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="70" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="type">
+					<xs:annotation>
+						<xs:documentation>Third party type</xs:documentation>
+						<xs:documentation>I for Broker, C for Counterparty and A for Custodian</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="I"/>
+							<xs:enumeration value="C"/>
+							<xs:enumeration value="D"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="street">
+					<xs:annotation>
+						<xs:documentation>Postal address : building and street</xs:documentation>
+						<xs:documentation>Descriptif_tiers.batiment_voie_p</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="district">
+					<xs:annotation>
+						<xs:documentation>Postal address : district</xs:documentation>
+						<xs:documentation>Descriptif_tiers.lieu_dit_p</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="25" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="sortOffice">
+					<xs:annotation>
+						<xs:documentation>Postal address : sort office</xs:documentation>
+						<xs:documentation>Descriptif_tiers.bureau_distri_p</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="25" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="postalCode">
+					<xs:annotation>
+						<xs:documentation>Postal address : postal code</xs:documentation>
+						<xs:documentation>Descriptif_tiers.code_postal_p</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="7" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="country">
+					<xs:annotation>
+						<xs:documentation>Postal address : country</xs:documentation>
+						<xs:documentation>Descriptif_tiers.code_pays_p</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="phoneNumber">
+					<xs:annotation>
+						<xs:documentation>Telephone Number</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Telephone</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="20" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="telexNumber">
+					<xs:annotation>
+						<xs:documentation>Telex Number</xs:documentation>
+						<xs:documentation>Descriptif_tiers.Numero_telex</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="swiftCode">
+					<xs:annotation>
+						<xs:documentation>Swift code</xs:documentation>
+						<xs:documentation>COUNTER : Descriptif_contrepartie.Code_swift</xs:documentation>
+						<xs:documentation>BROKER, CUSTODY : Descriptif_intermediaire.Code_swift</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="12" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+
+
+
+	<!-- ==========================================================================
+							NAV INFORMATION MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="navInformationMessage" type="navInformationMessageType" />
+
+	<xs:complexType name="navInformationMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="navInformationBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="navInformationBodyType">
+		<xs:sequence>
+			<xs:element name="navInformationList" type="navInformationListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="navInformationListType">
+		<xs:sequence>
+			<xs:element name="navInformation" type="navInformationType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="navInformationType">
+		<xs:all>
+			<xs:element name="fundCode" type="fundCodeType"/>
+			<xs:element name="fundCurrency" type="currencyType"/>
+			<xs:element name="navDate">
+				<xs:annotation>
+					<xs:documentation>Indicates the date of the NAV; YYYY-MM-DD</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:date"></xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="fundTna">
+				<xs:annotation>
+					<xs:documentation>fund total net asset value in fund currency</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:totalDigits value="18"/>
+						<xs:fractionDigits value="2"/>
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+				<xs:element name="unitCodeMain">
+					<xs:annotation>
+						<xs:documentation>GP3 unit Id; the one chosen</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+				<xs:element name="outstandingShareMain">
+					<xs:annotation>
+						<xs:documentation>oustanding number of shares related to the chosen unit</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="19"/>
+							<xs:fractionDigits value="7"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="nuvMain">
+					<xs:annotation>
+						<xs:documentation>Net unit value of the chosen unit; in fund currency</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="18"/>
+							<xs:fractionDigits value="8"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="outstandingShareOther">
+					<xs:annotation>
+						<xs:documentation>sum of oustanding number of shares related to the other units</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="19"/>
+							<xs:fractionDigits value="7"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="nuvOther">
+					<xs:annotation>
+						<xs:documentation>Net unit value of the other units; sum of the other units asset values divided by the sum of their outstanding shares; in fund currency</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="18"/>
+							<xs:fractionDigits value="8"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>	
+		</xs:all>
+	</xs:complexType>
+
+	<!-- ==========================================================================
+							STOCK EXCHANGE MASTER DATA MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="stockExchangeMasterDataMessage" type="stockExchangeMasterDataMessageType" />
+
+	<xs:complexType name="stockExchangeMasterDataMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="stockExchangeMasterDataBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="stockExchangeMasterDataBodyType">
+		<xs:sequence>
+			<xs:element name="stockExchangeMasterDataList" type="stockExchangeMasterDataListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="stockExchangeMasterDataListType">
+		<xs:sequence>
+			<xs:element name="stockExchangeMasterData" type="stockExchangeMasterDataType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="stockExchangeMasterDataType">
+		<xs:all>
+				<xs:element name="entityType">
+					<xs:annotation>
+						<xs:documentation>GP3 MAJANX table Id</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="STKE"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="entityId">
+					<xs:annotation>
+						<xs:documentation>GP3 stock exchange Id</xs:documentation>
+						<xs:documentation>Ensemble_table.Code_detail</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="shortDescription">
+					<xs:annotation>
+						<xs:documentation>Stock exchange short description</xs:documentation>
+						<xs:documentation>Ensemble_table.Lib_detail_c</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="20" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="longDescription">
+					<xs:annotation>
+						<xs:documentation>Stock Exchange long description</xs:documentation>
+						<xs:documentation>Ensemble_table.Lib_detail_l</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="50" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="country">
+					<xs:annotation>
+						<xs:documentation>Stock Exchange country</xs:documentation>
+						<xs:documentation>Ensemble_table.Code_table_ref_resul</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<!-- ==========================================================================
+							CORPORATE ACTION MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="corporateActionMessage" type="corporateActionMessageType" />
+
+	<xs:complexType name="corporateActionMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="corporateActionBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="corporateActionBodyType">
+		<xs:sequence>
+			<xs:element name="corporateActionList" type="corporateActionListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="corporateActionListType">
+		<xs:sequence>
+			<xs:element name="corporateAction" type="corporateActionType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="corporateActionType">
+		<xs:all>
+
+			<xs:element name="auditTrail" type="auditTrailType"/>
+			<xs:element name="fundCode" type="fundCodeType"/>
+			<xs:element name="transactionType">
+				<xs:annotation>
+					<xs:documentation>GP3 transaction type</xs:documentation>
+					<xs:documentation>Mouvement.Type_transaction</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:minLength value="1" />
+						<xs:maxLength value="4" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="transactionTypeShortDescription">
+				<xs:annotation>
+					<xs:documentation>GP3 transaction type short description</xs:documentation>
+					<xs:documentation>Table_type_transaction.Lib_detail_c</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="20" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+				<xs:element name="instrumentCategory">
+					<xs:annotation>
+						<xs:documentation>GP3 instrument category</xs:documentation>
+						<xs:documentation>Mouvement.categorie_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+						<xs:minLength value="1" />
+						<xs:maxLength value="4" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="instrumentCode">
+					<xs:annotation>
+						<xs:documentation>GP3 instrument Id</xs:documentation>
+						<xs:documentation>Mouvement.code_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="12" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="positionStatus1">
+					<xs:annotation>
+						<xs:documentation>GP3 position status 1</xs:documentation>
+						<xs:documentation>Parametre_champ_traitement.Valeur_par_defaut (REDBCK,STAVAL, CORPACTION, Statut_valeur)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="positionStatus2">
+					<xs:annotation>
+						<xs:documentation>GP3 position status 2</xs:documentation>
+						<xs:documentation>Parametre_champ_traitement.Valeur_par_defaut (REDBCK,STALIG, CORPACTION, Statut_ligne)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="custody">
+					<xs:annotation>
+						<xs:documentation>GP3 position custody</xs:documentation>
+						<xs:documentation>Descriptif_compte_depot.Code_teneur_compte WHERE Code_compte = Code_depositaire</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="8" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+
+			<xs:element name="fundCurrency" type="currencyType">
+				<xs:annotation>
+					<xs:documentation>Currency of the Fund</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="assetCurrency" type="currencyType">
+				<xs:annotation>
+					<xs:documentation>Currency of the asset</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="movementType">
+				<xs:annotation>
+					<xs:documentation>Indicates if the movement is a entry (E) or an exit (S) or increase of cost price (R) or decrease of cost price (D)</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="E" />
+						<xs:enumeration value="S" />
+						<xs:enumeration value="R" />
+						<xs:enumeration value="D" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="tradeDate">
+				<xs:annotation>
+					<xs:documentation>Indicates the movement trade date; YYYY-MM-DD</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:date"></xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="valueDate">
+				<xs:annotation>
+					<xs:documentation>Indicates the movement value date; YYYY-MM-DD</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:date"></xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="sharePar">
+				<xs:annotation>
+					<xs:documentation>movement quantity; not signed</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:totalDigits value="20" />
+						<xs:fractionDigits value="7" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="fundCostPrice">
+				<xs:annotation>
+					<xs:documentation>movement cost price variation in Fund currency; not signed</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:totalDigits value="18" />
+						<xs:fractionDigits value="2" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="assetCostPrice">
+				<xs:annotation>
+					<xs:documentation>movement cost price variation in asset currency; not signed</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:decimal">
+						<xs:totalDigits value="18" />
+						<xs:fractionDigits value="2" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+			<xs:element name="longDescription">
+				<xs:annotation>
+					<xs:documentation>GP3 transaction long description</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:maxLength value="50" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+		</xs:all>
+	</xs:complexType>
+
+	<!-- ==========================================================================
+							NAV HOLDINGS INFORMATION MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="navHoldingsInformationMessage" type="navHoldingsInformationMessageType" />
+
+	<xs:complexType name="navHoldingsInformationMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="navHoldingsInformationBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="navHoldingsInformationBodyType">
+		<xs:sequence>
+			<xs:element name="navHoldingsInformationList" type="navHoldingsInformationListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="navHoldingsInformationListType">
+		<xs:sequence>
+			<xs:element name="navHoldingsInformation" type="navHoldingsInformationType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="navHoldingsInformationType">
+		<xs:all>
+			<xs:element name="navDate">
+				<xs:annotation>
+					<xs:documentation>Indicates the date of the NAV; YYYY-MM-DD</xs:documentation>
+					<xs:documentation>Historique_inventaire.Date_valorisation</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:date"></xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+			<xs:element name="fundCode" type="fundCodeType">
+				<xs:annotation>
+					<xs:documentation>Historique_inventaire.Code_portefeuille for non multi manager fund</xs:documentation>
+					<xs:documentation>FORPCT(FUNDID,MANAGER,Code_portefeuille, Code_gerant) for multi manager fund</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="holdingList">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="holding" maxOccurs="unbounded" minOccurs="0">
+							<xs:complexType>
+								<xs:all>
+									<xs:element name="instrumentCategory">
+										<xs:annotation>
+											<xs:documentation>GP3 instrument category</xs:documentation>
+											<xs:documentation>Historique_inventaire.Categorie_valeur</xs:documentation>
+											<xs:documentation>TRES for CPON</xs:documentation>
+											<xs:documentation>TRET for Time deposit</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="4" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="instrumentCode">
+										<xs:annotation>
+											<xs:documentation>GP3 instrument Id; except for cash accounts and cpon (asset currency) </xs:documentation>
+											<xs:documentation>Historique_inventaire.Code_valeur</xs:documentation>
+											<xs:documentation>TRES (cash account) : Descriptif_compte_tresorerie.Code_devise when not CTERME</xs:documentation>
+											<xs:documentation>CPON : Descriptif_coupon_valeur.Devise_coupon</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="12" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="subFundCode">
+										<xs:annotation>
+											<xs:documentation>Available for multi manager fund only</xs:documentation>
+											<xs:documentation>FORPCT(FUNDID,MANAGER,Code_portefeuille, Code_gerant)</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="6" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="positionStatus2">
+										<xs:annotation>
+											<xs:documentation>GP3 position status 2</xs:documentation>
+											<xs:documentation>Parametre_champ_traitement.Valeur_par_defaut (REDBCK,STALIG, NAV, Statut_ligne)</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="10" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="fundCurrency" type="currencyType"/>
+									<xs:element name="assetCurrency" type="currencyType">
+										<xs:annotation>
+											<xs:documentation>Historique_inventaire.Devise_expression_montant</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="sharePar">
+										<xs:annotation>
+											<xs:documentation>asset quantity; not available for CAT</xs:documentation>
+											<xs:documentation>Historique_inventaire.Quantite_valo</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="dirtyUnitFundValue">
+										<xs:annotation>
+											<xs:documentation>dirty Value in Fund currency for one sharepar, available for VMOB, OPTI and FUTU</xs:documentation>
+											<xs:documentation>Historique_inventaire.Montant_dern_valo / Quantite_valo (type_stock AD1)</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="dirtyUnitAssetValue">
+										<xs:annotation>
+											<xs:documentation>dirty Value in asset currency for one sharepar, available for VMOB, OPTI and FUTU</xs:documentation>
+											<xs:documentation>Historique_inventaire.Montant_dern_valo_dv / Quantite_valo (type_stock AD1)</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="unitFundCostPrice">
+										<xs:annotation>
+											<xs:documentation>Cost price in Fund currency for one sharepar, available for VMOB, OPTI and TRES</xs:documentation>
+											<xs:documentation>Historique_inventaire.Prix_revient_valo / Quantite_valo (type_stock AD1)</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="unitAssetCostPrice">
+										<xs:annotation>
+											<xs:documentation>Cost price in asset currency for one sharepar, available for VMOB, OPTI and TRES</xs:documentation>
+											<xs:documentation>Historique_inventaire.Prix_revient_valo_dv / Quantite_valo (type_stock AD1)</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="unitFundIncome">
+										<xs:annotation>
+											<xs:documentation>Accrued interest in Fund currency for one sharepar, available for VMOB and TRES</xs:documentation>
+											<xs:documentation>Historique_inventaire.Coupon_couru_valo / Quantite_valo (type_stock AD1)</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="unitAssetIncome">
+										<xs:annotation>
+											<xs:documentation>Cost price in asset currency for one sharepar, available for VMOB and TRES</xs:documentation>
+											<xs:documentation>Historique_inventaire.Coupon_couru_valo_dv / Quantite_valo (type_stock AD1)</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="unitFundRiskExposure">
+										<xs:annotation>
+											<xs:documentation>Risk exposure in Fund currency for one sharepar, available for OPTI and FUTU</xs:documentation>
+											<xs:documentation>Historique_inventaire.Montant_dern_valo / Quantite_valo (type_stock HOBI / RATI)</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+											<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="unitAssetRiskExposure">
+										<xs:annotation>
+											<xs:documentation>Risk exposure in Asset currency for one sharepar, available for OPTI and FUTU</xs:documentation>
+											<xs:documentation>Historique_inventaire.Montant_dern_valo_dv / Quantite_valo (type_stock HOBI / RATI)</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="valuationPrice">
+										<xs:annotation>
+											<xs:documentation>Valuation Price for FFX (CAT)only; specific rule applied in order to decalog to recompute the GP3 value</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="21"/>
+												<xs:fractionDigits value="8"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="broker">
+										<xs:annotation>
+											<xs:documentation>GP3 broker</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Code_interme_negoce_1</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="8" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="counterpart">
+										<xs:annotation>
+											<xs:documentation>GP3 counterpart</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Code_contrepartie</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="8" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="issueCurrency">
+										<xs:annotation>
+											<xs:documentation>GP3 CAT quoted currency</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Devise_cotee</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="3" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="contractAmount">
+										<xs:annotation>
+											<xs:documentation>Traded amount in issue currency (CAT)</xs:documentation>
+											<xs:documentation>Historique_inventaire.Quantite_valo where statut_ligne = RECU and Sens_operation = ACHAT OR Statut_ligne = VERSE and Sens_operation = VENTE</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="2"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="quotationCurrency">
+										<xs:annotation>
+											<xs:documentation>GP3 CAT quotation currency</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Devise_cotation</xs:documentation>
+										</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="3" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="compensationAmount">
+										<xs:annotation>
+											<xs:documentation>Traded amount in quotation currency (CAT)</xs:documentation>
+											<xs:documentation>Historique_inventaire.Quantite_valo where statut_ligne = VERSE and Sens_operation = ACHAT OR Statut_ligne = RECU and Sens_operation = VENTE</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="2"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="issueDate">
+										<xs:annotation>
+											<xs:documentation>Issue date of the CAT; YYYY-MM-DD</xs:documentation>
+											<xs:documentation>Descriptif_change_a_terme.Date_creation</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:date"></xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="maturityDate">
+										<xs:annotation>
+											<xs:documentation>Maturity date of the CAT; YYYY-MM-DD</xs:documentation>
+											<xs:documentation>Descriptif_change_a_terme.Date_echeance</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:date"></xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="longDescription">
+										<xs:annotation>
+											<xs:documentation>GP3 instrument long description; available for CAT</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Lib_change_a_terme_l</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="50" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="custody">
+										<xs:annotation>
+											<xs:documentation>Custody available for CAT only</xs:documentation>
+											<xs:documentation>CAT : Descriptif_compte_depot.Code_teneur_compte WHERE Code_compte = Historique_inventaire.Code_depositaire</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="8" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="assetType">
+										<xs:annotation>
+											<xs:documentation>Kind of FFX; available for CAT only</xs:documentation>
+											<xs:documentation>CAT : Depending on Descriptif_change_a_terme.Sous_categorie_valeur</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="FXSWP" />
+												<xs:enumeration value="FXFWD" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="externalCode">
+										<xs:annotation>
+											<xs:documentation>Available for CAT only</xs:documentation>
+											<xs:documentation>CAT : Lien_valeur_serveur.Code_valeur_serveur WHERE Code_serveur = 'DECALO'</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="12" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+
+								</xs:all>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+
+	<!-- ==========================================================================
+							MIGRATION HOLDINGS INFORMATION MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="migrationHoldingsInformationMessage" type="migrationHoldingsInformationMessageType" />
+
+	<xs:complexType name="migrationHoldingsInformationMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="migrationHoldingsInformationBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="migrationHoldingsInformationBodyType">
+		<xs:sequence>
+			<xs:element name="migrationHoldingsInformationList" type="migrationHoldingsInformationListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="migrationHoldingsInformationListType">
+		<xs:sequence>
+			<xs:element name="migrationHoldingsInformation" type="migrationHoldingsInformationType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="migrationHoldingsInformationType">
+		<xs:all>
+			<xs:element name="fundCode" type="fundCodeType">
+				<xs:annotation>
+					<xs:documentation>Historique_inventaire.Code_portefeuille for non multi manager fund</xs:documentation>
+					<xs:documentation>FORPCT(FUNDID,MANAGER,Code_portefeuille, Code_gerant) for multi manager fund</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="holdingList">
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="holding" maxOccurs="unbounded" minOccurs="0">
+							<xs:complexType>
+								<xs:all>
+									<xs:element name="tradeDate">
+										<xs:annotation>
+											<xs:documentation>transaction trade date; YYYY-MM-DD</xs:documentation>
+											<xs:documentation>Historique_inventaire.Date_valorisation</xs:documentation>
+											<xs:documentation>except for Futures</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:date"></xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="valueDate">
+										<xs:annotation>
+											<xs:documentation>transaction value date; YYYY-MM-DD</xs:documentation>
+											<xs:documentation>Historique_inventaire.Date_valorisation</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:date"></xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="transactionType">
+										<xs:annotation>
+											<xs:documentation>DECALOG transaction type</xs:documentation>
+											<xs:documentation>Valeur_par_defaut.Parametre_champ_traitement(REDBCK',Categorie_valeur,Statut_ligne,'POSI' or 'NEGA')</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="4" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="instrumentCategory">
+										<xs:annotation>
+											<xs:documentation>GP3 instrument category</xs:documentation>
+											<xs:documentation>Historique_inventaire.Categorie_valeur</xs:documentation>
+											<xs:documentation>TRET for Time deposit</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="4" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="instrumentCode">
+										<xs:annotation>
+											<xs:documentation>GP3 instrument Id</xs:documentation>
+											<xs:documentation>Historique_inventaire.code_valeur</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="12" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="sharePar">
+										<xs:annotation>
+											<xs:documentation>asset quantity; not available for CAT</xs:documentation>
+											<xs:documentation>ABS(Historique_inventaire.Quantite_valo)</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="fundCurrency" type="currencyType"/>
+									<xs:element name="assetCurrency" type="currencyType">
+										<xs:annotation>
+											<xs:documentation>Historique_inventaire.Devise_expression_montant</xs:documentation>
+										</xs:annotation>
+									</xs:element>
+									<xs:element name="tradePrice">
+										<xs:annotation>
+											<xs:documentation>Trade price; specific rule based on prix_revient_valo_dv and expression_quantite</xs:documentation>
+											<xs:documentation>For Futures opened price of the real trade</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="21"/>
+												<xs:fractionDigits value="8"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="principal">
+										<xs:annotation>
+											<xs:documentation>prix_revient_valo_dv</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="fundNetAmount">
+										<xs:annotation>
+											<xs:documentation>prix_revient_valo</xs:documentation>
+											<xs:documentation>Not available for CAT</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="7"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="issuer">
+										<xs:annotation>
+											<xs:documentation>Default Issuer Id for Time Deposit Only (TRET)</xs:documentation>
+											<xs:documentation>Parametre_champ_traitement.Valeur_par_defaut (REDBCK,MIGRAT,Categorie_valeur ,Issuer)</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Code_interme_negoce_1 when not default</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="8" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+
+									<xs:element name="broker">
+										<xs:annotation>
+											<xs:documentation>Default Broker Id</xs:documentation>
+											<xs:documentation>Parametre_champ_traitement.Valeur_par_defaut (REDBCK,MIGRAT,Categorie_valeur ,Broker)</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Code_interme_negoce_1 when not default</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="8" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="counterpart">
+										<xs:annotation>
+											<xs:documentation>Default counterpart Id</xs:documentation>
+											<xs:documentation>Parametre_champ_traitement.Valeur_par_defaut (REDBCK,MIGRAT,Categorie_valeur ,Counterpart)</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Code_contrepartie when not default</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="8" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="assetType">
+										<xs:annotation>
+											<xs:documentation>Kind of FFX; available for CAT only</xs:documentation>
+											<xs:documentation>CAT : Depending on Descriptif_change_a_terme.Sous_categorie_valeur</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="FXSWP" />
+												<xs:enumeration value="FXFWD" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="issueCurrency">
+										<xs:annotation>
+											<xs:documentation>GP3 CAT quoted currency</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Devise_cotee</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="3" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="quotationCurrency">
+										<xs:annotation>
+											<xs:documentation>GP3 CAT quotation currency</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Devise_cotation</xs:documentation>
+										</xs:annotation>
+											<xs:simpleType>
+												<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="3" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="issueDate">
+										<xs:annotation>
+											<xs:documentation>Issue date of the CAT; YYYY-MM-DD</xs:documentation>
+											<xs:documentation>Descriptif_change_a_terme.Date_creation</xs:documentation>
+											<xs:documentation>TRET : Descriptif_remuneration_treso.Date_echeance_1</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:date"></xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="maturityDate">
+										<xs:annotation>
+											<xs:documentation>Maturity date of the CAT; YYYY-MM-DD</xs:documentation>
+											<xs:documentation>Descriptif_change_a_terme.Date_echeance</xs:documentation>
+											<xs:documentation>TRET : Descriptif_remuneration_treso.Date_echeance</xs:documentation>
+
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:date"></xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="contractAmount">
+										<xs:annotation>
+											<xs:documentation>Traded amount in issue currency (CAT)</xs:documentation>
+											<xs:documentation>Historique_inventaire.Quantite_valo where statut_ligne = RECU and Sens_operation = ACHAT OR Statut_ligne = VERSE and Sens_operation = VENTE</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="2"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="compensationAmount">
+										<xs:annotation>
+											<xs:documentation>Traded amount in quotation currency (CAT)</xs:documentation>
+											<xs:documentation>Historique_inventaire.Quantite_valo where statut_ligne = VERSE and Sens_operation = ACHAT OR Statut_ligne = RECU and Sens_operation = VENTE</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="20"/>
+												<xs:fractionDigits value="2"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="direction">
+										<xs:annotation>
+											<xs:documentation>Available for CAT only</xs:documentation>
+											<xs:documentation>B for ACHAT and S for VENTE</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:enumeration value="B" />
+												<xs:enumeration value="S" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="spotExchangeRate">
+										<xs:annotation>
+											<xs:documentation>CAT spot exchange rate</xs:documentation>
+											<xs:documentation>Descriptif_change_a_terme.Cours_spot</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="15"/>
+												<xs:fractionDigits value="10"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="forwardExchangeRate">
+										<xs:annotation>
+											<xs:documentation>CAT spot exchange rate</xs:documentation>
+											<xs:documentation>Descriptif_change_a_terme.Cours_a_terme</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="15"/>
+												<xs:fractionDigits value="10"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="criteria1">
+										<xs:annotation>
+											<xs:documentation>Accounting criteria (TL1)</xs:documentation>
+											<xs:documentation>TRET : Contenu_ensemble_val.Critere_tri_1</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="10" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="interestRate">
+										<xs:annotation>
+											<xs:documentation>Interest rate of the current period</xs:documentation>
+											<xs:documentation>TRET : Descriptif_remuneration_treso.Spread_taux_credit</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:decimal">
+												<xs:totalDigits value="10"/>
+												<xs:fractionDigits value="5"/>
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="rateType">
+										<xs:annotation>
+											<xs:documentation>Type of rate of the Bond</xs:documentation>
+											<xs:documentation>TRET (Time Deposit) : Descriptif_remuneration_treso.Nom_taux_credit</xs:documentation>
+											<xs:documentation>Transcodification BASIND</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="6" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="couponFrequency">
+										<xs:annotation>
+											<xs:documentation>Coupon frequency</xs:documentation>
+											<xs:documentation>TRET : Descriptif_remuneration_treso.Periodicite_cp</xs:documentation>
+											<xs:documentation>Transcodification PERIOD</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:maxLength value="6" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+									<xs:element name="longDescription">
+										<xs:annotation>
+											<xs:documentation>GP3 instrument long description; available for CAT</xs:documentation>
+											<xs:documentation>CAT : Descriptif_change_a_terme.Lib_change_a_terme_l</xs:documentation>
+										</xs:annotation>
+										<xs:simpleType>
+											<xs:restriction base="xs:string">
+												<xs:minLength value="1" />
+												<xs:maxLength value="50" />
+											</xs:restriction>
+										</xs:simpleType>
+									</xs:element>
+
+								</xs:all>
+							</xs:complexType>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<!-- ==========================================================================
+							FOREIGN EXCHANGE DATA MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="foreignExchangeDataMessage" type="foreignExchangeDataMessageType" />
+
+	<xs:complexType name="foreignExchangeDataMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="foreignExchangeDataBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="foreignExchangeDataBodyType">
+		<xs:sequence>
+			<xs:element name="foreignExchangeDataList" type="foreignExchangeDataListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="foreignExchangeDataListType">
+		<xs:sequence>
+			<xs:element name="foreignExchangeData" type="foreignExchangeDataType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="foreignExchangeDataType">
+		<xs:all>
+				<xs:element name="assetFamily">
+					<xs:annotation>
+						<xs:documentation>GP3 Set of ASSET (IDDE)</xs:documentation>
+						<xs:documentation>Cours_officiel_devise.Code_ensemble_val</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="quotedCurrency">
+					<xs:annotation>
+						<xs:documentation>Quoted currency</xs:documentation>
+						<xs:documentation>Cours_officiel_devise.Code_devise</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="quotationCurrency">
+					<xs:annotation>
+						<xs:documentation>Quotation currency</xs:documentation>
+						<xs:documentation>Cours_officiel_devise.Code_devise_cot</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="fixing">
+					<xs:annotation>
+						<xs:documentation>Exchange rate fixing</xs:documentation>
+						<xs:documentation>Cours_officiel_devise.Code_devise_fixing</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="quotationDate">
+					<xs:annotation>
+						<xs:documentation>Quotation Date (YYYY-MM-DD)</xs:documentation>
+						<xs:documentation>Cours_officiel_devise.Histo_date_cotation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="exchangeRate">
+					<xs:annotation>
+						<xs:documentation>exchange rate</xs:documentation>
+						<xs:documentation>Cours_officiel_devise.Cours_commerciale</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="15"/>
+							<xs:fractionDigits value="10"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+	<!-- ==========================================================================
+							PRICES DATA MESSAGE
+		 ========================================================================== -->
+	
+	<xs:element name="priceDataMessage" type="priceDataMessageType" />
+
+	<xs:complexType name="priceDataMessageType"
+		final="extension restriction">
+		<xs:complexContent>
+			<xs:extension base="abstractMessage">
+				<xs:sequence>
+					<xs:element name="messageBody" type="priceDataBodyType" />
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	
+	<xs:complexType name="priceDataBodyType">
+		<xs:sequence>
+			<xs:element name="priceDataList" type="priceDataListType"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="priceDataListType">
+		<xs:sequence>
+			<xs:element name="priceData" type="priceDataType" maxOccurs="unbounded" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="priceDataType">
+		<xs:all>
+				<xs:element name="priceOrigin">
+					<xs:annotation>
+						<xs:documentation>Indicates the price origin</xs:documentation>
+						<xs:documentation>FOR : forced for a specific Fund</xs:documentation>
+						<xs:documentation>OBJ : from a price objective</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="FOR" />
+							<xs:enumeration value="OBJ" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="priceObjective">
+					<xs:annotation>
+						<xs:documentation>price objective Id</xs:documentation>
+						<xs:documentation>OBJ : Cours_particulier.Code_ensemble_cours</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="fundCode">
+					<xs:annotation>
+						<xs:documentation>Indicates the GP3 fund Id for which the price has been forced</xs:documentation>
+						<xs:documentation>FOR : Cours_force_valeur.Code_portefeuille</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="instrumentCategory">
+					<xs:annotation>
+						<xs:documentation>GP3 instrument category</xs:documentation>
+						<xs:documentation>FOR : Cours_force_valeur.Categorie_valeur</xs:documentation>
+						<xs:documentation>OBJ : Cours_particulier.Categorie_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+						<xs:minLength value="1" />
+						<xs:maxLength value="4" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="instrumentCode">
+					<xs:annotation>
+						<xs:documentation>GP3 instrument Id</xs:documentation>
+						<xs:documentation>FOR : Cours_force_valeur.Code_valeur</xs:documentation>
+						<xs:documentation>OBJ : Cours_particulier.Code_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="12" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="priceType">
+					<xs:annotation>
+						<xs:documentation>Indicates the kind of price (PRIX, CC, ...)</xs:documentation>
+						<xs:documentation>FOR : Constant value PRIX</xs:documentation>
+						<xs:documentation>OBJ : Cours_particulier.Type_cours</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="stockExchange">
+					<xs:annotation>
+						<xs:documentation>Stock Exchange prividing the price</xs:documentation>
+						<xs:documentation>FOR : Parametre_champ_traitement.Valeur_par_defaut (REDBCK,GETPRICE,. ,stockExchange)</xs:documentation>
+						<xs:documentation>OBJ : Cours_particulier.Place_cotation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="6" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="positionStatus2">
+					<xs:annotation>
+						<xs:documentation>position status 2 for forced price</xs:documentation>
+						<xs:documentation>FOR : Parametre_champ_traitement.Valeur_par_defaut (REDBCK,STALIG, GETPRICE, Statut_ligne)</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:maxLength value="10" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="quotationDate">
+					<xs:annotation>
+						<xs:documentation>Quotation Date (YYYY-MM-DD)</xs:documentation>
+						<xs:documentation>FOR : Cours_force_valeur.Histo_debut_forcage</xs:documentation>
+						<xs:documentation>OBJ : Cours_particulier.Histo_date_cotation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:date"></xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="price">
+					<xs:annotation>
+						<xs:documentation>instrument price</xs:documentation>
+						<xs:documentation>FOR : Cours_force_valeur.Cours_devise_cot , Format_cours_dev_cot</xs:documentation>
+						<xs:documentation>OBJ : Cours_particulier.Cours_valeur</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:decimal">
+							<xs:totalDigits value="20"/>
+							<xs:fractionDigits value="8"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+				<xs:element name="quotationCurrency">
+					<xs:annotation>
+						<xs:documentation>Quotation currency</xs:documentation>
+						<xs:documentation>FOR : (VMOB) Descriptif_valeur.Devise_cotation, ...</xs:documentation>
+						<xs:documentation>OBJ : Cours_particulier.Devise_cotation</xs:documentation>
+					</xs:annotation>
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:minLength value="1" />
+							<xs:maxLength value="3" />
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:element>
+		</xs:all>
+	</xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="src" path="src/test/resources"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/javax/xml/stream/1.0-2/stax-api-1.0-2.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/javax/xml/bind/2.1/jaxb-api-2.1.jar" sourcepath="Q-ARCHIVE/thirdparty/javax/xml/bind/2.1/jaxb-api-2.1-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/javax/ejb/2.1/ejb-2.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://java.sun.com/javaee/5/docs/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/javax/jms/1.1/jms-1.1.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://java.sun.com/javaee/5/docs/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/javax/jca/1.5/jca-1.5.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://java.sun.com/javaee/5/docs/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/javax/servlet/2.4/servlet-2.4.jar" sourcepath="/Q-ARCHIVE/thirdparty/javax/servlet/2.4/servlet-2.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://java.sun.com/javaee/5/docs/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/ejb/3.0/persistence-api-1.0.zip"/>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/javax/javamail/1.4/javamail-1.4.jar" sourcepath="/Q-ARCHIVE/thirdparty/javax/javamail/1.4/javamail-1.4-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="http://java.sun.com/javaee/5/docs/api/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/jaf/1.1/activation.jar"/>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/log4j/1.2.15/log4j-1.2.15.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/org.eclipse/emf-sdo-xsd/3.6.1/org.eclipse.emf.common_2.6.0.v20100914-1218.jar" sourcepath="/Q-ARCHIVE/thirdparty/org.eclipse/emf-sdo-xsd/2.2.5/emf.common_2.2.2.v200808252119-src.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/org.eclipse/emf-sdo-xsd/3.6.1/org.eclipse.emf.ecore_2.6.1.v20100914-1218.jar" sourcepath="/Q-ARCHIVE/thirdparty/org.eclipse/emf-sdo-xsd/2.2.5/emf.ecore_2.2.4.v200808252119-src.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/org.eclipse/emf-sdo-xsd/3.6.1/org.eclipse.emf.ecore.xmi_2.5.0.v20100521-1846.jar" sourcepath="/Q-ARCHIVE/thirdparty/org.eclipse/emf-sdo-xsd/2.2.5/emf.ecore.xmi_2.2.5.v200808252119-src.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/org.eclipse/emf-sdo-xsd/3.6.1/org.eclipse.xsd_2.6.0.v20100914-1218.jar" sourcepath="/Q-ARCHIVE/thirdparty/org.eclipse/emf-sdo-xsd/2.2.5/xsd_2.2.5.v200808252119-src.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/jgoodies/forms/1.0.2/forms-1.0.2.jar"/>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/codehaus.org/qdox/1.10/qdox-1.10.jar" sourcepath="/Q-ARCHIVE/thirdparty/codehaus.org/qdox/1.10/qdox-1.10-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/org.apache/commons/jxpath/1.3/commons-jxpath-1.3.jar" sourcepath="/Q-ARCHIVE/thirdparty/org.apache/commons/jxpath/1.3/commons-jxpath-1.3-source.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/javax/jcr/2.0/jcr-2.0.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/carnot/jcr-vfs/2.0.5/jcr-vfs-2.0.5.jar" sourcepath="/Q-ARCHIVE/carnot/jcr-vfs/2.0.5/jcr-vfs-2.0.5-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/codehaus.org/tranql/connector/1.4/tranql-connector-1.4.jar" sourcepath="/Q-ARCHIVE/thirdparty/codehaus.org/tranql/connector/1.4/tranql-connector-1.4-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/mozilla.org/rhino/1.7R2/js-1.7R2.jar" sourcepath="/Q-ARCHIVE/thirdparty/mozilla.org/rhino/1.7R2/js-1.7R2-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/jakarta-commons/collections/3.2.1/commons-collections-3.2.1.jar" sourcepath="/Q-ARCHIVE/thirdparty/jakarta-commons/collections/3.2.1/commons-collections-3.2.1-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/hazelcast.com/1.9/hazelcast-1.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/hazelcast.com/1.9/hazelcast-1.9-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/codehaus.org/woodstox/3.2.1/wstx-asl-3.2.1.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/junit/4.8.2/junit-dep-4.8.2.jar" sourcepath="/Q-ARCHIVE/thirdparty/junit/4.8.2/junit-dep-4.8.2-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar" sourcepath="/Q-ARCHIVE/thirdparty/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/hamcrest/hamcrest-library/1.1/hamcrest-library-1.1.jar" sourcepath="/Q-ARCHIVE/thirdparty/hamcrest/hamcrest-library/1.1/hamcrest-library-1.1-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/mockito/mockito-core/1.8.5/mockito-core-1.8.5.jar" sourcepath="/Q-ARCHIVE/thirdparty/mockito/mockito-core/1.8.5/mockito-core-1.8.5-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/objenesis/1.2/objenesis-1.2.jar" sourcepath="/Q-ARCHIVE/thirdparty/objenesis/1.2/objenesis-1.2-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/javassist/3.14.0-GA/javassist-3.14.0-GA.jar" sourcepath="/Q-ARCHIVE/thirdparty/javassist/3.14.0-GA/javassist-3.14.0-GA-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-api-mockito/1.4.9/powermock-api-mockito-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-api-mockito/1.4.9/powermock-api-mockito-1.4.9-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-api-support/1.4.9/powermock-api-support-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-api-support/1.4.9/powermock-api-support-1.4.9-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-core/1.4.9/powermock-core-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-core/1.4.9/powermock-core-1.4.9-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-reflect/1.4.9/powermock-reflect-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-reflect/1.4.9/powermock-reflect-1.4.9-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-module-junit4/1.4.9/powermock-module-junit4-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-module-junit4/1.4.9/powermock-module-junit4-1.4.9-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-module-junit4-common/1.4.9/powermock-module-junit4-common-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-module-junit4-common/1.4.9/powermock-module-junit4-common-1.4.9-sources.jar"/>
+	<classpathentry kind="output" path=".eclipse/bin"/>
+</classpath>

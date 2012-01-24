@@ -1,0 +1,25 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<xsd:schema
+	 xml:lang = "EN" xmlns:xsd = "http://www.w3.org/2001/XMLSchema" 
+	 xmlns:ecc = "http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd"
+	 elementFormDefault = "qualified">
+	<xsd:import 
+		namespace = "http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd" 
+		schemaLocation = "EFET-CoreCmpts-V3R2.xsd"/>
+	<xsd:include schemaLocation = "EFET-CoreElements-V3R2.xsd"/>
+	<!-- EFET Trade Rejection Document Version 3 release 2 -->
+	<!--______________________________________-->
+	
+	<xsd:element name = "Rejection">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:group ref = "DocumentHeader"/>
+				<xsd:element name = "ReferencedDocumentType" type = "ecc:DocumentType"/>
+				<xsd:element name = "ReferencedDocumentID" type = "ecc:IdentificationType"/>
+				<xsd:element name = "ReferencedDocumentVersion" type = "ecc:VersionType" minOccurs = "0"/>
+				<xsd:element ref = "Reason" maxOccurs = "unbounded"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref = "ecc:SchemaDescription"/>
+		</xsd:complexType>
+	</xsd:element> 
+</xsd:schema>

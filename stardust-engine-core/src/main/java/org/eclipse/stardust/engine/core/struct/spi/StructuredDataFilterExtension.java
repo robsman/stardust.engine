@@ -1,0 +1,647 @@
+/*******************************************************************************
+ * Copyright (c) 2011 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
+package org.eclipse.stardust.engine.core.struct.spi;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.namespace.QName;
+
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Functor;
+import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.TransformingIterator;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.query.AbstractDataFilter;
+import org.eclipse.stardust.engine.api.query.DataOrder;
+import org.eclipse.stardust.engine.api.query.IJoinFactory;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Operator;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
+import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
+import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
+import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
+
+
+public class StructuredDataFilterExtension implements DataFilterExtension
+{
+   static final Logger trace = LogManager.getLogger(StructuredDataFilterExtension.class);
+
+   // TODO )ab) write a junit test (see JoinTest)
+
+   private void preprocessJoins(QueryDescriptor query,
+         DataFilterExtensionContext dataFilterExtensionContext, boolean isAndTerm,
+         IJoinFactory joinFactory)
+   {
+      Map<AbstractDataFilter, StructuredDataFilterContext> dataFilterContexts = CollectionUtils.newHashMap();
+      final ModelManager modelManager = ModelManagerFactory.getCurrent();
+
+      int cnt = 0;
+      Iterator<List<AbstractDataFilter>> iter = new FilteringIterator(dataFilterExtensionContext
+            .getDataFiltersByDataId().values().iterator(), new Predicate()
+      {
+         public boolean accept(Object o)
+         {
+            if (o instanceof List)
+            {
+               List<AbstractDataFilter> dataFiltersForOneData = (List) o;
+               if (!dataFiltersForOneData.isEmpty())
+               {
+                  AbstractDataFilter dataFilter = dataFiltersForOneData.get(0);
+                  String dataID = dataFilter.getDataID();
+                  
+                  String namespace = null;
+                  if (dataID.startsWith("{"))
+                  {
+                     QName qname = QName.valueOf(dataID);
+                     namespace = qname.getNamespaceURI();
+                     dataID = qname.getLocalPart();
+                  }
+                  
+                  IModel activeModel = null;
+                  if (StringUtils.isNotEmpty(namespace))
+                  {
+                     activeModel = modelManager.findActiveModel(namespace);                     
+                  }
+                  else
+                  {
+                     activeModel = modelManager.findActiveModel();                     
+                  }
+                  
+                  IData data = activeModel.findData(dataID);
+                  if (null != data
+                        && (StructuredTypeRtUtils.isDmsType(data.getType().getId()) || StructuredTypeRtUtils.isStructuredType(data.getType().getId())))
+                  {
+                     return true;
+                  }
+               }
+            }
+
+            return false;
+         }
+      });
+      while (iter.hasNext())
+      {
+         List<AbstractDataFilter> dataFiltersForOneData = iter.next();
+
+         for (AbstractDataFilter filter : dataFiltersForOneData)
+         {
+            cnt++;
+            boolean dataFiltersDoesNotContainListXPaths = dataFiltersDoesNotContainListXPaths(
+                  filter.getDataID(), dataFiltersForOneData);
+            if (!dataFiltersDoesNotContainListXPaths)
+            {
+               dataFilterExtensionContext.useDistinct(true);
+            }
+
+            if (!dataFilterContexts.containsKey(filter))
+            {
+               StructuredDataFilterContext filterContext = getContextForDataFilter(
+                     joinFactory, dataFilterExtensionContext, filter, isAndTerm, cnt);
+               dataFilterContexts.put(filter, filterContext);
+            }
+         }
+      }
+
+      dataFilterExtensionContext.setContent(dataFilterContexts);
+   }
+
+         
+   private StructuredDataFilterContext getContextForDataFilter(IJoinFactory joinFactory,
+         DataFilterExtensionContext dataFilterExtensionContext,
+         AbstractDataFilter filter, boolean isAndTerm, int cnt)
+   {
+
+      int id = cnt;
+
+      StructuredDataFilterContext context = new StructuredDataFilterContext(id, filter);
+      validateXPath(filter.getDataID(), filter.getAttributeName(), true);
+
+      Join join = joinFactory.createDataFilterJoins(filter.getFilterMode(), id,
+            StructuredDataValueBean.class, StructuredDataValueBean.FR__PROCESS_INSTANCE);
+      dataFilterExtensionContext.addJoin(join);
+      context.setJoin(join);
+
+      return context;
+   }
+      
+   private void validateXPath(String dataId, String xPath, boolean canReturnLists)
+   {
+      if (StringUtils.isEmpty(xPath))
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.QUERY_MISSING_XPATH_ON_NON_STRUCT_DATA
+                     .raise(dataId, xPath));
+      }
+      
+      
+      Collection<IData> allData = this.findAllDataRtOids(dataId, ModelManagerFactory.getCurrent()).values();
+      for (Iterator<IData> i = allData.iterator(); i.hasNext(); )
+      {
+         IData data = (IData) i.next();
+         IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+         
+         // throws a PublicException if XPath is not defined
+         TypedXPath typedXPath = null;
+         try
+         {
+            typedXPath = xPathMap.getXPath(xPath);
+         }
+         catch (IllegalOperationException e)
+         {
+            // check if indexed
+            if(StructuredDataXPathUtils.isIndexedXPath(xPath))
+            {
+               throw new IllegalOperationException(BpmRuntimeError.BPMRT_INVALID_INDEXED_XPATH.raise());               
+            }
+            else
+            {
+               throw e;
+            }
+         }
+         
+         if (typedXPath.getType() == BigData.NULL)
+         {
+            // complex types or lists of complex types are not allowed as query attributes
+            throw new IllegalOperationException(
+                  BpmRuntimeError.QUERY_XPATH_ON_STRUCT_DATA_MUST_POINT_TO_PRIMITIVE
+                        .raise(dataId, xPath));
+         }
+         
+         if ( !canReturnLists)
+         {
+            if (StructuredDataXPathUtils.canReturnList(typedXPath.getXPath(), xPathMap))
+            {
+               throw new IllegalOperationException(
+                     BpmRuntimeError.QUERY_XPATH_ON_STRUCT_DATA_ORDER_BY_MUST_POINT_TO_PRIMITIVE
+                           .raise(dataId, xPath));
+            }
+         }
+      }
+   }
+
+   private boolean dataFiltersDoesNotContainListXPaths(String dataId, List<AbstractDataFilter> filtersForData)
+   {
+      Collection<IData> allData = this.findAllDataRtOids(dataId, ModelManagerFactory.getCurrent()).values();
+      
+      for (Iterator<IData> i = allData.iterator(); i.hasNext(); )
+      {
+         IData data = i.next();
+         IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+         
+         for (Iterator<AbstractDataFilter> f = filtersForData.iterator(); f.hasNext(); )
+         {
+            AbstractDataFilter df = f.next();
+            TypedXPath typedXPath = xPathMap.getXPath(df.getAttributeName());
+            if (typedXPath != null)
+            {
+               if (StructuredDataXPathUtils.canReturnList(typedXPath.getXPath(), xPathMap))
+               {
+                  return false;
+               }
+            }
+         }
+      }
+      return true;
+   }
+   
+   private Map<Long,IData> findAllDataRtOids(String dataID, ModelManager modelManager)
+   {
+      Map <Long,IData> dataMap = new HashMap<Long, IData>();
+      String namespace = null;
+      if (dataID.startsWith("{"))
+      {
+         QName qname = QName.valueOf(dataID);
+         namespace = qname.getNamespaceURI();
+         dataID = qname.getLocalPart();
+      }               
+
+      Iterator modelItr = null;
+      if (namespace != null)
+      {      
+         modelItr = modelManager.getAllModelsForId(namespace);
+      }
+      else
+      {
+         modelItr = modelManager.getAllModels();         
+      }
+      
+      while (modelItr.hasNext())
+      {                  
+         IModel model = (IModel) modelItr.next();        
+         IData data = model.findData(dataID);
+         if (null != data)
+         {
+            dataMap.put(Long.valueOf(modelManager.getRuntimeOid(data)), data);
+         }
+      }
+      return dataMap;
+   }
+
+   public PredicateTerm createPredicateTerm(Join dvJoin,
+         AbstractDataFilter dataFilter, Map<Long,IData> dataMap, DataFilterExtensionContext dataFilterExtensionContext)
+   {
+      Map<AbstractDataFilter, StructuredDataFilterContext> dataFilterContexts = 
+         (Map<AbstractDataFilter, StructuredDataFilterContext>) dataFilterExtensionContext.getContent();
+      StructuredDataFilterContext context = (StructuredDataFilterContext) dataFilterContexts.get(dataFilter);
+      
+      // override dvJoin with join specific for this dataFilter
+      dvJoin = context.getJoin();
+      
+      return matchDataInstancesPredicate(dvJoin, dataFilter.getAttributeName(),
+            dataFilter.getOperator(), dataFilter.getOperand(), dataMap, dataFilter);
+   }
+
+   /**
+    * Builds a predicate fragment for matching data instances having the given value.
+    * Depending on the data type this predicate may result in an exact match (if the value
+    * can be represented inline in the <code>data_value</code> table) or just match a
+    * set of candidate instances (if the value's representations has to be sliced for
+    * storage).
+    * @param xPathString
+    *           xPath
+    * @param value
+    *           The generic representation of the data value to match with.
+    * @param dataMap
+    * @param evaluationOptions TODO
+    * 
+    * @return A predicate term for matching data instances possibly having the given
+    *         value.
+    * @see #isLargeValue
+    */
+   private PredicateTerm matchDataInstancesPredicate(Join dvJoin, String xPathString,
+         Operator operator, Object value, Map<Long, IData> dataMap,
+         final IEvaluationOptionProvider evaluationOptions)
+   {
+      final LargeStringHolderBigDataHandler.Representation canonicalValue = LargeStringHolderBigDataHandler.canonicalizeDataValue(
+            StructuredDataValueBean.string_value_COLUMN_LENGTH, value);
+
+      FieldRef valueColumn;
+      Object matchValue = canonicalValue.getRepresentation();
+
+      switch (canonicalValue.getClassificationKey())
+      {
+      case BigData.NULL_VALUE:
+         valueColumn = null;
+         break;
+
+      case BigData.NUMERIC_VALUE:
+         valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE);
+         break;
+
+      case BigData.STRING_VALUE:
+         valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE);
+         break;
+
+      default:
+         throw new InternalException("Unsupported BigData type classification: "
+               + canonicalValue.getClassificationKey());
+      }
+
+      final AndTerm resultTerm = new AndTerm();
+
+      if (operator instanceof Operator.Unary)
+      {
+         resultTerm.add(new ComparisonTerm(
+               dvJoin.fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY),
+               (Operator.Unary) operator));
+      }
+      else
+      {
+         if (BigData.NULL_VALUE == canonicalValue.getClassificationKey())
+         {
+            if (Operator.IS_EQUAL.equals(operator) || Operator.NOT_EQUAL.equals(operator))
+            {
+               OrTerm orTerm = new OrTerm();
+               if (Operator.IS_EQUAL.equals(operator))
+               {
+                  orTerm.add(new ComparisonTerm(dvJoin
+                        .fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY),
+                        Operator.IS_NULL));
+               }
+               orTerm.add(new ComparisonTerm(dvJoin
+                     .fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY),
+                     (Operator.Binary) operator, new Integer(BigData.NULL)));
+               resultTerm.add(orTerm);
+            }
+            else
+            {
+               throw new PublicException("Null values are not supported with operator "
+                     + operator);
+            }
+         }
+         else
+         {
+            if (Operator.LIKE.equals(operator)
+                  && (BigData.STRING == canonicalValue.getTypeKey()))
+            {
+               resultTerm.add(Predicates.inList(
+                     dvJoin.fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY),
+                     new int[] {BigData.STRING, BigData.BIG_STRING}));
+            }
+            else
+            {
+               resultTerm.add(Predicates.isEqual(
+                     dvJoin.fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY),
+                     canonicalValue.getTypeKey()));
+            }
+
+            if ( !EvaluationOptions.isCaseSensitive(evaluationOptions))
+            {
+               // ignore case by applying LOWER(..) SQL function
+               valueColumn = Functions.strLower(valueColumn);
+            }
+            
+            if (operator.isBinary())
+            {
+               if (matchValue instanceof Collection)
+               {
+                  List<List< ? >> subLists = CollectionUtils.split(
+                        (Collection) matchValue, 1000);
+                  MultiPartPredicateTerm mpTerm = new OrTerm();
+                  for (List< ? > subList : subLists)
+                  {
+                     Iterator valuesIter = new TransformingIterator(subList.iterator(),
+                           new Functor()
+                           {
+                              public Object execute(Object source)
+                              {
+                                 return getInlineComparisonValue(source,
+                                       evaluationOptions);
+                              }
+                           });
+
+                     mpTerm.add(Predicates.inList(valueColumn, valuesIter));
+                  }
+
+                  resultTerm.add(mpTerm);
+               }
+               else
+               {
+                  resultTerm.add(new ComparisonTerm(valueColumn,
+                        (Operator.Binary) operator, getInlineComparisonValue(matchValue,
+                              evaluationOptions)));
+               }
+            }
+            else if (operator.isTernary())
+            {
+               if ( !(matchValue instanceof Pair))
+               {
+                  throw new PublicException("Inconsistent operator use " + operator
+                        + " --> " + matchValue);
+               }
+
+               Pair pair = (Pair) matchValue;
+               resultTerm.add(new ComparisonTerm(valueColumn,
+                     (Operator.Ternary) operator, new Pair(
+                           getInlineComparisonValue(pair.getFirst(), evaluationOptions),
+                           getInlineComparisonValue(pair.getSecond(), evaluationOptions))));
+            }
+         }
+      }
+
+      return resultTerm;
+   }
+
+   private Set<Long> findAllOids(Map<Long, IData> dataMap, String xPathString)
+   {
+      // find all rt oids for xPathString
+      Set <Long> xPathOids = new HashSet<Long>();
+      for (Iterator<IData> i = dataMap.values().iterator(); i.hasNext();)
+      {
+         IData data = (IData) i.next();
+         IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+         Long xPathOid = xPathMap.getXPathOID(xPathString);
+         if (xPathOid != null)
+         {
+            xPathOids.add(xPathOid);
+         }
+      }
+      return xPathOids;
+   }
+
+   private static final Object getInlineComparisonValue(Object value, IEvaluationOptionProvider options)
+   {
+      Object result;
+
+      if (value instanceof String
+            && ((String) value).length() > StructuredDataValueBean.string_value_COLUMN_LENGTH)
+      {
+         // strip for maximum inline slice size
+
+         result = ((String) value).substring(0,
+               StructuredDataValueBean.string_value_COLUMN_LENGTH);
+      }
+      else
+      {
+         result = value;
+      }
+
+      if (( !EvaluationOptions.isCaseSensitive(options)) && (result instanceof String))
+      {
+         result = ((String) result).toLowerCase();
+      }
+
+      return result;
+   }
+
+   public void extendOrderCriteria(Join piJoin, Join pisJoin,
+         OrderCriteria orderCriteria, DataOrder order, Map<Long, IData> dataMap,
+         Map<String, Join> dataOrderJoins)
+   {
+      validateXPath(order.getDataID(), order.getAttributeName(), false);
+      
+      String alias = "DVO" + (dataOrderJoins.size() + 1);
+      Join dvJoin;
+      if (null != pisJoin)
+      {
+         dvJoin = new Join(StructuredDataValueBean.class, alias)//
+            .on(pisJoin.fieldRef(ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE),
+                  StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+
+         dvJoin.setDependency(pisJoin);
+      }
+      else if (null != piJoin)
+      {
+         dvJoin = new Join(StructuredDataValueBean.class, alias)//
+            .on(piJoin.fieldRef(ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE),
+                  StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+
+         dvJoin.setDependency(piJoin);
+      }
+      else
+      {
+         dvJoin = new Join(StructuredDataValueBean.class, alias)//
+            .on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
+                  StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
+      }
+      Set<Long> xPathOids = findAllOids(dataMap, order.getAttributeName());
+      dvJoin.where(Predicates.inList(
+            dvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH),
+            xPathOids.iterator()));
+      Assert.isNotEmpty(xPathOids, "XPath '" + order.getAttributeName()
+            + "' is not defined");
+
+      dvJoin.setRequired(false);
+      
+      alias = alias + "_SD";
+
+      
+      boolean useNumericColumn = false;
+      boolean useStringColumn = false;
+   
+      for (Iterator<IData> i = dataMap.values().iterator(); i.hasNext();)
+      {
+         IData data = i.next();
+         final int typeClassification = LargeStringHolderBigDataHandler
+               .classifyType(data, order.getAttributeName());
+         useNumericColumn |= (BigData.NUMERIC_VALUE == typeClassification);
+         useStringColumn |= (BigData.STRING_VALUE == typeClassification);
+      }
+      
+      if (useNumericColumn)
+      {
+         orderCriteria.add(dvJoin.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE),
+               order.isAscending());
+      }
+
+      if (useStringColumn)
+      {
+         orderCriteria.add(dvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE),
+               order.isAscending());
+      }
+      // else do nothing (compatible to behavior of other data types!) 
+      String dataId = order.getDataID() + "/" + order.getAttributeName();
+      dataOrderJoins.put(dataId, dvJoin);
+   }
+
+   public void appendDataIdTerm(AndTerm andTerm, Map<Long, IData> dataIds, Join dvJoin,
+         AbstractDataFilter dataFilter)
+   {
+      final String xPathString = dataFilter.getAttributeName();
+      if (xPathString == null)
+      {
+         throw new InternalException(
+               "DataFilter for structured data should specify xpath in the attribute name.");
+      }
+      
+      Set<Long> xPathOids = findAllOids(dataIds, xPathString);
+
+      /*
+      if(dvJoin.getRestriction() != null)
+      {
+         FieldRef xPathField = dvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH);
+         if(inflateXPathTerm(dvJoin.getRestriction().getParts(), xPathField, xPathOids))
+         {
+            return;
+         }
+      }
+      */
+      
+      andTerm.add(Predicates.inList(
+            dvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH),
+            xPathOids.iterator()));
+   }
+   
+   /*private boolean inflateXPathTerm(List<PredicateTerm> parts, FieldRef xPathField, Set<Long> xPathOids)
+   {
+      boolean inflated = false;
+      if(parts == null || xPathOids.size() == 0)
+      {
+         return false;
+      }
+      for(int i = 0; i < parts.size() && inflated == false; i++)
+      {
+         PredicateTerm term = parts.get(i);
+         if(term instanceof MultiPartPredicateTerm)
+         {
+            inflated = inflateXPathTerm(((MultiPartPredicateTerm)term).getParts(), xPathField, xPathOids);
+         }
+         else if(term instanceof ComparisonTerm)
+         {
+            ComparisonTerm cTerm = (ComparisonTerm)term;
+            Object values = cTerm.getValueExpr();
+            if(xPathField.equals(cTerm.getLhsField()) &&
+                  values instanceof List)
+            {
+               ((List)values).addAll(xPathOids);
+               inflated = true;
+            }
+         }
+      }
+      return inflated;
+   }*/
+
+   public Join createDvJoin(QueryDescriptor query, AbstractDataFilter dataFilter,
+         int index, DataFilterExtensionContext dataFilterExtensionContext,
+         boolean isAndTerm, IJoinFactory joinFactory)
+   {
+      if (dataFilterExtensionContext.getContent() == null)
+      {
+         // preprocess joins first
+         preprocessJoins(query, dataFilterExtensionContext, isAndTerm, joinFactory);
+      }
+
+      Map<AbstractDataFilter, StructuredDataFilterContext> dataFilterContexts = (Map) dataFilterExtensionContext.getContent();
+      StructuredDataFilterContext context = (StructuredDataFilterContext) dataFilterContexts.get(dataFilter);
+
+      return context.getJoin();
+   }
+   
+   public List<FieldRef> getPrefetchSelectExtension(ITableDescriptor descriptor)
+   {
+      List<FieldRef> cols = CollectionUtils.newArrayList();
+
+      cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY));
+      cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE));
+
+      return cols;
+   }
+}

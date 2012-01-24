@@ -1,0 +1,1103 @@
+<?xml encoding="ISO-8859-1"?>
+<!-- Workflow model description for CARNOT version 2.0.0 and higher -->
+
+<!-- The MODEL declaration
+    defines the workflow model
+    consisting of the following elements:
+    - 0..1     DESCRIPTION
+    - 0..n     DATA declarations to define the workflow data items
+    - 0..1     PARTICIPANTS declaration where the roles, organisations
+                and performers are defined
+    - 0..n     WORKFLOW declarations where workflow processes are defined
+    - 0..n     DIAGRAM declarations containing GUI specific information for
+                drawing the elements in definitiondesktop
+    - 0..n     LINK_TYPE declarations where optional customized information of
+                diagram link symbols are defined
+    - 0..n     GENERIC_LINK declartions where optional generic information of
+                diagram link symbols are defined
+                @fixme is it still in use ?
+    - 0..n     USERDEFINED_PROPERTY declarations where additional user
+                properties are defined
+                @fixme is it still in use ?
+    - 0..n     VIEW declarations where views are defined
+                @fixme is it still in use ?
+
+   (+) required (-) optional -->
+<!ELEMENT MODEL (DESCRIPTION?, DATA*, APPLICATION*, PARTICIPANTS?, WORKFLOW*,
+                      DIAGRAM*, LINK_TYPE*, GENERIC_LINK*, USERDEFINED_PROPERTY*, VIEW*)>
+<!-- The attributes of the MODEL declaration :
+    + id                        The unique model element id of the model
+    - name                      The name of the model
+    - oid                       The unique object id of the model
+    - model_version             The model version, unversioned models start with "1.0"
+    - is_root                   Determines root models
+    - wpdl-version              @fixme always '7.0'
+    - carnot_xml_version        The version of the runtime which created the model
+    - vendor                    The name of the vendor who created the model
+    - created                   Date of creation 'ddd mmm dd hh:MM:ss GMT+00:00 yyyy'
+    - author                    The author of the model
+    - status                    'open' or 'released'
+    - additional_urls           Comma separated list of possible additional urls of
+                                jars to be loaded for the model
+    - valid_from_time_stamp     The date from which this model is valid
+    - valid_to_time_stamp       The date until which this model is valid to -->
+<!ATTLIST MODEL
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    model_version CDATA #IMPLIED
+    is_root (true | false) #IMPLIED
+    wpdl-version CDATA #IMPLIED
+    carnot_xml_version CDATA #IMPLIED
+    vendor CDATA #IMPLIED
+    created CDATA #IMPLIED
+    author CDATA #IMPLIED
+    status CDATA #IMPLIED
+    additional_urls CDATA #IMPLIED
+    valid_from_time_stamp CDATA #IMPLIED
+    valid_to_time_stamp CDATA #IMPLIED
+>
+<!-- The DESCRIPTION declaration -->
+<!ELEMENT DESCRIPTION (#PCDATA)>
+<!-- The DATA declaration
+    defines a data element for the workflow model
+    consists of the following elements :
+    - 0..1 DESCRIPTION -->
+<!ELEMENT DATA (DESCRIPTION?)>
+<!-- The attributes of the DATA declaration
+    + id                        The unique model element id of the data
+    + name                      The name of the defined data element
+    + type                      The type of the data, possible values are :
+                                - "boolean"
+                                - "char"
+                                - "byte"
+                                - "short"
+                                - "int"
+                                - "long"
+                                - "float"
+                                - "double"
+                                - "String"
+                                - "Date"
+                                - "Money"
+                                - "Entity Bean"
+                                - "Serializable"};
+    - default_value             The initial value of the data, default is empty
+    - oid                       The unique object id of the model object
+    - length                    The length of the data, default is 0 @fixme can be predefined
+    - class                     The class type in case of serializable of ejb
+    - jndi_path                 The JNDI path in case of ejb
+    - local                     A flag for local binding (see documentation)
+    - is_predefined             TRUE if not defined by any modelling process -->
+<!ATTLIST DATA
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    default_value CDATA #IMPLIED
+    oid ID #REQUIRED
+    type CDATA #REQUIRED
+    length CDATA #IMPLIED
+    class CDATA #IMPLIED
+    jndi_path CDATA #IMPLIED
+    local CDATA #IMPLIED
+    predefined (true | false) #IMPLIED
+>
+<!-- The APPLICATION declaration
+    defines an application for a workflow activity in a workflow process
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n SCREEN_ENTRY declarations where HOST based screen identifications are
+           defined (not available in version 2.0.0)
+    - 0..n SCREEN_KEY declarations where HOST based keyboard records are defined
+           (not available in version 2.0.0)
+    - 0..n USERDEFINED_PROPERTY declarations where user properties are defined -->
+<!ELEMENT APPLICATION (DESCRIPTION?, SCREEN_ENTRY*, SCREEN_KEY*,
+    USERDEFINED_PROPERTY*)>
+<!-- The attributes of the APPLICATION declaration
+    + id                        The unique model element id of the application
+    + name                      The name of the application
+    - oid                       The unique object id of the application object
+    - type                      The type of the application, possible values are :
+                                - "User Defined" manual or interactive application
+                                - "Session Bean"
+                                - "ActiveX" a COM/ActiveX application (not available in version 2.0.0)
+                                - "CICS" Host application (not available in version 2.0.0)
+                                - "JCA" Java Connectivity Adapter (not available in version 2.0.0)
+                                - "Web Service" (not available in version 2.0.0)
+
+    - user_definition_type      The userdefined type of the application, if it
+                                is of type "User Defined", possible values are :
+                                - "None" default for manual activities
+                                - "JFC" a java class/panel
+                                - "HTML" a JSP/HTML page
+                                - "Both" combination of JSP and class
+    - class                     The java class in case of UserDefined/JFC or EJB
+    - method                    The completion method of the application
+    - jndi_path                 The JNDI path in case of Session Bean usage
+    - local                     A flag for local binding (see documentation)
+    - html_path                 The server path to the JSP/HTML in case of HTML
+    - screen_content            Screen content of Host base applications
+                                (not available in version 2.0.0)
+                                @fixme should be removed because in HOST scenario
+                                screen content is defined by keys -->
+<!ATTLIST APPLICATION
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    type CDATA #IMPLIED
+    user_definition_type CDATA #IMPLIED
+    class CDATA #IMPLIED
+    method CDATA #IMPLIED
+    jndi_path CDATA #IMPLIED
+    local CDATA #IMPLIED
+    html_path CDATA #IMPLIED
+    screen_content CDATA #IMPLIED
+>
+<!-- The SCREEN_ENTRY declaration
+    defines a recorded field entry on a terminal based Host application
+    not available in version 2.0.0
+    consists of no elements -->
+<!ELEMENT SCREEN_ENTRY EMPTY>
+<!-- The attributes of the SCREEN_ENTRY declaration
+    + id                        The unique model element id of the screen entry
+    + type                      The type of the screen entry, possible values are :
+                                - "In"
+                                - "Out"
+                                - "In/Out"
+                                - "Literal"
+    + position                  The position on the screen represented
+                                as stream position
+    + length                    The length of the field
+    + row                       The row on the screen, where ~ is located
+    + column                    The column on the screen, where ~ is located
+    - oid                       The unique object id of the screen entry object
+    - default_value             A value to supply by default, when entering screen
+    - comment                   A user defined comment to this field -->
+<!ATTLIST SCREEN_ENTRY
+    id CDATA #REQUIRED
+    oid ID #REQUIRED
+    type CDATA #REQUIRED
+    position CDATA #REQUIRED
+    length CDATA #REQUIRED
+    row CDATA #REQUIRED
+    column CDATA #REQUIRED
+    default_value CDATA #IMPLIED
+    comment CDATA #IMPLIED
+>
+<!-- The SCREEN_KEY declaration
+    defines a screen identification string from Host applications
+    not available in version 2.0.0
+    consists of no elements -->
+<!ELEMENT SCREEN_KEY EMPTY>
+<!-- The attributes of the SCREEN_KEY declaration
+    + id                        The unique model element id of the screen key
+    - oid                       The unique object id of the screen key object
+    - length                    The length of the identification key
+    - row                       The row on screen, where ~ is located
+    - column                    The column on screen, where ~ is located -->
+<!ATTLIST SCREEN_KEY
+    id CDATA #REQUIRED
+    oid ID #REQUIRED
+    length CDATA #IMPLIED
+    row CDATA #IMPLIED
+    column CDATA #IMPLIED
+>
+<!-- The PARTICIPANTS declaration
+    defines workflow participants for workflow interaction
+    consists of the following elements :
+    - 0..n HUMAN declarations to define real users
+    - 0..n ROLE declarations to define group of users
+    - 0..n CONDITIONAL_PERFORMER declarations to define perfomers under certain
+           circumstances
+    - 0..n ORGANISATION declarations to define group of all above -->
+<!ELEMENT PARTICIPANTS (HUMAN | ROLE | CONDITIONAL_PERFORMER |
+    ORGANISATION)*>
+<!-- The HUMAN declaration
+    defines a person
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n USERDEFINED_PROPERTY declarations to define user defined properties-->
+<!ELEMENT HUMAN (DESCRIPTION?, USERDEFINED_PROPERTY*)>
+<!-- The attributes of the HUMAN declaration
+    + id                        The unique model element id of the human
+    + name                      The name of the element
+    - oid                       The unique object id of the human object
+    - password                  The password for the human object
+    - email                     The e-mail address of the human -->
+<!ATTLIST HUMAN
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    password CDATA #IMPLIED
+    email CDATA #IMPLIED
+>
+<!-- The ROLE declaration
+    defines a role
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n ASSOCIATED_HUMAN declaration to define associated persons to this role
+    - 0..n USERDEFINED_PROPERTY declaration to define user defined properties-->
+<!ELEMENT ROLE (DESCRIPTION?, ASSOCIATED_HUMAN*, USERDEFINED_PROPERTY*)>
+<!-- The attributes of the ROLE declaration
+    + id                        The unique model element id of the role
+    + name                      The name of the role
+    - oid                       The unique object id of the role object
+    - cardinality               The cardinality of the role, possible values are :
+                                - "*:1" to one
+                                - "*:N" to many
+    @fixme missing attributes for controlling :
+    - target_queue_depth
+    - target_work_time_per_day
+    - target_work_time_per_week
+    - working_weeks_per_year -->
+<!ATTLIST ROLE
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    cardinality CDATA #IMPLIED
+    target_queue_depth CDATA #IMPLIED
+    target_work_time_per_day  CDATA #IMPLIED
+    target_work_time_per_week  CDATA #IMPLIED
+    working_weeks_per_year CDATA #IMPLIED
+    actual_cost_per_minute CDATA #IMPLIED
+>
+<!-- The ASSOCIATED_HUMAN declaration
+    defines a grouped (associated) person
+    consists of no elements -->
+<!ELEMENT ASSOCIATED_HUMAN EMPTY>
+<!-- The attributes of the ASSOCIATED_HUMAN declaration
+    + id                        The unique model element id of the associated human -->
+<!ATTLIST ASSOCIATED_HUMAN
+    id CDATA #REQUIRED
+>
+<!-- The USERDEFINED_PROPERTY declaration
+    defines a user defined property
+    consists of no elements -->
+<!ELEMENT USERDEFINED_PROPERTY EMPTY>
+<!-- The attributes of the USERDEFINED_PROPERTY declaration
+    + name                      The name of the property
+    + class                     The property class
+    - stringified_value         The value as string representation -->
+<!ATTLIST USERDEFINED_PROPERTY
+    name CDATA #REQUIRED
+    class CDATA #REQUIRED
+    stringified_value CDATA #IMPLIED
+>
+<!-- The CONDITIONAL_PERFORMER declaration
+    defines a perfomer under certain circumstances
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n USERDEFINED_PROPERTY declarations to define user defined properties -->
+<!ELEMENT CONDITIONAL_PERFORMER (DESCRIPTION?, USERDEFINED_PROPERTY*)>
+<!-- The attributes of the CONDITIONAL_PERFORMER declaration
+    + id                        The unique model element id of the cond. performer
+    + name                      The name of the conditional performer
+    - oid                       The unique oid of the cond. performer
+    - data -->
+<!ATTLIST CONDITIONAL_PERFORMER
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    data CDATA #IMPLIED
+    is_user CDATA #IMPLIED
+>
+<!-- The ORGANISATION declaration
+    defines an organisation item for grouping participants
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n ASSOCIATED_PARTICIPANT
+    - 0..n USERDEFINED_PROPERTY -->
+<!ELEMENT ORGANISATION (DESCRIPTION?, ASSOCIATED_PARTICIPANT*, USERDEFINED_PROPERTY*)>
+<!-- The attributes of the ORGANISATION declaration
+    + id                        The unique model element id of the organisation
+    + name                      The name of the organisation
+    - oid                       The unique object id of the organisation object -->
+<!ATTLIST ORGANISATION
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+>
+<!-- The VIEW declaration
+    defines a view
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n VIEW declarations to define further dependent views
+    - 0..n VIEWABLE declarations to define containing viewables -->
+<!ELEMENT VIEW (DESCRIPTION?, VIEW*, VIEWABLE*)>
+<!-- The attributes of the VIEW declaration
+    + id                        The unique model element id of the view
+    + name                      The name of the view
+    - oid                       The unique object id of the view object -->
+<!ATTLIST VIEW
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+>
+<!-- The VIEWABLE declaration
+    defines a viewable
+    consists of no elements -->
+<!ELEMENT VIEWABLE EMPTY>
+<!-- The attributes of the VIEWABLE declaration
+    + id                        The unique model element id of the viewable
+    + type                      The type of the viewable, possible values are
+                                - ACTIVITY
+                                - APPLICATION
+                                - DATA
+                                - PARTICIPANT
+                                - WORKFLOW -->
+<!ATTLIST VIEWABLE
+    id CDATA #REQUIRED
+    type (ACTIVITY | APPLICATION | DATA | PARTICIPANT | WORKFLOW) #REQUIRED
+>
+<!-- The ASSOCIATED_PARTICIPANT declaration
+    defines an grouped (associated) participant
+    consists of no elements -->
+<!ELEMENT ASSOCIATED_PARTICIPANT EMPTY>
+<!-- The attributes of the ASSOCIATED_PARTICIPANT declaration
+    + id                         The unique model element id of the assoc. part. -->
+<!ATTLIST ASSOCIATED_PARTICIPANT
+    id CDATA #REQUIRED
+>
+<!-- The WORKFLOW declaration
+    defines a workflow process
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n ACTIVITY declaration to define activities
+    - 0..n TRANSITION declaration to define transitions between activities
+    - 0..n DATA_MAPPING declarations to define data mapping between data and activies
+    - 0..n TRIGGER_FAX declarations to define fax process triggers
+    - 0..n TRIGGER_JMS declarations to define JMS process triggers
+    - 0..n TRIGGER_MANUAL declarations to define manual process triggers
+    - 0..n TRIGGER_TIMER_BASED declarations to define timer process triggers
+    - 0..n DIAGRAM declarations to define diagram information
+    - 0..n GENERIC_LINK declarations to define generic links
+    - 0..n DESCRIPTOR declarations to define process descriptors
+    - 0..n USERDEFINED_PROPERTY declarations to define user defined properties
+    - 0..n NOTIFICATION declarations to define process notification triggers -->
+<!ELEMENT WORKFLOW (DESCRIPTION?, ACTIVITY*, TRANSITION*, DATA_MAPPING*,
+    (TRIGGER_FAX | TRIGGER_JMS | TRIGGER_MAIL | TRIGGER_MANUAL | TRIGGER_TIMER_BASED)*,
+    DIAGRAM*, GENERIC_LINK*, DESCRIPTOR*, USERDEFINED_PROPERTY*, NOTIFICATION*)>
+<!-- The attributes of the WORKFLOW declaration
+    + id                        The unique model element id of the process
+    + name                      The name of the process
+    - oid                       The unique object id of the process object
+    - remote_host_emulation     The emulation type in case of a Host based process,
+                                possible values are :
+                                - "5250"
+                                - "3270"
+                                not available in version 2.0.0
+    - remote_host_port          The port to the remote Host in case of Host based
+                                process, default value is "23"
+                                not available in version 2.0.0
+    - remote_hostname           The name or ip address of the remote Host in case
+                                Host based process
+                                not available in version 2.0.0
+    - target_cost_driver_quantity
+                                Used for process warehouse
+    - process_category          Used for process warehouse
+    - target_execution_time     Used for process warehouse
+    - target_idle_time          Used for process warehouse
+    - target_processing_time    Used for process warehouse
+    - cost_driver               Used for process warehouse
+    - target_cost_per_execution Used for process warehouse
+    - target_cost_per_second    Used for process warehouse -->
+<!ATTLIST WORKFLOW
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    remote_host_emulation CDATA #IMPLIED
+    remote_host_port CDATA #IMPLIED
+    remote_hostname CDATA #IMPLIED
+    target_cost_driver_quantity CDATA #IMPLIED
+    process_category CDATA #IMPLIED
+    target_execution_time CDATA #IMPLIED
+    target_idle_time CDATA #IMPLIED
+    target_processing_time CDATA #IMPLIED
+    cost_driver CDATA #IMPLIED
+    target_cost_per_execution CDATA #IMPLIED
+    target_cost_per_second CDATA #IMPLIED
+>
+<!ELEMENT TRIGGER_JMS EMPTY>
+<!-- The ACTIVITY declaration
+    defines a workflow activity
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n USERDEFINED_PROPERTY declarations to define user defined properties
+    - 0..n NOTIFICATION declarations to define activity notification triggers -->
+<!ELEMENT ACTIVITY (DESCRIPTION?, USERDEFINED_PROPERTY*, NOTIFICATION*)>
+<!-- The attributes of the ACTIVITY declaration
+    + id                        The unique model element id of the activity
+    + name                      The name of the activity
+    - oid                       The unique object id of the activity object
+    - split                     The type of activity split, possible values are :
+                                - "None"
+                                - "XOR"
+                                - "AND"
+    - join                      The type of activity join, possible values are :
+                                - "None"
+                                - "XOR"
+                                - "AND"
+    - implementation            The implementation type of the activity, possible
+                                values are :
+                                - "Manual" a manual activity
+                                - "Application" executes an application
+                                - "Subprocess" represents a subprocess
+                                - "Route" defines a route activity
+    - loop_type                 The type of loop, possible values are :
+                                - "No Loop"
+                                - "While"
+                                - "Repeat"
+    - loop_condition            Determines the logical condition for looping
+    - performer                 The participant who is assigned to the activity
+    - application               The model id of the application to execute
+    - implementation_process    The model id of the subprocess implementing the activity
+    - allows_abort_by_performer Determines if the activity is allowed to be aborted,
+                                possible values are :
+                                - "true"
+                                - "false"
+                                @fixme should be declared as (true | false)
+    - force_assignment_to_human Determines if the activity is forced assigned to
+                                human, possible values are :
+                                - "true"
+                                - "false"
+                                @fixme should be declared as (true | false)
+    - breakpoint                Determines if the activity is a breakpoint,
+                                possible values are :
+                                - "true"
+                                - "false"
+                                @fixme should be declared as (true | false)
+    - notify_participant_on_assignment
+                                Determines if the activity is notifying a participant
+                                when assigned, possible values are :
+                                - "true"
+                                - "false"
+                                @fixme should be declared as (true | false)
+    - completion_recovery_timeout
+                                The total completion recovery timeout
+    - duration_recovery_timeout
+                                The total duration recovery timeout
+    - target_execution_time     Used for process warehouse
+    - target_idle_time          Used for process warehouse
+    - target_measure_quantity   Used for process warehouse
+    - target_processing_time    Used for process warehouse
+    - target_queue_depth        Used for process warehouse
+    - target_waiting_time       Used for process warehouse
+    - target_cost_per_execution Used for process warehouse
+    - target_cost_per_second    Used for process warehouse
+    - measure                   Used for process warehouse
+    - difficulty                Used for process warehouse -->
+<!ATTLIST ACTIVITY
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    split CDATA #IMPLIED
+    join CDATA #IMPLIED
+    implementation CDATA #IMPLIED
+    loop_type CDATA #IMPLIED
+    loop_condition CDATA #IMPLIED
+    performer CDATA #IMPLIED
+    application CDATA #IMPLIED
+    implementation_process CDATA #IMPLIED
+    allows_abort_by_performer CDATA #IMPLIED
+    force_assignment_to_human CDATA #IMPLIED
+    breakpoint CDATA #IMPLIED
+    notify_participant_on_assignment CDATA #IMPLIED
+    completion_recovery_timeout CDATA #IMPLIED
+    duration_recovery_timeout CDATA #IMPLIED
+    target_execution_time CDATA #IMPLIED
+    target_idle_time CDATA #IMPLIED
+    target_measure_quantity CDATA #IMPLIED
+    target_processing_time CDATA #IMPLIED
+    target_queue_depth CDATA #IMPLIED
+    target_waiting_time CDATA #IMPLIED
+    target_cost_per_execution CDATA #IMPLIED
+    target_cost_per_second CDATA #IMPLIED
+    difficulty CDATA #IMPLIED
+    measure CDATA #IMPLIED
+>
+<!-- The TRANSITION declaration
+    defines a transition between two activities
+    consists of the following elements :
+    - 0..1 DESCRIPTION
+    - 0..n USERDEFINED_PROPERTY declaration to define user defined properties -->
+<!ELEMENT TRANSITION (DESCRIPTION?, USERDEFINED_PROPERTY*)>
+<!-- The attributes of the TRANSITION declaration
+    + id                        The unique model element id of the transition
+    + name                      The name of the transition
+    + from                      The unique model id of the starting activity
+    + to                        The unique model id of the ending activity
+    - oid                       The unique object id of the transition
+    - condition                 The condition used to verify transition,
+                                default value is "true" -->
+<!ATTLIST TRANSITION
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    from CDATA #REQUIRED
+    to CDATA #REQUIRED
+    condition CDATA #IMPLIED
+    fork_on_traversal (true | false) "false"
+>
+<!-- The DESCRIPTOR declaration
+    defines a descriptor for a process definition
+    consists of no elements -->
+<!ELEMENT DESCRIPTOR EMPTY>
+<!-- The attributes of the DESCRIPTOR declaration
+    + id                        The unique model element id of the descriptor
+    + name                      The name of the descriptor
+    + path                      The path of the descriptor -->
+<!ATTLIST DESCRIPTOR
+    id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    path CDATA #REQUIRED
+>
+<!-- The DATA_MAPPING declaration
+    defines a mapping between data and activity
+    consists of the following elements :
+    - 0..n USERDEFINED_PROPERTY -->
+<!ELEMENT DATA_MAPPING (USERDEFINED_PROPERTY*)>
+<!-- The attributes of the DATA_MAPPING declaration
+    + data                      The unique model id of the corresponding data
+    + activity                  The unique model id of the corresponding activity
+    + type                      The type of mapping, possible values are :
+                                - "IN"
+                                - "OUT"
+                                - "INOUT" @deprecated
+    - oid                       The unique object id of the data mapping object
+    - data_in_path              The getter method of the data object to retrieve
+                                the data, can be left empty, if the whole object
+                                is used
+    - application_in_path       The setter method of the application to put the
+                                data to the application, can be the model id with
+                                parentesis e.g. Data1() of the corresponding
+                                data, if the activity is of manual type
+    - data_out_path             The setter method of the data object to put the
+                                retrieved application data to, can be left empty
+    - application_out_path      The getter method of the application to retrieve
+                                the data, can be the model id of data with parentesis
+                                e.g. Data1() of the corresponding data, if
+                                the activity is of manual type
+    - in_parameter_id           The name of the input parameter to use in a complete
+                                method (parameter)mapping e.g. sParam1
+    - out_parameter_id          The name of the output parameter of a complete
+                                method (parameter) mapping e.g. retValue -->
+<!ATTLIST DATA_MAPPING
+    oid ID #REQUIRED
+    data CDATA #REQUIRED
+    activity CDATA #REQUIRED
+    type CDATA #REQUIRED
+    data_in_path CDATA #IMPLIED
+    application_in_path CDATA #IMPLIED
+    data_out_path CDATA #IMPLIED
+    application_out_path CDATA #IMPLIED
+    in_parameter_id CDATA #IMPLIED
+    out_parameter_id CDATA #IMPLIED
+>
+<!-- The TRIGGER_FAX declaration
+    defines a trigger by fax
+    consists of no elements -->
+<!ELEMENT TRIGGER_FAX EMPTY>
+<!-- The attributes of the TRIGGER_FAX declaration
+    + number                    The fax number of the trigger
+    - oid                       The unique object id of the trigger object -->
+<!ATTLIST TRIGGER_FAX
+    number CDATA #REQUIRED
+    oid ID #REQUIRED
+>
+<!-- The TRIGGER_MAIL declaration
+    defines a trigger by mail
+    consists of no elements -->
+<!ELEMENT TRIGGER_MAIL EMPTY>
+<!-- The attributes of the TRIGGER_MAIL declaration
+    + user                      The model id of the corresponding user
+    + password                  The password for the mail account
+    + server                    The mail server name or ip address
+    + protocol                  The mail protocol to use, possible values are :
+                                - "POP"
+                                - "IMAP"
+    + selector_predicate        The predicate for selection
+    - oid                       The unique object id of the trigger object -->
+<!ATTLIST TRIGGER_MAIL
+    user CDATA #REQUIRED
+    password CDATA #REQUIRED
+    server CDATA #REQUIRED
+    protocol CDATA #REQUIRED
+    selector_predicate CDATA #REQUIRED
+    oid ID #REQUIRED
+>
+<!-- The TRIGGER_MANUAL declaration
+    defines a trigger by a participant
+    consists of no elements -->
+<!ELEMENT TRIGGER_MANUAL EMPTY>
+<!-- The attributes of the TRIGGER_MANUAL declaration
+    + participant               The model id of the participant
+    - oid                       The unique object id of the trigger object -->
+<!ATTLIST TRIGGER_MANUAL
+    participant CDATA #REQUIRED
+    oid ID #REQUIRED
+>
+<!-- The TRIGGER_TIMER_BASED declaration
+    defines a trigger by timer
+    consists of no elements -->
+<!ELEMENT TRIGGER_TIMER_BASED EMPTY>
+<!-- The attributes of the TRIGGER_TIMER_BASED declaration
+    + periodicity_type          The type of periodicity, possible values are :
+                                - "Once"
+                                - "Minutely"
+                                - "Hourly"
+                                - "Daily"
+                                - "Monthly"
+    + periodicity_factor        The factor of periodicity
+    + start_time_stamp          The time to start from as time stamp
+    - oid                       The unique object id of the trigger -->
+<!ATTLIST TRIGGER_TIMER_BASED
+    oid ID #REQUIRED
+    periodicity_type CDATA #REQUIRED
+    periodicity_factor CDATA #REQUIRED
+    start_time_stamp CDATA #REQUIRED
+>
+<!-- The NOTIFICATION declaration
+    defines a notification action
+    consists of no elements -->
+<!ELEMENT NOTIFICATION EMPTY>
+<!-- The attributes of the NOTIFICATION declaration
+    + oid                       The unique object id of the notification object
+    + timeout_in_sec            The timeout in sec
+    + notification_action_type  The type of action on notification, possible
+                                values are :
+                                - "Mail"
+                                - "Process Trigger"
+    - receiver                  The model id of the receiver participant
+    - triggered_process_definition
+                                The model id of the process definition to trigger-->
+<!ATTLIST NOTIFICATION
+    oid CDATA #REQUIRED
+    timeout_in_sec CDATA #REQUIRED
+    notification_action_type CDATA #REQUIRED
+    receiver CDATA #IMPLIED
+    triggered_process_definition CDATA #IMPLIED
+>
+<!-- The LINK_TYPE declaration
+    defines a link type @fixme what is a link type ???
+    consists of no elements -->
+<!ELEMENT LINK_TYPE EMPTY>
+<!-- The attributes of the LINK_TYPE declaration
+    + name                      The name of the link type
+    + source_classname          The classname of the source @fixme
+    + source_cardinality        The cardinality to the source
+    + target_classname          The classname of the target
+    + target_cardinality        The cardinality to the target
+    - oid                       The unique object oid of the link type object
+    - source_rolename           The model id of the role of the source
+    - source_symbol             The model id of the source symbol
+    - target_rolename           The model id of the role of the target
+    - target_symbol             The model id of the target symbol
+    - line_color                The color of the line as serialized color
+    - line_type                 The type of the line, possible values are :
+                                - "normal line"
+                                - "short strokes"
+                                - "long strokes"
+    - show_linktype_name        Determines if the name is to be shown
+    - show_role_names           Determines if the names of the roles are to be
+                                shown -->
+<!ATTLIST LINK_TYPE
+    name CDATA #REQUIRED
+    oid ID #REQUIRED
+    source_classname CDATA #REQUIRED
+    source_cardinality CDATA #REQUIRED
+    source_rolename CDATA #IMPLIED
+    source_symbol CDATA #IMPLIED
+    target_classname CDATA #REQUIRED
+    target_cardinality CDATA #REQUIRED
+    target_rolename CDATA #IMPLIED
+    target_symbol CDATA #IMPLIED
+    line_color CDATA #IMPLIED
+    line_type CDATA #IMPLIED
+    show_linktype_name CDATA #IMPLIED
+    show_role_names CDATA #IMPLIED
+>
+<!-- The GENERIC_LINK declaration
+    defines a generic link
+    consists of no elements -->
+<!ELEMENT GENERIC_LINK EMPTY>
+<!-- The attributes of the GENERIC_LINK declaration
+    + id                        The unique model element id of the generic link
+    + link_type                 The model id of the corresponding link type
+    + from                      The model id of the first linked object
+    + to                        The model id of the second linked object
+    - oid                       The object id of the generic link object-->
+<!ATTLIST GENERIC_LINK
+    id CDATA #REQUIRED
+    oid ID #REQUIRED
+    link_type CDATA #REQUIRED
+    from CDATA #REQUIRED
+    to CDATA #REQUIRED
+>
+<!-- The DIAGRAM declaration
+    defines a GUI representation of a process
+    consists of the following elements :
+    - 0..n ACTIVITY_SYMBOL declarations to define symbols for activities
+    - 0..n HUMAN_SYMBOL declarations to define symbols for humans
+    - 0..n ROLE_SYMBOL declarations to define symbols for roles
+    - 0..n CONDITIONAL_PERFORMER_SYMBOL declarations to define symbols for cond. perf.
+    - 0..n ORGANISATION_SYMBOL declarations to define symbols for organisations
+    - 0..n DATA_SYMBOL declarations to define symbols for data
+    - 0..n TEXT_SYMBOL declarations to define symbols for text
+    - 0..n GROUP_SYMBOL declarations to define symbols for grouping
+    - 0..n PROCESS_SYMBOL declarations to define symbols for processes
+    - 0..n APPLICATION_SYMBOL declarations to define symbols for applications
+    - 0..n ANNOTATION_SYMBOL declarations to define symbols for annotations
+    - 0..n DATA_MAPPING_CONNECTION declarations to define symbols for data mappings
+    - 0..n EXECUTED_BY_CONNECTION declarations to define symbols for executed by connections
+    - 0..n PART_OF_CONNECTION declarations to define symbols for part of connections
+    - 0..n PERFORMS_CONNECTION declarations to define symbols for performs connection
+    - 0..n PLAYED_BY_CONNECTION declarations to define symbols for played by connection
+    - 0..n WORKS_FOR_CONNECTION declarations to define symbols for works for connection
+    - 0..n TRANSITION_CONNECTION declarations to define symbols for transition connection
+    - 0..n REFERS_TO_CONNECTION declarations to define symbols for refers to connection
+    - 0..n GENERIC_LINK_CONNECTION declarations to define symbols for generic links
+    - 0..n SUBPROCESS_OF_CONNECTION declarations to define symbols for subprocess of connection-->
+<!ELEMENT DIAGRAM ((ACTIVITY_SYMBOL | HUMAN_SYMBOL | ROLE_SYMBOL |
+    CONDITIONAL_PERFORMER_SYMBOL | ORGANISATION_SYMBOL |
+    DATA_SYMBOL | TEXT_SYMBOL | GROUP_SYMBOL | PROCESS_SYMBOL |
+    APPLICATION_SYMBOL | ANNOTATION_SYMBOL | DATA_MAPPING_CONNECTION |
+    EXECUTED_BY_CONNECTION | PART_OF_CONNECTION | PERFORMS_CONNECTION |
+    PLAYED_BY_CONNECTION | WORKS_FOR_CONNECTION | TRANSITION_CONNECTION |
+    REFERS_TO_CONNECTION | GENERIC_LINK_CONNECTION | SUBPROCESS_OF_CONNECTION)*)>
+<!-- The attributes of the DIAGRAM declaration
+    +name -->
+<!ATTLIST DIAGRAM
+    name CDATA #REQUIRED
+>
+<!-- The ACTIVITY_SYMBOL declaration
+    defines an activity symbol (GUI)
+    consists of no elements -->
+<!ELEMENT ACTIVITY_SYMBOL EMPTY>
+<!-- The attributes of the ACTIVITY_SYMBOL declaration
+    + id                        The unique model element id of the activity symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding activity
+    - oid                       The object id of the activity symbol object -->
+<!ATTLIST ACTIVITY_SYMBOL
+    id CDATA #REQUIRED
+    oid ID #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+<!-- The ANNOTATION_SYMBOL declaration
+    defines an annotation symbol (GUI)
+    consists of the foll owing elements :
+    - 0..1 TEXT declaration to define text elements -->
+<!ELEMENT ANNOTATION_SYMBOL (TEXT?)>
+<!-- The attributes of the ANNOTATION_SYMBOL declaration
+    + id                        The unique model element id of the annotation symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram -->
+<!ATTLIST ANNOTATION_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+>
+<!-- The TEXT declaration
+    defines a text element
+    consists of no elements -->
+<!ELEMENT TEXT (#PCDATA)>
+<!-- The HUMAN_SYMBOL declaration
+    defines a human symbol (GUI)
+    consists of no elements -->
+<!ELEMENT HUMAN_SYMBOL EMPTY>
+<!-- The attributes of the HUMAN_SYMBOL declaration
+    + id                        The unique model element id of the human symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding human -->
+<!ATTLIST HUMAN_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+<!-- The ROLE_SYMBOL declaration
+    defines a role symbol (GUI)
+    consists of no elements -->
+<!ELEMENT ROLE_SYMBOL EMPTY>
+<!-- The attributes of the ROLE_SYMBOL declaration
+    + id                        The unique model element id of the role symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding role -->
+<!ATTLIST ROLE_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+<!-- The CONDITIONAL_PERFORMER_SYMBOL declaration
+    defines a conditional performer symbol (GUI)
+    consists of no elements -->
+<!ELEMENT CONDITIONAL_PERFORMER_SYMBOL EMPTY>
+<!-- The attributes of the CONDITIONAL_PERFORMER_SYMBOL declaration
+    + id                        The unique model element id of the ~
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding cond. perf. -->
+<!ATTLIST CONDITIONAL_PERFORMER_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+<!-- The ORGANISATION_SYMBOL declaration
+    defines an organisation symbol (GUI)
+    consists of no elements -->
+<!ELEMENT ORGANISATION_SYMBOL EMPTY>
+<!-- The attributes of the ORGANISATION_SYMBOL declaration
+    + id                        The unique model element id of the organisation symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding organisation -->
+<!ATTLIST ORGANISATION_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+<!-- The DATA_SYMBOL declaration
+    defines a data symbol (GUI)
+    consists of no elements -->
+<!ELEMENT DATA_SYMBOL EMPTY>
+<!-- The attributes of the DATA_SYMBOL declaration
+    + id                        The unique model element id of the data symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding data -->
+<!ATTLIST DATA_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+<!-- The TEXT_SYMBOL declaration
+    defines a text symbol (GUI)
+    consists of no elements -->
+<!ELEMENT TEXT_SYMBOL EMPTY>
+<!-- The attributes of the TEXT_SYMBOL declaration
+    + id                        The unique model element id of the text symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + text                      The model id of the corresponding text -->
+<!ATTLIST TEXT_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    text CDATA #REQUIRED
+>
+<!-- The GROUP_SYMBOL declaration
+    defines a group symbol (GUI)
+    consists of the following elements :
+    - 0..n ACTIVITY_SYMBOL declarations to define activity symbols
+    - 0..n HUMAN_SYMBOL declarations to define human symbols
+    - 0..n ROLE_SYMBOL declarations to define role symbols
+    - 0..n CONDITIONAL_PERFORMER_SYMBOL declarations to define cond. perf. symbols
+    - 0..n ORGANISATION_SYMBOL declarations to define organisation symbols
+    - 0..n DATA_SYMBOL declarations to define data symbols
+    - 0..n TEXT_SYMBOL declarations to define text symbols
+    - 0..n GROUP_SYMBOL declarations to define group symbols
+    - 0..n PROCESS_SYMBOL declarations to define process symbols
+    - 0..n APPLICATION_SYMBOL declarations to define application symbols
+    - 0..n ANNOTATION_SYMBOL declarations to define annotation symbols
+    - 0..n DATA_MAPPING_CONNECTION declarations to define data mapping connections
+    - 0..n EXECUTED_BY_CONNECTION declarations to define executed by connections
+    - 0..n PART_OF_CONNECTION declarations to define part of connections
+    - 0..n PERFORMS_CONNECTION declarations to define performs connections
+    - 0..n PLAYED_BY_CONNECTION declarations to define played by connections
+    - 0..n WORKS_FOR_CONNECTION declarations to define works for connections
+    - 0..n TRANSITION_CONNECTION declarations to define transition connections
+    - 0..n REFERS_TO_CONNECTION declarations to define refers to connections
+    - 0..n GENERIC_LINK_CONNECTION declarations to define generic link connections -->
+<!ELEMENT GROUP_SYMBOL (
+    (ACTIVITY_SYMBOL |
+     HUMAN_SYMBOL |
+     ROLE_SYMBOL |
+     CONDITIONAL_PERFORMER_SYMBOL |
+     ORGANISATION_SYMBOL |
+     DATA_SYMBOL |
+     TEXT_SYMBOL |
+     GROUP_SYMBOL |
+     PROCESS_SYMBOL |
+     APPLICATION_SYMBOL |
+     ANNOTATION_SYMBOL |
+     DATA_MAPPING_CONNECTION |
+     EXECUTED_BY_CONNECTION |
+     PART_OF_CONNECTION |
+     PERFORMS_CONNECTION |
+     PLAYED_BY_CONNECTION |
+     WORKS_FOR_CONNECTION |
+     TRANSITION_CONNECTION |
+     REFERS_TO_CONNECTION |
+     GENERIC_LINK_CONNECTION
+    )*)>
+<!-- The PROCESS_SYMBOL declaration
+    defines a process symbol (GUI)
+    consists of no elements -->
+<!ELEMENT PROCESS_SYMBOL EMPTY>
+<!-- The attributes of the PROCESS_SYMBOL declaration
+    + id                        The unique model element id of the process symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding process -->
+<!ATTLIST PROCESS_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+<!-- The APPLICATION_SYMBOL declaration
+    defines an application symbol (GUI)
+    consists of no elements -->
+<!ELEMENT APPLICATION_SYMBOL EMPTY>
+<!-- The attributes of the APPLICATION_SYMBOL declaration
+    + id                        The unique model element id of the application symbol
+    + x                         The x position in diagram
+    + y                         The y position in diagram
+    + refer                     The model id of the corresponding application -->
+<!ATTLIST APPLICATION_SYMBOL
+    id CDATA #REQUIRED
+    x CDATA #REQUIRED
+    y CDATA #REQUIRED
+    refer CDATA #REQUIRED
+>
+<!-- The TRANSITION_CONNECTION declaration
+    defines a transition connection (GUI)
+    consists of no elements -->
+<!ELEMENT TRANSITION_CONNECTION EMPTY>
+<!-- The attributes of the TRANSITION_CONNECTION declaration
+    + id                        The unique model element id of the transition connection
+    + source_activity_symbol    The model id of the first activity
+    + target_activity_symbol    The model id of the second activity
+    + transition                The model id of the corresponding transition -->
+<!ATTLIST TRANSITION_CONNECTION
+    id CDATA #REQUIRED
+    source_activity_symbol CDATA #REQUIRED
+    target_activity_symbol CDATA #REQUIRED
+    transition CDATA #REQUIRED
+>
+<!-- The GENERIC_LINK_CONNECTION declaration
+    defines a generic link connection (GUI)
+    consists of no elements -->
+<!ELEMENT GENERIC_LINK_CONNECTION EMPTY>
+<!-- The attributes of the GENERIC_LINK_CONNECTION declaration
+    + id                        The unique model element id of the generic link connection
+    + source_symbol             The model id of the first linked element
+    + target_symbol             The model id of the second linked element
+    + link_type                 The model id of the corresponding link type -->
+<!ATTLIST GENERIC_LINK_CONNECTION
+    id CDATA #REQUIRED
+    source_symbol CDATA #REQUIRED
+    target_symbol CDATA #REQUIRED
+    link_type CDATA #REQUIRED
+>
+<!-- The DATA_MAPPING_CONNECTION declaration
+    defines a data mapping connection (GUI)
+    consists of no elements s-->
+<!ELEMENT DATA_MAPPING_CONNECTION EMPTY>
+<!-- The attributes of the DATA_MAPPING_CONNECTION declaration
+    + id                        The unique model element id of the data mapping connection
+    + data_symbol               The model id of the corresponding data symbol
+    + activity_symbol           The model id of the corresponding activity symbol -->
+<!ATTLIST DATA_MAPPING_CONNECTION
+    id CDATA #REQUIRED
+    data_symbol CDATA #REQUIRED
+    activity_symbol CDATA #REQUIRED
+>
+<!-- The EXECUTED_BY_CONNECTION declaration
+    defines an executed by connection (GUI)
+    consists of no elements -->
+<!ELEMENT EXECUTED_BY_CONNECTION EMPTY>
+<!-- The attributes of the EXECUTED_BY_CONNECTION declaration
+    + id                        The unique model element id of the executed by connection
+    + application_symbol        The model id of the corresponding application symbol
+    + activity_symbol           The model id of the corresponding activity symbol -->
+<!ATTLIST EXECUTED_BY_CONNECTION
+    id CDATA #REQUIRED
+    application_symbol CDATA #REQUIRED
+    activity_symbol CDATA #REQUIRED
+>
+<!-- The PART_OF_CONNECTION declaration
+    defines a part of connection (GUI)
+    consists of no elements -->
+<!ELEMENT PART_OF_CONNECTION EMPTY>
+<!-- The attributes of the PART_OF_CONNECTION declaration
+    + id                        The unique model element id of the part of connection
+    + suborganisation_symbol    The model id of the sub organisation symbol
+    + organisation_symbol       The model id of the organisation symbol -->
+<!ATTLIST PART_OF_CONNECTION
+    id CDATA #REQUIRED
+    suborganisation_symbol CDATA #REQUIRED
+    organisation_symbol CDATA #REQUIRED
+>
+<!-- The SUBPROCESS_OF_CONNECTION declaration
+    defines a subprocess of connection (GUI)
+    consists of no elements -->
+<!ELEMENT SUBPROCESS_OF_CONNECTION EMPTY>
+<!-- The attributes of the SUBPROCESS_OF_CONNECTION declaration
+    + id                        The unique model element id of the subprocess of connection
+    + subprocess_symbol         The model id of the subprocess symbol
+    + process_symbol            The model id of the process symbol -->
+<!ATTLIST SUBPROCESS_OF_CONNECTION
+    id CDATA #REQUIRED
+    subprocess_symbol CDATA #REQUIRED
+    process_symbol CDATA #REQUIRED
+>
+<!-- The REFERS_TO_CONNECTION declaration
+    defines a refers to connection (GUI)
+    consists of no elements -->
+<!ELEMENT REFERS_TO_CONNECTION EMPTY>
+<!-- The attributes of the REFERS_TO_CONNECTION declaration
+    + id                        The unique model element id of the refers to connection
+    + from                      The model id of the first element symbol
+    + to                        The model id of the second element symbol -->
+<!ATTLIST REFERS_TO_CONNECTION
+    id CDATA #REQUIRED
+    from CDATA #REQUIRED
+    to CDATA #REQUIRED
+>
+<!-- The WORKS_FOR_CONNECTION declaration
+    defines a works for connection (GUI)
+    consists of no elements -->
+<!ELEMENT WORKS_FOR_CONNECTION EMPTY>
+<!-- The attributes of the WORKS_FOR_CONNECTION declaration
+    + id                        The unique model element id of the works for connection
+    + participant_symbol        The model id of the participant symbol
+    + organisation_symbol       The model id of the organisation symbol -->
+<!ATTLIST WORKS_FOR_CONNECTION
+    id CDATA #REQUIRED
+    participant_symbol CDATA #REQUIRED
+    organisation_symbol CDATA #REQUIRED
+>
+<!-- The PERFORMS_CONNECTION declaration
+    defines a performs connection (GUI)
+    consists of no elements -->
+<!ELEMENT PERFORMS_CONNECTION EMPTY>
+<!-- The attributes of the PERFORMS_CONNECTION declaration
+    + id                        The unique model element id of the performs connection
+    + participant_symbol        The model id of the participant symbol
+    + activity_symbol           The model id of the activity symbol -->
+<!ATTLIST PERFORMS_CONNECTION
+    id CDATA #REQUIRED
+    participant_symbol CDATA #REQUIRED
+    activity_symbol CDATA #REQUIRED
+>
+<!-- The PLAYED_BY_CONNECTION declaration
+    defines a played by connection (GUI)
+    consists of no elements -->
+<!ELEMENT PLAYED_BY_CONNECTION EMPTY>
+<!-- The attributes of the PLAYED_BY_CONNECTION declaration
+    + id                        The unique model element id of the played by connection
+    + role_symbol               The model id of the role symbol
+    + human_symbol              The model id of the human symbol -->
+<!ATTLIST PLAYED_BY_CONNECTION
+    id CDATA #REQUIRED
+    role_symbol CDATA #REQUIRED
+    human_symbol CDATA #REQUIRED
+>

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<ivy-module version="2.0"
+   xmlns:m="http://ant.apache.org/ivy/maven"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+   <info organisation="com.infinity.bpm" module="carnot-spring-module"
+      revision="${ipp.version.full}" />
+
+   <configurations>
+      <conf name="spring-module-compile" extends="spring-provider-compile" description="IPP Engine - Spring Module - Compile Scope" />
+      <conf name="spring-module-runtime" extends="spring-module-compile" description="IPP Engine - Spring Module - Runtime Scope" />
+      <conf name="spring-module-provided" description="IPP Engine - Spring Module - Provided Scope" />
+   
+      <conf name="client-spring-module-runtime" description="IPP Engine - Spring Module for Client environments"/>
+      
+      <conf name="spring-provider-compile" visibility="private" />
+      
+      <conf name="module-pom" description="IPP Module POMs" />
+   </configurations>
+
+   <publications>
+      <artifact name="spring-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="client-spring-module" type="pom" conf="module-pom" ext="pom" />
+   </publications>
+
+   <dependencies>
+      <dependency org="com.infinity.bpm" name="carnot-spring" rev="${ipp.version.full}" conf="client-spring-module-runtime,spring-provider-compile->carnot-spring-compile">
+         <exclude org="rhino" module="js" />
+      </dependency>
+      <!-- spring-provider-compile -->
+      <dependency org="org.springframework" name="spring" rev="2.5.6" conf="spring-provider-compile->default">
+         <exclude org="org.springframework" module="spring-beans"/>
+         <exclude org="org.springframework" module="spring-context"/>
+         <exclude org="org.springframework" module="spring-context-support"/>
+         <exclude org="org.springframework" module="spring-core"/>
+         <exclude org="org.springframework" module="spring-web"/>
+      </dependency>
+      <dependency org="org.springframework" name="spring-webmvc" rev="2.5.6" conf="spring-provider-compile->default">
+         <exclude org="aopalliance" module="aopalliance"/>
+         <exclude org="org.springframework" module="spring-beans"/>
+         <exclude org="org.springframework" module="spring-context"/>
+         <exclude org="org.springframework" module="spring-context-support"/>
+         <exclude org="org.springframework" module="spring-core"/>
+         <exclude org="org.springframework" module="spring-web"/>
+      </dependency>
+      <!-- spring-web is included in spring.jar but in some deployment scenarios we need this JAR in
+           WEB-INF/lib instead of spring.jar. -->
+      <dependency org="org.springframework" name="spring-web" rev="2.5.6" conf="spring-module-provided->default">
+         <exclude org="org.springframework" module="spring-beans"/>
+         <exclude org="org.springframework" module="spring-context"/>
+         <exclude org="org.springframework" module="spring-context-support"/>
+         <exclude org="org.springframework" module="spring-core"/>
+         <exclude org="commons-logging" module="commons-logging"/>
+      </dependency>
+      
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->client-module-runtime,logging-log4j-module-runtime">
+         <exclude org="rhino" module="js" />
+      </dependency>
+      
+   </dependencies>
+</ivy-module>

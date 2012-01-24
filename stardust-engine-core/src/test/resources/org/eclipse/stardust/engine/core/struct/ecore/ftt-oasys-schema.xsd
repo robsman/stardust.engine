@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by Franklin Templeton Investments (Franklin Templeton Investments) -->
+<xs:schema xmlns="http://middleware.frk.com/Schemas/Onetis/1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://middleware.frk.com/Schemas/Onetis/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="ftt-type-schema.xsd"/>
+	<xs:element name="ODHeader" type="OasysDirectHeader_Type"/>
+	<xs:complexType name="OasysDirectHeader_Type">
+		<xs:complexContent>
+			<xs:extension base="OasysDirectHeaderBase_Type">
+				<xs:attribute name="TransType" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="NEW"/>
+							<xs:enumeration value="CANCEL"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="Sender" type="OasysAcronym_Type" use="required"/>
+				<xs:attribute name="SendDate" type="DateTime_t" use="required"/>
+				<xs:attribute name="InternalReference" type="xs:string" use="required"/>
+				<xs:attribute name="ReferenceId" type="ReferenceId_t" use="required"/>
+				<xs:attribute name="StepinStartRef" type="ReferenceId_t" use="optional"/>
+				<xs:attribute name="Version" type="xs:nonNegativeInteger" use="required"/>
+				<xs:attribute name="InstitutionId" type="xs:nonNegativeInteger" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="EquityBlock_Type">
+		<xs:complexContent>
+			<xs:extension base="CommonBlock_Type">
+				<xs:sequence>
+					<xs:element name="Allocations">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="EquityAlloc" type="EquityAlloc_Type" maxOccurs="unbounded"/>
+							</xs:sequence>
+							<xs:attribute name="TotNumberAllocs" type="xs:nonNegativeInteger" use="optional"/>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CTMBroker_Type">
+		<xs:complexContent>
+			<xs:extension base="Broker_Type">
+				<xs:attribute name="Role" use="required">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="Executing"/>
+							<xs:enumeration value="Credit"/>
+							<xs:enumeration value="Custodian"/>
+							<xs:enumeration value="StepIn"/>
+							<xs:enumeration value="StepOut"/>
+							<xs:enumeration value="Sub"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="TimeZone_Type">
+		<xs:attribute name="TimeZoneQualifier" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="Greenwich"/>
+					<xs:enumeration value="Local"/>
+					<xs:enumeration value="PlaceOfTrade"/>
+					<xs:enumeration value="Specific"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="CountryCode" type="xs:string" use="optional"/>
+		<xs:attribute name="TimeZoneIndicator" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="CommonBlock_Type">
+		<xs:annotation>
+			<xs:documentation>Base Definition for Block</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Instrument" type="Instrument_Type"/>
+			<xs:element name="Broker">
+				<xs:complexType>
+					<xs:complexContent>
+						<xs:extension base="CTMBroker_Type"/>
+					</xs:complexContent>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+		<xs:attribute name="TraderId" type="xs:string" use="optional"/>
+		<xs:attribute name="TradeDesk" type="xs:string" use="optional"/>
+		<xs:attribute name="Side" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="Sell"/>
+					<xs:enumeration value="Buy"/>
+					<xs:enumeration value="Cover"/>
+					<xs:enumeration value="Short"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="TradeDate" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:date"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="StlDate" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:date"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Units" type="xs:decimal" use="required"/>
+		<xs:attribute name="UnitPrice" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:decimal"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="PrincipalAmt" type="xs:decimal" use="optional"/>
+		<xs:attribute name="NetAmt" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:decimal"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="CommRate" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:decimal"/>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="FixedBlock_Type">
+		<xs:complexContent>
+			<xs:extension base="CommonBlock_Type">
+				<xs:sequence>
+					<xs:element name="Allocations">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:element name="FixedAlloc" type="FixedAlloc_Type" maxOccurs="unbounded"/>
+							</xs:sequence>
+							<xs:attribute name="TotNumAllocs" type="xs:nonNegativeInteger" use="optional"/>
+						</xs:complexType>
+					</xs:element>
+				</xs:sequence>
+				<xs:attribute name="isTBA" type="xs:boolean"/>
+				<xs:attribute name="AcrdIntAmt" type="xs:decimal"/>
+				<xs:attribute name="OrigFace" type="xs:decimal"/>
+				<xs:attribute name="isTriParty" type="xs:boolean"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CommonAlloc_Type" abstract="true">
+		<xs:annotation>
+			<xs:documentation>Base Definition For Allocation</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Acct" type="Acct_Type"/>
+		</xs:sequence>
+		<xs:attribute name="Id" type="xs:string" use="required"/>
+		<xs:attribute name="Units" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:decimal"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="NetAmt" use="optional">
+			<xs:simpleType>
+				<xs:restriction base="xs:decimal"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="PrincipalAmt" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:decimal"/>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="CommAmt" type="xs:decimal" use="optional"/>
+		<xs:attribute name="isSoftDollar" type="xs:boolean" use="optional"/>
+		<xs:attribute name="AllocNum" type="xs:unsignedInt" use="optional"/>
+		<xs:attribute name="CommReasonCd" type="BrokerReason_t" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="EquityAlloc_Type">
+		<xs:annotation>
+			<xs:documentation>Equity Allocation Type</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="CommonAlloc_Type">
+				<xs:sequence minOccurs="0">
+					<xs:element name="AlertSettlement" type="AlertSettlement_Type" minOccurs="0"/>
+				</xs:sequence>
+				<xs:attribute name="isStepout" type="xs:boolean" use="optional"/>
+				<xs:attribute name="Tax" type="xs:decimal" use="optional"/>
+				<xs:attribute name="Fees" type="xs:decimal" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="FixedAlloc_Type">
+		<xs:annotation>
+			<xs:documentation>Fixed Income Allocation Type</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="CommonAlloc_Type">
+				<xs:sequence>
+					<xs:element name="AlertSettlement" type="AlertSettlement_Type" minOccurs="0"/>
+				</xs:sequence>
+				<xs:attribute name="Fees" type="xs:decimal" use="optional"/>
+				<xs:attribute name="AcrdIntAmt" type="xs:decimal" use="optional"/>
+				<xs:attribute name="OrigFace" type="xs:decimal" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:simpleType name="OasysAcronym_Type">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="OasysBrokerId_Type">
+		<xs:restriction base="xs:nonNegativeInteger"/>
+	</xs:simpleType>
+	<xs:complexType name="OasysDirectStepoutHeader_Type">
+		<xs:complexContent>
+			<xs:extension base="OasysDirectHeaderBase_Type"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="OasysDirectHeaderBase_Type">
+		<xs:attribute name="Receiver" type="OasysAcronym_Type" use="optional"/>
+		<xs:attribute name="BrokerId" type="OasysBrokerId_Type" use="optional"/>
+		<xs:attribute name="Dest" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="OASYS"/>
+					<xs:enumeration value="TRADEMATCH"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+	</xs:complexType>
+	<xs:complexType name="Stepin_Type">
+		<xs:attribute name="StepoutFrom" type="OasysAcronym_Type" use="required"/>
+		<xs:attribute name="StepoutVersion" type="xs:unsignedLong" use="required"/>
+		<xs:attribute name="StepoutReference" type="xs:unsignedLong" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="Reply_Type">
+		<xs:attribute name="Status" type="xs:string" use="required"/>
+		<xs:attribute name="Comment" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:simpleType name="AgentId_t">
+		<xs:restriction base="xs:nonNegativeInteger"/>
+	</xs:simpleType>
+	<xs:simpleType name="AgentAcct_t">
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="12"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="Agent_t">
+		<xs:attribute name="Id" type="AgentId_t" use="required"/>
+		<xs:attribute name="Acct" type="AgentAcct_t" use="required"/>
+	</xs:complexType>
+	<xs:simpleType name="DateTime_t">
+		<xs:restriction base="xs:dateTime"/>
+	</xs:simpleType>
+	<xs:simpleType name="BrokerReason_t">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Directed"/>
+			<xs:enumeration value="Execution"/>
+			<xs:enumeration value="Research"/>
+			<xs:enumeration value="Service"/>
+			<xs:enumeration value="Principal"/>
+			<xs:enumeration value="Other"/>
+			<xs:enumeration value="Mutual"/>
+			<xs:enumeration value="Underwriting"/>
+			<xs:enumeration value="Pricing"/>
+			<xs:enumeration value="Reserved"/>
+			<xs:enumeration value="Custody"/>
+			<xs:enumeration value="Fund"/>
+			<xs:enumeration value="Analysis"/>
+			<xs:enumeration value="OTC"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ReferenceId_t">
+		<xs:restriction base="xs:long">
+			<xs:totalDigits value="8"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="AlertSettlement_Type">
+		<xs:attribute name="CountryCode" type="xs:string" use="optional"/>
+		<xs:attribute name="MethodType" type="xs:string" use="optional"/>
+		<xs:attribute name="SecurityType" type="xs:string" use="optional"/>
+	</xs:complexType>
+</xs:schema>

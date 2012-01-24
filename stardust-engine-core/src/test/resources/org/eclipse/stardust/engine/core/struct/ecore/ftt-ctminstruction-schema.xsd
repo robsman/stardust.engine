@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 sp2 U (http://www.altova.com) by Franklin Templeton Investments (Franklin Templeton Investments) -->
+<xs:schema xmlns="http://middleware.frk.com/Schemas/Onetis/1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://middleware.frk.com/Schemas/Onetis/1.0" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:include schemaLocation="ftt-oasys-schema.xsd"/>
+	<xs:element name="CTMInstruction">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="CTMHeader" type="CTMHeader_Type"/>
+				<xs:choice>
+					<xs:element name="EquityBlock">
+						<xs:complexType>
+							<xs:complexContent>
+								<xs:extension base="CTMEquityBlock_Type"/>
+							</xs:complexContent>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="FixedBlock">
+						<xs:complexType>
+							<xs:complexContent>
+								<xs:extension base="CTMFixedBlock_Type"/>
+							</xs:complexContent>
+						</xs:complexType>
+					</xs:element>
+				</xs:choice>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="CTMEquityBlock_Type">
+		<xs:annotation>
+			<xs:documentation>Base Definition of Equity Block</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="EquityBlock_Type">
+				<xs:attribute name="TotalComm" type="xs:decimal" use="optional"/>
+				<xs:attribute name="TotalFees" type="xs:decimal" use="optional"/>
+				<xs:attribute name="TradeCurrency" type="xs:string" use="required"/>
+				<xs:attribute name="TotalTax" type="xs:decimal" use="optional"/>
+				<xs:attribute name="CommissionBasisIndicator" use="optional">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="Flat"/>
+							<xs:enumeration value="Percent"/>
+							<xs:enumeration value="RatePerShare"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="CommissionType" use="optional">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="Executing"/>
+							<xs:enumeration value="Local"/>
+							<xs:enumeration value="Special"/>
+							<xs:enumeration value="Total"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="TaxType" type="xs:string" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="CTMHeader_Type">
+		<xs:attribute name="TransType" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="New"/>
+					<xs:enumeration value="Update"/>
+					<xs:enumeration value="Cancel"/>
+					<xs:enumeration value="Replace"/>
+					<xs:enumeration value="Undo"/>
+					<xs:enumeration value="Inactive"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="Version" type="xs:nonNegativeInteger" use="required"/>
+		<xs:attribute name="MatchProfile" type="xs:string" use="optional"/>
+		<xs:attribute name="Sender" type="OasysAcronym_Type" use="required"/>
+		<xs:attribute name="SenderType" use="required">
+			<xs:simpleType>
+				<xs:restriction base="xs:string">
+					<xs:enumeration value="BIC"/>
+					<xs:enumeration value="OasysAcronymn"/>
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute name="SenderName" type="xs:string" use="optional"/>
+		<xs:attribute name="ReferenceId" type="xs:string" use="required"/>
+	</xs:complexType>
+	<xs:complexType name="CTMFixedBlock_Type">
+		<xs:annotation>
+			<xs:documentation>Base Definition of Fixed Income Block</xs:documentation>
+		</xs:annotation>
+		<xs:complexContent>
+			<xs:extension base="FixedBlock_Type">
+				<xs:attribute name="CommissionBasisIndicator" use="optional">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="Flat"/>
+							<xs:enumeration value="Percent"/>
+							<xs:enumeration value="RatePerShare"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="CommissionType" use="optional">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="Executing"/>
+							<xs:enumeration value="Local"/>
+							<xs:enumeration value="Special"/>
+							<xs:enumeration value="Total"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+				<xs:attribute name="TradeCurrency" type="xs:string" use="required"/>
+				<xs:attribute name="TotalComm" type="xs:decimal" use="optional"/>
+				<xs:attribute name="TotalFees" type="xs:decimal" use="optional"/>
+				<xs:attribute name="TotalTax" type="xs:decimal" use="optional"/>
+				<xs:attribute name="AccDays" type="xs:integer" use="optional"/>
+				<xs:attribute name="CurrentFace" type="xs:decimal" use="optional"/>
+				<xs:attribute name="CallDate" type="xs:date" use="optional"/>
+				<xs:attribute name="TaxType" use="optional">
+					<xs:simpleType>
+						<xs:restriction base="xs:string">
+							<xs:enumeration value="Fees"/>
+							<xs:enumeration value="Local"/>
+							<xs:enumeration value="Levy"/>
+							<xs:enumeration value="Regulatory"/>
+							<xs:enumeration value="Ship"/>
+							<xs:enumeration value="Stamp"/>
+						</xs:restriction>
+					</xs:simpleType>
+				</xs:attribute>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+</xs:schema>

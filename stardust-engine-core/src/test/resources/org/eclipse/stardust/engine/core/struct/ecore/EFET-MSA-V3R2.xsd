@@ -1,0 +1,21 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<xsd:schema xmlns:xsd = "http://www.w3.org/2001/XMLSchema" 
+	xmlns:ecc = "http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd"
+	 elementFormDefault = "qualified">
+	<xsd:include schemaLocation="EFET-CoreElements-V3R2.xsd"/>
+	<xsd:import 
+		namespace = "http://www.efet.org/ecm/schemas/v3r2/EFET-CoreCmpts-V3R2.xsd" 
+		schemaLocation = "EFET-CoreCmpts-V3R2.xsd"/>
+	<!-- EFET Trade Match Suggestion Accepted Document Version 3 release 2 -->
+	<!--______________________________________-->
+	
+	<xsd:element name = "MatchSuggestionAcceptance">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:group ref="DocumentHeader"/>
+				<xsd:element name = "MatchSuggestionDocumentID" type = "ecc:IdentificationType"/>
+			</xsd:sequence>
+			<xsd:attributeGroup ref = "ecc:SchemaDescription"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema> 

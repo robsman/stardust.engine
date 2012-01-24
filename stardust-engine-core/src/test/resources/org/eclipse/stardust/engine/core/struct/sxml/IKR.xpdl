@@ -1,0 +1,2530 @@
+@@ -0,0 +0,2528 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2002/XPDL1.0" xsi:schemaLocation="http://www.wfmc.org/2002/XPDL1.0 http://wfmc.org/standards/docs/TC-1025_schema_10_xpdl.xsd" Id="IKR-TEST" Name="IKR-TEST">
++<PackageHeader>
++<XPDLVersion>1.0</XPDLVersion>
++<Vendor>CARNOT AG</Vendor>
++<Created>Wed Aug 10 16:42:34 CEST 2005</Created>
++</PackageHeader>
++<RedefinableHeader PublicationStatus="UNDER_REVISION">
++<Author>hneureiter</Author>
++</RedefinableHeader>
++<ConformanceClass GraphConformance="NON_BLOCKED"/>
++<xpdl:Script xmlns:xpdl="http://www.wfmc.org/2002/XPDL1.0" xmlns="http://www.carnot.ag/workflowmodel/3.1" Type="text/ecmascript"/>
++<xpdl:TypeDeclarations xmlns:xpdl="http://www.wfmc.org/2002/XPDL1.0"/>
++<Participants>
++<Participant Id="Administrator" Name="Administrator">
++<ParticipantType Type="ROLE"/>
++<Description>In charge of all workflow administration activities.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Role Oid="10003"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Participant>
++<Participant Id="Kreditantragsbearbeiter" Name="Kreditantragsbearbeiter">
++<ParticipantType Type="ROLE"/>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Role Oid="10750"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Participant>
++<Participant Id="ConditionalPerformer" Name="ConditionalPerformer">
++<ParticipantType Type="ROLE"/>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:ConditionalPerformer Oid="10758" DataId="ROLLE"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Participant>
++</Participants>
++<Applications>
++<Application Id="BEARBEITEN" Name="Bearbeiten">
++<ExternalReference location="ag.carnot.workflow.model.IApplication" xref="INTERACTIVE"/>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Application Oid="10768" IsInteractive="true">
++<carnot:ApplicationContexts>
++<carnot:ApplicationContext Oid="12324" Type="jsp">
++<carnot:AccessPoints/>
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:webex:htmlPath" Value="Test"/>
++</carnot:Attributes>
++</carnot:ApplicationContext>
++</carnot:ApplicationContexts>
++<carnot:AccessPoints/>
++</carnot:Application>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Application>
++<Application Id="KOMPETENZ" Name="Kompetenz">
++<ExternalReference location="ag.carnot.workflow.model.IApplication" xref="INTERACTIVE"/>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Application Oid="10772" IsInteractive="true">
++<carnot:ApplicationContexts>
++<carnot:ApplicationContext Oid="12325" Type="jsp">
++<carnot:AccessPoints/>
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:webex:htmlPath" Value="Test"/>
++</carnot:Attributes>
++</carnot:ApplicationContext>
++</carnot:ApplicationContexts>
++<carnot:AccessPoints/>
++</carnot:Application>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Application>
++<Application Id="ENTSCHEIDEN" Name="Entscheiden">
++<ExternalReference location="ag.carnot.workflow.model.IApplication" xref="INTERACTIVE"/>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Application Oid="10774" IsInteractive="true">
++<carnot:ApplicationContexts>
++<carnot:ApplicationContext Oid="12326" Type="jsp">
++<carnot:AccessPoints/>
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:webex:htmlPath" Value="Test"/>
++</carnot:Attributes>
++</carnot:ApplicationContext>
++</carnot:ApplicationContexts>
++<carnot:AccessPoints/>
++</carnot:Application>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Application>
++</Applications>
++<DataFields>
++<DataField Id="PROCESS_ID" Name="Process OID" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<Description>ID assigned to the current process.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10006" Type="primitive" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="long" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="ROOT_PROCESS_ID" Name="Root Process OID" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<Description>ID assigned to the root process of the current process.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10007" Type="primitive" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="long" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="CURRENT_DATE" Name="Current Date" IsArray="FALSE">
++<DataType>
++<BasicType Type="DATETIME"/>
++</DataType>
++<Description>Current Date.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10008" Type="primitive" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="CURRENT_LOCALE" Name="Current Locale" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>String representing the current locale.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10009" Type="primitive" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="LAST_ACTIVITY_PERFORMER" Name="Last Activity Performer" IsArray="FALSE">
++<DataType>
++<ExternalReference location="ag.carnot.workflow.runtime.beans.IUser"/>
++</DataType>
++<Description>User performing the last activity of the current process.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10778" Type="entity" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:homeInterface" Value="ag.carnot.workflow.runtime.UserHome"/>
++<carnot:Attribute Name="carnot:engine:isLocal" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:jndiPath" Value="ag.carnot.workflow.runtime.User"/>
++<carnot:Attribute Name="carnot:engine:primaryKey" Value="ag.carnot.workflow.runtime.UserPK"/>
++<carnot:Attribute Name="carnot:engine:remoteInterface" Value="ag.carnot.workflow.runtime.beans.IUser"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="STARTING_USER" Name="Starting User" IsArray="FALSE">
++<DataType>
++<ExternalReference location="ag.carnot.workflow.runtime.beans.IUser"/>
++</DataType>
++<Description>User starting the current process.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10780" Type="entity" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:homeInterface" Value="ag.carnot.workflow.runtime.UserHome"/>
++<carnot:Attribute Name="carnot:engine:isLocal" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:jndiPath" Value="ag.carnot.workflow.runtime.User"/>
++<carnot:Attribute Name="carnot:engine:primaryKey" Value="ag.carnot.workflow.runtime.UserPK"/>
++<carnot:Attribute Name="carnot:engine:remoteInterface" Value="ag.carnot.workflow.runtime.beans.IUser"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="ROUTE_FLAG" Name="Route-Flag" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<InitialValue>forward</InitialValue>
++<Description>Steuerungs-Flag:
++Bestimmt den Ablauf im Antragsprozess.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10782" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="forward"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="VB_VNAME" Name="Vorges. Berbeiter Vorname" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Vorname des vorgesehenen Bearbeiters</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10784" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="KN_NAME" Name="KN-Name" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Name des Kreditnehmers</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10786" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="STAMMNR" Name="Stammnummer" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Stammnummer</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10788" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="ANTRAG_ID" Name="Antrags-ID" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<InitialValue>0</InitialValue>
++<Description>Interne Verwendung:
++Antrags-ID des IKR-Prozess.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10790" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="0"/>
++<carnot:Attribute Name="carnot:engine:type" Value="long" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="RATING_ID" Name="Rating-ID" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<InitialValue>0</InitialValue>
++<Description>Intene Verwendung:
++Rating-ID des Bonitaetsprozess.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10792" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="0"/>
++<carnot:Attribute Name="carnot:engine:type" Value="long" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="AUFGABENTYP" Name="Aufgabentyp" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<InitialValue>0</InitialValue>
++<Description>Interne Verwendung:
++Eindeutige Nummer der Aufgabe</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10794" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="0"/>
++<carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="IKR_FLAG" Name="IKR-Flag" IsArray="FALSE">
++<DataType>
++<BasicType Type="BOOLEAN"/>
++</DataType>
++<InitialValue>false</InitialValue>
++<Description>Steuerungs-Flag:
++Wenn der Bonitaetsprocess von IKR gestartet wird, wird bei einer notwendigen Nachbearbeitung der Prozess an IKR zurueckgegeben. Nur wenn Boris den Prozess selbst gestartet hat erfolgt die Nachbearbeitung auch in Boris.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10796" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="false"/>
++<carnot:Attribute Name="carnot:engine:type" Value="boolean" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="STATUS" Name="Status" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<InitialValue>0</InitialValue>
++<Description>Anzeige:
++Status: in Bearbeitung, Zurueckgestellt...</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10798" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="0"/>
++<carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="NB_FLAG" Name="NB-Flag" IsArray="FALSE">
++<DataType>
++<BasicType Type="BOOLEAN"/>
++</DataType>
++<InitialValue>false</InitialValue>
++<Description>Steuerngs-Flag:
++</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10800" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="false"/>
++<carnot:Attribute Name="carnot:engine:type" Value="boolean" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="LB_VNAME" Name="Letzter Bearbeiter Vorname" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Vorname des letzten Bearbeiters.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10802" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="PERIODE" Name="Periode" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<Description>Anzeige:
++Beinhaltet die periodische Wiedervorlage</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10804" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="LB_REGION" Name="Letzte Bearbeitung in Region" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++entspricht Von: Region, in der die letzte Bearbeitung stattfand.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10806" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="PRIORITAET" Name="Prioritaet" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<InitialValue>0</InitialValue>
++<Description>Anzeige:
++Prioritaet</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10808" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="0"/>
++<carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="DETAILS" Name="Details" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10810" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="VON_BS" Name="von Betriebsstelle" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Statusinformationen:
++</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10812" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="VON_REGION" Name="von Region" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Statusinformationen:
++</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10814" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="VERMERK" Name="Vermerk" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10816" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="UK" Name="Uk" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Bestandteil der Stammnummer</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10818" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="AN_REGION" Name="An Region" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Statusinformation:
++</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10820" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="NOTIZ" Name="Notiz" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10824" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="BS" Name="Betriebsstelle" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Bestandteil der Stammnummer</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10826" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="BEREICH" Name="Bereich" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Bestandteil der Stammnummer.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10828" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="INHALT" Name="Inhalt" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10830" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="KN_KNE_NAME" Name="KN-KNE-Name" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++KN/KNE des Antrages</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10832" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="AN_BS" Name="An Betriebsstelle" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Statusinformationen:
++</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10834" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="EK_FLAG" Name="EK-Flag" IsArray="FALSE">
++<DataType>
++<BasicType Type="BOOLEAN"/>
++</DataType>
++<InitialValue>true</InitialValue>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10836" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="true"/>
++<carnot:Attribute Name="carnot:engine:type" Value="boolean" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="LB_NAME" Name="Letzter Bearbeiter Name" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Name des letztes Bearbeiters.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10838" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="VB_NAME" Name="Vorges. Berbeiter Name" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Name des vorgesehenen Bearbeiters</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10840" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="ERSTELLUNG" Name="Erstellungsdatum" IsArray="FALSE">
++<DataType>
++<BasicType Type="DATETIME"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10842" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="BKZ" Name="BKZ" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Anzeige:
++Betreuerkennzeichen</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10844" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="HIST_FLAG" Name="Historie-Flag" IsArray="FALSE">
++<DataType>
++<BasicType Type="BOOLEAN"/>
++</DataType>
++<InitialValue>false</InitialValue>
++<Description>Steuerungs-Flag:
++Verwendet in Rating-Prozess.
++Wenn das Flag gesetzt ist, wird der Vorgang nach dem Bearbeiten- oder Entscheiden-Schritt beendet.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10846" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="false"/>
++<carnot:Attribute Name="carnot:engine:type" Value="boolean" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="FAELLIGKEIT" Name="Faelligkeitsdatum" IsArray="FALSE">
++<DataType>
++<BasicType Type="DATETIME"/>
++</DataType>
++<InitialValue>2003/09/01 05:45:41:749</InitialValue>
++<Description>Anzeige:
++Faelligkeit der Aufgabe</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10848" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="2003/09/01 05:45:41:749"/>
++<carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="URL_IKR" Name="URL-IKR" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Statusinformation:
++Enthaelt die URL, mit dem Verweis auf die naechste IKR-Seite</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10850" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="DATA" Name="Data-Slots" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Interne verwendung:
++Enthaelt alle Data's die durch @@ getrennt sind.
++Aufbau: @@Data-ID@@Format@@Data-Value@@</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10852" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="ROLLE" Name="Rolle" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10854" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="PROCESS_ROOT_ID" Name="Process Root ID" IsArray="FALSE">
++<DataType>
++<BasicType Type="BOOLEAN"/>
++</DataType>
++<InitialValue>false</InitialValue>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10856" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="false"/>
++<carnot:Attribute Name="carnot:engine:type" Value="boolean" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="VON_BEREICH" Name="von Bereich" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10858" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="AN_BEREICH" Name="An Bereich" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10860" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="TYP" Name="Typ" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10862" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="AUFTRAG" Name="Auftrag" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10864" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="KATEGORIE" Name="Kategorie" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10866" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="STATUS_TMP" Name="Status-Temp" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10868" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="LB_NAME_TMP" Name="Letzter Bearbeiter Name Temp" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10870" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="LB_VNAME_TMP" Name="Letzter Bearbeiter Vorname Temp" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10872" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="AUFGABENTYP_ROOT" Name="Aufgabentyp Root" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<InitialValue>0</InitialValue>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10874" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="0"/>
++<carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="USER_ID" Name="User-ID" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10876" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="URL_BORIS" Name="URL-BoRis" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Statusinformation:
++Enthaelt die URL, mit dem Verweis auf die naechste BoRis-Seite</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="10878" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="URL_MODUL" Name="URL Modul" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<Description>Statusinformation:
++Enthaelt die URL, die aus der Aufgabenliste heraus gestartet wird</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="12046" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="TYP_TMP" Name="Typ Temp" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="12064" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="AUFTRAG_TMP" Name="Auftrag Temp" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="12065" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="KATEGORIE_TMP" Name="Kategorie Temp" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="12066" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="VON_ROLLE" Name="von Rolle" IsArray="FALSE">
++<DataType>
++<BasicType Type="STRING"/>
++</DataType>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="12118" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="Data1" Name="Data1" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<InitialValue>0</InitialValue>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="12213" Type="primitive">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:browsable" Value="true" Type="boolean"/>
++<carnot:Attribute Name="carnot:engine:defaultValue" Value="0"/>
++<carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++<DataField Id="PROCESS_PRIORITY" Name="Process Priority" IsArray="FALSE">
++<DataType>
++<BasicType Type="INTEGER"/>
++</DataType>
++<Description>Priority assigned to the current process.</Description>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:DataField Oid="12381" Type="primitive" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
++</carnot:Attributes>
++</carnot:DataField>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</DataField>
++</DataFields>
++<WorkflowProcesses>
++<WorkflowProcess Id="BONITAETSUB" Name="Bonitaet als Subprocess" AccessLevel="PRIVATE">
++<ProcessHeader/>
++<Activities>
++<Activity Id="CHECK_ESCAL" Name="Eskalation pruefen">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<TransitionRestrictions>
++<TransitionRestriction>
++<Join Type="XOR"/>
++</TransitionRestriction>
++<TransitionRestriction>
++<Split Type="XOR">
++<TransitionRefs>
++<TransitionRef Id="Transition72"/>
++<TransitionRef Id="Transition73"/>
++<TransitionRef Id="Transition167"/>
++</TransitionRefs>
++</Split>
++</TransitionRestriction>
++</TransitionRestrictions>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="11010" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="ENDE" Name="Ende">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<TransitionRestrictions>
++<TransitionRestriction>
++<Join Type="XOR"/>
++</TransitionRestriction>
++</TransitionRestrictions>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="11014" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="BEARBEITEN_2" Name="Bearbeiten (2)">
++<Implementation>
++<No/>
++</Implementation>
++<Performer>Kreditantragsbearbeiter</Performer>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="11015" Implementation="Manual" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows>
++<carnot:DataFlow Oid="11016" Id="EK_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="EK_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11017" Id="HIST_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="HIST_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11018" Id="RATING_ID" Direction="IN" Context="default">
++<carnot:DataRef Id="RATING_ID"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11019" Id="URL_BORIS" Direction="OUT" Context="default">
++<carnot:DataRef Id="URL_BORIS"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++</carnot:DataFlows>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="BEARBEITEN_15" Name="Bearbeiten (15)">
++<Implementation>
++<No/>
++</Implementation>
++<Performer>Kreditantragsbearbeiter</Performer>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="11020" Implementation="Manual" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows>
++<carnot:DataFlow Oid="11021" Id="RATING_ID" Direction="IN" Context="default">
++<carnot:DataRef Id="RATING_ID"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11022" Id="EK_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="EK_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11023" Id="HIST_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="HIST_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11024" Id="URL_BORIS" Direction="OUT" Context="default">
++<carnot:DataRef Id="URL_BORIS"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++</carnot:DataFlows>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="JOIN" Name="Join">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<TransitionRestrictions>
++<TransitionRestriction>
++<Join Type="XOR"/>
++</TransitionRestriction>
++<TransitionRestriction>
++<Split Type="XOR">
++<TransitionRefs>
++<TransitionRef Id="Transition178"/>
++</TransitionRefs>
++</Split>
++</TransitionRestriction>
++</TransitionRestrictions>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="11025" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="START" Name="Start">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="11026" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="BEARBEITEN_25" Name="Bearbeiten (25)">
++<Implementation>
++<No/>
++</Implementation>
++<Performer>Kreditantragsbearbeiter</Performer>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="11027" Implementation="Manual" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows>
++<carnot:DataFlow Oid="11028" Id="RATING_ID" Direction="IN" Context="default">
++<carnot:DataRef Id="RATING_ID"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11029" Id="EK_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="EK_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11030" Id="HIST_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="HIST_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="11031" Id="URL_BORIS" Direction="OUT" Context="default">
++<carnot:DataRef Id="URL_BORIS"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++</carnot:DataFlows>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++</Activities>
++<Transitions>
++<Transition Id="Transition72" Name="Transition72" From="CHECK_ESCAL" To="BEARBEITEN_2">
++<Condition Type="CONDITION">(AUFGABENTYP == 14.0) || ((AUFGABENTYP == 16.0) || (AUFGABENTYP == 18.0))</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="10889" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition73" Name="Transition73" From="CHECK_ESCAL" To="BEARBEITEN_15">
++<Condition Type="CONDITION">(AUFGABENTYP == 10.0) || ((AUFGABENTYP == 11.0) || ((AUFGABENTYP == 12.0) || ((AUFGABENTYP == 13.0) || ((AUFGABENTYP == 15.0) || ((AUFGABENTYP == 17.0) || ((AUFGABENTYP == 19.0) || (AUFGABENTYP == 20.0)))))))</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="10890" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition74" Name="Transition74" From="BEARBEITEN_2" To="JOIN">
++<Condition Type="CONDITION">true</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="10891" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition75" Name="Transition75" From="BEARBEITEN_15" To="JOIN">
++<Condition Type="CONDITION">true</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="10892" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition79" Name="Transition79" From="START" To="CHECK_ESCAL">
++<Condition Type="CONDITION">true</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="10893" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition167" Name="Transition167" From="CHECK_ESCAL" To="BEARBEITEN_25">
++<Condition Type="CONDITION">AUFGABENTYP == 66.0</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="10894" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition168" Name="Transition168" From="BEARBEITEN_25" To="JOIN">
++<Condition Type="CONDITION">true</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="10895" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition178" Name="Transition178" From="JOIN" To="ENDE">
++<Condition Type="CONDITION">(EK_FLAG == true) || (HIST_FLAG == true)</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="11756" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++</Transitions>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:WorkflowProcess Oid="11061">
++<carnot:Triggers/>
++<carnot:DataPaths>
++<carnot:DataPath Oid="10910" Id="KN_KNE_NAME" Name="KN_KNE_NAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="KN_KNE_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10911" Id="AUFGABENTYP" Name="AUFGABENTYP" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AUFGABENTYP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10912" Id="ANTRAG_ID" Name="ANTRAG_ID" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="ANTRAG_ID"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10913" Id="RATING_ID" Name="RATING_ID" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="RATING_ID"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10914" Id="STATUS" Name="STATUS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="STATUS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10915" Id="PROCESS_ID" Name="PROCESS_ID" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="PROCESS_ID"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10916" Id="FAELLIGKEIT" Name="FAELLIGKEIT" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="FAELLIGKEIT"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10917" Id="BEREICH" Name="BEREICH" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="BEREICH"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10918" Id="BS" Name="BS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="BS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10919" Id="STAMMNR" Name="STAMMNR" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="STAMMNR"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10920" Id="UK" Name="UK" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="UK"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10921" Id="BKZ" Name="BKZ" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="BKZ"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10922" Id="KN_NAME" Name="KN_NAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="KN_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10923" Id="ERSTELLUNG" Name="ERSTELLUNG" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="ERSTELLUNG"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10924" Id="LB_NAME" Name="LB_NAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10925" Id="LB_VNAME" Name="LB_VNAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_VNAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10926" Id="PERIODE" Name="PERIODE" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="PERIODE"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10927" Id="URL_IKR" Name="URL_IKR" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="URL_IKR"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10928" Id="AN_BS" Name="AN_BS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AN_BS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10929" Id="AN_REGION" Name="AN_REGION" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AN_REGION"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10930" Id="VON_BS" Name="VON_BS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VON_BS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10931" Id="VON_REGION" Name="VON_REGION" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VON_REGION"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10932" Id="LB_REGION" Name="LB_REGION" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_REGION"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10933" Id="DETAILS" Name="DETAILS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="DETAILS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10934" Id="NOTIZ" Name="NOTIZ" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="NOTIZ"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10935" Id="INHALT" Name="INHALT" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="INHALT"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10936" Id="VERMERK" Name="VERMERK" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VERMERK"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10937" Id="PRIORITAET" Name="PRIORITAET" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="PRIORITAET"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10938" Id="AN_BEREICH" Name="AN_BEREICH" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AN_BEREICH"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10939" Id="VON_BEREICH" Name="VON_BEREICH" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VON_BEREICH"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10940" Id="AUFTRAG" Name="AUFTRAG" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AUFTRAG"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10941" Id="KATEGORIE" Name="KATEGORIE" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="KATEGORIE"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10942" Id="TYP" Name="TYP" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="TYP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10943" Id="USER_ID" Name="USER_ID" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="USER_ID"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10944" Id="URL_BORIS" Name="URL_BORIS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="URL_BORIS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10945" Id="VB_VNAME" Name="VB_VNAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VB_VNAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10946" Id="VB_NAME" Name="VB_NAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VB_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10947" Id="LB_VNAME_TMP" Name="LB_VNAME_TMP" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_VNAME_TMP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10948" Id="LB_NAME_TMP" Name="LB_NAME_TMP" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_NAME_TMP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="11820" Id="AUFGABENTYP_ROOT" Name="AUFGABENTYP_ROOT" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AUFGABENTYP_ROOT"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12047" Id="URL_MODUL" Name="URL_MODUL" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="URL_MODUL"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10903" Id="STATUS" Name="STATUS" Direction="OUT" IsDescriptor="false">
++<carnot:DataRef Id="STATUS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10904" Id="LB_VNAME" Name="LB_VNAME" Direction="OUT" IsDescriptor="false">
++<carnot:DataRef Id="LB_VNAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="10905" Id="LB_NAME" Name="LB_NAME" Direction="OUT" IsDescriptor="false">
++<carnot:DataRef Id="LB_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12120" Id="VERMERK" Name="VERMERK" Direction="OUT" IsDescriptor="false">
++<carnot:DataRef Id="VERMERK"/>
++</carnot:DataPath>
++</carnot:DataPaths>
++<carnot:EventHandlers/>
++<carnot:Diagrams>
++<carnot:Diagram Oid="10949" Name="Default">
++<carnot:Symbols>
++<carnot:Symbol Kind="POOL" Oid="12357" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
++<carnot:Symbols>
++<carnot:Symbol Kind="ACTIVITY" Oid="10985" X="136" Y="197" ModelElement="CHECK_ESCAL"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="10987" X="740" Y="184" ModelElement="ENDE"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="10988" X="328" Y="141" ModelElement="BEARBEITEN_2"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="10989" X="330" Y="245" ModelElement="BEARBEITEN_15"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="10990" X="486" Y="185" ModelElement="JOIN"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="10991" X="15" Y="197" ModelElement="START"/>
++<carnot:Symbol Kind="DATA" Oid="10992" X="465" Y="14" ModelElement="EK_FLAG"/>
++<carnot:Symbol Kind="DATA" Oid="10993" X="575" Y="23" ModelElement="HIST_FLAG"/>
++<carnot:Symbol Kind="DATA" Oid="10994" X="454" Y="438" ModelElement="RATING_ID"/>
++<carnot:Symbol Kind="DATA" Oid="10995" X="619" Y="473" ModelElement="IKR_FLAG"/>
++<carnot:Symbol Kind="DATA" Oid="10996" X="616" Y="382" ModelElement="NB_FLAG"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="10997" X="331" Y="326" ModelElement="BEARBEITEN_25"/>
++<carnot:Symbol Kind="ROLE" Oid="10998" X="163" Y="19" ModelElement="Kreditantragsbearbeiter"/>
++<carnot:Symbol Kind="DATA" Oid="11000" X="195" Y="483" ModelElement="URL_BORIS"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12371" X="76" Y="201" Width="40" Height="40" ModelElement="10985" FlowKind="join"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12373" X="291" Y="201" Width="40" Height="40" ModelElement="10985" FlowKind="split"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12375" X="680" Y="188" Width="40" Height="40" ModelElement="10987" FlowKind="join"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12377" X="426" Y="189" Width="40" Height="40" ModelElement="10990" FlowKind="join"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12379" X="641" Y="189" Width="40" Height="40" ModelElement="10990" FlowKind="split"/>
++</carnot:Symbols>
++<carnot:Connections>
++<carnot:Connection Kind="TRANSITION" Oid="10950" ModelElement="Transition72" SourceSymbol="12373" TargetSymbol="10988">
++<carnot:Points>315, 214, 214, 333, 158, 351, 158</carnot:Points>
++</carnot:Connection>
++<carnot:Connection Kind="TRANSITION" Oid="10951" ModelElement="Transition73" SourceSymbol="12373" TargetSymbol="10989">
++<carnot:Points>315, 214, 214, 334, 262, 353, 262</carnot:Points>
++</carnot:Connection>
++<carnot:Connection Kind="TRANSITION" Oid="10952" ModelElement="Transition74" SourceSymbol="10988" TargetSymbol="12377">
++<carnot:Points>465, 158, 158, 487, 203, 509, 203</carnot:Points>
++</carnot:Connection>
++<carnot:Connection Kind="TRANSITION" Oid="10953" ModelElement="Transition75" SourceSymbol="10989" TargetSymbol="12377">
++<carnot:Points>473, 262, 262, 491, 203, 509, 203</carnot:Points>
++</carnot:Connection>
++<carnot:Connection Kind="TRANSITION" Oid="10954" ModelElement="Transition79" SourceSymbol="10991" TargetSymbol="12371">
++<carnot:Points>106, 214, 214, 132, 214, 159, 214</carnot:Points>
++</carnot:Connection>
++<carnot:Connection Kind="DATA_FLOW" Oid="10955" SourceSymbol="10992" TargetSymbol="10988"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10956" SourceSymbol="10993" TargetSymbol="10988"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10957" SourceSymbol="10994" TargetSymbol="10988"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10958" SourceSymbol="10994" TargetSymbol="10989"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10959" SourceSymbol="10992" TargetSymbol="10989"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10960" SourceSymbol="10993" TargetSymbol="10989"/>
++<carnot:Connection Kind="TRANSITION" Oid="10961" ModelElement="Transition167" SourceSymbol="12373" TargetSymbol="10997">
++<carnot:Points>315, 214, 214, 334, 343, 354, 343</carnot:Points>
++</carnot:Connection>
++<carnot:Connection Kind="TRANSITION" Oid="10962" ModelElement="Transition168" SourceSymbol="10997" TargetSymbol="12377">
++<carnot:Points>474, 343, 343, 491, 203, 509, 203</carnot:Points>
++</carnot:Connection>
++<carnot:Connection Kind="DATA_FLOW" Oid="10963" SourceSymbol="10994" TargetSymbol="10997"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10964" SourceSymbol="10992" TargetSymbol="10997"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10965" SourceSymbol="10993" TargetSymbol="10997"/>
++<carnot:Connection Kind="PERFORMS" Oid="10966" SourceSymbol="10998" TargetSymbol="10988"/>
++<carnot:Connection Kind="PERFORMS" Oid="10967" SourceSymbol="10998" TargetSymbol="10989"/>
++<carnot:Connection Kind="PERFORMS" Oid="10968" SourceSymbol="10998" TargetSymbol="10997"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10969" SourceSymbol="11000" TargetSymbol="10988"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10970" SourceSymbol="11000" TargetSymbol="10989"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="10971" SourceSymbol="11000" TargetSymbol="10997"/>
++<carnot:Connection Kind="TRANSITION" Oid="11757" ModelElement="Transition178" SourceSymbol="12379" TargetSymbol="12375">
++<carnot:Points>595, 203, 203, 679, 202, 763, 202</carnot:Points>
++</carnot:Connection>
++<carnot:Connection Kind="TRANSITION" Oid="12372" SourceSymbol="12371" TargetSymbol="10985"/>
++<carnot:Connection Kind="TRANSITION" Oid="12374" SourceSymbol="10985" TargetSymbol="12373"/>
++<carnot:Connection Kind="TRANSITION" Oid="12376" SourceSymbol="12375" TargetSymbol="10987"/>
++<carnot:Connection Kind="TRANSITION" Oid="12378" SourceSymbol="12377" TargetSymbol="10990"/>
++<carnot:Connection Kind="TRANSITION" Oid="12380" SourceSymbol="10990" TargetSymbol="12379"/>
++</carnot:Connections>
++</carnot:Symbol>
++</carnot:Symbols>
++<carnot:Connections/>
++</carnot:Diagram>
++</carnot:Diagrams>
++</carnot:WorkflowProcess>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</WorkflowProcess>
++<WorkflowProcess Id="BONITAET" Name="Bonitaet" AccessLevel="PUBLIC">
++<ProcessHeader/>
++<Activities>
++<Activity Id="CHECK_ESCAL" Name="Eskalation pruefen">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<TransitionRestrictions>
++<TransitionRestriction>
++<Join Type="XOR"/>
++</TransitionRestriction>
++<TransitionRestriction>
++<Split Type="XOR">
++<TransitionRefs>
++<TransitionRef Id="Transition72"/>
++<TransitionRef Id="Transition73"/>
++<TransitionRef Id="Transition167"/>
++</TransitionRefs>
++</Split>
++</TransitionRestriction>
++</TransitionRestrictions>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12228" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="ENDE" Name="Ende">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<TransitionRestrictions>
++<TransitionRestriction>
++<Join Type="XOR"/>
++</TransitionRestriction>
++</TransitionRestrictions>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12229" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="BEARBEITEN_2" Name="Bearbeiten (2)">
++<Implementation>
++<No/>
++</Implementation>
++<Performer>Kreditantragsbearbeiter</Performer>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12230" Implementation="Manual" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows>
++<carnot:DataFlow Oid="12243" Id="EK_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="EK_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12244" Id="HIST_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="HIST_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12245" Id="RATING_ID" Direction="IN" Context="default">
++<carnot:DataRef Id="RATING_ID"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12246" Id="URL_BORIS" Direction="OUT" Context="default">
++<carnot:DataRef Id="URL_BORIS"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++</carnot:DataFlows>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="BEARBEITEN_15" Name="Bearbeiten (15)">
++<Implementation>
++<No/>
++</Implementation>
++<Performer>Kreditantragsbearbeiter</Performer>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12231" Implementation="Manual" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows>
++<carnot:DataFlow Oid="12247" Id="RATING_ID" Direction="IN" Context="default">
++<carnot:DataRef Id="RATING_ID"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12248" Id="EK_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="EK_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12249" Id="HIST_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="HIST_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12250" Id="URL_BORIS" Direction="OUT" Context="default">
++<carnot:DataRef Id="URL_BORIS"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++</carnot:DataFlows>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="JOIN" Name="Join">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<TransitionRestrictions>
++<TransitionRestriction>
++<Join Type="XOR"/>
++</TransitionRestriction>
++<TransitionRestriction>
++<Split Type="XOR">
++<TransitionRefs>
++<TransitionRef Id="Transition178"/>
++</TransitionRefs>
++</Split>
++</TransitionRestriction>
++</TransitionRestrictions>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12232" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="START" Name="Start">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12233" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++<Activity Id="BEARBEITEN_25" Name="Bearbeiten (25)">
++<Implementation>
++<No/>
++</Implementation>
++<Performer>Kreditantragsbearbeiter</Performer>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12234" Implementation="Manual" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows>
++<carnot:DataFlow Oid="12251" Id="RATING_ID" Direction="IN" Context="default">
++<carnot:DataRef Id="RATING_ID"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12252" Id="EK_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="EK_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12253" Id="HIST_FLAG" Direction="OUT" Context="default">
++<carnot:DataRef Id="HIST_FLAG"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++<carnot:DataFlow Oid="12254" Id="URL_BORIS" Direction="OUT" Context="default">
++<carnot:DataRef Id="URL_BORIS"/>
++<carnot:AccessPointRef/>
++</carnot:DataFlow>
++</carnot:DataFlows>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++</Activities>
++<Transitions>
++<Transition Id="Transition72" Name="Transition72" From="CHECK_ESCAL" To="BEARBEITEN_2">
++<Condition Type="CONDITION">(AUFGABENTYP == 14.0) || ((AUFGABENTYP == 16.0) || (AUFGABENTYP == 18.0))</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="12235" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition73" Name="Transition73" From="CHECK_ESCAL" To="BEARBEITEN_15">
++<Condition Type="CONDITION">(AUFGABENTYP == 10.0) || ((AUFGABENTYP == 11.0) || ((AUFGABENTYP == 12.0) || ((AUFGABENTYP == 13.0) || ((AUFGABENTYP == 15.0) || ((AUFGABENTYP == 17.0) || ((AUFGABENTYP == 19.0) || (AUFGABENTYP == 20.0)))))))</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="12236" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition74" Name="Transition74" From="BEARBEITEN_2" To="JOIN">
++<Condition Type="CONDITION">true</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="12237" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition75" Name="Transition75" From="BEARBEITEN_15" To="JOIN">
++<Condition Type="CONDITION">true</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="12238" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition79" Name="Transition79" From="START" To="CHECK_ESCAL">
++<Condition Type="CONDITION">true</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="12239" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition167" Name="Transition167" From="CHECK_ESCAL" To="BEARBEITEN_25">
++<Condition Type="CONDITION">AUFGABENTYP == 66.0</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="12240" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition168" Name="Transition168" From="BEARBEITEN_25" To="JOIN">
++<Condition Type="CONDITION">true</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="12241" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++<Transition Id="Transition178" Name="Transition178" From="JOIN" To="ENDE">
++<Condition Type="CONDITION">(EK_FLAG == true) || (HIST_FLAG == true)</Condition>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Transition Oid="12242" IsForkingOnTraversal="false"/>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Transition>
++</Transitions>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:WorkflowProcess Oid="12227">
++<carnot:Triggers>
++<carnot:Trigger Oid="12255" Id="trigger1" Name="Kreditantragsbearbeiter" Type="manual">
++<carnot:AccessPoints/>
++<carnot:DataFlows/>
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:participant" Value="Kreditantragsbearbeiter"/>
++</carnot:Attributes>
++</carnot:Trigger>
++</carnot:Triggers>
++<carnot:DataPaths>
++<carnot:DataPath Oid="12256" Id="KN_KNE_NAME" Name="KN_KNE_NAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="KN_KNE_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12257" Id="AUFGABENTYP" Name="AUFGABENTYP" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AUFGABENTYP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12258" Id="ANTRAG_ID" Name="ANTRAG_ID" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="ANTRAG_ID"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12259" Id="RATING_ID" Name="RATING_ID" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="RATING_ID"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12260" Id="STATUS" Name="STATUS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="STATUS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12261" Id="PROCESS_ID" Name="PROCESS_ID" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="PROCESS_ID"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12262" Id="FAELLIGKEIT" Name="FAELLIGKEIT" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="FAELLIGKEIT"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12263" Id="BEREICH" Name="BEREICH" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="BEREICH"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12264" Id="BS" Name="BS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="BS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12265" Id="STAMMNR" Name="STAMMNR" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="STAMMNR"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12266" Id="UK" Name="UK" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="UK"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12267" Id="BKZ" Name="BKZ" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="BKZ"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12268" Id="KN_NAME" Name="KN_NAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="KN_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12269" Id="ERSTELLUNG" Name="ERSTELLUNG" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="ERSTELLUNG"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12270" Id="LB_NAME" Name="LB_NAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12271" Id="LB_VNAME" Name="LB_VNAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_VNAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12272" Id="PERIODE" Name="PERIODE" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="PERIODE"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12273" Id="URL_IKR" Name="URL_IKR" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="URL_IKR"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12274" Id="AN_BS" Name="AN_BS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AN_BS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12275" Id="AN_REGION" Name="AN_REGION" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AN_REGION"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12276" Id="VON_BS" Name="VON_BS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VON_BS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12277" Id="VON_REGION" Name="VON_REGION" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VON_REGION"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12278" Id="LB_REGION" Name="LB_REGION" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_REGION"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12279" Id="DETAILS" Name="DETAILS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="DETAILS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12280" Id="NOTIZ" Name="NOTIZ" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="NOTIZ"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12281" Id="INHALT" Name="INHALT" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="INHALT"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12282" Id="VERMERK" Name="VERMERK" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VERMERK"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12283" Id="PRIORITAET" Name="PRIORITAET" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="PRIORITAET"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12284" Id="AN_BEREICH" Name="AN_BEREICH" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AN_BEREICH"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12285" Id="VON_BEREICH" Name="VON_BEREICH" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VON_BEREICH"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12286" Id="AUFTRAG" Name="AUFTRAG" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AUFTRAG"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12287" Id="KATEGORIE" Name="KATEGORIE" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="KATEGORIE"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12288" Id="TYP" Name="TYP" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="TYP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12289" Id="USER_ID" Name="USER_ID" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="USER_ID"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12290" Id="URL_BORIS" Name="URL_BORIS" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="URL_BORIS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12291" Id="VB_VNAME" Name="VB_VNAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VB_VNAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12292" Id="VB_NAME" Name="VB_NAME" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="VB_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12293" Id="LB_VNAME_TMP" Name="LB_VNAME_TMP" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_VNAME_TMP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12294" Id="LB_NAME_TMP" Name="LB_NAME_TMP" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="LB_NAME_TMP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12295" Id="AUFGABENTYP_ROOT" Name="AUFGABENTYP_ROOT" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AUFGABENTYP_ROOT"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12296" Id="URL_MODUL" Name="URL_MODUL" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="URL_MODUL"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12297" Id="STATUS" Name="STATUS" Direction="OUT" IsDescriptor="false">
++<carnot:DataRef Id="STATUS"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12298" Id="LB_VNAME" Name="LB_VNAME" Direction="OUT" IsDescriptor="false">
++<carnot:DataRef Id="LB_VNAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12299" Id="LB_NAME" Name="LB_NAME" Direction="OUT" IsDescriptor="false">
++<carnot:DataRef Id="LB_NAME"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12302" Id="VERMERK" Name="VERMERK" Direction="OUT" IsDescriptor="false">
++<carnot:DataRef Id="VERMERK"/>
++</carnot:DataPath>
++</carnot:DataPaths>
++<carnot:EventHandlers/>
++<carnot:Diagrams>
++<carnot:Diagram Oid="12303" Name="Default">
++<carnot:Symbols>
++<carnot:Symbol Kind="POOL" Oid="12358" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
++<carnot:Symbols>
++<carnot:Symbol Kind="ACTIVITY" Oid="12304" X="380" Y="195" ModelElement="CHECK_ESCAL"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="12305" X="2055" Y="200" ModelElement="ENDE"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="12306" X="1025" Y="25" ModelElement="BEARBEITEN_2"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="12307" X="1030" Y="195" ModelElement="BEARBEITEN_15"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="12308" X="1330" Y="195" ModelElement="JOIN"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="12309" X="50" Y="190" ModelElement="START"/>
++<carnot:Symbol Kind="DATA" Oid="12310" X="1170" Y="290" ModelElement="EK_FLAG"/>
++<carnot:Symbol Kind="DATA" Oid="12311" X="1165" Y="105" ModelElement="HIST_FLAG"/>
++<carnot:Symbol Kind="DATA" Oid="12312" X="875" Y="315" ModelElement="RATING_ID"/>
++<carnot:Symbol Kind="DATA" Oid="12313" X="580" Y="785" ModelElement="IKR_FLAG"/>
++<carnot:Symbol Kind="DATA" Oid="12314" X="1170" Y="800" ModelElement="NB_FLAG"/>
++<carnot:Symbol Kind="ACTIVITY" Oid="12315" X="1020" Y="400" ModelElement="BEARBEITEN_25"/>
++<carnot:Symbol Kind="ROLE" Oid="12316" X="540" Y="640" ModelElement="Kreditantragsbearbeiter"/>
++<carnot:Symbol Kind="DATA" Oid="12317" X="870" Y="105" ModelElement="URL_BORIS"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12361" X="240" Y="200" Width="40" Height="40" ModelElement="12304" FlowKind="join"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12363" X="625" Y="200" Width="40" Height="40" ModelElement="12304" FlowKind="split"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12365" X="1965" Y="205" Width="40" Height="40" ModelElement="12305" FlowKind="join"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12367" X="1240" Y="200" Width="40" Height="40" ModelElement="12308" FlowKind="join"/>
++<carnot:Symbol Kind="GATEWAY" Oid="12369" X="1520" Y="200" Width="40" Height="40" ModelElement="12308" FlowKind="split"/>
++</carnot:Symbols>
++<carnot:Connections>
++<carnot:Connection Kind="TRANSITION" Oid="12362" SourceSymbol="12361" TargetSymbol="12304"/>
++<carnot:Connection Kind="TRANSITION" Oid="12364" SourceSymbol="12304" TargetSymbol="12363"/>
++<carnot:Connection Kind="TRANSITION" Oid="12366" SourceSymbol="12365" TargetSymbol="12305"/>
++<carnot:Connection Kind="TRANSITION" Oid="12368" SourceSymbol="12367" TargetSymbol="12308"/>
++<carnot:Connection Kind="TRANSITION" Oid="12370" SourceSymbol="12308" TargetSymbol="12369"/>
++<carnot:Connection Kind="TRANSITION" Oid="12382" ModelElement="Transition72" SourceSymbol="12363" TargetSymbol="12306" SourceAnchor="top"/>
++<carnot:Connection Kind="TRANSITION" Oid="12383" ModelElement="Transition73" SourceSymbol="12363" TargetSymbol="12307"/>
++<carnot:Connection Kind="TRANSITION" Oid="12384" ModelElement="Transition79" SourceSymbol="12309" TargetSymbol="12361"/>
++<carnot:Connection Kind="TRANSITION" Oid="12385" ModelElement="Transition167" SourceSymbol="12363" TargetSymbol="12315" SourceAnchor="bottom"/>
++<carnot:Connection Kind="TRANSITION" Oid="12386" ModelElement="Transition178" SourceSymbol="12369" TargetSymbol="12365"/>
++<carnot:Connection Kind="TRANSITION" Oid="12387" ModelElement="Transition74" SourceSymbol="12306" TargetSymbol="12367" SourceAnchor="right" TargetAnchor="top"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12388" SourceSymbol="12312" TargetSymbol="12306"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12389" SourceSymbol="12311" TargetSymbol="12306"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12390" SourceSymbol="12310" TargetSymbol="12306"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12391" SourceSymbol="12317" TargetSymbol="12306"/>
++<carnot:Connection Kind="PERFORMS" Oid="12392" SourceSymbol="12316" TargetSymbol="12306"/>
++<carnot:Connection Kind="TRANSITION" Oid="12393" ModelElement="Transition75" SourceSymbol="12307" TargetSymbol="12367"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12394" SourceSymbol="12312" TargetSymbol="12307"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12395" SourceSymbol="12311" TargetSymbol="12307"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12396" SourceSymbol="12310" TargetSymbol="12307"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12397" SourceSymbol="12317" TargetSymbol="12307"/>
++<carnot:Connection Kind="PERFORMS" Oid="12398" SourceSymbol="12316" TargetSymbol="12307"/>
++<carnot:Connection Kind="TRANSITION" Oid="12399" ModelElement="Transition168" SourceSymbol="12315" TargetSymbol="12367" SourceAnchor="right" TargetAnchor="bottom"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12400" SourceSymbol="12310" TargetSymbol="12315"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12401" SourceSymbol="12311" TargetSymbol="12315"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12402" SourceSymbol="12312" TargetSymbol="12315"/>
++<carnot:Connection Kind="DATA_FLOW" Oid="12403" SourceSymbol="12317" TargetSymbol="12315"/>
++<carnot:Connection Kind="PERFORMS" Oid="12404" SourceSymbol="12316" TargetSymbol="12315"/>
++</carnot:Connections>
++</carnot:Symbol>
++</carnot:Symbols>
++<carnot:Connections/>
++</carnot:Diagram>
++</carnot:Diagrams>
++</carnot:WorkflowProcess>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</WorkflowProcess>
++<WorkflowProcess Id="SimpleRoute" Name="SimpleRoute" AccessLevel="PUBLIC">
++<ProcessHeader/>
++<Activities>
++<Activity Id="route" Name="Route">
++<Implementation>
++<No/>
++</Implementation>
++<Performer/>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Manual/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12218" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++</Activities>
++<Transitions/>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:WorkflowProcess Oid="12215">
++<carnot:Triggers>
++<carnot:Trigger Oid="12220" Id="trigger1" Name="Administrator" Type="manual">
++<carnot:AccessPoints/>
++<carnot:DataFlows/>
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:participant" Value="Administrator"/>
++</carnot:Attributes>
++</carnot:Trigger>
++</carnot:Triggers>
++<carnot:DataPaths>
++<carnot:DataPath Oid="12222" Id="KATEGORIE" Name="Category" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="KATEGORIE"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12223" Id="AUFGABENTYP" Name="Job Type" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="AUFGABENTYP"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12224" Id="BEREICH" Name="Area" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="BEREICH"/>
++</carnot:DataPath>
++<carnot:DataPath Oid="12225" Id="BS" Name="Workplace" Direction="IN" IsDescriptor="true">
++<carnot:DataRef Id="BS"/>
++</carnot:DataPath>
++</carnot:DataPaths>
++<carnot:EventHandlers/>
++<carnot:Diagrams>
++<carnot:Diagram Oid="12216" Name="Default">
++<carnot:Symbols>
++<carnot:Symbol Kind="POOL" Oid="12359" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
++<carnot:Symbols>
++<carnot:Symbol Kind="ACTIVITY" Oid="12217" X="197" Y="114" ModelElement="route"/>
++</carnot:Symbols>
++<carnot:Connections/>
++</carnot:Symbol>
++</carnot:Symbols>
++<carnot:Connections/>
++</carnot:Diagram>
++</carnot:Diagrams>
++</carnot:WorkflowProcess>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</WorkflowProcess>
++<WorkflowProcess Id="BONITAET_SUPER" Name="Bonitaet Superprozess" AccessLevel="PUBLIC">
++<ProcessHeader/>
++<Activities>
++<Activity Id="Activity1" Name="Activity1">
++<Implementation>
++<SubFlow Id="BONITAETSUB" Execution="SYNCHR"/>
++</Implementation>
++<StartMode>
++<Automatic/>
++</StartMode>
++<FinishMode>
++<Automatic/>
++</FinishMode>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Activity Oid="12322" Implementation="Subprocess" LoopType="No Loop" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
++<carnot:EventHandlers/>
++<carnot:DataFlows/>
++</carnot:Activity>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Activity>
++</Activities>
++<Transitions/>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:WorkflowProcess Oid="12318">
++<carnot:Triggers>
++<carnot:Trigger Oid="12320" Id="trigger1" Name="Kreditantragsbearbeiter" Type="manual">
++<carnot:AccessPoints/>
++<carnot:DataFlows/>
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:participant" Value="Kreditantragsbearbeiter"/>
++</carnot:Attributes>
++</carnot:Trigger>
++</carnot:Triggers>
++<carnot:DataPaths/>
++<carnot:EventHandlers/>
++<carnot:Diagrams>
++<carnot:Diagram Oid="12319" Name="Default">
++<carnot:Symbols>
++<carnot:Symbol Kind="POOL" Oid="12360" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
++<carnot:Symbols>
++<carnot:Symbol Kind="ACTIVITY" Oid="12321" X="98" Y="125" ModelElement="Activity1"/>
++</carnot:Symbols>
++<carnot:Connections/>
++</carnot:Symbol>
++</carnot:Symbols>
++<carnot:Connections/>
++</carnot:Diagram>
++</carnot:Diagrams>
++</carnot:WorkflowProcess>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</WorkflowProcess>
++</WorkflowProcesses>
++<ExtendedAttributes>
++<ExtendedAttribute Name="CarnotExt">
++<carnot:Package Oid="0" CarnotVersion="5.2.0">
++<carnot:MetaTypes>
++<carnot:DataTypes>
++<carnot:DataType Oid="12327" Id="primitive" Name="Primitive" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:accessPathEditor" Value="ag.carnot.workflow.spi.providers.data.java.POJOAccessPathEditor"/>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/data/java/images/primitive_data.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.data.java.PrimitivePropertiesEditor"/>
++<carnot:Attribute Name="carnot:engine:evaluator" Value="ag.carnot.workflow.spi.providers.data.java.PrimitiveAccessPathEvaluator"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.data.java.PrimitiveValidator"/>
++</carnot:Attributes>
++</carnot:DataType>
++<carnot:DataType Oid="12328" Id="serializable" Name="Serializable" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:accessPathEditor" Value="ag.carnot.workflow.spi.providers.data.java.POJOAccessPathEditor"/>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/data/java/images/serializable_data.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.data.java.SerializablePropertiesEditor"/>
++<carnot:Attribute Name="carnot:engine:evaluator" Value="ag.carnot.workflow.spi.providers.data.java.JavaBeanAccessPathEvaluator"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.data.java.SerializableValidator"/>
++</carnot:Attributes>
++</carnot:DataType>
++<carnot:DataType Oid="12329" Id="entity" Name="Entity Bean" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:accessPathEditor" Value="ag.carnot.workflow.spi.providers.data.java.POJOAccessPathEditor"/>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/data/entitybean/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.data.entitybean.EntityBeanPropertiesEditor"/>
++<carnot:Attribute Name="carnot:engine:evaluator" Value="ag.carnot.workflow.spi.providers.data.entitybean.EntityBeanEvaluator"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.data.entitybean.EntityBeanValidator"/>
++</carnot:Attributes>
++</carnot:DataType>
++<carnot:DataType Oid="12330" Id="plainXML" Name="XML Document" IsPredefined="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:accessPathEditor" Value="ag.carnot.workflow.spi.providers.data.plainxml.XPathEditor"/>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/data/plainxml/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.data.plainxml.XMLDocumentPropertiesEditor"/>
++<carnot:Attribute Name="carnot:engine:evaluator" Value="ag.carnot.workflow.spi.providers.data.plainxml.XPathEvaluator"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.data.plainxml.XMLValidator"/>
++</carnot:Attributes>
++</carnot:DataType>
++</carnot:DataTypes>
++<carnot:ApplicationTypes>
++<carnot:ApplicationType Oid="12331" Id="sessionBean" Name="Session Bean Application" IsPredefined="true" IsSynchronous="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/applications/sessionbean/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.applications.sessionbean.SessionBeanApplicationPanel"/>
++<carnot:Attribute Name="carnot:engine:accessPointProvider" Value="ag.carnot.workflow.spi.providers.applications.sessionbean.SessionBeanAccessPointProvider"/>
++<carnot:Attribute Name="carnot:engine:applicationInstance" Value="ag.carnot.workflow.spi.providers.applications.sessionbean.SessionBeanApplicationInstance"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.applications.sessionbean.SessionBeanValidator"/>
++</carnot:Attributes>
++</carnot:ApplicationType>
++<carnot:ApplicationType Oid="12332" Id="plainJava" Name="Plain Java Application" IsPredefined="true" IsSynchronous="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/applications/plainjava/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.applications.plainjava.PlainJavaApplicationPanel"/>
++<carnot:Attribute Name="carnot:engine:accessPointProvider" Value="ag.carnot.workflow.spi.providers.applications.plainjava.PlainJavaAccessPointProvider"/>
++<carnot:Attribute Name="carnot:engine:applicationInstance" Value="ag.carnot.workflow.spi.providers.applications.plainjava.PlainJavaApplicationInstance"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.applications.plainjava.PlainJavaValidator"/>
++</carnot:Attributes>
++</carnot:ApplicationType>
++<carnot:ApplicationType Oid="12333" Id="jms" Name="JMS Application" IsPredefined="true" IsSynchronous="false">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/applications/jms/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.applications.jms.JMSApplicationPanel"/>
++<carnot:Attribute Name="carnot:engine:applicationInstance" Value="ag.carnot.workflow.spi.providers.applications.jms.JMSApplicationInstance"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.applications.jms.JMSValidator"/>
++</carnot:Attributes>
++</carnot:ApplicationType>
++</carnot:ApplicationTypes>
++<carnot:ApplicationContextTypes>
++<carnot:ApplicationContextType Oid="12334" Id="default" Name="Default Context" IsPredefined="true" HasApplicationPath="false" HasMappingId="true"/>
++<carnot:ApplicationContextType Oid="12335" Id="engine" Name="Engine Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
++<carnot:ApplicationContextType Oid="12336" Id="application" Name="Noninteractive Application Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
++<carnot:ApplicationContextType Oid="12337" Id="jfc" Name="JFC Application" IsPredefined="true" HasApplicationPath="true" HasMappingId="false">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/contexts/jfc/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.contexts.jfc.JFCContextTypePanel"/>
++<carnot:Attribute Name="carnot:engine:accessPointProvider" Value="ag.carnot.workflow.spi.providers.contexts.jfc.JFCAccessPointProvider"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.contexts.jfc.JFCValidator"/>
++<carnot:Attribute Name="carnot:exdesk:instance" Value="ag.carnot.workflow.spi.providers.contexts.jfc.JFCApplicationInstance"/>
++<carnot:Attribute Name="carnot:engine:runtimeValidator" Value="ag.carnot.workflow.model.validation.impl.spi.contextTypes.JFCValidator"/>
++</carnot:Attributes>
++</carnot:ApplicationContextType>
++<carnot:ApplicationContextType Oid="12338" Id="jsp" Name="JSP Application" IsPredefined="true" HasApplicationPath="false" HasMappingId="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/contexts/jsp/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.contexts.jsp.JSPContextTypePanel"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.contexts.jsp.JSPValidator"/>
++<carnot:Attribute Name="carnot:engine:runtimeValidator" Value="ag.carnot.workflow.model.validation.impl.spi.contextTypes.JSPValidator"/>
++</carnot:Attributes>
++</carnot:ApplicationContextType>
++</carnot:ApplicationContextTypes>
++<carnot:TriggerTypes>
++<carnot:TriggerType Oid="12339" Id="manual" Name="Manual Trigger" IsPredefined="true" IsPullTrigger="false">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/triggers/manual/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.triggers.manual.ManualTriggerPanel"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.triggers.manual.ManualTriggerValidator"/>
++</carnot:Attributes>
++</carnot:TriggerType>
++<carnot:TriggerType Oid="12340" Id="jms" Name="JMS Trigger" IsPredefined="true" IsPullTrigger="false">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/triggers/jms/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.triggers.jms.JMSTriggerPanel"/>
++<carnot:Attribute Name="carnot:engine:jmsAcceptor" Value="ag.carnot.workflow.spi.providers.triggers.jms.DefaultTriggerMessageAcceptor"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.triggers.jms.JMSTriggerValidator"/>
++</carnot:Attributes>
++</carnot:TriggerType>
++<carnot:TriggerType Oid="12341" Id="mail" Name="Mail Trigger" IsPredefined="true" IsPullTrigger="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/triggers/mail/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.triggers.mail.MailTriggerPanel"/>
++<carnot:Attribute Name="carnot:engine:pullTriggerEvaluator" Value="ag.carnot.workflow.spi.providers.triggers.mail.MailTriggerEvaluator"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.triggers.mail.MailTriggerValidator"/>
++</carnot:Attributes>
++</carnot:TriggerType>
++<carnot:TriggerType Oid="12342" Id="timer" Name="Timer Based Trigger" IsPredefined="true" IsPullTrigger="true">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/triggers/timer/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.triggers.timer.TimerTriggerPanel"/>
++<carnot:Attribute Name="carnot:engine:pullTriggerEvaluator" Value="ag.carnot.workflow.spi.providers.triggers.timer.TimerTriggerEvaluator"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.triggers.timer.TimerTriggerValidator"/>
++</carnot:Attributes>
++</carnot:TriggerType>
++</carnot:TriggerTypes>
++<carnot:EventConditionTypes>
++<carnot:EventConditionType Oid="12343" Id="timer" Name="Timer" IsPredefined="true" IsProcessCondition="true" IsActivityCondition="true" Implementation="PULL">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/conditions/timer/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.conditions.timer.PeriodPropertiesPanel"/>
++<carnot:Attribute Name="carnot:engine:accessPointProvider" Value="ag.carnot.workflow.spi.providers.conditions.timer.TimerAccessPointProvider"/>
++<carnot:Attribute Name="carnot:engine:binder" Value="ag.carnot.workflow.spi.providers.conditions.timer.TimeStampBinder"/>
++<carnot:Attribute Name="carnot:engine:condition" Value="ag.carnot.workflow.spi.providers.conditions.timer.TimeStampCondition"/>
++<carnot:Attribute Name="carnot:engine:pullEventEmitter" Value="ag.carnot.workflow.spi.providers.conditions.timer.TimeStampEmitter"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.conditions.timer.TimerValidator"/>
++<carnot:Attribute Name="carnot:exdesk:runtimePanel" Value="ag.carnot.workflow.spi.providers.conditions.timer.TimerbasedRuntimeBindPanel"/>
++</carnot:Attributes>
++</carnot:EventConditionType>
++<carnot:EventConditionType Oid="12344" Id="exception" Name="On Exception" IsPredefined="true" IsProcessCondition="false" IsActivityCondition="true" Implementation="ENGINE">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/conditions/exception/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.conditions.exception.ExceptionConditionPropertiesPanel"/>
++<carnot:Attribute Name="carnot:engine:accessPointProvider" Value="ag.carnot.workflow.spi.providers.conditions.exception.ExceptionConditionAccessPointProvider"/>
++<carnot:Attribute Name="carnot:engine:condition" Value="ag.carnot.workflow.spi.providers.conditions.exception.ExceptionCondition"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.conditions.exception.ExceptionConditionValidator"/>
++</carnot:Attributes>
++</carnot:EventConditionType>
++<carnot:EventConditionType Oid="12345" Id="statechange" Name="On Activity State Change" IsPredefined="true" IsProcessCondition="false" IsActivityCondition="true" Implementation="ENGINE">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/conditions/statechange/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.conditions.statechange.StatechangeConditionPropertiesPanel"/>
++<carnot:Attribute Name="carnot:engine:condition" Value="ag.carnot.workflow.spi.providers.conditions.statechange.StatechangeCondition"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.conditions.statechange.StatechangeConditionValidator"/>
++</carnot:Attributes>
++</carnot:EventConditionType>
++<carnot:EventConditionType Oid="12346" Id="processStatechange" Name="On Process State Change" IsPredefined="true" IsProcessCondition="true" IsActivityCondition="false" Implementation="ENGINE">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/conditions/statechange/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.conditions.statechange.ProcessStatechangeConditionPropertiesPanel"/>
++<carnot:Attribute Name="carnot:engine:condition" Value="ag.carnot.workflow.spi.providers.conditions.statechange.ProcessStatechangeCondition"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.conditions.statechange.StatechangeConditionValidator"/>
++</carnot:Attributes>
++</carnot:EventConditionType>
++<carnot:EventConditionType Oid="12347" Id="onAssignment" Name="On Assignment" IsPredefined="true" IsProcessCondition="false" IsActivityCondition="true" Implementation="ENGINE">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/conditions/assignment/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.conditions.assignment.AssignmentConditionPropertiesPanel"/>
++<carnot:Attribute Name="carnot:engine:condition" Value="ag.carnot.workflow.spi.providers.conditions.assignment.AssignmentCondition"/>
++</carnot:Attributes>
++</carnot:EventConditionType>
++</carnot:EventConditionTypes>
++<carnot:EventActionTypes>
++<carnot:EventActionType Oid="12348" Id="trigger" Name="Process Trigger" IsPredefined="true" IsProcessAction="true" IsActivityAction="true" SupportedConditionTypes="timer, exception, statechange, processStatechange, onAssignment">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/trigger/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.actions.trigger.TriggerProcessActionPanel"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.trigger.TriggerProcessAction"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.actions.trigger.TriggerActionValidator"/>
++<carnot:Attribute Name="carnot:engine:runtimeValidator" Value="ag.carnot.workflow.model.validation.impl.spi.actionTypes.TriggerActionValidator"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++<carnot:EventActionType Oid="12349" Id="mail" Name="Send Mail" IsPredefined="true" IsProcessAction="true" IsActivityAction="true" SupportedConditionTypes="timer, exception, statechange, processStatechange, onAssignment">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/mail/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.actions.mail.SendmailActionPanel"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.mail.SendmailAction"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.actions.mail.MailActionValidator"/>
++<carnot:Attribute Name="carnot:engine:runtimeValidator" Value="ag.carnot.workflow.model.validation.impl.spi.actionTypes.MailActionValidator"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++<carnot:EventActionType Oid="12350" Id="abortProcess" Name="Abort Process" IsPredefined="true" IsProcessAction="true" IsActivityAction="true" SupportedConditionTypes="timer, exception">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/abort/icon.gif"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.abort.AbortProcessEventAction"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++<carnot:EventActionType Oid="12351" Id="completeActivity" Name="Complete Activity" IsPredefined="true" IsProcessAction="false" IsActivityAction="true" SupportedConditionTypes="timer, exception">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/complete/icon.gif"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.complete.CompleteActivityEventAction"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++<carnot:EventActionType Oid="12352" Id="activateActivity" Name="Activate Activity" IsPredefined="true" IsProcessAction="false" IsActivityAction="true" SupportedConditionTypes="timer, exception, onAssignment">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/awake/icon.gif"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.awake.AwakeActivityEventAction"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++<carnot:EventActionType Oid="12353" Id="delegateActivity" Name="Delegate Activity" IsPredefined="true" IsProcessAction="false" IsActivityAction="true" SupportedConditionTypes="timer, exception, statechange">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/delegate/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.actions.delegate.DelegateEventActionPanel"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.delegate.DelegateEventAction"/>
++<carnot:Attribute Name="carnot:exdesk:runtimePanel" Value="ag.carnot.workflow.spi.providers.actions.delegate.DelegateEventActionRuntimePanel"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++<carnot:EventActionType Oid="12354" Id="scheduleActivity" Name="Schedule Activity" IsPredefined="true" IsProcessAction="false" IsActivityAction="true" SupportedConditionTypes="timer, exception, statechange">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/schedule/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.actions.schedule.ScheduleEventActionPanel"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.schedule.ScheduleEventAction"/>
++<carnot:Attribute Name="carnot:exdesk:runtimePanel" Value="ag.carnot.workflow.spi.providers.actions.schedule.ScheduleEventActionRuntimePanel"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++<carnot:EventActionType Oid="12355" Id="excludeUser" Name="Exclude User" IsPredefined="true" IsProcessAction="false" IsActivityAction="true" SupportedConditionTypes="onAssignment">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/excludeuser/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.actions.excludeuser.ExcludeUserActionPanel"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.excludeuser.ExcludeUserAction"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.actions.excludeuser.ExcludeUserActionValidator"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++<carnot:EventActionType Oid="12356" Id="setData" Name="Set Data" IsPredefined="true" IsProcessAction="true" IsActivityAction="true" SupportedConditionTypes="timer, exception, statechange, processStatechange, onAssignment">
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/actions/setdata/icon.gif"/>
++<carnot:Attribute Name="carnot:defdesk:panel" Value="ag.carnot.workflow.spi.providers.actions.setdata.SetDataActionPropertiesPanel"/>
++<carnot:Attribute Name="carnot:engine:action" Value="ag.carnot.workflow.spi.providers.actions.setdata.SetDataAction"/>
++<carnot:Attribute Name="carnot:engine:validator" Value="ag.carnot.workflow.spi.providers.actions.setdata.SetDataActionValidator"/>
++</carnot:Attributes>
++</carnot:EventActionType>
++</carnot:EventActionTypes>
++<carnot:LinkTypes/>
++</carnot:MetaTypes>
++<carnot:Modelers>
++<carnot:Modeler Oid="10746" Id="motu" Name="motu" Password="motu">
++<carnot:Description>Master for workflow modeling.</carnot:Description>
++</carnot:Modeler>
++</carnot:Modelers>
++<carnot:Diagrams>
++<carnot:Diagram Oid="10001" Name="Default Diagram">
++<carnot:Symbols/>
++<carnot:Connections/>
++</carnot:Diagram>
++</carnot:Diagrams>
++<carnot:Views/>
++<carnot:Attributes>
++<carnot:Attribute Name="carnot:engine:validFrom" Value="2003/11/04 10:17:01:082" Type="Timestamp"/>
++</carnot:Attributes>
++</carnot:Package>
++</ExtendedAttribute>
++</ExtendedAttributes>
++</Package>
+-- 

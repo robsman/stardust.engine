@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<ivy-module version="2.0"
+   xmlns:m="http://ant.apache.org/ivy/maven"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+   <info organisation="com.infinity.bpm" module="infinity-process-engine" revision="${ipp.version.full}">
+      <extends organisation="com.infinity.bpm" module="infinity-common-artifacts" revision="latest.integration"
+         extendType="all" location="interface-ivy.xml"/>
+   </info>
+
+   <configurations>
+      <!-- *************************************************************** -->
+      <!--  Public                                                         -->
+      <!--  (module-ivy.xml)                       +- - - +                -->
+      <!--                                       * |      |                -->
+      <!--                         ###################    |                -->
+      <!--                         #                 #    |                -->
+      <!--                         #  Module Config  #<>- +                -->
+      <!--                         #                 # 1..*                -->
+      <!--                         ###################                     -->
+      <!--                          /              \                       -->
+      <!--                    1..* /                \ 1                    -->
+      <!-- - - - - - - - - - - - -/- - - - - - - - - \ - - - - - - - - - - -->
+      <!--  Private              /                    \                    -->
+      <!--  (interface-ivy.xml) /                      \                   -->
+      <!--                0..1 /                        \ 0..1             -->
+      <!--         ######################  #####################           -->
+      <!--         #                    #  #                   #           -->
+      <!--         #  Interface Config  #  #  Provider Config  #           -->
+      <!--         #                    #  #                   #           -->
+      <!--         ######################  #####################           -->
+      <!--                * |                          | *                 -->
+      <!--                  |                          |                   -->
+      <!--                  |                          |                   -->
+      <!--                  |      ################    |                   -->
+      <!--                  |      #              #    |                   -->
+      <!--                  +- - - #  Dependency  #- - +                   -->
+      <!--                    1..* #              # 1..*                   -->
+      <!--                         ################                        -->
+      <!--                                                                 -->
+      <!-- *************************************************************** -->
+
+      <!-- ********** -->
+      <!--    Test    -->
+      <!-- ********** -->
+      <conf name="test" visibility="private" description="Test dependencies" />
+      <conf name="run-test" visibility="private" description="Dependencies for JUnit Test Run via Ant" />
+
+      <!-- ********** -->
+      <!--    POMs    -->
+      <!-- ********** -->
+      <conf name="pom" description="IPP POMs" />
+
+      <!-- ************** -->
+      <!--    Internal    -->
+      <!-- ************** -->
+      <conf name="carnot-base-compile" extends="base-provider-compile" visibility="public" />
+      <conf name="carnot-base-runtime" extends="carnot-base-compile,base-provider-runtime" visibility="public" />
+      
+      <conf name="carnot-engine-compile" extends="base-provider-compile" visibility="public" />
+      <conf name="carnot-engine-compile-optional" extends="qdox-provider-compile, jcr-interface-compile, jcr-vfs-provider-compile,
+         ejb21-interface-provided, jta-interface-compile, ejb30-interface-compile, logging-log4j-provider-compile" visibility="public" />
+      <conf name="carnot-engine-provided" extends="web-client-interface-provided" visibility="public" />
+      <conf name="carnot-engine-runtime" extends="carnot-engine-compile, base-provider-runtime" visibility="public" />
+      <conf name="carnot-engine-runtime-optional" extends="jackrabbit-provider-runtime,jencks-provider-runtime,activemq-provider-runtime,swing-client-provider-compile,hazelcast-provider-compile,jms-interface-runtime" visibility="public" />
+      
+      <conf name="carnot-client-compile" extends="base-provider-compile" visibility="public" />
+      <conf name="carnot-client-runtime" extends="carnot-client-compile, base-provider-runtime" visibility="public" />
+      
+      <!-- main idea of this config is to include only carnot-engine.jar as a dependency -->
+      <conf name="carnot-engine-jar" visibility="private"/>
+      
+      <conf name="carnot-dms-compile" extends="carnot-engine-jar" visibility="public" />
+      <conf name="carnot-dms-runtime" extends="carnot-dms-compile" visibility="public" />
+      
+      <conf name="carnot-emf-xsd-integration-compile" extends="carnot-engine-jar" visibility="public" />
+      <conf name="carnot-emf-xsd-integration-runtime" extends="carnot-emf-xsd-integration-compile, carnot-engine-jar" visibility="public" />
+      
+      <conf name="compile-secret" extends="swing-client-provider-compile" visibility="private" />
+      <conf name="build-lib" visibility="private" />
+      <conf name="ant-build-runtime" visibility="public" />
+      <conf name="integration-jars" extends="js-provider-runtime" visibility="private" />
+   </configurations>
+
+   <publications>
+      <artifact name="carnot-base" type="jar" conf="carnot-base-compile, carnot-base-runtime" ext="jar" />
+      <artifact name="carnot-client" type="jar" conf="carnot-client-compile, carnot-client-runtime" ext="jar" />
+      <artifact name="carnot-engine" type="jar" ext="jar"
+         conf="carnot-engine-compile, carnot-engine-runtime, carnot-engine-compile-optional, carnot-engine-runtime-optional, carnot-engine-provided, carnot-engine-jar" />
+      <artifact name="carnot-dms" type="jar" conf="carnot-dms-compile, carnot-dms-runtime" ext="jar" />
+      <artifact name="carnot-emf-xsd-integration" type="jar" conf="carnot-emf-xsd-integration-compile, carnot-emf-xsd-integration-runtime" ext="jar" />
+
+      <artifact name="carnot-base" type="pom" conf="pom" ext="pom" />
+      <artifact name="carnot-client" type="pom" conf="pom" ext="pom" />
+      <artifact name="carnot-engine" type="pom" conf="pom" ext="pom" />
+      <artifact name="carnot-dms" type="pom" conf="pom" ext="pom" />
+      <artifact name="carnot-emf-xsd-integration" type="pom" conf="pom" ext="pom" />
+   </publications>
+
+   <dependencies>
+
+      <!-- ********** -->
+      <!--    Test    -->
+      <!-- ********** -->
+      <!-- JUnit -->
+      <dependency org="junit" name="junit-dep" rev="4.8.2" conf="test->default" />
+
+      <!-- Hamcrest -->
+      <dependency org="org.hamcrest" name="hamcrest-core" rev="1.1" conf="test->default" />
+      <dependency org="org.hamcrest" name="hamcrest-library" rev="1.1" conf="test->default" />
+
+      <!-- Mockito -->
+      <dependency org="org.mockito" name="mockito-core" rev="1.8.5" conf="test->default" />
+
+      <!-- PowerMock -->
+      <dependency org="org.powermock" name="powermock-api-mockito" rev="1.4.9" conf="test->default">
+         <exclude org="org.mockito" module="mockito-all" />
+      </dependency>
+      <dependency org="org.powermock" name="powermock-module-junit4" rev="1.4.9" conf="test->default">
+         <exclude org="junit" module="junit" />
+      </dependency>
+
+      <dependency org="org.apache.ant" name="ant-junit" rev="1.7.0" conf="run-test->default">
+         <exclude org="junit" module="junit" />
+      </dependency>
+
+      <!-- ************** -->
+      <!--    Internal    -->
+      <!-- ************** -->
+      <!-- compile-secret -->
+      <dependency org="org.eclipse.xsd" name="xsd" rev="2.4.2" conf="compile-secret->default" />
+      <dependency org="org.eclipse.emf" name="common" rev="2.4.0" conf="compile-secret->default" />
+      <dependency org="org.eclipse.emf" name="ecore" rev="2.4.2" conf="compile-secret->default" />
+      <dependency org="org.eclipse.emf" name="ecore-xmi" rev="2.4.1" conf="compile-secret->default" />
+
+      <!-- build-lib -->
+      <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="build-lib->default">
+         <exclude org="xml-apis" module="xml-apis" />
+      </dependency>
+      
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.common" rev="2.6.0.v20100914-1218" transitive="false" conf="integration-jars->default"/>
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore" rev="2.6.1.v20100914-1218" transitive="false" conf="integration-jars->default"/>
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore.xmi" rev="2.5.0.v20100521-1846" transitive="false" conf="integration-jars->default"/>
+      <dependency org="org.eclipse.xsd" name="org.eclipse.xsd" rev="2.6.0.v20100914-1218" transitive="false" conf="integration-jars->default"/>
+      <dependency org="com.infinity.bpm.3rdparty" name="emf-xsd-schema-cache" rev="1.0" transitive="false" conf="integration-jars->default"/>
+
+      <dependency org="com.googlecode.jarjar" name="jarjar" rev="1.1" conf="ant-build-runtime->default"/>
+      
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
+      <override org="log4j" module="log4j" rev="1.2.15" />
+
+      <override org="org.slf4j" module="slf4j-api" rev="1.5.11" />
+
+      <override org="commons-collections" module="commons-collections" rev="3.2" />
+      <override org="commons-logging" module="commons-logging" rev="1.1.1" />
+      <override org="commons-pool" module="commons-pool" rev="1.5.2" />
+
+      <override org="org.apache.derby" module="derby" rev="10.4.2.0" />
+
+      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="1.0.1" />
+      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
+      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
+      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.1.1" />
+      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.1.1" />
+
+      <override org="org.objenesis" module="objenesis" rev="1.2" />
+
+      <!-- *************** -->
+      <!--    Conflicts    -->
+      <!-- *************** -->
+      <conflict org="org.apache.geronimo.components" module="geronimo-transaction" manager="strict" />
+      <conflict org="org.apache.geronimo.components" module="geronimo-connector" manager="strict" />
+      <conflict org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" manager="strict" />
+   </dependencies>
+</ivy-module>
+

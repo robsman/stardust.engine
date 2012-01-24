@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<ivy-module version="2.0"
+   xmlns:m="http://ant.apache.org/ivy/maven"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+   <info organisation="com.infinity.bpm" module="carnot-spring"
+      revision="${ipp.version.full}" />
+
+   <configurations>
+      <conf name="carnot-spring-compile" description="IPP Engine - Spring Module - Compile Scope" />
+      <conf name="carnot-spring-provided" description="IPP Engine - Spring Module - Provided Scope" />
+      <conf name="carnot-spring-compile-optional" description="IPP Engine - Spring Module - Compile Scope (optional)" />
+      <conf name="carnot-spring-runtime" description="IPP Engine - Spring Module - Runtime Scope" />
+      
+      <conf name="carnot-spring-sources" description="IPP Engine - Spring Module - Sources" />
+      
+      <conf name="compile" extends="carnot-spring-compile, carnot-spring-compile-optional, carnot-spring-provided" visibility="private" description="Compile Time Dependencies" />
+
+      <conf name="test" visibility="private" description="Test dependencies" />
+
+      <conf name="pom" description="IPP Engine - Spring Module - POMs" />
+   </configurations>
+
+   <publications>
+      <artifact name="carnot-spring" type="jar" conf="carnot-spring-compile, carnot-spring-provided, carnot-spring-compile-optional, carnot-spring-runtime" ext="jar" />
+      <artifact name="carnot-spring" type="jar" conf="carnot-spring-sources" m:classifier="sources" />
+
+      <artifact name="carnot-spring" type="pom" conf="pom" ext="pom" />
+   </publications>
+
+   <dependencies>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile->engine-module-compile"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->jcr-vfs-module-compile"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->qdox-module-compile"/>
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->jms-api-module-compile"/>
+      
+      <dependency org="org.springframework" name="spring" rev="2.5.6" conf="carnot-spring-compile->default">
+         <exclude org="org.springframework" module="spring-beans"/>
+         <exclude org="org.springframework" module="spring-context"/>
+         <exclude org="org.springframework" module="spring-context-support"/>
+         <exclude org="org.springframework" module="spring-core"/>
+         <exclude org="org.springframework" module="spring-web"/>
+      </dependency>
+      <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="carnot-spring-provided->default"/>
+      
+      <!-- test -->
+      <dependency org="junit" name="junit-dep" rev="4.8.2" conf="test->default" />
+      <dependency org="org.hamcrest" name="hamcrest-core" rev="1.1" conf="test->default" />
+      <dependency org="org.hamcrest" name="hamcrest-library" rev="1.1" conf="test->default" />
+   </dependencies>
+</ivy-module>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+   targetNamespace="http://www.carnot.ag/carnot-runtime-setup"
+   xmlns:crs="http://www.carnot.ag/carnot-runtime-setup">
+   <xs:element name="runtime-setup">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:audit-trail" minOccurs="0" maxOccurs="1"></xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="audit-trail">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:data-clusters" minOccurs="0" maxOccurs="1"></xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="data-clusters">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:data-cluster" maxOccurs="unbounded" minOccurs="0"></xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="data-cluster">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:data-slots" minOccurs="0" maxOccurs="1"></xs:element>
+            <xs:element ref="crs:data-cluster-indexes" minOccurs="0" maxOccurs="1"></xs:element>
+         </xs:sequence>
+         <xs:attribute name="tableName" type="xs:string" use="required"></xs:attribute>
+         <xs:attribute name="processInstanceColumn" type="xs:string" use="required"></xs:attribute>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="data-slots">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:data-slot" minOccurs="0" maxOccurs="unbounded"></xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="data-slot">
+      <xs:complexType>
+         <xs:attribute name="modelId" type="xs:string" use="required" />
+         <xs:attribute name="dataId" type="xs:string" use="required" />
+         <xs:attribute name="attributeName" type="xs:string" use="optional" />
+         <xs:attribute name="oidColumn" type="xs:string" use="required" />
+         <xs:attribute name="typeColumn" type="xs:string" use="required" />
+         <xs:attribute name="nValueColumn" type="xs:string" use="optional" />
+         <xs:attribute name="sValueColumn" type="xs:string" use="optional" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="data-cluster-indexes">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:data-cluster-index" minOccurs="0"
+               maxOccurs="unbounded">
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="data-cluster-index">
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element ref="crs:column" minOccurs="1" maxOccurs="unbounded" />
+         </xs:sequence>
+         <xs:attribute name="indexName" type="xs:string" use="required" />
+         <xs:attribute name="unique" type="xs:boolean" use="optional" default="false" />
+      </xs:complexType>
+   </xs:element>
+
+   <xs:element name="column">
+      <xs:complexType>
+         <xs:attribute name="name" type="xs:string" use="required" />
+      </xs:complexType>
+   </xs:element>
+
+</xs:schema>

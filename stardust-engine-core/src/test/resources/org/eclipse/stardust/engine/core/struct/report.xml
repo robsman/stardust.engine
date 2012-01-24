@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<structureddataroot structureddata:oid="0" xmlns:structureddata="ag.carnot.structureddata" date="23.11.2007">
+
+
+  <order qty="100" ordernr="N1" structureddata:oid="2">
+    <customer name="Smith" structureddata:oid="5">
+      <address street="Baker" structureddata:oid="7"/>
+      <address street="North" structureddata:oid="9"/>
+    </customer>
+    <!-- some comments for testing -->
+  </order>
+
+<!-- some comments for testing -->
+
+  <order qty="200" ordernr="N2" structureddata:oid="11">
+    <customer name="James" structureddata:oid="14">
+      <!-- some comments for testing -->
+      <address street="North" structureddata:oid="16"/>
+    </customer>
+  </order>
+
+</structureddataroot>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+			<schema targetNamespace="http://www.carnot.ag/workflowmodel/3.1/struct" xmlns:tns="http://www.carnot.ag/workflowmodel/3.1/struct" xmlns="http://www.w3.org/2001/XMLSchema">
+				<complexType name="structureddataroot">
+			        <sequence>
+			          <element maxOccurs="unbounded" minOccurs="0" name="order" type="tns:order"/>
+			        </sequence>
+			        <attribute name="date" type="string" use="required"/>
+			      </complexType>
+			      <element name="structureddataroot" type="tns:structureddataroot"/>
+
+				<complexType name="order">
+			      <sequence>
+			         <element name="customer" type="tns:customer"/>
+			      </sequence>
+			      <attribute name="qty" type="string" use="required"/>
+			      <attribute name="ordernr" type="string" use="required"/>
+			    </complexType>
+			    <element name="order" type="tns:order"/>
+
+				<complexType name="customer">
+			      <sequence>
+			        <element maxOccurs="unbounded" minOccurs="1" name="address" type="tns:address"/>
+			      </sequence>
+			      <attribute name="name" type="string" use="required"/>
+			    </complexType>
+			    <element name="customer" type="tns:customer"/>
+
+				<complexType name="address">
+			      <attribute name="street" type="string" use="required"/>
+			    </complexType>
+				<element name="address" type="tns:address"/>
+			</schema>

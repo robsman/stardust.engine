@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- stripped down schema, will eventually replaced by the full schema once the CQ gets approved -->
+<xsd:schema
+   targetNamespace="http://www.wfmc.org/2002/XPDL1.0"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:xpdl="http://www.wfmc.org/2002/XPDL1.0"
+   elementFormDefault="qualified"
+   attributeFormDefault="unqualified">
+   <xsd:element name="TypeDeclarations">
+      <xsd:complexType>
+         <xsd:sequence>
+            <xsd:any minOccurs="0" maxOccurs="unbounded"
+               namespace="##any" processContents="skip" />
+         </xsd:sequence>
+         <xsd:anyAttribute namespace="##any"
+            processContents="skip" />
+      </xsd:complexType>
+   </xsd:element>
+</xsd:schema>

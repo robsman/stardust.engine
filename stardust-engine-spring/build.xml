@@ -1,0 +1,185 @@
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+<!--
+  To execute this build script, you have to configure your environment as follows:
+  - Java property java.home must point to an existent JAVA_HOME (either via parameter
+    (e.g. antit.bat -Djava.home=C:/Programme/Java15) or create a private.properties file
+    in the etc folder of the project and put the property in there)
+  - you need an Infinity installation or you have to execute at least the latakia build file
+  - set the Java property latakia.home to the corresponding installation or build location
+-->
+
+<project name="carnot-spring" default="build" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
+
+   <property name="project.dir" value="." />
+   <property name="project.src" value="${project.dir}/src/main/java" />
+   <property name="project.resources" value="${project.dir}/src/main/resources" />
+   <property name="project.etc" value="${project.dir}/etc" />
+   <property file="${project.etc}/private.properties" />
+
+   <!-- if moonglow.home was set via external property -->
+   <available file="${moonglow.home}" property="moonglow.home.present" type="dir" />
+
+   <property name="organizationId" value="com.infinity.bpm" />
+   <property name="artifactId" value="carnot-spring" />
+
+   <import file="${project.dir}/../../../buildtools/build-commons.xml" />
+
+   <target name="initOnDevelopment" if="setup.development">
+      <echo message="Performing a development build ..." />
+
+      <property name="javac.debuglevel" value="lines,source,vars" />
+   </target>
+
+   <target name="initOnProduction" unless="setup.development">
+      <echo message="Performing a production build ..." />
+
+      <property name="javac.debuglevel" value="lines,source" />
+   </target>
+
+   <target name="init" depends="initOnDevelopment, initOnProduction, initBuildDir, initLatakiaHome, initIvy">
+      <property name="build.dir" value="${build.home}" />
+   </target>
+
+   <target name="clean" depends="init" description="removes all build results">
+      <delete dir="${build.dir}" />
+   </target>
+
+   <target name="initBuildDir" unless="build.home">
+      <property name="build.home" value="${project.dir}/build" />
+   </target>
+
+   <target name="initLatakiaHome" unless="latakia.home">
+      <property name="latakia.home" value="${project.dir}/../../../latakia/build" />
+   </target>
+
+   <target name="initBuild" depends="init, initBuildDir">
+      <property name="build.dir" value="${build.home}" />
+      <property name="build.classes" value="${build.dir}/classes" />
+      <property name="build.lib" value="${build.dir}/lib" />
+      <property name="build.src" value="${build.dir}/src" />
+
+      <property name="carnot-spring.jarfile" value="carnot-spring.jar" />
+      <property name="carnot-spring.jar" value="${build.lib}/${carnot-spring.jarfile}" />
+      <property name="carnot-spring.src-jarfile" value="carnot-spring-sources.jar" />
+      <property name="carnot-spring.src-jar" value="${build.src}/${carnot-spring.src-jarfile}" />
+   </target>
+
+   <target name="initBuildDirectories" depends="initBuild">
+      <mkdir dir="${build.classes}" />
+      <mkdir dir="${build.lib}" />
+      <mkdir dir="${build.src}" />
+   </target>
+
+	<target name="initIvy">
+      <echo message="Using Ivy for dependency management." />
+      <init-ivy />
+   </target>
+
+   <target name="initClasspath" depends="init">
+   	<init-ivy-classpath />
+
+      <path id="carnot-spring.classpath">
+         <path refid="compile.deps" />
+      </path>
+   </target>
+
+   <target name="compile" depends="initBuildDirectories, initClasspath, init" description="Compiles the project's Java classes">
+      <ipp:javac-java5 srcdir="${project.src}" destdir="${build.classes}">
+         <include name="**/*.java" />
+         <classpath id="compile5.classpath">
+            <path path="${build.classes}" />
+            <path refid="carnot-spring.classpath" />
+         </classpath>
+      </ipp:javac-java5>
+   </target>
+
+   <target name="jar" depends="compile">
+      <ipp:jar jarfile="${carnot-spring.jar}" implementationTitle="Infinity Process Engine - Spring Integration">
+         <fileset dir="${build.classes}" id="fileset.carnot-spring.jar">
+         	<include name="org/eclipse/stardust/engine/api/spring/**/*.class" />
+         	<include name="org/eclipse/stardust/engine/spring/**/*.class" />
+            <exclude name="org/eclipse/stardust/engine/spring/tools/*.class" />
+         </fileset>
+         <fileset dir="${project.resources}" includes="**/*.*" />
+      </ipp:jar>
+   </target>
+
+   <target name="jar.src" depends="compile">
+      <delete file="${carnot-spring.src-jar}" />
+      <ipp:jar jarfile="${carnot-spring.src-jar}" implementationTitle="Infinity Process Engine - Spring Integration Sources">
+         <fileset dir="${project.src}">
+         	<include name="org/eclipse/stardust/engine/api/spring/**/*.*" />
+         	<include name="org/eclipse/stardust/engine/spring/**/*.*" />
+         	<exclude name="org/eclipse/stardust/engine/spring/tools/*.*" />
+         </fileset>
+      </ipp:jar>
+   </target>
+
+   <target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="carnot-spring-compile" publishIvy="true" />
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.src}" conf="carnot-spring-sources" publishIvy="false" publishPom="false" />
+
+      <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="spring-module" />
+      <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="client-spring-module" />
+   	
+   	<ivy:publish resolver="buildenv"
+   	   conf="module-pom" publishivy="true"
+   	   artifactspattern="${build.lib}/[artifact](-[classifier]).[ext]"
+   	   srcivypattern="module-ivy.xml"
+   	   overwrite="true" haltonmissing="true" />
+   	
+   	<ivy:retrieve file="module-ivy.xml" pattern="${build.lib}/spring/[artifact]-[revision].[ext]" 
+   		conf="spring-module-runtime, spring-module-provided" module="carnot-spring-module"/>
+
+      <!-- delete duplicated archives; archives which are directly stored in lib remains -->
+      <delete>
+         <fileset dir="${build.lib}/spring" includes="carnot-engine*.jar" />
+         <fileset dir="${build.lib}/spring" includes="carnot-spring*.jar" />
+         <fileset dir="${build.lib}/spring">
+            <present present="both" targetdir="${build.lib}"/>
+         </fileset>
+      </delete>
+   	
+   </target>
+
+   <target name="initMoonglowHome" unless="moonglow.home">
+      <property name="moonglow.home" value="${project.dir}/../../../moonglow" />
+      <available file="${moonglow.home}" property="moonglow.home.present" type="dir" />
+   </target>
+
+   <target name="dist" depends="build, initMoonglowHome">
+      <property name="wst-portals-facet.lib.dir" value="${moonglow.home}/../stardust/ide.wst/org.eclipse.stardust.ide.wst.facet.portal/lib" />
+      <property name="rt-spring-ide.lib.dir" value="${moonglow.home}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.spring/lib" />
+   	<property name="hib-modeling-ide.lib.dir" value="${moonglow.home}/../moonglow/ag.carnot.workflow.modeling.hibernate/lib" />
+      <mkdir dir="${wst-portals-facet.lib.dir}" />
+      <mkdir dir="${rt-spring-ide.lib.dir}" />
+      <mkdir dir="${hib-modeling-ide.lib.dir}" />
+      <copy todir="${wst-portals-facet.lib.dir}" overwrite="true" verbose="true">
+         <fileset dir="${build.lib}">
+            <include name="${carnot-spring.jarfile}" />
+         </fileset>
+      </copy>
+      <copy todir="${rt-spring-ide.lib.dir}" overwrite="true" verbose="true">
+         <fileset dir="${build.lib}">
+            <include name="${carnot-spring.jarfile}" />
+         </fileset>
+      </copy>
+      <copy todir="${hib-modeling-ide.lib.dir}" overwrite="true" verbose="true">
+         <fileset dir="${build.lib}">
+            <include name="${carnot-spring.jarfile}" />
+         </fileset>
+      </copy>
+   </target>
+
+   <target name="deploy" depends="build" />
+</project>

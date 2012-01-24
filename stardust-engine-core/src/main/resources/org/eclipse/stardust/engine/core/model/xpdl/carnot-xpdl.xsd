@@ -1,0 +1,759 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2005 rel. 3 U (http://www.altova.com) by Robert Sauer (N/A) -->
+<xsd:schema xmlns:xpdl="http://www.wfmc.org/2002/XPDL1.0" xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.carnot.ag/xpdl/3.1" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:element name="AccessPoint">
+		<xsd:complexType>
+			<xsd:sequence>
+                <xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string" use="required"/>
+			<xsd:attribute name="Direction">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="IN"/>
+						<xsd:enumeration value="OUT"/>
+						<xsd:enumeration value="INOUT"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="Type" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="AccessPoints">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:AccessPoint" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="AccessPointRef">
+		<xsd:complexType>
+			<xsd:attribute name="Id" type="xsd:string"/>
+			<xsd:attribute name="Expression" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Activity">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:EventHandlers" minOccurs="0"/>
+				<xsd:element ref="carnot:DataFlows" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Implementation" type="xsd:string"/>
+			<xsd:attribute name="LoopType" type="xsd:string"/>
+			<xsd:attribute name="LoopCondition" type="xsd:string"/>
+			<xsd:attribute name="IsAbortableByPerformer" type="xsd:boolean"/>
+			<xsd:attribute name="IsHibernatedOnCreation" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Application">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:ApplicationContexts" minOccurs="0"/>
+				<xsd:element ref="carnot:AccessPoints"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Type" type="xsd:string"/>
+			<xsd:attribute name="IsInteractive" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="ApplicationContext">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:AccessPoints" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Type" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="ApplicationContexts">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:ApplicationContext" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="ApplicationContextType">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string"/>
+			<xsd:attribute name="IsPredefined" type="xsd:boolean"/>
+			<xsd:attribute name="HasApplicationPath" type="xsd:boolean"/>
+			<xsd:attribute name="HasMappingId" type="xsd:boolean"/>
+			<xsd:attribute name="PanelClass" type="xsd:string"/>
+			<xsd:attribute name="AccessPointProviderClass" type="xsd:string"/>
+			<xsd:attribute name="ValidatorClass" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="ApplicationContextTypes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:ApplicationContextType" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="ApplicationType">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string"/>
+			<xsd:attribute name="IsPredefined" type="xsd:boolean"/>
+			<xsd:attribute name="IsSynchronous" type="xsd:boolean"/>
+			<xsd:attribute name="PanelClass" type="xsd:string"/>
+			<xsd:attribute name="AccssPointProviderClass" type="xsd:string"/>
+			<xsd:attribute name="ValidatorClass" type="xsd:string"/>
+			<xsd:attribute name="InstanceClass" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="ApplicationTypes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:ApplicationType" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Attribute">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Value" minOccurs="0" />
+			</xsd:sequence>
+			<xsd:attribute name="Name" type="xsd:string" use="required" />
+			<xsd:attribute name="Value" type="xsd:string" />
+			<xsd:attribute name="Type" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Attributes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Attribute" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="ConditionalPerformer">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="DataId" type="xsd:string"/>
+			<xsd:attribute name="DataPath" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Connection">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Points" minOccurs="0"/>
+                               <xsd:element ref="carnot:Coordinate" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Kind" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="DATA_FLOW"/>
+						<xsd:enumeration value="EXECUTED_BY"/>
+						<xsd:enumeration value="GENERIC_LINK"/>
+						<xsd:enumeration value="PART_OF"/>
+						<xsd:enumeration value="PERFORMS"/>
+						<xsd:enumeration value="REFERS_TO"/>
+						<xsd:enumeration value="SUBPROCESS_OF"/>
+						<xsd:enumeration value="TEAM_LEAD"/>
+						<xsd:enumeration value="TRANSITION"/>
+						<xsd:enumeration value="WORKS_FOR"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="SourceSymbol" type="xsd:long" use="required"/>
+			<xsd:attribute name="TargetSymbol" type="xsd:long" use="required"/>
+			<xsd:attribute name="ModelElement" type="xsd:string"/>
+			<xsd:attribute name="LinkType" type="xsd:string"/>
+                       <xsd:attribute name="BorderColor" type="xsd:string" use="optional"/>
+            <xsd:attribute name="FillColor" type="xsd:string" use="optional"/>
+            <xsd:attribute name="Style" type="xsd:string" use="optional"/>
+            <xsd:attribute name="SourceAnchor" type="xsd:string" use="optional"/>
+            <xsd:attribute name="TargetAnchor" type="xsd:string" use="optional"/>
+            <xsd:attribute name="Routing" use="optional">
+               <xsd:simpleType>
+                       <xsd:restriction base="xsd:NCName">
+                                       <xsd:enumeration value="Default"/>
+                                       <xsd:enumeration value="ShortestPath"/>
+                               <xsd:enumeration value="Manhattan"/>
+                                       <xsd:enumeration value="Explicit"/>
+                               </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Connections">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Connection" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+       <xsd:element name="Coordinate">
+      <xsd:complexType>
+         <xsd:attribute name="XPos" type="xsd:string" />
+         <xsd:attribute name="YPos" type="xsd:string" />
+      </xsd:complexType>
+    </xsd:element>
+	<xsd:element name="DataField">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Type" type="xsd:string"/>
+			<xsd:attribute name="IsPredefined" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="DataFlow">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:DataRef" minOccurs="0"/>
+				<xsd:element ref="carnot:AccessPointRef" minOccurs="0"/>
+			</xsd:sequence>
+                       <xsd:attribute name="Oid" type="xsd:long" use="optional"/>
+			<xsd:attribute name="Id" type="xsd:string"/>
+			<xsd:attribute name="Direction">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="IN"/>
+						<xsd:enumeration value="OUT"/>
+						<xsd:enumeration value="INOUT"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="Context" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="DataFlows">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:DataFlow" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="DataPath">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+				<xsd:element ref="carnot:DataRef" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string" use="required"/>
+			<xsd:attribute name="Direction" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="IN"/>
+						<xsd:enumeration value="OUT"/>
+						<xsd:enumeration value="INOUT"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="IsDescriptor" type="xsd:boolean"/>
+			<xsd:attribute name="IsKey" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="DataPaths">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:DataPath" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="DataRef">
+		<xsd:complexType>
+			<xsd:attribute name="Id" type="xsd:string"/>
+			<xsd:attribute name="Expression" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="DataType">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string"/>
+			<xsd:attribute name="IsPredefined" type="xsd:boolean"/>
+			<xsd:attribute name="PanelClass" type="xsd:string"/>
+			<xsd:attribute name="AccessPathEditor" type="xsd:string"/>
+			<xsd:attribute name="ValidatorClass" type="xsd:string"/>
+			<xsd:attribute name="Evaluator" type="xsd:string"/>
+			<xsd:attribute name="InstanceClass" type="xsd:string"/>
+			<xsd:attribute name="ValueCreator" type="xsd:string"/>
+			<xsd:attribute name="StorageStrategy" type="xsd:string"/>
+			<xsd:attribute name="IsWriteable" type="xsd:boolean"/>
+			<xsd:attribute name="IsReadable" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="DataTypes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:DataType" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Description" type="xsd:string"/>
+	<xsd:element name="Diagram">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Symbols" minOccurs="0"/>
+				<xsd:element ref="carnot:Connections" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string" use="required"/>
+            <xsd:attribute name="Orientation" use="optional">
+	            <xsd:simpleType>
+	                    <xsd:restriction base="xsd:NCName">
+	                            <xsd:enumeration value="Vertical"/>
+	                            <xsd:enumeration value="Horizontal"/>
+	                </xsd:restriction>
+	            </xsd:simpleType>
+            </xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Diagrams">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Diagram" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="EventActionType">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string"/>
+			<xsd:attribute name="IsPredefined" type="xsd:boolean"/>
+			<xsd:attribute name="IsProcessAction" type="xsd:boolean"/>
+			<xsd:attribute name="IsActivityAction" type="xsd:boolean"/>
+			<xsd:attribute name="PanelClass" type="xsd:string"/>
+			<xsd:attribute name="ActionClass" type="xsd:string"/>
+			<xsd:attribute name="SupportedConditionTypes" type="xsd:string"/>
+			<xsd:attribute name="UnsupportedContexts" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="EventActionTypes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:EventActionType" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="EventConditionType">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string"/>
+			<xsd:attribute name="IsPredefined" type="xsd:boolean"/>
+			<xsd:attribute name="IsProcessCondition" type="xsd:boolean"/>
+			<xsd:attribute name="IsActivityCondition" type="xsd:boolean"/>
+			<xsd:attribute name="Implementation">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="ENGINE"/>
+						<xsd:enumeration value="PUSH"/>
+						<xsd:enumeration value="PULL"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="PanelClass" type="xsd:string"/>
+			<xsd:attribute name="BinderClass" type="xsd:string"/>
+			<xsd:attribute name="PullEventEmitterClass" type="xsd:string"/>
+			<xsd:attribute name="Rule" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="EventConditionTypes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:EventConditionType" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="EventAction">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string" use="required"/>
+			<xsd:attribute name="Type" type="xsd:string"/>
+			<xsd:attribute name="Kind">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="EVENT"/>
+						<xsd:enumeration value="BIND"/>
+						<xsd:enumeration value="UNBIND"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="EventActions">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:EventAction" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="EventHandler">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:EventActions" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string"/>
+			<xsd:attribute name="Type" type="xsd:string"/>
+			<xsd:attribute name="IsAutomaticallyBound" type="xsd:boolean"/>
+			<xsd:attribute name="IsConsumedOnMatch" type="xsd:boolean"/>
+			<xsd:attribute name="IsUnboundOnMatch" type="xsd:boolean"/>
+			<xsd:attribute name="IsLogged" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="EventHandlers">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:EventHandler" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="FormalParameterMapping">
+		<xsd:complexType>
+			<xsd:attribute name="Data" type="xsd:string" use="required"/>
+			<xsd:attribute name="FormalParameter" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="FormalParameterMappings">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:FormalParameterMapping" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="LinkType">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="LinkSource">
+					<xsd:complexType>
+						<xsd:attribute name="ClassName" type="xsd:string" use="required"/>
+						<xsd:attribute name="Cardinality" type="xsd:string" use="required"/>
+						<xsd:attribute name="Role" type="xsd:string"/>
+						<xsd:attribute name="Symbol" type="xsd:string"/>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="LinkTarget">
+					<xsd:complexType>
+						<xsd:attribute name="ClassName" type="xsd:string" use="required"/>
+						<xsd:attribute name="Cardinality" type="xsd:string" use="required"/>
+						<xsd:attribute name="Role" type="xsd:string"/>
+						<xsd:attribute name="Symbol" type="xsd:string"/>
+					</xsd:complexType>
+				</xsd:element>
+                               <xsd:element ref="carnot:Description" minOccurs="0"/>
+                               <xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string" use="required"/>
+			<xsd:attribute name="LineType" type="xsd:string"/>
+			<xsd:attribute name="LineColor" type="xsd:string"/>
+			<xsd:attribute name="HasLinkTypeLabel" type="xsd:boolean"/>
+			<xsd:attribute name="HasRoleLabels" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="LinkTypes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:LinkType" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Member">
+		<xsd:complexType>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Members">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Member" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="MetaTypes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:DataTypes" minOccurs="0"/>
+				<xsd:element ref="carnot:ApplicationTypes" minOccurs="0"/>
+				<xsd:element ref="carnot:ApplicationContextTypes" minOccurs="0"/>
+				<xsd:element ref="carnot:TriggerTypes" minOccurs="0"/>
+				<xsd:element ref="carnot:EventConditionTypes" minOccurs="0"/>
+				<xsd:element ref="carnot:EventActionTypes" minOccurs="0"/>
+				<xsd:element ref="carnot:LinkTypes" minOccurs="0"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Modeler">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string" use="required"/>
+			<xsd:attribute name="Password" type="xsd:string"/>
+			<xsd:attribute name="EMail" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Modelers">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Modeler" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Package">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:MetaTypes"/>
+				<xsd:element ref="carnot:Modelers" minOccurs="0"/>
+				<xsd:element ref="carnot:Diagrams" minOccurs="0"/>
+				<xsd:element ref="carnot:Views" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="CarnotVersion" type="xsd:string" use="required"/>
+			<xsd:attribute name="ModelOid" type="xsd:long" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Organization">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Members" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="TeamLead" type="xsd:string" />
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Points" type="xsd:string"/>
+	<xsd:element name="Role">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Cardinality" type="xsd:long"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Symbol">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Text" minOccurs="0"/>
+				<xsd:element ref="carnot:Symbols" minOccurs="0"/>
+				<xsd:element ref="carnot:Connections" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Kind" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:NMTOKEN">
+						<xsd:enumeration value="ACTIVITY"/>
+						<xsd:enumeration value="ANNOTATION"/>
+						<xsd:enumeration value="APPLICATION"/>
+						<xsd:enumeration value="CONDITIONAL_PERFORMER"/>
+						<xsd:enumeration value="DATA"/>
+						<xsd:enumeration value="GROUP"/>
+						<xsd:enumeration value="MODELER"/>
+						<xsd:enumeration value="ORGANIZATION"/>
+						<xsd:enumeration value="PROCESS"/>
+						<xsd:enumeration value="ROLE"/>
+						<xsd:enumeration value="TEXT"/>
+                        <xsd:enumeration value="POOL"/>
+                        <xsd:enumeration value="LANE"/>
+                        <xsd:enumeration value="ENDEVENT"/>
+                        <xsd:enumeration value="GATEWAY"/>
+                        <xsd:enumeration value="INTERMEDIATEEVENT"/>
+                        <xsd:enumeration value="STARTEVENT"/>
+                        <xsd:enumeration value="PUBLICINTERFACE"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+			<xsd:attribute name="X" type="xsd:long"/>
+			<xsd:attribute name="Y" type="xsd:long"/>
+			<xsd:attribute name="ModelElement" type="xsd:string"/>
+                   <xsd:attribute name="Width" type="xsd:int" use="optional"/>
+               <xsd:attribute name="Height" type="xsd:int" use="optional"/>
+            <xsd:attribute name="Shape" type="xsd:string" use="optional"/>
+            <xsd:attribute name="BorderColor" type="xsd:string" use="optional"/>
+            <xsd:attribute name="FillColor" type="xsd:string" use="optional"/>
+            <xsd:attribute name="Style" type="xsd:string" use="optional"/>
+            <xsd:attribute name="FlowKind" use="optional">
+               <xsd:simpleType>
+                                       <xsd:restriction base="xsd:NCName">
+                               <xsd:enumeration value="none"/>
+                               <xsd:enumeration value="join"/>
+                               <xsd:enumeration value="split"/>
+                               </xsd:restriction>   
+                       </xsd:simpleType>
+            </xsd:attribute>
+                       <xsd:attribute name="Name" type="xsd:string" use="optional" />
+               <xsd:attribute name="Orientation" use="optional">
+                       <xsd:simpleType>
+                               <xsd:restriction base="xsd:NCName">
+                                       <xsd:enumeration value="Vertical"/>
+                                       <xsd:enumeration value="Horizontal"/>
+                           </xsd:restriction>
+                       </xsd:simpleType>
+                       </xsd:attribute>
+               <xsd:attribute name="Participant" type="xsd:string" use="optional" />
+               <xsd:attribute name="ParentLane" type="xsd:string" use="optional" />
+               <xsd:attribute name="BoundaryVisible" type="xsd:boolean" use="optional" />
+               <xsd:attribute name="Process" type="xsd:string" use="optional" />
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Symbols">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Symbol" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Text" type="xsd:string"/>
+	<xsd:element name="Transition">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="IsForkingOnTraversal" type="xsd:boolean"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Trigger">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:AccessPoints" minOccurs="0"/>
+				<xsd:element ref="carnot:DataFlows" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string" use="required"/>
+			<xsd:attribute name="Type" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Triggers">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Trigger" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="TriggerType">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Id" type="xsd:string" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string"/>
+			<xsd:attribute name="IsPredefined" type="xsd:boolean"/>
+			<xsd:attribute name="IsPullTrigger" type="xsd:boolean"/>
+			<xsd:attribute name="PanelClass" type="xsd:string"/>
+			<xsd:attribute name="PulllTriggerEvaluator" type="xsd:string"/>
+			<xsd:attribute name="Rule" type="xsd:string"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="TriggerTypes">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:TriggerType" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Value">
+		<xsd:complexType mixed="true">
+			<xsd:choice minOccurs="0" maxOccurs="unbounded" />
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="View">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Description" minOccurs="0"/>
+				<xsd:element ref="carnot:Viewables" minOccurs="0"/>
+				<xsd:element ref="carnot:Views" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+			<xsd:attribute name="Name" type="xsd:string" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Viewable">
+		<xsd:complexType>
+			<xsd:attribute name="ModelElement" type="xsd:long" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Viewables">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Viewable" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="Views">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:View" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="WorkflowProcess">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="carnot:Triggers" minOccurs="0"/>
+				<xsd:element ref="carnot:DataPaths" minOccurs="0"/>
+				<xsd:element ref="carnot:EventHandlers" minOccurs="0"/>
+				<xsd:element ref="carnot:Attributes" minOccurs="0"/>
+				<xsd:element ref="carnot:Diagrams" minOccurs="0"/>
+				<xsd:element ref="carnot:Views" minOccurs="0"/>
+				<xsd:element ref="carnot:FormalParameterMappings" minOccurs="0"/>
+			</xsd:sequence>
+			<xsd:attribute name="Oid" type="xsd:long" use="required"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

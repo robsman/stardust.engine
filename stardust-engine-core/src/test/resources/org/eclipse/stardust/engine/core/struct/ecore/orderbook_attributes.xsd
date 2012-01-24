@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+			<schema
+				targetNamespace="http://www.carnot.ag/workflowmodel/3.1/struct" xmlns:tns="http://www.carnot.ag/workflowmodel/3.1/struct" xmlns="http://www.w3.org/2001/XMLSchema">
+				<complexType name="address">
+			      <attribute name="street" type="string" use="required"/>
+				</complexType>
+				<element name="address" type="tns:address" />
+
+				<complexType name="customer">
+					<sequence>
+						<element name="address" type="tns:address"
+							maxOccurs="unbounded" />
+					</sequence>
+					<attribute use="required" name="name" 
+						type="string" />
+				</complexType>
+				<element name="customer" type="tns:customer" />
+
+				<simpleType name="status">
+					<restriction base="string">
+						<enumeration value="PROCESSED" />
+						<enumeration value="OPEN" />
+					</restriction>
+				</simpleType>
+				<element name="status" type="tns:status" />
+
+				<complexType name="order">
+					<sequence>
+						<element name="customer" maxOccurs="1"
+							type="tns:customer" />
+					</sequence>
+					<attribute use="required" name="qty" type="int" />
+					<attribute use="required" name="ordernr" 
+						type="string" />
+				</complexType>
+				<element name="order" type="tns:order" />
+
+				<complexType name="orderbook">
+					<sequence>
+						<element name="order" maxOccurs="unbounded"
+							type="tns:order" />
+					</sequence>
+					<attribute use="required" name="date" 
+							type="dateTime" />
+					<attribute use="required"  name="status"
+							type="tns:status" />
+				</complexType>
+				<element name="orderbook" type="tns:orderbook" />
+			</schema>
+

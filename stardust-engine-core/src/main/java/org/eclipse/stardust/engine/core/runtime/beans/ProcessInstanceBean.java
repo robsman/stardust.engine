@@ -270,7 +270,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else
       {
-         processInstance.deployment = ModelDeploymentBean.getLastDeployment();
+         processInstance.setDeployment(ModelDeploymentBean.getLastDeployment());
       }
       if (parentActivityInstance != null)
       {
@@ -957,7 +957,15 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       markModified(FIELD__ROOT_PROCESS_INSTANCE);
       this.rootProcessInstance = rootProcessInstance;
-      this.deployment = rootProcessInstance.deployment;
+      
+      // (fh) is this required ?
+      setDeployment(rootProcessInstance.getReferenceDeployment());
+   }
+
+   public void setDeployment(long deployment)
+   {
+      markModified(FIELD__DEPLOYMENT);
+      this.deployment = deployment;
    }
 
    public void setScopeProcessInstance(ProcessInstanceBean scopeProcessInstance)

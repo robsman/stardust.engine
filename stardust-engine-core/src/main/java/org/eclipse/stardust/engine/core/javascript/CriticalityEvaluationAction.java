@@ -10,24 +10,20 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.javascript;
 
-import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
+import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.PreferencesConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.CriticalityEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextAction;
 import org.mozilla.javascript.Script;
-
-
 
 /**
  * 
@@ -97,31 +93,7 @@ public class CriticalityEvaluationAction implements ContextAction
 
       GlobalVariablesScope modelScope = getModelScope(aiBean, cx);
 
-      bindSymbolTableToThread(new SymbolTable()
-      {
-         public AccessPoint lookupSymbolType(String name)
-         {
-            if (PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT.equals(name))
-            {
-               return aiBean.getActivity().getAccessPoint(
-                     PredefinedConstants.ENGINE_CONTEXT,
-                     PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
-            }
-            return aiBean.getProcessInstance().lookupSymbolType(name);
-         }
-
-         public Object lookupSymbol(String name)
-         {
-            if (PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT.equals(name))
-            {
-               return aiBean.getIntrinsicOutAccessPointValues().get(
-                     PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
-            }
-            return aiBean.getProcessInstance().lookupSymbol(name);
-         }
-
-      });
-
+      bindSymbolTableToThread(SymbolTableFactory.create(aiBean));
       modelScope.bindThreadLocalSymbolTable(getSymbolTableForThread());
 
       // Temporary Fix for js.jar dependency issue: Run always in interpretive mode
@@ -213,5 +185,4 @@ public class CriticalityEvaluationAction implements ContextAction
          return DEFAULT_GLOBAL_CRITICALITY_FORMULA;
       }
    }
-
 }

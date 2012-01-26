@@ -11,11 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Attribute;
@@ -38,14 +34,10 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.JoinSplitType;
 import org.eclipse.stardust.engine.api.model.LoopType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
+import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PhantomException;
@@ -55,7 +47,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
 
 
@@ -470,26 +461,7 @@ public class ActivityThread implements Runnable
 
          // find traversable transitions and separate between enabled and otherwise ones
          ModelElementList outTransitions = activity.getOutTransitions();
-         SymbolTable symbolTable = new SymbolTable()
-         {
-            public Object lookupSymbol(String name)
-            {
-               if (PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT.equals(name))
-               {
-                  return activityInstance.getIntrinsicOutAccessPointValues().get(PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
-               }
-               return activityInstance.getProcessInstance().lookupSymbol(name);
-            }
-
-            public AccessPoint lookupSymbolType(String name)
-            {
-               if (PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT.equals(name))
-               {
-                  return activity.getAccessPoint(PredefinedConstants.ENGINE_CONTEXT, PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
-               }
-               return activityInstance.getProcessInstance().lookupSymbolType(name);
-            }
-         };
+         SymbolTable symbolTable = SymbolTableFactory.create(activityInstance, activity);
          for (int i = 0; i < outTransitions.size(); ++i)
          {
             ITransition transition = (ITransition) outTransitions.get(i);

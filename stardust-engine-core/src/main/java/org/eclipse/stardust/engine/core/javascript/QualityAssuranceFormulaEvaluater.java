@@ -16,13 +16,10 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
+import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
-
 
 /**
  * Evaluates the modeled quality assurance formula on an activity instance
@@ -36,7 +33,7 @@ public class QualityAssuranceFormulaEvaluater
    private static final String KEY_EVALUATION_ACTION = QualityAssuranceFormulaEvaluater.class
          .getName() + ".EvaluationAction";
 
-   public static boolean evaluate(final IActivityInstance activityInstance)
+   public static boolean evaluate(IActivityInstance activityInstance)
    {
       IActivity activity = activityInstance.getActivity();      
       if (!activity.isQualityAssuranceEnabled())
@@ -54,30 +51,7 @@ public class QualityAssuranceFormulaEvaluater
          QualityAssuranceFormulaEvaluationAction evaluationAction = getEvaluationAction(activity);
          try
          {            
-            evaluationAction.bindSymbolTableToThread(new SymbolTable()
-            {
-               public AccessPoint lookupSymbolType(String name)
-               {
-                  if (PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT.equals(name))
-                  {
-                     return activityInstance.getActivity().getAccessPoint(
-                           PredefinedConstants.ENGINE_CONTEXT,
-                           PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
-                  }
-                  return activityInstance.getProcessInstance().lookupSymbolType(name);
-               }
-
-               public Object lookupSymbol(String name)
-               {
-                  if (PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT.equals(name))
-                  {
-                     return activityInstance.getIntrinsicOutAccessPointValues().get(
-                           PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
-                  }
-                  return activityInstance.getProcessInstance().lookupSymbol(name);
-               }
-            });
-            
+            evaluationAction.bindSymbolTableToThread(SymbolTableFactory.create(activityInstance));            
 
             // TODO consider caching of context
             ContextFactory jsContextFactory = ContextFactory.getGlobal();

@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
+import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
@@ -31,7 +32,6 @@ import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -510,32 +510,14 @@ public class Authorization2
          }
          for (int i = 0; i < values.size(); i++)
          {
-            final IDataValue dataValue = values.get(i);
-            final IData dataObject = dataValue.getData();
+            IDataValue dataValue = values.get(i);
+            IData dataObject = dataValue.getData();
+            Object value = dataValue.getValue();
             ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject.getType());
-            SymbolTable symbolTable = new SymbolTable()
-            {
-               public Object lookupSymbol(String name)
-               {
-                  if (name.equals(dataObject.getId()))
-                  {
-                     return dataValue.getValue();
-                  }
-                  return null;
-               }
-      
-               public AccessPoint lookupSymbolType(String name)
-               {
-                  if (name.equals(dataObject.getId()))
-                  {
-                     return dataObject;
-                  }
-                  return null;
-               }
-            };
+            SymbolTable symbolTable = SymbolTableFactory.create(dataObject.getId(), value, dataObject);
             String dataPath = dataPaths.get(i);
             AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, context.getScopeProcessOid());
-            Object evaluate = evaluator.evaluate(dataObject, dataValue.getValue(), dataPath, evaluationContext);
+            Object evaluate = evaluator.evaluate(dataObject, value, dataPath, evaluationContext);
             for (int j = 0; j < data.size(); j++)
             {
                if (dataObject.equals(data.get(j)) && CompareHelper.areEqual(dataPath, dataPaths.get(j)))

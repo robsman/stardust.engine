@@ -202,7 +202,6 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             context.setSelectAlias(CASE_JOIN_TAG);
          }
       }
-
    }
 
    protected PreprocessedQuery preprocessQuery(VisitationContext context)
@@ -1646,6 +1645,23 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    public Object visit(AttributeOrder criterion, Object rawContext)
    {
       final VisitationContext context = (VisitationContext) rawContext;
+      Join useJoin = null;
+      
+      if(context.getQuery().getClass().equals(ProcessInstanceQuery.class))
+      {
+         CasePolicy casePolicy = (CasePolicy) context.getQuery().getPolicy(CasePolicy.class);
+         if (casePolicy != null)
+         {
+            Join caseJoin = (Join) context.getPredicateJoins().get(CasePolicy.class);
+            if(caseJoin != null)
+            {
+               if(caseJoin.getTableName().equals(ProcessInstanceBean.TABLE_NAME))
+               {
+                  useJoin = caseJoin;
+               }
+            }
+         }
+      }         
 
       FieldRef fieldRef;
 
@@ -1658,8 +1674,16 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       }
       else
       {
-         fieldRef = TypeDescriptor.get(context.type).fieldRef(
-               criterion.getAttributeName());
+         if(useJoin != null)
+         {
+            fieldRef = useJoin.fieldRef(
+                  criterion.getAttributeName());            
+         }
+         else
+         {
+            fieldRef = TypeDescriptor.get(context.type).fieldRef(
+                  criterion.getAttributeName());
+         }
       }
 
       return new org.eclipse.stardust.engine.core.persistence.OrderCriteria(fieldRef, criterion.isAscending());

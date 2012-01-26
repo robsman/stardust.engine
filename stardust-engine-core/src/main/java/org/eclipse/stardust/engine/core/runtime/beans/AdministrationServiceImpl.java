@@ -1504,7 +1504,7 @@ public class AdministrationServiceImpl
             List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
             if (predefinedModelElement != null)
             {
-               modelManager.deployModel(predefinedModelElement, options);
+               modelManager.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT);
             }
             else
             {

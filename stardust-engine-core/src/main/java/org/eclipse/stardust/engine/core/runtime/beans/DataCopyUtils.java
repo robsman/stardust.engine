@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.*;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -23,7 +24,6 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-
 
 import com.sungard.infinity.bpm.vfs.VfsUtils;
 
@@ -236,7 +236,7 @@ public class DataCopyUtils
       Object modifiedDataValueObject = null;
       if (dataCopyMappingRule.isRemoveMetaData())
       {
-       EmbeddedServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
+         EmbeddedServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
          DocumentManagementService dms = sf.getDocumentManagementService();
 
          if (isDmsDocument(dataCopyMappingRule.getSourceData()))
@@ -324,7 +324,8 @@ public class DataCopyUtils
                }
                else
                {
-                  // nothing added, but targetDocList needs to be returned so the default source value does not overwrite it.
+                  // nothing added, but targetDocList needs to be returned so the default
+                  // source value does not overwrite it.
                   modifiedDataValueObject = targetDocList;
                }
             }
@@ -401,21 +402,18 @@ public class DataCopyUtils
    private static Map<String, DataCopyMappingRule> createCopyDataHeuristicRules(
          IProcessInstance parentProcessInstance, IProcessInstance processInstance)
    {
-      final List<IData> sourceUsedData = getDataUsedInProcess(parentProcessInstance);
+      final List<IDataValue> allDataValues = CollectionUtils.newListFromIterator(parentProcessInstance.getAllDataValues());
       final List<IData> targetUsedData = getDataUsedInProcess(processInstance);
 
       Map<String, DataCopyMappingRule> mappingRules = new HashMap<String, DataCopyMappingRule>();
-      Map<String, Integer> numDocTypePerStructDefIdDoc = getNumDocTypePerStructDefIdForDoc(sourceUsedData);
-      Map<String, Integer> numDocTypePerStructDefIdDocList = getNumDocTypePerStructDefIdForDocList(sourceUsedData);
+      Map<String, Integer> numDocTypePerStructDefIdDoc = getNumDocTypePerStructDefIdForDoc(allDataValues);
+      Map<String, Integer> numDocTypePerStructDefIdDocList = getNumDocTypePerStructDefIdForDocList(allDataValues);
 
-      Iterator<IDataValue> allDataValues = parentProcessInstance.getAllDataValues();
       if (allDataValues != null)
       {
-         while (allDataValues.hasNext())
+         for (IDataValue value : allDataValues)
          {
-            IDataValue value = allDataValues.next();
             IData data = value.getData();
-
             // 0.) implicit: if the data is used in the target, copy it into same data.
             DataCopyMappingRule targetRule = evaluateSameIdRule(data, targetUsedData);
             // 1.) same-type-rule
@@ -427,7 +425,7 @@ public class DataCopyUtils
             // 2.) one-document-rule
             if (targetRule == null)
             {
-               targetRule = evaluateOneDocumentRule(data, sourceUsedData, targetUsedData);
+               targetRule = evaluateOneDocumentRule(data, allDataValues, targetUsedData);
             }
             // 3.) else merge to process attachments
             if (targetRule == null)
@@ -438,6 +436,7 @@ public class DataCopyUtils
             {
                mappingRules.put(data.getId(), targetRule);
             }
+
          }
       }
 
@@ -445,12 +444,13 @@ public class DataCopyUtils
    }
 
    private static Map<String, Integer> getNumDocTypePerStructDefIdForDoc(
-         List<IData> sourceUsedData)
+         List<IDataValue> allSourceData)
    {
       Map<String, Integer> map = new HashMap<String, Integer>();
 
-      for (IData data : sourceUsedData)
+      for (IDataValue dataValue : allSourceData)
       {
+         IData data = dataValue.getData();
          if (isDmsDocument(data))
          {
             String structTypeDefId = getStructTypeDefId(data);
@@ -471,12 +471,13 @@ public class DataCopyUtils
    }
 
    private static Map<String, Integer> getNumDocTypePerStructDefIdForDocList(
-         List<IData> sourceUsedData)
+         List<IDataValue> allSourceData)
    {
       Map<String, Integer> map = new HashMap<String, Integer>();
 
-      for (IData data : sourceUsedData)
+      for (IDataValue dataValue : allSourceData)
       {
+         IData data = dataValue.getData();
          if (isDmsDocumentList(data))
          {
             String structTypeDefId = getStructTypeDefId(data);
@@ -501,7 +502,8 @@ public class DataCopyUtils
       List<IData> usedData = new ArrayList<IData>();
       IModel model = (IModel) processInstance.getProcessDefinition().getModel();
 
-      Set<String> usedDataIds = DataUtils.getDataForProcess(processInstance.getProcessDefinition().getId(), model);
+      Set<String> usedDataIds = DataUtils.getDataForProcess(
+            processInstance.getProcessDefinition().getId(), model);
 
       for (String dataId : usedDataIds)
       {
@@ -539,11 +541,12 @@ public class DataCopyUtils
       if (isDmsDocument(data))
       {
          String structTypeDefId = getStructTypeDefId(data);
-         if (!StringUtils.isEmpty(structTypeDefId))
+         if ( !StringUtils.isEmpty(structTypeDefId))
          {
-            // if more than one document data using the same doc type exist the rule does not apply.
+            // if more than one document data using the same doc type exist the rule does
+            // not apply.
             Integer numSameDocTypeUsed = numDocTypePerStructDefIdForDoc.get(structTypeDefId);
-            if (numSameDocTypeUsed > 1)
+            if (numSameDocTypeUsed != 1)
             {
                return null;
             }
@@ -559,24 +562,24 @@ public class DataCopyUtils
       }
       if (found == 0)
       {
-      if (isDmsDocumentList(data))
-      {
-         String structTypeDefId = getStructTypeDefId(data);
-         if ( !StringUtils.isEmpty(structTypeDefId))
+         if (isDmsDocumentList(data))
          {
-            // if more than one documentList data using the same doc type exist the
-            // rule does not apply.
-            Integer numSameDocTypeUsed = numDocTypePerStructDefIdForDocList.get(structTypeDefId);
-            if (numSameDocTypeUsed > 1)
+            String structTypeDefId = getStructTypeDefId(data);
+            if ( !StringUtils.isEmpty(structTypeDefId))
             {
-               return null;
+               // if more than one documentList data using the same doc type exist the
+               // rule does not apply.
+               Integer numSameDocTypeUsed = numDocTypePerStructDefIdForDocList.get(structTypeDefId);
+               if (numSameDocTypeUsed != 1)
+               {
+                  return null;
+               }
             }
-         }
-         for (IData iData : targetUsedData)
-         {
-            if (isDmsDocumentList(iData) && hasSameDocumentType(data, iData))
+            for (IData iData : targetUsedData)
             {
-               targetData = iData;
+               if (isDmsDocumentList(iData) && hasSameDocumentType(data, iData))
+               {
+                  targetData = iData;
                   found++ ;
                }
             }
@@ -587,20 +590,20 @@ public class DataCopyUtils
    }
 
    private static DataCopyMappingRule evaluateOneDocumentRule(IData data,
-         final List<IData> sourceUsedData, final List<IData> targetUsedData)
+         final List<IDataValue> allDataValues, final List<IData> targetUsedData)
    {
       if (isDmsDocument(data) || isDmsDocumentList(data))
       {
          IData targetData = null;
          int docSrc = 0;
          int docListSrc = 0;
-         for (IData iData : sourceUsedData)
+         for (IDataValue iDataValue : allDataValues)
          {
-            if (isDmsDocument(iData))
+            if (isDmsDocument(iDataValue.getData()))
             {
                docSrc++ ;
             }
-            if (isDmsDocumentList(iData))
+            if (isDmsDocumentList(iDataValue.getData()))
             {
                docListSrc++ ;
             }
@@ -653,7 +656,12 @@ public class DataCopyUtils
 
    private static String getStructTypeDefId(IData data)
    {
-      return (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
+      String structTypeDefId = null;
+      if (data != null)
+      {
+         structTypeDefId = (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
+      }
+      return structTypeDefId;
    }
 
    private static boolean isDmsDocument(IData data)

@@ -20,10 +20,14 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataPath;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
+import org.eclipse.xsd.XSDSchema;
 
 import com.sungard.infinity.bpm.vfs.VfsUtils;
 
@@ -66,12 +70,21 @@ public class DataCopyUtils
          // only if target data value is not initialized and only for document data
          if ( !ignoreDataIds2.contains(srcDataId) && isDmsDocument(srcData))
          {
-            if (hasOutDataMapping(srcValue, targetProcessInstance)
+            IData targetData = getDataFromProcessInstance(targetProcessInstance,
+                  srcDataId);
+            if (targetData != null && hasOutDataMapping(srcValue, targetProcessInstance)
                   && !isInitializedInTarget(srcValue, targetProcessInstance)
-                  && hasSameDocumentType(srcData,
-                        getDataFromProcessInstance(targetProcessInstance, srcDataId)))
+                  && hasSameDocumentTypeId(srcData, targetData))
             {
-               // Will be copied 1:1.
+               if (docTypeSchemaEquals(srcData, targetData))
+               {
+                  // Will be copied 1:1.
+               }
+               else
+               {
+                  mappingRules.put(srcDataId, new DataCopyMappingRule(srcData,
+                        targetData, true, false));
+               }
             }
             else if (supportsProcessAttachments(targetProcessInstance))
             {
@@ -110,6 +123,34 @@ public class DataCopyUtils
       copyData(sourceProcessInstance, targetProcessInstance, ignoreDataIds2, mappingRules);
    }
 
+   private static boolean docTypeSchemaEquals(IData srcData, IData targetData)
+   {
+      String srcStructTypeDefId = getStructTypeDefId(srcData);
+      String trgStructTypeDefId = getStructTypeDefId(targetData);
+
+      if (StringUtils.isEmpty(srcStructTypeDefId) && StringUtils.isEmpty(trgStructTypeDefId))
+      {
+         // both have default document meta data schema.
+         return true;
+      }
+
+      IModel srcModel = (IModel) srcData.getModel();
+      IModel trgModel = (IModel) targetData.getModel();
+
+
+      ITypeDeclaration srcTypeDeclaration = srcModel.findTypeDeclaration(srcStructTypeDefId);
+      ITypeDeclaration trgTypeDeclaration = trgModel.findTypeDeclaration(trgStructTypeDefId);
+
+      Set<TypedXPath> srcXPaths = StructuredTypeRtUtils.getAllXPaths(srcModel, srcTypeDeclaration);
+      Set<TypedXPath> trgXPaths = StructuredTypeRtUtils.getAllXPaths(trgModel, trgTypeDeclaration);
+
+      if (srcXPaths != null)
+      {
+         return srcXPaths.equals(trgXPaths);
+      }
+      return false;
+   }
+
    private static boolean supportsProcessAttachments(IProcessInstance processInstance)
    {
       return null != getDataFromProcessInstance(processInstance,
@@ -119,24 +160,17 @@ public class DataCopyUtils
    private static boolean hasOutDataMapping(IDataValue srcValue,
          IProcessInstance processInstance)
    {
-      IModel model = (IModel) srcValue.getProcessInstance()
-            .getProcessDefinition()
-            .getModel();
-      IModel targetModel = (IModel) processInstance.getProcessDefinition().getModel();
-      if (model.getId() != null && model.getId().equals(targetModel.getId()))
+      String srcDataId = srcValue.getData().getId();
+      Iterator allOutDataPaths = processInstance.getProcessDefinition()
+            .getAllOutDataPaths();
+      while (allOutDataPaths.hasNext())
       {
-         String srcDataId = srcValue.getData().getId();
-         Iterator allOutDataPaths = processInstance.getProcessDefinition()
-               .getAllOutDataPaths();
-         while (allOutDataPaths.hasNext())
+         IDataPath dataPath = (IDataPath) allOutDataPaths.next();
+         if (dataPath.getDirection().isCompatibleWith(Direction.OUT)
+               && dataPath.getData().getId().equals(srcDataId)
+               && StringUtils.isEmpty(dataPath.getAccessPath()))
          {
-            IDataPath dataPath = (IDataPath) allOutDataPaths.next();
-            if (dataPath.getDirection().isCompatibleWith(Direction.OUT)
-                  && dataPath.getData().getId().equals(srcDataId)
-                  && StringUtils.isEmpty(dataPath.getAccessPath()))
-            {
-               return true;
-            }
+            return true;
          }
       }
       return false;
@@ -200,7 +234,7 @@ public class DataCopyUtils
             Object targetValue = null;
             if ( !mappingRules.containsKey(dataId))
             {
-               targetData = srcValue.getData();
+               targetData = getDataFromProcessInstance(targetProcessInstance, dataId);
                targetValue = srcValue.getSerializedValue();
                targetProcessInstance.setOutDataValue(targetData, "", targetValue);
             }
@@ -521,7 +555,7 @@ public class DataCopyUtils
       {
          if (data.getId().equals(iData.getId())
                && (isDmsDocument(iData) || isDmsDocumentList(iData))
-               && hasSameDocumentType(data, iData))
+               && hasSameDocumentTypeId(data, iData))
          {
             return new DataCopyMappingRule(data, iData, false, true);
          }
@@ -553,7 +587,7 @@ public class DataCopyUtils
          }
          for (IData iData : targetUsedData)
          {
-            if (isDmsDocument(iData) && hasSameDocumentType(data, iData))
+            if (isDmsDocument(iData) && hasSameDocumentTypeId(data, iData))
             {
                targetData = iData;
                found++ ;
@@ -577,7 +611,7 @@ public class DataCopyUtils
             }
             for (IData iData : targetUsedData)
             {
-               if (isDmsDocumentList(iData) && hasSameDocumentType(data, iData))
+               if (isDmsDocumentList(iData) && hasSameDocumentTypeId(data, iData))
                {
                   targetData = iData;
                   found++ ;
@@ -638,7 +672,7 @@ public class DataCopyUtils
       return null;
    }
 
-   private static boolean hasSameDocumentType(IData data, IData iData)
+   private static boolean hasSameDocumentTypeId(IData data, IData iData)
    {
       String structTypeDefId = getStructTypeDefId(data);
       String structTypeDefId2 = getStructTypeDefId(iData);

@@ -33,7 +33,9 @@ public class ConfigurationVariables implements Serializable
    }
    
    /**
-    * @return the modelId the ConfigurationVariables belong to.
+    * Retrieves the modelId of the Model the <code>ConfigurationVariables</code> belong to.
+    * 
+    * @return {@link String} modelId
     */
    public String getModelId()
    {
@@ -62,6 +64,12 @@ public class ConfigurationVariables implements Serializable
       return configurationVariables;
    }
    
+   /**
+    * 
+    * Returns true if the List of <code>ConfigurationVariables</code> is empty 
+    * 
+    * @return {@link Boolean}
+    */
    public boolean isEmpty()
    {
       return configurationVariables == null ? true : configurationVariables.isEmpty();

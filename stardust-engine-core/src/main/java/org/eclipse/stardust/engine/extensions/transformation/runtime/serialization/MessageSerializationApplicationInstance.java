@@ -157,17 +157,11 @@ public class MessageSerializationApplicationInstance implements
 	/**
 	 * Only for processing in data mappings.
 	 */
-	public Object getOutAccessPointValue(String name)
-	{
-		try
-		{
-			return doGetOutAccessPointValue(name, false);
-		}
-		catch (InvocationTargetException e)
-		{
-			throw new InternalException(e.getMessage(), e.getTargetException());
-		}
-	}
+   public Object getOutAccessPointValue(String name)
+   {
+      return doGetOutAccessPointValue(name, false);
+
+   }
 
 	/**
 	 * 
@@ -182,8 +176,7 @@ public class MessageSerializationApplicationInstance implements
 	 * @return
 	 * @throws InvocationTargetException
 	 */
-	private Map doGetOutAccessPointValues(Set outDataTypes)
-			throws InvocationTargetException
+	private Map doGetOutAccessPointValues(Set outDataTypes)			
 	{
 		Map result = new HashMap();
 
@@ -208,7 +201,7 @@ public class MessageSerializationApplicationInstance implements
 	 * @throws InvocationTargetException
 	 */
 	private Object doGetOutAccessPointValue(String name,
-			boolean allowReturnValue) throws InvocationTargetException
+			boolean allowReturnValue)
 	{
 		return outputValues.get(name);
 	}

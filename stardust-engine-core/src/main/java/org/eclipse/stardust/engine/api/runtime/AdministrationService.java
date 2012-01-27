@@ -152,6 +152,15 @@ public interface AdministrationService extends Service
          String comment, boolean disabled, boolean ignoreWarnings)
          throws DeploymentException;
 
+   /**
+    * Overwrites the specified model.
+    * 
+    * @param deploymentElement   The model to be overwritten.
+    * @param modelOID         The modelOID of the model to be overwritten. 
+    * @param options          The deployment options. Can be null, in which case default deployment options will be used.
+    * @return depoymentInfo   Deployment information information, including possible errors or warning
+    * @throws DeploymentException   Exception if the overwrite operation could not be performed.
+    */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
    DeploymentInfo overwriteModel(DeploymentElement deploymentElement, int modelOID, DeploymentOptions options) throws DeploymentException;
 

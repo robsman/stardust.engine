@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -26,15 +27,9 @@ import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IExternalPackage;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IReference;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -310,12 +305,14 @@ public class ModelRefBean extends PersistentBean implements Serializable
       QName processQID = new QName(process.getModel().getId(), process.getId());
       
       String implementationModelId = null;
+      // 1. get the implementation model id from the data value
       if (data != null && processInstance != null)
       {
          IProcessInstance scopeProcessInstance = processInstance.getScopeProcessInstance();
          implementationModelId = (String) scopeProcessInstance.getInDataValue(data, dataPath);
       }
-      else
+      // 2. get the implementation model id from the primary implementation 
+      if (StringUtils.isEmpty(implementationModelId))
       {
          int code = TYPE.IMPLEMENTS.ordinal();
          long runtimeProcessOid = ModelManagerFactory.getCurrent().getRuntimeOid(process);
@@ -351,7 +348,8 @@ public class ModelRefBean extends PersistentBean implements Serializable
             QueryUtils.closeResultSet(resultSet);
          }
       }
-      if (implementationModelId == null)
+      // 3. fallback to the default implementation
+      if (StringUtils.isEmpty(implementationModelId))
       {
          implementationModelId = process.getModel().getId();
       }

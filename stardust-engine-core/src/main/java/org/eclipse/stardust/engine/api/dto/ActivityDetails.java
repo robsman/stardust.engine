@@ -120,7 +120,10 @@ public class ActivityDetails extends AuditTrailModelElementDetails implements Ac
       qualityAssuranceEnabled = activity.isQualityAssuranceEnabled();
       qualityAssuranceFormula = activity.getQualityAssuranceFormula();
       qualityAssuranceProbability = activity.getQualityAssuranceProbability();
-      qualityAssuranceParticipant = resolvePerformer(activity, activityInstance, activity.getQualityAssurancePerformer());
+      if(qualityAssuranceEnabled)
+      {
+         qualityAssuranceParticipant = resolvePerformer(activity, activityInstance, activity.getQualityAssurancePerformer());
+      }
       
       Set<IQualityAssuranceCode> codes = activity.getQualityAssuranceCodes();
       for(IQualityAssuranceCode code : codes)

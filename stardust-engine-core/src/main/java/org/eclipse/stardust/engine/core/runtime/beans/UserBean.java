@@ -1196,9 +1196,17 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          extendedState = extendedState | EXTENDED_STATE_QUALITY_CODE_SIZE;   
          qualityAssurancePropability = probability;      
          
-         setPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY, qualityAssurancePropability);         
+         setPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY, probability);         
          markModified(FIELD__EXTENDED_STATE); 
-      }            
+      } 
+      else
+      {
+         extendedState = extendedState & ~EXTENDED_STATE_QUALITY_CODE_SIZE;
+         qualityAssurancePropability = probability;      
+         
+         removeProperty(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);
+         markModified(FIELD__EXTENDED_STATE);          
+      }
    }   
    
    public Integer getQualityAssuranceProbability()

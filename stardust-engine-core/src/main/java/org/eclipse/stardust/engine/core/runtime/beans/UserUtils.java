@@ -20,17 +20,15 @@ import org.eclipse.stardust.common.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.UserDetails.AddedGrant;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.Grant;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroup;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
 public final class UserUtils
 {
    public static final List<String> PROTECTED_ATTRIBUTES = Arrays.asList(new String[] {
-         SecurityUtils.LAST_PASSWORDS
+         SecurityUtils.LAST_PASSWORDS, 
+         QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY
    });
 
    /**

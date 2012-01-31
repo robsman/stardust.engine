@@ -100,7 +100,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
-import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
@@ -176,6 +175,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_PI_AND_SPAWN_PROCESS_FRM_DIFF_MODELS.raise(rootProcessInstanceOid));
       }
+
+      // lock the parent
+      parentProcessInstance.lock();
+
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, parentProcessInstance, SecurityProperties.getUser(),
             data);
@@ -230,48 +233,54 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       return spawnedProcessInstances;
    }
 
-   public ProcessInstance createCase(String name, String description, long[] memberOids)
+   public synchronized ProcessInstance createCase(String name, String description,
+         long[] memberOids)
    {
       if (memberOids == null || memberOids.length <= 0)
       {
-          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("memberOids", Arrays.toString(memberOids)));
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
+               "memberOids", Arrays.toString(memberOids)));
       }
 
-      IModel model = ModelManagerFactory.getCurrent().findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID);
+      IModel model = ModelManagerFactory.getCurrent().findActiveModel(
+            PredefinedConstants.PREDEFINED_MODEL_ID);
       if (model == null)
       {
          throw new ObjectNotFoundException(
-               BpmRuntimeError.MDL_NO_MATCHING_MODEL_WITH_ID.raise(PredefinedConstants.PREDEFINED_MODEL_ID), PredefinedConstants.PREDEFINED_MODEL_ID);
+               BpmRuntimeError.MDL_NO_MATCHING_MODEL_WITH_ID.raise(PredefinedConstants.PREDEFINED_MODEL_ID),
+               PredefinedConstants.PREDEFINED_MODEL_ID);
       }
       IProcessDefinition process = model.findProcessDefinition(PredefinedConstants.CASE_PROCESS_ID);
       if (process == null)
       {
          throw new ObjectNotFoundException(
-               BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(PredefinedConstants.CASE_PROCESS_ID), PredefinedConstants.CASE_PROCESS_ID);
+               BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(PredefinedConstants.CASE_PROCESS_ID),
+               PredefinedConstants.CASE_PROCESS_ID);
       }
 
-      Map<String, String> caseInfoMap = CollectionUtils.newMap();
-      caseInfoMap.put(PredefinedConstants.CASE_NAME_ELEMENT, name);
-      caseInfoMap.put(PredefinedConstants.CASE_DESCRIPTION_ELEMENT, description);
-      ProcessInstanceBean group = ProcessInstanceBean.createInstance(
-            process, SecurityProperties.getUser(),
-            Collections.singletonMap(PredefinedConstants.CASE_DATA_ID,
-                  caseInfoMap));
+      IUser user = SecurityProperties.getUser();
+
+      ProcessInstanceBean group = ProcessInstanceBean.createInstance(process, user, null);
 
       IActivity rootActivity = process.getRootActivity();
 
       ActivityThread.schedule(group, rootActivity, null, true, null,
             Collections.EMPTY_MAP, false);
 
-      delegateCase(group, SecurityProperties.getUser());
+      delegateCase(group, user);
 
       addGroupMembers(group, memberOids);
+
+      Map<String, String> caseInfoMap = CollectionUtils.newMap();
+      caseInfoMap.put(PredefinedConstants.CASE_NAME_ELEMENT, name);
+      caseInfoMap.put(PredefinedConstants.CASE_DESCRIPTION_ELEMENT, description);
+      IData caseData = model.findData(PredefinedConstants.CASE_DATA_ID);
+      group.setOutDataValue(caseData, null, caseInfoMap);
 
       if (trace.isInfoEnabled())
       {
          trace.info("Created case '" + name + "', oid = " + group.getOID());
       }
-
       return DetailsFactory.create(group);
    }
 
@@ -289,6 +298,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                BpmRuntimeError.BPMRT_PI_NOT_CASE.raise(groupOid));
       }
       assertActiveProcessInstance(group);
+
+      group.lock();
 
       addGroupMembers(group, memberOids);
 
@@ -310,7 +321,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       assertActiveProcessInstance(group);
 
-      // TODO locking for hierarchy changes
+      group.lock();
+
       for (long oid : memberOids)
       {
          ProcessInstanceBean member = ProcessInstanceBean.findByOID(oid);
@@ -320,6 +332,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
          if (member.getRootProcessInstance() == group)
          {
+            // locking all transitions
+            new ProcessInstanceLocking().lockAllTransitions(member);
+
             deleteRootHierarchy(group, member);
          }
          else
@@ -371,13 +386,18 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                   BpmRuntimeError.BPMRT_PI_NOT_ACTIVE.raise(oid));
          }
 
+         sourceCase.lock();
+         targetCase.lock();
+
          // DataCopy: In this case effectively only merges process attachments to target.
          DataCopyUtils.copyDataUsingNoOverrideHeuristics(sourceCase, targetCase, null);
 
-         // TODO locking for hierarchy changes
          List<IProcessInstance> members = ProcessInstanceHierarchyBean.findChildren(sourceCase);
          for (IProcessInstance member : members)
          {
+            // locking all transitions
+            new ProcessInstanceLocking().lockAllTransitions(member);
+
             // delete complete hierarchy
             deleteRootHierarchy(sourceCase, member);
             // create complete hierarchy
@@ -436,7 +456,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             throw new IllegalOperationException(
                   BpmRuntimeError.BPMRT_PI_IS_MEMBER.raise(oid));
          }
-         // TODO locking for hierarchy changes
+
+         // locking all transitions
+         new ProcessInstanceLocking().lockAllTransitions(member);
+
          createRootHierarchy(group, member);
       }
    }
@@ -452,6 +475,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       List<IProcessInstance> children = ProcessInstanceHierarchyBean.findChildren(member);
       for (IProcessInstance child : children)
       {
+         child.lock();
+
          // change ProcessInstanceScope
          new ProcessInstanceScopeBean(child, child.getScopeProcessInstance(), group);
          ProcessInstanceScopeBean.delete(child);
@@ -482,6 +507,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       List<IProcessInstance> children = ProcessInstanceHierarchyBean.findChildren(member);
       for (IProcessInstance child : children)
       {
+         child.lock();
+
          // change ProcessInstanceScope
          new ProcessInstanceScopeBean(child, child.getScopeProcessInstance(), member);
          ProcessInstanceScopeBean.delete(child);

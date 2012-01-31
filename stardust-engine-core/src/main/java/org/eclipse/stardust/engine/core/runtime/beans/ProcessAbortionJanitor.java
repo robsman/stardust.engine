@@ -14,9 +14,6 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.TimestampProviderUtils;
 import org.eclipse.stardust.common.error.ConcurrencyException;
@@ -26,17 +23,9 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
-
 
 /**
  *
@@ -52,9 +41,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
 
    private long processInstanceOid;
    private int triesLeft;
-
-   // cached PIs for complete sub process hierarchy. Filled in {@link lockStartTockens}.
-   private final List piCache = CollectionUtils.newArrayList();
+   private ProcessInstanceLocking piLock = new ProcessInstanceLocking();
 
    public ProcessAbortionJanitor(AbortionJanitorCarrier carrier)
    {
@@ -80,16 +67,9 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
       {
          try
          {
-            pi.lock();
+            List<IProcessInstance> pis = piLock.lockAllTransitions(pi);
 
-            boolean foundNewTokens;
-            do
-            {
-               foundNewTokens = lockStartTockens(pi);
-            }
-            while (foundNewTokens);
-
-            abortAllProcessInstances();
+            abortAllProcessInstances(pis);
             removePiFromAbortingList(pi);
             abortStartingActivityInstance(pi);
 
@@ -128,94 +108,11 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
       return "Process abortion janitor, pi = " + processInstanceOid;
    }
 
-   private boolean lockStartTockens(ProcessInstanceBean processInstance)
-         throws ConcurrencyException
+
+
+   private void abortAllProcessInstances(List<IProcessInstance> pis)
    {
-      final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-
-      if (trace.isDebugEnabled())
-      {
-         trace.debug(MessageFormat.format("Fetching process hierarchy for {0}.",
-               new Object[] { processInstance }));
-      }
-
-      Iterator piOidIter;
-      PredicateTerm predicate = Predicates.isEqual(
-            ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE, processInstance.getOID());
-      if ( !piCache.isEmpty())
-      {
-         piOidIter = new TransformingIterator(piCache.iterator(), new Functor()
-         {
-            public Object execute(Object source)
-            {
-               ProcessInstanceBean pi = (ProcessInstanceBean) source;
-
-               return new Long(pi.getOID());
-            }
-         });
-
-         predicate = Predicates.andTerm( //
-               predicate, //
-               Predicates.notInList(
-                     ProcessInstanceHierarchyBean.FR__SUB_PROCESS_INSTANCE, piOidIter));
-      }
-      // Find already persisted subprocesses which are not loaded before.
-      ResultIterator pihIter = session.getIterator(ProcessInstanceHierarchyBean.class,
-            QueryExtension.where(predicate));
-
-      // Create iterator returning the oids for the subprocesses.
-      piOidIter = new TransformingIterator(pihIter, new Functor()
-      {
-         public Object execute(Object source)
-         {
-            ProcessInstanceHierarchyBean pihItem = (ProcessInstanceHierarchyBean) source;
-
-            // cache the PI for later usage.
-            final IProcessInstance pi = pihItem.getSubProcessInstance();
-            piCache.add(pi);
-
-            return new Long(pi.getOID());
-         }
-      });
-      List newOids = CollectionUtils.newListFromIterator(piOidIter);
-
-      if ( !newOids.isEmpty())
-      {
-         if (trace.isDebugEnabled())
-         {
-            trace.debug(MessageFormat.format(
-                  "Fetching starting transition tokens for {0} process hierarchy.",
-                  new Object[] { processInstance }));
-         }
-
-         // Select all start transition and unbound tokens for the sub process hierarchy.
-         ResultIterator ttIter = session.getIterator(TransitionTokenBean.class,
-               QueryExtension.where( //
-                     Predicates.andTerm( //
-                           Predicates.inList(TransitionTokenBean.FR__PROCESS_INSTANCE,
-                                 newOids), //
-                                 Predicates.orTerm( //
-                                       Predicates.andTerm( //
-                                             Predicates.isEqual(TransitionTokenBean.FR__SOURCE, 0),
-                                             Predicates.isNotNull(TransitionTokenBean.FR__TARGET)),
-                                       Predicates.andTerm( //
-                                             Predicates.isNotNull(TransitionTokenBean.FR__SOURCE),
-                                             Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED, 0)))
-                           )));
-
-         while (ttIter.hasNext())
-         {
-            TransitionTokenBean tt = (TransitionTokenBean) ttIter.next();
-            tt.lock();
-         }
-      }
-
-      return !newOids.isEmpty();
-   }
-
-   private void abortAllProcessInstances()
-   {
-      for (Iterator piIter = piCache.iterator(); piIter.hasNext();)
+      for (Iterator piIter = pis.iterator(); piIter.hasNext();)
       {
          ProcessInstanceBean pi = (ProcessInstanceBean) piIter.next();
 

@@ -27,7 +27,6 @@ import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-import org.eclipse.xsd.XSDSchema;
 
 import com.sungard.infinity.bpm.vfs.VfsUtils;
 

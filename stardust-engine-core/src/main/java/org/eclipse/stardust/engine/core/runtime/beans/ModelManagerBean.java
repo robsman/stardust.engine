@@ -1236,6 +1236,13 @@ public class ModelManagerBean implements ModelManager
             {
                continue;
             }
+
+            if (model.getId().equals(PredefinedConstants.PREDEFINED_MODEL_ID)
+                  && !id.equals(PredefinedConstants.PREDEFINED_MODEL_ID))
+            {
+               continue;
+            }            
+            
             if (model.getBooleanAttribute(PredefinedConstants.IS_DISABLED_ATT))
             {
                continue;
@@ -1918,6 +1925,11 @@ public class ModelManagerBean implements ModelManager
          {
             IModel model = (IModel) i.next();
 
+            if (model.getId().equals(PredefinedConstants.PREDEFINED_MODEL_ID))
+            {
+               continue;
+            }
+            
             if (model.getBooleanAttribute(PredefinedConstants.IS_DISABLED_ATT))
             {
                continue;
@@ -1951,6 +1963,11 @@ public class ModelManagerBean implements ModelManager
          {
             IModel model = (IModel) i.next();
 
+            if (model.getId().equals(PredefinedConstants.PREDEFINED_MODEL_ID))
+            {
+               continue;
+            }            
+            
             if (model.getBooleanAttribute(PredefinedConstants.IS_DISABLED_ATT))
             {
                continue;

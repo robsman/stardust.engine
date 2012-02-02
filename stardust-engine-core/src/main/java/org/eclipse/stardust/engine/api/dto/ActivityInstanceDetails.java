@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -203,8 +204,28 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
 
       performedBy = DetailsFactory.create(activityInstance.getPerformedBy());
-      userPerformer = DetailsFactory.createUser(activityInstance.getCurrentUserPerformer());
-      
+
+      PropertyLayer layer = null;
+      if (activityInstance.getCurrentUserPerformer() != null)
+         try
+         {
+            Map<String, Object> props = new HashMap<String, Object>();
+            props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+            layer = ParametersFacade.pushLayer(props);
+            userPerformer = DetailsFactory.createUser(activityInstance.getCurrentUserPerformer());
+         }
+         finally
+         {
+            if (null != layer)
+            {
+               ParametersFacade.popLayer();
+            }
+         }
+      else
+      {
+         userPerformer = null;
+      }
+
       HistoricalStatesPolicy historicalStatesPolicy = parameters.getObject(
             HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES,
             HistoricalStatesPolicy.NO_HIST_STATES);
@@ -266,7 +287,6 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
       permissions.put(ctx.getPermissionId(), ps);
 
-      PropertyLayer layer = null;
       try
       {         
          // Skip process authorization check here, since it was already checked for the activity instance

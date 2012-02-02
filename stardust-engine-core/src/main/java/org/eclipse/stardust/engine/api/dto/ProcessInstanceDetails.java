@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -165,10 +166,22 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
 
       IUser startingUser = processInstance.getStartingUser();
 
+      PropertyLayer layer = null;
       if (null != startingUser)
       {
-         startingUserDetails = (UserDetails) DetailsFactory.create(startingUser,
-               IUser.class, UserDetails.class);
+         try
+         {
+
+            Map<String, Object> props = new HashMap<String, Object>();
+            props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+            layer = ParametersFacade.pushLayer(props);
+            startingUserDetails = (UserDetails) DetailsFactory.create(startingUser,
+                  IUser.class, UserDetails.class);
+         }
+         finally
+         {
+
+         }
       }
       else
       {
@@ -275,7 +288,6 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          permissions.put(ctx.getPermissionId(), ps);
       }
 
-      PropertyLayer layer = null;
       try
       {
          // Do not overwrite level if explicitly set (not null!).

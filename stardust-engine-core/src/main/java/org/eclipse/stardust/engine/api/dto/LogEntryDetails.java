@@ -11,7 +11,11 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.LogEntry;
@@ -64,17 +68,32 @@ public class LogEntryDetails implements LogEntry
       type = logEntry.getType();
       code = logEntry.getCode();
       userOID = logEntry.getUserOID();
+      
+      PropertyLayer layer = null;      
       if (userOID != 0)
       {
          try
          {
             IUser user =  UserBean.findByOid(userOID);
+
+            Map<String, Object> props = new HashMap<String, Object>();
+            props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+            layer = ParametersFacade.pushLayer(props);
+                        
             userDetails = (UserDetails) DetailsFactory.create(user,
                   IUser.class, UserDetails.class);
          }
          catch (ObjectNotFoundException e)
          {
             userDetails = null;
+         }
+         finally
+         {
+            if (null != layer)
+            {
+               ParametersFacade.popLayer();
+            }
+            
          }
       }
 

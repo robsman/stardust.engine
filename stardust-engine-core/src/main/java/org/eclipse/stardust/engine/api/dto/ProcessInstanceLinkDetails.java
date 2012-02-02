@@ -11,7 +11,12 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.config.PropertyLayer;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType;
 import org.eclipse.stardust.engine.api.runtime.User;
@@ -43,15 +48,31 @@ public class ProcessInstanceLinkDetails implements ProcessInstanceLink
       this.creatingUserOID = creatingUserOID;
       this.comment = comment;
       
-      IUser user= UserBean.findByOid(creatingUserOID);
-      if (user != null)
+      PropertyLayer layer = null;        
+      if (creatingUserOID != 0)
       {
-         this.creatingUser = (UserDetails) DetailsFactory.create(user, IUser.class,
-               UserDetails.class);
-      }
-      else
-      {
-         this.creatingUser = null;
+         try
+         {
+            IUser user= UserBean.findByOid(creatingUserOID);
+            
+            Map<String, Object> props = new HashMap<String, Object>();
+            props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+            layer = ParametersFacade.pushLayer(props);
+            
+            this.creatingUser = (UserDetails) DetailsFactory.create(user, IUser.class,
+                  UserDetails.class);
+         }   
+         catch (ObjectNotFoundException e)
+         {
+            creatingUser = null;       
+         }
+         finally
+         {
+            if (null != layer)
+            {
+               ParametersFacade.popLayer();
+            }           
+         }         
       }
    }
 

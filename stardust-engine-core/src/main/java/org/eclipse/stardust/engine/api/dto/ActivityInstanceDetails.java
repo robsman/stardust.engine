@@ -48,10 +48,11 @@ import org.eclipse.stardust.engine.api.runtime.LogType;
 import org.eclipse.stardust.engine.api.runtime.PermissionState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -113,6 +114,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    private ParticipantInfo performer;
    private UserInfo performedBy;
+   private User userPerformer;
 
    private List<HistoricalState> historicalStates = Collections.emptyList();
 
@@ -201,7 +203,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
 
       performedBy = DetailsFactory.create(activityInstance.getPerformedBy());
-
+      userPerformer = DetailsFactory.createUser(activityInstance.getCurrentUserPerformer());
+      
       HistoricalStatesPolicy historicalStatesPolicy = parameters.getObject(
             HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES,
             HistoricalStatesPolicy.NO_HIST_STATES);
@@ -406,6 +409,11 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    public String getUserPerformerName()
    {
       return performer instanceof UserInfo ? performer.getName() : null;
+   }
+   
+   public User getUserPerformer()
+   {
+      return userPerformer;
    }
 
    public long getParticipantPerformerOID()

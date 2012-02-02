@@ -16,8 +16,11 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.LogEntry;
 import org.eclipse.stardust.engine.api.runtime.LogType;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ILogEntry;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 
@@ -46,7 +49,7 @@ public class LogEntryDetails implements LogEntry
    private int type;
    private int code;
    private long userOID;
-   private String user;
+   private User userDetails;
    private String context;
 
    LogEntryDetails(ILogEntry logEntry)
@@ -65,11 +68,13 @@ public class LogEntryDetails implements LogEntry
       {
          try
          {
-            user = UserBean.findByOID(userOID).toString();
+            IUser user =  UserBean.findByOid(userOID);
+            userDetails = (UserDetails) DetailsFactory.create(user,
+                  IUser.class, UserDetails.class);
          }
          catch (ObjectNotFoundException e)
          {
-            user = "User: unknown, oid = " + userOID;
+            userDetails = null;
          }
       }
 
@@ -142,9 +147,9 @@ public class LogEntryDetails implements LogEntry
       return LogType.getKey(type);
    }
 
-   public String getUser()
+   public User getUser()
    {
-      return user;
+      return userDetails;
    }
 
    public String getContext()

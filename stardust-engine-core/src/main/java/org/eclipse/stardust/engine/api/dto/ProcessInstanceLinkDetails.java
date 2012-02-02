@@ -14,6 +14,10 @@ import java.util.Date;
 
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 
 
 public class ProcessInstanceLinkDetails implements ProcessInstanceLink
@@ -25,6 +29,7 @@ public class ProcessInstanceLinkDetails implements ProcessInstanceLink
    private ProcessInstanceLinkType linkType;
    private Date createTime;
    private long creatingUserOID;
+   private User creatingUser;
    private String comment;
 
    public ProcessInstanceLinkDetails(long sourceOID, long targetOID,
@@ -37,6 +42,17 @@ public class ProcessInstanceLinkDetails implements ProcessInstanceLink
       this.createTime = createTime;
       this.creatingUserOID = creatingUserOID;
       this.comment = comment;
+      
+      IUser user= UserBean.findByOid(creatingUserOID);
+      if (user != null)
+      {
+         this.creatingUser = (UserDetails) DetailsFactory.create(user, IUser.class,
+               UserDetails.class);
+      }
+      else
+      {
+         this.creatingUser = null;
+      }
    }
 
    public long getSourceOID()
@@ -58,10 +74,10 @@ public class ProcessInstanceLinkDetails implements ProcessInstanceLink
    {
       return createTime;
    }
-
-   public long getCreatingUserOID()
+   
+   public User getCreatingUser()
    {
-      return creatingUserOID;
+      return creatingUser;
    }
 
    public String getComment()

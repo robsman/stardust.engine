@@ -127,6 +127,15 @@ public interface ActivityInstance extends RuntimeObject
     * @see #isAssignedToUser
     */
    String getUserPerformerName();
+   
+   /**
+    * Gets the current <code>User</code> Object of this activity instance.
+    * 
+    * @return the <code>User</code> object or null if not assigned to a user.
+    * 
+    * @see #isAssignedToUser
+    */
+   User getUserPerformer();
 
    /**
     * Gets the ID of the current participant performer of this activity instance.

@@ -103,11 +103,11 @@ public interface ProcessInstance extends RuntimeObject
    Date getTerminationTime();
 
    /**
-    * Gets the account and name of the user that have started the process instance.
+    * Gets the <code>User</code> object of the user that have started the process instance.
     *
-    * @return the formatted account, last name and first name of the user.
+    * @return the <code>User</code> object of the user.
     */
-   String getStartingUser();
+   User getStartingUser();
 
    /**
     * Gets the current state of the process instance.

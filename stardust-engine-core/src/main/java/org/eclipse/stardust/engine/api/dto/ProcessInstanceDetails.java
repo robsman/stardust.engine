@@ -42,6 +42,7 @@ import org.eclipse.stardust.engine.api.runtime.PermissionState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
@@ -97,7 +98,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private final long rootProcessOID;
    private final long scopeProcessOID;
    private final int priority;
-   private final String startingUserName;
+   private final User startingUserDetails;
    private final ProcessInstanceState state;
    private final Date startingTime;
    private final Date terminationTime;
@@ -166,19 +167,12 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
 
       if (null != startingUser)
       {
-         if (PredefinedConstants.SYSTEM.equals(startingUser.getAccount())
-               && PredefinedConstants.SYSTEM_REALM.equals(startingUser.getRealm().getId()))
-         {
-            this.startingUserName = PredefinedConstants.SYSTEM;
-         }
-         else
-      {
-            this.startingUserName = PerformerUtils.getQualifiedName(startingUser);
-         }
+         startingUserDetails = (UserDetails) DetailsFactory.create(startingUser,
+               IUser.class, UserDetails.class);
       }
       else
       {
-         this.startingUserName = "(None)";
+         this.startingUserDetails = null;
       }
 
       // get the starting AI oid
@@ -342,9 +336,9 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       return terminationTime;
    }
 
-   public String getStartingUser()
+   public User getStartingUser()
    {
-      return startingUserName;
+      return startingUserDetails;
    }
 
    public ProcessInstanceState getState()

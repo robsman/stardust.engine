@@ -41,12 +41,12 @@ public interface ProcessInstanceLink extends Serializable
    Date getCreateTime();
 
    /**
-    * @return the OID of the user who created the link
-    */
-   long getCreatingUserOID();
-
-   /**
     * @return the comment of this link
     */
    String getComment();
+   
+   /**
+    * @return the <code>User</code> object of the user who created the link
+    */
+   User getCreatingUser();
 }

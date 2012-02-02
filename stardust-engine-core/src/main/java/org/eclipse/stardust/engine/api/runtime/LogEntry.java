@@ -89,9 +89,9 @@ public interface LogEntry extends Serializable
    LogType getType();
 
    /**
-    * Gets the name of the user that was performing an activity when the log entry was created.
+    * Gets the <code>User</code> object of the user that was performing an activity when the log entry was created.
     *
-    * @return the user name or null if the log was not created during an user activity.
+    * @return the <code>User</code> object or null if the log was not created during an user activity.
     */
-   String getUser();
+   User getUser();
 }

@@ -71,7 +71,8 @@ public class DataCopyUtils
          {
             IData targetData = getDataFromProcessInstance(targetProcessInstance,
                   srcDataId);
-            if (targetData != null && hasOutDataMapping(srcValue, targetProcessInstance)
+            if (targetData != null && isFromSameModel(srcData, targetData)
+                  && hasOutDataMapping(srcValue, targetProcessInstance)
                   && !isInitializedInTarget(srcValue, targetProcessInstance)
                   && hasSameDocumentTypeId(srcData, targetData))
             {
@@ -120,6 +121,14 @@ public class DataCopyUtils
       }
 
       copyData(sourceProcessInstance, targetProcessInstance, ignoreDataIds2, mappingRules);
+   }
+
+   private static boolean isFromSameModel(IData srcData, IData targetData)
+   {
+      IModel srcModel = (IModel) srcData.getModel();
+      IModel trgModel = (IModel) targetData.getModel();
+
+      return srcModel.getModelOID() == trgModel.getModelOID();
    }
 
    private static boolean docTypeSchemaEquals(IData srcData, IData targetData)

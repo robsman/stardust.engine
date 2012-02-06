@@ -90,7 +90,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    // Adding criticality field ref
    public static final FieldRef FR__CRITICALITY = new FieldRef(ActivityInstanceBean.class, FIELD__CRITICALITY);
    public static final FieldRef FR__PROPERTIES_AVAILABLE = new FieldRef(ActivityInstanceBean.class, FIELD__PROPERTIES_AVAILABLE);
-   
+
    public static final String TABLE_NAME = "activity_instance";
    public static final String DEFAULT_ALIAS = "ai";
    public static final String LOCK_TABLE_NAME = "activity_instance_lck";
@@ -117,13 +117,13 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    static final boolean state_USE_LITERALS = true;
    static final boolean currentUserPerformer_USE_LITERALS = true;
-   
+
    private transient ActivityInstanceState originalState;
-      
+
    private transient EncodedPerformer originalPerformer;
-   
+
    private transient List<ChangeLogDigester.HistoricState> historicStates;
-   
+
    private int state;
    private long startTime;
    private long lastModificationTime;
@@ -132,11 +132,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
     */
    protected long model;
    protected long activity;
-   
+
    private ProcessInstanceBean processInstance;
    static final String processInstance_EAGER_FETCH = Boolean.TRUE.toString();
    static final String processInstance_MANDATORY = Boolean.TRUE.toString();
-   
+
    /**
     * Contains the OID of the current performer, if it is an organization or role or user
     * group. An user group will be identified by a negative OID;
@@ -150,7 +150,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
     * Contains the OID of the user, who performed this instance.
     */
    private long performedBy;
-   
+
    private long currentDepartment;
 
    /**
@@ -162,12 +162,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
     * the user to which should be delegate when this instance is new created
     */
    private transient IUser initialWorklistUser;
-   
+
    /**
     * Reflects the existence of any {@link ActivityInstanceProperty} for this activity instance.
     */
-   private int propertiesAvailable;   
-   
+   private int propertiesAvailable;
+
    /**
     * Returns all activity instances, whose current performer equals
     * <tt>currentPerformer</tt>.
@@ -266,7 +266,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       // start finding performers at last completed AI (CRNT-5888)
       query.addOrderBy(FR__LAST_MODIFICATION_TIME, false);
-      
+
       IUser user = null;
 
       ClosableIterator ais = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
@@ -287,7 +287,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          ais.close();
       }
-      
+
       return user;
    }
 
@@ -311,12 +311,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       setState(ActivityInstanceState.CREATED);
    }
-   
+
    public ActivityInstanceBean(IActivity activity, IProcessInstance processInstance, IUser initialWorklistUser)
    {
       this(activity, processInstance);
       this.initialWorklistUser = initialWorklistUser;
-      
+
    }
 
    /**
@@ -329,7 +329,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       return "Activity instance '" + activity.getId() + "',  oid: " + getOID()
             + " (process instance = " + getProcessInstanceOID() + ")";
    }
-   
+
    public ActivityInstanceState getOriginalState()
    {
       return originalState;
@@ -355,10 +355,10 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public final void setState(int state) throws IllegalStateChangeException
    {
       fetch();
-      
+
       MonitoringUtils.activityInstanceMonitors()
             .activityInstanceStateChanged(this, state);
-      
+
       if ((this.state == state) && (ActivityInstanceState.CREATED != state))
       {
          return;
@@ -380,11 +380,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          throw new IllegalStateChangeException(this.toString(), ActivityInstanceState.getState(state), this.getState());
       }
       ProcessInstanceState piState = getProcessInstance().getState();
-      if((piState.equals(ProcessInstanceState.Aborted) || piState.equals(ProcessInstanceState.Aborting)) && 
+      if((piState.equals(ProcessInstanceState.Aborted) || piState.equals(ProcessInstanceState.Aborting)) &&
            !(state == ActivityInstanceState.ABORTED || state == ActivityInstanceState.ABORTING))
       {
          ActivityInstanceState newState = ActivityInstanceState.getState(state);
-         StringBuffer msg = new StringBuffer("Invalid state change from ");         
+         StringBuffer msg = new StringBuffer("Invalid state change from ");
          msg.append(ActivityInstanceState.getState(this.state)).append(" to ").append(newState);
          msg.append(" because the process instance is ");
          if(piState.equals(ProcessInstanceState.Aborted))
@@ -503,15 +503,15 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public double getCriticality()
    {
       fetch();
-      return criticality; 
+      return criticality;
    }
-   
+
    public void updateCriticality(double criticality)
    {
       markModified(FIELD__CRITICALITY);
       this.criticality = criticality;
    }
-   
+
    public boolean isDefaultCaseActivityInstance()
    {
       fetch();
@@ -526,7 +526,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       return PredefinedConstants.DEFAULT_CASE_ACTIVITY_ID.equals(result.getId())
             && getProcessInstance().isCaseProcessInstance();
    }
-   
+
    public IActivity getActivity()
    {
       fetch();
@@ -537,13 +537,13 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                BpmRuntimeError.MDL_UNKNOWN_ACTIVITY_FOR_AI.raise(activity, getOID()),
                activity);
       }
-      
+
       //if qc instance return a decorated activity that will change the default performer
       if (QualityAssuranceUtils.isQualityAssuranceInstance(result, getQualityAssuranceState()))
       {
          return new QualityAssuranceActivityBean(result);
       }
-      
+
       return getProcessInstance().isCaseProcessInstance() ? groupActivity(result) : result;
    }
 
@@ -606,7 +606,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       return performer;
    }
-   
+
    public IUser getCurrentUserPerformer()
    {
       fetch();
@@ -724,7 +724,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       fetch();
-      
+
       if (user.getOID() != this.currentUserPerformer)
       {
          final long oldUserPerformer = currentUserPerformer;
@@ -733,14 +733,14 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          recordHistoricState();
          recordInitialPerformer();
-         
+
          try
          {
             // marking fields as modified is deferred to finally block
             this.currentUserPerformer = user.getOID();
             this.currentPerformer = 0;
             this.currentDepartment = 0;
-            
+
             if (getActivity().hasEventHandlers(
                   PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
             {
@@ -813,19 +813,19 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       recordHistoricState();
       recordInitialPerformer();
-      
+
       if (0 != currentUserPerformer)
       {
          markModified(FIELD__CURRENT_USER_PERFORMER);
          this.currentUserPerformer = 0;
       }
-      
+
       if(0 != currentDepartment)
       {
          markModified(FIELD__CURRENT_DEPARTMENT);
          this.currentDepartment = 0;
       }
-      
+
       markModified(FIELD__CURRENT_PERFORMER);
       this.currentPerformer = -1 * userGroup.getOID();
 
@@ -847,7 +847,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       recordHistoricState();
       recordInitialPerformer();
-      
+
       if (0 != currentUserPerformer)
       {
          markModified(FIELD__CURRENT_USER_PERFORMER);
@@ -897,24 +897,28 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if ((0 != currentUserPerformer) || (0 != currentPerformer))
       {
          trace.info("Remove from worklists: " + this);
-         
+
          recordHistoricState();
          recordInitialPerformer();
-         
-         if (0 != currentUserPerformer)
+
+         // Cases need to keep case owner.
+         if ( !isDefaultCaseActivityInstance())
          {
-            markModified(FIELD__CURRENT_USER_PERFORMER);
-            this.currentUserPerformer = 0;
-         }
-         if (0 != currentPerformer)
-         {
-            markModified(FIELD__CURRENT_PERFORMER);
-            this.currentPerformer = 0;
-         }
-         if (0 != currentDepartment)
-         {
-            markModified(FIELD__CURRENT_DEPARTMENT);
-            this.currentDepartment = 0;
+            if (0 != currentUserPerformer)
+            {
+               markModified(FIELD__CURRENT_USER_PERFORMER);
+               this.currentUserPerformer = 0;
+            }
+            if (0 != currentPerformer)
+            {
+               markModified(FIELD__CURRENT_PERFORMER);
+               this.currentPerformer = 0;
+            }
+            if (0 != currentDepartment)
+            {
+               markModified(FIELD__CURRENT_DEPARTMENT);
+               this.currentDepartment = 0;
+            }
          }
       }
    }
@@ -940,7 +944,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if ((ActivityInstanceState.Created.equals(getState()))
             || ActivityInstanceState.Interrupted.equals(getState()))
       {
-         // support polymorphism wrt. activity definition 
+         // support polymorphism wrt. activity definition
          IActivityExecutionStrategy aeStrategy = ActivityExecutionUtils.getExecutionStrategy(activity);
          if (null != aeStrategy)
          {
@@ -968,7 +972,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             {
                putToUserWorklist(initialWorklistUser);
             }
-            
+
             ActivityThread.getCurrentActivityThreadContext().handleWorklistItem(this);
          }
       }
@@ -1221,9 +1225,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       // TODO: (fh) 2. this.toString() is a costly call that will be performed for *every* invocation
       Assert.isNotNull(activity,
             "Activity for activity instance " + this + " not found");
-      
+
       IModelParticipant performer = activity.getPerformer();
-      
+
       if (null == performer)
       {
          throw new PublicException(
@@ -1298,12 +1302,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          {
             throw new InvocationTargetException(e, "Failed processing IN data mappings.");
          }
-         
+
          Map outAccessPointValues = retrySynchronousApplication(activity,
                applicationInstance);
-         
+
          processOutDataMappings(outAccessPointValues);
-         
+
       }
       catch (InvocationTargetException e)
       {
@@ -1317,8 +1321,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       int number = 0;
       int time = 5;
-      boolean retry = false;   
-            
+      boolean retry = false;
+
       IApplication application = activity.getApplication();
       if(application != null)
       {
@@ -1332,7 +1336,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             catch (Exception e)
             {
             }
-         }                  
+         }
 
          // if retry is enabled, check the other values
          if(retry)
@@ -1367,10 +1371,10 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          number = 0;
       }
-      
+
       while(number > -1)
       {
-         number--;            
+         number--;
          try
          {
             return applicationInstance.invoke(activity.getApplicationOutDataMappingAccessPoints());
@@ -1384,7 +1388,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                   Thread.sleep(time * 1000);
                }
                catch (InterruptedException e1)
-               {               
+               {
                }
             }
             else
@@ -1393,7 +1397,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             }
          }
       }
-      
+
       // never reached
       return null;
    }
@@ -1484,19 +1488,19 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       for  (int i = 0; i < inDataMappings.size(); ++i)
       {
          IDataMapping mapping = (IDataMapping) inDataMappings.get(i);
-         
+
          if (PredefinedConstants.DEFAULT_CONTEXT.equals(mapping.getContext()))
          {
             Object bridgeObject = processInstance.getInDataValue(mapping.getData(),
                   mapping.getDataPath());
-            
+
             if (StringUtils.isEmpty(mapping.getActivityPath()))
             {
                if (null == apValues)
                {
                   apValues = CollectionUtils.newMap();
                }
-               
+
                apValues.put(mapping.getActivityAccessPointId(), bridgeObject);
             }
          }
@@ -1575,7 +1579,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if (values != null && values.containsKey(mapping.getActivityAccessPointId()))
       {
          Object apValue = values.get(mapping.getActivityAccessPointId());
-         
+
          AccessPoint activityAP = mapping.getActivityAccessPoint();
          ExtendedAccessPathEvaluator apEvaluator = SpiUtils
          .createExtendedAccessPathEvaluator(activityAP.getType());
@@ -1584,7 +1588,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                .getActivity());
          Object bridgeObject = apEvaluator.evaluate(activityAP, apValue, mapping
                .getActivityPath(), evaluationContext);
-         
+
          processInstance.setOutDataValue(mapping.getData(), mapping.getDataPath(),
                bridgeObject);
       }
@@ -1635,7 +1639,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                {
                   apValues = getIntrinsicOutAccessPointValues();
                }
-               
+
                setOutMappingValue(apValues, mapping);
             }
          }
@@ -1663,7 +1667,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             {
                // finalizing activity gracefully as requested
                setState(event.getIntendedState().getValue());
-               
+
                RuntimeLog.WF_EVENT.info(MessageFormat.format(
                      "Processed expected exception as modeled for: {0}:", new Object[] { this }), exception);
             }
@@ -1694,8 +1698,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public void complete()
    {
       fetch();
-      
-      // support polymorphism wrt. activity definition 
+
+      // support polymorphism wrt. activity definition
       IActivityExecutionStrategy aeStrategy = ActivityExecutionUtils.getExecutionStrategy(getActivity());
       if (null != aeStrategy)
       {
@@ -1705,12 +1709,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          doCompleteActivity();
       }
-      
+
       EventUtils.detachAll(this);
 
       ActivityThread.getCurrentActivityThreadContext().completingActivity(this);
    }
-   
+
    public void doCompleteActivity() throws IllegalStateChangeException
    {
       setState(ActivityInstanceState.COMPLETED);
@@ -1726,7 +1730,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             this.performedBy = userOID;
          }
       }
-      
+
       processEngineOutDataMappings();
    }
 
@@ -1740,9 +1744,9 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          ImplementationType type = activity.getImplementationType();
          if (type == ImplementationType.Application)
          {
-            invokeApplication(activity);            
+            invokeApplication(activity);
          }
-      }   
+      }
       else
       {
          setState(ActivityInstanceState.APPLICATION);
@@ -1773,7 +1777,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public void delegateToUser(IUser user) throws AccessForbiddenException
    {
       assertDelegationGranted();
-      
+
       IModelParticipant performer = getActivity().getPerformer();
 
       if (null == performer)
@@ -1829,7 +1833,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       delegateToParticipant(participant, null, null);
    }
-   
+
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToDepartment,
          scope=ExecutionPermission.Scope.activity,
@@ -1860,7 +1864,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                            participant.getId(), Long.valueOf(getOID())));
             }
          }
-            
+
          IDepartment oldDepartment = getCurrentDepartment();
          if (oldDepartment == null)
          {
@@ -1890,7 +1894,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                oldDepartment = lastDepartment;
             }
          }
-         
+
          IDepartment targetDepartment = getTargetDepartment(participant, newDepartment);
          if (!isCompatible(participant, targetDepartment, oldDepartment))
          {
@@ -1905,7 +1909,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             }
             Authorization2.checkPermission(method, new Long[] {getOID()});
          }
-         
+
          putToParticipantWorklist(participant, targetDepartment == null ? 0 : targetDepartment.getOID());
       }
       else
@@ -1995,7 +1999,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       return (null != historicStates) ? historicStates : Collections.EMPTY_LIST;
    }
-   
+
    private void recordInitialPerformer()
    {
       if (null == originalPerformer)
@@ -2027,28 +2031,28 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       ChangeLogDigester.HistoricState state = null;
 
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      
+
       long now = TimestampProviderUtils.getTimeStampValue();
       if (rtEnv.getChangeLogDigester().isAiChangeLogEnabled(this))
       {
          final Date tsFrom = getLastModificationTime();
-         
+
          final Date tsUntil = new Date(now);
          if ( !tsUntil.after(tsFrom))
          {
             trace.debug("Patching modification time by 1ms");
-            
+
             tsUntil.setTime(tsFrom.getTime() + 1);
          }
-         
+
          // interval must be synchronized with last modification time to allow association of
          // current/terminal state of AI with history table
          updateModificationTime(tsUntil.getTime());
-         
+
          state = new ChangeLogDigester.HistoricState( //
                tsFrom, tsUntil, //
                getState(), getPerformer(), getCurrentDepartment());
-         
+
          if (null == historicStates)
          {
             this.historicStates = CollectionUtils.newList();
@@ -2059,7 +2063,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          updateModificationTime(now);
       }
-      
+
       return state;
    }
 
@@ -2079,7 +2083,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public QualityAssuranceState getQualityAssuranceState()
    {
       if(isPropertyAvailable())
-      {      
+      {
          String value = (String) getPropertyValue(QualityAssuranceState.PROPERTY_KEY);
          if (StringUtils.isNotEmpty(value))
          {
@@ -2094,14 +2098,14 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       String stateValue = s.toString();
       setPropertyValue(QualityAssuranceState.PROPERTY_KEY, stateValue);
-      
+
       propertiesAvailable = 1;
-      markModified(FIELD__PROPERTIES_AVAILABLE);      
+      markModified(FIELD__PROPERTIES_AVAILABLE);
    }
-   
+
    public boolean isPropertyAvailable()
    {
       fetch();
       return propertiesAvailable != 0 ? true : false;
-   }   
+   }
 }

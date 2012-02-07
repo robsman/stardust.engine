@@ -54,7 +54,7 @@ public class ModelManagerBean implements ModelManager
 
    private final AbstractModelLoaderFactory loaderFactory;
 
-   private Map /* <Short, ModelManagerPartition> */managerPartitions = new HashMap();
+   private Map<Short, ModelManagerPartition> managerPartitions = CollectionUtils.newMap();
 
    public ModelManagerBean(AbstractModelLoaderFactory loaderFactory)
    {
@@ -89,6 +89,11 @@ public class ModelManagerBean implements ModelManager
    public IModel findLastDeployedModel(String id)
    {
       return getModelManagerPartition().findLastDeployedModel(id);
+   }
+
+   public List<IModel> findLastDeployedModels()
+   {
+      return getModelManagerPartition().findLastDeployedModels();
    }
 
    public IModel findModel(Predicate predicate)
@@ -298,9 +303,7 @@ public class ModelManagerBean implements ModelManager
       }
       else
       {
-         managerPartition = new ModelManagerPartition(partitionOid, loaderFactory
-               .instance(partitionOid));
-         managerPartitions.put(partitionOidValue, managerPartition);
+         managerPartition = new ModelManagerPartition(partitionOidValue, loaderFactory.instance(partitionOid));
 
          // must be done after the complete initialization and inclusion into the list of partitions,
          // otherwise we get an endless loop / stack overflow
@@ -725,16 +728,13 @@ public class ModelManagerBean implements ModelManager
 
       private ElementByRtOidCache[] elementsByRtOid;
 
-      public ModelManagerPartition(short partitionOid, ModelLoader loader)
+      public ModelManagerPartition(Short partitionOid, ModelLoader loader)
       {
          this.partitionOid = partitionOid;
          this.models = CollectionUtils.newList();
          this.unorderedModels = CollectionUtils.newList();
          this.loader = loader;
-
-         this.rtOidRegistry = new RuntimeOidRegistry(partitionOid);
-
-         loader.loadRuntimeOidRegistry(rtOidRegistry);
+         managerPartitions.put(partitionOid, this);
 
          // sort with ascending model OID
          Map<Long, IModelPersistor> loadedModels = new TreeMap();
@@ -787,25 +787,25 @@ public class ModelManagerBean implements ModelManager
             }
          }
 
+         this.rtOidRegistry = new RuntimeOidRegistry(partitionOid);
+         loader.loadRuntimeOidRegistry(rtOidRegistry);
+
          if (loader instanceof RuntimeModelLoader)
          {
             // setting the archive flag. This should override any previous settings, i.e.
             // from carnot.properties.
-            boolean archive = PropertyPersistor
-            .findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL) != null;
-            Parameters.instance()
-            .setBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, archive);
+            boolean archive = PropertyPersistor.findByName(Constants.CARNOT_ARCHIVE_AUDITTRAIL) != null;
+            Parameters.instance().setBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, archive);
 
             // Load predefined model only if a model is already deployed and it does not exist.
             // This only happens on runtime upgrade. Usually the predefined model is deployed with the first model deployment.
-            if ( !archive && getModelCount() > 0
+            if (!archive && getModelCount() > 0
                   && null == findActiveModel(PredefinedConstants.PREDEFINED_MODEL_ID))
             {
                List<ParsedDeploymentUnit> predefinedModelElement = ModelUtils.getPredefinedModelElement();
                if (predefinedModelElement != null)
                {
-                  loader.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT,
-                        rtOidRegistry);
+                  loader.deployModel(predefinedModelElement, DeploymentOptions.DEFAULT, rtOidRegistry);
 
                   Iterator<IModelPersistor> loadedModelsIncludingPredefinedModel = loader.loadModels();
                   while (loadedModelsIncludingPredefinedModel.hasNext())
@@ -823,7 +823,6 @@ public class ModelManagerBean implements ModelManager
                   trace.warn("Could not load PredefinedModel.xpdl");
                }
             }
-
          }
 
          recomputeAlivenessCache();
@@ -1027,7 +1026,7 @@ public class ModelManagerBean implements ModelManager
          return null;
       }
 
-      private List<IModel> findLastDeployedModels()
+      public List<IModel> findLastDeployedModels()
       {
          Date now = new Date();
          List<IModel> result = CollectionUtils.newList();
@@ -1096,29 +1095,20 @@ public class ModelManagerBean implements ModelManager
 
       public List<DeploymentInfo> deployModel(List<ParsedDeploymentUnit> units, DeploymentOptions options)
       {
-         BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
          List<DeploymentInfo> infos = CollectionUtils.newList(units.size());
          boolean valid = true;
          boolean errors = false;
-         try
+         for (ParsedDeploymentUnit unit : units)
          {
-            runtimeEnvironment.setModelOverrides(prepareOverrides(units));
-            for (ParsedDeploymentUnit unit : units)
-            {
-               IModel model = unit.getModel();
-               Date validFrom = options.getValidFrom();
-               DeploymentInfoDetails info = new DeploymentInfoDetails(
-                     validFrom == null ? (Date) model.getAttribute(PredefinedConstants.VALID_FROM_ATT) : validFrom,
-                     model.getId(), options.getComment());
-               info.addInconsistencies(validateDeployment(unit, options));
-               infos.add(info);
-               valid = valid && info.isValid();
-               errors = errors || info.hasErrors();
-            }
-         }
-         finally
-         {
-            runtimeEnvironment.setModelOverrides(null);
+            IModel model = unit.getModel();
+            Date validFrom = options.getValidFrom();
+            DeploymentInfoDetails info = new DeploymentInfoDetails(
+                  validFrom == null ? (Date) model.getAttribute(PredefinedConstants.VALID_FROM_ATT) : validFrom,
+                  model.getId(), options.getComment());
+            info.addInconsistencies(validateDeployment(unit, options));
+            infos.add(info);
+            valid = valid && info.isValid();
+            errors = errors || info.hasErrors();
          }
 
          if (errors || !options.isIgnoreWarnings() && !valid)
@@ -1172,23 +1162,6 @@ public class ModelManagerBean implements ModelManager
          }
 
          return infos;
-      }
-
-      private Map<String, IModel> prepareOverrides(List<ParsedDeploymentUnit> units)
-      {
-         Map<String, IModel> overrides = CollectionUtils.newMap();
-         List<IModel> lastDeployedModels = findLastDeployedModels();
-         for (IModel model : lastDeployedModels)
-         {
-            overrides.put(model.getId(), model);
-         }
-         for (ParsedDeploymentUnit unit : units)
-         {
-            // TODO: which model to put here? Raw or varEvaluated version?
-            IModel model = unit.getModel();
-            overrides.put(model.getId(), model);
-         }
-         return overrides;
       }
 
       private IModel getCurrentModel(String id)
@@ -1589,6 +1562,11 @@ public class ModelManagerBean implements ModelManager
 
       public Iterator<IModel> getAllModels()
       {
+         if (models.size() < unorderedModels.size())
+         {
+            // (fh) partition is not fully loaded
+            return unorderedModels.iterator();
+         }
          return models.iterator();
       }
 
@@ -1694,10 +1672,12 @@ public class ModelManagerBean implements ModelManager
          return null;
       }
 
+      // TODO:
       public DeploymentInfo overwriteModel(ParsedDeploymentUnit unit, DeploymentOptions options)
       {
          IModel model = unit.getModel();
-         DeploymentInfoDetails info = new DeploymentInfoDetails(options.getValidFrom(), model.getId(), options.getComment());
+         String modelId = model.getId();
+         DeploymentInfoDetails info = new DeploymentInfoDetails(options.getValidFrom(), modelId, options.getComment());
 
          if (getModelCount() == 0)
          {
@@ -1719,10 +1699,6 @@ public class ModelManagerBean implements ModelManager
             }
             return info;
          }
-
-         BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-         List<ParsedDeploymentUnit> units = CollectionUtils.newList(1);
-         runtimeEnvironment.setModelOverrides(prepareOverrides(units));
 
          // @todo (france, ub): questionable, set on info
          info.addInconsistencies(validateOverwrite(oldModel, model));

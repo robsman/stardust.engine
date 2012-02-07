@@ -10,28 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.utils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
 import org.eclipse.stardust.engine.api.runtime.ParsedDeploymentUnit;
 import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-
-
 
 /**
  * @author rsauer
@@ -217,16 +211,8 @@ public class ModelUtils
       byte[] content = null;
       try
       {
-         final InputStream in = AdministrationServiceImpl.class.getResourceAsStream(PREDEFINED_MODEL_PATH);
-         final BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-
-         StringBuffer sb = new StringBuffer();
-         String line;
-         while ((line = reader.readLine()) != null)
-         {
-            sb.append(line).append("\n");
-         }
-         content = sb.toString().getBytes();
+         InputStream in = AdministrationServiceImpl.class.getResourceAsStream(PREDEFINED_MODEL_PATH);
+         content = XmlUtils.getContent(in);
       }
       catch (IOException e)
       {
@@ -234,10 +220,9 @@ public class ModelUtils
       }
       if (content != null)
       {
-         return Collections.singletonList(new ParsedDeploymentUnit(
-               new String(content), 0));
+         return Collections.singletonList(new ParsedDeploymentUnit(new DeploymentElement(content), 0));
       }
-         return null;
+      return null;
    }
 
    private static boolean isUsing(IReference ref, IProcessDefinition process)

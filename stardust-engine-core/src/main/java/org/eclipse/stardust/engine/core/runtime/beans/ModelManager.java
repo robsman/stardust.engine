@@ -52,6 +52,7 @@ public interface ModelManager
    IModel findLastDeployedModel();
 
    IModel findLastDeployedModel(String id);
+   List<IModel> findLastDeployedModels();
 
    List<DeploymentInfo> deployModel(List<ParsedDeploymentUnit> units, DeploymentOptions options);
 

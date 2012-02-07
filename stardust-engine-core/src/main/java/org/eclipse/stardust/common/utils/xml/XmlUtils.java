@@ -10,19 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.common.utils.xml;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -1064,6 +1052,20 @@ public class XmlUtils
          read += is.read(content, read, len - read);
       }
       return content;
+   }
+      
+   public static byte[] getContent(InputStream in) throws FileNotFoundException, IOException
+   {
+      byte[] buffer = new byte[512];
+      ByteArrayOutputStream content = new ByteArrayOutputStream();
+      BufferedInputStream is = new BufferedInputStream(in);
+      int read;
+      while ((read = is.read(buffer)) >= 0)
+      {
+         content.write(buffer, 0, read);
+      }
+      is.close();
+      return content.toByteArray();
    }
       
    public static String getOldXMLString(String fileName)

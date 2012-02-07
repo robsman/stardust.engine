@@ -21,7 +21,6 @@
     		<xsl:variable name="CarnotExt" select="$attrs[@Name='CarnotExt']"/>
 	    	<xsl:variable name="Package" select="$CarnotExt/c:Package"/>
 			<xsl:for-each select="$Package">
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 			    <xsl:if test="@ModelOid">
 			        <xsl:attribute name="modelOID"><xsl:value-of select="@ModelOid"/></xsl:attribute>
@@ -165,10 +164,16 @@
 			<!-- attributes -->
 	    	<xsl:variable name="Role" select="$CarnotExt/c:Role"/>
 	        <xsl:for-each select="$Role">
-		        <xsl:call-template name="carnot-element-proxy"/>
 	            <xsl:call-template name="carnot-element-oid"/>
 	        </xsl:for-each>
+
             <xsl:call-template name="xpdl-id-and-name"/>  
+	        <xsl:if test="x1:ExternalReference|x2:ExternalReference">
+        		<xsl:call-template name="carnot-element-proxy">
+        			<xsl:with-param name="ref" select="x1:ExternalReference|x2:ExternalReference"/>
+        		</xsl:call-template>
+	        </xsl:if>
+
             <xsl:if test="$Role/@Cardinality">
                 <xsl:attribute name="cardinality"><xsl:value-of select="$Role/@Cardinality"/></xsl:attribute>
             </xsl:if>
@@ -179,10 +184,6 @@
 	        </xsl:for-each>
             <xsl:call-template name="third-party-extended-attributes"/>
 			<xsl:call-template name="xpdl-description"/>
-			
-            <xsl:for-each select="x1:ExternalReference|x2:ExternalReference">
-                <xsl:message>Ignoring external reference to <xsl:value-of select="@location"/> for role <xsl:value-of select="../@Id"/></xsl:message>
-            </xsl:for-each>
 	    </role>
 	</xsl:template>
 	
@@ -192,10 +193,16 @@
 	    	<!-- attributes -->
 	    	<xsl:variable name="Organization" select="$CarnotExt/c:Organization"/>
 	        <xsl:for-each select="$Organization">
-		        <xsl:call-template name="carnot-element-proxy"/>
 	            <xsl:call-template name="carnot-element-oid"/>
 	        </xsl:for-each>
-	        <xsl:call-template name="xpdl-id-and-name"/>
+
+            <xsl:call-template name="xpdl-id-and-name"/>  
+	        <xsl:if test="x1:ExternalReference|x2:ExternalReference">
+        		<xsl:call-template name="carnot-element-proxy">
+        			<xsl:with-param name="ref" select="x1:ExternalReference|x2:ExternalReference"/>
+        		</xsl:call-template>
+	        </xsl:if>
+
 			<xsl:if test="$Organization/@TeamLead">
 			  <xsl:attribute name="teamLead"><xsl:value-of select="$Organization/@TeamLead"/></xsl:attribute>
 			</xsl:if>
@@ -213,10 +220,6 @@
 	                </participant>
 	            </xsl:for-each>
 	        </xsl:for-each>
-
-            <xsl:for-each select="x1:ExternalReference|x2:ExternalReference">
-                <xsl:message>Ignoring external reference to <xsl:value-of select="@location"/> for organization <xsl:value-of select="../@Id"/></xsl:message>
-            </xsl:for-each>
 	    </organization>
 	</xsl:template>
 	
@@ -226,10 +229,16 @@
 	    	<!-- attributes -->
 			<xsl:variable name="ConditionalPerformer" select="$CarnotExt/c:ConditionalPerformer"/>
 	        <xsl:for-each select="$ConditionalPerformer">
-		        <xsl:call-template name="carnot-element-proxy"/>
 	            <xsl:call-template name="carnot-element-oid"/>
 	        </xsl:for-each>
-	        <xsl:call-template name="xpdl-id-and-name"/>
+
+            <xsl:call-template name="xpdl-id-and-name"/>  
+	        <xsl:if test="x1:ExternalReference|x2:ExternalReference">
+        		<xsl:call-template name="carnot-element-proxy">
+        			<xsl:with-param name="ref" select="x1:ExternalReference|x2:ExternalReference"/>
+        		</xsl:call-template>
+	        </xsl:if>
+
             <xsl:if test="$ConditionalPerformer/@DataId and not($ConditionalPerformer/@DataId='')">
                 <xsl:attribute name="data"><xsl:value-of select="$ConditionalPerformer/@DataId" /></xsl:attribute>
             </xsl:if>
@@ -252,10 +261,6 @@
 	        </xsl:for-each>
             <xsl:call-template name="third-party-extended-attributes"/>
 			<xsl:call-template name="xpdl-description"/>
-
-            <xsl:for-each select="x1:ExternalReference|x2:ExternalReference">
-                <xsl:message>Ignoring external reference to <xsl:value-of select="@location"/> for conditional performer <xsl:value-of select="../@Id"/></xsl:message>
-            </xsl:for-each>
 	    </conditionalPerformer>
 	</xsl:template>
 	
@@ -263,7 +268,6 @@
 	    <modeler>
 	    	<!-- attributes -->
             <xsl:call-template name="xpdl-id-and-name"/>        
-	        <xsl:call-template name="carnot-element-proxy"/>
 	        <xsl:call-template name="carnot-element-oid"/>
 			<xsl:if test="@Password">
 	            <xsl:attribute name="password"><xsl:value-of select="@Password"/></xsl:attribute>
@@ -285,7 +289,6 @@
     		<xsl:variable name="CarnotExt" select="$attrs[@Name='CarnotExt']"/>
     		<xsl:variable name="Application" select="$CarnotExt/c:Application"/>
             <xsl:for-each select="$Application">
-		        <xsl:call-template name="carnot-element-proxy"/>
 	            <xsl:call-template name="carnot-element-oid"/>
             </xsl:for-each>
             <xsl:call-template name="xpdl-id-and-name"/>
@@ -318,7 +321,6 @@
 	   		<xsl:variable name="CarnotExt" select="$attrs[@Name='CarnotExt']"/>
 	    	<xsl:variable name="DataField" select="$CarnotExt/c:DataField"/>
             <xsl:for-each select="$DataField">
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
             </xsl:for-each>
 	        <xsl:call-template name="xpdl-id-and-name"/>
@@ -357,6 +359,7 @@
 		        		<xsl:choose>
 		        			<xsl:when test="$ExternalReference[@location='ag.carnot.base.Money']">primitive</xsl:when>
 		        			<xsl:when test="$ExternalReference[@location='org.eclipse.stardust.common.Money']">primitive</xsl:when>
+		        			<xsl:when test="$ExternalReference[@namespace='data']"/>
 		        			<xsl:otherwise>serializable</xsl:otherwise>
 		        		</xsl:choose>
 		        	</xsl:when>
@@ -474,6 +477,12 @@
             	<xsl:copy-of select="$ExternalReference"/>
             </xsl:if>
             
+            <xsl:if test="$ExternalReference[@namespace='data']">
+        		<xsl:call-template name="carnot-element-proxy">
+        			<xsl:with-param name="ref" select="$ExternalReference"/>
+        		</xsl:call-template>
+            </xsl:if>
+            
             <xsl:if test="$type='dmsDocument' and $ExternalReference/@xref">
             	<xsl:copy-of select="$ExternalReference"/>
             </xsl:if>
@@ -495,7 +504,6 @@
 	   		<xsl:variable name="CarnotExt" select="$attrs[@Name='CarnotExt']"/>
 	    	<xsl:variable name="WorkflowProcess" select="$CarnotExt/c:WorkflowProcess"/>
             <xsl:for-each select="$WorkflowProcess">
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
             </xsl:for-each>
 	        <xsl:call-template name="xpdl-id-and-name"/>
@@ -571,7 +579,6 @@
     		<xsl:variable name="CarnotExt" select="$attrs[@Name='CarnotExt']"/>
     		<xsl:variable name="Activity" select="$CarnotExt/c:Activity"/>
             <xsl:for-each select="$Activity">
-		        <xsl:call-template name="carnot-element-proxy"/>
 	            <xsl:call-template name="carnot-element-oid"/>
             </xsl:for-each>
             <xsl:call-template name="xpdl-id-and-name"/>
@@ -693,7 +700,6 @@
 	            <xsl:for-each select="c:DataFlows/c:DataFlow">
 	                <dataMapping>
 	                	<!-- attributes -->
-				        <xsl:call-template name="carnot-element-proxy"/>
 				        <xsl:call-template name="carnot-element-oid"/>
             			<xsl:call-template name="xpdl-id-and-name"/>
 	                    <xsl:if test="c:AccessPointRef/@Id">
@@ -743,7 +749,6 @@
     		<xsl:variable name="CarnotExt" select="$attrs[@Name='CarnotExt']"/>
     		<xsl:variable name="Transition" select="$CarnotExt/c:Transition"/>
             <xsl:for-each select="$Transition">
-		        <xsl:call-template name="carnot-element-proxy"/>
 	            <xsl:call-template name="carnot-element-oid"/>
             </xsl:for-each>
             <xsl:call-template name="xpdl-id-and-name"/>
@@ -834,9 +839,8 @@
     </xsl:template>
 
     <xsl:template name="carnot-element-proxy">
-		<xsl:if test="@Href">
-			<xsl:attribute name="href"><xsl:value-of select="@Href" /></xsl:attribute>
-		</xsl:if>
+    	<xsl:param name="ref"/>
+    	<xsl:attribute name="proxy"><xsl:value-of select="$ref/@namespace" />:{<xsl:value-of select="$ref/@location" />}<xsl:value-of select="$ref/@xref" /></xsl:attribute>
     </xsl:template>
 	
 	<xsl:template name="carnot-description">
@@ -853,7 +857,6 @@
 	    <xsl:for-each select="c:MetaTypes/c:DataTypes/c:DataType">
 		    <dataType>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
 		        <xsl:if test="@IsPredefined">
@@ -898,7 +901,6 @@
 	    <xsl:for-each select="c:MetaTypes/c:ApplicationTypes/c:ApplicationType">
 		    <applicationType>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
 		        <xsl:if test="@IsPredefined">
@@ -931,7 +933,6 @@
 	    <xsl:for-each select="c:MetaTypes/c:ApplicationContextTypes/c:ApplicationContextType">
 		    <applicationContextType>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
 		        <xsl:if test="@IsPredefined">
@@ -966,7 +967,6 @@
 	    <xsl:for-each select="c:MetaTypes/c:EventConditionTypes/c:EventConditionType">
 		    <eventConditionType>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
                 <xsl:if test="@IsPredefined">
@@ -1011,7 +1011,6 @@
 	    <xsl:for-each select="c:MetaTypes/c:EventActionTypes/c:EventActionType">
 		    <eventActionType>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
 		        <xsl:if test="@IsPredefined">
@@ -1047,7 +1046,6 @@
 	    <xsl:for-each select="c:MetaTypes/c:LinkTypes/c:LinkType">
 		    <linkType>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy" />
 		        <xsl:call-template name="carnot-element-oid" />
 	            <xsl:call-template name="xpdl-id-and-name"/>
 		        <xsl:if test="@LineColor">
@@ -1102,7 +1100,6 @@
 	    <xsl:for-each select="c:Triggers/c:Trigger">
 	        <trigger>
 	        	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 	        	<xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
 		        <xsl:if test="@Type">
@@ -1122,7 +1119,6 @@
 	    <xsl:for-each select="c:MetaTypes/c:TriggerTypes/c:TriggerType">
 		    <triggerType>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy" />
 		        <xsl:call-template name="carnot-element-oid" />
 	            <xsl:call-template name="xpdl-id-and-name" />
 		        <xsl:if test="@IsPredefined">
@@ -1152,7 +1148,6 @@
 	    <xsl:for-each select="c:DataPaths/c:DataPath">
 	        <dataPath>
 	        	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
 	            <xsl:for-each select="c:DataRef">
@@ -1183,7 +1178,6 @@
 	<xsl:template name="carnot-event-handlers">
 	    <xsl:for-each select="c:EventHandlers/c:EventHandler">
 	        <eventHandler>
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
 	            <xsl:if test="@IsAutomaticallyBound">
@@ -1229,7 +1223,6 @@
 	    <xsl:param name="elementName" />
 	    <xsl:element name="{$elementName}">
 	    	<!-- attributes -->
-	        <xsl:call-template name="carnot-element-proxy"/>
 	        <xsl:call-template name="carnot-element-oid"/>
             <xsl:call-template name="xpdl-id-and-name"/>
 	        <xsl:if test="@Type">
@@ -1246,7 +1239,6 @@
 	    <xsl:for-each select="c:ApplicationContexts/c:ApplicationContext">
 	        <context>
 	        	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 		        <xsl:if test="@Type">
 		            <xsl:attribute name="type"><xsl:value-of select="@Type"/></xsl:attribute>
@@ -1264,7 +1256,6 @@
 	    <xsl:for-each select="c:AccessPoints/c:AccessPoint">
 		    <accessPoint>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
 		        <xsl:if test="@Direction">
@@ -1285,7 +1276,6 @@
 	    <xsl:for-each select="c:DataFlows/c:DataFlow">
 	        <parameterMapping>
 	        	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 		        <xsl:call-template name="carnot-element-oid"/>
 	            
 	            <xsl:if test="c:DataRef/@Expression">
@@ -1329,7 +1319,6 @@
 	    <xsl:for-each select="c:Diagrams/c:Diagram">
 		    <diagram>
 		    	<!-- attributes -->
-		        <xsl:call-template name="carnot-element-proxy"/>
 	    		<!-- legacy model may not contain an oid attribute -->
 		        <xsl:call-template name="carnot-element-oid"/>
 	            <xsl:call-template name="xpdl-id-and-name"/>
@@ -1381,7 +1370,6 @@
 	    <xsl:param name="elementName" />
 	    <xsl:element name="{$elementName}">
 	    	<!-- attributes -->
-	        <xsl:call-template name="carnot-element-proxy"/>
 	        <xsl:call-template name="carnot-element-oid"/>
 		    <xsl:if test="@X">
 			    <xsl:attribute name="x"><xsl:value-of select="@X"/></xsl:attribute>
@@ -1559,7 +1547,6 @@
 	    <xsl:param name="targetName"/>
 	    <xsl:element name="{$elementName}">
 	    	<!-- attributes -->
-	        <xsl:call-template name="carnot-element-proxy"/>
 	        <xsl:call-template name="carnot-element-oid"/>
 	        <xsl:if test="c:Points">
 	            <xsl:attribute name="points"><xsl:value-of select="c:Points"/></xsl:attribute>

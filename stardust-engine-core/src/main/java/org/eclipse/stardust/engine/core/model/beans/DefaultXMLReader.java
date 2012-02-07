@@ -100,6 +100,8 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
    private List eventHandlers = CollectionUtils.newList();
 
    private IConfigurationVariablesProvider confVarProvider;
+
+   private Long modelOid;
    
    public static EntityResolver getCarnotModelEntityResolver()
    {
@@ -119,13 +121,19 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
 
    public DefaultXMLReader(boolean includeDiagrams)
    {
-      this(includeDiagrams, new DefaultConfigurationVariablesProvider());
+      this(includeDiagrams, new DefaultConfigurationVariablesProvider(), null);
    }
 
    public DefaultXMLReader(boolean includeDiagrams, IConfigurationVariablesProvider confVarProvider)
    {
+      this(includeDiagrams, confVarProvider, null);
+   }
+   
+   public DefaultXMLReader(boolean includeDiagrams, IConfigurationVariablesProvider confVarProvider, Long modelOid)
+   {
       this.includeDiagrams = includeDiagrams;
       this.confVarProvider = confVarProvider;
+      this.modelOid = modelOid;
       
       elementFactory = (ElementFactory) Proxy.newProxyInstance(getClass().getClassLoader(),
             new Class[]{ElementFactory.class},
@@ -610,6 +618,11 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          model = elementFactory.createModel(node);
       }
 
+      if (modelOid != null)
+      {
+         model.setModelOID(modelOid.intValue());
+      }
+
       try
       {
          model.setLoading(true);
@@ -920,22 +933,25 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          for (int i = 0, nData = data.getLength(); i < nData; i++)
          {
             IData theData = elementFactory.createData(data.item(i), model);
-            IDataType type = (IDataType) theData.getType();
-            if (needsPatching && "struct".equals(getSafeTypeId(type)))
+            if (theData != null && model == theData.getModel())
             {
-               String oldValue = (String) theData.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-               if (oldValue != null && oldValue.indexOf('<') >= 0)
+               IDataType type = (IDataType) theData.getType();
+               if (needsPatching && "struct".equals(getSafeTypeId(type)))
                {
-                  // xml snippet.
-                  Document doc = XmlUtils.parseString(oldValue);
-                  List wrappers = getElementsByLocalName(doc, XPDL_DECLARED_TYPE);
-                  if (wrappers.size() > 0)
+                  String oldValue = (String) theData.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+                  if (oldValue != null && oldValue.indexOf('<') >= 0)
                   {
-                     Element item = (Element) wrappers.get(0);
-                     String typeId = item.getAttribute(XPDL_ID_ATT);
-                     if (!StringUtils.isEmpty(typeId))
+                     // xml snippet.
+                     Document doc = XmlUtils.parseString(oldValue);
+                     List wrappers = getElementsByLocalName(doc, XPDL_DECLARED_TYPE);
+                     if (wrappers.size() > 0)
                      {
-                        theData.setAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT, intern(typeId));
+                        Element item = (Element) wrappers.get(0);
+                        String typeId = item.getAttribute(XPDL_ID_ATT);
+                        if (!StringUtils.isEmpty(typeId))
+                        {
+                           theData.setAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT, intern(typeId));
+                        }
                      }
                   }
                }

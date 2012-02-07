@@ -164,6 +164,8 @@ public class RuntimeModelLoader implements ModelLoader
       modelPersistor.incrementRevision();
       modelPersistor.setModel(model, XmlUtils.getXMLString(unit.getContent()));
 
+      //TODO: (fh) update deployment references...
+      
       updateModelTables(model, lastModel, rtOidRegistry);
    }
    
@@ -255,10 +257,8 @@ public class RuntimeModelLoader implements ModelLoader
             modelOID, AuditTrailParticipantBean.class,
             AuditTrailParticipantBean.FR__MODEL);
       
-      for (Iterator processDefinitions = model.getAllProcessDefinitions(); processDefinitions.hasNext(); )
+      for (IProcessDefinition process : model.getProcessDefinitions())
       {
-         IProcessDefinition process = (IProcessDefinition) processDefinitions.next();
-         
          AuditTrailProcessDefinitionBean auditTrailProcess = null;
          
          long rtProcOid = rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.PROCESS,

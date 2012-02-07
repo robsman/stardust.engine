@@ -12,18 +12,15 @@ package org.eclipse.stardust.engine.api.runtime;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
-import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.PrefStoreAwareConfigurationVariablesProvider;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
-
 
 /**
  * TODO: document for internal API
@@ -39,25 +36,6 @@ public class ParsedDeploymentUnit implements Serializable
    private byte[] content;
    private int referencedModelOid;
    
-   private static byte[] encode(String content)
-   {
-      try
-      {
-         String encoding = Parameters.instance().getObject(
-               PredefinedConstants.XML_ENCODING, XpdlUtils.ISO8859_1_ENCODING);
-         return content.getBytes(encoding);
-      }
-      catch (UnsupportedEncodingException e)
-      {
-         throw new PublicException(e);
-      }
-   }
-   
-   public ParsedDeploymentUnit(String content, int referencedModelOid)
-   {
-      this(encode(content), referencedModelOid);
-   }
-
    public ParsedDeploymentUnit(DeploymentElement deploymentElement, int referencedModelOid)
    {
       this(deploymentElement.getContent(), referencedModelOid);

@@ -52,6 +52,7 @@ import org.eclipse.stardust.engine.core.preferences.permissions.PermissionUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerBean.ModelManagerPartition;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -105,10 +106,10 @@ public class AdministrationServiceImpl
          boolean disabled, boolean ignoreWarnings)
          throws DeploymentException
    {
-      ParsedDeploymentUnit element = null;
+      DeploymentElement element = null;
       try
       {
-         element = new ParsedDeploymentUnit(modelXml, 0);
+         element = new DeploymentElement(encode(modelXml));
       }
       catch (Exception ex)
       {
@@ -118,7 +119,7 @@ public class AdministrationServiceImpl
       options.setComment(comment);
       options.setValidFrom(validFrom);
       options.setIgnoreWarnings(ignoreWarnings);
-      return doDeployModel(Collections.singletonList(element), options).get(0);
+      return deployModel(Collections.singletonList(element), options).get(0);
    }
 
    /**
@@ -131,10 +132,10 @@ public class AdministrationServiceImpl
          boolean disabled, boolean ignoreWarnings)
          throws DeploymentException
    {
-      ParsedDeploymentUnit element = null;
+      DeploymentElement element = null;
       try
       {
-         element = new ParsedDeploymentUnit(modelXml, modelOID);
+         element = new DeploymentElement(encode(modelXml));
       }
       catch (Exception ex)
       {
@@ -143,24 +144,57 @@ public class AdministrationServiceImpl
       DeploymentOptions options = new DeploymentOptions();
       options.setComment(comment);
       options.setIgnoreWarnings(ignoreWarnings);
-      return doOverwriteModel(element, options);
+      return overwriteModel(element, modelOID, options);
    }
 
    public DeploymentInfo overwriteModel(DeploymentElement deploymentElement,
          int modelOID, DeploymentOptions options) throws DeploymentException
    {
-      ParsedDeploymentUnit element = null;
+      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       try
       {
-         element = new ParsedDeploymentUnit(deploymentElement, modelOID);
+         ModelManager manager = ModelManagerFactory.getCurrent();
+         Map<String, IModel> overrides = CollectionUtils.newMap();
+         List<IModel> lastDeployedModels = manager.findLastDeployedModels();
+         for (IModel model : lastDeployedModels)
+         {
+            overrides.put(model.getId(), model);
+         }
+         runtimeEnvironment.setModelOverrides(overrides);
+         
+         ParsedDeploymentUnit element = null;
+         try
+         {
+            element = new ParsedDeploymentUnit(deploymentElement, modelOID);
+            IModel model = element.getModel();
+            overrides.put(model.getId(), model);
+         }
+         catch (Exception ex)
+         {
+            deploymentError(ex, null);
+         }
+         return doOverwriteModel(element, options == null ? new DeploymentOptions() : options);
       }
-      catch (Exception ex)
+      finally
       {
-         deploymentError(ex, null);
+         runtimeEnvironment.setModelOverrides(null);
       }
-      return doOverwriteModel(element, options == null ? new DeploymentOptions() : options);
    }
 
+   private static byte[] encode(String content)
+   {
+      try
+      {
+         String encoding = Parameters.instance().getObject(
+               PredefinedConstants.XML_ENCODING, XpdlUtils.ISO8859_1_ENCODING);
+         return content.getBytes(encoding);
+      }
+      catch (UnsupportedEncodingException e)
+      {
+         throw new PublicException(e);
+      }
+   }
+   
    private DeploymentInfo deploymentError(Exception e, Date validFrom)
    {
       // @todo (france, ub): more gracefully fill the deployment info
@@ -324,28 +358,80 @@ public class AdministrationServiceImpl
          options = DeploymentOptions.DEFAULT;
       }
       // parse the models and check for duplicates
+      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       List<ParsedDeploymentUnit> elements = CollectionUtils.newList(deploymentElements.size());
       try
       {
-         Set<String> ids = CollectionUtils.newSet();
+         // 1. Collect model references.
+         Map<String, DeploymentElement> fileMap = CollectionUtils.newMap();
+         Map<String, QuickModelInfo> infoMap = CollectionUtils.newMap();
          for (DeploymentElement deploymentElement : deploymentElements)
          {
-            ParsedDeploymentUnit parsedUnit = new ParsedDeploymentUnit(deploymentElement, 0);
-            String id = parsedUnit.getModel().getId();
-            if (!ids.add(id))
+            QuickModelInfo info = new QuickModelInfo(deploymentElement);
+            String modelId = info.getModelId();
+            if (fileMap.containsKey(modelId))
             {
-               Object[] args = {id};
-               throw new DeploymentException(null, DUPLICATE_MODEL_ID, args);
+               throw new DeploymentException(null, DUPLICATE_MODEL_ID, modelId);
             }
-            elements.add(parsedUnit);
+            infoMap.put(modelId, info);
+            fileMap.put(modelId, deploymentElement);
          }
+
+         // 2. order models and prepare overrides
+         ModelManager manager = ModelManagerFactory.getCurrent();
+         Map<String, IModel> overrides = CollectionUtils.newMap();
+         List<IModel> lastDeployedModels = manager.findLastDeployedModels();
+         for (IModel model : lastDeployedModels)
+         {
+            overrides.put(model.getId(), model);
+         }
+         runtimeEnvironment.setModelOverrides(overrides);
+
+         for (String modelId : orderModels(infoMap))
+         {
+            ParsedDeploymentUnit parsedUnit = new ParsedDeploymentUnit(fileMap.get(modelId), 0);
+            elements.add(parsedUnit);
+            overrides.put(modelId, parsedUnit.getModel());
+         }
+         // deploy the models
+         return doDeployModel(elements, options);
       }
       catch (Exception e)
       {
          return Collections.singletonList(deploymentError(e, options.getValidFrom()));
       }
-      // deploy the models
-      return doDeployModel(elements, options);
+      finally
+      {
+         runtimeEnvironment.setModelOverrides(null);
+      }
+   }
+
+   private List<String> orderModels(Map<String, QuickModelInfo> infos)
+   {
+      List<String> orderedModelIds = CollectionUtils.newList();
+      Set<QuickModelInfo> visited = CollectionUtils.newSet();
+      for (QuickModelInfo info : infos.values())
+      {
+         addModel(orderedModelIds, info, infos, visited);
+      }
+      return orderedModelIds;
+   }
+
+   private void addModel(List<String> orderedModelIds, QuickModelInfo info, Map<String, QuickModelInfo> infos, Set<QuickModelInfo> visited)
+   {
+      if (info != null && !visited.contains(info))
+      {
+         visited.add(info);
+         List<String> refs = info.getReferencedModelIds();
+         if (refs != null)
+         {
+            for (String ref : refs)
+            {
+               addModel(orderedModelIds, infos.get(ref), infos, visited);
+            }
+         }
+         orderedModelIds.add(info.getModelId());
+      }
    }
 
    public DeploymentInfo setPrimaryImplementation(long interfaceOid, String processId,
@@ -409,16 +495,16 @@ public class AdministrationServiceImpl
     */
    public DeploymentInfo deployModel(String modelXml, int predecessorOID)
    {
-      ParsedDeploymentUnit element = null;
+      DeploymentElement element = null;
       try
       {
-         element = new ParsedDeploymentUnit(modelXml, 0);
+         element = new DeploymentElement(encode(modelXml));
       }
       catch (Exception ex)
       {
          deploymentError(ex, null);
       }
-      return doDeployModel(Collections.singletonList(element), new DeploymentOptions()).get(0);
+      return deployModel(Collections.singletonList(element), new DeploymentOptions()).get(0);
    }
 
    /**
@@ -426,16 +512,16 @@ public class AdministrationServiceImpl
     */
    public DeploymentInfo overwriteModel(String modelXml, int modelOID)
    {
-      ParsedDeploymentUnit element = null;
+      DeploymentElement element = null;
       try
       {
-         element = new ParsedDeploymentUnit(modelXml, modelOID);
+         element = new DeploymentElement(encode(modelXml));
       }
       catch (Exception ex)
       {
          deploymentError(ex, null);
       }
-      return doOverwriteModel(element, new DeploymentOptions());
+      return overwriteModel(element, modelOID, new DeploymentOptions());
    }
 
    /**
@@ -1650,6 +1736,8 @@ public class AdministrationServiceImpl
 
    private void reloadModelManagerAfterModelOperation()
    {
+      BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+      runtimeEnvironment.setModelOverrides(null);
       if (Parameters.instance().getBoolean(
             KernelTweakingProperties.RELOAD_MODEL_MANAGER_AFTER_MODEL_OPERATION, true))
       {

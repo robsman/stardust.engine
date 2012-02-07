@@ -180,7 +180,7 @@ public class ModelPersistorBean extends IdentifiablePersistentBean implements IM
       if (model == null)
       {
          String xmlString =  LargeStringHolder.getLargeString(getOID(), ModelPersistorBean.class);
-         DefaultXMLReader reader = new DefaultXMLReader(false, getConfigurationVariablesProvider());
+         DefaultXMLReader reader = new DefaultXMLReader(false, getConfigurationVariablesProvider(), getModelOID());
          model = reader.importFromXML(new StringReader(xmlString));
          injectTo(model);
       }

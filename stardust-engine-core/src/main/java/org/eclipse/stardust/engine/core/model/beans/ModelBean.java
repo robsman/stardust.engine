@@ -71,12 +71,7 @@ import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
-import org.eclipse.stardust.engine.core.model.utils.Link;
-import org.eclipse.stardust.engine.core.model.utils.ModelElement;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.ModelListener;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.model.utils.RootElementBean;
+import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.IConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -127,9 +122,9 @@ public class ModelBean extends RootElementBean
    private Scripting scripting;
    private Link typeDeclarations = new Link(this, "TypeDeclarations");
    private Link processDefinitions = new Link(this, "Process Definitions");
-   private Link data = new Link(this, "Data");
+   private SearchableList<IData> data = new SearchableList<IData>();
    private Link applications = new Link(this, "Applications");
-   private Link participants = new Link(this, "Participants");
+   private SearchableList<IModelParticipant> participants = new SearchableList<IModelParticipant>();
    private Link diagrams = new Link(this, "Diagrams");
    private Link views = new Link(this, "Views");
    private Link linkTypes = new Link(this, "Link Types");
@@ -173,7 +168,6 @@ public class ModelBean extends RootElementBean
 
    public void addToParticipants(IModelParticipant participant)
    {
-      markModified();
       participants.add(participant);
 
       if (participant instanceof IRole)
@@ -208,7 +202,7 @@ public class ModelBean extends RootElementBean
 
    public IModeler authentify(String id, String password)
    {
-      IModeler modeler = (IModeler) participants.findById(id, IModeler.class);
+      IModeler modeler = participants.find(id, IModeler.class);
       if (modeler != null && modeler.checkPassword(password))
       {
          return modeler;
@@ -579,7 +573,7 @@ public class ModelBean extends RootElementBean
       markModified();
 
       DataBean date = new DataBean(id, type, name, description, predefined, attributes);
-
+      date.setParent(this);
       addToData(date);
       date.register(elementOID);
 
@@ -610,36 +604,13 @@ public class ModelBean extends RootElementBean
    public IModeler createModeler(String id, String name, String description,
          String password, int elementOID)
    {
-      if (findParticipant(id) != null)
-      {
-         throw new PublicException("There is already a participant with ID '" + id + "'.");
-      }
-
-      markModified();
-
-      ModelerBean participant = new ModelerBean(id, name, description, password);
-
-      addToParticipants(participant);
-      participant.register(elementOID);
-
-      fireModelElementCreated(participant, this);
-
-      return participant;
+      return addParticipant(elementOID, new ModelerBean(id, name, description, password));
    }
 
    public IConditionalPerformer createConditionalPerformer(String id, String name,
          String description, IData data, int elementOID)
    {
-      markModified();
-
-      ConditionalPerformerBean participant = new ConditionalPerformerBean(id, name, description, data);
-
-      addToParticipants(participant);
-      participant.register(elementOID);
-
-      fireModelElementCreated(participant, this);
-
-      return participant;
+      return addParticipant(elementOID, new ConditionalPerformerBean(id, name, description, data));
    }
 
    public IView createView(String name, String description, int elementOID)
@@ -660,16 +631,7 @@ public class ModelBean extends RootElementBean
    public IOrganization createOrganization(String id, String name,
          String description, int elementOID)
    {
-      markModified();
-
-      OrganizationBean participant = new OrganizationBean(id, name, description);
-
-      addToParticipants(participant);
-      participant.register(elementOID);
-
-      fireModelElementCreated(participant, this);
-
-      return participant;
+      return addParticipant(elementOID, new OrganizationBean(id, name, description));
    }
 
    public IProcessDefinition createProcessDefinition(String id, String name,
@@ -706,15 +668,14 @@ public class ModelBean extends RootElementBean
 
    public IRole createRole(String id, String name, String description, int elementOID)
    {
-      markModified();
+      return addParticipant(elementOID, new RoleBean(id, name, description));
+   }
 
-      RoleBean participant = new RoleBean(id, name, description);
-
+   public <T extends IModelParticipant> T addParticipant(int elementOID, T participant)
+   {
+      participant.setParent(this);
       addToParticipants(participant);
       participant.register(elementOID);
-
-      fireModelElementCreated(participant, this);
-
       return participant;
    }
 
@@ -735,7 +696,7 @@ public class ModelBean extends RootElementBean
 
    public IData findData(String id)
    {
-      return (IData) data.findById(id);
+      return data.find(id);
    }
 
    public Diagram findDiagram(String id)
@@ -750,7 +711,7 @@ public class ModelBean extends RootElementBean
 
    public IModelParticipant findParticipant(String id)
    {
-      return (IModelParticipant) participants.findById(id);
+      return participants.find(id);
    }
 
    public IProcessDefinition findProcessDefinition(String id)
@@ -1149,14 +1110,12 @@ public class ModelBean extends RootElementBean
 
    public void addToData(IData data)
    {
-      markModified();
       this.data.add(data);
       defaultDataId = nextID(DATA_STRING, defaultDataId, data.getId());
    }
 
    public void removeFromData(IData data)
    {
-      markModified();
       this.data.remove(data);
    }
 

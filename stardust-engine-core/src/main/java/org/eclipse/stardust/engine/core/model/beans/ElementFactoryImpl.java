@@ -10,21 +10,14 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.*;
 
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.StringKey;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.Unknown;
+import javax.xml.namespace.QName;
+
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -32,74 +25,11 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.xml.XmlUtils;
-import org.eclipse.stardust.engine.api.model.AccessPointOwner;
-import org.eclipse.stardust.engine.api.model.CardinalityKey;
-import org.eclipse.stardust.engine.api.model.EventActionContext;
-import org.eclipse.stardust.engine.api.model.EventHandlerOwner;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContext;
-import org.eclipse.stardust.engine.api.model.IApplicationContextType;
-import org.eclipse.stardust.engine.api.model.IApplicationType;
-import org.eclipse.stardust.engine.api.model.IBindAction;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IDataPath;
-import org.eclipse.stardust.engine.api.model.IDataType;
-import org.eclipse.stardust.engine.api.model.IEventAction;
-import org.eclipse.stardust.engine.api.model.IEventActionType;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.IFormalParameter;
-import org.eclipse.stardust.engine.api.model.ILinkType;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IModeler;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IParameterMapping;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IQualityAssurance;
-import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.IReference;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.ITransition;
-import org.eclipse.stardust.engine.api.model.ITrigger;
-import org.eclipse.stardust.engine.api.model.ITriggerType;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.IUnbindAction;
-import org.eclipse.stardust.engine.api.model.IView;
-import org.eclipse.stardust.engine.api.model.IViewable;
-import org.eclipse.stardust.engine.api.model.IXpdlType;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.JoinSplitType;
-import org.eclipse.stardust.engine.api.model.LoopType;
-import org.eclipse.stardust.engine.api.model.ModelParsingException;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.Scripting;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ConnectionSymbol;
-import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
-import org.eclipse.stardust.engine.core.compatibility.diagram.GroupSymbol;
-import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.PathConnection;
-import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
-import org.eclipse.stardust.engine.core.model.gui.ActivitySymbol;
-import org.eclipse.stardust.engine.core.model.gui.AnnotationSymbol;
-import org.eclipse.stardust.engine.core.model.gui.ApplicationSymbol;
-import org.eclipse.stardust.engine.core.model.gui.ConditionalPerformerSymbol;
-import org.eclipse.stardust.engine.core.model.gui.DataMappingConnection;
-import org.eclipse.stardust.engine.core.model.gui.DataSymbol;
-import org.eclipse.stardust.engine.core.model.gui.ModelerSymbol;
-import org.eclipse.stardust.engine.core.model.gui.OrganizationSymbol;
-import org.eclipse.stardust.engine.core.model.gui.ProcessDefinitionSymbol;
-import org.eclipse.stardust.engine.core.model.gui.RoleSymbol;
+import org.eclipse.stardust.engine.core.compatibility.diagram.*;
+import org.eclipse.stardust.engine.core.model.gui.*;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
@@ -107,8 +37,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-
 
 public class ElementFactoryImpl implements ElementFactory
 {
@@ -394,33 +322,101 @@ public class ElementFactoryImpl implements ElementFactory
 
    public IData createData(Node node, final IModel model)
    {
-      String dataType = reader.getRawAttribute(TYPE_ATT);
-
-      Map attributes = new HashMap();
-      boolean isPredefined = predefined;
-
-      IDataType type = model.findDataType(dataType);
-      IData data = model.createData(id, type, name,
-            description, isPredefined, elementOID, attributes);
-      
-      NodeList children = ((Element) node).getElementsByTagNameNS(NS_XPDL_2_1, XPDL_EXTERNAL_REFERENCE);
-      for (int i = 0; i < children.getLength(); i++)
+      IData data = getProxyObject(IData.class, model);
+      if (data == null)
       {
-         NodeReader reader = new NodeReader(children.item(i), confVariablesProvider);
-         final String pkg = reader.getAttribute("location");
-         final String ref = reader.getAttribute("xref");
-         ReferenceBean reference = new ReferenceBean();
-         reference.setId(ref);
-         reference.setExternalPackage(model.findExternalPackage(pkg));
-         ((DataBean) data).setExternalReference(reference);
-      }
+         String dataType = reader.getRawAttribute(TYPE_ATT);
 
-      if (null == type)
+         Map attributes = new HashMap();
+         boolean isPredefined = predefined;
+
+         IDataType type = model.findDataType(dataType);
+         data = model.createData(id, type, name,
+               description, isPredefined, elementOID, attributes);
+         
+         NodeList children = ((Element) node).getElementsByTagNameNS(NS_XPDL_2_1, XPDL_EXTERNAL_REFERENCE);
+         for (int i = 0; i < children.getLength(); i++)
+         {
+            NodeReader reader = new NodeReader(children.item(i), confVariablesProvider);
+            final String pkg = reader.getAttribute("location");
+            final String ref = reader.getAttribute("xref");
+            ReferenceBean reference = new ReferenceBean();
+            reference.setId(ref);
+            reference.setExternalPackage(model.findExternalPackage(pkg));
+            ((DataBean) data).setExternalReference(reference);
+         }
+
+         if (null == type)
+         {
+            warn(ConversionWarning.ERROR, "Unknown data type '" + dataType + "'.", null, data);
+         }
+      }
+      else
       {
-         warn(ConversionWarning.ERROR, "Unknown data type '" + dataType + "'.", null, data);
+         ((ModelBean) model).addToData(data);
       }
-
       return data;
+   }
+
+   private <T extends ModelElement> T getProxyObject(Class<T> clazz, IModel model)
+   {
+      T result = null;
+      final String proxy = reader.getRawAttribute("proxy", false);
+      if (!StringUtils.isEmpty(proxy))
+      {
+         int ix = proxy.indexOf(':');
+         final QName ref = QName.valueOf(proxy.substring(ix + 1));
+         final IExternalPackage pkg = model.findExternalPackage(ref.getNamespaceURI());
+         if (pkg == null)
+         {
+            warn(ConversionWarning.MEDIUM,
+                  "Referenced package '" + ref.getNamespaceURI() + "' for external data not found.", null, model);
+         }
+         final String location = proxy.substring(0, ix);
+         final String refid = ref.getLocalPart();
+         try
+         {
+            result = (T) resolveReference(pkg.getReferencedModel(), location, refid);
+         }
+         catch (Exception ex)
+         {
+            trace.warn("Unable to resolve reference: '" + proxy + "'. Using delayed proxy.", ex);
+         }
+         if (result == null)
+         {
+            // try lazy resolving
+            result = (T) Proxy.newProxyInstance(clazz.getClassLoader(), new Class<?>[] {clazz}, new InvocationHandler()
+            {
+               boolean resolved = false;
+               T delegate = null;
+               
+               public Object invoke(Object proxyObject, Method method, Object[] args) throws Throwable
+               {
+                  if (!resolved)
+                  {
+                     delegate = (T) resolveReference(pkg.getReferencedModel(), location, refid);
+                     resolved = true;
+                     trace.info("Resolved '" + proxy + "' to: " + delegate);
+                  }
+                  return method.invoke(delegate, args);
+               }
+            });
+         }
+      }
+      return result;
+   }
+
+   public Object resolveReference(final IModel refModel, final String location, final String refid)
+   {
+      if ("data".equals(location))
+      {
+         return refModel.findData(refid);
+      }
+      else if ("role".equals(location) || "organization".equals(location) || "conditionalPerformer".equals(location))
+      {
+         return refModel.findParticipant(refid);
+      }
+      return null;
    }
 
    public Diagram createDiagram(Node node, IProcessDefinition process)
@@ -496,23 +492,39 @@ public class ElementFactoryImpl implements ElementFactory
 
    public IModelParticipant createConditionalPerformer(Node node, IModel model)
    {
-      String dataId = reader.getRawAttribute(DATA_REF_ATT);
-      IData data = model.findData(dataId);
+      IConditionalPerformer  performer = getProxyObject(IConditionalPerformer.class, model);
+      if (performer == null)
+      {
+         String dataId = reader.getRawAttribute(DATA_REF_ATT);
+         IData data = model.findData(dataId);
 
-      String dataPath = reader.getAttribute(DATA_PATH_ATT);
-      boolean isUser = reader.getBooleanAttribute(IS_USER_ATT, false);
+         String dataPath = reader.getAttribute(DATA_PATH_ATT);
+         boolean isUser = reader.getBooleanAttribute(IS_USER_ATT, false);
 
-      IConditionalPerformer performer =  model.createConditionalPerformer(id, name,
-            description, data, elementOID);
-      performer.setDereferencePath(dataPath);
-      performer.setUser(isUser);
-
+         performer =  model.createConditionalPerformer(id, name,
+               description, data, elementOID);
+         performer.setDereferencePath(dataPath);
+         performer.setUser(isUser);
+      }
+      else
+      {
+         ((ModelBean) model).addToParticipants(performer);
+      }
       return performer;
    }
 
    public IOrganization createOrganization(Node node, IModel model)
    {
-      return model.createOrganization(id, name, description, elementOID);
+      IOrganization  organization = getProxyObject(IOrganization.class, model);
+      if (organization == null)
+      {
+         organization = model.createOrganization(id, name, description, elementOID);
+      }
+      else
+      {
+         ((ModelBean) model).addToParticipants(organization);
+      }
+      return organization;
    }
 
    public IProcessDefinition createProcess(Node node, IModel model)
@@ -524,10 +536,16 @@ public class ElementFactoryImpl implements ElementFactory
 
    public IRole createRole(Node node, IModel model)
    {
-      IRole role = model.createRole(id, name, description, elementOID);
-
-      role.setCardinality(reader.getIntegerAttribute(CARDINALITY_ATT, Unknown.INT));
-
+      IRole role = getProxyObject(IRole.class, model);
+      if (role == null)
+      {
+         role = model.createRole(id, name, description, elementOID);
+         role.setCardinality(reader.getIntegerAttribute(CARDINALITY_ATT, Unknown.INT));
+      }
+      else
+      {
+         ((ModelBean) model).addToParticipants(role);
+      }
       return role;
    }
 

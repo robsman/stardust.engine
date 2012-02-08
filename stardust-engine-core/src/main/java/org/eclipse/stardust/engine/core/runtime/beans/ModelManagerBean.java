@@ -1070,6 +1070,7 @@ public class ModelManagerBean implements ModelManager
       {
          dependentObjectCache.clear();
          models.clear();
+         unorderedModels.clear();
          deadModels.clear();
          heatingEntries.clear();
       }
@@ -1878,6 +1879,7 @@ public class ModelManagerBean implements ModelManager
       {
          int index = models.indexOf(model);
          models.remove(index);
+         unorderedModels.remove(model);
          if (index < models.size())
          {
             IModel successor = models.get(index);

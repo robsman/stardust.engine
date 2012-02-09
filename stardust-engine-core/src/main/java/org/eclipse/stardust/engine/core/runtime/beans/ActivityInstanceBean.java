@@ -836,14 +836,18 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       fetch();
 
-      if (!isDefaultCaseActivityInstance())
+      /*if (!isDefaultCaseActivityInstance())
       {
          // TODO: (rsauer) perform onAssignment event handling?
          // TODO: (fh) 1. assert message should not be computed
          // TODO: (fh) 2. this.toString() is a costly call that will be performed for *every* non case activity
-         Assert.condition(model == participant.getModel().getModelOID(),
-            "Cannot assign " + this + " to participant from different model.");
-      }
+         // Assert.condition(model == participant.getModel().getModelOID(),
+            // "Cannot assign " + this + " to participant from different model.");
+         
+         IModel theModel = ModelManagerFactory.getCurrent().findModel(model);
+         Assert.condition(theModel.findParticipant(participant.getId()) == participant,
+               "Cannot assign " + this + " to participant from different model.");
+      }*/
 
       recordHistoricState();
       recordInitialPerformer();

@@ -15,6 +15,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.*;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
@@ -132,6 +134,20 @@ public class StructuredTypeRtUtils
    
    public static Set<TypedXPath> getAllXPaths(IModel model, String declaredTypeId)
    {
+      if (declaredTypeId != null && declaredTypeId.startsWith("typeDeclaration:{"))
+      {
+         QName qname = QName.valueOf(declaredTypeId.substring(17));
+         IExternalPackage pkg = model.findExternalPackage(qname.getNamespaceURI());
+         if (pkg != null)
+         {
+            IModel otherModel = pkg.getReferencedModel();
+            if (otherModel != null)
+            {
+               model = otherModel;
+               declaredTypeId = qname.getLocalPart();
+            }
+         }
+      }
       ITypeDeclaration typeDeclaration = model.findTypeDeclaration(declaredTypeId);
       return getAllXPaths(model, typeDeclaration);
    }

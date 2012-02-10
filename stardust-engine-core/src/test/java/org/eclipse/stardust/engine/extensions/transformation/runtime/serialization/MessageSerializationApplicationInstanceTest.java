@@ -140,7 +140,7 @@ public class MessageSerializationApplicationInstanceTest
       when(appCtx.getAllOutDataMappings()).thenReturn(Collections.singletonList(dataMapping));
       when(dataMapping.getApplicationAccessPoint()).thenReturn(accessPoint);
       when(accessPoint.getId()).thenReturn(APP_ACCESS_POINT_ID);
-      when(MessagingUtils.getStructuredAccessPointSchema(model, data)).thenReturn(schemaDoc);
+      when(MessagingUtils.getStructuredAccessPointSchema(data)).thenReturn(schemaDoc);
       when(app.getAttribute(Constants.MESSAGE_FORMAT)).thenReturn(messageFormatId);
       when(RuntimeFormatManager.getMessageFormat(messageFormatId)).thenReturn(messageFormat);
    }

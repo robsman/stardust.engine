@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.extensions.transformation.format;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Reader;
 
 import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.w3c.dom.Document;
@@ -21,7 +22,6 @@ import org.xml.sax.InputSource;
 
 public class XMLMessageFormat implements IMessageFormat
 {
-	
 	public Document parse(InputStream input, Object schema) throws ParsingException
 	{
 		try
@@ -34,6 +34,19 @@ public class XMLMessageFormat implements IMessageFormat
 		}
 		
 	}
+
+    public Document parse(Reader input, Object schema) throws ParsingException
+    {
+        try
+        {
+          return XmlUtils.parseSource(new InputSource(input), new ClasspathEntityResolver(), true);
+        }
+        catch (Exception e)
+        {
+            throw new ParsingException(e);
+        }
+        
+    }
 
 	public void serialize(Document document, OutputStream output, Object schema) throws SerializationException
 	{

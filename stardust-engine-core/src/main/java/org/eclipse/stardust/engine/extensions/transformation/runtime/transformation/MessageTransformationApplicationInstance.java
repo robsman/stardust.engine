@@ -186,13 +186,17 @@ public class MessageTransformationApplicationInstance
          {
             String accessPointID = (String) iterator.next();
             Object values = outputMessages.get(accessPointID);
-            if (values instanceof Map) {
+            /*if (values instanceof Map)
+            {
                Map mapValues = (Map) outputMessages.get(accessPointID);   
-            }  
-            if (isJavaBeanAP(accessPointID)) {
+            }*/
+            if (isJavaBeanAP(accessPointID))
+            {
             	MessageTransformationScope scope = (MessageTransformationScope) jsManager.getScope();
             	outputMessages.put(accessPointID, scope.getOutputMessagAdapters().get(accessPointID));
-            } else {
+            }
+            else
+            {
             	outputMessages.put(accessPointID, jsManager.unwrapJsValue(values));
             }
          }

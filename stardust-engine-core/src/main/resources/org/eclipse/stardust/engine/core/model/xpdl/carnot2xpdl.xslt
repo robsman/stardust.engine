@@ -1092,19 +1092,24 @@
 
     <xsl:template name="element-proxy">
         <xsl:if test="@proxy">
-        	<ExternalReference>
-			    <xsl:variable name="qname" select="substring-after(@proxy, '{')" />
-
-				<xsl:attribute name="location"><xsl:value-of select="substring-before($qname, '}')" /></xsl:attribute>
-				<xsl:attribute name="xref"><xsl:value-of select="substring-after($qname, '}')" /></xsl:attribute>
-				<xsl:attribute name="namespace"><xsl:value-of select="substring-before(@proxy, ':')" /></xsl:attribute>
-			</ExternalReference>
+			<xsl:call-template name="external-reference"/>
         </xsl:if>
+    </xsl:template>
+
+    <xsl:template name="external-reference">
+		<xsl:param name="ref" select="@proxy"/>
+       	<ExternalReference>
+		    <xsl:variable name="qname" select="substring-after($ref, '{')" />
+
+			<xsl:attribute name="location"><xsl:value-of select="substring-before($qname, '}')" /></xsl:attribute>
+			<xsl:attribute name="xref"><xsl:value-of select="substring-after($qname, '}')" /></xsl:attribute>
+			<xsl:attribute name="namespace"><xsl:value-of select="substring-before($ref, ':')" /></xsl:attribute>
+		</ExternalReference>
     </xsl:template>
 
 	<xsl:template name="element-id-and-name">
         <xsl:if test="@id">
-			    <xsl:attribute name="Id"><xsl:value-of select="@id" /></xsl:attribute>
+			<xsl:attribute name="Id"><xsl:value-of select="@id" /></xsl:attribute>
         </xsl:if>
         <xsl:if test="@name">
 		    <xsl:attribute name="Name"><xsl:value-of select="@name" /></xsl:attribute>
@@ -1202,9 +1207,19 @@
 							<xsl:copy-of select="xpdl:ExternalReference"/>
 						</xsl:when>
 						<xsl:otherwise>
-							<DeclaredType>
-								<xsl:attribute name="Id"><xsl:value-of select="wfm:attribute[@name='carnot:engine:dataType']/@value"/></xsl:attribute>
-							</DeclaredType>
+							<xsl:variable name="dataType" select="wfm:attribute[@name='carnot:engine:dataType']/@value"/>
+							<xsl:choose>
+						        <xsl:when test="substring-before($dataType, ':{')">
+									<xsl:call-template name="external-reference">
+										<xsl:with-param name="ref" select="$dataType"/>
+									</xsl:call-template>
+								</xsl:when>
+								<xsl:otherwise>
+									<DeclaredType>
+										<xsl:attribute name="Id"><xsl:value-of select="$dataType"/></xsl:attribute>
+									</DeclaredType>
+								</xsl:otherwise>
+							</xsl:choose>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
@@ -1264,11 +1279,9 @@
 				<FormalParameter>
 					<xsl:attribute name="Id"><xsl:value-of select="@id"/></xsl:attribute>
 					<xsl:attribute name="Index"><xsl:value-of select="position()" /></xsl:attribute>
-					<!--  TODO Index -->
 					<xsl:attribute name="Mode"><xsl:value-of select="@direction"/></xsl:attribute>
-	
-					<!--xsl:comment>select="'TODO type definition'"</xsl:comment-->
-	
+					<xsl:attribute name="Name"><xsl:value-of select="@name"/></xsl:attribute>
+		
 					<xsl:call-template name="data-type" />
 				</FormalParameter>
 			</xsl:for-each>
@@ -1323,7 +1336,7 @@
 						<xsl:attribute name="Type"><xsl:value-of select="@type" /></xsl:attribute>
 					</xsl:if>
 					
-                                       <xsl:call-template name="carnot-description" />
+                    <xsl:call-template name="carnot-description" />
 					<xsl:call-template name="carnot-attributes" />
 				</carnot:AccessPoint>
 			</xsl:for-each>

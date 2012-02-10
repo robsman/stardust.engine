@@ -39,17 +39,8 @@ import org.eclipse.stardust.engine.extensions.transformation.model.mapping.Trans
  */
 public class ContextProvider3
 {
-   // TODO Retrieve from properties.
-   private static final int OPTIMIZATION_LEVEL = -1;
-
-   private List/*<String>*/ pathList = CollectionUtils.newList();
-
    private JScriptManager3 jsManager;
 
-   private List/*<String>*/ mappingExpressions = CollectionUtils.newList();
-
-   private List/*<String>*/ mappingStatements = CollectionUtils.newList();
-   
    private List externalClasses = CollectionUtils.newList();
 
    private List fieldMappings;

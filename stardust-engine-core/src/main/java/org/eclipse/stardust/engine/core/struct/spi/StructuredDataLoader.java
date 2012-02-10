@@ -73,8 +73,8 @@ public class StructuredDataLoader implements DataLoader
       String declaredTypeId = (String) accessPoint.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
       if (null != declaredTypeId && accessPoint instanceof AccessPointBean)
       {
-         Set/* <TypedXPath> */allXPaths = StructuredTypeRtUtils.getAllXPaths(
-               (IModel) ((AccessPointBean) accessPoint).getModel(), declaredTypeId);
+         IModel model = (IModel) ((AccessPointBean) accessPoint).getModel();
+         Set<TypedXPath> allXPaths = StructuredTypeRtUtils.getAllXPaths(model, declaredTypeId);
          IXPathMap xPathMap = createXPathMap(allXPaths, accessPoint);
          if (accessPoint instanceof RuntimeAttributeHolder)
          {

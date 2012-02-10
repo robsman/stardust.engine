@@ -12,19 +12,23 @@ package org.eclipse.stardust.engine.extensions.transformation;
 
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IReference;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.w3c.dom.Document;
 
-
 public class MessagingUtils
 {
-
-   public static Document getStructuredAccessPointSchema(IModel model, IData data)
+   public static Document getStructuredAccessPointSchema(IData data)
    {
+      IModel model = (IModel) data.getModel();
       String typeDeclarationId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-      return StructuredTypeRtUtils.getXSDSchema(model,
-            model.findTypeDeclaration(typeDeclarationId)).getDocument();
+      IReference er = data.getExternalReference();
+      if (er != null)
+      {
+         model = er.getExternalPackage().getReferencedModel();
+         typeDeclarationId = er.getId();
+      }
+      return StructuredTypeRtUtils.getXSDSchema(model, model.findTypeDeclaration(typeDeclarationId)).getDocument();
    }
-
 }

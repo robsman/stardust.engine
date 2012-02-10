@@ -99,7 +99,7 @@ public void registerInAccessPointType(String apId, TypedXPath rootXPath)
    {
       this.contextFactory = ContextFactory.getGlobal();
 
-      this.context = contextFactory.enter();
+      this.context = contextFactory.enterContext();
       context.setOptimizationLevel( -1);
 
       this.scope = new MessageTransformationScope(inputMessagesMap, outputMessagesMap,

@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.extensions.transformation.format;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Reader;
 
 import org.w3c.dom.Document;
 
@@ -27,6 +28,15 @@ public interface IMessageFormat
 	 */
 	public Document parse(InputStream input, Object schema) throws ParsingException;
 	
+    /**
+     * Parses a message in the representation of this format into a canonical DOM representation.
+     * 
+     * The schema argument will become XSD as soon as MINT supports this.
+     * @param input
+     * @return
+     */
+    public Document parse(Reader input, Object schema) throws ParsingException;
+    
 	/**
 	 * Serializes a message in the representation of this format into a canonical DOM representation.
 	 * 

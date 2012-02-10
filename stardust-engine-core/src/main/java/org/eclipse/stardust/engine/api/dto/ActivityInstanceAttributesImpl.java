@@ -38,7 +38,6 @@ public class ActivityInstanceAttributesImpl implements ActivityInstanceAttribute
    public ActivityInstanceAttributesImpl(long aiOid)
    {
       this.aiOid = aiOid;
-      result = new QualityAssuranceResultImpl();
    }
 
    public ActivityInstanceAttributesImpl(ActivityInstanceAttributes template)

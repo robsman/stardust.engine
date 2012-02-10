@@ -343,7 +343,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             && ProcessInstanceUtils.hasNotes(scopeProcessInstance))
       {
          List<Note> aiNotes = ProcessInstanceUtils.getNotes(scopeProcessInstance, this);
-         if(attributes == null)
+         if(aiNotes.isEmpty() && attributes == null)
          {
             //create attributes object to present notes
             attributes = new ActivityInstanceAttributesImpl(activityInstance.getOID());

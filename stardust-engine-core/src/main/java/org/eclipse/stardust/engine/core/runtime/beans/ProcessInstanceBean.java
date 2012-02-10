@@ -234,13 +234,19 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          ActivityInstanceBean parentActivityInstance, IProcessInstance spawnParentProcessInstance, IUser user, Map<String, ? > data)
    {
-      ProcessInstanceBean processInstance = new ProcessInstanceBean(processDefinition);
-
       IProcessInstance parentProcessInstance = spawnParentProcessInstance;
       if (parentActivityInstance != null)
       {
          parentProcessInstance = parentActivityInstance.getProcessInstance();
       }
+
+      // lock to ensure consistent information from the parent.
+      if (parentProcessInstance != null)
+      {
+         parentProcessInstance.lock();
+      }
+
+      ProcessInstanceBean processInstance = new ProcessInstanceBean(processDefinition);
 
       // if subprocess then inherit actual priority from the parent process
       // else set priority to the default value.
@@ -957,7 +963,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       markModified(FIELD__ROOT_PROCESS_INSTANCE);
       this.rootProcessInstance = rootProcessInstance;
-      
+
       // (fh) is this required ?
       setDeployment(rootProcessInstance.getReferenceDeployment());
    }

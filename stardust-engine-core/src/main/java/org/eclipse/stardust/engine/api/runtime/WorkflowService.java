@@ -607,10 +607,14 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException
     *            if there is no process instance with the specified oid or if there is no
     *            process definition with the specified id.
+    * @throws ConcurrencyException
+    *            if a lock on transitions or process instances cannot be obtained.
+    *            This can happen while the process hierarchy is currently
+    *            locked because of case operations or subprocess creation.
     */
    ProcessInstance spawnSubprocessInstance(long parentProcessInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? > data)
-         throws IllegalOperationException, ObjectNotFoundException;
+         throws IllegalOperationException, ObjectNotFoundException, ConcurrencyException;
 
    /**
     * Spawns multiple processes as subprocesses of the specified process instance. The
@@ -629,10 +633,14 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException
     *            if there is no process instance with the specified oid or if there is no
     *            process definition with the specified id.
+    * @throws ConcurrencyException
+    *            if a lock on transitions or process instances cannot be obtained.
+    *            This can happen while the process hierarchy is currently
+    *            locked because of case operations or subprocess creation.
     */
    List<ProcessInstance> spawnSubprocessInstances(long parentProcessInstanceOid,
          List<SubprocessSpawnInfo> subprocessSpawnInfo) throws IllegalOperationException,
-         ObjectNotFoundException;
+         ObjectNotFoundException, ConcurrencyException;
 
    /**
     * Spawns a new root process and creates a link of type
@@ -699,13 +707,17 @@ public interface WorkflowService extends Service
     *            root process.
     * @throws InvalidArgumentException
     *            if <code>memberOids</code> is empty or null.
+    * @throws ConcurrencyException
+    *            if a lock on transitions or process instances cannot be obtained.
+    *            This can happen while the process hierarchy is currently
+    *            locked because of case operations or subprocess creation.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.createCase,
          scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    ProcessInstance createCase(String name, String description, long[] memberOids)
-         throws ObjectNotFoundException, IllegalOperationException, InvalidArgumentException;
+         throws ObjectNotFoundException, IllegalOperationException, InvalidArgumentException, ConcurrencyException;
 
    /**
     * Adds the process instances referenced by the specified memberOids to the specified
@@ -723,6 +735,10 @@ public interface WorkflowService extends Service
     *            if <code>memberOids</code> contains a process instance which is not a
     *            root process or is already a member of the case.
     * @throws AccessForbiddenException if the user is not the owner of the case.
+    * @throws ConcurrencyException
+    *            if a lock on transitions or process instances cannot be obtained.
+    *            This can happen while the process hierarchy is currently
+    *            locked because of case operations or subprocess creation.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyCase,
@@ -730,7 +746,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.OWNER},
          changeable=false)
    ProcessInstance joinCase(long caseOid, long[] memberOids)
-         throws ObjectNotFoundException, IllegalOperationException, AccessForbiddenException;
+         throws ObjectNotFoundException, IllegalOperationException, AccessForbiddenException, ConcurrencyException;
 
    /**
     * Removes the process instances referenced by the specified memberOids from the
@@ -749,6 +765,10 @@ public interface WorkflowService extends Service
     *            root process or is not a member of the case.
     * @throws AccessForbiddenException
     *            if the user is not the owner of the case.
+    * @throws ConcurrencyException
+    *            if a lock on transitions or process instances cannot be obtained.
+    *            This can happen while the process hierarchy is currently
+    *            locked because of case operations or subprocess creation.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyCase,
@@ -756,7 +776,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.OWNER},
          changeable=false)
    ProcessInstance leaveCase(long caseOid, long[] memberOids)
-         throws ObjectNotFoundException, IllegalOperationException, AccessForbiddenException;
+         throws ObjectNotFoundException, IllegalOperationException, AccessForbiddenException, ConcurrencyException;
 
    /**
     * Merges the specified source case process instances into the target case process instance
@@ -777,6 +797,10 @@ public interface WorkflowService extends Service
     *            if <code>targetCaseOid</code> is not a case process instance.
     * @throws AccessForbiddenException
     *            if the user is not the owner of the case.
+    * @throws ConcurrencyException
+    *            if a lock on transitions or process instances cannot be obtained.
+    *            This can happen while the process hierarchy is currently
+    *            locked because of case operations or subprocess creation.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.modifyCase,
@@ -784,7 +808,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.OWNER},
          changeable=false)
    ProcessInstance mergeCases(long targetCaseOid, long[] sourceCaseOids, String comment)
-         throws ObjectNotFoundException, IllegalOperationException, AccessForbiddenException;
+         throws ObjectNotFoundException, IllegalOperationException, AccessForbiddenException, ConcurrencyException;
 
    /**
     * Delegates the case process instance to the specified participant.

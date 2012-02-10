@@ -17,6 +17,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -846,7 +847,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          
          IModel theModel = ModelManagerFactory.getCurrent().findModel(model);
          Assert.condition(theModel.findParticipant(participant.getId()) == participant,
-               "Cannot assign " + this + " to participant from different model.");
+            "Cannot assign " + this + " to participant from different model.");
       }*/
 
       recordHistoricState();
@@ -1014,9 +1015,18 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             {
                if (synchronous)
                {
-                  subProcess = ProcessInstanceBean.createInstance(
-                        getActivity().getImplementationProcessDefinition(), this,
-                        SecurityProperties.getUser(), Collections.EMPTY_MAP);
+                  subProcess = doWithRetry(10, 500, new Callable<IProcessInstance>()
+                  {
+
+                     public IProcessInstance call() throws Exception
+                     {
+                        return ProcessInstanceBean.createInstance(
+                              getActivity().getImplementationProcessDefinition(),
+                              ActivityInstanceBean.this, SecurityProperties.getUser(),
+                              Collections.EMPTY_MAP);
+                     }
+
+                  });
                }
                else
                {
@@ -1100,6 +1110,42 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                      + ". Message was: " + e.getMessage(), e);
             }
             return;
+         }
+      }
+   }
+
+   private IProcessInstance doWithRetry(int retries, int wait,
+         Callable<IProcessInstance> callable)
+   {
+      int trys = 0;
+
+      // will try to execute the callable and re-throw the exception after x retries fail.
+      while (true)
+      {
+         try
+         {
+            return callable.call();
+         }
+         catch (Exception e)
+         {
+            if (trys >= retries)
+            {
+               throw (RuntimeException) e;
+            }
+            else
+            {
+               trys++ ;
+               trace.warn("Subprocess creation failed. Try " + trys + " of " + retries
+                     + " Exception was " + e.getMessage());
+               // wait and retry
+               try
+               {
+                  Thread.sleep(wait);
+               }
+               catch (InterruptedException e1)
+               {
+               }
+            }
          }
       }
    }

@@ -176,9 +176,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                BpmRuntimeError.BPMRT_PI_AND_SPAWN_PROCESS_FRM_DIFF_MODELS.raise(rootProcessInstanceOid));
       }
 
-      // lock the parent
-      parentProcessInstance.lock();
-
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(
             processDefinition, parentProcessInstance, SecurityProperties.getUser(),
             data);

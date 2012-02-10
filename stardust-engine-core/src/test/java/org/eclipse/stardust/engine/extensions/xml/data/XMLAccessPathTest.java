@@ -24,7 +24,6 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.extensions.xml.data.XPathEvaluator;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -191,7 +190,6 @@ public class XMLAccessPathTest
    }
 
    @org.junit.Test
-   @Ignore("CRNT-22880")
    public void testSelectElementValue()
    {
       Object result = evaluator.evaluate(null, ex1, "string(/AAA/BBB[last()]/text())");
@@ -215,7 +213,6 @@ public class XMLAccessPathTest
    }
 
    @org.junit.Test
-   @Ignore("CRNT-22880")
    public void testSelectAttributeValue()
    {
       Object result = evaluator.evaluate(null, ex1, "number(/AAA/CCC/@id)");

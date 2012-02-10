@@ -53,8 +53,7 @@ public class XPathUtils
    public static Object evaluateXPath(Node context, String xPathExpression, Map<String, String> nsMappings)
    {
       // working around https://issues.apache.org/jira/browse/JXPATH-12
-      boolean absoluteLocatiponPath = !StringUtils.isEmpty(xPathExpression)
-            && xPathExpression.startsWith("/");
+      boolean absoluteLocatiponPath = isAbsoluteXPath(xPathExpression);
       JXPathContext xPathContext = JXPathContext.newContext(absoluteLocatiponPath
             ? context.getOwnerDocument()
             : context);
@@ -96,5 +95,29 @@ public class XPathUtils
          result.add(pointer.getNode());
       }
       return result;
+   }
+
+   private static boolean isAbsoluteXPath(String xPathExpression)
+   {
+      if (!StringUtils.isEmpty(xPathExpression))
+      {
+         if (xPathExpression.startsWith("/"))
+         {
+         return true;
+         }
+         else
+         {
+            // function(/) is also an absolute xpath
+            int idx1 = xPathExpression.indexOf("(");
+            int idx2 = xPathExpression.indexOf("/");
+
+            if (idx1 > 0 && idx2 == idx1+1)
+            {
+               return true;
+            }
+         }
+      }
+
+      return false;
    }
 }

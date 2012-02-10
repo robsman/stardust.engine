@@ -22,7 +22,6 @@ import org.eclipse.stardust.engine.core.compatibility.el.Result;
 import org.eclipse.stardust.engine.core.compatibility.el.SyntaxError;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 
 
 
@@ -1113,7 +1112,6 @@ public class InterpreterTest
     * test Xml paths
     */
    @org.junit.Test
-   @Ignore("CRNT-22880")
    public void testXML()
    {
       try
@@ -1138,7 +1136,6 @@ public class InterpreterTest
     * test Xml paths
     */
    @org.junit.Test
-   @Ignore("CRNT-22880")
    public void testXML_NS()
    {
       try

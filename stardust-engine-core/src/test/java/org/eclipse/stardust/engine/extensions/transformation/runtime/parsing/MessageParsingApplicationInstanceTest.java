@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import java.io.InputStream;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,6 @@ import org.eclipse.stardust.engine.extensions.transformation.Constants;
 import org.eclipse.stardust.engine.extensions.transformation.MessagingUtils;
 import org.eclipse.stardust.engine.extensions.transformation.format.IMessageFormat;
 import org.eclipse.stardust.engine.extensions.transformation.format.XMLMessageFormat;
-import org.eclipse.stardust.engine.extensions.transformation.runtime.parsing.MessageParsingApplicationInstance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -185,38 +184,38 @@ public class MessageParsingApplicationInstanceTest
       assertEquals(value, actualValue);
    }
    
-//   @Test
-//   public void testInvoke() throws Exception
-//   {
-//      injectInAccessPointValuesIntoOUT();
-//      final String outAccessPoint = "<Out Data Type>";
-//      injectOutAccessPointsIntoOUT(outAccessPoint);
-//      Reflect.setFieldValue(out, "outputValues", CollectionUtils.newHashMap());
-//      final Map<String, Object> outputValue = createOutputValue();
-//      
-//      /* stubbing */
-//      final IModel model = mock(IModel.class);
-//      Reflect.setFieldValue(out, "model", model);
-//      mockStatic(MessagingUtils.class);
-//      final IMessageFormat messageFormat = mock(IMessageFormat.class);
-//      Reflect.setFieldValue(out, "messageFormat", messageFormat);
-//      mockStatic(DOMConverter.class);
-//      final org.eclipse.stardust.engine.core.struct.sxml.Document doc = PowerMockito.mock(org.eclipse.stardust.engine.core.struct.sxml.Document.class);
-//      mockStatic(DataXPathMap.class);
-//      final StructuredDataConverter converter = mock(StructuredDataConverter.class);
-//      PowerMockito.whenNew(StructuredDataConverter.class).withArguments(any(IXPathMap.class)).thenReturn(converter);
-//      
-//      when(DOMConverter.convert(any(Document.class))).thenReturn(doc);
-//      when(converter.toCollection(any(Element.class), any(String.class), Matchers.anyBoolean())).thenReturn(outputValue);
-//      
-//      /* invoking the method under test */
-//      final Map<String, Map<String, Object>> result = out.invoke(Collections.singleton(outAccessPoint));
-//      
-//      /* verifying */
-//      Mockito.verify(messageFormat).parse(any(InputStream.class), any(Document.class));
-//      final Map<String, Object> actualOutputValue = result.get(outAccessPoint);
-//      assertEquals(outputValue, actualOutputValue);
-//   }
+   @Test
+   public void testInvoke() throws Exception
+   {
+      injectInAccessPointValuesIntoOUT();
+      final String outAccessPoint = "<Out Data Type>";
+      injectOutAccessPointsIntoOUT(outAccessPoint);
+      Reflect.setFieldValue(out, "outputValues", CollectionUtils.newHashMap());
+      final Map<String, Object> outputValue = createOutputValue();
+      
+      /* stubbing */
+      final IModel model = mock(IModel.class);
+      Reflect.setFieldValue(out, "model", model);
+      mockStatic(MessagingUtils.class);
+      final IMessageFormat messageFormat = mock(IMessageFormat.class);
+      Reflect.setFieldValue(out, "messageFormat", messageFormat);
+      mockStatic(DOMConverter.class);
+      final org.eclipse.stardust.engine.core.struct.sxml.Document doc = PowerMockito.mock(org.eclipse.stardust.engine.core.struct.sxml.Document.class);
+      mockStatic(DataXPathMap.class);
+      final StructuredDataConverter converter = mock(StructuredDataConverter.class);
+      PowerMockito.whenNew(StructuredDataConverter.class).withArguments(any(IXPathMap.class)).thenReturn(converter);
+      
+      when(DOMConverter.convert(any(Document.class))).thenReturn(doc);
+      when(converter.toCollection(any(Element.class), any(String.class), Matchers.anyBoolean())).thenReturn(outputValue);
+      
+      /* invoking the method under test */
+      final Map<String, Map<String, Object>> result = out.invoke(Collections.singleton(outAccessPoint));
+      
+      /* verifying */
+      Mockito.verify(messageFormat).parse(any(Reader.class), any(Document.class));
+      final Map<String, Object> actualOutputValue = result.get(outAccessPoint);
+      assertEquals(outputValue, actualOutputValue);
+   }
 
    @Test
    public void testCleanupDoesNotThrowException()

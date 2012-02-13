@@ -332,7 +332,12 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       {
          qualityAssuranceState = activityInstance.getQualityAssuranceState();
          attributes = QualityAssuranceUtils.getActivityInstanceAttributes(activityInstance);
-         qcInfo = QualityAssuranceUtils.getQualityAssuranceInfo(activityInstance);
+         //build info object regarding qa workflow
+         if(qualityAssuranceState == QualityAssuranceState.IS_QUALITY_ASSURANCE 
+               || qualityAssuranceState == QualityAssuranceState.IS_REVISED)
+         {
+            qcInfo = QualityAssuranceUtils.getQualityAssuranceInfo(activityInstance);
+         }
       }
       
       //if note for the process instance exists, - potentially notes for this activity instance exists
@@ -343,14 +348,16 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             && ProcessInstanceUtils.hasNotes(scopeProcessInstance))
       {
          List<Note> aiNotes = ProcessInstanceUtils.getNotes(scopeProcessInstance, this);
-         if(aiNotes.isEmpty() && attributes == null)
+         if(!aiNotes.isEmpty())
          {
             //create attributes object to present notes
-            attributes = new ActivityInstanceAttributesImpl(activityInstance.getOID());
-            attributes.setQualityAssuranceResult(null);
+            if(attributes == null)
+            {
+               attributes = new ActivityInstanceAttributesImpl(activityInstance.getOID());
+            }
+            
+            attributes.setNotes(aiNotes);
          }
-         
-         attributes.setNotes(aiNotes);
       }
    }
 

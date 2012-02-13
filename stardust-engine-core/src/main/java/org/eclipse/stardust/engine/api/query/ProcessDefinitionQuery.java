@@ -72,7 +72,7 @@ public class ProcessDefinitionQuery extends Query
    /**
     * Creates a query for finding the active deployed model having the specific id.
     *
-    * @param modelId The id of the model to retrieve
+    * @param triggerType a string identifying the type of the triggers used to start processes, i.e. "manual" or "scan".
     * @return The configured query.
     */
    public static ProcessDefinitionQuery findStartable(String triggerType)

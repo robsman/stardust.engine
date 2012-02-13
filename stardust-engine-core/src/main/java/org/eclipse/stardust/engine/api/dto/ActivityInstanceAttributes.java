@@ -24,18 +24,37 @@ import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssu
 public interface ActivityInstanceAttributes extends Serializable
 {
    /**
-    * Can be used in general
+    * Return the oid for the activity instance this attributes belongs to
     * 
-    * @return the oid of the corresponding activity instance. 
+    * @return the oid of the corresponding activity instance
     */
    long getActivityInstanceOid();
    
+   /**
+    * Adds a {@link Note} for the given text
+    * @param text
+    * @return the note created
+    */
    Note addNote(String text);
    
+   /**
+    * Gets the notes which were currently added
+    * for this instance.See {@link ActivityInstanceAttributes#addNote(String)}
+    * @return the current added notes for this instance
+    */
    List<Note> getAddedNotes();
    
+   /**
+    * Gets the {@link Note} set for this activity instance
+    * @return the notes set for this instance
+    * 
+    */
    List<Note> getNotes();
    
+   /**
+    * Sets notes to this instance 
+    * @param notes - the notes to set for this instance
+    */
    void setNotes(List<Note> notes);
    /**
     * Sets the {@link QualityAssuranceResult} for a specific activity instance.

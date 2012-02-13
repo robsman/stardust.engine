@@ -626,7 +626,7 @@ public class TestQualityControlRuntime extends TestCase
       //the instance should go back to the user
       ActivityInstanceAttributes attributes 
          = getAttributesForFail(errorCodesDefinedForAI, currentActivityInstance.getOID());
-      attributes.getQualityAssuranceResult().setAssignToLastActivityPerformer(true);
+      attributes.getQualityAssuranceResult().setAssignFailedInstanceToLastPerformer(true);
       
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null,
@@ -683,7 +683,7 @@ public class TestQualityControlRuntime extends TestCase
       //the instance should go back to the work flow participant
       ActivityInstanceAttributes attributes 
          = getAttributesForFail(errorCodesDefinedForAI, currentActivityInstance.getOID());
-      attributes.getQualityAssuranceResult().setAssignToLastActivityPerformer(false);
+      attributes.getQualityAssuranceResult().setAssignFailedInstanceToLastPerformer(false);
       
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null,

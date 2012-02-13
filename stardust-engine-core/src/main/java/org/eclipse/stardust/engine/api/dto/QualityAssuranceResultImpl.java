@@ -56,12 +56,12 @@ public class QualityAssuranceResultImpl implements QualityAssuranceResult
       return state;
    }
 
-   public void setAssignToLastActivityPerformer(boolean assignToLastPerformer)
+   public void setAssignFailedInstanceToLastPerformer(boolean assignToLastPerformer)
    {
       this.assignToLastPerformer = assignToLastPerformer;
    }
 
-   public boolean getAssignToLastActivityPerformer()
+   public boolean isAssignFailedInstanceToLastPerformer()
    {
       return assignToLastPerformer;
    }

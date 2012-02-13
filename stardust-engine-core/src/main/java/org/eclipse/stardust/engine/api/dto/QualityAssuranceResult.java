@@ -19,33 +19,66 @@ import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
 public interface QualityAssuranceResult extends Serializable
 {
    /**
-    * @param codes
+    * Sets the {@link QualityAssuranceCode} for this result
+    * 
+    * @param codes - the {@link QualityAssuranceCode} to set
     */
    void setQualityAssuranceCodes(Set<QualityAssuranceCode> codes);
    
    /**
-    * @return
+    * Get the {@link QualityAssuranceCode} for this result
+    * 
+    * @return the {@link QualityAssuranceCode} for this result
     */
    Set<QualityAssuranceCode> getQualityAssuranceCodes();
 
    /**
-    * @param passed
+    * Set the {@link ResultState} for this resul
+    * 
+    * @param state - the state to set
     */
    void setQualityAssuranceState(ResultState state);
    
    /**
-    * @return
+    * Returns the {@link ResultState} for this result
+    * 
+    * @return the {@link ResultState} for this result
     */
    ResultState getQualityAssuranceState();
    
-   void setAssignToLastActivityPerformer(boolean assign);
+   /**
+    * When set to true and the {@link ResultState} is set to {@link ResultState#FAILED},
+    * the activity instance will be assigned to the performer of the activity instance which 
+    * triggered the quality assurance instance
+    * @param assignToLastPerformer -if the instance should be assigned to the last activity performer
+    */
+   void setAssignFailedInstanceToLastPerformer(boolean assignToLastPerformer);
    
-   boolean getAssignToLastActivityPerformer();
+   /**
+    * Return if failed quality assurance instances should be assigned to the last activity performer
+    * of the instance who triggered the quality assurance instance
+    * @return if failed quality assurance instances should be assigned to the last activity performer
+    */
+   boolean isAssignFailedInstanceToLastPerformer();
    
+   /**
+    * 
+    * @author Holger.Prause
+    * @version $Revision: $
+    */
    public enum ResultState
    {
+      /**
+       * the activity instance contained errors and they were corrected by the quality assurance manager
+       */
       PASS_WITH_CORRECTION,
+      /**
+       * the activity instance contained no errors
+       */
       PASS_NO_CORRECTION,
+      /**
+       * the activity instance contained errors which must be corrected
+       */
       FAILED
    }
 }

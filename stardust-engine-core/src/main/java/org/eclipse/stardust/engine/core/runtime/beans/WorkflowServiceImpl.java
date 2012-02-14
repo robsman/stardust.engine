@@ -21,13 +21,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.error.InvalidArgumentException;
-import org.eclipse.stardust.common.error.InvalidValueException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.ServiceCommandException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
@@ -99,6 +93,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessIns
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
@@ -2212,7 +2207,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       try
       {
-         return serviceCmd.execute(EmbeddedServiceFactory.CURRENT_TX());
+         boolean autoFlush = getBooleanOption(serviceCmd, "autoFlush", false);
+         EmbeddedServiceFactory factory = autoFlush
+               ? EmbeddedServiceFactory.CURRENT_TX_WITH_AUTO_FLUSH()
+               : EmbeddedServiceFactory.CURRENT_TX_WITH_PROPERTY_LAYER();
+         return serviceCmd.execute(factory);
       }
       catch (final ServiceCommandException e)
       {
@@ -2221,9 +2220,37 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       catch (final Exception e)
       {
-         // TODO: error case
-         throw new ServiceCommandException((String)null);
+         ErrorCase ec = null;
+         if (e instanceof ApplicationException)
+         {
+            ec = ((ApplicationException) e).getError();
+         }
+         if (ec == null)
+         {
+            throw new ServiceCommandException("Unexpected exception while executing command.", e);
+         }
+         else
+         {
+            throw new ServiceCommandException(ec, e);
+         }
       }
+   }
+
+   private static boolean getBooleanOption(ServiceCommand serviceCmd, String name, boolean defaultValue)
+   {
+      if (serviceCmd instanceof Configurable)
+      {
+         Map<String, Object> options = ((Configurable) serviceCmd).getOptions();
+         if (options != null)
+         {
+            Object option = options.get(name);
+            if (option instanceof Boolean)
+            {
+               return ((Boolean) option).booleanValue();
+            }
+         }
+      }
+      return defaultValue;
    }
 
    public void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)

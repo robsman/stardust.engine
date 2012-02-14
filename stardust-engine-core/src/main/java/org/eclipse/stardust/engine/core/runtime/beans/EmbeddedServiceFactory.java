@@ -20,9 +20,12 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.security.authentication.LoginFailedException;
 import org.eclipse.stardust.engine.api.runtime.Service;
 import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-
+import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
+import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 
 public class EmbeddedServiceFactory extends DefaultServiceFactory
 {
@@ -34,6 +37,8 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
 
    private boolean withLogin;
 
+   private boolean autoFlush;
+
    /**
     * ServiceFactory that works within the same transaction
     * without creating a new Property Layer.
@@ -44,7 +49,20 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
     */
    public static EmbeddedServiceFactory CURRENT_TX()
    {
-      return new EmbeddedServiceFactory(false, false);
+      return new EmbeddedServiceFactory(false, false, false);
+   }
+
+   /**
+    * ServiceFactory that works within the same transaction
+    * without creating a new Property Layer.
+    *
+    * <code>SecurityProperties.getUser()</code> must be set.
+    *
+    * @return The configured ServiceFactory.
+    */
+   public static EmbeddedServiceFactory CURRENT_TX_WITH_AUTO_FLUSH()
+   {
+      return new EmbeddedServiceFactory(false, true, true);
    }
 
    /**
@@ -57,19 +75,20 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
     */
    public static EmbeddedServiceFactory CURRENT_TX_WITH_PROPERTY_LAYER()
    {
-      return new EmbeddedServiceFactory(false, true);
+      return new EmbeddedServiceFactory(false, true, false);
    }
 
    //@Deprecated
    public EmbeddedServiceFactory()
    {
-      this(true, true);
+      this(true, true, false);
    }
 
-   private EmbeddedServiceFactory(boolean withLogin, boolean withPropertyLayer)
+   private EmbeddedServiceFactory(boolean withLogin, boolean withPropertyLayer, boolean autoFlush)
    {
      this.withLogin = withLogin;
      this.withPropertyLayer = withPropertyLayer;
+     this.autoFlush = autoFlush;
    }
 
    public Object getService(Class service) throws ServiceNotAvailableException,
@@ -83,7 +102,7 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
       Object inner = Reflect.createInstance(packageName + ".beans." + className + "Impl");
 
       InvocationManager manager = new EmbeddedInvocationManager(inner,
-            serviceName, withPropertyLayer, withLogin);
+            serviceName, withPropertyLayer, withLogin, autoFlush);
 
       Service result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
             new Class[] {service, ManagedService.class}, manager);
@@ -117,13 +136,13 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
       private static final long serialVersionUID = 1L;
 
       public EmbeddedInvocationManager(Object service, String serviceName,
-            boolean withPropertyLayer, boolean withLogin)
+            boolean withPropertyLayer, boolean withLogin, boolean autoFlush)
       {
-         super(service, setupInterceptors(serviceName, withPropertyLayer, withLogin));
+         super(service, setupInterceptors(serviceName, withPropertyLayer, withLogin, autoFlush));
       }
 
       private static List setupInterceptors(String serviceName,
-            boolean withPropertyLayer, boolean withLogin)
+            boolean withPropertyLayer, boolean withLogin, boolean autoFlush)
       {
          List interceptors = new ArrayList();
 
@@ -131,7 +150,10 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
          {
             interceptors.add(new PropertyLayerProviderInterceptor());
          }
-
+         if (autoFlush)
+         {
+            interceptors.add(new FlushInterceptor());
+         }
          if (withLogin)
          {
             interceptors.add(new LoginInterceptor());
@@ -146,5 +168,21 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
          return interceptors;
       }
    }
+   
+   private static class FlushInterceptor implements MethodInterceptor
+   {
+      private static final long serialVersionUID = 1L;
 
+      public Object invoke(MethodInvocation invocation) throws Throwable
+      {
+         try
+         {
+            return invocation.proceed();
+         }
+         finally
+         {
+            ((Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)).flush();
+         }
+      }
+   }
 }

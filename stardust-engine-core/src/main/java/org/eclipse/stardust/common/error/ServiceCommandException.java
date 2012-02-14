@@ -10,26 +10,33 @@
  *******************************************************************************/
 package org.eclipse.stardust.common.error;
 
+/**
+ * Thrown if the execution of a service command failed.
+ * 
+ * @author Florin.Herinean
+ * @version $Revision: $
+ */
 public class ServiceCommandException extends PublicException
 {
    private static final long serialVersionUID = 1L;
 
-
-   public ServiceCommandException(String error)
-   {
-      super(error);
-   }
-
+   /**
+    * Constructs a new ServiceCommandException with a message and a cause.
+    * 
+    * @param error the exception message.
+    * @param cause the cause of the exception.
+    */
    public ServiceCommandException(String error, Throwable cause)
    {
       super(error, cause);
    }
 
-   public ServiceCommandException(ErrorCase errorCase)
-   {
-      super(errorCase);
-   }
-   
+   /**
+    * Constructs a new ServiceCommandException with an error case and a cause.
+    * 
+    * @param errorCase the error case describing the exception.
+    * @param cause the cause of the exception.
+    */
    public ServiceCommandException(ErrorCase errorCase, Throwable cause)
    {
       super(errorCase, cause);

@@ -11,24 +11,21 @@
 package org.eclipse.stardust.engine.core.runtime.command;
 
 import java.io.Serializable;
-
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import java.util.Map;
 
 /**
- * Client side wrapper around a series of service invocations that have to be performed
- * in a single server side transaction.
+ * Generic interface for objects that supports client-side configuration.
+ * For details of the supported options please check the relevant Service API methods.
  * 
  * @author Florin.Herinean
  * @version $Revision: $
  */
-public interface ServiceCommand extends Serializable
+public interface Configurable extends Serializable
 {
    /**
-    * Execute the service command.
+    * Retrieves the parameters associated with this object.
     * 
-    * @param sf a {@link ServiceFactory} provided by the engine that will ensure that all service calls
-    *        will be performed in the parent transaction.
-    * @return the result of the service call execution. This value will be returned to the client.
+    * @return a {@link Map} of {name,value} pairs.
     */
-   Serializable execute(ServiceFactory sf);
+   Map<String, Object> getOptions();
 }

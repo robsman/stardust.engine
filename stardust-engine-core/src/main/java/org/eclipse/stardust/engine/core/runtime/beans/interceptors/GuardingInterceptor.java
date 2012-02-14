@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans.interceptors;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
@@ -45,17 +46,25 @@ public class GuardingInterceptor implements MethodInterceptor
       {
          throw new AccessForbiddenException(BpmRuntimeError.AUTHx_NOT_LOGGED_IN.raise());
       }
-      if (!invocation.getMethod().getDeclaringClass().getName().equals("java.lang.Object"))
+      try
       {
-         // check if password must be changed
-         SecurityUtils.checkPasswordExpired(SecurityProperties.getUser(), invocation);         
-         
-         if (invocation.getParameters().getBoolean(guardedParamName, true)
-               || invocation.getParameters().getBoolean(legacyGuardedParamName, true))
+         if (!invocation.getMethod().getDeclaringClass().getName().equals("java.lang.Object"))
          {
-            Authorization2.checkPermission(invocation.getMethod(), invocation.getArguments());
+            // check if password must be changed
+            SecurityUtils.checkPasswordExpired(SecurityProperties.getUser(), invocation);         
+            
+            if (invocation.getParameters().getBoolean(guardedParamName, true)
+                  || invocation.getParameters().getBoolean(legacyGuardedParamName, true))
+            {
+               Authorization2.checkPermission(invocation.getMethod(), invocation.getArguments());
+            }
          }
+         return invocation.proceed();
       }
-      return invocation.proceed();
+      finally
+      {
+         BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+         runtimeEnvironment.setAuthorizationPredicate(null);
+      }
    }
 }

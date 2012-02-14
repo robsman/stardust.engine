@@ -2119,14 +2119,17 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void lockAndCheck()
    {
-      lock();
-      try
+      if (!getPersistenceController().isLocked())
       {
-         reloadAttribute("state");
-      }
-      catch (PhantomException e)
-      {
-         throw new InternalException(e);
+         lock();
+         try
+         {
+            reloadAttribute("state");
+         }
+         catch (PhantomException e)
+         {
+            throw new InternalException(e);
+         }
       }
    }
 

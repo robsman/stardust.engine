@@ -25,9 +25,9 @@ import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
+import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
-
 
 /**
  * The WorkflowService provides all functionality for workflow operations in a
@@ -904,7 +904,7 @@ public interface WorkflowService extends Service
     * instance hierarchy this activity instance belongs to.
     * <p/>
     * Aborting an activity instance is only allowed if the activity was modeled to be
-    * abortable (@see Activity#isAbortable()}). Additionally it is required that the
+    * abortable (see {@link Activity#isAbortable()}). Additionally it is required that the
     * aborting user is a valid performing participant for this activity.
     * <p/>
     * Note: Abort is performed asynchronously.
@@ -1512,5 +1512,18 @@ public interface WorkflowService extends Service
    void writeLogEntry(LogType logType, ContextKind contextType, long contextOid,
          String message, Throwable throwable) throws ObjectNotFoundException;
 
+   /**
+    * Executes a {@link ServiceCommand} in a single engine transaction.
+    * 
+    * If the service command implements <code>{@link Configurable}</code>, the following option may be provided:
+    * <ul>
+    * <li>"<b>autoFlush</b>" - automatically flushes the audit trail changes after every service call.
+    * The value must be a <code>{@link Boolean}</code> object. The default value is <code>{@link Boolean#FALSE}</code>. 
+    * </ul>
+    * 
+    * @param serviceCmd the {@link ServiceCommand} to be executed.
+    * @return the result of the execution. May be <code>null</code> if the command has no result.
+    * @throws ServiceCommandException that encapsulates any exception thrown during the execution of the command.
+    */
    Serializable execute(ServiceCommand serviceCmd) throws ServiceCommandException;
 }

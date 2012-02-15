@@ -62,7 +62,7 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
     */
    public static EmbeddedServiceFactory CURRENT_TX_WITH_AUTO_FLUSH()
    {
-      return new EmbeddedServiceFactory(false, true, true);
+      return new EmbeddedServiceFactory(false, false, true);
    }
 
    /**

@@ -2210,7 +2210,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          boolean autoFlush = getBooleanOption(serviceCmd, "autoFlush", false);
          EmbeddedServiceFactory factory = autoFlush
                ? EmbeddedServiceFactory.CURRENT_TX_WITH_AUTO_FLUSH()
-               : EmbeddedServiceFactory.CURRENT_TX_WITH_PROPERTY_LAYER();
+               : EmbeddedServiceFactory.CURRENT_TX();
          return serviceCmd.execute(factory);
       }
       catch (final ServiceCommandException e)

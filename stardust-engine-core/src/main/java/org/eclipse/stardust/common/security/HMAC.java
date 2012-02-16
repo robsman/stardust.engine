@@ -64,25 +64,7 @@ public class HMAC
       if ((hashType.equals(SHA1)) || (hashType.equals(MD5)))
       {
          this.hashType = hashType;
-         try
-         {
-            myDigest = MessageDigest.getInstance(hashType);
-         }
-         catch (NoSuchAlgorithmException e) 
-         {
-            Object bouncyCastleProvider = Reflect.createInstance(
-                  "org.bouncycastle.jce.provider.BouncyCastleProvider", 
-                  this.getClass().getClassLoader());
-            if(bouncyCastleProvider != null)
-            {
-               Security.addProvider((Provider)bouncyCastleProvider);
-               myDigest = MessageDigest.getInstance(hashType, "BE");
-            }
-            else
-            {
-               throw e;
-            }
-         }
+         myDigest = MessageDigest.getInstance(hashType);
       }
       else
       {

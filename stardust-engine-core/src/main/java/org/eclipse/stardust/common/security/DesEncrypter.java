@@ -48,14 +48,6 @@ public class DesEncrypter {
 	public DesEncrypter(String passPhrase) {
 		try {
 			initCiphers(passPhrase);
-		} catch (NoSuchAlgorithmException ex1) {
-			try {
-			   Object provider = Reflect.getInstance("org.bouncycastle.jce.provider.BouncyCastleProvider");			  
-				java.security.Security.addProvider((Provider) provider);
-				initCiphers(passPhrase);
-			} catch (Throwable ex2) {
-				ex2.printStackTrace();
-			}
 		} catch (Throwable ex3) {
 			ex3.printStackTrace();
 		}

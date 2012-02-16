@@ -16,7 +16,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
@@ -345,85 +344,101 @@ public class Archiver
       }
    }
 
-   public void archiveDeadProcesses(List rootPiOids)
+   public void archiveDeadProcesses(List inputRootPiOids)
    {
-      // check for nonterminated process instances
-      final long nAliveProcesses = getAliveProcessInstancesCount(null, rootPiOids);
+      // evaluate process instance links
+      Set<Long> evaluatedRootOids = evaluateLinkedProcessInstances(inputRootPiOids, null);
 
-      if (0 < nAliveProcesses)
+      if (evaluatedRootOids.isEmpty())
       {
-         throw new PublicException(
-               MessageFormat.format(
-                     "Cannot {0} process instances (found {1} nonterminated process instances).",
-                     new Object[] {
-                           archive ? "archive" : "delete", new Long(nAliveProcesses)}));
+         trace.info(MessageFormat.format(
+               "Cannot {0} process instances (no valid process instances to archive).",
+               new Object[] {archive ? "archive" : "delete"}));
+
       }
-
-      // check if PIs are strictly terminated root PIs
-      QueryDescriptor qFindRootPis = QueryDescriptor
-         .from(ProcessInstanceBean.class)
-         .select(ProcessInstanceBean.FIELD__OID, ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE)
-         .where(splitUpOidsSubList(rootPiOids, ProcessInstanceBean.FR__OID));
-      Set nonrootPiOids = new TreeSet();
-      ResultSet rsCheckPreconditions = session.executeQuery(qFindRootPis, Session.NO_TIMEOUT);
-      try
+      else
       {
-         while (rsCheckPreconditions.next())
+         List<Long> rootPiOids = new ArrayList<Long>(evaluatedRootOids);
+
+         // check for nonterminated process instances
+         final long nAliveProcesses = getAliveProcessInstancesCount(null, rootPiOids);
+
+         if (0 < nAliveProcesses)
          {
-            long piOid = rsCheckPreconditions.getLong(1);
-            long rootPiOid = rsCheckPreconditions.getLong(2);
-            if (piOid != rootPiOid)
+            throw new PublicException(
+                  MessageFormat.format(
+                        "Cannot {0} process instances (found {1} nonterminated process instances).",
+                        new Object[] {
+                              archive ? "archive" : "delete", new Long(nAliveProcesses)}));
+         }
+
+         // check if PIs are strictly terminated root PIs
+         QueryDescriptor qFindRootPis = QueryDescriptor.from(ProcessInstanceBean.class)
+               .select(ProcessInstanceBean.FIELD__OID,
+                     ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE)
+               .where(splitUpOidsSubList(rootPiOids, ProcessInstanceBean.FR__OID));
+         Set nonrootPiOids = new TreeSet();
+         ResultSet rsCheckPreconditions = session.executeQuery(qFindRootPis,
+               Session.NO_TIMEOUT);
+         try
+         {
+            while (rsCheckPreconditions.next())
             {
-               nonrootPiOids.add(new Long(piOid));
+               long piOid = rsCheckPreconditions.getLong(1);
+               long rootPiOid = rsCheckPreconditions.getLong(2);
+               if (piOid != rootPiOid)
+               {
+                  nonrootPiOids.add(new Long(piOid));
+               }
             }
          }
-      }
-      catch (SQLException sqle)
-      {
-         throw new PublicException("Failed verifying preconditions.", sqle);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(rsCheckPreconditions);
-      }
+         catch (SQLException sqle)
+         {
+            throw new PublicException("Failed verifying preconditions.", sqle);
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(rsCheckPreconditions);
+         }
 
-      if ( !nonrootPiOids.isEmpty())
-      {
-         ErrorCase errorCase;
+         if ( !nonrootPiOids.isEmpty())
+         {
+            ErrorCase errorCase;
+            if (archive)
+            {
+               errorCase = BpmRuntimeError.ATDB_ARCHIVE_UNABLE_TO_ARCHIVE_NON_ROOT_PI.raise(nonrootPiOids);
+            }
+            else
+            {
+               errorCase = BpmRuntimeError.ATDB_ARCHIVE_UNABLE_TO_DELETE_NON_ROOT_PI.raise(nonrootPiOids);
+            }
+
+            new IllegalOperationException(errorCase);
+         }
+
          if (archive)
          {
-            errorCase = BpmRuntimeError.ATDB_ARCHIVE_UNABLE_TO_ARCHIVE_NON_ROOT_PI
-                  .raise(nonrootPiOids);
+         // process instance links can include processes of models other than specified by modelOid
+            List<Long> findModels = findModels(rootPiOids);
+            for (Long toSyncModelOid : findModels)
+            {
+               if (toSyncModelOid != null)
+               {
+                  synchronizeMasterTables(toSyncModelOid);
+               }
+            }
          }
-         else
+
+         doArchiveProcesses(rootPiOids);
+
+         // report models now being without process instances
+         List/* <Long> */unusedModelsOids = findUnusedModels();
+
+         if ( !unusedModelsOids.isEmpty())
          {
-            errorCase = BpmRuntimeError.ATDB_ARCHIVE_UNABLE_TO_DELETE_NON_ROOT_PI
-                  .raise(nonrootPiOids);
+            trace.info("Found models with no process instances in audittrail (OIDs): "
+                  + StringUtils.join(unusedModelsOids.iterator(), ", "));
          }
-
-         new IllegalOperationException(errorCase);
-      }
-
-      if (archive)
-      {
-         // TODO consider archiving tables for models derived from given set of PIs
-         List findModels = findModels(rootPiOids);
-         for (int i = 0, len = findModels.size(); i < len; i++)
-         {
-            Long modelOid = (Long) findModels.get(i);
-            synchronizeMasterTables(modelOid);
-         }
-      }
-
-      doArchiveProcesses(rootPiOids);
-
-      // report models now being without process instances
-      List/*<Long>*/ unusedModelsOids = findUnusedModels();
-
-      if (!unusedModelsOids.isEmpty())
-      {
-         trace.info("Found models with no process instances in audittrail (OIDs): "
-               + StringUtils.join(unusedModelsOids.iterator(), ", "));
       }
    }
 
@@ -814,60 +829,69 @@ public class Archiver
 
       try
       {
-         Collection rootPiOids = findCandidateRootProcessInstances(modelOid, before,
+         List<Long> rootPiOids = findCandidateRootProcessInstances(modelOid, before,
                paranoid);
 
-         if (null != before)
+         rootPiOids = new ArrayList(evaluateLinkedProcessInstances(rootPiOids, before));
+
+         if (rootPiOids.isEmpty())
          {
             trace.info(MessageFormat.format(
-                  "About to {0} {1} root process instances terminated before "
-                        + DateUtils.getNoninteractiveDateFormat().format(before)
-                        + " into the {2}.", new Object[] {
-                        verbPre, new Integer(rootPiOids.size()), targetDbName}));
+                  "Cannot {0} process instances (no valid process instances to archive).",
+                  new Object[] {archive ? "archive" : "delete"}));
+
          }
          else
          {
-            trace.info(MessageFormat.format(
-                  "About to {0} {1} terminated root process instances into the {2}.",
-                  new Object[] {verbPre, new Integer(rootPiOids.size()), targetDbName}));
-         }
 
-         archiveModels(modelOid);
-
-         // synchronize model and utility table to ensure referential integrity for
-         // archived process instances
-         if (archive)
-         {
-            if(modelOid == null)
+            if (null != before)
             {
-               List findModels = findModels(Arrays.asList(rootPiOids.toArray()));
-               for (int i = 0, len = findModels.size(); i < len; i++)
-               {
-                  Long modelOid_ = (Long) findModels.get(i);
-                  synchronizeMasterTables(modelOid_);
-               }
+               trace.info(MessageFormat.format(
+                     "About to {0} {1} root process instances terminated before "
+                           + DateUtils.getNoninteractiveDateFormat().format(before)
+                           + " into the {2}.", new Object[] {
+                           verbPre, new Integer(rootPiOids.size()), targetDbName}));
             }
             else
             {
-               synchronizeMasterTables(modelOid);
+               trace.info(MessageFormat.format(
+                     "About to {0} {1} terminated root process instances into the {2}.",
+                     new Object[] {verbPre, new Integer(rootPiOids.size()), targetDbName}));
             }
-         }
 
-         long nProcessInstances = doArchiveProcesses(rootPiOids);
+            archiveModels(modelOid);
 
-         if (null != before)
-         {
-            trace.info(MessageFormat.format(
-                  "{0} {1} process instances terminated before "
-                        + DateUtils.getNoninteractiveDateFormat().format(before)
-                        + " into the {2}.", new Object[] {
-                        verbPost, new Long(nProcessInstances), targetDbName}));
-         }
-         else
-         {
-            trace.info(MessageFormat.format(
-                  "{0} {1} terminated process instances into the {2}.", new Object[] {
-                        verbPost, new Long(nProcessInstances), targetDbName}));
+            // synchronize model and utility table to ensure referential integrity for
+            // archived process instances
+            if (archive)
+            {
+               // process instance links can include processes of models other than specified by modelOid
+               List<Long> findModels = findModels(rootPiOids);
+               for (Long toSyncModelOid : findModels)
+               {
+                  if (toSyncModelOid != null)
+                  {
+                     synchronizeMasterTables(toSyncModelOid);
+                  }
+               }
+            }
+
+            long nProcessInstances = doArchiveProcesses(rootPiOids);
+
+            if (null != before)
+            {
+               trace.info(MessageFormat.format(
+                     "{0} {1} process instances terminated before "
+                           + DateUtils.getNoninteractiveDateFormat().format(before)
+                           + " into the {2}.", new Object[] {
+                           verbPost, new Long(nProcessInstances), targetDbName}));
+            }
+            else
+            {
+               trace.info(MessageFormat.format(
+                     "{0} {1} terminated process instances into the {2}.", new Object[] {
+                           verbPost, new Long(nProcessInstances), targetDbName}));
+            }
          }
       }
       catch (Exception e)
@@ -884,12 +908,259 @@ public class Archiver
       }
    }
 
-   private Collection findCandidateRootProcessInstances(Long modelOid, Date before,
+   /**
+    * Handles conditions introduced by process instance links.
+    * filters invalid rootOids (has linked rootPI: not terminated, not terminated <code>before</code>)
+    * adds valid linked rootOids.
+    */
+   private Set<Long> evaluateLinkedProcessInstances(final List<Long> rootPiOids, final Date before)
+   {
+      Set<Long> resultRootPiOids = new TreeSet<Long>(rootPiOids);
+
+      PiLinkVisitationContext visitationContext = new PiLinkVisitationContext();
+
+      // only evaluate pi root oids which have links
+      List<Long> rootPiOidsWithLinks = findRootPiOidsHavingLinks(rootPiOids);
+
+      for (Long oid : rootPiOidsWithLinks)
+      {
+         boolean hasActiveLinkHierarchy = hasActiveLinkHierarchy(resultRootPiOids, oid, before, visitationContext);
+         if (hasActiveLinkHierarchy)
+         {
+            resultRootPiOids.remove(oid);
+            ignoredRootPiOids.add(oid);
+            // log ignored pi oids
+            trace.info("Root process instance '" + oid
+                  + "' will be ignored. Links to active processes exist. ");
+         }
+      }
+
+
+      return resultRootPiOids;
+   }
+
+   private List<Long> findRootPiOidsHavingLinks(List<Long> rootPiOids)
+   {
+      QueryDescriptor qFindLinkedPis = QueryDescriptor.from(ProcessInstanceLinkBean.class)
+            .selectDistinct(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE)
+            .where(splitUpOidsSubList(rootPiOids, ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
+
+      qFindLinkedPis.innerJoin(ProcessInstanceBean.class, "PIL_PI")
+            .on(ProcessInstanceLinkBean.FR__PROCESS_INSTANCE,
+                  ProcessInstanceBean.FIELD__OID)
+            .orOn(ProcessInstanceLinkBean.FR__LINKED_PROCESS_INSTANCE,
+                  ProcessInstanceBean.FIELD__OID);
+
+      qFindLinkedPis.getQueryExtension().setSelectAlias("PIL_PI");
+
+      ResultSet rsLinkedPis = session.executeQuery(qFindLinkedPis, Session.NO_TIMEOUT);
+
+      List<Long> rootPiOidsWithLink = new LinkedList<Long>();
+      try
+      {
+         while (rsLinkedPis.next())
+         {
+            long piOid = rsLinkedPis.getLong(1);
+            rootPiOidsWithLink.add(piOid);
+         }
+      }
+      catch (SQLException sqle)
+      {
+         throw new PublicException("Failed verifying preconditions.", sqle);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(rsLinkedPis);
+      }
+      return rootPiOidsWithLink;
+   }
+
+   /**
+    * Traverses process instance hierarchies via links to check if there is any active
+    * linked root processes or linked root processes that are terminated after the given before date.
+    *
+    * Also records the modelOids of visited process instances in the visitation context.
+    */
+   private boolean hasActiveLinkHierarchy(Set<Long> resultRootPiOids,
+         Long currentRootOid, Date before, PiLinkVisitationContext visitationContext)
+   {
+
+      Boolean hasActiveLinkHierarchy = false;
+      if ( !visitationContext.getVisitedRootPIs().keySet().contains(currentRootOid))
+      {
+
+         // find PI oids which have a link to the currentRootOid.
+         QueryDescriptor qFindLinkedPis = QueryDescriptor.from(ProcessInstanceBean.class)
+               .select(ProcessInstanceBean.FIELD__OID)
+               .where(
+                     Predicates.isEqual(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE,
+                           currentRootOid));
+
+         qFindLinkedPis.innerJoin(ProcessInstanceLinkBean.class, "PIL_PI")
+               .on(ProcessInstanceBean.FR__OID,
+                     ProcessInstanceLinkBean.FIELD__PROCESS_INSTANCE)
+               .orOn(ProcessInstanceBean.FR__OID,
+                     ProcessInstanceLinkBean.FIELD__LINKED_PROCESS_INSTANCE);
+
+         ResultSet rsLinkedPis = session.executeQuery(qFindLinkedPis, Session.NO_TIMEOUT);
+         Set<Long> piOidsWithLinkToRoot = new HashSet<Long>();
+         try
+         {
+            while (rsLinkedPis.next())
+            {
+               long piOid = rsLinkedPis.getLong(1);
+               piOidsWithLinkToRoot.add(piOid);
+            }
+         }
+         catch (SQLException sqle)
+         {
+            throw new PublicException("Failed verifying preconditions.", sqle);
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(rsLinkedPis);
+         }
+
+         // for each PI that has a link, retrieve link and check linked PI hierarchies for
+         // active root PIs.
+         for (Long linkedPiOid : piOidsWithLinkToRoot)
+         {
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Analyzing PIs linked to/from terminated root process instances: "
+                     + piOidsWithLinkToRoot);
+            }
+            ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean.findAllForProcessInstance(linkedPiOid);
+            while (links.hasNext())
+            {
+               IProcessInstanceLink link = links.next();
+               IProcessInstance processInstanceRoot = link.getProcessInstance()
+                     .getRootProcessInstance();
+               IProcessInstance linkedProcessInstanceRoot = link.getLinkedProcessInstance()
+                     .getRootProcessInstance();
+
+               // mark as currently evaluating
+               visitationContext.getVisitedRootPIs().put(currentRootOid, null);
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug(currentRootOid + " is being visited.");
+               }
+
+               IProcessInstance current = null;
+               IProcessInstance target = null;
+               if (processInstanceRoot.getOID() == currentRootOid)
+               {
+                  // the link is FROM the rootPI hierarchy TO another hierarchy.
+                  current = processInstanceRoot;
+                  target = linkedProcessInstanceRoot;
+               }
+               else
+               {
+                  // the link is TO the rootPI hierarchy FROM another hierarchy.
+                  current = linkedProcessInstanceRoot;
+                  target = processInstanceRoot;
+               }
+
+               if ( !hasActiveLinkHierarchy)
+               {
+                  if ( !target.isTerminated() || before != null
+                        && target.getTerminationTime() != null
+                        && before.before(target.getTerminationTime()))
+                  {
+                     hasActiveLinkHierarchy = true;
+                  }
+                  else
+                  {
+                     hasActiveLinkHierarchy |= hasActiveLinkHierarchy(resultRootPiOids,
+                           target.getOID(), before, visitationContext);
+                  }
+               }
+
+               // save evaluated value
+               visitationContext.getVisitedRootPIs().put(currentRootOid,
+                     hasActiveLinkHierarchy);
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug(currentRootOid + " created : " + hasActiveLinkHierarchy);
+               }
+
+               if ( !hasActiveLinkHierarchy)
+               {
+                  // add visited linked root PIs which are sure to be in a linked
+                  // terminated PI hierarchy.
+                  if ( !resultRootPiOids.contains(current.getOID()))
+                  {
+                     resultRootPiOids.add(current.getOID());
+                     trace.info("Found and added new linked root process instance '"
+                           + current.getOID() + "'.");
+
+                  }
+                  if ( !resultRootPiOids.contains(target.getOID()))
+                  {
+                     resultRootPiOids.add(target.getOID());
+                     trace.info("Found and added new linked root process instance '"
+                           + target.getOID() + "'.");
+                  }
+               }
+            }
+         }
+      }
+      else
+      {
+         Boolean visitedLinkValue = visitationContext.getVisitedRootPIs().get(
+               currentRootOid);
+         if (visitedLinkValue == null)
+         {
+            // link is currently being evaluated.
+            // this can happen if the links are cyclic or multiple links lead to the
+            // same process instance rootOid.
+            // no further evaluation of this link is disallowed to prevent endless
+            // loops (cyclic) or are not simply not needed (multiple links).
+            if (trace.isDebugEnabled())
+            {
+               trace.debug(currentRootOid + " exists : ignoring multiple link or cycle.");
+            }
+         }
+         else
+         {
+            // link is evaluated
+            hasActiveLinkHierarchy |= visitedLinkValue;
+
+            if (trace.isDebugEnabled())
+            {
+               trace.debug(currentRootOid + " exists : " + hasActiveLinkHierarchy);
+            }
+         }
+      }
+
+      return hasActiveLinkHierarchy;
+   }
+
+   /**
+    * This visitation context keeps track of visited nodes (rootPis) and the result of the
+    * visitation to prevent cyclic transitions and reevaluation of existing results.
+    */
+   private class PiLinkVisitationContext
+   {
+      private Map<Long,Boolean> visitedRootPIs = new HashMap<Long, Boolean>();
+
+      /**
+       * @return map of visited root PI oids as key with value null if currently visiting or Boolean
+       *         result of a completed evaluation.
+       */
+      public Map<Long, Boolean> getVisitedRootPIs()
+      {
+         return visitedRootPIs;
+      }
+
+   }
+
+   private List<Long> findCandidateRootProcessInstances(Long modelOid, Date before,
          boolean paranoid)
    {
       // TODO reimplement with maximum size threshold
 
-      final Set result = new TreeSet();
+      final Set<Long> result = new TreeSet<Long>();
 
       try
       {
@@ -962,7 +1233,7 @@ public class Archiver
             + (before == null ? "" : " terminated before " + before), e);
       }
 
-      return result;
+      return new ArrayList<Long>(result);
    }
 
    private void synchronizeMasterTables(Long modelOid)
@@ -1034,24 +1305,6 @@ public class Archiver
             stmtBatchPiClosure = new ArrayList(resolvePiClosure(tmpBatchRootPiOids));
          }
 
-         // reduce batch of root PI OIDs for those who have linked active PIs
-         List<Long> activeLinkedProcessesRootOids = findActiveLinkedProcesses(stmtBatchRootPiOids, new PiLinkVisitationContext());
-         if ( !activeLinkedProcessesRootOids.isEmpty())
-         {
-            // Further iterations shall ignore root PIs which have linked active PIs
-            ignoredRootPiOids.addAll(activeLinkedProcessesRootOids);
-
-            // log ignored pi oids
-            logInfo(
-                  "The following root process instances with links to active processes will be ignored: ",
-                  activeLinkedProcessesRootOids.iterator());
-
-            List tmpBatchRootPiOids = new ArrayList(stmtBatchRootPiOids);
-            tmpBatchRootPiOids.removeAll(activeLinkedProcessesRootOids);
-            // re-evaluate PI closure due to changed RootPIs
-            stmtBatchPiClosure = new ArrayList(resolvePiClosure(tmpBatchRootPiOids));
-         }
-
          if ( !stmtBatchPiClosure.isEmpty())
          {
             if (archive)
@@ -1076,208 +1329,6 @@ public class Archiver
          }
       }
       return nProcessInstances;
-   }
-
-   /**
-    * Traverses process instance hierarchies via links to check if there is any active
-    * linked root processes.
-    *
-    * @param rootPiOids the process instance root oids to check.
-    * @param lastLink
-    * @return the subset of input rootPiOids which still have active linked processes. Is empty if none are found.
-    */
-   private List<Long> findActiveLinkedProcesses(final List rootPiOids,
-         PiLinkVisitationContext visitationContext)
-   {
-      List<Long> rootWithStillActiveLinkedHierarchyOids = new LinkedList<Long>();
-      Set<Long> rootPiOidsSet = new TreeSet<Long>(rootPiOids);
-
-      // find PI oids which have a link to any of the rootOids.
-      QueryDescriptor qFindLinkedPis = QueryDescriptor.from(ProcessInstanceBean.class)
-            .select(ProcessInstanceBean.FIELD__OID)
-            .where(
-                  Predicates.inList(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE,
-                        rootPiOids));
-
-      qFindLinkedPis.innerJoin(ProcessInstanceLinkBean.class, "PIL_PI")
-            .on(ProcessInstanceBean.FR__OID,
-                  ProcessInstanceLinkBean.FIELD__PROCESS_INSTANCE)
-            .orOn(ProcessInstanceBean.FR__OID,
-                  ProcessInstanceLinkBean.FIELD__LINKED_PROCESS_INSTANCE);
-
-      ResultSet rsLinkedPis = session.executeQuery(qFindLinkedPis, Session.NO_TIMEOUT);
-      Set<Long> piOidsWithLinkToRoot = new HashSet<Long>();
-      try
-      {
-         while (rsLinkedPis.next())
-         {
-            long piOid = rsLinkedPis.getLong(1);
-            piOidsWithLinkToRoot.add(piOid);
-         }
-      }
-      catch (SQLException sqle)
-      {
-         throw new PublicException("Failed verifying preconditions.", sqle);
-      }
-      finally
-      {
-         QueryUtils.closeResultSet(rsLinkedPis);
-      }
-
-      // for each PI that has a link, retrieve link and check linked PI hierarchies for
-      // active root PIs.
-      for (Long linkedPiOid : piOidsWithLinkToRoot)
-      {
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Analyzing PIs linked to/from completed root process instances: "
-                  + piOidsWithLinkToRoot);
-         }
-         ResultIterator<IProcessInstanceLink> links = ProcessInstanceLinkBean.findAllForProcessInstance(linkedPiOid);
-         while (links.hasNext())
-         {
-            IProcessInstanceLink link = links.next();
-            IProcessInstance processInstanceRoot = link.getProcessInstance()
-                  .getRootProcessInstance();
-            IProcessInstance linkedProcessInstanceRoot = link.getLinkedProcessInstance()
-                  .getRootProcessInstance();
-
-            // type/createdDate ect. are not relevant to check if the link was visited.
-            Pair<Long, Long> linkKey = new Pair(link.getProcessInstanceOID(),
-                  link.getLinkedProcessInstanceOID());
-            if ( !visitationContext.getVisitedLinks().keySet().contains(linkKey))
-            {
-               visitationContext.getVisitedLinks().put(linkKey, null);
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug(linkKey + " is being visited.");
-               }
-
-               if (rootPiOidsSet.contains(processInstanceRoot.getOID())
-                     && !rootWithStillActiveLinkedHierarchyOids.contains(processInstanceRoot.getOID()))
-               {
-                  // the link is from the rootPI hierarchy to another hierarchy.
-                  boolean hasActiveLinkedRootPi = hasActiveLinkedRootPi(
-                        linkedProcessInstanceRoot, visitationContext);
-                  if (hasActiveLinkedRootPi)
-                  {
-                     rootWithStillActiveLinkedHierarchyOids.add(processInstanceRoot.getOID());
-                  }
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug(linkKey + " created : " + hasActiveLinkedRootPi);
-                  }
-                  visitationContext.getVisitedLinks().put(linkKey, hasActiveLinkedRootPi);
-               }
-               else if (rootPiOidsSet.contains(linkedProcessInstanceRoot.getOID())
-                     && !rootWithStillActiveLinkedHierarchyOids.contains(linkedProcessInstanceRoot.getOID()))
-               {
-                  // the link is from another hierarchy to the rootPI hierarchy.
-                  boolean hasActiveLinkedRootPi = hasActiveLinkedRootPi(
-                        processInstanceRoot, visitationContext);
-                  if (hasActiveLinkedRootPi)
-                  {
-                     rootWithStillActiveLinkedHierarchyOids.add(linkedProcessInstanceRoot.getOID());
-                  }
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug(linkKey + " created : " + hasActiveLinkedRootPi);
-                  }
-                  visitationContext.getVisitedLinks().put(linkKey, hasActiveLinkedRootPi);
-               }
-               else
-               {
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug(linkKey + " created : false");
-                  }
-                  visitationContext.getVisitedLinks().put(linkKey, false);
-               }
-            }
-            else
-            {
-               Boolean hasActiveLinkedRootPi = visitationContext.getVisitedLinks().get(
-                     linkKey);
-               if (hasActiveLinkedRootPi == null)
-               {
-                  // link is currently being evaluated.
-                  // this can happen if the links are cyclic.
-                  // no further evaluation of this link is allowed to prevent endless
-                  // loops.
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug(linkKey + " exists : ignoring backlink or cycle.");
-                  }
-               }
-               else if (hasActiveLinkedRootPi)
-               {
-                  // link is evaluated
-
-                  if (rootPiOidsSet.contains(processInstanceRoot.getOID())
-                        && !rootWithStillActiveLinkedHierarchyOids.contains(processInstanceRoot.getOID()))
-                  {
-                     rootWithStillActiveLinkedHierarchyOids.add(processInstanceRoot.getOID());
-                  }
-                  else if (rootPiOidsSet.contains(linkedProcessInstanceRoot.getOID())
-                        && !rootWithStillActiveLinkedHierarchyOids.contains(linkedProcessInstanceRoot.getOID()))
-
-                  {
-                     rootWithStillActiveLinkedHierarchyOids.add(linkedProcessInstanceRoot.getOID());
-                  }
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug(linkKey + " exists : " + hasActiveLinkedRootPi);
-                  }
-               }
-            }
-         }
-      }
-
-      return rootWithStillActiveLinkedHierarchyOids;
-   }
-
-   private class PiLinkVisitationContext
-   {
-      private Map<Pair<Long,Long>,Boolean> visitedLinks = new HashMap<Pair<Long,Long>, Boolean>();
-
-      public Map<Pair<Long, Long>, Boolean> getVisitedLinks()
-      {
-         return visitedLinks;
-      }
-
-      public void setVisitedLinks(Map<Pair<Long, Long>, Boolean> visitedLinks)
-      {
-         this.visitedLinks = visitedLinks;
-      }
-
-   }
-
-   /**
-    * Recursively traverses process instance hierarchies via links to check if there is any active
-    * linked root processes.
-    *
-    * @param processInstance the process instance to start at.
-    * @return true if a active linked root process instance was found.
-    */
-   private boolean hasActiveLinkedRootPi(IProcessInstance processInstance,
-         PiLinkVisitationContext visitationContext)
-   {
-      // check direct PI.
-      if ( !processInstance.isTerminated())
-      {
-         return true;
-      }
-
-      // recursion to traverse whole hierarchy of linked PIs.
-      List<Long> activeLinkedProcesses = findActiveLinkedProcesses(
-            Collections.singletonList(processInstance.getRootProcessInstanceOID()),
-            visitationContext);
-      if ( !activeLinkedProcesses.isEmpty())
-      {
-         return true;
-      }
-
-      return false;
    }
 
    private void logInfo(String message, Iterator<Long> iterator)
@@ -2109,9 +2160,12 @@ public class Archiver
       return result;
    }
 
-   private List/*<Long>*/ findModels(List rootPiOids)
+   /**
+    * finds distinct modelOids for given rootPiOids including modelOids of subprocesses.
+    */
+   private List<Long> findModels(List<Long> rootPiOids)
    {
-      List result = new ArrayList();
+      List<Long> result = new ArrayList<Long>();
 
       QueryDescriptor query = QueryDescriptor
             .from(srcSchema, ModelPersistorBean.class)
@@ -2123,7 +2177,8 @@ public class Archiver
          QueryDescriptor piSubQuery = QueryDescriptor
                .from(srcSchema, ProcessInstanceBean.class)
                .selectDistinct(ProcessInstanceBean.FIELD__MODEL)
-               .where(Predicates.inList(ProcessInstanceBean.FR__OID, rootPiOids));
+               .where(splitUpOidsSubList(rootPiOids,
+                     ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
 
          rs = session.executeQuery(query
                .where(Predicates

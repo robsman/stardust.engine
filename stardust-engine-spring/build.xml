@@ -31,7 +31,7 @@
    <property name="organizationId" value="com.infinity.bpm" />
    <property name="artifactId" value="carnot-spring" />
 
-   <import file="${project.dir}/../../../buildtools/build-commons.xml" />
+   <import file="${project.dir}/../../build.tools/commons-build.xml" />
 
    <target name="initOnDevelopment" if="setup.development">
       <echo message="Performing a development build ..." />
@@ -182,4 +182,16 @@
    </target>
 
    <target name="deploy" depends="build" />
+
+   <target name="install" depends="deploy" if="maven.localRepository"
+     description="installs the artifacts into a local Maven repository">
+     <ipp:init-mvn />
+      <ipp:init-mvn />
+      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
+         <arg value="install:install-file"/>
+         <arg value="-Dfile=${carnot-spring.jar}"/>
+         <arg value="-DpomFile=${build.lib}/carnot-spring.pom"/>
+         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
+      </exec>
+   </target>
 </project>

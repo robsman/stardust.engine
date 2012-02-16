@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.eclipse.stardust.engine</groupId>
+  <artifactId>stardust-engine-spring</artifactId>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>org.eclipse.stardust</groupId>
+    <artifactId>stardust-parent</artifactId>
+    <version>9.9.9-SNAPSHOT</version>
+    <relativePath>../../org.eclipse.stardust/org.eclipse.stardust-parent/pom.xml</relativePath>
+  </parent>
+
+  <properties>
+    <maven.test.skip>true</maven.test.skip>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>clean</id>
+            <phase>clean</phase>
+            <configuration>
+              <target>
+                <ant antfile="build.xml" dir="${basedir}" target="clean">
+                  <property name="ipp.version.full" value="${ipp.version}"/>
+                </ant>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>compile</id>
+            <phase>compile</phase>
+            <configuration>
+              <target>
+                <ant antfile="build.xml" dir="${basedir}" target="compile">
+                  <property name="ipp.version.full" value="${ipp.version}"/>
+                </ant>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>package</id>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <ant antfile="build.xml" dir="${basedir}" target="install">
+                  <property name="ipp.version.full" value="${ipp.version}"/>
+                  <property name="maven.localRepository" value="${settings.localRepository}"/>
+                </ant>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>

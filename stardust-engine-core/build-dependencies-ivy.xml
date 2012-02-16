@@ -27,6 +27,7 @@
       	<path refid="carnot-engine.compile" />
       	<path refid="carnot-engine.provided" />
          <path refid="carnot-engine.compile.optional" />
+         <path refid="eclipse.classpath" />
       </path>
 
       <path id="secret.classpath">
@@ -84,12 +85,51 @@
 
       <ivy:retrieve pattern="${build.lib}/integration-jars/[artifact].[ext]"
                conf="integration-jars"/>
-      <property name="emf-common.jar" location="${build.lib}/integration-jars/org.eclipse.emf.common.jar"/>
-      <property name="emf-ecore.jar" location="${build.lib}/integration-jars/org.eclipse.emf.ecore.jar"/>
-      <property name="emf-ecore-xmi.jar" location="${build.lib}/integration-jars/org.eclipse.emf.ecore.xmi.jar"/>
-      <property name="emf-xsd.jar" location="${build.lib}/integration-jars/org.eclipse.xsd.jar"/>
-      <property name="emf-xsd-schema-cache.jar" location="${build.lib}/integration-jars/emf-xsd-schema-cache.jar"/>
-      <property name="js.jar" location="${build.lib}/integration-jars/js.jar"/>
+      
+      <property name="integration-jars.dir" value="${build.lib}/integration-jars"/>
+      
+      <unzip dest="${integration-jars.dir}" src="${integration-jars.dir}/emf-runtime.zip">
+         <patternset>
+            <include name="eclipse/plugins/org.eclipse.emf.common_*"/>
+            <include name="eclipse/plugins/org.eclipse.emf.ecore_*"/>
+            <include name="eclipse/plugins/org.eclipse.emf.ecore.xmi_*"/>
+         </patternset>
+         <mapper type="flatten"/>
+      </unzip>
+      <move tofile="${integration-jars.dir}/org.eclipse.emf.common.jar">
+         <fileset dir="${integration-jars.dir}" includes="org.eclipse.emf.common_*"/>
+      </move>
+      <move tofile="${integration-jars.dir}/org.eclipse.emf.ecore.jar">
+         <fileset dir="${integration-jars.dir}" includes="org.eclipse.emf.ecore_*"/>
+      </move>
+      <move tofile="${integration-jars.dir}/org.eclipse.emf.ecore.xmi.jar">
+         <fileset dir="${integration-jars.dir}" includes="org.eclipse.emf.ecore.xmi_*"/>
+      </move>
+      
+      <unzip dest="${integration-jars.dir}" src="${integration-jars.dir}/xsd-runtime.zip">
+         <patternset>
+            <include name="eclipse/plugins/org.eclipse.xsd_*"/>
+         </patternset>
+         <mapper type="flatten"/>
+      </unzip>
+      <move tofile="${integration-jars.dir}/org.eclipse.xsd.jar">
+         <fileset dir="${integration-jars.dir}" includes="org.eclipse.xsd_*"/>
+      </move>
+      
+      <property name="emf-common.jar" location="${integration-jars.dir}/org.eclipse.emf.common.jar"/>
+      <property name="emf-ecore.jar" location="${integration-jars.dir}/org.eclipse.emf.ecore.jar"/>
+      <property name="emf-ecore-xmi.jar" location="${integration-jars.dir}/org.eclipse.emf.ecore.xmi.jar"/>
+      <property name="emf-xsd.jar" location="${integration-jars.dir}/org.eclipse.xsd.jar"/>
+      <property name="emf-xsd-schema-cache.jar" location="${integration-jars.dir}/emf-xsd-schema-cache.jar"/>
+      
+      <path id="eclipse.classpath">
+         <pathelement path="${emf-common.jar}"/>
+         <pathelement path="${emf-ecore.jar}"/>
+         <pathelement path="${emf-ecore-xmi.jar}"/>
+         <pathelement path="${emf-xsd.jar}"/>
+      </path>
+      
+      <property name="js.jar" location="${integration-jars.dir}/js.jar"/>
       
       <ivy:cachepath pathid="test" conf="test" />
       <ivy:cachepath pathid="run.test" conf="run-test, base-provider-runtime" />
@@ -123,7 +163,7 @@
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/ext/[artifact]-[revision].[ext]"
          conf="base-provider-runtime,ejb21-interface-provided,jta-interface-compile,qdox-provider-compile,jms-interface-runtime" />
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/spring/[artifact]-[revision].[ext]"
-         conf="jencks-provider-runtime,snowdrop-provider-runtime" />
+         conf="jencks-provider-runtime" />
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/dms/[artifact]-[revision].[ext]"
          conf="jackrabbit-webapp-provider-runtime,jackrabbit-provider-runtime" />
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/jms/[artifact]-[revision].[ext]"
@@ -142,30 +182,6 @@
       </ivy:publish>
       <ivy:report todir="${build.dir}/report/ivy" />
       
-      <!-- retrieve dependencies for resolved Ivy: module-ivy.xml -->
-      <!--
-      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
-         pattern="${build.lib}/[artifact]-[revision].[ext]"
-         conf="base-module-compile,base-module-runtime,swing-client-module-compile,logging-log4j-module-compile,
-            2nd-level-cache-hazelcast-module-compile,jcr-api-module-compile,jcr-vfs-module-compile,web-client-module-provided,
-            web-client-module-runtime,ant-module-runtime,logging-slf4j-log4j-module-compile" />
-      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
-         pattern="${build.lib}/ext/[artifact]-[revision].[ext]"
-         conf="base-module-runtime,ejb21-module-runtime,jta-jencks-module-compile,qdox-module-compile" />
-      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
-         pattern="${build.lib}/spring/[artifact]-[revision].[ext]"
-         conf="jta-jencks-module-runtime,snowdrop-module-runtime" />
-      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
-         pattern="${build.lib}/jms/[artifact]-[revision].[ext]"
-         conf="jms-activemq-module-runtime" />
-      <ivy:retrieve file="${build.lib}/module-ivy.xml" 
-         pattern="${build.lib}/dms/[artifact]-[revision].[ext]"
-         conf="jcr-jackrabbit-webapp-module-runtime,jcr-jackrabbit-module-runtime" />
-      <ivy:retrieve file="${build.lib}/module-ivy.xml" pattern="${build.lib}/misc/[artifact]-[revision].[ext]"
-         conf="xerces-module-runtime" />
-      -->
-      
-
       <antcall target="-polish-up-dependencies"/>
    </target>
 

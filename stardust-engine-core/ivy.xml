@@ -138,21 +138,18 @@
       <!-- ************** -->
       <!--    Internal    -->
       <!-- ************** -->
-      <!-- compile-secret -->
-      <dependency org="org.eclipse.xsd" name="xsd" rev="2.4.2" conf="compile-secret->default" />
-      <dependency org="org.eclipse.emf" name="common" rev="2.4.0" conf="compile-secret->default" />
-      <dependency org="org.eclipse.emf" name="ecore" rev="2.4.2" conf="compile-secret->default" />
-      <dependency org="org.eclipse.emf" name="ecore-xmi" rev="2.4.1" conf="compile-secret->default" />
-
       <!-- build-lib -->
       <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="build-lib->default">
          <exclude org="xml-apis" module="xml-apis" />
       </dependency>
       
-      <dependency org="org.eclipse.emf" name="org.eclipse.emf.common" rev="2.6.0.v20100914-1218" transitive="false" conf="integration-jars->default"/>
-      <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore" rev="2.6.1.v20100914-1218" transitive="false" conf="integration-jars->default"/>
-      <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore.xmi" rev="2.5.0.v20100521-1846" transitive="false" conf="integration-jars->default"/>
-      <dependency org="org.eclipse.xsd" name="org.eclipse.xsd" rev="2.6.0.v20100914-1218" transitive="false" conf="integration-jars->default"/>
+      <dependency org="org.eclipse.emf" name="emf-runtime" rev="2.6.1" transitive="false" conf="integration-jars->default">
+         <artifact type="zip" name="emf-runtime"/>
+      </dependency>
+      <dependency org="org.eclipse.xsd" name="xsd-runtime" rev="2.6.1" transitive="false" conf="integration-jars->default">
+         <artifact type="zip" name="xsd-runtime"/>
+      </dependency>
+      
       <dependency org="com.infinity.bpm.3rdparty" name="emf-xsd-schema-cache" rev="1.0" transitive="false" conf="integration-jars->default"/>
 
       <dependency org="com.googlecode.jarjar" name="jarjar" rev="1.1" conf="ant-build-runtime->default"/>

@@ -18,7 +18,6 @@
 
 <project name="carnot-engine" default="deploy" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
 
-   <import file="../../../buildtools/build-commons.xml" />
 
    <property name="project.dir" location="${basedir}" />
    <property name="project.etc" value="${project.dir}/etc" />
@@ -29,6 +28,7 @@
    <property name="project.test.res" location="${project.test}/resources" />
 
    <property file="${project.etc}/private.properties" />
+   <import file="../../build.tools/commons-build.xml" />
 
    <property name="build.dir" value="build" />
 
@@ -154,321 +154,6 @@
          <fileset dir="${build.classes}" id="fileset.carnot.dms.jar">
             <include name="ag/carnot/bpm/integration/dms/**/*.class" />
             <include name="ag/carnot/bpm/rt/integration/dms/**/*.class" />
-         </fileset>
-      </ipp:jar>
-      <ipp:jar jarfile="${carnot.public.jar}" implementationTitle="Infinity Process Engine - Public">
-         <fileset dir="${build.classes}" id="fileset.carnot.public.jar">
-            <include name="org/eclipse/stardust/common/DateUtils.class" />
-            <include name="org/eclipse/stardust/common/Direction.class" />
-            <include name="org/eclipse/stardust/common/Flushable.class" />
-            <include name="org/eclipse/stardust/common/IntKey.class" />
-            <!-- todo: rework that class before including again to javadoc -->
-            <!--include name="org/eclipse/stardust/common/Money.class"/-->
-            <include name="org/eclipse/stardust/common/Pair.class" />
-            <include name="org/eclipse/stardust/common/Period.class" />
-            <include name="org/eclipse/stardust/common/StringKey.class" />
-            <include name="org/eclipse/stardust/common/log/Category.class" />
-            <include name="org/eclipse/stardust/common/log/LogManager.class" />
-            <include name="org/eclipse/stardust/common/log/Logger.class" />
-            <include name="ag/carnot/db/Operator.class" />
-            <include name="org/eclipse/stardust/common/error/AccessForbiddenException.class" />
-            <include name="org/eclipse/stardust/common/error/ApplicationException.class" />
-            <include name="org/eclipse/stardust/common/error/ConcurrencyException.class" />
-            <include name="org/eclipse/stardust/common/error/ErrorCase.class" />
-            <include name="org/eclipse/stardust/common/error/InternalException.class" />
-            <include name="org/eclipse/stardust/common/error/InvalidArgumentException.class" />
-            <include name="org/eclipse/stardust/common/error/InvalidValueException.class" />
-            <include name="org/eclipse/stardust/common/error/ObjectNotFoundException.class" />
-            <include name="org/eclipse/stardust/common/error/PublicException.class" />
-
-            <include name="org/eclipse/stardust/common/security/InvalidPasswordException.class" />
-            <include name="org/eclipse/stardust/common/security/authentication/ConsoleCallbackHandler.class" />
-            <include name="org/eclipse/stardust/common/security/authentication/ConsolePrompt.class" />
-            <include name="org/eclipse/stardust/common/security/authentication/DefaultCallbackHandler.class" />
-            <include name="org/eclipse/stardust/common/security/authentication/GUICallbackHandler.class" />
-            <include name="org/eclipse/stardust/common/security/authentication/LoginDialog.class" />
-            <include name="org/eclipse/stardust/common/security/authentication/LoginFailedException.class" />
-
-            <include name="ag/carnot/web/ServiceFactoryLocator.class" />
-
-            <include name="ag/carnot/workflow/ejb/EjbEnvServiceFactory.class" />
-            <include name="ag/carnot/workflow/ejb/ServiceFactoryLocator.class" />
-            <include name="ag/carnot/workflow/ejb/WorkflowException.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteAdministrationService.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteAdministrationServiceHome.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteWorkflowService.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteWorkflowServiceHome.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteDocumentManagementService.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteDocumentManagementServiceHome.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteQueryService.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteQueryServiceHome.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteUserService.class" />
-            <include name="ag/carnot/workflow/ejb/RemoteUserServiceHome.class" />
-
-            <include name="ag/carnot/workflow/ejb/LocalAdministrationService.class" />
-            <include name="ag/carnot/workflow/ejb/LocalAdministrationServiceHome.class" />
-            <include name="ag/carnot/workflow/ejb/LocalWorkflowService.class" />
-            <include name="ag/carnot/workflow/ejb/LocalWorkflowServiceHome.class" />
-            <include name="ag/carnot/workflow/ejb/LocalDocumentManagementService.class" />
-            <include name="ag/carnot/workflow/ejb/LocalDocumentManagementServiceHome.class" />
-            <include name="ag/carnot/workflow/ejb/LocalQueryService.class" />
-            <include name="ag/carnot/workflow/ejb/LocalQueryServiceHome.class" />
-            <include name="ag/carnot/workflow/ejb/LocalUserService.class" />
-            <include name="ag/carnot/workflow/ejb/LocalUserServiceHome.class" />
-
-            <include name="ag/carnot/workflow/model/AccessPoint.class" />
-            <include name="ag/carnot/workflow/model/Activity.class" />
-            <include name="ag/carnot/workflow/model/ApplicationContext.class" />
-            <include name="ag/carnot/workflow/model/Application.class" />
-            <include name="ag/carnot/workflow/model/ConditionalPerformer.class" />
-            <include name="ag/carnot/workflow/model/ConditionalPerformerInfo.class" />
-            <include name="ag/carnot/workflow/model/ContextData.class" />
-            <include name="ag/carnot/workflow/model/Data.class" />
-            <include name="ag/carnot/workflow/model/DataMapping.class" />
-            <include name="ag/carnot/workflow/model/DataPath.class" />
-            <include name="ag/carnot/workflow/model/DynamicParticipant.class" />
-            <include name="ag/carnot/workflow/model/DynamicParticipantInfo.class" />
-            <include name="ag/carnot/workflow/model/EventAction.class" />
-            <include name="ag/carnot/workflow/model/EventAware.class" />
-            <include name="ag/carnot/workflow/model/EventHandler.class" />
-            <include name="ag/carnot/workflow/model/FormalParameter.class" />
-            <include name="ag/carnot/workflow/model/ImplementationType.class" />
-            <include name="ag/carnot/workflow/model/Inconsistency.class" />
-            <include name="ag/carnot/workflow/model/Model.class" />
-            <include name="ag/carnot/workflow/model/ModelElement.class" />
-            <include name="ag/carnot/workflow/model/ModelParticipant.class" />
-            <include name="ag/carnot/workflow/model/ModelParticipantInfo.class" />
-            <include name="ag/carnot/workflow/model/Organization.class" />
-            <include name="ag/carnot/workflow/model/OrganizationInfo.class" />
-            <include name="ag/carnot/workflow/model/ParameterMapping.class" />
-            <include name="ag/carnot/workflow/model/Participant.class" />
-            <include name="ag/carnot/workflow/model/ParticipantInfo.class" />
-            <include name="ag/carnot/workflow/model/ParticipantType.class" />
-            <include name="ag/carnot/workflow/model/PredefinedConstants.class" />
-            <include name="ag/carnot/workflow/model/ProcessDefinition.class" />
-            <include name="ag/carnot/workflow/model/ProcessInterface.class" />
-            <include name="ag/carnot/workflow/model/ProfileScope.class" />
-            <include name="ag/carnot/workflow/model/Role.class" />
-            <include name="ag/carnot/workflow/model/RoleInfo.class" />
-            <include name="ag/carnot/workflow/model/SubProcessModeKey.class" />
-            <include name="ag/carnot/workflow/model/Trigger.class" />
-            <include name="ag/carnot/workflow/model/TypeDeclaration.class" />
-            <include name="ag/carnot/workflow/model/XpdlType.class" />
-
-            <include name="ag/carnot/workflow/runtime/AcknowledgementState.class" />
-            <include name="ag/carnot/workflow/runtime/ActivityCompletionLog.class" />
-            <include name="ag/carnot/workflow/runtime/ActivityInstance.class" />
-            <include name="ag/carnot/workflow/runtime/ActivityInstanceState.class" />
-            <include name="ag/carnot/workflow/runtime/AdministrationService.class" />
-            <include name="ag/carnot/workflow/runtime/AuditTrailHealthReport.class" />
-            <include name="ag/carnot/workflow/runtime/BindingException.class" />
-            <include name="ag/carnot/workflow/runtime/Daemon.class" />
-            <include name="ag/carnot/workflow/runtime/DaemonExecutionState.class" />
-            <include name="ag/carnot/workflow/runtime/Department.class" />
-            <include name="ag/carnot/workflow/runtime/DepartmentExistsException.class" />
-            <include name="ag/carnot/workflow/runtime/DepartmentInfo.class" />
-            <include name="ag/carnot/workflow/runtime/DeployedModel.class" />
-            <include name="ag/carnot/workflow/runtime/DeployedModelDescription.class" />
-            <include name="ag/carnot/workflow/runtime/DeploymentElement.class" />
-            <include name="ag/carnot/workflow/runtime/DeploymentException.class" />
-            <include name="ag/carnot/workflow/runtime/DeploymentInfo.class" />
-            <include name="ag/carnot/workflow/runtime/DeploymentOptions.class" />
-            <include name="ag/carnot/workflow/runtime/Document.class" />
-            <include name="ag/carnot/workflow/runtime/Documents.class" />
-            <include name="ag/carnot/workflow/runtime/DocumentManagementService.class" />
-            <include name="ag/carnot/workflow/runtime/EventActionBinding.class" />
-            <include name="ag/carnot/workflow/runtime/EventHandlerBinding.class" />
-            <include name="ag/carnot/workflow/runtime/Grant.class" />
-            <include name="ag/carnot/workflow/runtime/HistoricalEvent.class" />
-            <include name="ag/carnot/workflow/runtime/HistoricalEventDescription.class" />
-            <include name="ag/carnot/workflow/runtime/HistoricalEventDescriptionDelegation.class" />
-            <include name="ag/carnot/workflow/runtime/HistoricalEventDescriptionStateChange.class" />
-            <include name="ag/carnot/workflow/runtime/HistoricalEventType.class" />
-            <include name="ag/carnot/workflow/runtime/IllegalOperationException.class" />
-            <include name="ag/carnot/workflow/runtime/IllegalStateChangeException.class" />
-            <include name="ag/carnot/workflow/runtime/ImplementationDescription.class" />
-            <include name="ag/carnot/workflow/runtime/LogCode.class" />
-            <include name="ag/carnot/workflow/runtime/LogEntry.class" />
-            <include name="ag/carnot/workflow/runtime/LogType.class" />
-            <include name="ag/carnot/workflow/runtime/Mail.class" />
-            <include name="ag/carnot/workflow/runtime/ModelReconfigurationInfo.class" />
-            <include name="ag/carnot/workflow/runtime/Models.class" />
-            <include name="ag/carnot/workflow/runtime/PasswordRules.class" />
-            <include name="ag/carnot/workflow/runtime/Permission.class" />
-            <include name="ag/carnot/workflow/runtime/PermissionState.class" />
-            <include name="ag/carnot/workflow/runtime/RuntimePermissions.class" />
-            <include name="ag/carnot/workflow/runtime/ProcessInstance.class" />
-            <include name="ag/carnot/workflow/runtime/ProcessInstanceLinkType.class" />
-            <include name="ag/carnot/workflow/runtime/ProcessInstancePriority.class" />
-            <include name="ag/carnot/workflow/runtime/ProcessInstanceState.class" />
-            <include name="ag/carnot/workflow/runtime/QueryService.class" />
-            <include name="ag/carnot/workflow/runtime/ReconfigurationInfo.class" />
-            <include name="ag/carnot/workflow/runtime/RepositoryMigrationJobInfo.class" />
-            <include name="ag/carnot/workflow/runtime/RepositoryMigrationReport.class" />
-            <include name="ag/carnot/workflow/runtime/RuntimeEnvironmentInfo.class" />
-            <include name="ag/carnot/workflow/runtime/RuntimeObject.class" />
-            <include name="ag/carnot/workflow/runtime/Scope.class" />
-            <include name="ag/carnot/workflow/runtime/ServiceFactory.class" />
-            <include name="ag/carnot/workflow/runtime/ServiceFactoryLocator.class" />
-            <include name="ag/carnot/workflow/runtime/ServiceNotAvailableException.class" />
-            <include name="ag/carnot/workflow/runtime/SubprocessSpawnInfo.class" />
-            <include name="ag/carnot/workflow/runtime/User.class" />
-            <include name="ag/carnot/workflow/runtime/UserExistsException.class" />
-            <include name="ag/carnot/workflow/runtime/UserGroup.class" />
-            <include name="ag/carnot/workflow/runtime/UserGroupExistsException.class" />
-            <include name="ag/carnot/workflow/runtime/UserGroupInfo.class" />
-            <include name="ag/carnot/workflow/runtime/UserInfo.class" />
-            <include name="ag/carnot/workflow/runtime/UserRealm.class" />
-            <include name="ag/carnot/workflow/runtime/UserService.class" />
-            <include name="ag/carnot/workflow/runtime/WorkflowService.class" />
-
-            <include name="ag/carnot/workflow/runtime/beans/AbortScope.class" />
-            <include name="ag/carnot/workflow/runtime/beans/DocumentTypeUtils.class" />
-            <include name="ag/carnot/workflow/runtime/beans/EmbeddedServiceFactory.class" />
-
-            <include name="ag/carnot/workflow/runtime/details/ContextKind.class" />
-            <include name="ag/carnot/workflow/runtime/details/HistoricalState.class" />
-            <include name="ag/carnot/workflow/runtime/details/Note.class" />
-            <include name="ag/carnot/workflow/runtime/details/ProcessInstanceAttributes.class" />
-            <include name="ag/carnot/workflow/runtime/details/ProcessInstanceDetails.class" />
-            <include name="ag/carnot/workflow/runtime/details/ProcessInstanceDetailsLevel.class" />
-            <include name="ag/carnot/workflow/runtime/details/ProcessInstanceDetailsOptions.class" />
-            <include name="ag/carnot/workflow/runtime/details/RuntimeEnvironmentInfoDetails.class" />
-            <include name="ag/carnot/workflow/runtime/details/UserDetailsLevel.class" />
-
-            <include name="ag/carnot/workflow/runtime/utils/ParticipantInfoUtil.class" />
-            <include name="ag/carnot/workflow/runtime/utils/PermissionHelper.class" />
-            <include name="ag/carnot/workflow/runtime/utils/ExecutionPermission.class" />
-
-            <include name="ag/carnot/workflow/query/AbstractQueryResult.class" />
-            <include name="ag/carnot/workflow/query/ActivityFilter.class" />
-            <include name="ag/carnot/workflow/query/ActivityInstanceFilter.class" />
-            <include name="ag/carnot/workflow/query/ActivityInstances.class" />
-            <include name="ag/carnot/workflow/query/ActivityStateFilter.class" />
-            <include name="ag/carnot/workflow/query/ActivityInstanceQuery.class" />
-            <include name="ag/carnot/workflow/query/AttributeOrder.class" />
-            <include name="ag/carnot/workflow/query/AttributedScopedFilter.class" />
-            <include name="ag/carnot/workflow/query/BinaryOperatorFilter.class" />
-            <include name="ag/carnot/workflow/query/CasePolicy.class" />
-            <include name="ag/carnot/workflow/query/DataFilter.class" />
-            <include name="ag/carnot/workflow/query/DataQuery.class" />
-            <include name="ag/carnot/workflow/query/DataOrder.class" />
-            <include name="ag/carnot/workflow/query/DeployedModelQuery.class" />
-            <include name="ag/carnot/workflow/query/EvaluationPolicy.class" />
-            <include name="ag/carnot/workflow/query/FilterAndTerm.class" />
-            <include name="ag/carnot/workflow/query/FilterCriterion.class" />
-            <include name="ag/carnot/workflow/query/FilterEvaluationVisitor.class" />
-            <include name="ag/carnot/workflow/query/FilterOrTerm.class" />
-            <include name="ag/carnot/workflow/query/FilterTerm.class" />
-            <include name="ag/carnot/workflow/query/FilterVerifier.class" />
-            <include name="ag/carnot/workflow/query/FilterableAttribute.class" />
-            <include name="ag/carnot/workflow/query/HistoricalEventPolicy.class" />
-            <include name="ag/carnot/workflow/query/HistoricalStatesPolicy.class" />
-            <include name="ag/carnot/workflow/query/LinkDirection.class" />
-            <include name="ag/carnot/workflow/query/LogEntryQuery.class" />
-            <include name="ag/carnot/workflow/query/LogEntries.class" />
-            <include name="ag/carnot/workflow/query/ModelVersionPolicy.class" />
-            <include name="ag/carnot/workflow/query/OrderCriteria.class" />
-            <include name="ag/carnot/workflow/query/OrderCriterion.class" />
-            <include name="ag/carnot/workflow/query/OrderEvaluationVisitor.class" />
-            <include name="ag/carnot/workflow/query/ParticipantAssociationFilter.class" />
-            <include name="ag/carnot/workflow/query/ParticipantGrantFilter.class" />
-            <include name="ag/carnot/workflow/query/ParticipantWorklist.class" />
-            <include name="ag/carnot/workflow/query/PerformedByUserFilter.class" />
-            <include name="ag/carnot/workflow/query/PerformingParticipantFilter.class" />
-            <include name="ag/carnot/workflow/query/PerformingOnBehalfOfFilter.class" />
-            <include name="ag/carnot/workflow/query/PerformingUserFilter.class" />
-            <include name="ag/carnot/workflow/query/PreferenceQuery.class" />
-            <include name="ag/carnot/workflow/query/ProcessDefinitionFilter.class" />
-            <include name="ag/carnot/workflow/query/ProcessDefinitionQuery.class" />
-            <include name="ag/carnot/workflow/query/ProcessInstanceDetailsPolicy.class" />
-            <include name="ag/carnot/workflow/query/ProcessInstanceFilter.class" />
-            <include name="ag/carnot/workflow/query/ProcessInstanceHierarchyFilter.class" />
-            <include name="ag/carnot/workflow/query/ProcessInstanceQuery.class" />
-            <include name="ag/carnot/workflow/query/ProcessInstances.class" />
-            <include name="ag/carnot/workflow/query/ProcessStateFilter.class" />
-            <include name="ag/carnot/workflow/query/Query.class" />
-            <include name="ag/carnot/workflow/query/QueryResult.class" />
-            <include name="ag/carnot/workflow/query/ScopedFilter.class" />
-            <include name="ag/carnot/workflow/query/StartingUserFilter.class" />
-            <include name="ag/carnot/workflow/query/SubsetPolicy.class" />
-            <include name="ag/carnot/workflow/query/TernaryOperatorFilter.class" />
-            <include name="ag/carnot/workflow/query/TimeoutPolicy.class" />
-            <include name="ag/carnot/workflow/query/UnaryOperatorFilter.class" />
-            <include name="ag/carnot/workflow/query/UnsupportedFilterException.class" />
-            <include name="ag/carnot/workflow/query/UserGroupQuery.class" />
-            <include name="ag/carnot/workflow/query/UserGroups.class" />
-            <include name="ag/carnot/workflow/query/UserQuery.class" />
-            <include name="ag/carnot/workflow/query/UserStateFilter.class" />
-            <include name="ag/carnot/workflow/query/UserWorklist.class" />
-            <include name="ag/carnot/workflow/query/Users.class" />
-            <include name="ag/carnot/workflow/query/Worklist.class" />
-            <include name="ag/carnot/workflow/query/WorklistQuery.class" />
-
-            <include name="ag/carnot/workflow/spi/model/AccessPoint.class" />
-            <include name="ag/carnot/workflow/spi/model/AccessPointProvider.class" />
-            <include name="ag/carnot/workflow/spi/model/ApplicationContextValidator.class" />
-            <include name="ag/carnot/workflow/spi/model/ApplicationValidator.class" />
-            <include name="ag/carnot/workflow/spi/model/BridgeObject.class" />
-            <include name="ag/carnot/workflow/spi/model/DataValidator.class" />
-            <include name="ag/carnot/workflow/spi/model/gui/AccessPathEditor.class" />
-            <include name="ag/carnot/workflow/spi/model/gui/ApplicationContextPropertiesPanel.class" />
-            <include name="ag/carnot/workflow/spi/model/gui/ApplicationPropertiesPanel.class" />
-            <include name="ag/carnot/workflow/spi/model/gui/DataPropertiesPanel.class" />
-            <include name="ag/carnot/workflow/spi/model/gui/EventActionPropertiesPanel.class" />
-            <include name="ag/carnot/workflow/spi/runtime/AccessPathEvaluator.class" />
-            <include name="ag/carnot/workflow/spi/runtime/ApplicationInstance.class" />
-            <include name="ag/carnot/workflow/spi/runtime/AsynchronousApplicationInstance.class" />
-            <include name="ag/carnot/workflow/spi/runtime/Event.class" />
-            <include name="ag/carnot/workflow/spi/runtime/EventActionInstance.class" />
-            <include name="ag/carnot/workflow/spi/runtime/SynchronousApplicationInstance.class" />
-            <include name="ag/carnot/workflow/spi/runtime/UnrecoverableExecutionException.class" />
-
-            <include name="ag/carnot/workflow/spi/security/DynamicParticipantSynchronizationProvider.class" />
-            <include name="ag/carnot/workflow/spi/security/DynamicParticipantSynchronizationStrategy.class" />
-            <include name="ag/carnot/workflow/spi/security/ExternalDepartmentConfiguration.class" />
-            <include name="ag/carnot/workflow/spi/security/ExternalLoginProvider.class" />
-            <include name="ag/carnot/workflow/spi/security/ExternalLoginResult.class" />
-            <include name="ag/carnot/workflow/spi/security/ExternalUserConfiguration.class" />
-            <include name="ag/carnot/workflow/spi/security/ExternalUserGroupConfiguration.class" />
-            <include name="ag/carnot/workflow/spi/security/LoginResult.class" />
-            <include name="ag/carnot/workflow/spi/security/LoginProvider.class" />
-            <include name="ag/carnot/workflow/spi/security/SynchronizationProvider.class" />
-            <include name="ag/carnot/workflow/spi/security/SynchronizationStrategy.class" />
-
-            <include name="ag/carnot/workflow/spi/security/TimebasedSynchronizationStrategy.class" />
-
-            <include name="com/infinity/bpm/rt/integration/data/dms/DmsConstants.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/DmsDocumentBean.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/DmsPrincipal.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/DocumentType.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/DocumentAnnotations.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/Highlight.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/HighlightCapable.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/Identifiable.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/Note.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/NoteCapable.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/PageAnnotation.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/PageBookmark.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/PageBookmarkable.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/PageOrientation.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/PageOrientationAware.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/PageSequenceAware.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/PrintDocumentAnnotations.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/Stamp.class" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/annotations/printdocument/StampAware.class" />
-            <include name="com/infinity/bpm/rt/monitoring/IProcessExecutionMonitor.class" />
-            <include name="com/infinity/bpm/rt/monitoring/IWorklistMonitor.class" />
-            <include name="com/infinity/bpm/rt/preferences/configurationvariables/ConfigurationVariable.class" />
-            <include name="com/infinity/bpm/rt/preferences/configurationvariables/ConfigurationVariables.class" />
-            <include name="com/infinity/bpm/rt/preferences/permissions/GlobalPermissionConstants.class" />
-            <include name="com/infinity/bpm/rt/preferences/Preferences.class" />
-            <include name="com/infinity/bpm/rt/preferences/PreferenceScope.class" />
-            <include name="com/infinity/bpm/rt/preferences/IStaticConfigurationProvider.class" />
-
-            <include name="com/infinity/bpm/ui/preferences/IStaticConfigurationProvider.class" />
-
-            <include name="com/infinity/bpm/web/dms/DmsContentServlet.class" />
          </fileset>
       </ipp:jar>
       <copy todir="${build.lib}" file="${carnot.engine.jar}" />
@@ -738,18 +423,10 @@
       <property name="carnot.emf.xsd.integration.src-jarfile" value="carnot-emf-xsd-integration-src.jar" />
       <property name="carnot.emf.xsd.integration.src-jar" location="${build.src}/${carnot.emf.xsd.integration.src-jarfile}" />
 
-
       <property name="carnot.dms.jarfile" value="carnot-dms.jar" />
       <property name="carnot.dms.jar" location="${build.lib}/${carnot.dms.jarfile}" />
       <property name="carnot.dms.src-jarfile" value="carnot-dms-src.jar" />
       <property name="carnot.dms.src-jar" location="${build.src}/${carnot.dms.src-jarfile}" />
-
-
-      <property name="carnot.public.jarfile" value="carnot-public.jar" />
-      <property name="carnot.public.jar" location="${build.lib}/${carnot.public.jarfile}" />
-      <property name="carnot.public.src-jarfile" value="carnot-public-src.jar" />
-      <property name="carnot.public.src-jar" location="${build.src}/${carnot.public.src-jarfile}" />
-
    </target>
 
    <import file="build-dependencies-${dependencies.mode}.xml" />
@@ -1010,6 +687,42 @@
 
    <target name="deploy" depends="build, deploy.src, deploy.classes"
       description="makes a deployable version of the kernel" />
+
+   <target name="install" depends="deploy" if="maven.localRepository"
+      description="installs the artifacts into a local Maven repository">
+      <ipp:init-mvn />
+      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
+         <arg value="install:install-file"/>
+         <arg value="-Dfile=${carnot.base.jar}"/>
+         <arg value="-DpomFile=${build.lib}/carnot-base.pom"/>
+         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
+      </exec>
+      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
+         <arg value="install:install-file"/>
+         <arg value="-Dfile=${carnot.engine.jar}"/>
+         <arg value="-DpomFile=${build.lib}/carnot-engine.pom"/>
+         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
+      </exec>
+      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
+         <arg value="install:install-file"/>
+         <arg value="-Dfile=${carnot.client.jar}"/>
+         <arg value="-DpomFile=${build.lib}/carnot-client.pom"/>
+         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
+      </exec>
+      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
+         <arg value="install:install-file"/>
+         <arg value="-Dfile=${carnot.dms.jar}"/>
+         <arg value="-DpomFile=${build.lib}/carnot-dms.pom"/>
+         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
+      </exec>
+      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
+         <arg value="install:install-file"/>
+         <arg value="-Dfile=${carnot.emf.xsd.integration.jar}"/>
+         <arg value="-DpomFile=${build.lib}/carnot-emf-xsd-integration.pom"/>
+         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
+      </exec>
+
+   </target>
 
    <target name="clean" depends="init" description="removes all build results">
       <delete dir="${build.dir}" />

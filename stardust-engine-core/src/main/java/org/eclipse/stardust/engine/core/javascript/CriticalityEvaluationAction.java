@@ -153,9 +153,12 @@ public class CriticalityEvaluationAction implements ContextAction
       }
       else
       {
-         trace.warn("The model with OID <"
+         if (trace.isDebugEnabled())
+         {
+         trace.debug("The model with OID <"
                + aiBean.getActivity().getModel().getOID()
                + "> does not provide a criticality formula. Falling back to preference store default formula");
+         }
          return getDefaultFormulaFromPreferences();
       }
    }
@@ -181,7 +184,10 @@ public class CriticalityEvaluationAction implements ContextAction
       }
       else
       {
-         trace.warn("No criticality formula provided in the Preference Store. Falling back to global default formula");
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("No criticality formula provided in the Preference Store. Falling back to global default formula");
+         }
          return DEFAULT_GLOBAL_CRITICALITY_FORMULA;
       }
    }

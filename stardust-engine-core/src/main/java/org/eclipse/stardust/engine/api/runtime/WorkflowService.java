@@ -1495,8 +1495,17 @@ public interface WorkflowService extends Service
          throws ObjectNotFoundException;
 
 
+   /**
+    * Sets attributes for an activity instance
+    * 
+    * @param attributes - the attributes to set
+    * @throws ObjectNotFoundException - if the activity instance specified by 
+    * {@link ActivityInstanceAttributes#getActivityInstanceOid()} could no be found.                     
+    * @throws InvalidArgumentException - when a result is set ({@link ActivityInstanceAttributes#getQualityAssuranceResult()}
+    *  returns not null) and the codes list({@link QualityAssuranceResult#getQualityAssuranceCodes()}  is empty, null or contains a null element 
+    */
    void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)
-         throws ObjectNotFoundException;
+         throws ObjectNotFoundException, InvalidArgumentException;
 
    /**
     * Logs an audit trail event of type <code>LogCode.EXTERNAL</code>.

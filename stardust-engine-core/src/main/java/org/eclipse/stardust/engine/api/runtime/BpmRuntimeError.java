@@ -309,6 +309,15 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_NULL_ARGUMENT = newArgs1("BPMRT03810", BpmRuntimeErrorMessages.getString("BPMRT03810")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 BPMRT_NULL_ELEMENT_IN_COLLECTION = newArgs1(
+         "BPMRT03815", BpmRuntimeErrorMessages.getString("BPMRT03815")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   public static final Args1 BPMRT_EMPTY_COLLECTION = newArgs1(
+         "BPMRT03816", BpmRuntimeErrorMessages.getString("BPMRT03816")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   public static final Args1 BPMRT_NULL_ATTRIBUTE = newArgs1(
+         "BPMRT03817", BpmRuntimeErrorMessages.getString("BPMRT03817")); //$NON-NLS-1$ //$NON-NLS-2$
+
    public static final Args2 BPMRT_INVALID_TYPE = newArgs2("BPMRT03811", BpmRuntimeErrorMessages.getString("BPMRT03811")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 BPMRT_INVALID_SPEC = newArgs2("BPMRT03812", BpmRuntimeErrorMessages.getString("BPMRT03812")); //$NON-NLS-1$ //$NON-NLS-2$

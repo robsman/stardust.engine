@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
@@ -27,6 +28,7 @@ import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
 import org.eclipse.stardust.engine.core.javascript.QualityAssuranceFormulaEvaluater;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
@@ -427,5 +429,44 @@ public class QualityAssuranceUtils
          }
       }
       
+   }
+
+   public static void validateActivityInstanceAttributes(
+         ActivityInstanceAttributes attributes)
+   {      
+      QualityAssuranceResult qaResult = attributes.getQualityAssuranceResult();
+      validateQualityAssuranceResult(qaResult);
+   }
+   
+   private static void validateQualityAssuranceResult(QualityAssuranceResult result)
+   {
+      if(result != null)
+      {
+         validateQaCodes(result.getQualityAssuranceCodes());
+      }
+   }
+   
+   private static void validateQaCodes(Set<QualityAssuranceCode> qaCodes)
+   {
+      if(qaCodes == null)
+      {
+         BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ATTRIBUTE.raise("qualityAssuranceCodes");
+         throw new InvalidArgumentException(errorCase);
+      }
+            
+      if(qaCodes.isEmpty())
+      {
+         BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_EMPTY_COLLECTION.raise("qualityAssuranceCodes");
+         throw new InvalidArgumentException(errorCase);
+      }
+            
+      for(QualityAssuranceCode code: qaCodes)
+      {
+         if(code == null)
+         {
+            BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ELEMENT_IN_COLLECTION.raise("qualityAssuranceCodes");
+            throw new InvalidArgumentException(errorCase);
+         }
+      }
    }
 }

@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.CaseDescriptorRef;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
 import org.eclipse.stardust.engine.core.persistence.*;
@@ -160,6 +161,13 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       queryExtension.getHints().put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS,
             Boolean.valueOf(descriptorPolicy.includeDescriptors()));
 
+      // add hint if statement has a case policy
+      CasePolicy casePolicy = (CasePolicy) query.getPolicy(CasePolicy.class);
+      if (casePolicy != null)
+      {
+         queryExtension.getHints().put(CasePolicy.class.getName(), true);
+      }
+      
       FetchPredicate fetchPredicate = parsedQuery.getFetchPredicate();
       if (authorizationPredicate != null)
       {

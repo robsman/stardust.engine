@@ -24,7 +24,13 @@ import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Pair;
@@ -35,7 +41,33 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.api.query.CasePolicy;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.Column;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.DefaultPersistentVector;
+import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.FieldRefResolver;
+import org.eclipse.stardust.engine.core.persistence.Function;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.InsertDescriptor;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.JoinElement;
+import org.eclipse.stardust.engine.core.persistence.Joins;
+import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Operator;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
+import org.eclipse.stardust.engine.core.persistence.OrderCriterion;
+import org.eclipse.stardust.engine.core.persistence.PersistenceController;
+import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.PersistentVector;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
 
@@ -1945,13 +1977,24 @@ public class DmlManager
 
          // add group by elements
          String groupByConcatToken = "";
+                                 
          for (Iterator<FieldRef> i = queryExtension.getGroupCriteria().iterator(); i.hasNext();)
          {
             groupBuffer.append(groupByConcatToken);
             groupByConcatToken = ", ";
-
+              
             FieldRef field = resolver.resolveFieldRef(i.next());
-            sqlUtils.appendFieldRef(groupBuffer, field);
+            
+            if (null != query.getQueryExtension()
+                  .getHints()
+                  .get(CasePolicy.class.getName()))
+            {
+               sqlUtils.appendFieldRef(groupBuffer, field, true, "CASE_PI");
+            }
+            else
+            {
+               sqlUtils.appendFieldRef(groupBuffer, field);
+            }
          }
 
          // add order by elements

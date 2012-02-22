@@ -490,6 +490,11 @@ public class RuntimeModelLoader implements ModelLoader
       for (Iterator allData = model.getAllData(); allData.hasNext();)
       {
          IData data = (IData) allData.next();
+         if (model != data.getModel())
+         {
+            continue;
+         }
+         
          AuditTrailDataBean auditTrailData = null;
          long rtOid = rtOidRegistry.getRuntimeOid(IRuntimeOidRegistry.DATA,
                RuntimeOidUtils.getFqId(data));
@@ -526,6 +531,10 @@ public class RuntimeModelLoader implements ModelLoader
       for (Iterator i = model.getAllParticipants(); i.hasNext();)
       {
          IModelParticipant participant = (IModelParticipant) i.next();
+         if (model != participant.getModel())
+         {
+            continue;
+         }
 
          if (!(participant instanceof IModeler))
          {

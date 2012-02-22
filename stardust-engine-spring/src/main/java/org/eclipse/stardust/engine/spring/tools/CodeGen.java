@@ -48,12 +48,12 @@ public class CodeGen
       createMethod.append("\tpublic " + javaSourceName + "Bean()\n");
       createMethod.append("\t{\n");
       createMethod.append("      super(").append(longServiceName + ".class,\n");
-      createMethod.append("            ").append(packageName).append(".beans.").
+      createMethod.append("            ").append(packageName.replace(".api.", ".core.")).append(".beans.").
          append(javaSourceName).append("Impl.class);\n");
       createMethod.append("\t}");
       
       String[] additionalMethods = new String[] {createMethod.toString()};
-      String newPackage = StringUtils.replace(destPackage.substring(1),"/",".");
+      String newPackage = StringUtils.replace(destPackage.substring(1), "/", ".");
 
       return createSource(newPackage + javaSourceName + "Bean", longServiceName,
             longPathJavaSourceName, null,

@@ -51,7 +51,7 @@ public class CodeGen
       createMethod.append(TAB).append("public void ejbCreate() throws javax.ejb.CreateException\n");
       createMethod.append(TAB).append("{\n");
       createMethod.append("      super.init(").append(longServiceName + ".class,\n");
-      createMethod.append("            ").append(packageName).append(".beans.").
+      createMethod.append("            ").append(packageName.replace(".api.", ".core.")).append(".beans.").
          append(javaSourceName).append("Impl.class);\n");
       createMethod.append(TAB).append("}");
       
@@ -292,7 +292,7 @@ public class CodeGen
    public static void main(String[] args) throws IOException, ClassNotFoundException
    {
       String root = ".";
-      String destPackage = "/ag/carnot/workflow/ejb/";
+      String destPackage = "/org/eclipse/stardust/engine/api/ejb2/";
       
       if (args.length > 0)
       {
@@ -336,7 +336,7 @@ public class CodeGen
          FileNotFoundException
    {
       String longServiceName = "org.eclipse.stardust.engine.api.runtime." + serviceName;
-      String longPathJavaSourceName = root + "/ag/carnot/workflow/runtime/" + serviceName
+      String longPathJavaSourceName = root + "/org/eclipse/stardust/engine/api/runtime/" + serviceName
             + ".java";
       CodeGen generator = new CodeGen();
 

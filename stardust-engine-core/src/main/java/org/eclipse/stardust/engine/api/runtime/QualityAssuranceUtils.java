@@ -448,24 +448,15 @@ public class QualityAssuranceUtils
    
    private static void validateQaCodes(Set<QualityAssuranceCode> qaCodes)
    {
-      if(qaCodes == null)
+      if(qaCodes != null)
       {
-         BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ATTRIBUTE.raise("qualityAssuranceCodes");
-         throw new InvalidArgumentException(errorCase);
-      }
-            
-      if(qaCodes.isEmpty())
-      {
-         BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_EMPTY_COLLECTION.raise("qualityAssuranceCodes");
-         throw new InvalidArgumentException(errorCase);
-      }
-            
-      for(QualityAssuranceCode code: qaCodes)
-      {
-         if(code == null)
+         for(QualityAssuranceCode code: qaCodes)
          {
-            BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ELEMENT_IN_COLLECTION.raise("qualityAssuranceCodes");
-            throw new InvalidArgumentException(errorCase);
+            if(code == null)
+            {
+               BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ELEMENT_IN_COLLECTION.raise("qualityAssuranceCodes");
+               throw new InvalidArgumentException(errorCase);
+            }
          }
       }
    }

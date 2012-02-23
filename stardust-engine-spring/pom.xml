@@ -31,6 +31,7 @@
               <target>
                 <ant antfile="build.xml" dir="${basedir}" target="clean">
                   <property name="ipp.version.full" value="${ipp.version}"/>
+                  <property name="buildenv.m2.localRepository" value="${settings.localRepository}"/>
                 </ant>
               </target>
             </configuration>
@@ -45,6 +46,7 @@
               <target>
                 <ant antfile="build.xml" dir="${basedir}" target="compile">
                   <property name="ipp.version.full" value="${ipp.version}"/>
+                  <property name="buildenv.m2.localRepository" value="${settings.localRepository}"/>
                 </ant>
               </target>
             </configuration>
@@ -60,6 +62,7 @@
                 <ant antfile="build.xml" dir="${basedir}" target="install">
                   <property name="ipp.version.full" value="${ipp.version}"/>
                   <property name="maven.localRepository" value="${settings.localRepository}"/>
+                  <property name="buildenv.m2.localRepository" value="${settings.localRepository}"/>
                 </ant>
               </target>
             </configuration>

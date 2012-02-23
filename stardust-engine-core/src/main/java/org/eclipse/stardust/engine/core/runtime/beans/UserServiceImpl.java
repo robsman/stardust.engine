@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.api.dto.UserGroupDetailsLevel;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
@@ -44,8 +45,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
-
-
 
 /**
  * @author ubirkemeyer
@@ -233,158 +232,156 @@ public class UserServiceImpl implements UserService, Serializable
 
       user.lock();
 
-      if(isTeamLeader(user))
-      {
-         user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
-      }      
-      else
-      {
-         if (isInternalAuthentication())
-         {            
+      if (isInternalAuthentication())
+      {            
+         if(isTeamLeader(user) || SecurityProperties.getUser().hasRole(PredefinedConstants.ADMINISTRATOR_ROLE));
+         {
             user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
-                        
-            String previousPassword = user.getPassword();
-            String newPassword = null;
-            
-            if (generatePassword)
+         }      
+         
+         user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
+                     
+         String previousPassword = user.getPassword();
+         String newPassword = null;
+         
+         if (generatePassword)
+         {
+            PasswordRules rules = SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()); 
+            List<String> history = SecurityUtils.getPreviousPasswords(user, previousPassword);               
+            newPassword = new String(PasswordGenerator.generatePassword(rules, history));
+         }
+         else
+         {
+            newPassword = ((UserDetails) changes).getPassword();
+         }
+                  
+         if (newPassword != null)
+         {
+            try
             {
                PasswordRules rules = SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()); 
-               List<String> history = SecurityUtils.getPreviousPasswords(user, previousPassword);               
-               newPassword = new String(PasswordGenerator.generatePassword(rules, history));
+               List<String> history = SecurityUtils.getPreviousPasswords(user, previousPassword);                              
+               PasswordValidation.validate(newPassword.toCharArray(), rules, history);
             }
-            else
+            catch (InvalidPasswordException e)
             {
-               newPassword = ((UserDetails) changes).getPassword();
+               throw new InvalidPasswordException(
+                     BpmRuntimeError.AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED
+                           .raise(),
+                     e.getFailureCodes());
             }
-                     
-            if (newPassword != null)
-            {
-               try
-               {
-                  PasswordRules rules = SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()); 
-                  List<String> history = SecurityUtils.getPreviousPasswords(user, previousPassword);                              
-                  PasswordValidation.validate(newPassword.toCharArray(), rules, history);
-               }
-               catch (InvalidPasswordException e)
-               {
-                  throw new InvalidPasswordException(
-                        BpmRuntimeError.AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED
-                              .raise(),
-                        e.getFailureCodes());
-               }
-            }
-            
-            user.setAccount(changes.getAccount());
-            user.setFirstName(changes.getFirstName());
-            user.setLastName(changes.getLastName());
-            user.setDescription(changes.getDescription());
-   
-            if(generatePassword)
-            {
-               user.setPassword(newPassword);            
-               SecurityUtils.sendGeneratedPassword(user, newPassword);
-               
-               user.setPasswordExpired(true);               
-               SecurityUtils.changePassword(user, previousPassword, newPassword);      
-            }
-            else if(newPassword != null)
-            {
-               user.setPassword(newPassword);
-               SecurityUtils.changePassword(user, previousPassword, newPassword);      
-            }
-   
-            user.setEMail(changes.getEMail());
-            user.setValidFrom(changes.getValidFrom());
-            
-            // user is disabled
-            if(user.isPasswordExpired() && SecurityUtils.isUserInvalid(user))
-            {
-               SecurityUtils.generatePassword(user);
-            }
-            user.setValidTo(changes.getValidTo());
          }
-   
-         if (isInternalAuthorization())
+         
+         user.setAccount(changes.getAccount());
+         user.setFirstName(changes.getFirstName());
+         user.setLastName(changes.getLastName());
+         user.setDescription(changes.getDescription());
+
+         if(generatePassword)
          {
-            ModelManager modelManager = ModelManagerFactory.getCurrent();
-   
-            Collection<UserDetails.AddedGrant> newGrants = ((UserDetails) changes).getNewGrants();
-            for (UserDetails.AddedGrant grant : newGrants)
+            user.setPassword(newPassword);            
+            SecurityUtils.sendGeneratedPassword(user, newPassword);
+            
+            user.setPasswordExpired(true);               
+            SecurityUtils.changePassword(user, previousPassword, newPassword);      
+         }
+         else if(newPassword != null)
+         {
+            user.setPassword(newPassword);
+            SecurityUtils.changePassword(user, previousPassword, newPassword);      
+         }
+
+         user.setEMail(changes.getEMail());
+         user.setValidFrom(changes.getValidFrom());
+         
+         // user is disabled
+         if(user.isPasswordExpired() && SecurityUtils.isUserInvalid(user))
+         {
+            SecurityUtils.generatePassword(user);
+         }
+         user.setValidTo(changes.getValidTo());
+      }
+
+      if (isInternalAuthorization())
+      {
+         ModelManager modelManager = ModelManagerFactory.getCurrent();
+
+         Collection<UserDetails.AddedGrant> newGrants = ((UserDetails) changes).getNewGrants();
+         for (UserDetails.AddedGrant grant : newGrants)
+         {
+            QName qualifiedId = QName.valueOf(grant.getQualifiedId());
+            DepartmentInfo departmentInfo = grant.getDepartment();
+            IDepartment department = departmentInfo == null || departmentInfo == Department.DEFAULT
+                  ? null : DepartmentBean.findByOID(departmentInfo.getOID());
+            for (Iterator j = modelManager.getAllModels(); j.hasNext();)
             {
-               QName qualifiedId = QName.valueOf(grant.getQualifiedId());
-               DepartmentInfo departmentInfo = grant.getDepartment();
-               IDepartment department = departmentInfo == null || departmentInfo == Department.DEFAULT
-                     ? null : DepartmentBean.findByOID(departmentInfo.getOID());
-               for (Iterator j = modelManager.getAllModels(); j.hasNext();)
+               IModel model = (IModel) j.next();
+               if (StringUtils.isEmpty(qualifiedId.getNamespaceURI()) || CompareHelper.areEqual(model.getId(), qualifiedId.getNamespaceURI()))
                {
-                  IModel model = (IModel) j.next();
-                  if (StringUtils.isEmpty(qualifiedId.getNamespaceURI()) || CompareHelper.areEqual(model.getId(), qualifiedId.getNamespaceURI()))
+                  IModelParticipant participant = model.findParticipant(qualifiedId.getLocalPart());
+                  if (participant != null)
                   {
-                     IModelParticipant participant = model.findParticipant(qualifiedId.getLocalPart());
-                     if (participant != null)
-                     {
-                        addToParticipants(modelManager, user, participant, department);
-                     }
+                     addToParticipants(modelManager, user, participant, department);
                   }
                }
             }
-   
-            for (Iterator<UserParticipantLink> i = user.getAllParticipantLinks(); i.hasNext();)
+         }
+
+         for (Iterator<UserParticipantLink> i = user.getAllParticipantLinks(); i.hasNext();)
+         {
+            UserParticipantLink grant = i.next();
+            IDepartment department = grant.getDepartment();
+            boolean match = false;
+            for (Iterator j = newGrants.iterator(); j.hasNext();)
             {
-               UserParticipantLink grant = i.next();
-               IDepartment department = grant.getDepartment();
-               boolean match = false;
-               for (Iterator j = newGrants.iterator(); j.hasNext();)
+               UserDetails.AddedGrant newGrant = (UserDetails.AddedGrant) j.next();
+               QName qualifiedNewGrantId = QName.valueOf(newGrant.getQualifiedId());
+               String grantParticipantId;
+               if(StringUtils.isEmpty(qualifiedNewGrantId.getNamespaceURI()))
                {
-                  UserDetails.AddedGrant newGrant = (UserDetails.AddedGrant) j.next();
-                  QName qualifiedNewGrantId = QName.valueOf(newGrant.getQualifiedId());
-                  String grantParticipantId;
-                  if(StringUtils.isEmpty(qualifiedNewGrantId.getNamespaceURI()))
-                  {
-                     grantParticipantId = grant.getParticipant().getId();
-                  }
-                  else
-                  {
-                     grantParticipantId = ModelUtils.getQualifiedId(grant.getParticipant());
-                  }
-                  
-                  
-                  if (qualifiedNewGrantId.toString().equals(grantParticipantId)
-                        && areEqual(department, newGrant.getDepartment()))
-                  {
-                     match = true;
-                     break;
-                  }
+                  grantParticipantId = grant.getParticipant().getId();
                }
-               if (!match)
+               else
                {
-                  user.removeFromParticipants(grant.getParticipant(), department);
+                  grantParticipantId = ModelUtils.getQualifiedId(grant.getParticipant());
+               }
+               
+               
+               if (qualifiedNewGrantId.toString().equals(grantParticipantId)
+                     && areEqual(department, newGrant.getDepartment()))
+               {
+                  match = true;
+                  break;
                }
             }
-   
-            for (Iterator i = changes.getAllProperties().entrySet().iterator(); i.hasNext();)
+            if (!match)
             {
-               Map.Entry entry = (Map.Entry) i.next();
-               user.setPropertyValue((String) entry.getKey(), (Serializable) entry.getValue());
+               user.removeFromParticipants(grant.getParticipant(), department);
             }
-   
-            final Collection newGroupIds = ((UserDetails) changes).getNewGroupIds();
-            for (Iterator i = newGroupIds.iterator(); i.hasNext();)
+         }
+
+         for (Iterator i = changes.getAllProperties().entrySet().iterator(); i.hasNext();)
+         {
+            Map.Entry entry = (Map.Entry) i.next();
+            user.setPropertyValue((String) entry.getKey(), (Serializable) entry.getValue());
+         }
+
+         final Collection newGroupIds = ((UserDetails) changes).getNewGroupIds();
+         for (Iterator i = newGroupIds.iterator(); i.hasNext();)
+         {
+            IUserGroup group = null;
+
+            group = UserGroupBean.findById((String) i.next(), SecurityProperties
+                  .getPartitionOid());
+            group.addUser(user);
+         }
+
+         for (Iterator i = user.getAllUserGroups(false); i.hasNext();)
+         {
+            IUserGroup oldGroup = (IUserGroup) i.next();
+            if (false == newGroupIds.contains(oldGroup.getId()))
             {
-               IUserGroup group = null;
-   
-               group = UserGroupBean.findById((String) i.next(), SecurityProperties
-                     .getPartitionOid());
-               group.addUser(user);
-            }
-   
-            for (Iterator i = user.getAllUserGroups(false); i.hasNext();)
-            {
-               IUserGroup oldGroup = (IUserGroup) i.next();
-               if (false == newGroupIds.contains(oldGroup.getId()))
-               {
-                  oldGroup.removeUser(user);
-               }
+               oldGroup.removeUser(user);
             }
          }
       }      

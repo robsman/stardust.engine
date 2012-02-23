@@ -1048,7 +1048,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                      }
 
 //                        DataValueBean.copyDataValue(subProcess, srcValue);
-                     subProcess.setOutDataValue(srcValue.getData(), "", srcValue.getSerializedValue());
+                     
+                     if(srcValue.getData().getModel().getOID() == subProcess.getProcessDefinition().getModel().getOID())
+                     {
+                        subProcess.setOutDataValue(srcValue.getData(), "", srcValue.getSerializedValue());
+                     }
                   }
                }
                processSubProcessInDataMappings(activity, subProcess);

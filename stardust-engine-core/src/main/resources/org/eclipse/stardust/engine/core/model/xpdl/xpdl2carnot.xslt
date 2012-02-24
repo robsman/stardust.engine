@@ -133,11 +133,19 @@
 	    	<xsl:variable name="attrs" select="x1:ExtendedAttributes/x1:ExtendedAttribute|x2:ExtendedAttributes/x2:ExtendedAttribute"/>
     		<xsl:variable name="CarnotExt" select="$attrs[@Name='CarnotExt']"/>
 	    	<xsl:variable name="ParticipantType" select="x1:ParticipantType|x2:ParticipantType"/>
+	    	<xsl:variable name="ExternalReferenceType" select="x1:ExternalReference|x2:ExternalReference"/>	    	
 	        <xsl:choose>
 	            <xsl:when test="$ParticipantType/@Type='ROLE' and not($CarnotExt/c:ConditionalPerformer)">
-			        <xsl:call-template name="carnot-role">
-			        	<xsl:with-param name="CarnotExt" select="$CarnotExt"/>
-			        </xsl:call-template>
+	            	<xsl:if test="not($ExternalReferenceType[@namespace='conditionalPerformer'])">
+				        <xsl:call-template name="carnot-role">
+				        	<xsl:with-param name="CarnotExt" select="$CarnotExt"/>
+				        </xsl:call-template>
+			        </xsl:if>
+	            	<xsl:if test="$ExternalReferenceType[@namespace='conditionalPerformer']">
+			        	<xsl:call-template name="carnot-conditionalPerformer">
+				        	<xsl:with-param name="CarnotExt" select="$CarnotExt"/>
+				        </xsl:call-template>
+			        </xsl:if>			        
 	            </xsl:when>
 	            <xsl:when test="$ParticipantType/@Type='ORGANIZATIONAL_UNIT'">
 			        <xsl:call-template name="carnot-organization">

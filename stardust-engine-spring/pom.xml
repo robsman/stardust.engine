@@ -30,6 +30,12 @@
             <configuration>
               <target>
                 <ant antfile="build.xml" dir="${basedir}" target="clean">
+                  <property name="ipp.version.major" value="${ipp.version.major}"/>
+                  <property name="ipp.version.minor" value="${ipp.version.minor}"/>
+                  <property name="ipp.version.micro" value="${ipp.version.micro}"/>
+                  <property name="ipp.version.build" value="${ipp.version.build}"/>
+                  <property name="SNAPSHOT_BUILD_ALIAS" value="${SNAPSHOT_BUILD_ALIAS}"/>
+                  <property name="ipp.version.qualifier" value="${ipp.version.qualifier}"/>
                   <property name="ipp.version.full" value="${ipp.version}"/>
                   <property name="buildenv.m2.localRepository" value="${settings.localRepository}"/>
                 </ant>
@@ -45,6 +51,12 @@
             <configuration>
               <target>
                 <ant antfile="build.xml" dir="${basedir}" target="compile">
+                  <property name="ipp.version.major" value="${ipp.version.major}"/>
+                  <property name="ipp.version.minor" value="${ipp.version.minor}"/>
+                  <property name="ipp.version.micro" value="${ipp.version.micro}"/>
+                  <property name="ipp.version.build" value="${ipp.version.build}"/>
+                  <property name="SNAPSHOT_BUILD_ALIAS" value="${SNAPSHOT_BUILD_ALIAS}"/>
+                  <property name="ipp.version.qualifier" value="${ipp.version.qualifier}"/>
                   <property name="ipp.version.full" value="${ipp.version}"/>
                   <property name="buildenv.m2.localRepository" value="${settings.localRepository}"/>
                 </ant>
@@ -60,6 +72,12 @@
             <configuration>
               <target>
                 <ant antfile="build.xml" dir="${basedir}" target="install">
+                  <property name="ipp.version.major" value="${ipp.version.major}"/>
+                  <property name="ipp.version.minor" value="${ipp.version.minor}"/>
+                  <property name="ipp.version.micro" value="${ipp.version.micro}"/>
+                  <property name="ipp.version.build" value="${ipp.version.build}"/>
+                  <property name="SNAPSHOT_BUILD_ALIAS" value="${SNAPSHOT_BUILD_ALIAS}"/>
+                  <property name="ipp.version.qualifier" value="${ipp.version.qualifier}"/>
                   <property name="ipp.version.full" value="${ipp.version}"/>
                   <property name="maven.localRepository" value="${settings.localRepository}"/>
                   <property name="buildenv.m2.localRepository" value="${settings.localRepository}"/>

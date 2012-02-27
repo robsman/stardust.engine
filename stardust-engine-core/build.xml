@@ -322,11 +322,10 @@
             <include name="org/eclipse/stardust/common/config/CurrentVersion.java" />
          </fileset>
          <filterset>
-            <filter token="major" value="${version.major}" />
-            <filter token="minor" value="${version.minor}" />
-            <filter token="micro" value="${version.micro}" />
-            <filter token="branch" value="${version.branch}" />
-            <filter token="build" value="${version.build}" />
+            <filter token="major" value="${ipp.version.major}" />
+            <filter token="minor" value="${ipp.version.minor}" />
+            <filter token="micro" value="${ipp.version.micro}" />
+            <filter token="build" value="${ipp.version.build}" />
          </filterset>
       </copy>
    </target>

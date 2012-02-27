@@ -15,7 +15,7 @@ import java.text.MessageFormat;
 
 /**
  * Represents the current version of Infinity including major, minor, micro,
- * branch and build number. It is set automatically by the build process based
+ * and build number. It is set automatically by the build process based
  * on the <code>version.properties</code>.
  */
 public class CurrentVersion

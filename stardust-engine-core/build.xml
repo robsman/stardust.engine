@@ -232,13 +232,13 @@
       <delete dir="${build.classes}" />
    </target>
 
-   <target name="compile" depends="prepareSources, initKernelBuildDirectories, initClasspath, compile.jdk15"
+   <target name="compile" depends="prepareSources, initKernelBuildDirectories, initClasspath, compile.jdk16"
       description="compiles the carnot kernel classes" />
 
-   <target name="compile.jdk15" depends="init"
-      description="Compiling Java 1.5 code">
+   <target name="compile.jdk16" depends="init"
+      description="Compiling Java 1.6 code">
 
-      <ipp:javac-java5
+      <ipp:javac-java6
          srcdir="${build.src.generated}" sourcepath="${build.src.generated}:${build.src.static}"
          destdir="${build.classes}">
 
@@ -249,9 +249,9 @@
             <path refid="carnot.classpath" />
             <path refid="secret.classpath" />
          </classpath>
-      </ipp:javac-java5>
+      </ipp:javac-java6>
 
-      <ipp:javac-java5
+      <ipp:javac-java6
          srcdir="${build.src.static}" sourcepath="${build.src.generated}:${build.src.static}"
          destdir="${build.classes}">
 
@@ -260,7 +260,7 @@
          <patternset refid="kernel.sources.exclude" />
          <classpath refid="compile.classpath" />
 
-      </ipp:javac-java5>
+      </ipp:javac-java6>
    </target>
 
    <target name="prepareSources" depends="initKernelBuild, prepareSourcesExclusions, prepareSourcesForFastBuild, prepareSourcesForSafeBuild" />

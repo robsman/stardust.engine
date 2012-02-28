@@ -174,5 +174,19 @@ public class LocalDataSource  implements DataSource, IDisposable
    {
       resetConnectionPool();
    }
+
+   @Override
+   public boolean isWrapperFor(Class< ? > iface) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return false;
+   }
+
+   @Override
+   public <T> T unwrap(Class<T> iface) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
    
 }

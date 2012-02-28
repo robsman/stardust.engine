@@ -10,7 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.jdbc;
 
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.NClob;
+import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Savepoint;
+import java.sql.Statement;
+import java.sql.Struct;
+import java.util.Properties;
 
 /**
  * <code>LocalJDBCConnection</code> delegates all functionality to the underlying java.sql.Connection, except Close
@@ -224,6 +239,97 @@ class LocalJDBCConnection implements Connection
    public PreparedStatement prepareStatement(String sql, String columnNames[]) throws SQLException
    {
       return null;
+   }
+
+   @Override
+   public boolean isWrapperFor(Class< ? > iface) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return false;
+   }
+
+   @Override
+   public <T> T unwrap(Class<T> iface) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public Array createArrayOf(String arg0, Object[] arg1) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public Blob createBlob() throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public Clob createClob() throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public NClob createNClob() throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public SQLXML createSQLXML() throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public Struct createStruct(String arg0, Object[] arg1) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public Properties getClientInfo() throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public String getClientInfo(String arg0) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return null;
+   }
+
+   @Override
+   public boolean isValid(int arg0) throws SQLException
+   {
+      // TODO Auto-generated method stub
+      return false;
+   }
+
+   @Override
+   public void setClientInfo(Properties arg0) throws SQLClientInfoException
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   public void setClientInfo(String arg0, String arg1) throws SQLClientInfoException
+   {
+      // TODO Auto-generated method stub
+      
    }
 
    /*

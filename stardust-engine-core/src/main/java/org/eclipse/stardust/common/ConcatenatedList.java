@@ -37,6 +37,6 @@ public class ConcatenatedList<E> extends AbstractList<E> implements List<E>, Ser
 
    public E get(int index)
    {
-      return (index < a.size() ? a.get(index) : b.get(index - a.size()));
+      return (E)(index < a.size() ? a.get(index) : b.get(index - a.size()));
    }
 }

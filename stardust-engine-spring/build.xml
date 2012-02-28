@@ -93,13 +93,13 @@
    </target>
 
    <target name="compile" depends="initBuildDirectories, initClasspath, init" description="Compiles the project's Java classes">
-      <ipp:javac-java5 srcdir="${project.src}" destdir="${build.classes}">
+      <ipp:javac-java6 srcdir="${project.src}" destdir="${build.classes}">
          <include name="**/*.java" />
-         <classpath id="compile5.classpath">
+         <classpath id="compile6.classpath">
             <path path="${build.classes}" />
             <path refid="carnot-spring.classpath" />
          </classpath>
-      </ipp:javac-java5>
+      </ipp:javac-java6>
    </target>
 
    <target name="jar" depends="compile">

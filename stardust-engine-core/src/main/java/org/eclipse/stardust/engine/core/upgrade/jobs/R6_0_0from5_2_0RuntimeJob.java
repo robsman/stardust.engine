@@ -875,5 +875,19 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          throw new UnsupportedOperationException();
       }
+
+      @Override
+      public boolean isWrapperFor(Class< ? > iface) throws SQLException
+      {
+         // TODO Auto-generated method stub
+         return false;
+      }
+
+      @Override
+      public <T> T unwrap(Class<T> iface) throws SQLException
+      {
+         // TODO Auto-generated method stub
+         return null;
+      }
    }
 }

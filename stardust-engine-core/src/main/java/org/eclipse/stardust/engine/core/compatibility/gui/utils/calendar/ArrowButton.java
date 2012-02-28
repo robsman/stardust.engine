@@ -60,7 +60,7 @@ public class ArrowButton extends BasicArrowButton
          g.drawLine(w - 1, h - 1, w - 1, 0);
       }
 
-      // If there’s no room to draw arrow, bail
+      // If there's no room to draw arrow, bail
       if (h < 5 || w < 5)
       {
          g.setColor(origColor);
@@ -78,7 +78,7 @@ public class ArrowButton extends BasicArrowButton
       paintTriangle(g, (w - size) / 2, (h - size) / 2,
             size, direction, isEnabled);
 
-      // Reset the Graphics back to it’s original settings
+      // Reset the Graphics back to it's original settings
       if (isPressed)
       {
          g.translate(-1, -1);

@@ -165,7 +165,7 @@ public class ImageEntry extends JLabel
 
       if (fileDialog == null)
       {
-         fileDialog = new FileDialog(frame, "Bilddatei öffnen", FileDialog.LOAD);
+         fileDialog = new FileDialog(frame, "Bilddatei Ã¶ffnen", FileDialog.LOAD);
       }
 
       // @todo: Filename Filter setzen!!

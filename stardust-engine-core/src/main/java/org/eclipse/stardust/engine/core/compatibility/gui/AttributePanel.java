@@ -68,7 +68,7 @@ public class AttributePanel extends JPanel
       }
       else if (e.getSource() == removePropertyItem)
       {
-         // @todo ... implementieren der delete-Funktionalität
+         // @todo ... implement delete functionality
       }
    }
 

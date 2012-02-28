@@ -71,7 +71,7 @@ public class TopEaseConverter extends org.eclipse.stardust.engine.core.model.con
 
       if (!codeGenerationSourceDir.exists())
       {
-         new PublicException("TopEase® code generation source directory \""
+         new PublicException("TopEase code generation source directory \""
                + codeGenerationSourceDir.getAbsolutePath() + "\" not found");
       }
 
@@ -79,7 +79,7 @@ public class TopEaseConverter extends org.eclipse.stardust.engine.core.model.con
 
       if (!codeGenerationClassesDir.exists())
       {
-         new PublicException("TopEase® code generation target classes directory \""
+         new PublicException("TopEase code generation target classes directory \""
                + codeGenerationClassesDir.getAbsolutePath() + "\" not found");
       }
 

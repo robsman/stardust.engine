@@ -71,7 +71,7 @@ public class SelectLocaleDialog extends AbstractDialog
             countryEntry.getText() == null ||
             countryEntry.getText().length() == 0)
       {
-         throw new ValidationException("Sprache und Land dürfen nicht leer sein.", false);
+         throw new ValidationException("Sprache und Land dÃ¼rfen nicht leer sein.", false);
       }
 
    }
@@ -88,6 +88,6 @@ public class SelectLocaleDialog extends AbstractDialog
 
       singleton.mainWindow = mainWindow;
 
-      return showDialog("Locale ändern", singleton, mainWindow);
+      return showDialog("Locale Ã¤ndern", singleton, mainWindow);
    }
 }

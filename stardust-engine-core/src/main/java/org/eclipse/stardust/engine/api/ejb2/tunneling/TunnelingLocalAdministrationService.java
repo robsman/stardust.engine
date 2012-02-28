@@ -657,7 +657,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
      * parameter is true,
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
-     * with “Fork on Traversal”, from that point on execution is asynchronous.
+     * with "Fork on Traversal", from that point on execution is asynchronous.
      *
      * @param modelOID      the model where the process is defined.
      * @param id            the ID of the process to start.

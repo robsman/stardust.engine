@@ -136,7 +136,7 @@ public class GenericSearchPanel extends JPanel implements ActionListener
       searchButton.addActionListener(this);
 
       exactBox = new JCheckBox("Exakte Suche", false);
-      sensitiveBox = new JCheckBox("Groﬂ/Kleinschreibung beachten", true);
+      sensitiveBox = new JCheckBox("Gross-/Kleinschreibung beachten", true);
 
       searchButtonPanel = new JPanel();
 

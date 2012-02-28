@@ -863,7 +863,7 @@ public class MoneyEntry extends JPanel
       JRadioButtonMenuItem menuItem;
       String defaultCurrency = Money.getCurrencyFor(Money.getDefaultCurrency());
 
-      JMenu menu = new JMenu("Währung");
+      JMenu menu = new JMenu("WÃ¤hrung");
       ButtonGroup group = new ButtonGroup();
 
       JMenu europeanMenu = new JMenu("Europa");

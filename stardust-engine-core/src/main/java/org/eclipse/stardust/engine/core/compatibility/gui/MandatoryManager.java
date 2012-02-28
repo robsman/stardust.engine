@@ -425,7 +425,7 @@ public class MandatoryManager
          }
          else if (typeName.endsWith(".PasswordEntry"))
          {
-            name = "das Paﬂwortfeld";
+            name = "das Passwortfeld";
          }
       }
       else if (component instanceof JComboBox)
@@ -438,7 +438,7 @@ public class MandatoryManager
       }
       else if (component instanceof JPasswordField)
       {
-         name = "das Paﬂwortfeld";
+         name = "das Passwortfeld";
       }
       else if (component instanceof JTextField)
       {
@@ -466,17 +466,17 @@ class MessageBoxAdapter implements MandatoryListener
     */
    public void processEvent(MandatoryEvent e)
    {
-      String message = "Zur korrekten Daten¸bernahme ist noch\n";
+      String message = "Zur korrekten Daten√ºbernahme ist noch\n";
 
       String text = e.getText();
 
       if (text == null || text.length() < 1)
       {
-         message += e.getType() + " auszuf¸llen.";
+         message += e.getType() + " auszuf√ºllen.";
       }
       else
       {
-         message += e.getType() + " \"" + text + "\" auszuf¸llen.";
+         message += e.getType() + " \"" + text + "\" auszuf√ºllen.";
       }
 
       JOptionPane pane = new JOptionPane(message, JOptionPane.INFORMATION_MESSAGE);
@@ -514,12 +514,12 @@ class TextFieldAdapter implements MandatoryListener
 
       if (text == null || text.length() < 1)
       {
-         textComponent.setText("Bitte noch das aktuelle Feld ausf¸llen.");
+         textComponent.setText("Bitte noch das aktuelle Feld ausf√ºllen.");
       }
       else
       {
          textComponent.setText("Bitte noch " + e.getType()
-               + " \"" + text + "\" ausf¸llen.");
+               + " \"" + text + "\" ausf√ºllen.");
       }
    }
 }

@@ -134,7 +134,7 @@ public interface PasswordRules extends Serializable
    void setDifferentCharacters(int length);
    
    /**
-    * ´Gets the number of minimum different characters in the new password compared to previous passwords.
+    * Gets the number of minimum different characters in the new password compared to previous passwords.
     * 
     * @return Number.
     */

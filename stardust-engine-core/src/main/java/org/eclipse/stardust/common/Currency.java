@@ -22,7 +22,7 @@ class Currency
 {
    public static final Currency EUR = new Currency("EUR", "Euro",
          new BigDecimal(1.0), 2);
-   public static final Currency ATS = new Currency("ATS", "Öster. Schilling",
+   public static final Currency ATS = new Currency("ATS", "Ã–ster. Schilling",
          new BigDecimal(13.7603), 2);
    public static final Currency BEF = new Currency("BEF", "Belg. Franc",
          new BigDecimal(40.3399), 2);

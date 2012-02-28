@@ -439,7 +439,7 @@ public interface AdministrationService extends Service
     * Starts a process from a specified model.The startProcess method is executed asynchronously
     * if the synchronously parameter is set to false.However, even if the synchronously parameter is true,
     * the execution of activities is performed in the calling thread only up to the first transition marked
-    * with “Fork on Traversal”, from that point on execution is asynchronous.
+    * with "Fork on Traversal", from that point on execution is asynchronous.
     *
     * @param modelOID      the model where the process is defined.
     * @param id            the ID of the process to start.

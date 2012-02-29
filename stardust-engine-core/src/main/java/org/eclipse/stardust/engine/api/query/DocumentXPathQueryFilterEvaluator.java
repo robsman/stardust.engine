@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.api.query;
 
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
-import com.sungard.infinity.bpm.vfs.MetaDataLocation;
+import org.eclipse.stardust.vfs.MetaDataLocation;
 
 
 public class DocumentXPathQueryFilterEvaluator implements FilterEvaluationVisitor

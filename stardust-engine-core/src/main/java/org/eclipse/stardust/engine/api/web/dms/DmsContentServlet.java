@@ -39,10 +39,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
-import com.sungard.infinity.bpm.vfs.IFile;
-import com.sungard.infinity.bpm.vfs.RepositoryOperationFailedException;
-import com.sungard.infinity.bpm.vfs.impl.jcr.web.AbstractVfsContentServlet;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IFile;
+import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
+import org.eclipse.stardust.vfs.impl.jcr.web.AbstractVfsContentServlet;
 
 
 /**

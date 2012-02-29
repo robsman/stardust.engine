@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 import org.eclipse.stardust.common.security.authentication.LoginFailedException;
 import org.eclipse.stardust.engine.api.runtime.*;
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 
 /**

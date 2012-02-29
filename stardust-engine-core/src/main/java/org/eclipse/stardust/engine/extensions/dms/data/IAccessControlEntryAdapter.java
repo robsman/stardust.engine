@@ -19,8 +19,8 @@ import org.eclipse.stardust.engine.api.runtime.AccessControlEntry;
 import org.eclipse.stardust.engine.api.runtime.Privilege;
 
 
-import com.sungard.infinity.bpm.vfs.IAccessControlEntry;
-import com.sungard.infinity.bpm.vfs.IPrivilege;
+import org.eclipse.stardust.vfs.IAccessControlEntry;
+import org.eclipse.stardust.vfs.IPrivilege;
 
 /**
  * @author rsauer

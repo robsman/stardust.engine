@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationJobInfo;
 
-import com.sungard.infinity.bpm.vfs.IMigrationJobInfo;
+import org.eclipse.stardust.vfs.IMigrationJobInfo;
 
 
 public class DmsMigrationJobInfoBean implements RepositoryMigrationJobInfo, Serializable

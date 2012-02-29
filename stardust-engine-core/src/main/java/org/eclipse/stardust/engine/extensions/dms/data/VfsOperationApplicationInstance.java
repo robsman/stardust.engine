@@ -27,7 +27,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
 
-import com.sungard.infinity.bpm.vfs.VfsUtils;
+import org.eclipse.stardust.vfs.VfsUtils;
 
 
 /**

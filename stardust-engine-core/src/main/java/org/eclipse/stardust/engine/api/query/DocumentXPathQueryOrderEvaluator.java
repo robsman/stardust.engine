@@ -10,17 +10,17 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
-import static com.sungard.infinity.bpm.vfs.VfsUtils.NS_PREFIX_VFS;
-import static com.sungard.infinity.bpm.vfs.VfsUtils.VFS_ATTRIBUTES;
-import static com.sungard.infinity.bpm.vfs.VfsUtils.VFS_NAME;
-import static com.sungard.infinity.bpm.vfs.VfsUtils.VFS_OWNER;
+import static org.eclipse.stardust.vfs.VfsUtils.NS_PREFIX_VFS;
+import static org.eclipse.stardust.vfs.VfsUtils.VFS_ATTRIBUTES;
+import static org.eclipse.stardust.vfs.VfsUtils.VFS_NAME;
+import static org.eclipse.stardust.vfs.VfsUtils.VFS_OWNER;
 
 import java.util.List;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery.MetadataFilterBuilder;
 
-import com.sungard.infinity.bpm.vfs.MetaDataLocation;
+import org.eclipse.stardust.vfs.MetaDataLocation;
 
 
 public class DocumentXPathQueryOrderEvaluator implements OrderEvaluationVisitor

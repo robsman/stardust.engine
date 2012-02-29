@@ -19,8 +19,8 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 
 
-import com.sungard.infinity.bpm.vfs.IFile;
-import com.sungard.infinity.bpm.vfs.IFolder;
+import org.eclipse.stardust.vfs.IFile;
+import org.eclipse.stardust.vfs.IFolder;
 
 /**
  * IFolder-view of a Folder

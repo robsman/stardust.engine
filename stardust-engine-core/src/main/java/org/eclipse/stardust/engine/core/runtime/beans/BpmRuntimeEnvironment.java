@@ -47,9 +47,9 @@ import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsPrincipal;
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
-import com.sungard.infinity.bpm.vfs.impl.jcr.AuthorizableOrganizationDetails;
-import com.sungard.infinity.bpm.vfs.impl.utils.SessionUtils;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.impl.jcr.AuthorizableOrganizationDetails;
+import org.eclipse.stardust.vfs.impl.utils.SessionUtils;
 
 
 

@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.extensions.dms.data;
 
 import org.eclipse.stardust.engine.api.runtime.Privilege;
 
-import com.sungard.infinity.bpm.vfs.IPrivilege;
+import org.eclipse.stardust.vfs.IPrivilege;
 
 
 /**

@@ -23,12 +23,12 @@ import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.Text;
 
-import com.sungard.infinity.bpm.vfs.MetaDataLocation;
-import com.sungard.infinity.bpm.vfs.impl.jcr.JcrVfsOperations;
+import org.eclipse.stardust.vfs.MetaDataLocation;
+import org.eclipse.stardust.vfs.impl.jcr.JcrVfsOperations;
 
 
-import com.sungard.infinity.bpm.vfs.MetaDataLocation;
-import com.sungard.infinity.bpm.vfs.impl.jcr.JcrVfsOperations;
+import org.eclipse.stardust.vfs.MetaDataLocation;
+import org.eclipse.stardust.vfs.impl.jcr.JcrVfsOperations;
 
 public class DocumentXPathQueryTermFactory
 {

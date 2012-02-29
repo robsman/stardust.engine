@@ -21,7 +21,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 
 /**

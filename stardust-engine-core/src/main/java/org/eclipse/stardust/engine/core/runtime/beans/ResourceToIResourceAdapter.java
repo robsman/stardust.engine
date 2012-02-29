@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.engine.api.runtime.Resource;
 
-import com.sungard.infinity.bpm.vfs.IResource;
+import org.eclipse.stardust.vfs.IResource;
 
 
 /**

@@ -46,7 +46,7 @@ import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.xsd.util.XSDResourceImpl;
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 
 /**

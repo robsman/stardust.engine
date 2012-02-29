@@ -16,8 +16,8 @@ import javax.jcr.Session;
 
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 
-import com.sungard.infinity.bpm.vfs.impl.jcr.JcrDocumentRepositoryService;
-import com.sungard.infinity.bpm.vfs.jcr.ISessionFactory;
+import org.eclipse.stardust.vfs.impl.jcr.JcrDocumentRepositoryService;
+import org.eclipse.stardust.vfs.jcr.ISessionFactory;
 
 
 /**

@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.security.authentication.LoginFailedException;
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 
 /**

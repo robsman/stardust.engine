@@ -29,8 +29,8 @@ import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
 
-import com.sungard.infinity.bpm.vfs.IFolder;
-import com.sungard.infinity.bpm.vfs.VfsUtils;
+import org.eclipse.stardust.vfs.IFolder;
+import org.eclipse.stardust.vfs.VfsUtils;
 
 
 

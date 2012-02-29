@@ -26,7 +26,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredDataValueFactory;
 
-import com.sungard.infinity.bpm.vfs.*;
+import org.eclipse.stardust.vfs.*;
 
 
 /**

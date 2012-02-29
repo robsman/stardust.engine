@@ -74,9 +74,9 @@ import org.eclipse.xsd.XSDSchemaDirective;
 import org.eclipse.xsd.XSDTypeDefinition;
 
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
-import com.sungard.infinity.bpm.vfs.IFolder;
-import com.sungard.infinity.bpm.vfs.VfsUtils;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IFolder;
+import org.eclipse.stardust.vfs.VfsUtils;
 
 public final class DocumentTypeUtils
 {

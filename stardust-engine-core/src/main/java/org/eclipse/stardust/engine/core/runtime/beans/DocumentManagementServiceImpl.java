@@ -44,10 +44,10 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
 import org.eclipse.stardust.engine.extensions.dms.data.*;
 
-import com.sungard.infinity.bpm.vfs.*;
-import com.sungard.infinity.bpm.vfs.impl.jcr.*;
-import com.sungard.infinity.bpm.vfs.jcr.ISessionFactory;
-import com.sungard.infinity.bpm.vfs.jcr.spring.JcrSessionFactory;
+import org.eclipse.stardust.vfs.*;
+import org.eclipse.stardust.vfs.impl.jcr.*;
+import org.eclipse.stardust.vfs.jcr.ISessionFactory;
+import org.eclipse.stardust.vfs.jcr.spring.JcrSessionFactory;
 
 
 /**

@@ -20,7 +20,7 @@ import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
 import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.AnnotationUtils;
 
 
-import com.sungard.infinity.bpm.vfs.IFile;
+import org.eclipse.stardust.vfs.IFile;
 
 /**
  * IFile-view of a Document

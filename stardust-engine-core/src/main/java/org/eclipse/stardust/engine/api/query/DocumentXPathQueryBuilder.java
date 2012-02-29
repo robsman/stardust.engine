@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.query;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
 
-import com.sungard.infinity.bpm.vfs.MetaDataLocation;
+import org.eclipse.stardust.vfs.MetaDataLocation;
 
 
 

@@ -24,12 +24,12 @@ import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
-import com.sungard.infinity.bpm.vfs.IFile;
-import com.sungard.infinity.bpm.vfs.IFileInfo;
-import com.sungard.infinity.bpm.vfs.IFolder;
-import com.sungard.infinity.bpm.vfs.IFolderInfo;
-import com.sungard.infinity.bpm.vfs.IResourceInfo;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IFile;
+import org.eclipse.stardust.vfs.IFileInfo;
+import org.eclipse.stardust.vfs.IFolder;
+import org.eclipse.stardust.vfs.IFolderInfo;
+import org.eclipse.stardust.vfs.IResourceInfo;
 
 /**
  * @author rsauer

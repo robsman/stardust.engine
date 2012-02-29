@@ -19,7 +19,7 @@ import org.eclipse.stardust.engine.api.runtime.AccessControlEntry;
 import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
 import org.eclipse.stardust.engine.api.runtime.Privilege;
 
-import com.sungard.infinity.bpm.vfs.impl.utils.CollectionUtils;
+import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
 
 
 

@@ -20,10 +20,10 @@ import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
-import com.sungard.infinity.bpm.vfs.IQueryResult;
-import com.sungard.infinity.bpm.vfs.MetaDataLocation;
-import com.sungard.infinity.bpm.vfs.RepositoryOperationFailedException;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IQueryResult;
+import org.eclipse.stardust.vfs.MetaDataLocation;
+import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
 
 
 

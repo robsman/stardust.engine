@@ -28,7 +28,7 @@ import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
-import com.sungard.infinity.bpm.vfs.VfsUtils;
+import org.eclipse.stardust.vfs.VfsUtils;
 
 public class DataCopyUtils
 {

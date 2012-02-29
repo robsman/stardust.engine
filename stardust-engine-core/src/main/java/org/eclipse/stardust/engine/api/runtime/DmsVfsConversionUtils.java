@@ -23,7 +23,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.FolderToIFolderAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.dms.data.*;
 
-import com.sungard.infinity.bpm.vfs.*;
+import org.eclipse.stardust.vfs.*;
 
 
 

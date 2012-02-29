@@ -28,26 +28,7 @@ import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContext;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.IFormalParameter;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.IReference;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.JoinSplitType;
-import org.eclipse.stardust.engine.api.model.LoopType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
@@ -570,7 +551,9 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       // Rule: Each activity must be assigned a performer.
       if (isInteractive())
       {
-         if (getPerformer() == null)
+         IModelParticipant performer = getPerformer();
+         
+         if (performer == null)
          {
             inconsistencies.add(new Inconsistency("No performer set for manual or interactive application activity '" + getId()
                   + "' of process '" + getProcessDefinition().getName() + "'.",
@@ -583,6 +566,32 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                   + "' set for manual or interactive application activity '"
                   + getId() + "' doesn't exist in the model.",
                   this, Inconsistency.ERROR));
+         }
+         
+         if(isQualityAssuranceEnabled())
+         {
+            if(performer != null && performer instanceof IConditionalPerformer)
+            {
+               inconsistencies.add(new Inconsistency("Performer should not be a conditional performer for quality assurance activity '" + getId()
+                     + "' of process '" + getProcessDefinition().getName() + "'.",
+                     this,
+                     Inconsistency.ERROR));               
+            }
+            IModelParticipant qualityAssurancePerformer = getQualityAssurancePerformer();
+            if(qualityAssurancePerformer == null)
+            {
+               inconsistencies.add(new Inconsistency("No quality assurance performer set for quality assurance activity '" + getId()
+                     + "' of process '" + getProcessDefinition().getName() + "'.",
+                     this,
+                     Inconsistency.ERROR));               
+            }
+            else if(qualityAssurancePerformer instanceof IConditionalPerformer)
+            {
+               inconsistencies.add(new Inconsistency("Quality assurance performer should not be a conditional performer for quality assurance activity '" + getId()
+                     + "' of process '" + getProcessDefinition().getName() + "'.",
+                     this,
+                     Inconsistency.ERROR));                              
+            }
          }
       }
 

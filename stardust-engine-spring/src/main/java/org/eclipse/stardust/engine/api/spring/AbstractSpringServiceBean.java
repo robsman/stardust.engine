@@ -32,7 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.sungard.infinity.bpm.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 
 public abstract class AbstractSpringServiceBean

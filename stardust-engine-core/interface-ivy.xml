@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
 <ivy-module version="2.0"
    xmlns:m="http://ant.apache.org/ivy/maven"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
@@ -178,7 +188,7 @@
       <dependency org="org.apache.geronimo.components" name="geronimo-transaction" rev="2.1.1" conf="jencks-provider-runtime->default"/>
 
       <!-- jcr-vfs-provider-compile -->
-      <dependency org="com.sungard.infinity.bpm" name="jcr-vfs" rev="2.0.6-SNAPSHOT" conf="jcr-vfs-provider-compile->default">
+      <dependency org="com.sungard.infinity.bpm" name="jcr-vfs" rev="2.4.0-SNAPSHOT" conf="jcr-vfs-provider-compile->default">
           <exclude org="org.apache.jackrabbit" module="jackrabbit-api"/>
          <exclude org="org.apache.jackrabbit" module="jackrabbit-core"/>
          <exclude org="org.apache.jackrabbit" module="jackrabbit-jca"/>

@@ -243,29 +243,35 @@ public class DataCopyUtils
             if ( !mappingRules.containsKey(dataId))
             {
                targetData = getDataFromProcessInstance(targetProcessInstance, dataId);
-               targetValue = srcValue.getSerializedValue();
-               targetProcessInstance.setOutDataValue(targetData, "", targetValue);
+               if ( !ignoreDataIds.contains(targetData.getId()))
+               {
+                  targetValue = srcValue.getSerializedValue();
+                  targetProcessInstance.setOutDataValue(targetData, "", targetValue);
+               }
             }
             else
             {
                DataCopyMappingRule dataCopyMappingRule = mappingRules.get(dataId);
                targetData = dataCopyMappingRule.getTargetData();
 
-               Object modifiedValue = processMappingRule(srcValue, dataCopyMappingRule,
-                     targetProcessInstance);
-               if (modifiedValue != null)
+               if ( !ignoreDataIds.contains(targetData.getId()))
                {
-                  targetValue = modifiedValue;
-               }
-               else
-               {
-                  targetValue = srcValue.getSerializedValue();
-               }
-               targetProcessInstance.setOutDataValue(targetData, "", targetValue);
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Data copy Heuristic in effect: Mapping data '" + dataId
-                        + "' to '" + targetData.getId() + "'");
+                  Object modifiedValue = processMappingRule(srcValue,
+                        dataCopyMappingRule, targetProcessInstance);
+                  if (modifiedValue != null)
+                  {
+                     targetValue = modifiedValue;
+                  }
+                  else
+                  {
+                     targetValue = srcValue.getSerializedValue();
+                  }
+                  targetProcessInstance.setOutDataValue(targetData, "", targetValue);
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Data copy Heuristic in effect: Mapping data '" + dataId
+                           + "' to '" + targetData.getId() + "'");
+                  }
                }
             }
          }

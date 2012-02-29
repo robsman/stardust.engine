@@ -380,17 +380,9 @@ public class AuthorizationContext
          case ALL:
             return ALL_PERMISSIONS;
          case OWNER:
-            if (modelElement instanceof IActivity
-                  && ((IActivity) modelElement).isInteractive()
-             || processInstance != null
-                  && processInstance.isCaseProcessInstance())
-            {
-               result[i] = Authorization2.OWNER;
-            }
-            else
-            {
-               result[i] = PredefinedConstants.ADMINISTRATOR_ROLE;
-            }
+            boolean supportsOwner = modelElement != null &&
+                  (!(modelElement instanceof IActivity) || ((IActivity) modelElement).isInteractive());
+            result[i] = supportsOwner ? Authorization2.OWNER : PredefinedConstants.ADMINISTRATOR_ROLE;
             break;
          }
       }

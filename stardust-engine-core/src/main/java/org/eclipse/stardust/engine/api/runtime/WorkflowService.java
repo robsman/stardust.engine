@@ -612,6 +612,10 @@ public interface WorkflowService extends Service
     *            This can happen while the process hierarchy is currently
     *            locked because of case operations or subprocess creation.
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.spawnSubProcessInstance,
+         scope=ExecutionPermission.Scope.model,
+         defaults={ExecutionPermission.Default.ALL})
    ProcessInstance spawnSubprocessInstance(long parentProcessInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? > data)
          throws IllegalOperationException, ObjectNotFoundException, ConcurrencyException;
@@ -638,6 +642,10 @@ public interface WorkflowService extends Service
     *            This can happen while the process hierarchy is currently
     *            locked because of case operations or subprocess creation.
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.spawnSubProcessInstance,
+         scope=ExecutionPermission.Scope.model,
+         defaults={ExecutionPermission.Default.ALL})
    List<ProcessInstance> spawnSubprocessInstances(long parentProcessInstanceOid,
          List<SubprocessSpawnInfo> subprocessSpawnInfo) throws IllegalOperationException,
          ObjectNotFoundException, ConcurrencyException;
@@ -679,10 +687,14 @@ public interface WorkflowService extends Service
     *            if <code>abortProcessInstance</code> is false (currently not
     *            implemented).
     */
+//   @ExecutionPermission(
+//         id=ExecutionPermission.Id.abortProcessInstances,
+//         scope=ExecutionPermission.Scope.processDefinition,
+//         defer=true)
    @ExecutionPermission(
-         id=ExecutionPermission.Id.abortProcessInstances,
-         scope=ExecutionPermission.Scope.processDefinition,
-         defer=true)
+         id=ExecutionPermission.Id.spawnPeerProcessInstance,
+         scope=ExecutionPermission.Scope.model,
+         defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? > data,
          boolean abortProcessInstance, String comment) throws IllegalOperationException,
@@ -857,10 +869,14 @@ public interface WorkflowService extends Service
     *            if the join target is a subprocess of the source process instance.<br>
     *            if the source or target is a case process instance.
     */
+//   @ExecutionPermission(
+//         id=ExecutionPermission.Id.abortProcessInstances,
+//         scope=ExecutionPermission.Scope.processDefinition,
+//         defer=true)
    @ExecutionPermission(
-         id=ExecutionPermission.Id.abortProcessInstances,
-         scope=ExecutionPermission.Scope.processDefinition,
-         defer=true)
+         id=ExecutionPermission.Id.joinProcessInstance,
+         scope=ExecutionPermission.Scope.model,
+         defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance joinProcessInstance(long processInstanceOid,
          long targetProcessInstanceOid, String comment) throws ObjectNotFoundException, IllegalOperationException;
 
@@ -1496,12 +1512,12 @@ public interface WorkflowService extends Service
 
    /**
     * Sets attributes for an activity instance
-    * 
+    *
     * @param attributes - the attributes to set
-    * @throws ObjectNotFoundException - if the activity instance specified by 
-    * {@link ActivityInstanceAttributes#getActivityInstanceOid()} could no be found.                     
+    * @throws ObjectNotFoundException - if the activity instance specified by
+    * {@link ActivityInstanceAttributes#getActivityInstanceOid()} could no be found.
     * @throws InvalidArgumentException - when a result is set ({@link ActivityInstanceAttributes#getQualityAssuranceResult()}
-    * and the codes list({@link QualityAssuranceResult#getQualityAssuranceCodes()} contains a null element 
+    * and the codes list({@link QualityAssuranceResult#getQualityAssuranceCodes()} contains a null element
     */
    void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)
          throws ObjectNotFoundException, InvalidArgumentException;
@@ -1522,13 +1538,13 @@ public interface WorkflowService extends Service
 
    /**
     * Executes a {@link ServiceCommand} in a single engine transaction.
-    * 
+    *
     * If the service command implements <code>{@link Configurable}</code>, the following option may be provided:
     * <ul>
     * <li>"<b>autoFlush</b>" - automatically flushes the audit trail changes after every service call.
-    * The value must be a <code>{@link Boolean}</code> object. The default value is <code>{@link Boolean#FALSE}</code>. 
+    * The value must be a <code>{@link Boolean}</code> object. The default value is <code>{@link Boolean#FALSE}</code>.
     * </ul>
-    * 
+    *
     * @param serviceCmd the {@link ServiceCommand} to be executed.
     * @return the result of the execution. May be <code>null</code> if the command has no result.
     * @throws ServiceCommandException that encapsulates any exception thrown during the execution of the command.

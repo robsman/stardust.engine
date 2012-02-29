@@ -14,9 +14,9 @@ import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 
 /**
  * Contains all global permission ids which can be changed at runtime using the API.
- * 
+ *
  * @author roland.stamm
- * 
+ *
  */
 public class GlobalPermissionConstants extends RuntimePermissionConstants
 {
@@ -24,7 +24,7 @@ public class GlobalPermissionConstants extends RuntimePermissionConstants
    {
      // utility class
    }
-   
+
    /**
     * permission to flush the cache
     */
@@ -114,4 +114,19 @@ public class GlobalPermissionConstants extends RuntimePermissionConstants
     * permission to save preferences in own partition scope
     */
    public static final String GLOBAL_SAVE_OWN_PARTITION_SCOPE_PREFERENCES = ExecutionPermission.Id.saveOwnPartitionScopePreferences.name();
+
+   /**
+    * permission to join a process instance
+    */
+   public static final String GLOBAL_JOIN_PROCESS_INSTANCE = ExecutionPermission.Id.joinProcessInstance.name();
+
+   /**
+    * permission to spawn a peer process instance
+    */
+   public static final String GLOBAL_SPAWN_PEER_PROCESS_INSTANCE = ExecutionPermission.Id.spawnPeerProcessInstance.name();
+
+   /**
+    * permission to spawn a sub process instance
+    */
+   public static final String GLOBAL_SPAWN_SUB_PROCESS_INSTANCE = ExecutionPermission.Id.spawnSubProcessInstance.name();
 }

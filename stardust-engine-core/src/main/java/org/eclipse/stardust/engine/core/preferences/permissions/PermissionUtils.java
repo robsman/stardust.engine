@@ -97,6 +97,13 @@ public class PermissionUtils
             PredefinedConstants.ADMINISTRATOR_ROLE);
       defaultPermissions.put(ExecutionPermission.Id.saveOwnUserScopePreferences.name(),
             Authorization2.ALL);
+
+      defaultPermissions.put(ExecutionPermission.Id.spawnSubProcessInstance.name(),
+            Authorization2.ALL);
+      defaultPermissions.put(ExecutionPermission.Id.spawnPeerProcessInstance.name(),
+            Authorization2.ALL);
+      defaultPermissions.put(ExecutionPermission.Id.joinProcessInstance.name(),
+            Authorization2.ALL);
    }
 
    public static boolean isDefaultPermission(String permissionId, List<String> grants)

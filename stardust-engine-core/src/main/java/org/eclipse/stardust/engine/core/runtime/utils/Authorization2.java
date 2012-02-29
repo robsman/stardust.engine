@@ -39,7 +39,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 
 
 /**
- * 
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -50,7 +50,7 @@ public class Authorization2
    public static final String OWNER = "__carnot_internal_owner_permission__";
 
    private static final String[] OWNER_SET = {OWNER};
-   
+
    public static void checkPermission(Method method, Object[] args)
    {
       AuthorizationContext context = AuthorizationContext.create(method);
@@ -61,7 +61,7 @@ public class Authorization2
          {
             return;
          }
-         
+
          String requiredGrant = null;
          Authorization2Predicate authorizationPredicate = null;
          switch (permission.scope())
@@ -132,13 +132,39 @@ public class Authorization2
                      }
                   }
 
-                  UserBean user_ = UserBean.findByOid(user.getOID());                  
+                  UserBean user_ = UserBean.findByOid(user.getOID());
                   if(SecurityProperties.isTeamLeader(user_))
                   {
                      break;
-                  }                  
+                  }
                }
-               
+
+               if (method.getDeclaringClass().equals(WorkflowService.class)
+                     && method.getName().equals("joinProcessInstance"))
+               {
+
+                  ClientPermission xpermission = new ClientPermission(
+                        Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                  AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
+                  authorizationPredicate = new ProcessInstanceAuthorization2Predicate(
+                        xcontext);
+               }
+               else if (method.getDeclaringClass().equals(WorkflowService.class)
+                     && method.getName().equals("spawnPeerProcessInstance"))
+               {
+                  Boolean abortProcess = (Boolean) args[4];
+                  if (Boolean.TRUE.equals(abortProcess))
+                  {
+
+                     ClientPermission xpermission = new ClientPermission(
+                           Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                     AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
+
+                     authorizationPredicate = new ProcessInstanceAuthorization2Predicate(
+                           xcontext);
+                  }
+               }
+
                if (method.getDeclaringClass().equals(AdministrationService.class)
                      && method.getName().equals("savePreferences"))
                {
@@ -151,7 +177,7 @@ public class Authorization2
                   {
                      preferencesList = Collections.singletonList((Preferences) args[0]);
                   }
-                  
+
                   for (Preferences preferences : preferencesList)
                   {
                      PreferenceScope scope = null;
@@ -258,7 +284,7 @@ public class Authorization2
       String requiredGrant = checkPermission(context);
       return requiredGrant == null;
    }
-   
+
    private static String checkPermission(AuthorizationContext context)
    {
       String[] grants = context.getGrants();
@@ -388,7 +414,7 @@ public class Authorization2
                   }
                }
             }
-            
+
 /*            old code
             List<Long> subdepartments = department > 0
                ? DepartmentHierarchyBean.findAllSubDepartments(department)

@@ -7,7 +7,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/javax/xml/stream/1.0-2/stax-api-1.0-2.jar"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/javax/xml/bind/2.1/jaxb-api-2.1.jar" sourcepath="Q-ARCHIVE/thirdparty/javax/xml/bind/2.1/jaxb-api-2.1-sources.jar"/>
-	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/javax/ejb/2.1/ejb-2.1.jar">
+	<classpathentry exported="true" kind="var" path="Q-ARCHIVE/thirdparty/geronimo/ejb/2.1/geronimo-ejb_2.1_spec-1.1.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="http://java.sun.com/javaee/5/docs/api/"/>
 		</attributes>

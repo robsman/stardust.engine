@@ -110,7 +110,7 @@
       <dependency org="org.apache.geronimo.specs" name="geronimo-jms_1.1_spec" rev="1.1.1" conf="jms-interface-runtime->default" />
 
       <!-- ejb21-interface-provided -->
-      <dependency org="javax.ejb" name="ejb" rev="2.1" conf="ejb21-interface-provided->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-ejb_2.1_spec" transitive="false" rev="1.1" conf="ejb21-interface-provided->default" />
       <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" conf="ejb21-interface-provided->default" />
 
       <!-- ejb30-interface-compile -->

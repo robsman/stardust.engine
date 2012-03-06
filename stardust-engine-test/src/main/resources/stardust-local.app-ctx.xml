@@ -96,7 +96,7 @@
          <bean factory-bean="jcrRepoConfigFile" factory-method="getFile" />
       </constructor-arg>
       <constructor-arg index="1">
-         <bean factory-bean="jcrWorkspace" factory-method="path" />
+         <bean factory-bean="jcrWorkspace" factory-method="file" />
       </constructor-arg>
    </bean>
    <bean id="jcrRepoConfigFile" class="org.springframework.core.io.ClassPathResource">

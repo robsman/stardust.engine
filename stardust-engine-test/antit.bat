@@ -1,4 +1,4 @@
-@rem ***************************************************************************
+@rem *********************************************************************************
 @rem Copyright (c) 2012 SunGard CSA LLC and others.
 @rem All rights reserved. This program and the accompanying materials
 @rem are made available under the terms of the Eclipse Public License v1.0
@@ -7,7 +7,7 @@
 @rem
 @rem Contributors:
 @rem    SunGard CSA LLC - initial API and implementation and/or initial documentation
-@rem ***************************************************************************
+@rem *********************************************************************************
 @echo off
 setlocal
 

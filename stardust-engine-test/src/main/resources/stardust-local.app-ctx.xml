@@ -91,11 +91,16 @@
          </bean>
       </property>
    </bean>
-   <bean id="carnotJackrabbitRepository" class="org.apache.jackrabbit.core.TransientRepository" lazy-init="true" depends-on="jcrWorkspace">
-      <constructor-arg index="0" value="src/main/resources/repository.xml" />
+   <bean id="carnotJackrabbitRepository" class="org.apache.jackrabbit.core.TransientRepository" lazy-init="true" depends-on="jcrRepoConfigFile, jcrWorkspace">
+      <constructor-arg index="0">
+         <bean factory-bean="jcrRepoConfigFile" factory-method="getFile" />
+      </constructor-arg>
       <constructor-arg index="1">
          <bean factory-bean="jcrWorkspace" factory-method="path" />
       </constructor-arg>
+   </bean>
+   <bean id="jcrRepoConfigFile" class="org.springframework.core.io.ClassPathResource">
+      <constructor-arg index="0" value="repository.xml" />
    </bean>
    <bean id="jcrWorkspace" class="org.eclipse.stardust.test.impl.Workspace" init-method="create" destroy-method="remove">
       <constructor-arg index="0" value="jcr" />

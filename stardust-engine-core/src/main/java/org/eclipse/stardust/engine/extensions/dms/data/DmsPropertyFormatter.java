@@ -23,16 +23,16 @@ public class DmsPropertyFormatter
 
    public static final int AS_MAP = 1;
    public static final int AS_LIST = 2;
-   
+
    private String excludeXPath;
    private int type;
-   
+
    public DmsPropertyFormatter(int type, String excludeXPath)
    {
       this.type = type;
       this.excludeXPath = excludeXPath;
    }
-   
+
    public void visit(Map m, String xPath)
    {
       if (m == null)
@@ -46,7 +46,7 @@ public class DmsPropertyFormatter
          String key = (String)e.getKey();
          if (e.getValue() instanceof List)
          {
-            if (AuditTrailUtils.RES_PROPERTIES.equals(key) && type == AS_MAP)
+            if (isUnstructuredProperty(key) && type == AS_MAP)
             {
                if ( !appendXPath(xPath, key).equals(this.excludeXPath))
                {
@@ -60,7 +60,7 @@ public class DmsPropertyFormatter
          }
          else if (e.getValue() instanceof Map)
          {
-            if (AuditTrailUtils.RES_PROPERTIES.equals(key) && type == AS_LIST)
+            if (isUnstructuredProperty(key) && type == AS_LIST)
             {
                if ( !appendXPath(xPath, key).equals(this.excludeXPath))
                {
@@ -74,18 +74,23 @@ public class DmsPropertyFormatter
          }
       }
    }
-   
+
+   private boolean isUnstructuredProperty(String key)
+   {
+      return AuditTrailUtils.RES_PROPERTIES.equals(key) || AuditTrailUtils.FILE_ANNOTATIONS.equals(key);
+   }
+
    public void visit(List l, String xPath)
    {
       if (l == null)
       {
          return;
       }
-   
+
       for (int i=0; i<l.size(); i++)
       {
          Object o = l.get(i);
-         
+
          if (o instanceof List)
          {
             visit((List)o, xPath);
@@ -96,7 +101,7 @@ public class DmsPropertyFormatter
          }
       }
    }
-   
+
    private String appendXPath(String parentXPath, String childName)
    {
       if (StringUtils.isEmpty(parentXPath))
@@ -109,6 +114,6 @@ public class DmsPropertyFormatter
          sb.append("/");
          sb.append(childName);
          return sb.toString();
-      } 
+      }
    }
 }

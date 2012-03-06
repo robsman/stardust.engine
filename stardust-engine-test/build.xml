@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!--
+  To execute this build script, you have to configure your environment as follows:
+  - Java property java.home must point to an existent JAVA_HOME (either via parameter
+    (e.g. antit.bat -Djava.home=C:/Programme/Java15) or create a private.properties file
+    in the etc folder of the project and put the property in there)
+-->
+<project name="stardust-engine-test" default="test" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros" xmlns:ivy="antlib:org.apache.ivy.ant">
+   
+   <property name="src.main.java.dir" value="${basedir}/src/main/java" />
+   <property name="src.main.resources.dir" value="${basedir}/src/main/resources" />
+   <property name="src.test.java.dir" value="${basedir}/src/test/java" />
+   <property name="src.test.resources.dir" value="${basedir}/src/test/resources" />
+   
+   <property name="build.dir" value="${basedir}/build" />
+   <property name="report.dir" value="${basedir}/report" />
+   
+   <property file="${basedir}/etc/private.properties" />
+   
+   <import file="../../build.tools/commons-build.xml" />
+   
+   <!-- clean -->
+   <target name="clean" description="Cleans the project.">
+      <delete dir="${build.dir}" />
+      <delete dir="${report.dir}" />
+   </target>
+   
+   <!-- test -->
+   <target name="test" description="Runs the functional tests." depends="build-main, build-test">
+      <!-- Runtime Classpath for JUnit tests -->
+      <path id="junit.rt.classpath">
+         <path refid="compile.deps" />
+         <path refid="test" />
+         <pathelement location="${build.dir}" />
+      </path>
+      
+      <!-- Example Test Suite -->
+      <junit fork="yes" haltonfailure="on" haltonerror="on">
+         <test name="org.eclipse.stardust.test.examples.MyTestSuite" />
+         <formatter type="brief" usefile="false" />
+         <classpath refid="junit.rt.classpath" />
+      </junit>
+   </target>
+   
+   <!-- report -->
+   <target name="report" description="Creates a dependency report." depends="init">
+      <ivy:report todir="${report.dir}" />
+   </target>
+   
+   <!-- build-main -->
+   <target name="build-main" depends="init, compile-main, copy-resources-main" />
+   
+   <!-- compile-main -->
+   <target name="compile-main" depends="init">
+      <ipp:javac-java6 srcdir="${src.main.java.dir}" destdir="${build.dir}">
+         <classpath refid="compile.deps" />
+      </ipp:javac-java6>
+   </target>
+   
+   <!-- copy-resources-main -->
+   <target name="copy-resources-main" depends="init">
+      <copy todir="${build.dir}">
+         <fileset dir="${src.main.resources.dir}" />
+      </copy>
+   </target>
+   
+   <!-- build-test -->
+   <target name="build-test" depends="init, compile-test, copy-resources-test" />
+   
+   <!-- compile-test -->
+   <target name="compile-test" depends="init">
+      <ipp:javac-java6 srcdir="${src.test.java.dir}" destdir="${build.dir}">
+         <classpath>
+            <path refid="compile.deps" />
+            <path refid="test" />
+            <pathelement location="${build.dir}" />
+         </classpath>
+      </ipp:javac-java6>
+   </target>
+   
+   <!-- copy-resources-test -->
+   <target name="copy-resources-test" depends="init">
+      <copy todir="${build.dir}">
+         <fileset dir="${src.test.resources.dir}" />
+      </copy>
+   </target>
+   
+   <!-- init -->
+   <target name="init">
+      <mkdir dir="${build.dir}"/>
+      
+      <init-ivy/>
+      <init-ivy-classpath/>
+   </target>
+   
+</project>

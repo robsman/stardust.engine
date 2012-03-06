@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!-- Application context for a local spring configuration of the Stardust Engine. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+   <!-- Stardust Engine Services -->   
+   <bean id="abstractCarnotService" abstract="true" class="org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean">
+      <property name="transactionManager" ref="jtaTxManager" />
+      <property name="dataSource" ref="xaAuditTrailConnectionFactory" />
+      <property name="jmsResourceProvider" ref="jmsResourceResolver" />
+      <property name="dmsProvider" ref="dmsProvider" />
+   </bean>
+   <bean id="carnotWorkflowService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.WorkflowServiceBean" />
+   <bean id="carnotUserService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.UserServiceBean" />
+   <bean id="carnotQueryService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.QueryServiceBean" />
+   <bean id="carnotAdministrationService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.AdministrationServiceBean" />
+   <bean id="carnotDocumentManagementService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.DocumentManagementServiceBean" />
+
+   <!-- Jencks JTA Transaction Manager -->
+   <bean id="xaTransactionManager" class="org.jencks.factory.TransactionManagerFactoryBean" />
+
+   <!-- JTA Transaction Manager -->
+   <bean id="jtaTxManager" class="org.springframework.transaction.jta.JtaTransactionManager">
+      <property name="userTransaction" ref="xaTransactionManager" />
+   </bean>
+
+   <!-- Audit Trail Data Source -->
+   <bean id="xaAuditTrailConnectionFactory" class="org.springframework.jca.support.LocalConnectionFactoryBean">
+      <property name="managedConnectionFactory">
+         <bean id="xaDataSourceMcf" class="org.eclipse.stardust.engine.core.persistence.jca.XaDataSourceMCF">
+            <constructor-arg index="0" ref="carnotXaAuditTrailDataSource" />
+         </bean>
+      </property>
+      <property name="connectionManager" ref="jencksConnectionManager" />
+   </bean>
+   <bean id="carnotXaAuditTrailDataSource" class="org.h2.jdbcx.JdbcDataSource" lazy-init="true">
+      <property name="URL" value="${AuditTrail.URL}" />
+      <property name="user" value="${AuditTrail.User}" />
+      <property name="password" value="${AuditTrail.Password}" />
+   </bean>
+   <bean id="jencksConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
+      <property name="transactionManager" ref="xaTransactionManager" />
+      <property name="transaction" value="xa" />
+      <property name="pooling" value="false" />
+   </bean>
+
+   <!-- JMS Resource Resolver -->
+   <bean id="jmsResourceResolver" class="org.eclipse.stardust.engine.spring.integration.jms.DefaultJmsResourceResolver" />
+
+   <!-- DMS Provider -->
+   <bean id="dmsProvider" class="org.eclipse.stardust.vfs.jcr.JcrDocumentRepositoryServiceBean">
+      <property name="sessionFactoryName" value="jcrSessionFactory" />
+   </bean>
+   <bean id="jcrSessionFactory" class="org.eclipse.stardust.vfs.jcr.spring.JcrSessionFactory" lazy-init="true">
+      <property name="repository" ref="xaJcrConnectionFactory" />
+      <property name="credentials">
+         <bean id="creds" class="javax.jcr.SimpleCredentials">
+            <constructor-arg index="0" value="jcr-user" />
+            <constructor-arg index="1">
+               <bean factory-bean="jcrPassword" factory-method="toCharArray" />
+            </constructor-arg>
+         </bean>
+      </property>
+   </bean>
+   <bean id="jcrPassword" class="java.lang.String">
+      <constructor-arg index="0" value="jcr-password" />
+   </bean>
+   <bean id="xaJcrConnectionFactory" class="org.springframework.jca.support.LocalConnectionFactoryBean" lazy-init="true">
+      <property name="managedConnectionFactory">
+         <bean id="jackrabbitRepo" class="org.eclipse.stardust.vfs.jcr.jca.JackrabbitRepositoryMCF">
+            <property name="repository" ref="carnotJackrabbitRepository" />
+            <property name="bindSessionToTransaction" value="true" />
+         </bean>
+      </property>
+      <property name="connectionManager">
+         <bean id="connectionManagerFactory" class="org.jencks.factory.ConnectionManagerFactoryBean">
+            <property name="transactionManager" ref="xaTransactionManager" />
+            <property name="transaction" value="xa" />
+         </bean>
+      </property>
+   </bean>
+   <bean id="carnotJackrabbitRepository" class="org.apache.jackrabbit.core.TransientRepository" lazy-init="true" depends-on="jcrWorkspace">
+      <constructor-arg index="0" value="src/main/resources/repository.xml" />
+      <constructor-arg index="1">
+         <bean factory-bean="jcrWorkspace" factory-method="path" />
+      </constructor-arg>
+   </bean>
+   <bean id="jcrWorkspace" class="org.eclipse.stardust.test.impl.Workspace" init-method="create" destroy-method="remove">
+      <constructor-arg index="0" value="jcr" />
+   </bean>
+
+   <!-- Forking Service -->
+   <bean id="carnotForkingService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.QueuedSpringForkingService">
+      <property name="jobManager" ref="carnotAsyncJobManager" />
+   </bean>
+   <bean id="carnotAsyncJobManager" class="org.eclipse.stardust.engine.spring.threading.FiFoJobManager" scope="singleton">
+      <property name="maxParallelJobs" value="10" />
+      <property name="useShutdownHook" value="true" />
+   </bean>
+   
+   <!-- Property resolver for properties from 'carnot.properties' -->
+   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+      <property name="location" value="classpath:carnot.properties" />
+    </bean>
+</beans>

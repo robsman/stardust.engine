@@ -52,7 +52,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    private static final String DATACLUSTER_VERIFY = "verifyDataClusters";
    private static final String DATACLUSTER_DROP = "dropDataClusters";
    private static final String DATACLUSTER_CONFIG_FILE = "configFile";
-   
+
    private static final String AUDITTRAIL_SKIPDDL = "skipDDL";
    private static final String AUDITTRAIL_SKIPDML = "skipDML";
    private static final String AUDITTRAIL_SQL = "sql";
@@ -95,7 +95,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             "Spools SQL statements to file instead of executing them on audit trail.", true);
       argTypes.register("-" + STATEMENT_DELIMITER, "-sd", STATEMENT_DELIMITER,
             "Specifies the delimiter applied after each SQL statement.", true);
-      
+
       argTypes.addExclusionRule(//
             new String[] { LOCKTABLE_ENABLE, LOCKTABLE_VERIFY, LOCKTABLE_DROP,//
                   DATACLUSTER_ENABLE, DATACLUSTER_VERIFY, DATACLUSTER_DROP,//
@@ -119,10 +119,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       {
          optionHandled = true;
          print("Creating missing proxy locking tables and synchronizing their table content for Infinity schema.");
-         
+
          boolean skipDdl = options.containsKey(AUDITTRAIL_SKIPDDL);
          boolean skipDml = options.containsKey(AUDITTRAIL_SKIPDML);
-         
+
          try
          {
             SchemaHelper.alterAuditTrailCreateLockingTables(password, skipDdl, skipDml,
@@ -145,7 +145,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       {
          optionHandled = true;
          print("Verifying existence of proxy locking tables and their consistency.");
-         
+
          try
          {
             SchemaHelper.alterAuditTrailVerifyLockingTables(password);
@@ -160,7 +160,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             trace.warn("", e);
             throw new PublicException(e.getMessage());
          }
-         
+
          print("Verification of proxy locking tables and their consistency done.");
       }
       else if (options.containsKey(LOCKTABLE_DROP))
@@ -171,26 +171,26 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
                statementDelimiter);
          print("Proxy locking tables dropped.");
       }
-      
+
       return optionHandled;
    }
-   
+
    private boolean doRunDataClusterOptions(Map options)
    {
       final String password = (String) globalOptions.get("password");
       final String statementDelimiter = (String) options.get(STATEMENT_DELIMITER);
 
-      
+
       boolean optionHandled = false;
       if (options.containsKey(DATACLUSTER_ENABLE))
       {
          optionHandled = true;
          print("Creating missing data cluster tables and synchronizing their table content for Infinity schema.");
-         
+
          String configFileName = (String) options.get(DATACLUSTER_CONFIG_FILE);
          boolean skipDdl = options.containsKey(AUDITTRAIL_SKIPDDL);
          boolean skipDml = options.containsKey(AUDITTRAIL_SKIPDML);
-         
+
          try
          {
             SchemaHelper.alterAuditTrailCreateDataClusterTables(password, configFileName,
@@ -206,14 +206,14 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             trace.warn("", e);
             throw new PublicException(e.getMessage());
          }
-         
+
          print("Data cluster tables created and synchronized.");
       }
       else if (options.containsKey(DATACLUSTER_VERIFY))
       {
          optionHandled = true;
          print("Verifying existence of data cluster tables and their consistency.");
-         
+
          try
          {
             SchemaHelper.alterAuditTrailVerifyDataClusterTables(password);
@@ -228,7 +228,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             trace.warn("", e);
             throw new PublicException(e.getMessage());
          }
-         
+
          print("Verification of data cluster tables and their consistency done.");
       }
       else if (options.containsKey(DATACLUSTER_DROP))
@@ -240,7 +240,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
                statementDelimiter);
          print("Data cluster tables dropped.");
       }
-      
+
       return optionHandled;
    }
 
@@ -255,9 +255,9 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       {
          optionHandled = true;
          print("Creating a new partition in AuditTrail.");
-         
+
          String partitionId = (String) options.get(PARTITION_CREATE);
-         
+
          try
          {
             SchemaHelper.alterAuditTrailCreatePartition(password, partitionId,
@@ -280,14 +280,14 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       {
          optionHandled = true;
          print("Deletes the partition and any contained data from the AuditTrail.");
-         
+
          String partitionId = (String) options.get(PARTITION_DROP);
          Utils.initCarnotEngine(partitionId);
 
          IAuditTrailPartition partition = AuditTrailPartitionBean.findById(partitionId);
          Session session = (Session) SessionFactory
                .getSession(SessionFactory.AUDIT_TRAIL);
-         
+
          // Delete for all models in given partition the runtime data (process instances, ...).
          Iterator iter = session.getIterator(ModelPersistorBean.class, QueryExtension
                .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partition
@@ -313,7 +313,12 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             AdminServiceUtils.deleteModelModelingPart(model.getOID(), session);
             model.delete();
          }
-         
+
+         // Delete ProcessInstanceLinkTypes
+         session.delete(ProcessInstanceLinkTypeBean.class,
+               Predicates.isEqual(ProcessInstanceLinkTypeBean.FR__PARTITION, partition.getOID()),
+               false);
+
          // Delete partition scope preferences
          AdminServiceUtils.deletePartitionPreferences(partition.getOID(), session);
 
@@ -365,10 +370,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             throw new PublicException(e.getMessage());
          }
       }
-      
+
       return optionHandled;
    }
-   
+
    public int doRun(Map options)
    {
       if (globalOptions.containsKey("dbtype"))
@@ -383,7 +388,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          if ( !StringUtils.isEmpty(fileName))
          {
             File ddlFile = new File(fileName);
-            
+
             try
             {
                spoolDevice = new PrintStream(new FileOutputStream(ddlFile));
@@ -396,7 +401,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             }
          }
       }
-      
+
       if ( !doRunLockingTableOptions(options) && !doRunDataClusterOptions(options)
             && !doRunPartitionOptions(options))
       {
@@ -430,24 +435,24 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          print("Alters existing Infinity schema:\n");
       }
    }
-   
+
    public void preprocessOptions(Map options)
    {
       if (options.containsKey(PARTITIONS_LIST))
       {
          isListPartitionsOption = true;
       }
-      
+
       super.preprocessOptions(options);
    }
-   
+
    public boolean force()
    {
       if (isListPartitionsOption)
       {
          return true;
       }
-      
+
       return super.force();
    }
 

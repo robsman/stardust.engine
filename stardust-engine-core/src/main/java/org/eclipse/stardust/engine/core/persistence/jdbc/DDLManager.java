@@ -48,7 +48,7 @@ public class DDLManager
    public static final Logger trace = LogManager.getLogger(DDLManager.class);
 
    private DBDescriptor dbDescriptor;
-   
+
    public static String getQualifiedName(String schemaName, String objectName)
    {
       String prefix = "";
@@ -64,10 +64,10 @@ public class DDLManager
       Assert.condition(field.getDeclaringClass().isAssignableFrom(type), "Class "
             + field.getDeclaringClass().getName() + " is not assignable from "
             + type.getName());
-      
+
       // TODO (sb): Improve performance by implementing look up cache
       FieldDescriptor descriptor = null;
-      
+
       List persistentFields = TypeDescriptor.get(type).getPersistentFields();
       for (Iterator i = persistentFields.iterator(); i.hasNext();)
       {
@@ -78,7 +78,7 @@ public class DDLManager
             break;
          }
       }
-      
+
       return descriptor;
    }
 
@@ -90,7 +90,7 @@ public class DDLManager
       {
          TypeDescriptor typeDescriptor = TypeDescriptor
                .get(Constants.PERSISTENT_RUNTIME_CLASSES[n]);
-         
+
          if (tableName.equals(typeDescriptor.getTableName()) ||
                tableName.equals(typeDescriptor.getLockTableName()))
          {
@@ -98,7 +98,7 @@ public class DDLManager
             break;
          }
       }
-      
+
       if ( !isPredefined)
       {
          for (int n = 0; n < Constants.PERSISTENT_MODELING_CLASSES.length; ++n)
@@ -114,17 +114,17 @@ public class DDLManager
             }
          }
       }
-      
+
       return isPredefined;
    }
-   
+
    private static void executeOrSpoolStatement(String statement, Connection connection,
          PrintStream spoolFile) throws SQLException
    {
       if (null == spoolFile)
       {
          Statement stmt = null;
-         
+
          try
          {
             stmt = connection.createStatement();
@@ -153,7 +153,7 @@ public class DDLManager
    {
       return getCreateTableStatementString(schemaName, typeManager, false);
    }
-   
+
    private String getGrantAllOnTableStatement(String schemaName,
          TypeDescriptor typeManager, String grantTarget)
    {
@@ -169,7 +169,7 @@ public class DDLManager
 
       return buffer.toString();
    }
-   
+
    public String getCreateTableStatementString(String schemaName,
          TypeDescriptor typeManager, boolean archive)
    {
@@ -197,7 +197,7 @@ public class DDLManager
          buffer.append(dbDescriptor.quoteIdentifier(fieldName));
          buffer.append(" ");
          buffer.append(dbDescriptor.getSQLType(descriptor.getField().getType(), descriptor.getLength()));
-         
+
          boolean forceNotNull = false;
          if ( !archive && dbDescriptor.supportsIdentityColumns()
                && typeManager.requiresPKCreation()
@@ -206,7 +206,7 @@ public class DDLManager
             buffer.append(" ").append(dbDescriptor.getIdentityColumnQualifier());
             forceNotNull = true;
          }
-         
+
          if ( !forceNotNull && !dbDescriptor.isColumnNullableByDefault())
          {
             buffer.append(" NULL");
@@ -229,7 +229,7 @@ public class DDLManager
          buffer.append(" ");
          buffer.append(dbDescriptor.getSQLType(
                link.getFkField().getType(), link.getFKFieldLength()));
-         
+
          if ( !dbDescriptor.isColumnNullableByDefault())
          {
             buffer.append(" NULL");
@@ -237,7 +237,7 @@ public class DDLManager
       }
 
       buffer.append(")");
-      
+
       final String tableOptions = dbDescriptor.getCreateTableOptions();
       if (!StringUtils.isEmpty(tableOptions))
       {
@@ -254,7 +254,7 @@ public class DDLManager
 
       buffer.append("CREATE TABLE ").append(
             getQualifiedName(schemaName, typeManager.getLockTableName())).append(" (");
-      
+
       Field[] pkFields = typeManager.getPkFields();
 
       for (int i = 0; i < pkFields.length; i++ )
@@ -269,7 +269,7 @@ public class DDLManager
                      pkFields[i].getType(),
                      getFieldDescriptor(pkFields[i], typeManager.getType()).getLength()));
       }
-      
+
       buffer.append(")");
 
       final String tableOptions = dbDescriptor.getCreateTableOptions();
@@ -463,7 +463,7 @@ public class DDLManager
                }
                IndexDescriptor indexDscr = new IndexDescriptor(
                      typeManager.getLockIndexName(), indexFields, true);
-               
+
                executeOrSpoolStatement(dbDescriptor.getCreateIndexStatement(schemaName,
                      typeManager.getLockTableName(), indexDscr), connection, spoolFile);
             }
@@ -595,7 +595,7 @@ public class DDLManager
          Collection classes, String statementDelimiter)
    {
       Assert.isNotNull(file);
-      
+
       statementDelimiter = getStatementDelimiter(statementDelimiter, dbDescriptor);
 
       try
@@ -638,7 +638,7 @@ public class DDLManager
                }
                IndexDescriptor indexDscr = new IndexDescriptor(tm.getLockIndexName(),
                      indexFields, true);
-                  
+
                ps.print(dbDescriptor.getCreateIndexStatement(schemaName,
                      tm.getLockTableName(), indexDscr));
                ps.println(statementDelimiter);
@@ -677,30 +677,30 @@ public class DDLManager
             columns.add(PropertyPersistor.FIELD__LOCALE);
             columns.add(PropertyPersistor.FIELD__FLAGS);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (" + dbDescriptor.getNextValForSeqString(schemaName, "property_seq") +
                   ", -1, 'sysop.password', 'sysop', 'DEFAULT', 0)");
             ps.println(statementDelimiter);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (" + dbDescriptor.getNextValForSeqString(schemaName, "property_seq") +
                   ", -1, 'carnot.version', '"
                   + CurrentVersion.getVersionName() + "', 'DEFAULT', 0)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(AuditTrailPartitionBean.FIELD__OID);
             columns.add(AuditTrailPartitionBean.FIELD__ID);
             columns.add(AuditTrailPartitionBean.FIELD__DESCRIPTION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (" + dbDescriptor.getNextValForSeqString(schemaName, "partition_seq") +
                   ", 'default', NULL)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserDomainBean.FIELD__OID);
             columns.add(UserDomainBean.FIELD__ID);
@@ -714,19 +714,19 @@ public class DDLManager
                   + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserDomainHierarchyBean.FIELD__OID);
             columns.add(UserDomainHierarchyBean.FIELD__SUBDOMAIN);
             columns.add(UserDomainHierarchyBean.FIELD__SUPERDOMAIN);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "domain_hierarchy_seq") + ", d.oid, d.oid "
                   + "FROM " +  dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME) + " d "
                   + "WHERE d.id = 'default'");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserRealmBean.FIELD__OID);
             columns.add(UserRealmBean.FIELD__ID);
@@ -734,13 +734,13 @@ public class DDLManager
             columns.add(UserRealmBean.FIELD__NAME);
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "wfuser_realm_seq") + ", 'carnot', p.oid, 'CARNOT', NULL "
                   + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserBean.FIELD__OID);
             columns.add(UserBean.FIELD__ACCOUNT);
@@ -755,7 +755,7 @@ public class DDLManager
             columns.add(UserBean.FIELD__LAST_LOGIN_TIME);
             columns.add(UserBean.FIELD__REALM);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "user_seq") + ", 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
                   + new Date().getTime() + ", "
@@ -771,13 +771,13 @@ public class DDLManager
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             columns.add(UserRealmBean.FIELD__PARTITION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "link_type_seq") + ", 'switch', 'Peer Process Instance', p.oid "
                   + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
-            
+
          }
          else if (dbDescriptor.supportsIdentityColumns())
          {
@@ -788,26 +788,26 @@ public class DDLManager
             columns.add(PropertyPersistor.FIELD__LOCALE);
             columns.add(PropertyPersistor.FIELD__FLAGS);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (-1, 'sysop.password', 'sysop', 'DEFAULT', 0)");
             ps.println(statementDelimiter);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (-1, 'carnot.version', '" + CurrentVersion.getVersionName()
                   + "', 'DEFAULT', 0)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(AuditTrailPartitionBean.FIELD__ID);
             columns.add(AuditTrailPartitionBean.FIELD__DESCRIPTION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES ('default', NULL)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserDomainBean.FIELD__ID);
             columns.add(UserDomainBean.FIELD__PARTITION);
@@ -820,33 +820,33 @@ public class DDLManager
                   + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserDomainHierarchyBean.FIELD__SUBDOMAIN);
             columns.add(UserDomainHierarchyBean.FIELD__SUPERDOMAIN);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT d.oid, d.oid "
                   + "FROM " +  dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME) + " d "
                   + "WHERE d.id = 'default'");
             ps.println(statementDelimiter);
 
-            
+
             columns = new ArrayList();
             columns.add(UserRealmBean.FIELD__ID);
             columns.add(UserRealmBean.FIELD__PARTITION);
             columns.add(UserRealmBean.FIELD__NAME);
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT 'carnot', p.oid, 'CARNOT', NULL "
                   + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
-            
+
             columns = new ArrayList();
             columns.add(UserBean.FIELD__ACCOUNT);
             columns.add(UserBean.FIELD__FIRST_NAME);
@@ -860,7 +860,7 @@ public class DDLManager
             columns.add(UserBean.FIELD__LAST_LOGIN_TIME);
             columns.add(UserBean.FIELD__REALM);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
                   + new Date().getTime() + ", "
@@ -868,14 +868,14 @@ public class DDLManager
                   + "FROM " + dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME) + " r "
                   + "WHERE r.id = 'carnot'");
             ps.println(statementDelimiter);
-            
+
             // insert predefined "switch" link type
             columns = new ArrayList();
             columns.add(UserRealmBean.FIELD__ID);
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             columns.add(UserRealmBean.FIELD__PARTITION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT 'switch', 'Peer Process Instance', p.oid "
                   + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
@@ -892,27 +892,27 @@ public class DDLManager
             columns.add(PropertyPersistor.FIELD__LOCALE);
             columns.add(PropertyPersistor.FIELD__FLAGS);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, -1, 'sysop.password', 'sysop', 'DEFAULT', 0)");
             ps.println(statementDelimiter);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (2, -1, 'carnot.version', '"
                   + CurrentVersion.getVersionName() + "', 'DEFAULT', 0)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(AuditTrailPartitionBean.FIELD__OID);
             columns.add(AuditTrailPartitionBean.FIELD__ID);
             columns.add(AuditTrailPartitionBean.FIELD__DESCRIPTION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, 'default', NULL)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserDomainBean.FIELD__OID);
             columns.add(UserDomainBean.FIELD__ID);
@@ -924,17 +924,17 @@ public class DDLManager
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, 'default', 1, NULL, NULL)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserDomainHierarchyBean.FIELD__OID);
             columns.add(UserDomainHierarchyBean.FIELD__SUBDOMAIN);
             columns.add(UserDomainHierarchyBean.FIELD__SUPERDOMAIN);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, 1, 1)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserRealmBean.FIELD__OID);
             columns.add(UserRealmBean.FIELD__ID);
@@ -942,11 +942,11 @@ public class DDLManager
             columns.add(UserRealmBean.FIELD__NAME);
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, 'carnot', 1, 'CARNOT', NULL)");
             ps.println(statementDelimiter);
-            
+
             columns = new ArrayList();
             columns.add(UserBean.FIELD__OID);
             columns.add(UserBean.FIELD__ACCOUNT);
@@ -961,12 +961,12 @@ public class DDLManager
             columns.add(UserBean.FIELD__LAST_LOGIN_TIME);
             columns.add(UserBean.FIELD__REALM);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
                   + new Date().getTime() + ",0 , NULL, 0, 0, 1)");
             ps.println(statementDelimiter);
-            
+
             ps.println(
                   "UPDATE " + getQualifiedName(schemaName, "sequence_helper") + " SET value=3 WHERE name='property_seq'");
             ps.println(statementDelimiter);
@@ -993,7 +993,7 @@ public class DDLManager
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             columns.add(UserRealmBean.FIELD__PARTITION);
             ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) 
+                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, 'switch', 'Peer Process Instance', 1)");
             ps.println(statementDelimiter);
@@ -1027,7 +1027,7 @@ public class DDLManager
 
             oStream.print(getCreateTableStatementString(schemaName, typeManager, true));
             oStream.println(";");
-            
+
             String grantTarget = Parameters.instance().getString("CreateArchiveDdlGrantTarget");
             if ( !StringUtils.isEmpty(grantTarget))
             {
@@ -1048,7 +1048,7 @@ public class DDLManager
             }
             oStream.println();
          }
-         
+
          List columns = new ArrayList();
          columns.add(PropertyPersistor.FIELD__OID);
          columns.add(PropertyPersistor.FIELD__NAME);
@@ -1057,7 +1057,7 @@ public class DDLManager
          columns.add(PropertyPersistor.FIELD__FLAGS);
          columns.add(PropertyPersistor.FIELD__PARTITION);
          oStream.println(
-               "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME)) 
+               "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(PropertyPersistor.TABLE_NAME))
                + buildColumnsFragment(dbDescriptor, columns)
                + "VALUES (1, '" + Constants.CARNOT_ARCHIVE_AUDITTRAIL + "', 'true', 'DEFAULT', 0, -1);");
 
@@ -1103,7 +1103,7 @@ public class DDLManager
                   outStream.println(statementDelimiter);
                }
             }
-            
+
             outStream.println();
 
             if (session.isUsingLockTables()
@@ -1125,11 +1125,11 @@ public class DDLManager
          throw new PublicException("Cannot write to file " + file.getName());
       }
    }
-   
+
    /**
-    * Returns the statement delimiter which shall be for the current statement. 
+    * Returns the statement delimiter which shall be for the current statement.
     * If statementDelimiter is null the predefined delimiter will be taken from dbDescriptor.
-    * 
+    *
     * @param statementDelimiter
     * @param dbDescriptor
     * @return
@@ -1152,13 +1152,13 @@ public class DDLManager
       {
          String userId = Parameters.instance().getString(
                SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX);
-         
+
          if (StringUtils.isEmpty(schemaName) && !StringUtils.isEmpty(userId))
          {
             schemaName = userId;
          }
       }
-      
+
       final String pureSchemaName = !StringUtils.isEmpty(schemaName)
             ? schemaName.toUpperCase()
             : null;
@@ -1170,7 +1170,7 @@ public class DDLManager
          // MySQL needs catalog to be set to schema name
          catalog = schemaName;
       }
-      
+
       try
       {
          DatabaseMetaData metaData = connection.getMetaData();
@@ -1185,7 +1185,7 @@ public class DDLManager
                if (trace.isDebugEnabled())
                {
                   trace.debug("Table " + tableName.toUpperCase() + " found.");
-               }               
+               }
                return true;
             }
             else if (DBMSKey.MYSQL.equals(dbDescriptor.getDbmsKey()))
@@ -1231,15 +1231,15 @@ public class DDLManager
          String schemaName, PrintStream spoolFile, String statementDelimiter)
    {
       TypeDescriptor typeManager = TypeDescriptor.get(type);
-      
+
       final String dataTable = getQualifiedName(schemaName, typeManager.getTableName());
       final String lockTable = getQualifiedName(schemaName,
             typeManager.getLockTableName());
-      
+
       try
       {
          Field[] pkFields = typeManager.getPkFields();
-         
+
          StringBuffer delBuffer = new StringBuffer(200);
          delBuffer
                .append("DELETE FROM ").append(lockTable)
@@ -1256,7 +1256,7 @@ public class DDLManager
                   .append(lockTable).append(".").append(pkFields[i].getName());
          }
          delBuffer.append(" )");
-         
+
          executeOrSpoolStatement(delBuffer.toString(), connection, spoolFile);
 
          StringBuffer insBuffer = new StringBuffer(200);
@@ -1313,27 +1313,27 @@ public class DDLManager
    public void verifyLockTableForClass(Class type, Connection connection, String schemaName)
    {
       TypeDescriptor typeManager = TypeDescriptor.get(type);
-      
+
       final String dataTable = getQualifiedName(schemaName, typeManager.getTableName());
       final String lockTable = getQualifiedName(schemaName,
             typeManager.getLockTableName());
-      
+
       Statement verifyStmt = null;
       ResultSet resultSet = null;
-      
+
       try
       {
          if ( !containsTable(schemaName, typeManager.getLockTableName(), connection))
          {
             String message = "Locking table " + lockTable + " does not exist.";
-            
+
             System.out.println(message);
             trace.warn(message);
          }
          else
          {
             Field[] pkFields = typeManager.getPkFields();
-            
+
             StringBuffer missingLocksBuffer = new StringBuffer(200);
             missingLocksBuffer
                   .append("SELECT 'x' FROM ").append(lockTable).append(" LCK ")
@@ -1351,16 +1351,16 @@ public class DDLManager
                      .append(" = LCK.").append(pkFields[i].getName());
             }
             missingLocksBuffer.append(" )");
-            
+
             verifyStmt = connection.createStatement();
             verifyStmt.execute(missingLocksBuffer.toString());
             resultSet = verifyStmt.getResultSet();
-            
+
             if (resultSet.next())
             {
                String message = "Locking table " + lockTable + " is not consistent. "
                      + "Missing lock entries.";
-               
+
                System.out.println(message);
                trace.warn(message);
             }
@@ -1384,12 +1384,12 @@ public class DDLManager
             danglingLocksBuffer.append(" )");
             verifyStmt.execute(danglingLocksBuffer.toString());
             resultSet = verifyStmt.getResultSet();
-            
+
             if (resultSet.next())
             {
                String message = "Locking table " + lockTable + " is not consistent. "
                      + "Dangling lock entries.";
-               
+
                System.out.println(message);
                trace.warn(message);
             }
@@ -1423,7 +1423,7 @@ public class DDLManager
          if ( !containsTable(schemaName, dataCluster.getTableName(), connection))
          {
             // Create table
-            
+
             try
             {
                List columnDescriptors = new ArrayList();
@@ -1433,7 +1433,7 @@ public class DDLManager
                colDescr.setName(dataCluster.getProcessInstanceColumn());
                colDescr.setColumnQualifier(null);
                columnDescriptors.add(colDescr);
-               
+
                for (DataSlot slot : dataCluster.getAllSlots())
                {
                   colDescr = ColumnDescriptor.create(DataValueBean.class,
@@ -1441,7 +1441,7 @@ public class DDLManager
                   colDescr.setName(slot.getOidColumn());
                   colDescr.setColumnQualifier(null);
                   columnDescriptors.add(colDescr);
-      
+
                   colDescr = ColumnDescriptor.create(DataValueBean.class,
                         DataValueBean.FIELD__TYPE_KEY, dbDescriptor);
                   colDescr.setName(slot.getTypeColumn());
@@ -1466,10 +1466,10 @@ public class DDLManager
                      columnDescriptors.add(colDescr);
                   }
                }
-               
+
                String createString = getGenericCreateTableStatementString(schemaName,
                      dataCluster.getTableName(), columnDescriptors);
-               
+
                executeOrSpoolStatement(createString, connection, spoolFile);
                trace.debug("Table created.");
             }
@@ -1481,9 +1481,9 @@ public class DDLManager
                System.out.println(message);
                trace.warn(message, e);
             }
-   
+
             // Create index
-   
+
             try
             {
                Set clusterIndexes = dataCluster.getIndexes().entrySet();
@@ -1491,12 +1491,12 @@ public class DDLManager
                {
                   DataClusterIndex index = (DataClusterIndex) ((Map.Entry) i.next())
                         .getValue();
-                  
+
                   IndexDescriptor indexDscr = new IndexDescriptor(
                         index.getIndexName(),
                         (String[]) index.getColumnNames().toArray(new String[0]),
                         index.isUnique());
-                  
+
                   String createString = dbDescriptor.getCreateIndexStatement(schemaName,
                         index.getTableName(), indexDscr);
                   executeOrSpoolStatement(createString, connection, spoolFile);
@@ -1510,7 +1510,7 @@ public class DDLManager
                System.out.println(message);
                trace.warn(message, e);
             }
-   
+
             trace.debug("Indexes created.");
             connection.commit();
          }
@@ -1549,12 +1549,12 @@ public class DDLManager
       final String structuredDataValueTable = getQualifiedName(schemaName, TypeDescriptor.get(
             StructuredDataValueBean.class).getTableName());
       final String clusterTable = getQualifiedName(schemaName, dataCluster.getTableName());
-      
+
       try
       {
          // Deleting obsolete entries
          String syncDelSql = MessageFormat.format(
-                 "DELETE FROM {0}" 
+                 "DELETE FROM {0}"
                + " WHERE NOT EXISTS ("
                + "  SELECT ''x'' "
                + "    FROM {2} PIS "
@@ -1565,9 +1565,9 @@ public class DDLManager
                      dataCluster.getProcessInstanceColumn(),
                      processInstanceScopeTable,
                      ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE});
-         
+
          executeOrSpoolStatement(syncDelSql, connection, spoolFile);
-         
+
          // inserting rows for new process instances
          String syncInsSql = MessageFormat.format(
                  "INSERT INTO {0} ({1}) "
@@ -1583,15 +1583,15 @@ public class DDLManager
                      dataCluster.getProcessInstanceColumn(),
                      processInstanceScopeTable,
                      ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE});
-   
+
          executeOrSpoolStatement(syncInsSql, connection, spoolFile);
-         
+
          // synchronizing slot values
          for (DataSlot dataSlot : dataCluster.getAllSlots())
          {
             String subselectSql;
             String dataValuePrefix;
-            if (StringUtils.isEmpty(dataSlot.getAttributeName())) 
+            if (StringUtils.isEmpty(dataSlot.getAttributeName()))
             {
                // normal data
                subselectSql = MessageFormat.format(
@@ -1611,10 +1611,10 @@ public class DDLManager
                            dataTable, // 4
                            modelTable, // 5
                            dataSlot.getModelId() // 6
-                           });  
+                           });
                dataValuePrefix = "dv";
             }
-            else 
+            else
             {
                // structured data
                subselectSql = MessageFormat.format(
@@ -1644,17 +1644,17 @@ public class DDLManager
                          });
                dataValuePrefix = "sdv";
             }
-            
+
             StringBuffer buffer = new StringBuffer(1000);
             buffer.append("UPDATE ").append(clusterTable)
                   .append(" SET ");
-            
+
             if (dbDescriptor.supportsMultiColumnUpdates())
             {
                buffer.append("(")
                      .append(dataSlot.getOidColumn())
                      .append(", ").append(dataSlot.getTypeColumn());
-               
+
                if ( !StringUtils.isEmpty(dataSlot.getNValueColumn()))
                {
                   buffer.append(", ").append(dataSlot.getNValueColumn());
@@ -1663,11 +1663,11 @@ public class DDLManager
                {
                   buffer.append(", ").append(dataSlot.getSValueColumn());
                }
-               
+
                buffer.append(") = ")
                      .append("(SELECT "+dataValuePrefix+".").append(DataValueBean.FIELD__OID)
                      .append(", ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__TYPE_KEY);
-                  
+
                if ( !StringUtils.isEmpty(dataSlot.getNValueColumn()))
                {
                   buffer.append(", ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__NUMBER_VALUE);
@@ -1684,12 +1684,12 @@ public class DDLManager
                buffer.append(dataSlot.getOidColumn()).append(" = ")
                      .append("(SELECT "+dataValuePrefix+".").append(DataValueBean.FIELD__OID)
                      .append(subselectSql).append(")");
-               
+
                buffer.append(", ")
                      .append(dataSlot.getTypeColumn()).append(" = ")
                      .append("(SELECT ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__TYPE_KEY)
                      .append(subselectSql).append(")");
-               
+
                if ( !StringUtils.isEmpty(dataSlot.getNValueColumn()))
                {
                   buffer.append(", ")
@@ -1705,7 +1705,7 @@ public class DDLManager
                      .append(subselectSql).append(")");
                }
             }
-            
+
             executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
          }
       }
@@ -1716,7 +1716,7 @@ public class DDLManager
          System.out.println(message);
          trace.warn(message, x);
       }
-   
+
       try
       {
          connection.commit();
@@ -1732,30 +1732,30 @@ public class DDLManager
          List columnDescriptors)
    {
       StringBuffer buffer = new StringBuffer();
-   
+
       buffer.append("CREATE TABLE ").append(
             getQualifiedName(schemaName, tableName)).append(" (");
-      
+
       List columnList = new ArrayList();
       for (Iterator i = columnDescriptors.iterator(); i.hasNext();)
       {
          ColumnDescriptor column = (ColumnDescriptor) i.next();
-         
+
          columnList.add(column.getName() + " " + column.getSqlType() + " "
                + column.getColumnQualifier());
       }
-      
+
       buffer.append(StringUtils.join(columnList.iterator(), ",")).append(")");
-   
+
       final String tableOptions = dbDescriptor.getCreateTableOptions();
       if ( !StringUtils.isEmpty(tableOptions))
       {
          buffer.append(" ").append(tableOptions);
       }
-   
+
       return buffer.toString();
    }
-   
+
    private String replaceSqlFragmentsByCluster(String sqlTemplate,
          DataCluster dataCluster, String schemaName)
    {
@@ -1775,9 +1775,9 @@ public class DDLManager
       final String modelTable = getQualifiedName(schemaName, TypeDescriptor.get(
             ModelPersistorBean.class).getTableName());
 
-      
+
       String result;
-      
+
       result = StringUtils.replace(sqlTemplate, "_$MODEL_TAB$_", modelTable);
       result = StringUtils.replace(result, "_$M_OID$_", ModelPersistorBean.FIELD__OID);
       result = StringUtils.replace(result, "_$M_ID$_", ModelPersistorBean.FIELD__ID);
@@ -1810,10 +1810,10 @@ public class DDLManager
       result = StringUtils.replace(result, "_$SDV_TAB$_", structuredDataValueTable);
       result = StringUtils.replace(result, "_$SDV_PROCESSINSTANCE$_", StructuredDataValueBean.FIELD__PROCESS_INSTANCE);
       result = StringUtils.replace(result, "_$SDV_XPATH$_", StructuredDataValueBean.FIELD__XPATH);
-      
+
       return result;
    }
-   
+
    private String replaceSqlFragmentsBySlot(String sqlTemplate, DataSlot dataSlot)
    {
       String result;
@@ -1822,7 +1822,7 @@ public class DDLManager
       result = StringUtils.replace(result, "_$DC_TYPE_KEY$_", dataSlot.getTypeColumn());
       result = StringUtils.replace(result, "_$SLOT_ATTRIBUTE_NAME$_", dataSlot.getAttributeName());
       result = StringUtils.replace(result, "_$SLOT_MODEL_ID_VALUE$_", dataSlot.getModelId());
-      
+
       if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
       {
          result = StringUtils.replace(result, "_$DV_VALUE$_",
@@ -1840,74 +1840,74 @@ public class DDLManager
 
       return result;
    }
-   
+
    public void verifyClusterTable(DataCluster dataCluster, Connection connection,
          String schemaName)
    {
       final String clusterTable = getQualifiedName(schemaName, dataCluster.getTableName());
-      
+
       Statement verifyStmt = null;
       ResultSet resultSet = null;
-      
+
       try
       {
          if ( !containsTable(schemaName, dataCluster.getTableName(), connection))
          {
             String message = "Cluster table " + clusterTable + " does not exist.";
-            
+
             System.out.println(message);
             trace.warn(message);
          }
          else
          {
             verifyStmt = connection.createStatement();
-            
+
             String syncStringTemplate =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc " +
                "WHERE NOT EXISTS( SELECT 'x' " +
                                  "FROM _$PI_TAB$_ pi " +
                                  "WHERE dc._$DC_PROCINSTANCE$_ = pi._$PI_OID$_ )";
-            
+
             String syncStmtString = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
-            
+
             verifyStmt.execute(syncStmtString);
             resultSet = verifyStmt.getResultSet();
-            
+
             if (resultSet.next())
             {
                String message = "Cluster table "
                      + clusterTable
                      + " is not consistent: non existing process instances are referenced by cluster entry.";
-               
+
                System.out.println(message);
                trace.warn(message);
                return;
             }
-   
+
             syncStringTemplate =
                "SELECT 'x' FROM _$PI_TAB$_ pi " +
                "WHERE NOT EXISTS( SELECT 'x' " +
                                  "FROM _$CLUSTER_TAB$_ dc " +
                                  "WHERE pi._$PI_OID$_ = dc._$DC_PROCINSTANCE$_ )";
-            
+
             syncStmtString = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
-            
+
             verifyStmt.execute(syncStmtString);
             resultSet = verifyStmt.getResultSet();
-            
+
             if (resultSet.next())
             {
                String message = "Cluster table "
                      + clusterTable
                      + " is not consistent: existing process instances are not referenced by cluster entries.";
-               
+
                System.out.println(message);
                trace.warn(message);
                return;
             }
-            
+
             syncStringTemplate =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
                "WHERE " +
@@ -1918,7 +1918,7 @@ public class DDLManager
                   "NOT EXISTS( " +
                      "SELECT 'x' " +
                      "FROM _$D_TAB$_ d, _$DV_TAB$_ dv " +
-                     "WHERE " + 
+                     "WHERE " +
                         "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
                         "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
                         "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
@@ -1930,7 +1930,7 @@ public class DDLManager
                            "(dv._$DV_VALUE$_ IS NULL AND dc._$DC_VALUE$_ IS NULL)))";
             syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
-            
+
             String syncStringTemplateStruct =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
                "WHERE " +
@@ -1941,7 +1941,7 @@ public class DDLManager
                   "NOT EXISTS( " +
                      "SELECT 'x' " +
                      "FROM _$D_TAB$_ d, _$DV_TAB$_ dv, _$SD_TAB$_ sd, _$SDV_TAB$_ sdv " +
-                     "WHERE " + 
+                     "WHERE " +
                         "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
                         "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
                         "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
@@ -1956,8 +1956,8 @@ public class DDLManager
                            "(sdv._$DV_VALUE$_ IS NULL AND dc._$DC_VALUE$_ IS NULL)))";
             syncStringTemplateStruct = replaceSqlFragmentsByCluster(syncStringTemplateStruct,
                   dataCluster, schemaName);
-            
-            
+
+
             for (DataSlot dataSlot : dataCluster.getAllSlots())
             {
                if (StringUtils.isEmpty(dataSlot.getAttributeName()))
@@ -1968,10 +1968,10 @@ public class DDLManager
                {
                   syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplateStruct, dataSlot);
                }
-               
+
                verifyStmt.execute(syncStmtString);
                resultSet = verifyStmt.getResultSet();
-               
+
                if (resultSet.next())
                {
                   String message = "Cluster table "
@@ -1979,13 +1979,13 @@ public class DDLManager
                         + " is not consistent: referenced data values by cluster entry for slot '"
                         + dataSlot.getQualifiedDataId() + "' attributeName '"
                         + dataSlot.getAttributeName() + "' are not matching.";
-                  
+
                   System.out.println(message);
                   trace.warn(message);
                   return;
                }
             }
-            
+
             syncStringTemplate =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
                "WHERE " +
@@ -1997,20 +1997,20 @@ public class DDLManager
                      "dc._$DC_TYPE_KEY$_ IS NOT NULL OR " +
                      "dc._$DC_VALUE$_ IS NOT NULL" +
                   ")";
-            
+
             syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
-            
-            
+
+
             for (Iterator i = dataCluster.getAllSlots().iterator(); i.hasNext();)
             {
                DataSlot dataSlot = (DataSlot) i.next();
-               
+
                syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
-               
+
                verifyStmt.execute(syncStmtString);
                resultSet = verifyStmt.getResultSet();
-               
+
                if (resultSet.next())
                {
                   String message = "Cluster table " + clusterTable
@@ -2018,13 +2018,13 @@ public class DDLManager
                         + dataSlot.getQualifiedDataId() + "' attributeName '"
                         + dataSlot.getAttributeName()
                         + "' are not completely set to null.";
-                  
+
                   System.out.println(message);
                   trace.warn(message);
                   return;
                }
             }
-            
+
             syncStringTemplate =
                "SELECT 'x' FROM _$CLUSTER_TAB$_ dc, _$PI_TAB$_ pi, _$MODEL_TAB$_ m " +
                "WHERE " +
@@ -2037,26 +2037,26 @@ public class DDLManager
                   "EXISTS( " +
                      "SELECT 'x' " +
                      "FROM _$D_TAB$_ d, _$DV_TAB$_ dv " +
-                     "WHERE " + 
+                     "WHERE " +
                         "d._$D_ID$_ = '_$SLOT_DATA_ID$_' AND " +
                         "d._$D_MODEL$_ = pi._$PI_MODEL$_ AND " +
                         "d._$D_OID$_ = dv._$DV_DATA$_ AND " +
                         "d._$D_MODEL$_ = dv._$DV_MODEL$_ AND " +
                         "dv._$DV_PROCINSTANCE$_ = pi._$PI_OID$_)";
-            
+
             syncStringTemplate = replaceSqlFragmentsByCluster(syncStringTemplate,
                   dataCluster, schemaName);
-            
-            
+
+
             for (Iterator i = dataCluster.getAllSlots().iterator(); i.hasNext();)
             {
                DataSlot dataSlot = (DataSlot) i.next();
-               
+
                syncStmtString = replaceSqlFragmentsBySlot(syncStringTemplate, dataSlot);
-               
+
                verifyStmt.execute(syncStmtString);
                resultSet = verifyStmt.getResultSet();
-               
+
                if (resultSet.next())
                {
                   String message = "Cluster table " + clusterTable
@@ -2064,7 +2064,7 @@ public class DDLManager
                         + dataSlot.getDataId() + "' attributeName '"
                         + dataSlot.getAttributeName()
                         + "' are not referenced by cluster entry.";
-                  
+
                   System.out.println(message);
                   trace.warn(message);
                   return;
@@ -2094,7 +2094,7 @@ public class DDLManager
          throw new PublicException("Data cluster table '" + dataCluster.getTableName()
                + "' is not allowed because this name is predefined by carnot engine.");
       }
-      
+
       try
       {
          String dropString = getDropTableStatementString(schemaName, dataCluster
@@ -2109,7 +2109,7 @@ public class DDLManager
          System.out.println(message);
          trace.warn(message, x);
       }
-   
+
       try
       {
          connection.commit();
@@ -2119,7 +2119,7 @@ public class DDLManager
          throw new InternalException(e);
       }
    }
-   
+
    public void createAuditTrailPartition(String partitionId, Connection connection,
          String schemaName, PrintStream spoolFile, String statementDelimiter)
    {
@@ -2128,28 +2128,28 @@ public class DDLManager
          throw new PublicException(
                "Database has to support sequences or automatic identity columns.");
       }
-      
+
       // insert partition
       TypeDescriptor typeManager = TypeDescriptor.get(AuditTrailPartitionBean.class);
       String tableName = typeManager.getTableName();
       String partitionTableName = getQualifiedName(schemaName, dbDescriptor
             .quoteIdentifier(tableName));
-      
+
       try
       {
          String columnPart = "<empty>";
          String valuesPart = "<empty>";
-         
+
          if (dbDescriptor.supportsSequences())
          {
             List columns = new ArrayList();
             columns.add(AuditTrailPartitionBean.FIELD__OID);
             columns.add(AuditTrailPartitionBean.FIELD__ID);
             columns.add(AuditTrailPartitionBean.FIELD__DESCRIPTION);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("({0}, ''{1}'', {2})",
-                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()), 
+                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()),
                   partitionId,
                   "''");
          }
@@ -2158,23 +2158,23 @@ public class DDLManager
             List columns = new ArrayList();
             columns.add(AuditTrailPartitionBean.FIELD__ID);
             columns.add(AuditTrailPartitionBean.FIELD__DESCRIPTION);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = "('" + partitionId + "', '')";
          }
-         
+
          StringBuffer insBuffer = new StringBuffer(200);
          insBuffer//
                .append("INSERT INTO ").append(partitionTableName).append(columnPart)//
                .append(" VALUES").append(valuesPart);
-         
+
          executeOrSpoolStatement(insBuffer.toString(), connection, spoolFile);
 
          // insert partitions default domain
          typeManager = TypeDescriptor.get(UserDomainBean.class);
          tableName = typeManager.getTableName();
          String domainTableName = getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(tableName));
-         
+
          if (dbDescriptor.supportsSequences())
          {
             List columns = new ArrayList();
@@ -2182,10 +2182,10 @@ public class DDLManager
             columns.add(UserDomainBean.FIELD__ID);
             columns.add(UserDomainBean.FIELD__DESCRIPTION);
             columns.add(UserDomainBean.FIELD__PARTITION);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("{0}, ''{1}'', {2}, {3}",
-                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()), 
+                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()),
                   partitionId,
                   "''",
                   dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
@@ -2196,14 +2196,14 @@ public class DDLManager
             columns.add(UserDomainBean.FIELD__ID);
             columns.add(UserDomainBean.FIELD__DESCRIPTION);
             columns.add(UserDomainBean.FIELD__PARTITION);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("''{0}'', ''{1}'', {2}",
                   partitionId,
                   "",
                   dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
          }
-         
+
          insBuffer = new StringBuffer(200);
          insBuffer//
                .append("INSERT INTO ").append(domainTableName).append(columnPart)//
@@ -2219,14 +2219,14 @@ public class DDLManager
          typeManager = TypeDescriptor.get(UserDomainHierarchyBean.class);
          tableName = typeManager.getTableName();
          String domainHierTableName = getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(tableName));
-         
+
          if (dbDescriptor.supportsSequences())
          {
             List columns = new ArrayList();
             columns.add(UserDomainHierarchyBean.FIELD__OID);
             columns.add(UserDomainHierarchyBean.FIELD__SUPERDOMAIN);
             columns.add(UserDomainHierarchyBean.FIELD__SUBDOMAIN);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("{0}, D.{1}, D.{2}", new Object[] {
                   dbDescriptor.getNextValForSeqString(schemaName, typeManager
@@ -2239,13 +2239,13 @@ public class DDLManager
             List columns = new ArrayList();
             columns.add(UserDomainHierarchyBean.FIELD__SUPERDOMAIN);
             columns.add(UserDomainHierarchyBean.FIELD__SUBDOMAIN);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("D.{0}, D.{1}", new Object[] {
                   dbDescriptor.quoteIdentifier(UserDomainBean.FIELD__OID),
                   dbDescriptor.quoteIdentifier(UserDomainBean.FIELD__OID) });
          }
-         
+
          insBuffer = new StringBuffer(200);
          insBuffer //
                .append("INSERT INTO ").append(domainHierTableName).append(columnPart) //
@@ -2262,7 +2262,7 @@ public class DDLManager
          typeManager = TypeDescriptor.get(UserRealmBean.class);
          tableName = typeManager.getTableName();
          String realmTableName = getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(tableName));
-         
+
          if (dbDescriptor.supportsSequences())
          {
             List columns = new ArrayList();
@@ -2271,12 +2271,12 @@ public class DDLManager
             columns.add(UserRealmBean.FIELD__NAME);
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             columns.add(UserRealmBean.FIELD__PARTITION);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("{0}, ''{1}'', ''{2}'', ''{3}'', {4}",
-                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()), 
+                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()),
                   PredefinedConstants.DEFAULT_REALM_ID,
-                  PredefinedConstants.DEFAULT_REALM_NAME, 
+                  PredefinedConstants.DEFAULT_REALM_NAME,
                   "",
                   dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
          }
@@ -2287,15 +2287,15 @@ public class DDLManager
             columns.add(UserRealmBean.FIELD__NAME);
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             columns.add(UserRealmBean.FIELD__PARTITION);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("''{0}'', ''{1}'', ''{2}'', {3}",
                   PredefinedConstants.DEFAULT_REALM_ID,
-                  PredefinedConstants.DEFAULT_REALM_NAME, 
+                  PredefinedConstants.DEFAULT_REALM_NAME,
                   "",
                   dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
          }
-         
+
          insBuffer = new StringBuffer(200);
          insBuffer//
                .append("INSERT INTO ").append(realmTableName).append(columnPart)//
@@ -2310,7 +2310,7 @@ public class DDLManager
          typeManager = TypeDescriptor.get(UserBean.class);
          tableName = typeManager.getTableName();
          String userTableName = getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(tableName));
-         
+
          if (dbDescriptor.supportsSequences())
          {
             List columns = new ArrayList();
@@ -2326,7 +2326,7 @@ public class DDLManager
             columns.add(UserBean.FIELD__FAILED_LOGIN_COUNT);
             columns.add(UserBean.FIELD__LAST_LOGIN_TIME);
             columns.add(UserBean.FIELD__REALM);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             // more than 10 arguments will result in "IllegalArgumentException: argument number too large"
             // on jdk 1.3. Therefore the creation of valuesPart is splitted.
@@ -2360,7 +2360,7 @@ public class DDLManager
             columns.add(UserBean.FIELD__FAILED_LOGIN_COUNT);
             columns.add(UserBean.FIELD__LAST_LOGIN_TIME);
             columns.add(UserBean.FIELD__REALM);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             // more than 10 arguments will result in "IllegalArgumentException: argument number too large"
             // on jdk 1.3. Therefore the creation of valuesPart is splitted.
@@ -2378,7 +2378,7 @@ public class DDLManager
                   new Long(0),
                   dbDescriptor.quoteIdentifier(UserRealmBean.FIELD__OID) });
          }
-         
+
          insBuffer = new StringBuffer(200);
          insBuffer//
                .append("INSERT INTO ").append(userTableName).append(columnPart)//
@@ -2395,7 +2395,7 @@ public class DDLManager
          typeManager = TypeDescriptor.get(ProcessInstanceLinkTypeBean.class);
          tableName = typeManager.getTableName();
          String linkTypeTableName = getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(tableName));
-         
+
          if (dbDescriptor.supportsSequences())
          {
             List columns = new ArrayList();
@@ -2403,10 +2403,10 @@ public class DDLManager
             columns.add(UserRealmBean.FIELD__ID);
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             columns.add(UserRealmBean.FIELD__PARTITION);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("{0}, ''{1}'', ''{2}'', {3}",
-                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()), 
+                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()),
                   "switch", "Peer Process Instance",
                   dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
          }
@@ -2416,13 +2416,51 @@ public class DDLManager
             columns.add(UserRealmBean.FIELD__ID);
             columns.add(UserRealmBean.FIELD__DESCRIPTION);
             columns.add(UserRealmBean.FIELD__PARTITION);
-            
+
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("''{0}'', ''{1}'', {2}",
                   "switch", "Peer Process Instance",
                   dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
          }
-         
+
+         insBuffer = new StringBuffer(200);
+         insBuffer//
+               .append("INSERT INTO ").append(linkTypeTableName).append(columnPart)//
+               .append(" SELECT ").append(valuesPart)
+               .append(" FROM ").append(partitionTableName)
+               .append(" WHERE ")
+               .append(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__ID)).append(" = '").append(partitionId).append("'");
+
+         executeOrSpoolStatement(insBuffer.toString(), connection, spoolFile);
+
+         // insert partitions "join" link type
+         if (dbDescriptor.supportsSequences())
+         {
+            List columns = new ArrayList();
+            columns.add(UserRealmBean.FIELD__OID);
+            columns.add(UserRealmBean.FIELD__ID);
+            columns.add(UserRealmBean.FIELD__DESCRIPTION);
+            columns.add(UserRealmBean.FIELD__PARTITION);
+
+            columnPart = buildColumnsFragment(dbDescriptor, columns);
+            valuesPart = MessageFormat.format("{0}, ''{1}'', ''{2}'', {3}",
+                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()),
+                  "join", "Join Process Instance",
+                  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
+         }
+         else if (dbDescriptor.supportsIdentityColumns())
+         {
+            List columns = new ArrayList();
+            columns.add(UserRealmBean.FIELD__ID);
+            columns.add(UserRealmBean.FIELD__DESCRIPTION);
+            columns.add(UserRealmBean.FIELD__PARTITION);
+
+            columnPart = buildColumnsFragment(dbDescriptor, columns);
+            valuesPart = MessageFormat.format("''{0}'', ''{1}'', {2}",
+                  "join", "Join Process Instance",
+                  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
+         }
+
          insBuffer = new StringBuffer(200);
          insBuffer//
                .append("INSERT INTO ").append(linkTypeTableName).append(columnPart)//
@@ -2443,7 +2481,7 @@ public class DDLManager
          {
             throw new InternalException(e);
          }
-         
+
          String message = MessageFormat.format(
                "Could not create partition ''{0}''. Reason: {1}.", new Object[] {
                      partitionId, x.getMessage() });
@@ -2472,10 +2510,10 @@ public class DDLManager
    /**
     * This method will concatenate all column names provided in a collection delimited by
     * a comma. Each column name will be quoted if necessary.
-    *  
+    *
     * @param dbDescriptor DbDescriptor used to quote column names if necessary.
     * @param columns Collection of column names.
-    * @return The concatenated and quoted column names. 
+    * @return The concatenated and quoted column names.
     */
    private static String buildColumnsFragment(final DBDescriptor dbDescriptor,
          Collection columns)
@@ -2496,7 +2534,7 @@ public class DDLManager
 
    /**
     * This class packages everything which describes a column for table creation in SQL.
-    * 
+    *
     * @author sborn
     * @version $Revision$
     */
@@ -2505,10 +2543,10 @@ public class DDLManager
       private String name;
       private String sqlType;
       private String columnQualifier;
-      
+
       /**
        * This factory method creates a {@link ColumnDescriptor} instance.
-       * 
+       *
        * @param type Class for which the column descriptor shall be created.
        * @param fieldName Name of a field within the given class.
        * @param dbDescriptor A database descriptor determining the database the column
@@ -2523,7 +2561,7 @@ public class DDLManager
          FieldDescriptor descriptor = typeManager.getPersistentField(index);
          Field field = descriptor.getField();
          field.setAccessible(true);
-         
+
          String sqlType = dbDescriptor
                .getSQLType(field.getType(), descriptor.getLength());
          String columnQualifier = "";
@@ -2532,10 +2570,10 @@ public class DDLManager
          {
             columnQualifier = dbDescriptor.getIdentityColumnQualifier();
          }
-         
+
          return new ColumnDescriptor(fieldName, sqlType, columnQualifier);
       }
-      
+
       public ColumnDescriptor(String name, String sqlType, String columnQualifier)
       {
          this.name = name;
@@ -2553,7 +2591,7 @@ public class DDLManager
       {
          return columnQualifier;
       }
-      
+
       public void setName(String name)
       {
          this.name = StringUtils.isEmpty(name) ? "" : name;

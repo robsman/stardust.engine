@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.*;
@@ -33,8 +34,6 @@ import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-
-
 
 /**
  *
@@ -118,15 +117,18 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                   .getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
             if ( !StringUtils.isEmpty(dataId))
             {
+               IModel model = (IModel) organization.getModel();
+               String modelId = model.getId();
+               
                String dataPath = organization
                      .getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
-               Pair<String, String> dataKey = new Pair(dataId, dataPath);
+               Pair<String, String> dataKey = new Pair("{" + modelId + "}" + dataId, dataPath);
                if ( !distinctData.contains(dataKey))
                {
                   distinctData.add(dataKey);
                   orderedPrefetchData.add(dataKey);
 
-                  DataPrefetchHint filter = new DataPrefetchHint(dataId, StringUtils
+                  DataPrefetchHint filter = new DataPrefetchHint("{" + modelId + "}" + dataId, StringUtils
                         .isEmpty(dataPath) ? null : dataPath);
                   if (trace.isDebugEnabled())
                   {

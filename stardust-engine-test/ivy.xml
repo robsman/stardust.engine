@@ -21,7 +21,7 @@
       <conf name="default" visibility="public" description="Stardust Engine Test" extends="compile" />
    
       <conf name="compile" visibility="private" description="Compile Configuration" />
-      <conf name="test" visibility="private" description="Test Configuration" />
+      <conf name="test" visibility="private" description="Test Configuration" extends="compile" />
    </configurations>
    
    <!-- Publications -->
@@ -50,5 +50,7 @@
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->logging-log4j-module-runtime" />
       
       <exclude org="org.apache.jackrabbit" module="jackrabbit-webapp" />
+      
+      <override org="junit" module="junit" rev="4.10" />
    </dependencies>
 </ivy-module>

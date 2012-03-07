@@ -40,7 +40,6 @@
    <target name="test" description="Runs the functional tests." depends="build-main, build-test">
       <!-- Runtime Classpath for JUnit tests -->
       <path id="junit.rt.classpath">
-         <path refid="compile.deps" />
          <path refid="test" />
          <pathelement location="${build.dir}" />
       </path>
@@ -82,7 +81,6 @@
    <target name="compile-test" depends="init">
       <ipp:javac-java6 srcdir="${src.test.java.dir}" destdir="${build.dir}">
          <classpath>
-            <path refid="compile.deps" />
             <path refid="test" />
             <pathelement location="${build.dir}" />
          </classpath>

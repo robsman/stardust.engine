@@ -734,7 +734,6 @@
       <copy file="${carnot.engine.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.emf.xsd.integration.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.emf.xsd.integration.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
-      <copy file="${carnot.dms.jar}" todir="${moonglow.dir}/../stardust/ide.wst/org.eclipse.stardust.ide.wst.facet.portal/lib" />
       <copy file="${carnot.dms.jar}" todir="${moonglow.dir}/../stardust/ide/modeling/org.eclipse.stardust.modeling.integration.dms/lib" />
    </target>
 </project>

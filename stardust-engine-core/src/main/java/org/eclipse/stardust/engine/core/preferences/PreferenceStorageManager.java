@@ -103,6 +103,16 @@ public class PreferenceStorageManager implements IPreferenceStorageManager
 
       return preferences;
    }
+   
+   @Override
+   public Preferences getPreferences(IUser user, PreferenceScope scope, String moduleId,
+         String preferenceId)
+   {
+      Preferences preferences = getPersistenceManager().loadPreferences(user, scope, moduleId,
+            preferenceId, preferenceReader);
+
+      return preferences;
+   }
 
    public List<ReconfigurationInfo> savePreferences(Preferences preferences, boolean force)
    {

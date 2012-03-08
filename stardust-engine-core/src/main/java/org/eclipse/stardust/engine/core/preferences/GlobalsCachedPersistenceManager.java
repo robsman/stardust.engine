@@ -11,7 +11,12 @@
 package org.eclipse.stardust.engine.core.preferences;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.stardust.common.CollectionUtils;
@@ -206,7 +211,7 @@ public class GlobalsCachedPersistenceManager
 
       for (Preferences preferences : allPreferences)
       {
-         putToCache(preferences);
+         putToCache(null, preferences);
          // addCacheHint(preferences);
       }
       
@@ -227,52 +232,95 @@ public class GlobalsCachedPersistenceManager
       return nonEmptyPreferences;
    }
 
-   public Preferences loadPreferences(PreferenceScope scope, String moduleId,
+   @Override
+   public Preferences loadPreferences(IUser user, PreferenceScope scope, String moduleId,
          String preferencesId, IPreferencesReader xmlPreferenceReader)
    {
-      final IUser currentUser = SecurityProperties.getUser();
-
       String realmId = null;
       String userId = null;
       if (PreferenceScope.USER.equals(scope) || PreferenceScope.REALM.equals(scope))
       {
-         if (currentUser == null)
+         if (user == null)
          {
             throw new PublicException(
-                  "No current user was found. PreferenceScope USER and REALM not available.");
+                  "No user specified. PreferenceScope USER and REALM not available.");
          }
 
-         if (currentUser != null)
+         if (user != null)
          {
-            realmId = currentUser.getRealm().getId();
-            userId = currentUser.getId();
+            realmId = user.getRealm().getId();
+            userId = user.getId();
          }
       }
       String partitionId = SecurityProperties.getPartition().getId();
 
-      Preferences preferences = getFromCache(scope, moduleId, preferencesId, partitionId,
-            realmId, userId);
-
-      if (preferences == null && !PreferenceScope.DEFAULT.equals(scope))
+      Preferences preferences = null;
+      Map<Pair, Map> cache = getCache(scope, moduleId, preferencesId, partitionId, realmId, userId);      
+      if (cache != null)
       {
-         putToCache(subPersistenceManager.loadPreferences(scope, moduleId, preferencesId,
-               xmlPreferenceReader));
-         // get from cache to include cache hint
-         preferences = getFromCache(scope, moduleId, preferencesId, partitionId, realmId,
-               userId);
+         Pair<String, String> cacheKey = new Pair(moduleId, preferencesId);
+         if(!cache.containsKey(cacheKey))
+         {
+            preferences = subPersistenceManager.loadPreferences(scope, moduleId, preferencesId,
+                  xmlPreferenceReader);
+            putToCache(user, preferences);
+         }
+         else
+         {
+            preferences = getFromCache(scope, moduleId, preferencesId, partitionId, realmId, userId);
+         }
       }
-
+      
       return preferences;
+   }
+   
+   public Preferences loadPreferences(PreferenceScope scope, String moduleId,
+         String preferencesId, IPreferencesReader xmlPreferenceReader)
+   {
+      final IUser currentUser = SecurityProperties.getUser();
+      return loadPreferences(currentUser, scope, moduleId, preferencesId, xmlPreferenceReader);
    }
 
    public void updatePreferences(Preferences preferences,
          IPreferencesWriter preferenceWriter)
    {
+      //persist new values
       subPersistenceManager.updatePreferences(preferences, preferenceWriter);
-
+      //update cache
       cleanCache(preferences);
    }
 
+   
+   private Map<Pair, Map> getCache(PreferenceScope scope, String moduleId,
+         String preferencesId, String partitionId, String realmId, String userId)
+   {
+      Map<Pair, Map> cache = null;
+      if (PreferenceScope.USER.equals(scope))
+      {
+         cache = getUserPreferencesCache(partitionId, realmId, userId);
+      }
+      else if (PreferenceScope.REALM.equals(scope))
+      {
+         AgeCache realmPreferencesCache = getRealmPreferencesCache(partitionId, realmId);
+         cache = (Map) realmPreferencesCache.getMap();
+      }
+      else if (PreferenceScope.PARTITION.equals(scope))
+      {
+         AgeCache partitionPreferencesCache = getPartitionPreferencesCache(partitionId);
+         cache = (Map) partitionPreferencesCache.getMap();
+      }
+      else if (PreferenceScope.DEFAULT.equals(scope))
+      {
+         cache = getDefaultPreferencesCache();
+      }
+      else
+      {
+         throw new PublicException("PreferenceScope not supported: " + scope);
+      }
+      
+      return cache;
+   }
+   
    private Preferences getFromCache(PreferenceScope scope, String moduleId,
          String preferencesId, String partitionId, String realmId, String userId)
    {
@@ -348,71 +396,69 @@ public class GlobalsCachedPersistenceManager
       return preferences;
    }
 
-   private void putToCache(Preferences preferences)
+   private void putToCache(IUser user, Preferences preferences)
    {
-      PreferenceScope scope = preferences.getScope();
-      String moduleId = preferences.getModuleId();
-      String preferencesId = preferences.getPreferencesId();
-
-      String partitionId = SecurityProperties.getPartition().getId();
-      String realmId = preferences.getRealmId();
-      String userId = preferences.getUserId();
-
-      if (PreferenceScope.USER.equals(scope))
+      if(preferences != null)
       {
-         Map<Pair, Map> userPreferencesCache = getUserPreferencesCache(partitionId,
-               realmId, userId);
-
-         if (preferences.getPreferences() == null)
+         Map<String, Serializable> preferenceValues = new HashMap<String, Serializable>();
+         if(preferences.getPreferences() != null)
          {
-            userPreferencesCache.remove(new Pair(moduleId, preferencesId));
+            preferenceValues = preferences.getPreferences();
+         }
+         
+         PreferenceScope scope = preferences.getScope();
+         String moduleId = preferences.getModuleId();
+         String preferencesId = preferences.getPreferencesId();
+         String partitionId = SecurityProperties.getPartition().getId();
+         
+         final String realmId;
+         final String userId;
+         if(user != null)
+         {
+            userId = user.getId();
+            realmId = user.getRealm().getId();
          }
          else
          {
+            userId = preferences.getUserId();
+            realmId = preferences.getRealmId();
+         }
+         
+         if (PreferenceScope.USER.equals(scope))
+         {
+            Map<Pair, Map> userPreferencesCache = getUserPreferencesCache(partitionId,
+                  realmId, userId);
             userPreferencesCache.put(new Pair(moduleId, preferencesId),
-                  preferences.getPreferences());
+                  preferenceValues);
+            
          }
-      }
-      else if (PreferenceScope.REALM.equals(scope))
-      {
-         AgeCache realmPreferencesCache = getRealmPreferencesCache(partitionId, realmId);
-
-         realmPreferencesCache.setLastModified(new Date(System.currentTimeMillis()));
-
-         if (preferences.getPreferences() == null)
+         else if (PreferenceScope.REALM.equals(scope))
          {
-            realmPreferencesCache.getMap().remove(new Pair(moduleId, preferencesId));
-         }
-         else
-         {
+            AgeCache realmPreferencesCache = getRealmPreferencesCache(partitionId, realmId);
+
+            realmPreferencesCache.setLastModified(new Date(System.currentTimeMillis()));
             realmPreferencesCache.getMap().put(new Pair(moduleId, preferencesId),
-                  preferences.getPreferences());
+                  preferenceValues);
+            
          }
-      }
-      else if (PreferenceScope.PARTITION.equals(scope))
-      {
-         AgeCache partitionPreferencesCache = getPartitionPreferencesCache(partitionId);
-
-         partitionPreferencesCache.setLastModified(new Date(System.currentTimeMillis()));
-
-         if (preferences.getPreferences() == null)
+         else if (PreferenceScope.PARTITION.equals(scope))
          {
-            partitionPreferencesCache.getMap().remove(new Pair(moduleId, preferencesId));
+            AgeCache partitionPreferencesCache = getPartitionPreferencesCache(partitionId);
+
+            partitionPreferencesCache.setLastModified(new Date(System.currentTimeMillis()));
+            partitionPreferencesCache.getMap().put(new Pair(moduleId, preferencesId),
+                  preferenceValues);
+            
+         }
+         else if (PreferenceScope.DEFAULT.equals(scope))
+         {
+            throw new PublicException("PreferenceScope.DEFAULT is read only");
          }
          else
          {
-            partitionPreferencesCache.getMap().put(new Pair(moduleId, preferencesId),
-                  preferences.getPreferences());
+            throw new PublicException("PreferenceScope not supported: " + scope);
          }
-      }
-      else if (PreferenceScope.DEFAULT.equals(scope))
-      {
-         throw new PublicException("PreferenceScope.DEFAULT is read only");
-      }
-      else
-      {
-         throw new PublicException("PreferenceScope not supported: " + scope);
-      }
+      }      
    }
 
    private Date fetchRealmCacheHint(String partitionId, String realmId)
@@ -438,56 +484,27 @@ public class GlobalsCachedPersistenceManager
    }
 
    private void cleanCache(Preferences preferences)
-   {
+   {          
       PreferenceScope scope = preferences.getScope();
       String moduleId = preferences.getModuleId();
       String preferencesId = preferences.getPreferencesId();
-
-      IUser user = SecurityProperties.getUser();
-
-      String realmId = null;
-      String userId = null;
-      if (user != null)
-      {
-         realmId = user.getRealm().getId();
-         userId = user.getId();
-      }
-      if (preferences.getRealmId() != null)
-      {
-         realmId = preferences.getRealmId();
-      }
-      if (preferences.getUserId() != null)
-      {
-         userId = preferences.getUserId();
-      }
-
-      Preferences toCleanPreferences = new Preferences(scope, moduleId, preferencesId,
-            null);
-      toCleanPreferences.setRealmId(realmId);
-      toCleanPreferences.setUserId(userId);
-
-      putToCache(toCleanPreferences);
+      
+      cleanCache(scope, moduleId, preferencesId);
    }
 
    public void cleanCache(PreferenceScope scope, String moduleId, String preferencesId)
    {
+      String partitionId = SecurityProperties.getPartition().getId();
+      String userId = SecurityProperties.getUser().getId();
+      String realmId = SecurityProperties.getUser().getRealm().getId();     
 
-      IUser user = SecurityProperties.getUser();
-
-      String realmId = null;
-      String userId = null;
-      if (user != null)
+      Map<Pair, Map> cache 
+         = getCache(scope, moduleId, preferencesId, partitionId, realmId, userId);
+      Pair<String, String> cacheKey = new Pair(moduleId, preferencesId);
+      if(cache != null)
       {
-         realmId = user.getRealm().getId();
-         userId = user.getId();
+         cache.remove(cacheKey);
       }
-
-      Preferences toCleanPreferences = new Preferences(scope, moduleId, preferencesId,
-            null);
-      toCleanPreferences.setRealmId(realmId);
-      toCleanPreferences.setUserId(userId);
-
-      putToCache(toCleanPreferences);
    }
 
    public synchronized void flushCaches()

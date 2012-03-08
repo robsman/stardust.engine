@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.preferences;
 import java.util.List;
 
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 
 
 
@@ -33,7 +34,8 @@ public interface IPreferencesPersistenceManager
    Preferences loadPreferences(PreferenceScope scope, String moduleId, String preferencesId,
          IPreferencesReader xmlPreferenceReader);
    
-   public List<Preferences> getAllPreferences(ParsedPreferenceQuery evaluatedQuery, IPreferencesReader xmlPreferenceReader);
-
+   Preferences loadPreferences(IUser user, PreferenceScope scope, String moduleId, String preferencesId,
+         IPreferencesReader xmlPreferenceReader);
    
+   public List<Preferences> getAllPreferences(ParsedPreferenceQuery evaluatedQuery, IPreferencesReader xmlPreferenceReader);
 }

@@ -39,27 +39,25 @@ public class DmsPersistenceManager implements IPreferencesPersistenceManager
    {
 
    }
-
-   public Preferences loadPreferences(PreferenceScope scope, //
-         String moduleId, String preferencesId, //
-         IPreferencesReader loader)
+   
+   @Override
+   public Preferences loadPreferences(IUser user, PreferenceScope scope, String moduleId,
+         String preferencesId, IPreferencesReader loader)
    {
-      final IUser currentUser = SecurityProperties.getUser();
-
       String realmId = null;
       String userId = null;
-      if (currentUser == null
+      if (user == null
             && (PreferenceScope.USER.equals(scope) || PreferenceScope.REALM.equals(scope)))
       {
          throw new PublicException(
-               "No current user was found. PreferenceScope USER and REALM not available.");
+               "No user specified. PreferenceScope USER and REALM not available.");
       }
       else
       {
-         if (currentUser != null)
+         if (user != null)
          {
-            realmId = currentUser.getRealm().getId();
-            userId = currentUser.getId();
+            realmId = user.getRealm().getId();
+            userId = user.getId();
          }
       }
 
@@ -76,6 +74,15 @@ public class DmsPersistenceManager implements IPreferencesPersistenceManager
             loadedPreferences);
       setPreferencesOrigin(preferences);
       return preferences;
+   }
+
+   public Preferences loadPreferences(PreferenceScope scope, //
+         String moduleId, String preferencesId, //
+         IPreferencesReader loader)
+   {
+      final IUser currentUser = SecurityProperties.getUser();
+      return loadPreferences(currentUser, scope, moduleId, preferencesId, loader);
+      
    }
 
    private ServiceFactory getServiceFactory()
@@ -432,5 +439,4 @@ public class DmsPersistenceManager implements IPreferencesPersistenceManager
    {
       return PreferencePathBuilder.getPreferencesFolderPath(scope, realmId, userId);
    }
-
 }

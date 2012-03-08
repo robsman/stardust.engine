@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.eclipse.stardust.engine.api.query.PreferenceQuery;
 import org.eclipse.stardust.engine.api.runtime.ReconfigurationInfo;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 
 
 public interface IPreferenceStorageManager
@@ -23,6 +24,9 @@ public interface IPreferenceStorageManager
    public Preferences getPreferences(PreferenceScope scope, String moduleId,
          String preferenceId);
 
+   public Preferences getPreferences(IUser user, PreferenceScope scope, String moduleId,
+         String preferenceId);
+   
    public List<ReconfigurationInfo> savePreferences(Preferences preferences, boolean force);
 
    public List<Preferences> getAllPreferences(PreferenceQuery preferenceQuery, boolean checkPermissions);

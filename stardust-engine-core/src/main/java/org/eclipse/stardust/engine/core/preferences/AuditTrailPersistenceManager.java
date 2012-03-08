@@ -46,30 +46,26 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
    {
    }
 
-   public Preferences loadPreferences(PreferenceScope scope, //
+   public Preferences loadPreferences(IUser user, PreferenceScope scope, //
          String moduleId, String preferencesId, //
          IPreferencesReader loader)
    {
       final long oid;
       if (PreferenceScope.USER.equals(scope))
-      {
-         IUser user = SecurityProperties.getUser();
-         
+      {         
          if (user == null)
          {
             throw new PublicException(
-                  "No current user was found. PreferenceScope USER and REALM not available.");
+                  "No user specified PreferenceScope USER and REALM not available.");
          }
          oid = user.getOID();
       }
       else if (PreferenceScope.REALM.equals(scope))
       {
-         IUser user = SecurityProperties.getUser();
-         
          if (user == null)
          {
             throw new PublicException(
-                  "No current user was found. PreferenceScope USER and REALM not available.");
+               "No user specified PreferenceScope USER and REALM not available.");
          }
          oid = user.getRealm().getOID();
       }
@@ -96,6 +92,14 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
             preferencesBean);
       setPreferencesOwnOrigin(preferences);
       return preferences;
+   }
+   
+   public Preferences loadPreferences(PreferenceScope scope, //
+         String moduleId, String preferencesId, //
+         IPreferencesReader loader)
+   {
+      IUser user = SecurityProperties.getUser();      
+      return loadPreferences(user, scope, moduleId, preferencesId, loader);
    }
 
    private Preferences getPreferences(PreferenceScope scope, String moduleId,

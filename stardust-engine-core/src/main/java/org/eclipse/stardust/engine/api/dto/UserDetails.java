@@ -50,6 +50,8 @@ import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
+import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
@@ -227,21 +229,19 @@ public class UserDetails implements User
 
    private void initPublicPreferences(IUser user)
    {
+      IPreferenceStorageManager preferenceStorageManager = PreferenceStorageFactory
+            .getCurrent();
+
       final String IPP_VIEWS_COMMON = "ipp-views-common";
       final String PREFERENCES_ID = "preference";
       final String PICTURE_TYPE = "ipp-views-common.user-profile.prefs.myPicture.type";
       final String PICTURE_URL = "ipp-views-common.user-profile.prefs.myPicture.http.url";
 
-      PreferenceQuery preferenceQuery = PreferenceQuery.findPreferencesForUsers(
-            user.getRealm().getId(), user.getId(), IPP_VIEWS_COMMON, PREFERENCES_ID);
-      List<Preferences> viewsCommonPreferencesList = PreferenceStorageFactory.getCurrent()
-            .getAllPreferences(preferenceQuery, false);
-
-      if (viewsCommonPreferencesList != null && !viewsCommonPreferencesList.isEmpty())
+      Preferences viewsCommonPreferences = preferenceStorageManager.getPreferences(
+            user, PreferenceScope.USER, IPP_VIEWS_COMMON, PREFERENCES_ID);
+      if (viewsCommonPreferences != null)
       {
-         Preferences viewsCommonPreferences = viewsCommonPreferencesList.get(0);
          Map<String, Serializable> preferences = viewsCommonPreferences.getPreferences();
-
          if (preferences != null)
          {
             this.setProperty(PICTURE_TYPE, preferences.get(PICTURE_TYPE));
@@ -252,18 +252,12 @@ public class UserDetails implements User
       final String IPP_ADMIN_PORTAL = "ipp-admin-portal";
       final String USER_NAME_DISPLAY_FORMAT = "ipp-admin-portal.userNameDisplayFormat.prefs.displayFormat";
 
-      PreferenceQuery admPreferenceQuery = PreferenceQuery.findPreferencesForUsers(
-            user.getRealm().getId(), user.getId(), IPP_ADMIN_PORTAL, PREFERENCES_ID);
-
-      List<Preferences> admPreferencesList = PreferenceStorageFactory.getCurrent()
-            .getAllPreferences(admPreferenceQuery, false);
-
-      if (admPreferencesList != null && !admPreferencesList.isEmpty())
+      Preferences adminPreferences = preferenceStorageManager.getPreferences(user,
+            PreferenceScope.USER, IPP_ADMIN_PORTAL, PREFERENCES_ID);
+      if (adminPreferences != null)
       {
-         Preferences admPreferences = admPreferencesList.get(0);
-         Map<String, Serializable> preferences = admPreferences.getPreferences();
-
-         if (null != preferences)
+         Map<String, Serializable> preferences = adminPreferences.getPreferences();
+         if (preferences != null)
          {
             this.setProperty(USER_NAME_DISPLAY_FORMAT,
                   preferences.get(USER_NAME_DISPLAY_FORMAT));

@@ -15,6 +15,7 @@
 
    <!-- Info -->
    <info organisation="org.eclipse.stardust" module="stardust-engine-test" revision="${ipp.version.full}">
+      <license name="Eclipse Public License (EPL) - v1.0" url="http://www.eclipse.org/legal/epl-v10.html" />
       <description homepage="http://www.eclipse.org/stardust/">
          This project allows for writing functional tests against 'Stardust Engine'.
       </description>

@@ -259,7 +259,8 @@ public class GlobalsCachedPersistenceManager
       if (cache != null)
       {
          Pair<String, String> cacheKey = new Pair(moduleId, preferencesId);
-         if(!cache.containsKey(cacheKey))
+         //default scope allows no reading / writing from the database
+         if(!cache.containsKey(cacheKey) && !PreferenceScope.DEFAULT.equals(scope))
          {
             preferences = subPersistenceManager.loadPreferences(scope, moduleId, preferencesId,
                   xmlPreferenceReader);

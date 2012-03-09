@@ -18,6 +18,7 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.pojo.data.PrimitiveXmlUtils;
@@ -26,6 +27,9 @@ import org.eclipse.stardust.engine.core.pojo.data.PrimitiveXmlUtils;
 
 public class ProcessInstanceGroupUtils
 {
+   private static final String QUALIFIED_CASE_PERFORMER_ID = new QName(
+         PredefinedConstants.PREDEFINED_MODEL_ID, PredefinedConstants.CASE_PERFORMER_ID).toString();
+
    private ProcessInstanceGroupUtils()
    {
       // Utility class
@@ -119,6 +123,33 @@ public class ProcessInstanceGroupUtils
       }
 
       return descriptors;
+   }
+
+   public static void assertNotCasePerformer(ParticipantInfo participant)
+   {
+      if (participant != null)
+      {
+         assertNotCasePerformer(participant.getQualifiedId());
+      }
+   }
+
+   public static void assertNotCasePerformer(String qualifiedParticipantId)
+   {
+      if (isCasePerformer(qualifiedParticipantId))
+      {
+         throw new ObjectNotFoundException(
+               BpmRuntimeError.MDL_UNKNOWN_PARTICIPANT_ID.raise(qualifiedParticipantId));
+      }
+   }
+
+   public static boolean isCasePerformer(String qualifiedParticipantId)
+   {
+      if (qualifiedParticipantId != null
+            && QUALIFIED_CASE_PERFORMER_ID.equals(qualifiedParticipantId))
+      {
+         return true;
+      }
+      return false;
    }
 
    private static void setPrimitiveDescriptorValue(IProcessInstance processInstance,

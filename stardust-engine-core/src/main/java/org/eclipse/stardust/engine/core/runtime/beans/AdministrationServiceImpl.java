@@ -161,7 +161,7 @@ public class AdministrationServiceImpl
             overrides.put(model.getId(), model);
          }
          runtimeEnvironment.setModelOverrides(overrides);
-         
+
          ParsedDeploymentUnit element = null;
          try
          {
@@ -194,7 +194,7 @@ public class AdministrationServiceImpl
          throw new PublicException(e);
       }
    }
-   
+
    private DeploymentInfo deploymentError(Exception e, Date validFrom)
    {
       // @todo (france, ub): more gracefully fill the deployment info
@@ -1823,6 +1823,7 @@ public class AdministrationServiceImpl
          throws DepartmentExistsException, ObjectNotFoundException, InvalidArgumentException, IllegalOperationException
    {
       checkInternalAuthentified();
+      ProcessInstanceGroupUtils.assertNotCasePerformer(organization);
 
       if (StringUtils.isEmpty(id))
       {

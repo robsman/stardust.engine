@@ -421,6 +421,8 @@ public class QueryServiceImpl implements QueryService, Serializable
    public Participant getParticipant(long modelOID, String id)
          throws ObjectNotFoundException
    {
+      ProcessInstanceGroupUtils.assertNotCasePerformer(id);
+
       QName name = id == null ? null : QName.valueOf(id);
       IModel model = getIModel(modelOID, name.getNamespaceURI());
 
@@ -463,8 +465,11 @@ public class QueryServiceImpl implements QueryService, Serializable
          }
          else if (participant instanceof IOrganization)
          {
-            result.add(DetailsFactory.create(participant, IOrganization.class,
-                  OrganizationDetails.class));
+            if ( !ProcessInstanceGroupUtils.isCasePerformer(participant.getQualifiedId()))
+            {
+               result.add(DetailsFactory.create(participant, IOrganization.class,
+                     OrganizationDetails.class));
+            }
          }
       }
       return result;
@@ -659,6 +664,8 @@ public class QueryServiceImpl implements QueryService, Serializable
    public List<Department> findAllDepartments(DepartmentInfo parent,
          OrganizationInfo organization) throws ObjectNotFoundException
    {
+      ProcessInstanceGroupUtils.assertNotCasePerformer(organization);
+
       Iterator<IDepartment> departments = null;
       IDepartment scope = null;
       if (parent != null)
@@ -743,6 +750,11 @@ public class QueryServiceImpl implements QueryService, Serializable
          {
             long rtOid = info.getRuntimeElementOID();
             IModelParticipant participant = manager.findModelParticipant(info);
+
+            ProcessInstanceGroupUtils.assertNotCasePerformer(participant == null
+                  ? null
+                  : participant.getQualifiedId());
+
             if ( !(participant instanceof IOrganization))
             {
                throw new ObjectNotFoundException(

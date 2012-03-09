@@ -405,6 +405,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    public ProcessInstance delegateCase(long caseOid, ParticipantInfo participant)
          throws ObjectNotFoundException, AccessForbiddenException
    {
+      ProcessInstanceGroupUtils.assertNotCasePerformer(participant);
+
       ProcessInstanceBean group = ProcessInstanceBean.findByOID(caseOid);
       if (!group.isCaseProcessInstance())
       {
@@ -965,6 +967,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
+      ProcessInstanceGroupUtils.assertNotCasePerformer(participant);
 
       if (data != null)
       {
@@ -1042,6 +1045,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNotActivated(activityInstance);
+      ProcessInstanceGroupUtils.assertNotCasePerformer(participant);
 
       if (participant == null)
       {
@@ -2258,7 +2262,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       // TODO: validate the object coming from the client
       QualityAssuranceUtils.validateActivityInstanceAttributes(attributes);
-      
+
       long activityInstanceOID = attributes.getActivityInstanceOid();
       ActivityInstanceBean activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
       List<Note> addedNotes = attributes.getAddedNotes();

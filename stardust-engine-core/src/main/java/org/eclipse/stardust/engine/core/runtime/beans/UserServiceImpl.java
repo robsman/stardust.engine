@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService, Serializable
    private static final long serialVersionUID = 2L;
 
    private static final Logger trace = LogManager.getLogger(UserServiceImpl.class);
-   
+
    public String startSession(String clientId)
    {
       // no tracking on archives
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService, Serializable
       {
          return UserService.DISABLED_FOR_USER;
       }
-      
+
       // TODO optionally prevent multiple session for same clientId
 
       // TODO check for limit on concurrent sessions
@@ -98,7 +98,7 @@ public class UserServiceImpl implements UserService, Serializable
       {
          return;
       }
-      
+
       // TODO Auto-generated method stub
 
       // TODO decrypt
@@ -132,7 +132,7 @@ public class UserServiceImpl implements UserService, Serializable
    {
       return SecurityProperties.isTeamLeader(user);
    }
-   
+
    /**
     * @deprecated Superseded by {@link #isInternalAuthentication()} due to bad wording.
     */
@@ -178,8 +178,8 @@ public class UserServiceImpl implements UserService, Serializable
 
       try
       {
-         PasswordValidation.validate(newPassword.toCharArray(), 
-               SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()), 
+         PasswordValidation.validate(newPassword.toCharArray(),
+               SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()),
                SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()) != null ? SecurityUtils.getPreviousPasswords(user, oldPassword) : null);
       }
       catch (InvalidPasswordException e)
@@ -187,8 +187,8 @@ public class UserServiceImpl implements UserService, Serializable
          throw new InvalidPasswordException(
                BpmRuntimeError.AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED.raise(),
                e.getFailureCodes());
-      }      
-      
+      }
+
       user.setAccount(user.getAccount());
       user.setFirstName(firstName);
       user.setLastName(lastName);
@@ -197,12 +197,12 @@ public class UserServiceImpl implements UserService, Serializable
       if (newPassword != null)
       {
          user.setPassword(newPassword);
-         SecurityUtils.changePassword(user, oldPassword, newPassword);      
+         SecurityUtils.changePassword(user, oldPassword, newPassword);
       }
 
       // we must reset the flag
       user.setPasswordExpired(false);
-      
+
       user.setEMail(eMail);
 
       return (User) DetailsFactory.create(SecurityProperties.getUser(), IUser.class, UserDetails.class);
@@ -211,8 +211,8 @@ public class UserServiceImpl implements UserService, Serializable
    public User modifyUser(User changes)
    {
       return modifyUser(changes, false);
-   }   
-   
+   }
+
    public User modifyUser(User changes, boolean generatePassword)
    {
       if ( !isFullyInitialized(changes))
@@ -233,34 +233,34 @@ public class UserServiceImpl implements UserService, Serializable
       user.lock();
 
       if (isInternalAuthentication())
-      {            
+      {
          if(isTeamLeader(user) || SecurityProperties.getUser().hasRole(PredefinedConstants.ADMINISTRATOR_ROLE));
          {
             user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
-         }      
-         
+         }
+
          user.setQualityAssuranceProbability(changes.getQualityAssuranceProbability());
-                     
+
          String previousPassword = user.getPassword();
          String newPassword = null;
-         
+
          if (generatePassword)
          {
-            PasswordRules rules = SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()); 
-            List<String> history = SecurityUtils.getPreviousPasswords(user, previousPassword);               
+            PasswordRules rules = SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid());
+            List<String> history = SecurityUtils.getPreviousPasswords(user, previousPassword);
             newPassword = new String(PasswordGenerator.generatePassword(rules, history));
          }
          else
          {
             newPassword = ((UserDetails) changes).getPassword();
          }
-                  
+
          if (newPassword != null)
          {
             try
             {
-               PasswordRules rules = SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()); 
-               List<String> history = SecurityUtils.getPreviousPasswords(user, previousPassword);                              
+               PasswordRules rules = SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid());
+               List<String> history = SecurityUtils.getPreviousPasswords(user, previousPassword);
                PasswordValidation.validate(newPassword.toCharArray(), rules, history);
             }
             catch (InvalidPasswordException e)
@@ -271,7 +271,7 @@ public class UserServiceImpl implements UserService, Serializable
                      e.getFailureCodes());
             }
          }
-         
+
          user.setAccount(changes.getAccount());
          user.setFirstName(changes.getFirstName());
          user.setLastName(changes.getLastName());
@@ -279,21 +279,21 @@ public class UserServiceImpl implements UserService, Serializable
 
          if(generatePassword)
          {
-            user.setPassword(newPassword);            
+            user.setPassword(newPassword);
             SecurityUtils.sendGeneratedPassword(user, newPassword);
-            
-            user.setPasswordExpired(true);               
-            SecurityUtils.changePassword(user, previousPassword, newPassword);      
+
+            user.setPasswordExpired(true);
+            SecurityUtils.changePassword(user, previousPassword, newPassword);
          }
          else if(newPassword != null)
          {
             user.setPassword(newPassword);
-            SecurityUtils.changePassword(user, previousPassword, newPassword);      
+            SecurityUtils.changePassword(user, previousPassword, newPassword);
          }
 
          user.setEMail(changes.getEMail());
          user.setValidFrom(changes.getValidFrom());
-         
+
          // user is disabled
          if(user.isPasswordExpired() && SecurityUtils.isUserInvalid(user))
          {
@@ -310,6 +310,9 @@ public class UserServiceImpl implements UserService, Serializable
          for (UserDetails.AddedGrant grant : newGrants)
          {
             QName qualifiedId = QName.valueOf(grant.getQualifiedId());
+
+            ProcessInstanceGroupUtils.assertNotCasePerformer(grant.getQualifiedId());
+
             DepartmentInfo departmentInfo = grant.getDepartment();
             IDepartment department = departmentInfo == null || departmentInfo == Department.DEFAULT
                   ? null : DepartmentBean.findByOID(departmentInfo.getOID());
@@ -345,8 +348,8 @@ public class UserServiceImpl implements UserService, Serializable
                {
                   grantParticipantId = ModelUtils.getQualifiedId(grant.getParticipant());
                }
-               
-               
+
+
                if (qualifiedNewGrantId.toString().equals(grantParticipantId)
                      && areEqual(department, newGrant.getDepartment()))
                {
@@ -384,11 +387,11 @@ public class UserServiceImpl implements UserService, Serializable
                oldGroup.removeUser(user);
             }
          }
-      }      
+      }
 
       return (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
    }
-   
+
    public void resetPassword(String account, Map properties) throws ConcurrencyException,
          ObjectNotFoundException, IllegalOperationException
    {
@@ -404,16 +407,16 @@ public class UserServiceImpl implements UserService, Serializable
          model = ModelManagerFactory.getCurrent().findLastDeployedModel();
       }
       boolean allowNewAccount = true;
-      
+
       IUser user = SynchronizationService.synchronize(account, model, allowNewAccount, properties);
-      
+
       if ( !user.isValid())
       {
          throw new IllegalOperationException(
                BpmRuntimeError.AUTHx_EXP_ACCOUNT_EXPIRED.raise(user
                      .getRealmQualifiedAccount()));
       }
-      
+
       user.lock();
 
       if (isInternalAuthentication())
@@ -480,7 +483,7 @@ public class UserServiceImpl implements UserService, Serializable
 
       try
       {
-         PasswordValidation.validate(password.toCharArray(), 
+         PasswordValidation.validate(password.toCharArray(),
                SecurityUtils.getPasswordRules(partition.getOID()), null);
       }
       catch (InvalidPasswordException e)
@@ -488,8 +491,8 @@ public class UserServiceImpl implements UserService, Serializable
          throw new InvalidPasswordException(
                BpmRuntimeError.AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED.raise(),
                e.getFailureCodes());
-      }            
-      
+      }
+
       UserBean user = new UserBean(account, firstName, lastName, UserRealmBean.findById(
             realm, partition.getOID()));
 
@@ -502,7 +505,7 @@ public class UserServiceImpl implements UserService, Serializable
 
       trace.info("Created user '" + user.getRealmQualifiedAccount() + "', oid = "
             + user.getOID());
-      
+
       MonitoringUtils.partitionMonitors().userCreated(user);
 
       return (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
@@ -558,8 +561,8 @@ public class UserServiceImpl implements UserService, Serializable
 
       try
       {
-         PasswordValidation.validate(newPassword.toCharArray(), 
-               SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()), 
+         PasswordValidation.validate(newPassword.toCharArray(),
+               SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()),
                SecurityUtils.getPasswordRules(SecurityProperties.getPartitionOid()) != null ? SecurityUtils.getPreviousPasswords(user, oldPassword) : null);
       }
       catch (InvalidPasswordException e)
@@ -567,10 +570,10 @@ public class UserServiceImpl implements UserService, Serializable
          throw new InvalidPasswordException(
                BpmRuntimeError.AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED.raise(),
                e.getFailureCodes());
-      }      
-      
+      }
+
       user.setPassword(newPassword);
-      SecurityUtils.changePassword(user, oldPassword, newPassword);      
+      SecurityUtils.changePassword(user, oldPassword, newPassword);
    }
 
    public IModel getModel()
@@ -606,7 +609,7 @@ public class UserServiceImpl implements UserService, Serializable
 
       user.setValidTo(new Date());
       user.clearAllParticipants();
-      
+
       MonitoringUtils.partitionMonitors().userDisabled(user);
 
       return (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
@@ -642,14 +645,14 @@ public class UserServiceImpl implements UserService, Serializable
          ObjectNotFoundException, IllegalOperationException
    {
       checkInternalAuthentified();
-      
+
       if ( !isFullyInitialized(changes))
       {
          throw new IllegalOperationException(
                BpmRuntimeError.AUTHx_OPERATION_FAILED_USER_GROUP_OID_NOT_FULLY_INITIALIZED
                      .raise(changes.getOID()));
       }
-      
+
       UserGroupBean userGroup = UserGroupBean.findByOid(changes.getOID());
 
       userGroup.lock();
@@ -742,7 +745,7 @@ public class UserServiceImpl implements UserService, Serializable
 
       trace.info(MessageFormat.format("Created user realm ''{0}'', oid = {1}.",
             new Object[] {id, new Long(userRealm.getOID())}));
-      
+
       MonitoringUtils.partitionMonitors().userRealmCreated(userRealm);
 
       return (UserRealm) DetailsFactory.create(userRealm, IUserRealm.class,
@@ -770,7 +773,7 @@ public class UserServiceImpl implements UserService, Serializable
 
       trace.info(MessageFormat.format("Dropped user realm ''{0}'', oid = {1}.",
             new Object[] {id, new Long(oid)}));
-      
+
       MonitoringUtils.partitionMonitors().userRealmDropped(userRealm);
    }
 

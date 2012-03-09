@@ -35,7 +35,7 @@
    
    <!-- Dependencies -->
    <dependencies>
-      <!-- compile -->
+      <!-- 'compile' configuration -->
       <dependency org="junit" name="junit" rev="4.10" conf="compile->default" />
       <dependency org="com.h2database" name="h2" rev="1.3.164" conf="compile->default" />
       <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="compile->default" />
@@ -43,7 +43,7 @@
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="compile->carnot-engine-compile" transitive="false" />
       <dependency org="com.infinity.bpm" name="carnot-spring" rev="${ipp.version.full}" conf="compile->carnot-spring-compile" transitive="false" />
       
-      <!-- test -->
+      <!-- 'test' configuration -->
       <dependency org="org.hamcrest" name="hamcrest-library" rev="1.1" conf="test->default" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jta-jencks-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jcr-jackrabbit-module-runtime" />
@@ -51,8 +51,10 @@
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->logging-slf4j-log4j-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->logging-log4j-module-runtime" />
       
+      <!-- exclude dependency explicitly -->
       <exclude org="org.apache.jackrabbit" module="jackrabbit-webapp" />
       
+      <!-- override dependency version explicitly -->
       <override org="junit" module="junit" rev="4.10" />
    </dependencies>
 </ivy-module>

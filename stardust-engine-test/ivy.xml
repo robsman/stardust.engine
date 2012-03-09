@@ -14,7 +14,11 @@
             xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
    <!-- Info -->
-   <info organisation="org.eclipse.stardust" module="stardust-engine-test" revision="${ipp.version.full}" />
+   <info organisation="org.eclipse.stardust" module="stardust-engine-test" revision="${ipp.version.full}">
+      <description homepage="http://www.eclipse.org/stardust/">
+         This project allows for writing functional tests against 'Stardust Engine'.
+      </description>
+   </info>
 	
    <!-- Configurations -->
    <configurations>

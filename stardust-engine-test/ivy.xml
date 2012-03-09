@@ -45,9 +45,7 @@
       
       <!-- test -->
       <dependency org="org.hamcrest" name="hamcrest-library" rev="1.1" conf="test->default" />
-      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jta-api-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jta-jencks-module-runtime" />
-      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jcr-api-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jcr-jackrabbit-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jcr-vfs-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->logging-slf4j-log4j-module-runtime" />

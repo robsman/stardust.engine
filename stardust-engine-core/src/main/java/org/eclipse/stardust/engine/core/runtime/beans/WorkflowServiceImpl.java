@@ -322,7 +322,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          {
             // TODO: should we raise an exception here ?
          }
-         if (member.getRootProcessInstance() == group)
+         if (isDirectChild(group, member))
          {
             // locking all transitions
             new ProcessInstanceLocking().lockAllTransitions(member);
@@ -339,6 +339,27 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ProcessInstanceUtils.checkGroupTermination(group);
 
       return DetailsFactory.create(group);
+   }
+
+   private boolean isDirectChild(ProcessInstanceBean group, ProcessInstanceBean member)
+   {
+      IProcessInstance parentProcessInstance = null;
+      IActivityInstance ai = member.getStartingActivityInstance();
+      if (ai != null)
+      {
+         parentProcessInstance = ai.getProcessInstance();
+      }
+      else
+      {
+         parentProcessInstance = ProcessInstanceHierarchyBean.findParentForSubProcessInstanceOid(member.getOID());
+      }
+
+      if (parentProcessInstance != null && parentProcessInstance == group)
+      {
+         return true;
+      }
+
+      return false;
    }
 
    public ProcessInstance mergeCases(long targetCaseOid, long[] sourceCaseOids, String comment)

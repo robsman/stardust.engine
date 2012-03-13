@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.command.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument
 
 
 
+
 /**
  *
  *	Service command class for ExtractPage
@@ -52,10 +54,11 @@ public class ExtractPageCommand implements ServiceCommand
    private ProcessInstance processInstance;
    private List<PageModel> pages;
    private String sourceDocumentName;
-   private String sourceDocumentPath;
-   private String newDocumentName;
+   private String sourceDocumentPath;   
    private ServiceFactory sf;
-   private String mimeType;
+   private String mimeType;   
+   private String fileName;
+   private String fileExtn;
 
    /**
      *
@@ -63,7 +66,7 @@ public class ExtractPageCommand implements ServiceCommand
    public Serializable execute(ServiceFactory sf)
    {
       this.sf = sf;
-
+      init();
       if (null != processInstance)
       {
          return (Serializable) spawnProcesses();
@@ -74,6 +77,14 @@ public class ExtractPageCommand implements ServiceCommand
          return (Serializable) startProcesses();
       }
 
+   }
+   
+   private void init()
+   {
+      fileName = stripExtension(sourceDocumentName);
+      fileExtn = sourceDocumentName.length() > fileName.length()
+            ? sourceDocumentName.substring(fileName.length() + 1)
+            : "";
    }
 
    /**
@@ -88,7 +99,7 @@ public class ExtractPageCommand implements ServiceCommand
       {
          Map<String, Object> data = null;
          Document document = null;
-
+         String newDocumentName = generateName();
          if (StringUtils.isNotEmpty(page.getDataId()) && !PROCESS_ATTACHMENT_DATA.equals(page.getDataId()))
          {
             Map<String, Object> properties = CollectionUtils.newHashMap();
@@ -120,7 +131,7 @@ public class ExtractPageCommand implements ServiceCommand
          page.setDocument(document);
       }
       return processInstances;
-   }
+   }   
 
    /**
     * if document is associated with process then call this method create document in root
@@ -138,6 +149,7 @@ public class ExtractPageCommand implements ServiceCommand
 
       for (PageModel page : pages)
       {
+         String newDocumentName = generateName();
          if (StringUtils.isNotEmpty(page.getDataId()) && !PROCESS_ATTACHMENT_DATA.equals(page.getDataId()))
          {
             Map<String, Object> properties = CollectionUtils.newHashMap();
@@ -168,6 +180,7 @@ public class ExtractPageCommand implements ServiceCommand
 
          if (PROCESS_ATTACHMENT_DATA.equals(page.getDataId()) && ExtractPageUtil.isProcessAttachmentAllowed(sf, pi))
          {
+            String newDocumentName = generateName();
             Folder processFolder = ExtractPageUtil.getProcessAttachmentsFolder(sf, pi);
             Map<String, Object> properties = CollectionUtils.newHashMap();
 
@@ -222,16 +235,7 @@ public class ExtractPageCommand implements ServiceCommand
    {
       this.sourceDocumentName = sourceDocumentName;
    }
-
-   public String getNewDocumentName()
-   {
-      return newDocumentName;
-   }
-
-   public void setNewDocumentName(String newDocumentName)
-   {
-      this.newDocumentName = newDocumentName;
-   }
+   
 
    public String getMimeType()
    {
@@ -494,6 +498,36 @@ public class ExtractPageCommand implements ServiceCommand
       }
 
    }
+   /**
+    * generate new file name by appending date-time in source file name
+    * 
+    * @return
+    */
+   private String generateName()
+   {
+      StringBuilder name = new StringBuilder().append(fileName).append("_")
+            .append(String.valueOf(new Date().getTime()));
+      
+      if (StringUtils.isNotEmpty(fileExtn))
+      {
+         name.append(".").append(fileExtn);
+      }
+      return name.toString();
+   }
+   
+   /**
+    * 
+    * @param fileName
+    */
+   private String stripExtension(String fileName)
+   {
+      int index = fileName.lastIndexOf('.');
+      if (index > 0 && index <= fileName.length() - 2)
+      {
+         return fileName.substring(0, index);
+      }
+      return fileName;
 
+   }
 }
 

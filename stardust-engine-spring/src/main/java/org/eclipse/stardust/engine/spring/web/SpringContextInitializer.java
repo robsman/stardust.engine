@@ -13,16 +13,8 @@ package org.eclipse.stardust.engine.spring.web;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.spring.SpringUtils;
-import org.springframework.beans.factory.BeanDefinitionStoreException;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.context.support.AbstractRefreshableWebApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-import org.springframework.web.context.support.XmlWebApplicationContext;
 
 
 /**

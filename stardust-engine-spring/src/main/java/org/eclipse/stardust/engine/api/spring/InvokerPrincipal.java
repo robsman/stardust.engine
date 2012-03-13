@@ -23,6 +23,8 @@ import org.eclipse.stardust.engine.core.spi.security.PrincipalWithProperties;
  */
 public class InvokerPrincipal implements PrincipalWithProperties, Serializable
 {
+   private static final long serialVersionUID = 7344238080033531281L;
+
    private final String name;
 
    private final Map properties;

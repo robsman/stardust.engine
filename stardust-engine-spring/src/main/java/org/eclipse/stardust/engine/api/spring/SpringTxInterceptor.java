@@ -15,8 +15,6 @@ import java.util.Collections;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.rt.ITransactionStatus;
 import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
@@ -35,8 +33,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class SpringTxInterceptor implements MethodInterceptor
 {
    private static final long serialVersionUID = 1L;
-
-   private static final Logger trace = LogManager.getLogger(SpringTxInterceptor.class);
 
    private final AbstractSpringServiceBean serviceBean;
 

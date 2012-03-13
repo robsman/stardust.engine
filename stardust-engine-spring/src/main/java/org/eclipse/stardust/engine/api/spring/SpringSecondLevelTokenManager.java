@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.spring;
 
-import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.SecondLevelTokenManager;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenManagerRegistry;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;

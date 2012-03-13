@@ -34,6 +34,8 @@ import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
  */
 public class SpringRemoteUserIdentityInterceptor implements MethodInterceptor
 {
+   private static final long serialVersionUID = -8842277173417391800L;
+
    private static final ThreadLocal userIdHolder = new ThreadLocal();
 
    public static String getUserId()

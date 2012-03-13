@@ -40,19 +40,24 @@
    </publications>
 
    <dependencies>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile->engine-module-compile"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->jcr-vfs-module-compile"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->qdox-module-compile"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->jms-api-module-compile"/>
-      
-      <dependency org="org.springframework" name="spring" rev="2.5.6" conf="carnot-spring-compile->default">
-         <exclude org="org.springframework" module="spring-beans"/>
-         <exclude org="org.springframework" module="spring-context"/>
-         <exclude org="org.springframework" module="spring-context-support"/>
-         <exclude org="org.springframework" module="spring-core"/>
-         <exclude org="org.springframework" module="spring-web"/>
-      </dependency>
-      <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="carnot-spring-provided->default"/>
+      <!-- carnot-spring-compile -->
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile->engine-module-compile" />
+      <dependency org="org.springframework" name="spring-beans" rev="3.0.5.RELEASE" conf="carnot-spring-compile->default" />
+      <dependency org="org.springframework" name="spring-core" rev="3.0.5.RELEASE" conf="carnot-spring-compile->default" />
+      <dependency org="org.springframework" name="spring-jdbc" rev="3.0.5.RELEASE" conf="carnot-spring-compile->default" />
+      <dependency org="org.springframework" name="spring-jms" rev="3.0.5.RELEASE" conf="carnot-spring-compile->default" />
+      <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="carnot-spring-compile->default" />
+      <dependency org="org.springframework" name="spring-context-support" rev="3.0.5.RELEASE" conf="carnot-spring-compile->default" />
+      <dependency org="org.springframework" name="spring-tx" rev="3.0.5.RELEASE" conf="carnot-spring-compile->default" />
+      <dependency org="org.springframework" name="spring-web" rev="3.0.5.RELEASE" conf="carnot-spring-compile->default" />
+
+      <!-- carnot-spring-compile-optional -->
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->jcr-vfs-module-compile" />
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->qdox-module-compile" />
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->jms-api-module-compile" />
+
+      <!-- carnot-spring-provided -->      
+      <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="carnot-spring-provided->default" />
       
       <!-- test -->
       <dependency org="junit" name="junit-dep" rev="4.8.2" conf="test->default" />

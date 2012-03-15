@@ -35,38 +35,30 @@
    </publications>
 
    <dependencies>
+      <!-- client-spring-module-runtime, spring-provider-compile -->
       <dependency org="com.infinity.bpm" name="carnot-spring" rev="${ipp.version.full}" conf="client-spring-module-runtime,spring-provider-compile->carnot-spring-compile">
          <exclude org="rhino" module="js" />
       </dependency>
-      <!-- spring-provider-compile -->
-      <dependency org="org.springframework" name="spring" rev="2.5.6" conf="spring-provider-compile->default">
-         <exclude org="org.springframework" module="spring-beans"/>
-         <exclude org="org.springframework" module="spring-context"/>
-         <exclude org="org.springframework" module="spring-context-support"/>
-         <exclude org="org.springframework" module="spring-core"/>
-         <exclude org="org.springframework" module="spring-web"/>
-      </dependency>
-      <dependency org="org.springframework" name="spring-webmvc" rev="2.5.6" conf="spring-provider-compile->default">
-         <exclude org="aopalliance" module="aopalliance"/>
-         <exclude org="org.springframework" module="spring-beans"/>
-         <exclude org="org.springframework" module="spring-context"/>
-         <exclude org="org.springframework" module="spring-context-support"/>
-         <exclude org="org.springframework" module="spring-core"/>
-         <exclude org="org.springframework" module="spring-web"/>
-      </dependency>
-      <!-- spring-web is included in spring.jar but in some deployment scenarios we need this JAR in
-           WEB-INF/lib instead of spring.jar. -->
-      <dependency org="org.springframework" name="spring-web" rev="2.5.6" conf="spring-module-provided->default">
-         <exclude org="org.springframework" module="spring-beans"/>
-         <exclude org="org.springframework" module="spring-context"/>
-         <exclude org="org.springframework" module="spring-context-support"/>
-         <exclude org="org.springframework" module="spring-core"/>
-         <exclude org="commons-logging" module="commons-logging"/>
-      </dependency>
       
+      <!-- The Spring dependencies are defined explicitly to support the use case that this module is referenced, 'carnot-spring' is excluded, -->
+      <!-- but we want to get the Spring dependencies anyway                                                                                   -->
+      
+      <!-- spring-module-compile -->
+      <dependency org="org.springframework" name="spring-beans" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-core" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-jdbc" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-jms" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-context-support" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-tx" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-web" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      
+      <!-- spring-module-runtime -->
+      <dependency org="org.springframework" name="spring-webmvc" rev="3.0.5.RELEASE" conf="spring-module-runtime->default" />
+      
+      <!-- client-spring-module-runtime -->
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->client-module-runtime,logging-log4j-module-runtime">
          <exclude org="rhino" module="js" />
       </dependency>
-      
    </dependencies>
 </ivy-module>

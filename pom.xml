@@ -15,7 +15,6 @@
   </parent>
 
   <modules>
-    <module>../components/jcr-vfs</module>
     <module>stardust-engine-core</module>
     <module>stardust-engine-spring</module>
   </modules>

@@ -393,10 +393,20 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       if ( !jcrSessions.isEmpty())
       {
          session = (javax.jcr.Session) jcrSessions.get(key);
-         if (session != null && !session.isLive())
+         try
          {
-            jcrSessions.remove(key);
-            session.logout();
+            if (session != null && !session.isLive())
+            {
+               session.logout();
+            }
+         }
+         catch (Throwable e)
+         {
+            trace.warn("Could not logout existing jcr session. Cause: " + e.getMessage());
+         }
+         finally
+         {
+            jcrSessions = Collections.EMPTY_MAP;
             session = null;
          }
       }
@@ -423,7 +433,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public void close()
    {
       detailsFactory = null;
-      
+
       closeQueueSenders();
       closeQueueSessions();
       closeQueueConnections();

@@ -1302,7 +1302,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (values != null && !values.isEmpty()
             && QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
-         QualityAssuranceUtils.checkIfModifyDataIsAllowed(activityInstance);
+         QualityAssuranceUtils.assertModifyDataIsAllowed(activityInstance);
       }
    }
 

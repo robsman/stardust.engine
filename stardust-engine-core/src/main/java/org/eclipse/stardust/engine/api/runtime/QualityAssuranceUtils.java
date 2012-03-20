@@ -384,7 +384,45 @@ public class QualityAssuranceUtils
          {
             BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_DELEGATE_QA_INSTANCE_NOT_ALLOWED.raise(
                   activityInstance.getOID(), monitoredUser.getOID());
+            throw new InvalidArgumentException(errorCase);
+         }
+      }
+   }
+
+   public static void assertActivationIsAllowed(IActivityInstance activityInstance)
+   {
+      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      {
+         //get the instance that created this qa instance         
+         IUser monitoredUser = QualityAssuranceUtils.getMonitoredUser(activityInstance);
+         IUser currentUser = SecurityProperties.getUser();
+         
+         // the user who is monitored is not allowed to activate
+         // qa instances (the instances that are monitoring)
+         if (monitoredUser.getOID() == currentUser.getOID())
+         {
+            BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_USER_NOT_ALLOWED_ACTIVATE_QA_INSTANCE.raise(
+                  monitoredUser.getOID(), activityInstance.getOID());
             throw new IllegalOperationException(errorCase);
+         }
+      }
+   }
+   
+   public static void assertModifyDataIsAllowed(IActivityInstance activityInstance)
+   {
+      if (QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      {
+         ActivityInstanceAttributes attributes = QualityAssuranceUtils
+               .getActivityInstanceAttributes(activityInstance);
+         if (attributes != null)
+         {
+            QualityAssuranceResult.ResultState resultState = attributes
+                  .getQualityAssuranceResult().getQualityAssuranceState();
+            if (resultState != QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION)
+            {
+               throw new InvalidArgumentException(
+                     BpmRuntimeError.BPMRT_MODIFY_DATA_QA_INSTANCE_NOT_ALLOWED.raise());
+            }
          }
       }
    }
@@ -403,26 +441,6 @@ public class QualityAssuranceUtils
       return true;
    }
    
-   public static void assertActivationIsAllowed(IActivityInstance activityInstance)
-   {
-      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
-      {
-         //get the instance that created this qa instance         
-         IUser monitoredUser = QualityAssuranceUtils.getMonitoredUser(activityInstance);
-         IUser currentUser = SecurityProperties.getUser();
-         
-         // the user who is monitored is not allowed to activate
-         // qa instances (the instances that are monitoring)
-         if (monitoredUser.getOID() == currentUser.getOID())
-         {
-            BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_USER_NOT_ALLOWED_ACTIVATE_QA_INSTANCE.raise(
-                  monitoredUser.getOID(), activityInstance.getOID());
-            throw new IllegalOperationException(errorCase);
-         }
-      }
-      
-   }
-
    public static void validateActivityInstanceAttributes(
          ActivityInstanceAttributes attributes)
    {      
@@ -453,22 +471,5 @@ public class QualityAssuranceUtils
       }
    }
    
-   public static void checkIfModifyDataIsAllowed(IActivityInstance activityInstance)
-   {
-      if (QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
-      {
-         ActivityInstanceAttributes attributes = QualityAssuranceUtils
-               .getActivityInstanceAttributes(activityInstance);
-         if (attributes != null)
-         {
-            QualityAssuranceResult.ResultState resultState = attributes
-                  .getQualityAssuranceResult().getQualityAssuranceState();
-            if (resultState != QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION)
-            {
-               throw new InvalidArgumentException(
-                     BpmRuntimeError.BPMRT_MODIFY_DATA_QA_INSTANCE_NOT_ALLOWED.raise());
-            }
-         }
-      }
-   }
+
 }

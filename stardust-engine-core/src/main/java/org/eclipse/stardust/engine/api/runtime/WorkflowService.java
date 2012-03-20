@@ -127,7 +127,7 @@ public interface WorkflowService extends Service
          administratorOverride=false)
    ActivityInstance complete(long activityInstanceOID, String context, Map<String, ?> outData)
          throws ConcurrencyException, IllegalStateChangeException,
-         ObjectNotFoundException, InvalidValueException, AccessForbiddenException;
+         ObjectNotFoundException, InvalidValueException, AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Completes the interactive activity instance identified by the
@@ -166,7 +166,7 @@ public interface WorkflowService extends Service
          administratorOverride=false)
    ActivityCompletionLog complete(long activityInstanceOID, String context, Map<String, ?> outData,
          int flags) throws ConcurrencyException, IllegalStateChangeException,
-         ObjectNotFoundException, InvalidValueException, AccessForbiddenException;
+         ObjectNotFoundException, InvalidValueException, AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Activates and completes the interactive activity instance identified by the
@@ -385,7 +385,7 @@ public interface WorkflowService extends Service
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance suspendToDefaultPerformer(long activityInstanceOID, String context,
          Map<String, ? > outData) throws ObjectNotFoundException, ConcurrencyException,
-         AccessForbiddenException;
+         AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
@@ -436,7 +436,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.ALL},
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance suspendToUser(long activityInstanceOID, String context, Map<String, ?> outData)
-         throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException;
+         throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
@@ -451,7 +451,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    *
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         and the specified user is the one who worked on the previous workflow instance  
+    *         
     * @see #suspendToUser(long, long, String, Map)
     */
    @ExecutionPermission(
@@ -460,7 +463,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.ALL},
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance suspendToUser(long activityInstanceOID, long userOID)
-         throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException;
+         throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
@@ -481,7 +484,9 @@ public interface WorkflowService extends Service
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
     *         and the passed <code>outData</code> argument is a non empty map.
-    *
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         and the specified user is the one who worked on the previous workflow instance  
     * @see #suspendToUser(long, long)
     */
    @ExecutionPermission(
@@ -491,7 +496,7 @@ public interface WorkflowService extends Service
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance suspendToUser(long activityInstanceOID, long userOID, String context,
          Map<String, ? > outData) throws ObjectNotFoundException, ConcurrencyException,
-         AccessForbiddenException;
+         AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
@@ -545,7 +550,7 @@ public interface WorkflowService extends Service
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance suspendToParticipant(long activityInstanceOID, String participant,
          String context, Map<String, ? > outData) throws ObjectNotFoundException,
-         ConcurrencyException, AccessForbiddenException;
+         ConcurrencyException, AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Suspends the activity instance and, if the participant is not null, delegates it to the specified participant.
@@ -563,7 +568,10 @@ public interface WorkflowService extends Service
     * @throws InvalidArgumentException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument contains a non empty data map         
+    *         and the passed <code>outData</code> argument contains a non empty data map  
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         and the passed participant is a user who worked on the previous workflow instance              
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -571,7 +579,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.ALL},
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance suspendToParticipant(long activityInstanceOID, ParticipantInfo participant,
-         ContextData outData) throws ObjectNotFoundException, AccessForbiddenException;
+         ContextData outData) throws ObjectNotFoundException, AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Change the state of the specified activity instance to HIBERNATED.
@@ -1228,7 +1236,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws AccessForbiddenException if the delegation target is not granted to execute
-    *         the activity instance or if the activity instance is already terminated.      
+    *         the activity instance or if the activity instance is already terminated. 
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         and the specified user is the one who worked on the previous workflow instance                    
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -1236,7 +1247,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.ALL},
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance delegateToUser(long activityInstanceOID, long userOID)
-         throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException;
+         throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Delegates the specified activity instance to a specific performer.
@@ -1276,6 +1287,9 @@ public interface WorkflowService extends Service
     *         currently processed by another user or the current user does not have the
     *         required permission or if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         and the specified participant is a user who worked on the previous workflow instance           
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -1283,7 +1297,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.ALL},
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance delegateToParticipant(long activityInstanceOID, ParticipantInfo participant)
-         throws ObjectNotFoundException, AccessForbiddenException;
+         throws ObjectNotFoundException, AccessForbiddenException, InvalidArgumentException;
 
    /**
     * Retrieves the specified ActivityInstance.

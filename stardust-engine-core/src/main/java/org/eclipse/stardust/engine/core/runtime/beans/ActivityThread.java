@@ -11,7 +11,11 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Attribute;
@@ -34,7 +38,11 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.JoinSplitType;
 import org.eclipse.stardust.engine.api.model.LoopType;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
@@ -873,45 +881,47 @@ public class ActivityThread implements Runnable
    private boolean handleQualityAssuranceInstance()
    {
       boolean isWorkflowModified = false;
-
       ActivityInstanceAttributes aiAttributes = QualityAssuranceUtils
             .getActivityInstanceAttributes(activityInstance);
-      QualityAssuranceResult result = aiAttributes.getQualityAssuranceResult();
-      QualityAssuranceResult.ResultState resultState = result.getQualityAssuranceState();
-
-      if (resultState == QualityAssuranceResult.ResultState.FAILED)
+      
+      if(aiAttributes != null)
       {
-         IActivityInstance oldInstance = activityInstance;
-         IActivityInstance newInstance = null;
-         
-         //decide if new instance should go back to participant (default) or the last user
-         if(result.isAssignFailedInstanceToLastPerformer())
+         QualityAssuranceResult result = aiAttributes.getQualityAssuranceResult();
+         QualityAssuranceResult.ResultState resultState = result.getQualityAssuranceState();
+
+         if (resultState == QualityAssuranceResult.ResultState.FAILED)
          {
-            //we need to know which user worked before this qa instance
-            QualityAssuranceInfo qaInfo = QualityAssuranceUtils.getQualityAssuranceInfo(oldInstance);               
-            long monitoredUserOID = qaInfo.getMonitoredInstance().getPerformedByOID();
-            IUser monitoredUser = UserBean.findByOid(monitoredUserOID);
+            IActivityInstance oldInstance = activityInstance;
+            IActivityInstance newInstance = null;
             
-            newInstance = new ActivityInstanceBean(activity, processInstance, monitoredUser);
-         }
-         else
-         {
-            newInstance = new ActivityInstanceBean(activity, processInstance);
-         }
+            //decide if new instance should go back to participant (default) or the last user
+            if(result.isAssignFailedInstanceToLastPerformer())
+            {
+               //we need to know which user worked before this qa instance
+               QualityAssuranceInfo qaInfo = QualityAssuranceUtils.getQualityAssuranceInfo(oldInstance);               
+               long monitoredUserOID = qaInfo.getMonitoredInstance().getPerformedByOID();
+               IUser monitoredUser = UserBean.findByOid(monitoredUserOID);
+               
+               newInstance = new ActivityInstanceBean(activity, processInstance, monitoredUser);
+            }
+            else
+            {
+               newInstance = new ActivityInstanceBean(activity, processInstance);
+            }
 
-         newInstance.setQualityAssuranceState(QualityAssuranceState.IS_REVISED);
-         //set a backward reference to the failed qa instance
-         newInstance.setPropertyValue(QualityAssuranceInfo.FAILED_QUALITY_CONTROL_INSTANCE_OID, 
-               oldInstance.getOID());
-         
-         activityInstance = newInstance;
-         tokenCache.updateInBindings(oldInstance, newInstance, activity);
-         getCurrentActivityThreadContext().enteringActivity(newInstance);
+            newInstance.setQualityAssuranceState(QualityAssuranceState.IS_REVISED);
+            //set a backward reference to the failed qa instance
+            newInstance.setPropertyValue(QualityAssuranceInfo.FAILED_QUALITY_CONTROL_INSTANCE_OID, 
+                  oldInstance.getOID());
+            
+            activityInstance = newInstance;
+            tokenCache.updateInBindings(oldInstance, newInstance, activity);
+            getCurrentActivityThreadContext().enteringActivity(newInstance);
 
-         isWorkflowModified = true;
+            isWorkflowModified = true;
+         }
       }
       
-
       return isWorkflowModified;
    }
    

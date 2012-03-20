@@ -112,7 +112,10 @@ public interface WorkflowService extends Service
     *         be written is invalid, most probably as of a type conflict in case of
     *         statically typed data.
     * @throws AccessForbiddenException if the current user is not allowed to complete the activity.
-    *
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
+    *         and the passed <code>outData</code> argument is a non empty map.
     * @see #activateAndComplete(long, String, Map)
     * @see #complete(long, String, Map, int)
     */
@@ -145,6 +148,10 @@ public interface WorkflowService extends Service
     * @throws InvalidValueException if one of the <code>outData</object> values to
     *         be written is invalid, most probably as of a type conflict in case of
     *         statically typed data.
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
+    *         and the passed <code>outData</code> argument is a non empty map.        
     * @throws AccessForbiddenException if the activity instance is
     *         already terminated.
     *
@@ -312,7 +319,10 @@ public interface WorkflowService extends Service
     *         currently processed by another user or the current user does not have the
     *         required permission.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws InvalidArgumentException if QA AI with non empty out data map
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
+    *         and the passed <code>outData</code> argument contains a non empty data map.
     *
     * @see #suspendToDefaultPerformer(long, String, Map)
     */
@@ -361,6 +371,10 @@ public interface WorkflowService extends Service
     * @throws ConcurrencyException if the same activity instance is being processed by another user.
     * @throws AccessForbiddenException if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
+    *         and the passed <code>outData</code> argument is a non empty map.
     *
     * @see #suspendToDefaultPerformer(long)
     */
@@ -410,7 +424,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    *
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
+    *         and the passed <code>outData</code> argument is a non empty map.
     * @see #suspendToUser(long)
     */
    @ExecutionPermission(
@@ -460,6 +477,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
+    *         and the passed <code>outData</code> argument is a non empty map.
     *
     * @see #suspendToUser(long, long)
     */
@@ -511,7 +532,10 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    *
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
+    *         and the passed <code>outData</code> argument is a non empty map.
     * @see #suspendToParticipant(long, String)
     */
    @ExecutionPermission(
@@ -536,6 +560,10 @@ public interface WorkflowService extends Service
     *         currently processed by another user or the current user does not have the
     *         required permission or if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
+    * @throws InvalidArgumentException if the specified activity instance is a 
+    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
+    *         and the passed <code>outData</code> argument contains a non empty data map         
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -1199,6 +1227,8 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException if there is no activity instance or user with the specified OIDs.
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
+    * @throws AccessForbiddenException if the delegation target is not granted to execute
+    *         the activity instance or if the activity instance is already terminated.      
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,

@@ -136,12 +136,7 @@ public class QualityAssuranceUtils
       
       return monitoredUser;
    }
-   
-   public void checkModifyQAInstance(IActivityInstance activityInstance)
-   {
-
-   }
-   
+      
    public static boolean isQualityAssuranceEnabled(IActivityInstance instance)
    {
       return instance.getActivity().isQualityAssuranceEnabled();
@@ -378,13 +373,10 @@ public class QualityAssuranceUtils
       return probabilityKey;
    }
    
-   
-   
-   
    public static void assertDelegationIsAllowed(IActivityInstance activityInstance, IUser delegate)
    {
       //delegation of an qa instance to the user who is monitored 
-      //(worked on the previous instance) is not allowed
+      //(worked on the previous instance) is not allowed, even when the user would have the permission
       if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
          IUser monitoredUser = QualityAssuranceUtils.getMonitoredUser(activityInstance);
@@ -456,6 +448,25 @@ public class QualityAssuranceUtils
             {
                BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ELEMENT_IN_COLLECTION.raise("qualityAssuranceCodes");
                throw new InvalidArgumentException(errorCase);
+            }
+         }
+      }
+   }
+   
+   public static void checkIfModifyDataIsAllowed(IActivityInstance activityInstance)
+   {
+      if (QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      {
+         ActivityInstanceAttributes attributes = QualityAssuranceUtils
+               .getActivityInstanceAttributes(activityInstance);
+         if (attributes != null)
+         {
+            QualityAssuranceResult.ResultState resultState = attributes
+                  .getQualityAssuranceResult().getQualityAssuranceState();
+            if (resultState != QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION)
+            {
+               throw new InvalidArgumentException(
+                     BpmRuntimeError.BPMRT_MODIFY_DATA_QA_INSTANCE_NOT_ALLOWED.raise());
             }
          }
       }

@@ -12,7 +12,17 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -21,7 +31,15 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.common.error.ApplicationException;
+import org.eclipse.stardust.common.error.ConcurrencyException;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
+import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
@@ -32,7 +50,6 @@ import org.eclipse.stardust.engine.api.dto.Note;
 import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetails;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributesDetails;
-import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
 import org.eclipse.stardust.engine.api.dto.RoleInfoDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserInfoDetails;
@@ -858,12 +875,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       if (activityInstance.getState() == ActivityInstanceState.Application)
       {
-         boolean allowSetDataValues = canModifyData(activityInstance);
-         if(allowSetDataValues)
-         {
-            setOutDataValues(context, outData, activityInstance.getOID());
-         }
-
+         setOutDataValues(context, outData, activityInstance.getOID());
+         
          ActivityThread.schedule(null, null, activityInstance, synchronously, null,
                Collections.EMPTY_MAP, false);
       }
@@ -872,25 +885,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          throw new IllegalStateChangeException(activityInstance.toString(),
                ActivityInstanceState.Completed, activityInstance.getState());
       }
-   }
-
-   private boolean canModifyData(IActivityInstance activityInstance)
-   {
-      boolean canModifyData = true;
-      // modifying entered data on qc instances is only allowed if in correction mode
-      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
-      {
-         ActivityInstanceAttributes attributes
-            = QualityAssuranceUtils.getActivityInstanceAttributes(activityInstance);
-         QualityAssuranceResult.ResultState resultState
-            = attributes.getQualityAssuranceResult().getQualityAssuranceState();
-         if(resultState != QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION)
-         {
-            canModifyData = false;
-         }
-      }
-
-      return canModifyData;
    }
 
    public ActivityInstance suspendToParticipant(long activityInstanceOID,
@@ -1277,9 +1271,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          context = PredefinedConstants.DEFAULT_CONTEXT;
       }
-
+      
+      //check if modify data is allowed
+      checkIfModifyDataIsAllowed(activityInstance, context, values);
+      
       IActivity activity = activityInstance.getActivity();
-
       if ((null != values) && !values.isEmpty())
       {
          for (Iterator< ? > i = values.entrySet().iterator(); i.hasNext();)
@@ -1296,6 +1292,17 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             Object value = entry.getValue();
             setOutDataValue(dm, value, activityInstance.getProcessInstanceOID());
          }
+      }
+   }
+
+   private void checkIfModifyDataIsAllowed(IActivityInstance activityInstance,
+         String context, Map<String, ? > values)
+   {
+      // check if out data mapping can be executed
+      if (values != null && !values.isEmpty()
+            && QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      {
+         QualityAssuranceUtils.checkIfModifyDataIsAllowed(activityInstance);
       }
    }
 

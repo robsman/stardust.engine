@@ -82,54 +82,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceLogBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailEventHandlerBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailParticipantBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTriggerBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstanceLink;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelDeploymentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
-import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkTypeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
-import org.eclipse.stardust.engine.core.runtime.beans.UserProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserUserGroupLink;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
@@ -323,7 +276,7 @@ public class Archiver
       }
 
       archiveProcesses(new Long(modelOid), null, interval);
-      if (!archive && canDeleteModel(modelOid))
+      if (canDeleteModel(modelOid))
       {
          deleteModel(modelOid);
       }
@@ -1515,69 +1468,11 @@ public class Archiver
    {
       try
       {
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, AuditTrailTransitionBean.class)
-               .where(Predicates.isEqual(AuditTrailTransitionBean.FR__MODEL, modelOid)));
+         AdminServiceUtils.deleteModelRuntimePart(modelOid, session);
+         AdminServiceUtils.deleteModelModelingPart(modelOid, session);
 
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, AuditTrailActivityBean.class)
-               .where(Predicates.isEqual(AuditTrailActivityBean.FR__MODEL, modelOid)));
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, AuditTrailDataBean.class)
-               .where(Predicates.isEqual(AuditTrailDataBean.FR__MODEL, modelOid)));
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, StructuredDataBean.class)
-               .where(Predicates.isEqual(StructuredDataBean.FR__MODEL, modelOid)));
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, AuditTrailProcessDefinitionBean.class)
-               .where(Predicates.isEqual(AuditTrailProcessDefinitionBean.FR__MODEL, modelOid)));
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, AuditTrailEventHandlerBean.class)
-               .where(Predicates.isEqual(AuditTrailEventHandlerBean.FR__MODEL, modelOid)));
-
-         ResultSet rs = session.executeQuery(QueryDescriptor
-               .from(srcSchema, AuditTrailParticipantBean.class)
-               .select(AuditTrailParticipantBean.FIELD__OID)
-               .where(Predicates.isEqual(AuditTrailParticipantBean.FR__MODEL, modelOid)));
-         while (rs.next())
-         {
-            long rtOid = rs.getLong(1);
-            ResultSet countResult = session.executeQuery(QueryDescriptor
-                  .from(srcSchema, UserParticipantLink.class)
-                  .select(Functions.rowCount())
-                  .where(Predicates.isEqual(UserParticipantLink.FR__PARTICIPANT, rtOid)));
-            if (countResult.next())
-            {
-               if (countResult.getInt(1) == 0)
-               {
-                  session.executeDelete(DeleteDescriptor
-                        .from(srcSchema, UserParticipantLink.class)
-                        .where(Predicates.isEqual(UserParticipantLink.FR__PARTICIPANT, rtOid)));
-               }
-            }
-         }
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, AuditTrailParticipantBean.class)
-               .where(Predicates.isEqual(AuditTrailParticipantBean.FR__MODEL, modelOid)));
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, AuditTrailTriggerBean.class)
-               .where(Predicates.isEqual(AuditTrailTriggerBean.FR__MODEL, modelOid)));
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, LargeStringHolder.class)
-               .where(Predicates.andTerm(
-                     PT_STRING_DATA_IS_MODEL_RECORD,
-                     Predicates.isEqual(LargeStringHolder.FR__OBJECTID, modelOid))));
-
-         session.executeDelete(DeleteDescriptor
-               .from(srcSchema, ModelPersistorBean.class)
-               .where(Predicates.isEqual(ModelPersistorBean.FR__OID, modelOid)));
+         ModelPersistorBean model = ModelPersistorBean.findByModelOID(modelOid);
+         model.delete();
 
          commit();
 
@@ -1710,111 +1605,23 @@ public class Archiver
    private List/*<ModelHelper>*/findDeadModels()
    {
       // get all model information
-      List unsortedModels = findModels(Predicates.isEqual(
+      List<ModelHelper> unsortedModels = findModels(Predicates.isEqual(
             ModelPersistorBean.FR__PARTITION, partitionOid.shortValue()));
 
-      // sort according to explicit predecessor attribute
-      List sortedModels = new ArrayList(unsortedModels.size());
-      while (!unsortedModels.isEmpty())
-      {
-         for (Iterator i = unsortedModels.iterator(); i.hasNext();)
-         {
-            ModelHelper model = (ModelHelper) i.next();
-            ModelHelper predecessor = findModel(sortedModels, model.getPredecessor());
-            if (null != predecessor)
-            {
-               sortedModels.add(sortedModels.indexOf(predecessor) + 1, model);
-               i.remove();
-            }
-            else
-            {
-               predecessor = findModel(unsortedModels, model.getPredecessor());
-               if (null == predecessor)
-               {
-                  sortedModels.add(0, model);
-                  i.remove();
-               }
-               else
-               {
-                  continue;
-               }
-            }
-         }
-      }
+      List<ModelHelper> deadModels = new ArrayList<ModelHelper>();
 
-      // collect all time boundaries list starting from now
+      // don't add models that are not valid yet
+      // don't add models that have active or interrupted processes
       long now = Calendar.getInstance().getTime().getTime();
-      Set boundaries = new TreeSet();
-      boundaries.add(new Long(now));
-      for (int i = 0; i < sortedModels.size(); i++)
+      for (ModelHelper model : unsortedModels)
       {
-         ModelHelper helper = (ModelHelper) sortedModels.get(i);
-         addToBoundaries(now, helper.getValidFrom(), boundaries);
-         addToBoundaries(now, helper.getValidTo(), boundaries);
-      }
-
-      // convert them to array of longs for easy handling
-      long[] times = new long[boundaries.size()];
-      int c = 0;
-      for (Iterator i = boundaries.iterator(); i.hasNext();)
-      {
-         times[c++] = ((Long) i.next()).longValue();
-      }
-
-      // all models are dead candidates
-      List deadModels = new ArrayList(sortedModels);
-
-      // remove models that may become active
-      for (int i = 0; i < boundaries.size() - 1; i++)
-      {
-         for (int j = 0; j < sortedModels.size(); j++)
+         if (model.getValidFrom() < now && getAliveProcessInstancesCount(model.getOid()) == 0)
          {
-            ModelHelper helper = (ModelHelper) sortedModels.get(j);
-            if (helper.intersect(times[i], times[i + 1]) && !helper.isDisabled())
-            {
-               deadModels.remove(helper);
-               break;
-            }
+            deadModels.add(model);
          }
       }
 
-      // remove from candidates models that have active or interrupted processes
-      for (int i = deadModels.size() - 1; i >= 0; i--)
-      {
-         ModelHelper helper = (ModelHelper) deadModels.get(i);
-         if (getAliveProcessInstancesCount(helper.getOid()) > 0)
-         {
-            deadModels.remove(i);
-         }
-      }
       return deadModels;
-   }
-
-   private ModelHelper findModel(List sortedModels, long predecessor)
-   {
-      ModelHelper result = null;
-      for (Iterator i = sortedModels.iterator(); i.hasNext();)
-      {
-         ModelHelper model = (ModelHelper) i.next();
-         if (model.getOid() == predecessor)
-         {
-            result = model;
-            break;
-         }
-      }
-      return result;
-   }
-
-   private void addToBoundaries(long threshold, long value, Set boundaries)
-   {
-      if (value >= threshold)
-      {
-         Long v = new Long(value);
-         if (!boundaries.contains(v))
-         {
-            boundaries.add(v);
-         }
-      }
    }
 
    private void archiveData(String modelId, List<String> ids, long tsBefore)
@@ -3782,9 +3589,6 @@ public class Archiver
    {
       private final long oid;
       private final long validFrom;
-      private final long validTo;
-      private final boolean disabled;
-      private final long predecessor;
 
       public ModelHelper(long oid, long validFrom, long validTo, boolean disabled,
             long predecessor)
@@ -3793,10 +3597,6 @@ public class Archiver
          // validFrom is 1 Jan 1970 when not set.
          this.validFrom = validFrom == Unknown.LONG || validFrom == 0
                ? Long.MIN_VALUE : validFrom;
-         this.validTo = validTo == Unknown.LONG || validTo == 0
-               ? Long.MAX_VALUE : validTo;
-         this.disabled = disabled;
-         this.predecessor = predecessor;
       }
 
       public long getOid()
@@ -3809,25 +3609,6 @@ public class Archiver
          return validFrom;
       }
 
-      public long getValidTo()
-      {
-         return validTo;
-      }
-
-      public boolean isDisabled()
-      {
-         return disabled;
-      }
-
-      public long getPredecessor()
-      {
-         return predecessor;
-      }
-
-      public boolean intersect(long start, long end)
-      {
-         return start < validTo && end > validFrom;
-      }
    }
 
    // check all if qualified
@@ -3888,6 +3669,11 @@ public class Archiver
    {
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel model = modelManager.findModel(modelOid);
+
+      if (model != null && PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
+      {
+         return false;
+      }
 
       if(!ModelRefBean.getProcessInterfaces(model).isEmpty())
       {

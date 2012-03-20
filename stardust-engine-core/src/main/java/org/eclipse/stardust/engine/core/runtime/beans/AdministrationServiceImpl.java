@@ -340,7 +340,6 @@ public class AdministrationServiceImpl
       finally
       {
          flushCaches();
-         reloadModelManagerAfterModelOperation();
       }
    }
 
@@ -1470,6 +1469,7 @@ public class AdministrationServiceImpl
       Parameters.instance().flush();
       CacheHelper.flushCaches();
       getPreferenceStore().flushCaches();
+      reloadModelManagerAfterModelOperation();
    }
 
    public List<Permission> getPermissions()

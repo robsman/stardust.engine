@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributesImpl;
 import org.eclipse.stardust.engine.api.dto.Note;
@@ -172,7 +173,7 @@ public class TestQualityControlRuntime extends TestCase
       //try to suspend the qa activity to the user who worked on the previous instance
       //this must result in an exception
       
-      IllegalOperationException exception = null;
+      InvalidArgumentException exception = null;
       try
       {
          currentActivityInstance = qcManagerWorkflowService.suspendToUser(currentActivityInstance.getOID(), monitoredUser.getOID());
@@ -180,7 +181,7 @@ public class TestQualityControlRuntime extends TestCase
       }
       catch(Exception e)
       {
-         exception = (IllegalOperationException) e;
+         exception = (InvalidArgumentException) e;
       }
       
       assertEquals("BPMRT04006", exception.getError().getId());
@@ -739,13 +740,25 @@ public class TestQualityControlRuntime extends TestCase
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
       
       //changing data on fail must have no effect
+      InvalidArgumentException exception = null;
       String modifiedData = QA_DATA_VALUE + System.currentTimeMillis();
-      outData.put(DATA_ID, modifiedData);
-      currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
+      try 
+      {         
+         outData.put(DATA_ID, modifiedData);
+         currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
+    
+      }
+      catch(Exception e)
+      {
+         exception = (InvalidArgumentException) e;
+      }
       
+      assertEquals("BPMRT04007", exception.getError().getId());          
       assertDataNotExists(modifiedData);
       assertDataExists(QA_DATA_VALUE);
       
+      currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
+
       //the result of the qc instance should be marked as failed
       attributes = currentActivityInstance.getAttributes();
       QualityAssuranceResult result = attributes.getQualityAssuranceResult();
@@ -851,7 +864,23 @@ public class TestQualityControlRuntime extends TestCase
       outData.put(DATA_ID, modifiedData );
       
       //the correction made by the qc manager should have no effect
-      currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
+      
+      
+      InvalidArgumentException exception = null;
+      try 
+      {         
+         outData.put(DATA_ID, modifiedData);
+         currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
+      }
+      catch(Exception e)
+      {
+         exception = (InvalidArgumentException) e;
+      }    
+      assertEquals("BPMRT04007", exception.getError().getId());
+      assertDataNotExists(modifiedData);
+      assertDataExists(QA_DATA_VALUE);
+      
+      currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
       assertDataNotExists(modifiedData);
       assertDataExists(QA_DATA_VALUE);
       

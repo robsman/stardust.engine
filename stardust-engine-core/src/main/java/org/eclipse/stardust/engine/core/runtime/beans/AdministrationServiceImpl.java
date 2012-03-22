@@ -1034,7 +1034,7 @@ public class AdministrationServiceImpl
       }
       finally
       {
-         reloadModelManagerAfterModelOperation();
+         flushCaches();
       }
    }
 
@@ -1073,8 +1073,6 @@ public class AdministrationServiceImpl
 
          PreferenceStoreUtils.cleanupAllPreferencesFromDms(userOID, keepLoginUser, sf);
       }
-
-      flushCaches();
    }
 
    /**
@@ -1147,7 +1145,7 @@ public class AdministrationServiceImpl
       }
       finally
       {
-         reloadModelManagerAfterModelOperation();
+         flushCaches();
       }
    }
 

@@ -49,7 +49,7 @@
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/jakarta-commons/collections/3.2.1/commons-collections-3.2.1.jar" sourcepath="/Q-ARCHIVE/thirdparty/jakarta-commons/collections/3.2.1/commons-collections-3.2.1-sources.jar"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/hazelcast.com/1.9/hazelcast-1.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/hazelcast.com/1.9/hazelcast-1.9-sources.jar"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/codehaus.org/woodstox/3.2.1/wstx-asl-3.2.1.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/junit/4.8.2/junit-dep-4.8.2.jar" sourcepath="/Q-ARCHIVE/thirdparty/junit/4.8.2/junit-dep-4.8.2-sources.jar"/>
+	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/junit/4.10/junit-4.10.jar" sourcepath="/Q-ARCHIVE/thirdparty/junit/4.10/junit-4.10-sources.jar"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar" sourcepath="/Q-ARCHIVE/thirdparty/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1-sources.jar"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/hamcrest/hamcrest-library/1.1/hamcrest-library-1.1.jar" sourcepath="/Q-ARCHIVE/thirdparty/hamcrest/hamcrest-library/1.1/hamcrest-library-1.1-sources.jar"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/mockito/mockito-core/1.8.5/mockito-core-1.8.5.jar" sourcepath="/Q-ARCHIVE/thirdparty/mockito/mockito-core/1.8.5/mockito-core-1.8.5-sources.jar"/>

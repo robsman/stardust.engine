@@ -113,7 +113,7 @@
       <!--    Test    -->
       <!-- ********** -->
       <!-- JUnit -->
-      <dependency org="junit" name="junit-dep" rev="4.8.2" conf="test->default" />
+      <dependency org="junit" name="junit" rev="4.10" conf="test->default" />
 
       <!-- Hamcrest -->
       <dependency org="org.hamcrest" name="hamcrest-core" rev="1.1" conf="test->default" />

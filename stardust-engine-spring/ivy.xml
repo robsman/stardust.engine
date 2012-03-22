@@ -60,7 +60,7 @@
       <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="carnot-spring-provided->default" />
       
       <!-- test -->
-      <dependency org="junit" name="junit-dep" rev="4.8.2" conf="test->default" />
+      <dependency org="junit" name="junit" rev="4.10" conf="test->default" />
       <dependency org="org.hamcrest" name="hamcrest-core" rev="1.1" conf="test->default" />
       <dependency org="org.hamcrest" name="hamcrest-library" rev="1.1" conf="test->default" />
    </dependencies>

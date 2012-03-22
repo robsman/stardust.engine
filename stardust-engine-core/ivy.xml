@@ -55,7 +55,6 @@
       <!--    Test    -->
       <!-- ********** -->
       <conf name="test" visibility="private" description="Test dependencies" />
-      <conf name="run-test" visibility="private" description="Dependencies for JUnit Test Run via Ant" />
 
       <!-- ********** -->
       <!--    POMs    -->
@@ -128,10 +127,6 @@
          <exclude org="org.mockito" module="mockito-all" />
       </dependency>
       <dependency org="org.powermock" name="powermock-module-junit4" rev="1.4.9" conf="test->default">
-         <exclude org="junit" module="junit" />
-      </dependency>
-
-      <dependency org="org.apache.ant" name="ant-junit" rev="1.7.0" conf="run-test->default">
          <exclude org="junit" module="junit" />
       </dependency>
 

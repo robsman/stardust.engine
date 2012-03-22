@@ -132,7 +132,7 @@
       <property name="js.jar" location="${integration-jars.dir}/js.jar"/>
       
       <ivy:cachepath pathid="test" conf="test" />
-      <ivy:cachepath pathid="run.test" conf="run-test, base-provider-runtime" />
+      <ivy:cachepath pathid="run.test" conf="base-provider-runtime" />
 
    </target>
 

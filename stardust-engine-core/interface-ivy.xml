@@ -82,6 +82,7 @@
       
       <conf name="xerces-provider-runtime" visibility="private" />
       
+      <!-- we have to make 'Jackrabbit Full Text Search' configurable due to license issues (see CRNT-24293) -->      
       <conf name="jackrabbit-provider-runtime" extends="${jackrabbit.core.conf}" visibility="private" />
       
       <conf name="jackrabbit-core-with-full-text-search" visibility="private" />

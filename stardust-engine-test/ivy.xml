@@ -51,8 +51,5 @@
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jcr-jackrabbit-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->logging-slf4j-log4j-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->logging-log4j-module-runtime" />
-      
-      <!-- override dependency version explicitly -->
-      <override org="junit" module="junit" rev="4.10" />
    </dependencies>
 </ivy-module>

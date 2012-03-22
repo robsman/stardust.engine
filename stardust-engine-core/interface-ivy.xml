@@ -255,6 +255,7 @@
       <!-- jackrabbit-provider-runtime -->
       <dependency org="commons-httpclient" name="commons-httpclient" rev="3.0" conf="jackrabbit-provider-runtime->default">
          <exclude org="commons-codec" module="commons-codec"/>
+         <exclude org="junit" module="junit"/>
       </dependency>
       <dependency org="commons-codec" name="commons-codec" rev="1.3" conf="jackrabbit-provider-runtime->default"/>
       <dependency org="commons-pool" name="commons-pool" rev="1.5.2" conf="jackrabbit-provider-runtime->default"/>

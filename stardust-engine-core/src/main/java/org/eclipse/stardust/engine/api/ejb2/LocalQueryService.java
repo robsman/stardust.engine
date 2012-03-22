@@ -1,15 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
 /*
- * Generated from  Revision: 50188 
+ * Generated from  Revision: 52592 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -25,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * <p>A Query service always operates against an audit trail database.</p>
  *
  * @author ubirkemeyer
- * @version 50188
+ * @version 52592
  */
 public interface LocalQueryService extends javax.ejb.EJBLocalObject
 {
@@ -43,7 +33,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getUsersCount(
      *     org.eclipse.stardust.engine.api.query.UserQuery query)
      */
-    public long getUsersCount(org.eclipse.stardust.engine.api.query.UserQuery query)
+    public long getUsersCount(
+         org.eclipse.stardust.engine.api.query.UserQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -60,7 +51,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getUserGroupsCount(
      *     org.eclipse.stardust.engine.api.query.UserGroupQuery query)
      */
-    public long getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
+    public long
+         getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -73,16 +65,19 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
      *        (XPath) is specified in a DataFilter for queries on a structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) is specified in a DataFilter for queries on a non-structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -90,7 +85,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
      */
     public long
-         getProcessInstancesCount(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
+         getProcessInstancesCount(
+         org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -103,16 +99,19 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
      *        (XPath) is specified in a DataFilter for queries on a structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) is specified in a DataFilter for queries on a non-structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -120,7 +119,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
      */
     public long
-         getActivityInstancesCount(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
+         getActivityInstancesCount(
+         org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -137,7 +137,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getLogEntriesCount(
      *     org.eclipse.stardust.engine.api.query.LogEntryQuery query)
      */
-    public long getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
+    public long
+         getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -184,16 +185,19 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
      *         (XPath) is specified in a DataFilter for queries on a structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *         (XPath) is specified in a DataFilter for queries on a non-structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *         (XPath) specified in a DataFilter contains an invalid XPath
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -201,7 +205,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
      */
     public org.eclipse.stardust.engine.api.query.ProcessInstances
-         getAllProcessInstances(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
+         getAllProcessInstances(
+         org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -214,16 +219,19 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
      *         (XPath) is specified in a DataFilter for queries on a structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *         (XPath) is specified in a DataFilter for queries on a non-structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *         (XPath) specified in a DataFilter contains an invalid XPath
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -231,7 +239,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
      */
     public org.eclipse.stardust.engine.api.query.ActivityInstances
-         getAllActivityInstances(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
+         getAllActivityInstances(
+         org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -260,9 +269,11 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return the first matching user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching user is found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching user is
+     *     found.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -281,9 +292,11 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return the first matching user group.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching user group is found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching user group is
+     *     found.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -305,19 +318,23 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @throws ObjectNotFoundException
      *        if no matching process instance is found.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
      *        (XPath) is specified in a DataFilter for queries on a structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) is specified in a DataFilter for queries on a non-structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -325,7 +342,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
-         findFirstProcessInstance(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
+         findFirstProcessInstance(
+         org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -340,19 +358,23 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @throws ObjectNotFoundException
      *        if no matching activity instance is found.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if no attributeName
      *        (XPath) is specified in a DataFilter for queries on a structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) is specified in a DataFilter for queries on a non-structured data
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be
-     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -360,7 +382,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
-         findFirstActivityInstance(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
+         findFirstActivityInstance(
+         org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -371,9 +394,11 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return the first matching log entry.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching log entry is found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching log entry is
+     *     found.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -392,23 +417,27 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return a List of {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} objects.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAuditTrail(long processInstanceOID)
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAuditTrail(
+     *     long processInstanceOID)
      */
-    public java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
+    public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
          getAuditTrail(long processInstanceOID)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
      * Retrieves the list of model descriptions for all deployed models.
      *
-     * @return a List of {@link org.eclipse.stardust.engine.api.runtime.DeployedModelDescription} objects.
+     * @return a List of {@link org.eclipse.stardust.engine.api.runtime.DeployedModelDescription}
+     *     objects.
      *
      * @deprecated Use {@link Models getModels(DeployedModelQuery.findAll())}.
      *
@@ -417,7 +446,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllModelDescriptions()
      */
-    public java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
+    public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllModelDescriptions()
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -426,7 +456,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * are models with non-completed and non-aborted processes plus the
      * active model.
      *
-     * @return a List of {@link org.eclipse.stardust.engine.api.runtime.DeployedModelDescription} objects.
+     * @return a List of {@link org.eclipse.stardust.engine.api.runtime.DeployedModelDescription}
+     *     objects.
      *
      * @deprecated Use {@link Models
      *     getModels(DeployedModelQuery.findInState(DeployedModelQuery.ALIVE))}.
@@ -436,7 +467,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllAliveModelDescriptions()
      */
-    public java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
+    public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllAliveModelDescriptions()
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -446,8 +478,9 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @return the description of the active model.
      *
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      *
      * @deprecated This method returns the description of the active model with the highest priority.
      *       Use {@link Models getModels(DeployedModelQuery.findActive(
@@ -487,13 +520,16 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return the description of the specified model.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with
+     *     the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModelDescription(long modelOID)
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModelDescription(
+     *     long modelOID)
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModelDescription
          getModelDescription(long modelOID)
@@ -512,7 +548,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.QueryService#wasRedeployed(long modelOid, int revision)
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#wasRedeployed(
+     *     long modelOid, int revision)
      */
     public boolean wasRedeployed(long modelOid, int revision)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -524,15 +561,18 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return the specified model.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with
+     *     the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModel(long modelOID)
      */
-    public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(long modelOID)
+    public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
+         long modelOID)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -543,9 +583,11 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return the specified model.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with
+     *     the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -562,8 +604,9 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @return the active model.
      *
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -579,9 +622,11 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return A string containing the XML representation of the model.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with
+     *     the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -597,15 +642,19 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return a List of {@link org.eclipse.stardust.engine.api.model.ProcessDefinition} objects.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with
+     *     the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessDefinitions(long modelOID)
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessDefinitions(
+     *     long modelOID)
      */
-    public java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
+    public
+         java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions(long modelOID)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -621,15 +670,16 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *           if there is no model with the specified OID or there is no process
      *           definition with the specified id in the model.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinition(
      *     long modelOID, java.lang.String id)
      */
-    public org.eclipse.stardust.engine.api.model.ProcessDefinition getProcessDefinition(
-         long modelOID, java.lang.String id)
+    public org.eclipse.stardust.engine.api.model.ProcessDefinition
+         getProcessDefinition(long modelOID, java.lang.String id)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -638,14 +688,16 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @return a List of {@link org.eclipse.stardust.engine.api.model.ProcessDefinition} objects.
      *
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessDefinitions()
      */
-    public java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
+    public
+         java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getAllProcessDefinitions()
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -656,15 +708,17 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return the process definition.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model or if the active
-     *     model
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model
+     *     or if the active model
      *             does not contain the requested process definition.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinition(java.lang.String id)
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinition(
+     *     java.lang.String id)
      */
     public org.eclipse.stardust.engine.api.model.ProcessDefinition
          getProcessDefinition(java.lang.String id)
@@ -678,7 +732,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *     org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessDefinitions
-         getProcessDefinitions(org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
+         getProcessDefinitions(
+         org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -706,9 +761,11 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return a List of {@link org.eclipse.stardust.engine.api.model.Participant} objects.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with the specified oid.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no model with
+     *     the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -730,7 +787,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *           if there is no model with the specified oid, or the model does not
      *           contains the requested participant.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -747,8 +805,9 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @return a List of {@link org.eclipse.stardust.engine.api.model.Participant} objects.
      *
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -769,14 +828,16 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *           if there is no active model, or if the active model does not contain
      *           the requested participant.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getParticipant(java.lang.String id)
+     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getParticipant(
+     *     java.lang.String id)
      */
-    public org.eclipse.stardust.engine.api.model.Participant getParticipant(
-         java.lang.String id)
+    public org.eclipse.stardust.engine.api.model.Participant
+         getParticipant(java.lang.String id)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -789,7 +850,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getPermissions()
      */
-    public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission> getPermissions()
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
+         getPermissions()
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -805,7 +867,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *           if there is no active model, or if the active model does not contain the
      *           requested type declaration.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -841,7 +904,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @throws ObjectNotFoundException
      *           if either the parent or the organization could not be resolved.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -870,7 +934,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *           if the parent could not be resolved or if the specified id is null or empty
      *           or if there is no department with the specified id in the parent scope.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -880,8 +945,8 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      */
     public org.eclipse.stardust.engine.api.runtime.Department
          findDepartment(
-         org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String id,
-         org.eclipse.stardust.engine.api.model.OrganizationInfo info)
+         org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String
+         id, org.eclipse.stardust.engine.api.model.OrganizationInfo info)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -892,9 +957,11 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *
      * @return the first matching document.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching document is found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if no matching document is
+     *     found.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -938,13 +1005,13 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getPreferences(
-     *     org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String moduleId,
-     *     java.lang.String preferencesId)
+     *     org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String
+     *     moduleId, java.lang.String preferencesId)
      */
     public org.eclipse.stardust.engine.core.preferences.Preferences
          getPreferences(
-         org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String moduleId,
-         java.lang.String preferencesId)
+         org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
+         java.lang.String moduleId, java.lang.String preferencesId)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -970,8 +1037,10 @@ public interface LocalQueryService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllPreferences(
      *     org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
      */
-    public java.util.List<org.eclipse.stardust.engine.core.preferences.Preferences>
-         getAllPreferences(org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
+    public
+         java.util.List<org.eclipse.stardust.engine.core.preferences.Preferences>
+         getAllPreferences(
+         org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**

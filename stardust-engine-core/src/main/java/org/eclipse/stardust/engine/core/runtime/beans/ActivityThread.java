@@ -49,14 +49,14 @@ import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTable
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger.LoggingBehaviour;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
-
 
 /**
  * A (logical) thread for the execution of a workflow process.
@@ -218,11 +218,22 @@ public class ActivityThread implements Runnable
       final ActivityThreadContext context = getCurrentActivityThreadContext();
       if (activityInstance == null)
       {
-   
-         if (processInstance.getProcessDefinition().getRootActivity().getId()
-               .equals(activity.getId()))
+         ITransition transition = null;
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         ExecutionPlan plan = rtEnv.getExecutionPlan();
+         if (plan != null && plan.hasNextActivity() && !plan.hasMoreSteps())
          {
-            TransitionTokenBean startToken = tokenCache.lockFreeToken(START_TRANSITION);
+            transition = plan.getTransition();
+            tokenCache.registerToken(transition, plan.getToken());
+         }
+         else if (processInstance.getProcessDefinition().getRootActivity().getId().equals(activity.getId())
+               || plan != null && plan.hasMoreSteps())
+         {
+            transition = START_TRANSITION;
+         }
+         if (transition != null)
+         {
+            TransitionTokenBean startToken = tokenCache.lockFreeToken(transition);
             if (startToken == null)
             {
                return;
@@ -278,7 +289,7 @@ public class ActivityThread implements Runnable
    
             runCurrentActivity();
    
-            if ( !(activityInstance.isTerminated()) || activityInstance.isAborting()
+            if (!activityInstance.isTerminated() || activityInstance.isAborting()
                   || isInAbortingPiHierarchy())
             {
                break;
@@ -303,6 +314,7 @@ public class ActivityThread implements Runnable
          trace.error("activity = " + activity);
          trace.error("processInstance = " + processInstance);
    
+         x.printStackTrace();
          LogUtils.traceException(x, false);
    
          AuditTrailLogger.getInstance(LogCode.ENGINE, processInstance).error(
@@ -312,7 +324,9 @@ public class ActivityThread implements Runnable
       }
    
       tokenCache.flush();
-      janitor.execute();
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      ExecutionPlan plan = rtEnv.getExecutionPlan();
+      janitor.execute(plan != null);
    
       if (interruption != null)
       {
@@ -464,50 +478,85 @@ public class ActivityThread implements Runnable
             getCurrentActivityThreadContext().completingTransition(token);
          }
 
+         int addedTokens = 0;
+         
          List<ITransition> enabledTransitions = Collections.emptyList();
          List<ITransition> otherwiseTransitions = Collections.emptyList();
-
-         // find traversable transitions and separate between enabled and otherwise ones
-         ModelElementList outTransitions = activity.getOutTransitions();
-         SymbolTable symbolTable = SymbolTableFactory.create(activityInstance, activity);
-         for (int i = 0; i < outTransitions.size(); ++i)
+         
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         ExecutionPlan plan = rtEnv.getExecutionPlan();
+         if (plan != null)
          {
-            ITransition transition = (ITransition) outTransitions.get(i);
-            if (transition.isEnabled(symbolTable))
+            if (plan.hasNextActivity())
             {
-               if ((1 == outTransitions.size())
-                     || (JoinSplitType.Xor == activity.getSplitType()))
+               if (plan.isStart() || plan.getToken() == null && !plan.hasMoreSteps())
                {
-                  enabledTransitions = Collections.singletonList(transition);
-                  break;
+                  enabledTransitions = Collections.singletonList(plan.getTransition());
                }
-               else
+/*               else if (!plan.hasMoreSteps())
                {
-                  if (enabledTransitions.isEmpty())
-                  {
-                     enabledTransitions = CollectionUtils.newList(outTransitions.size());
-                  }
-                  enabledTransitions.add(transition);
-               }
+                  addedTokens++;
+               }*/
+               // otherwise do nothing
             }
-            else if (transition.isOtherwiseEnabled(symbolTable))
+            else if (plan.isStepUpwards())
             {
-               if (1 == outTransitions.size())
+               // (fh) we must consume the tokens to force completion
+               ResultIterator<TransitionTokenBean> tokens = TransitionTokenBean.findUnconsumedForProcessInstance(
+                     processInstance.getOID());
+               while (tokens.hasNext())
                {
-                  otherwiseTransitions = Collections.singletonList(transition);
-               }
-               else
-               {
-                  if (otherwiseTransitions.isEmpty())
+                  TransitionTokenBean token = tokens.next();
+                  if (!token.isBound())
                   {
-                     otherwiseTransitions = CollectionUtils.newList(outTransitions.size());
+                     tokenCache.consumeToken(token);
+                     removedTokens++;
                   }
-                  otherwiseTransitions.add(transition);
                }
             }
          }
-         
-         int addedTokens = 0;
+         else
+         {
+            // find traversable transitions and separate between enabled and otherwise ones
+            ModelElementList outTransitions = activity.getOutTransitions();
+            SymbolTable symbolTable = SymbolTableFactory.create(activityInstance, activity);
+            for (int i = 0; i < outTransitions.size(); ++i)
+            {
+               ITransition transition = (ITransition) outTransitions.get(i);
+               if (transition.isEnabled(symbolTable))
+               {
+                  if ((1 == outTransitions.size())
+                        || (JoinSplitType.Xor == activity.getSplitType()))
+                  {
+                     enabledTransitions = Collections.singletonList(transition);
+                     break;
+                  }
+                  else
+                  {
+                     if (enabledTransitions.isEmpty())
+                     {
+                        enabledTransitions = CollectionUtils.newList(outTransitions.size());
+                     }
+                     enabledTransitions.add(transition);
+                  }
+               }
+               else if (transition.isOtherwiseEnabled(symbolTable))
+               {
+                  if (1 == outTransitions.size())
+                  {
+                     otherwiseTransitions = Collections.singletonList(transition);
+                  }
+                  else
+                  {
+                     if (otherwiseTransitions.isEmpty())
+                     {
+                        otherwiseTransitions = CollectionUtils.newList(outTransitions.size());
+                     }
+                     otherwiseTransitions.add(transition);
+                  }
+               }
+            }
+         }
          
          final List<ITransition> enabledOutTransitions = enabledTransitions.isEmpty()
                ? otherwiseTransitions
@@ -521,6 +570,10 @@ public class ActivityThread implements Runnable
 
             getCurrentActivityThreadContext().enteringTransition(token);
 
+            if (plan != null && transition == plan.getTransition())
+            {
+               plan.setToken(token);
+            }
             if (JoinSplitType.Xor == activity.getSplitType())
             {
                break;
@@ -535,13 +588,32 @@ public class ActivityThread implements Runnable
          }
          else
          {
+            List<TransitionTokenBean> freeOutTokens = null;
+            if (plan != null && plan.hasNextActivity())
+            {
+               IActivity step = plan.getCurrentStep();
+//               plan.nextStep();
+               if (step != null)
+               {
+                  activity = step;
+                  createActivityInstance(Collections.<TransitionTokenBean>emptyList());
+                  return;
+               }
+//               tokenCache.registerToken(plan.getTransition(), plan.getToken());
+               freeOutTokens = Collections.singletonList(tokenCache.lockFreeToken(plan.getTransition()));
+            }
+            else
+            {
+               freeOutTokens = tokenCache.getFreeOutTokens(activity);
+            }
+
             boolean foundSynchronousSuccessor = false;
 
-            List<TransitionTokenBean> freeOutTokens = tokenCache.getFreeOutTokens(activity);
             for (int i = 0; i < freeOutTokens.size(); ++i)
             {
                TransitionTokenBean token = freeOutTokens.get(i);
-               ITransition transition = token.getTransition();
+               ITransition transition = plan != null && token == plan.getToken()
+                     ? plan.getTransition() : token.getTransition();
                IActivity targetActivity = transition.getToActivity();
 
                if ( !foundSynchronousSuccessor && !transition.getForkOnTraversal())

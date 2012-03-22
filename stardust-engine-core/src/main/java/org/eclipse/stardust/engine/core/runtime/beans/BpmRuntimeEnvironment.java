@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.api.model.IScopedModelParticipant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
@@ -92,6 +93,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private Map<String, IModel> modelOverrides;
 
    private IActivityInstance currentActivityInstance;
+   
+   private ExecutionPlan executionPlan;
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
@@ -157,6 +160,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public void setTimestampProvider(TimestampProvider timestampProvider)
    {
       this.timestampProvider = timestampProvider;
+   }
+
+   public ExecutionPlan getExecutionPlan()
+   {
+      return executionPlan;
+   }
+
+   public void setExecutionPlan(ExecutionPlan executionPlan)
+   {
+      this.executionPlan = executionPlan;
    }
 
    public ChangeLogDigester getChangeLogDigester()

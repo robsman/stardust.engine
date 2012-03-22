@@ -1,15 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
 /*
- * Generated from Revision: 50188 
+ * Generated from Revision: 52592 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -25,7 +15,7 @@ package org.eclipse.stardust.engine.api.spring;
  * <p>A Query service always operates against an audit trail database.</p>
  *
  * @author ubirkemeyer
- * @version 50188
+ * @version 52592
  */
 public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IQueryService
 {
@@ -33,7 +23,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getUsersCount(org.eclipse.stardust.engine.api.query.UserQuery query)
     */
-   public long getUsersCount(org.eclipse.stardust.engine.api.query.UserQuery query)
+   public long getUsersCount(
+         org.eclipse.stardust.engine.api.query.UserQuery query)
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
             serviceProxy).getUsersCount(query);
@@ -42,7 +33,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
     */
-   public long getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
+   public long
+         getUserGroupsCount(org.eclipse.stardust.engine.api.query.UserGroupQuery query)
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
             serviceProxy).getUserGroupsCount(query);
@@ -52,7 +44,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessInstancesCount(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
     */
    public long
-         getProcessInstancesCount(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
+         getProcessInstancesCount(
+         org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -63,7 +56,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getActivityInstancesCount(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
     */
    public long
-         getActivityInstancesCount(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
+         getActivityInstancesCount(
+         org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -73,7 +67,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
     */
-   public long getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
+   public long
+         getLogEntriesCount(org.eclipse.stardust.engine.api.query.LogEntryQuery query)
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
             serviceProxy).getLogEntriesCount(query);
@@ -103,7 +98,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllProcessInstances(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
     */
    public org.eclipse.stardust.engine.api.query.ProcessInstances
-         getAllProcessInstances(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
+         getAllProcessInstances(
+         org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -114,7 +110,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllActivityInstances(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
     */
    public org.eclipse.stardust.engine.api.query.ActivityInstances
-         getAllActivityInstances(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
+         getAllActivityInstances(
+         org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -158,7 +155,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstProcessInstance(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
     */
    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
-         findFirstProcessInstance(org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
+         findFirstProcessInstance(
+         org.eclipse.stardust.engine.api.query.ProcessInstanceQuery query)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
@@ -170,7 +168,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#findFirstActivityInstance(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
     */
    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
-         findFirstActivityInstance(org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
+         findFirstActivityInstance(
+         org.eclipse.stardust.engine.api.query.ActivityInstanceQuery query)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
@@ -192,7 +191,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAuditTrail(long processInstanceOID)
     */
-   public java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
+   public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ActivityInstance>
          getAuditTrail(long processInstanceOID)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
@@ -203,7 +203,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllModelDescriptions()
     */
-   public java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
+   public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllModelDescriptions()
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -213,7 +214,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllAliveModelDescriptions()
     */
-   public java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
+   public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.DeployedModelDescription>
          getAllAliveModelDescriptions()
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -264,7 +266,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getModel(long modelOID)
     */
-   public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(long modelOID)
+   public org.eclipse.stardust.engine.api.runtime.DeployedModel getModel(
+         long modelOID)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -316,8 +319,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinition(long modelOID, java.lang.String id)
     */
-   public org.eclipse.stardust.engine.api.model.ProcessDefinition getProcessDefinition(
-         long modelOID, java.lang.String id)
+   public org.eclipse.stardust.engine.api.model.ProcessDefinition
+         getProcessDefinition(long modelOID, java.lang.String id)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -350,7 +353,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getProcessDefinitions(org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
     */
    public org.eclipse.stardust.engine.api.runtime.ProcessDefinitions
-         getProcessDefinitions(org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
+         getProcessDefinitions(
+         org.eclipse.stardust.engine.api.query.ProcessDefinitionQuery query)
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
             serviceProxy).getProcessDefinitions(query);
@@ -402,8 +406,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getParticipant(java.lang.String id)
     */
-   public org.eclipse.stardust.engine.api.model.Participant getParticipant(
-         java.lang.String id)
+   public org.eclipse.stardust.engine.api.model.Participant
+         getParticipant(java.lang.String id)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -413,7 +417,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getPermissions()
     */
-   public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission> getPermissions()
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
+         getPermissions()
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
             serviceProxy).getPermissions();
@@ -448,8 +453,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     */
    public org.eclipse.stardust.engine.api.runtime.Department
          findDepartment(
-         org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String id,
-         org.eclipse.stardust.engine.api.model.OrganizationInfo info)
+         org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, java.lang.String
+         id, org.eclipse.stardust.engine.api.model.OrganizationInfo info)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
@@ -482,8 +487,8 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
     */
    public org.eclipse.stardust.engine.core.preferences.Preferences
          getPreferences(
-         org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String moduleId,
-         java.lang.String preferencesId)
+         org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
+         java.lang.String moduleId, java.lang.String preferencesId)
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
             serviceProxy).getPreferences(scope, moduleId, preferencesId);
@@ -492,8 +497,10 @@ public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.Abs
    /**
     * @see org.eclipse.stardust.engine.api.runtime.QueryService#getAllPreferences(org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
     */
-   public java.util.List<org.eclipse.stardust.engine.core.preferences.Preferences>
-         getAllPreferences(org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
+   public
+         java.util.List<org.eclipse.stardust.engine.core.preferences.Preferences>
+         getAllPreferences(
+         org.eclipse.stardust.engine.api.query.PreferenceQuery preferenceQuery)
    {
       return ((org.eclipse.stardust.engine.api.runtime.QueryService)
             serviceProxy).getAllPreferences(preferenceQuery);

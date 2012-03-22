@@ -255,14 +255,12 @@ public class SpringSessionInterceptor extends AuditTrailPropertiesInterceptor
                "This Spring DataSource adapter is not intended to be used this way.");
       }
 
-      @Override
       public <T> T unwrap(Class<T> iface) throws SQLException
       {
          // TODO Auto-generated method stub
          return null;
       }
 
-      @Override
       public boolean isWrapperFor(Class< ? > iface) throws SQLException
       {
          // TODO Auto-generated method stub
@@ -381,14 +379,12 @@ public class SpringSessionInterceptor extends AuditTrailPropertiesInterceptor
                "This Spring DataSource adapter is not intended to be used this way.");
       }
 
-      @Override
       public <T> T unwrap(Class<T> iface) throws SQLException
       {
          // TODO Auto-generated method stub
          return null;
       }
 
-      @Override
       public boolean isWrapperFor(Class< ? > iface) throws SQLException
       {
          // TODO Auto-generated method stub

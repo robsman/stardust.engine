@@ -1,15 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
 /*
- * Generated from Revision: 43476 
+ * Generated from Revision: 52592 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -23,7 +13,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 43476
+ * @version 52592
  */
 public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IUserService
 {
@@ -85,7 +75,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyLoginUser(java.lang.String oldPassword, java.lang.String firstName, java.lang.String lastName, java.lang.String newPassword, java.lang.String eMail)
     */
-   public org.eclipse.stardust.engine.api.runtime.User modifyLoginUser(
+   public org.eclipse.stardust.engine.api.runtime.User
+         modifyLoginUser(
          java.lang.String oldPassword, java.lang.String firstName, java.lang.String
          lastName, java.lang.String newPassword, java.lang.String eMail)
          throws org.eclipse.stardust.common.error.ConcurrencyException,
@@ -128,7 +119,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
     * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyUser(org.eclipse.stardust.engine.api.runtime.User user, boolean generatePassword)
     */
    public org.eclipse.stardust.engine.api.runtime.User
-         modifyUser(org.eclipse.stardust.engine.api.runtime.User user, boolean generatePassword)
+         modifyUser(
+         org.eclipse.stardust.engine.api.runtime.User user, boolean generatePassword)
          throws org.eclipse.stardust.common.error.ConcurrencyException,
          org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException,
@@ -142,7 +134,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#createUser(java.lang.String account, java.lang.String firstName, java.lang.String lastName, java.lang.String description, java.lang.String password, java.lang.String eMail, java.util.Date validFrom, java.util.Date validTo)
     */
-   public org.eclipse.stardust.engine.api.runtime.User createUser(
+   public org.eclipse.stardust.engine.api.runtime.User
+         createUser(
          java.lang.String account, java.lang.String firstName, java.lang.String lastName,
          java.lang.String description, java.lang.String password, java.lang.String eMail,
          java.util.Date validFrom, java.util.Date validTo)
@@ -159,7 +152,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#createUser(java.lang.String realm, java.lang.String account, java.lang.String firstName, java.lang.String lastName, java.lang.String description, java.lang.String password, java.lang.String eMail, java.util.Date validFrom, java.util.Date validTo)
     */
-   public org.eclipse.stardust.engine.api.runtime.User createUser(
+   public org.eclipse.stardust.engine.api.runtime.User
+         createUser(
          java.lang.String realm, java.lang.String account, java.lang.String firstName,
          java.lang.String lastName, java.lang.String description, java.lang.String
          password, java.lang.String eMail, java.util.Date validFrom, java.util.Date
@@ -177,7 +171,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUser(java.lang.String account)
     */
-   public org.eclipse.stardust.engine.api.runtime.User getUser(java.lang.String account)
+   public org.eclipse.stardust.engine.api.runtime.User getUser(
+         java.lang.String account)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
@@ -209,7 +204,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidate(java.lang.String account)
     */
-   public org.eclipse.stardust.engine.api.runtime.User invalidate(java.lang.String account)
+   public org.eclipse.stardust.engine.api.runtime.User
+         invalidate(java.lang.String account)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
@@ -220,8 +216,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidateUser(java.lang.String account)
     */
-   public org.eclipse.stardust.engine.api.runtime.User invalidateUser(
-         java.lang.String account)
+   public org.eclipse.stardust.engine.api.runtime.User
+         invalidateUser(java.lang.String account)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
@@ -232,8 +228,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidateUser(java.lang.String realm, java.lang.String account)
     */
-   public org.eclipse.stardust.engine.api.runtime.User invalidateUser(
-         java.lang.String realm, java.lang.String account)
+   public org.eclipse.stardust.engine.api.runtime.User
+         invalidateUser(java.lang.String realm, java.lang.String account)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
@@ -244,7 +240,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#createUserGroup(java.lang.String id, java.lang.String name, java.lang.String description, java.util.Date validFrom, java.util.Date validTo)
     */
-   public org.eclipse.stardust.engine.api.runtime.UserGroup createUserGroup(
+   public org.eclipse.stardust.engine.api.runtime.UserGroup
+         createUserGroup(
          java.lang.String id, java.lang.String name, java.lang.String description,
          java.util.Date validFrom, java.util.Date validTo)
          throws org.eclipse.stardust.engine.api.runtime.UserGroupExistsException,
@@ -258,7 +255,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUserGroup(java.lang.String id)
     */
-   public org.eclipse.stardust.engine.api.runtime.UserGroup getUserGroup(java.lang.String id)
+   public org.eclipse.stardust.engine.api.runtime.UserGroup
+         getUserGroup(java.lang.String id)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.UserService)
@@ -268,7 +266,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUserGroup(long oid)
     */
-   public org.eclipse.stardust.engine.api.runtime.UserGroup getUserGroup(long oid)
+   public org.eclipse.stardust.engine.api.runtime.UserGroup getUserGroup(
+         long oid)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.UserService)
@@ -304,7 +303,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#invalidateUserGroup(long oid)
     */
-   public org.eclipse.stardust.engine.api.runtime.UserGroup invalidateUserGroup(long oid)
+   public org.eclipse.stardust.engine.api.runtime.UserGroup
+         invalidateUserGroup(long oid)
          throws org.eclipse.stardust.common.error.ConcurrencyException,
          org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
@@ -316,7 +316,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#createUserRealm(java.lang.String id, java.lang.String name, java.lang.String description)
     */
-   public org.eclipse.stardust.engine.api.runtime.UserRealm createUserRealm(
+   public org.eclipse.stardust.engine.api.runtime.UserRealm
+         createUserRealm(
          java.lang.String id, java.lang.String name, java.lang.String description)
          throws org.eclipse.stardust.engine.api.runtime.UserRealmExistsException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException

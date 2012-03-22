@@ -24,7 +24,7 @@ public final class PredefinedConstants
    // attribute scopes
    public static final String MODEL_SCOPE = "carnot:model:";
    public static final String XPDL_SCOPE = "carnot:model:xpdl:";
-   public static final String DD_SCOPE = "carnot:defdesk:";
+   public static final String DD_SCOPE = "carnot:defdesk:"; // TODO: remove
    public static final String ED_SCOPE = "carnot:exdesk:";
    public static final String WEBEX_SCOPE = "carnot:webex:";
    public static final String ENGINE_SCOPE = "carnot:engine:";
@@ -120,6 +120,9 @@ public final class PredefinedConstants
 
    public static final String SYSTEM_REALM = SYSTEM;
 
+   // predefined transition
+   public static final String RELOCATION_TRANSITION_ID = "__internal_relocate_transition__";
+
    // predefined default partition
    public static final String DEFAULT_PARTITION_ID = "default";
 
@@ -129,6 +132,10 @@ public final class PredefinedConstants
 
    public static final String ACTIVITY_IS_AUXILIARY_ATT = "isAuxiliaryActivity";
    public static final String PROCESS_IS_AUXILIARY_ATT = "isAuxiliaryProcess";
+   
+   // Forward and Rewind
+   public static final String ACTIVITY_IS_RELOCATE_SOURCE_ATT = ENGINE_SCOPE + "relocate:source";
+   public static final String ACTIVITY_IS_RELOCATE_TARGET_ATT = ENGINE_SCOPE + "relocate:target";
 
    // Quality Control
    public static final String ACTIVITY_IS_QUALITY_ASSURANCE_ATT = "isQualityControlActivity";
@@ -252,7 +259,7 @@ public final class PredefinedConstants
    public static final String ACTION_CLASS_ATT = ENGINE_SCOPE + "action";
    public static final String VALIDATOR_CLASS_ATT = ENGINE_SCOPE + "validator";
    public static final String EVALUATOR_CLASS_ATT = ENGINE_SCOPE + "evaluator";
-   public static final String RUNTIME_VALIDATOR_CLASS_ATT = ENGINE_SCOPE + "runtimeValidator";
+   public static final String RUNTIME_VALIDATOR_CLASS_ATT = ENGINE_SCOPE + "runtimeValidator"; // TODO: remove
    public static final String DATA_FILTER_EXTENSION_ATT = ENGINE_SCOPE + "dataFilterExtension";
    public static final String DATA_LOADER_ATT = ENGINE_SCOPE + "dataLoader";
    public static final String ACCESSPOINT_PROVIDER_ATT = ENGINE_SCOPE + "accessPointProvider";
@@ -313,8 +320,8 @@ public final class PredefinedConstants
 
 
    // defdesk attribute names
-   public static final String ACCESSPATH_EDITOR_ATT = DD_SCOPE + "accessPathEditor";
-   public static final String PANEL_CLASS_ATT = DD_SCOPE + "panel";
+   public static final String ACCESSPATH_EDITOR_ATT = DD_SCOPE + "accessPathEditor";// TODO: remove
+   public static final String PANEL_CLASS_ATT = DD_SCOPE + "panel";// TODO: remove
 
    // predefined implementation classes and icons
    public static final String PRIMITIVE_PANEL_CLASS = "ag.carnot.workflow.spi.providers.data.java.PrimitivePropertiesEditor";
@@ -499,7 +506,7 @@ public final class PredefinedConstants
    // unsorted
 
    public static final String CONSTRUCTOR_NAME_ATT = ENGINE_SCOPE + "constructorName";
-   public static final String ICON_ATT = DD_SCOPE + "icon";
+   public static final String ICON_ATT = DD_SCOPE + "icon";// TODO: remove
    public static final String SAP_R3_DATA = "sapr3data";
    public static final String SAP_DATA_EVALUATOR_CLASS = "ag.carnot.workflow.spi.providers.applications.jca.sap.data.SapAccessPathEvaluator";
    public static final String SAP_DATA_ACCESSPATH_EDITOR_CLASS = "ag.carnot.workflow.spi.providers.applications.jca.sap.data.SapAccessPathEditor";

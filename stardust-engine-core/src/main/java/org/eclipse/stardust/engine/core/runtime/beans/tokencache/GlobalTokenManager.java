@@ -37,11 +37,11 @@ public class GlobalTokenManager implements ITokenManager
 
    private Object getTokenMap(ITransition transition)
    {
-      final Long transRtOid = getTransitionRtOid(transition);
-      final int transModelOid = getModelOid(transition);
+      Long transRtOid = getTransitionRtOid(transition);
+      int transModelOid = getModelOid(transition);
 
-      Object tokens = this.tokensByTransition.get(transRtOid);
-      if ((null == tokens) || ((tokens instanceof List) && ((List) tokens).isEmpty()))
+      Object tokens = tokensByTransition.get(transRtOid);
+      if (tokens == null || tokens instanceof List && ((List) tokens).isEmpty())
       {
          tokens = TransitionTokenBean.findUnconsumedForTransition(processInstance,
                transRtOid, transModelOid);
@@ -63,9 +63,9 @@ public class GlobalTokenManager implements ITokenManager
          //            }
          //         }
 
-         if (null != tokens)
+         if (tokens != null)
          {
-            this.tokensByTransition.put(transRtOid, tokens);
+            tokensByTransition.put(transRtOid, tokens);
          }
       }
 

@@ -1,15 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
 /*
- * Generated from Revision: 52040
+ * Generated from Revision: 54110 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -27,7 +17,7 @@ package org.eclipse.stardust.engine.api.spring;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 52040
+ * @version 54110
  */
 public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IAdministrationService
 {
@@ -35,7 +25,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
     */
-   public void setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
+   public void
+         setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
    {
       ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).setPasswordRules(rules);
@@ -44,7 +35,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPasswordRules()
     */
-   public org.eclipse.stardust.engine.api.runtime.PasswordRules getPasswordRules()
+   public org.eclipse.stardust.engine.api.runtime.PasswordRules
+         getPasswordRules()
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).getPasswordRules();
@@ -53,8 +45,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployModel(java.lang.String model, int predecessorOID)
     */
-   public org.eclipse.stardust.engine.api.runtime.DeploymentInfo deployModel(
-         java.lang.String model, int predecessorOID)
+   public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
+         deployModel(java.lang.String model, int predecessorOID)
          throws org.eclipse.stardust.engine.api.runtime.DeploymentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -75,7 +67,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deployModel(java.lang.String model, java.lang.String configuration, int predecessorOID, java.util.Date validFrom, java.util.Date validTo, java.lang.String comment, boolean disabled, boolean ignoreWarnings)
     */
-   public org.eclipse.stardust.engine.api.runtime.DeploymentInfo deployModel(
+   public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
+         deployModel(
          java.lang.String model, java.lang.String configuration, int predecessorOID,
          java.util.Date validFrom, java.util.Date validTo, java.lang.String comment,
          boolean disabled, boolean ignoreWarnings)
@@ -108,8 +101,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
     */
    public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
          overwriteModel(
-         org.eclipse.stardust.engine.api.runtime.DeploymentElement deploymentElement, int modelOID,
-         org.eclipse.stardust.engine.api.runtime.DeploymentOptions options)
+         org.eclipse.stardust.engine.api.runtime.DeploymentElement deploymentElement, int
+         modelOID, org.eclipse.stardust.engine.api.runtime.DeploymentOptions options)
          throws org.eclipse.stardust.engine.api.runtime.DeploymentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -121,8 +114,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
     */
    public java.util.List<org.eclipse.stardust.engine.api.runtime.DeploymentInfo>
          deployModel(
-         java.util.List deploymentElements, org.eclipse.stardust.engine.api.runtime.DeploymentOptions
-         options)
+         java.util.List deploymentElements,
+         org.eclipse.stardust.engine.api.runtime.DeploymentOptions options)
          throws org.eclipse.stardust.engine.api.runtime.DeploymentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -132,9 +125,11 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPrimaryImplementation(long interfaceModelOid, java.lang.String processId, java.lang.String implementationModelId, org.eclipse.stardust.engine.api.runtime.LinkingOptions options)
     */
-   public org.eclipse.stardust.engine.api.runtime.DeploymentInfo setPrimaryImplementation(
+   public org.eclipse.stardust.engine.api.runtime.DeploymentInfo
+         setPrimaryImplementation(
          long interfaceModelOid, java.lang.String processId, java.lang.String
-         implementationModelId, org.eclipse.stardust.engine.api.runtime.LinkingOptions options)
+         implementationModelId, org.eclipse.stardust.engine.api.runtime.LinkingOptions
+         options)
          throws org.eclipse.stardust.engine.api.runtime.DeploymentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -145,7 +140,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#deleteModel(long modelOID)
     */
-   public org.eclipse.stardust.engine.api.runtime.DeploymentInfo deleteModel(long modelOID)
+   public org.eclipse.stardust.engine.api.runtime.DeploymentInfo deleteModel(
+         long modelOID)
          throws org.eclipse.stardust.engine.api.runtime.DeploymentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -207,8 +203,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#abortProcessInstance(long oid)
     */
-   public org.eclipse.stardust.engine.api.runtime.ProcessInstance abortProcessInstance(
-         long oid)
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         abortProcessInstance(long oid)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
@@ -219,8 +215,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#recoverProcessInstance(long oid)
     */
-   public org.eclipse.stardust.engine.api.runtime.ProcessInstance recoverProcessInstance(
-         long oid)
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         recoverProcessInstance(long oid)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -240,8 +236,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getDaemon(java.lang.String daemonType, boolean acknowledge)
     */
-   public org.eclipse.stardust.engine.api.runtime.Daemon getDaemon(
-         java.lang.String daemonType, boolean acknowledge)
+   public org.eclipse.stardust.engine.api.runtime.Daemon
+         getDaemon(java.lang.String daemonType, boolean acknowledge)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -251,8 +247,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#stopDaemon(java.lang.String daemonType, boolean acknowledge)
     */
-   public org.eclipse.stardust.engine.api.runtime.Daemon stopDaemon(
-         java.lang.String daemonType, boolean acknowledge)
+   public org.eclipse.stardust.engine.api.runtime.Daemon
+         stopDaemon(java.lang.String daemonType, boolean acknowledge)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -262,8 +258,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#startDaemon(java.lang.String daemonType, boolean acknowledge)
     */
-   public org.eclipse.stardust.engine.api.runtime.Daemon startDaemon(
-         java.lang.String daemonType, boolean acknowledge)
+   public org.eclipse.stardust.engine.api.runtime.Daemon
+         startDaemon(java.lang.String daemonType, boolean acknowledge)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -273,8 +269,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAllDaemons(boolean acknowledge)
     */
-   public java.util.List<org.eclipse.stardust.engine.api.runtime.Daemon> getAllDaemons(
-         boolean acknowledge)
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Daemon>
+         getAllDaemons(boolean acknowledge)
          throws org.eclipse.stardust.common.error.AccessForbiddenException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -303,7 +299,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#startProcess(long modelOID, java.lang.String id, java.util.Map data, boolean synchronously)
     */
-   public org.eclipse.stardust.engine.api.runtime.ProcessInstance startProcess(
+   public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         startProcess(
          long modelOID, java.lang.String id, java.util.Map data, boolean synchronously)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
@@ -314,12 +311,13 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#forceCompletion(long activityInstanceOID, java.util.Map accessPoints)
     */
-   public org.eclipse.stardust.engine.api.runtime.ActivityInstance forceCompletion(
-         long activityInstanceOID, java.util.Map accessPoints)
+   public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         forceCompletion(long activityInstanceOID, java.util.Map accessPoints)
          throws org.eclipse.stardust.common.error.ConcurrencyException,
          org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException,
-         org.eclipse.stardust.common.error.InvalidValueException, org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidValueException,
+         org.eclipse.stardust.common.error.AccessForbiddenException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -361,7 +359,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getPermissions()
     */
-   public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission> getPermissions()
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Permission>
+         getPermissions()
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).getPermissions();
@@ -404,7 +403,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#createDepartment(java.lang.String id, java.lang.String name, java.lang.String description, org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent, org.eclipse.stardust.engine.api.model.OrganizationInfo organization)
     */
-   public org.eclipse.stardust.engine.api.runtime.Department createDepartment(
+   public org.eclipse.stardust.engine.api.runtime.Department
+         createDepartment(
          java.lang.String id, java.lang.String name, java.lang.String description,
          org.eclipse.stardust.engine.api.runtime.DepartmentInfo parent,
          org.eclipse.stardust.engine.api.model.OrganizationInfo organization)
@@ -420,7 +420,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getDepartment(long oid)
     */
-   public org.eclipse.stardust.engine.api.runtime.Department getDepartment(long oid)
+   public org.eclipse.stardust.engine.api.runtime.Department getDepartment(
+         long oid)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
@@ -430,8 +431,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#modifyDepartment(long oid, java.lang.String name, java.lang.String description)
     */
-   public org.eclipse.stardust.engine.api.runtime.Department modifyDepartment(
-         long oid, java.lang.String name, java.lang.String description)
+   public org.eclipse.stardust.engine.api.runtime.Department
+         modifyDepartment(long oid, java.lang.String name, java.lang.String description)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.InvalidArgumentException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
@@ -457,8 +458,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
     */
    public org.eclipse.stardust.engine.core.preferences.Preferences
          getPreferences(
-         org.eclipse.stardust.engine.core.preferences.PreferenceScope scope, java.lang.String moduleId,
-         java.lang.String preferencesId)
+         org.eclipse.stardust.engine.core.preferences.PreferenceScope scope,
+         java.lang.String moduleId, java.lang.String preferencesId)
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).getPreferences(scope, moduleId, preferencesId);
@@ -467,7 +468,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#savePreferences(org.eclipse.stardust.engine.core.preferences.Preferences preferences)
     */
-   public void savePreferences(
+   public void
+         savePreferences(
          org.eclipse.stardust.engine.core.preferences.Preferences preferences)
          throws org.eclipse.stardust.common.error.AccessForbiddenException
    {
@@ -521,7 +523,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#saveConfigurationVariables(org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables configurationVariables, boolean force)
     */
-   public java.util.List<org.eclipse.stardust.engine.api.runtime.ModelReconfigurationInfo>
+   public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ModelReconfigurationInfo>
          saveConfigurationVariables(
          org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
          configurationVariables, boolean force)
@@ -534,7 +537,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getGlobalPermissions()
     */
-   public org.eclipse.stardust.engine.api.runtime.RuntimePermissions getGlobalPermissions()
+   public org.eclipse.stardust.engine.api.runtime.RuntimePermissions
+         getGlobalPermissions()
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).getGlobalPermissions();
@@ -543,7 +547,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setGlobalPermissions(org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions)
     */
-   public void setGlobalPermissions(
+   public void
+         setGlobalPermissions(
          org.eclipse.stardust.engine.api.runtime.RuntimePermissions permissions)
          throws org.eclipse.stardust.common.error.AccessForbiddenException
    {
@@ -551,9 +556,9 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
             serviceProxy).setGlobalPermissions(permissions);
    }
 
-   public AdministrationServiceBean()
-   {
+	public AdministrationServiceBean()
+	{
       super(org.eclipse.stardust.engine.api.runtime.AdministrationService.class,
             org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl.class);
-   }
+	}
 }

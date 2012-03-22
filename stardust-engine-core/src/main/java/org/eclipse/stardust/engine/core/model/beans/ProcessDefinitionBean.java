@@ -31,7 +31,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitio
 import org.eclipse.stardust.engine.core.runtime.beans.DeploymentUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
-
 /**
  * @author mgille
  */
@@ -95,8 +94,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       while (itr.hasNext())
       {
          ITransition t = (ITransition) itr.next();
-         if (t.getFromActivity().equals(transition.getFromActivity()) &&
-               t.getToActivity().equals(transition.getToActivity()))
+         if (CompareHelper.areEqual(t.getFromActivity(), transition.getFromActivity()) &&
+             CompareHelper.areEqual(t.getToActivity(), transition.getToActivity()))
          {
             trace.warn("Duplicate transition: "
                   + this + " - " + transition + " has the same source/target with " + t);
@@ -186,18 +185,14 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          checkImplementation(inconsistencies);
 
          // check Rules for Activities
-         Iterator _activities = getAllActivities();
-         while (_activities.hasNext())
+         for (IActivity activity : getActivities())
          {
-            IActivity _activity = (IActivity) _activities.next();
-            _activity.checkConsistency(inconsistencies);
+            activity.checkConsistency(inconsistencies);
          }
 
          // check Rules for Triggers
-         Iterator _triggers = getAllTriggers();
-         while (_triggers.hasNext())
+         for (ITrigger trigger : getTriggers())
          {
-            ITrigger trigger = (ITrigger) _triggers.next();
             trigger.checkConsistency(inconsistencies);
          }
 
@@ -209,18 +204,15 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          }
 
          // check consistencies for DataPaths
-         for (Iterator iterator = getAllDataPaths(); iterator.hasNext();)
+         for (IDataPath dataPath : getDataPaths())
          {
-            IDataPath dataPath = (IDataPath) iterator.next();
             dataPath.checkConsistency(inconsistencies);
          }
 
          // check Rules for Transitions and verify duplicates
          List v = CollectionUtils.newList();
-         Iterator transitions = getAllTransitions();
-         while (transitions.hasNext())
+         for (ITransition transition : getTransitions())
          {
-            ITransition transition = (ITransition) transitions.next();
             transition.checkConsistency(inconsistencies);
             for (int i = 0; i < v.size(); i++)
             {
@@ -241,15 +233,12 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
          // Rule 1: Process definitions should have precisely one root activity
 
-         _activities = getAllActivities();
          IActivity startActivity = null;
          String otherStartActivities = null;
 
-         while (_activities.hasNext())
+         for (IActivity activity : getActivities())
          {
-            IActivity activity = (IActivity) _activities.next();
-
-            if (!activity.getAllInTransitions().hasNext())
+            if (activity.getInTransitions().isEmpty())
             {
                if (startActivity == null)
                {
@@ -291,7 +280,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
          // Rule 3: Process definitions must have at least one activities
 
-         if (!getAllActivities().hasNext())
+         if (getActivities().isEmpty())
          {
             inconsistencies.add(new Inconsistency("No activities defined for process definition '" +
                   getName() + "'.", this, Inconsistency.ERROR));
@@ -403,33 +392,44 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          throw new PublicException("There is already a transition with ID '" + id + "'."
                + ". Transition OID: " + elementOID);
       }
-
-      if (fromActivity.getProcessDefinition() != this)
+      
+      if (PredefinedConstants.RELOCATION_TRANSITION_ID.equals(id))
       {
-         throw new PublicException("From Activity does not belong to " + this
-               + ". Activity OID: " + fromActivity);
+         if (fromActivity != null || toActivity != null)
+         {
+            throw new PublicException("Relocation transition in process '" + getId()
+                  + "' must not have any source or target activity attached.");
+         }
       }
-
-      if (toActivity.getProcessDefinition() != this)
+      else
       {
-         throw new PublicException("To Activity does not belong to " + this
-               + ". Activity OID: " + toActivity);
-      }
-
-      if (toActivity.getJoinType().equals(JoinSplitType.None) &&
-            toActivity.getAllInTransitions().hasNext())
-      {
-         throw new PublicException("Multiple incoming transitions are only allowed for "
-               + "AND or XOR activity joins. Transition OID: " + elementOID
-               + ", target activity OID: " + toActivity.getElementOID());
-      }
-
-      if (fromActivity.getSplitType().equals(JoinSplitType.None) &&
-            fromActivity.getAllOutTransitions().hasNext())
-      {
-         throw new PublicException("Multiple outgoing transitions are only allowed for "
-               + "AND or XOR activity splits. Transition OID: " + elementOID
-               + ", source activity OID: " + fromActivity.getElementOID());
+         if (fromActivity.getProcessDefinition() != this)
+         {
+            throw new PublicException("From Activity does not belong to " + this
+                  + ". Activity OID: " + fromActivity);
+         }
+   
+         if (toActivity.getProcessDefinition() != this)
+         {
+            throw new PublicException("To Activity does not belong to " + this
+                  + ". Activity OID: " + toActivity);
+         }
+   
+         if (toActivity.getJoinType().equals(JoinSplitType.None) &&
+               !toActivity.getInTransitions().isEmpty())
+         {
+            throw new PublicException("Multiple incoming transitions are only allowed for "
+                  + "AND or XOR activity joins. Transition OID: " + elementOID
+                  + ", target activity OID: " + toActivity.getElementOID());
+         }
+   
+         if (fromActivity.getSplitType().equals(JoinSplitType.None) &&
+               !fromActivity.getOutTransitions().isEmpty())
+         {
+            throw new PublicException("Multiple outgoing transitions are only allowed for "
+                  + "AND or XOR activity splits. Transition OID: " + elementOID
+                  + ", source activity OID: " + fromActivity.getElementOID());
+         }
       }
 
       markModified();
@@ -507,7 +507,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       return transitions.iterator();
    }
 
-   public ModelElementList getTransitions()
+   public ModelElementList<ITransition> getTransitions()
    {
       return transitions;
    }
@@ -517,7 +517,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       return triggers.iterator();
    }
 
-   public ModelElementList getTriggers()
+   public ModelElementList<ITrigger> getTriggers()
    {
       return triggers;
    }
@@ -561,7 +561,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       return dataPaths.iterator();
    }
 
-   public ModelElementList getDataPaths()
+   public ModelElementList<IDataPath> getDataPaths()
    {
       return dataPaths;
    }
@@ -693,7 +693,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    }
 
    /**
-    * Checks wether the process definition is consistent.
+    * Checks if the process definition is consistent.
     */
    public boolean isConsistent()
    {

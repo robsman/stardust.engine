@@ -38,6 +38,9 @@ import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
+import org.eclipse.stardust.engine.core.model.parser.info.ExternalPackageInfo;
+import org.eclipse.stardust.engine.core.model.parser.info.ModelInfo;
+import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
@@ -363,17 +366,16 @@ public class AdministrationServiceImpl
       {
          // 1. Collect model references.
          Map<String, DeploymentElement> fileMap = CollectionUtils.newMap();
-         Map<String, QuickModelInfo> infoMap = CollectionUtils.newMap();
+         Map<String, ModelInfo> infoMap = CollectionUtils.newMap();
          for (DeploymentElement deploymentElement : deploymentElements)
          {
-            QuickModelInfo info = new QuickModelInfo(deploymentElement);
-            String modelId = info.getModelId();
-            if (fileMap.containsKey(modelId))
+            ModelInfo info = ModelInfoRetriever.get(deploymentElement.getContent());
+            if (fileMap.containsKey(info.id))
             {
-               throw new DeploymentException(null, DUPLICATE_MODEL_ID, modelId);
+               throw new DeploymentException(null, DUPLICATE_MODEL_ID, info.id);
             }
-            infoMap.put(modelId, info);
-            fileMap.put(modelId, deploymentElement);
+            infoMap.put(info.id, info);
+            fileMap.put(info.id, deploymentElement);
          }
 
          // 2. order models and prepare overrides
@@ -405,31 +407,30 @@ public class AdministrationServiceImpl
       }
    }
 
-   private List<String> orderModels(Map<String, QuickModelInfo> infos)
+   private List<String> orderModels(Map<String, ModelInfo> infos)
    {
       List<String> orderedModelIds = CollectionUtils.newList();
-      Set<QuickModelInfo> visited = CollectionUtils.newSet();
-      for (QuickModelInfo info : infos.values())
+      Set<ModelInfo> visited = CollectionUtils.newSet();
+      for (ModelInfo info : infos.values())
       {
          addModel(orderedModelIds, info, infos, visited);
       }
       return orderedModelIds;
    }
 
-   private void addModel(List<String> orderedModelIds, QuickModelInfo info, Map<String, QuickModelInfo> infos, Set<QuickModelInfo> visited)
+   private void addModel(List<String> orderedModelIds, ModelInfo info, Map<String, ModelInfo> infos, Set<ModelInfo> visited)
    {
       if (info != null && !visited.contains(info))
       {
          visited.add(info);
-         List<String> refs = info.getReferencedModelIds();
-         if (refs != null)
+         if (info.externalPackages != null)
          {
-            for (String ref : refs)
+            for (ExternalPackageInfo ref : info.externalPackages)
             {
-               addModel(orderedModelIds, infos.get(ref), infos, visited);
+               addModel(orderedModelIds, infos.get(ref.href), infos, visited);
             }
          }
-         orderedModelIds.add(info.getModelId());
+         orderedModelIds.add(info.id);
       }
    }
 

@@ -81,6 +81,7 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
       startToken.setTarget(processInstance.getStartingActivityInstance());
 
       startToken.persist();
+      //System.out.println("New start token: " + startToken);
 
       // register with 2nd level cache if existent
       final ISecondLevelTokenCache secondLevelTokenCache = TokenManagerRegistry.instance()
@@ -117,12 +118,10 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
       if (scanDb)
       {
          // in memory view can not be trusted, so must scan DB
-         nAvailableTokens += session.getCount(TransitionTokenBean.class,
-               QueryExtension.where(
-                     Predicates.andTerm(
-                           Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE,
-                                 pi.getOID()),
-                                 Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED, 0))), timeout);
+         nAvailableTokens += session.getCount(TransitionTokenBean.class, QueryExtension.where(
+               Predicates.andTerm(
+                     Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE, pi.getOID()),
+                     Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED, 0))), timeout);
       }
       
       return nAvailableTokens;
@@ -137,6 +136,18 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
             TransitionTokenBean.class,
             QueryExtension.where(Predicates.isEqual(
                   TransitionTokenBean.FR__PROCESS_INSTANCE, piOid)));
+   }
+
+   public static ResultIterator findUnconsumedForProcessInstance(long piOid)
+   {
+      // no need to look for transient start tokens as recovery will be performed in its
+      // own TX
+      
+      return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(TransitionTokenBean.class,
+            QueryExtension.where(
+                  Predicates.andTerm(
+                        Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE, piOid),
+                        Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED, 0))));
    }
 
    public static Object findUnconsumedForTransition(IProcessInstance pi,
@@ -168,14 +179,10 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
       {
          result = session.getVector(TransitionTokenBean.class, QueryExtension.where(
                Predicates.andTerm(
-                     Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE,
-                           pi.getOID()),
-                           Predicates.isEqual(TransitionTokenBean.FR__TRANSITION,
-                                 transitionRtOid.longValue()),
-                                 Predicates.isEqual(TransitionTokenBean.FR__MODEL,
-                                       modelOid),
-                                       Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED,
-                                             0))));
+                     Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE, pi.getOID()),
+                     Predicates.isEqual(TransitionTokenBean.FR__TRANSITION, transitionRtOid.longValue()),
+                     Predicates.isEqual(TransitionTokenBean.FR__MODEL, modelOid),
+                     Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED, 0))));
       }
       
       return result;
@@ -271,6 +278,13 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
       {
          markModified(FIELD__TARGET);
          this.target = targetAiOid;
+
+         long targetPiOid = target.getProcessInstanceOID();
+         if (this.processInstance != targetPiOid)
+         {
+            markModified(FIELD__PROCESS_INSTANCE);
+            this.processInstance = targetPiOid;
+         }
       }
       if (trace.isDebugEnabled())
       {

@@ -934,8 +934,7 @@ public class ModelManagerBean implements ModelManager
       {
          for (IModel model : models)
          {
-            List<IExternalPackage> references = model.getExternalPackages();
-            for (IExternalPackage pkg : references)
+            for (IExternalPackage pkg : model.getExternalPackages())
             {
                try
                {
@@ -1756,17 +1755,13 @@ public class ModelManagerBean implements ModelManager
             inconsistencies.add(new Inconsistency(e.getMessage(), null, Inconsistency.ERROR));
          }
 
-         List<IExternalPackage> packages = model.getExternalPackages();
-         if (packages != null)
+         for (IExternalPackage pkg : model.getExternalPackages())
          {
-            for (IExternalPackage pkg : packages)
+            if (pkg.getReferencedModel() == null)
             {
-               if (pkg.getReferencedModel() == null)
-               {
-                  inconsistencies.add(new Inconsistency(
-                        "Referenced package with namespace '" + pkg.getHref()
-                              + "' not found.", null, Inconsistency.WARNING));
-               }
+               inconsistencies.add(new Inconsistency(
+                     "Referenced package with namespace '" + pkg.getHref()
+                           + "' not found.", null, Inconsistency.WARNING));
             }
          }
 

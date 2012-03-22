@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
@@ -950,14 +951,19 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             || ActivityInstanceState.Interrupted.equals(getState()))
       {
          // support polymorphism wrt. activity definition
-         IActivityExecutionStrategy aeStrategy = ActivityExecutionUtils.getExecutionStrategy(activity);
-         if (null != aeStrategy)
+         IActivityExecutionStrategy aeStrategy = null;
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         if (rtEnv.getExecutionPlan() == null) // force default if an execution plan is present
          {
-            aeStrategy.startActivityInstance(this);
+            aeStrategy = ActivityExecutionUtils.getExecutionStrategy(activity);
+         }
+         if (aeStrategy == null)
+         {
+            doStartActivity(activity);
          }
          else
          {
-            doStartActivity(activity);
+            aeStrategy.startActivityInstance(this);
          }
       }
    }
@@ -1064,9 +1070,25 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                throw e;
             }
 
-            ActivityThread.schedule(subProcess,
+            BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+            ExecutionPlan plan = rtEnv.getExecutionPlan();
+            if (plan != null && plan.hasNextActivity())
+            {
+               if (plan.nextStep())
+               {
+                  ActivityThread.schedule(subProcess, plan.getCurrentStep(), null, true, null, Collections.EMPTY_MAP, false);
+               }
+               else
+               {
+                  ActivityThread.schedule(subProcess, plan.getTargetActivity(), null, true, null, Collections.EMPTY_MAP, false);
+               }
+            }
+            else
+            {
+               ActivityThread.schedule(subProcess,
                   subProcess.getProcessDefinition().getRootActivity(),
                   null, synchronous, null, Collections.EMPTY_MAP, synchronous);
+            }
             if (!synchronous || subProcess.isCompleted())
             {
                setState(ActivityInstanceState.APPLICATION);

@@ -43,6 +43,8 @@ import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
@@ -376,7 +378,12 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       session.cluster(this);
 
-      TransitionTokenBean.createStartToken(this);
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      ExecutionPlan plan = rtEnv.getExecutionPlan();
+      if (plan == null || plan.hasMoreSteps2())
+      {
+         TransitionTokenBean.createStartToken(this);
+      }
    }
 
    public String toString()

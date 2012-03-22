@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.Iterator;
 
+import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.Join;
@@ -143,10 +144,12 @@ public class AuditTrailTransitionBean extends IdentifiablePersistentBean impleme
       this.id = org.eclipse.stardust.common.StringUtils.cutString(transition.getId(), id_COLUMN_LENGTH);
       this.processDefinition = ModelManagerFactory.getCurrent().getRuntimeOid(
             transition.getProcessDefinition());
-      this.sourceActivity = ModelManagerFactory.getCurrent().getRuntimeOid(
-            transition.getFromActivity());
-      this.targetActivity = ModelManagerFactory.getCurrent().getRuntimeOid(
-            transition.getToActivity());
+      IActivity activity = transition.getFromActivity();
+      this.sourceActivity = activity == null ? -1 :
+            ModelManagerFactory.getCurrent().getRuntimeOid(activity);
+      activity = transition.getToActivity();
+      this.targetActivity = activity == null ? -1 :
+            ModelManagerFactory.getCurrent().getRuntimeOid(activity);
       this.condition = org.eclipse.stardust.common.StringUtils.cutString(transition.getCondition(),
             condition_COLUMN_LENGTH);
    }

@@ -1,15 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
 /*
- * Generated from  Revision: 49765 
+ * Generated from  Revision: 52557 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -25,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author rsauer
- * @version 49765
+ * @version 52557
  */
 public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
 {
@@ -37,17 +27,19 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return the document or null if no document with such ID (or path) exists.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDocument(
      *     java.lang.String documentId)
      */
-    public org.eclipse.stardust.engine.api.runtime.Document getDocument(
-         java.lang.String documentId)
+    public org.eclipse.stardust.engine.api.runtime.Document
+         getDocument(java.lang.String documentId)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -57,9 +49,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return list of document versions found.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -76,9 +70,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return list of documents found.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -95,9 +91,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return list of documents found.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -114,9 +112,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return list of documents found.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -139,9 +139,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @return A byte array containing the document content. This byte array will be
      *           encoded according to the document's {@link Document#getEncoding()} attribute.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -161,9 +163,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return A download token valid for the lifetime of this service's session.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -181,9 +185,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return The resolved folder.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -191,7 +197,8 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getFolder(
      *     java.lang.String folderId)
      */
-    public org.eclipse.stardust.engine.api.runtime.Folder getFolder(java.lang.String folderId)
+    public org.eclipse.stardust.engine.api.runtime.Folder
+         getFolder(java.lang.String folderId)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -205,9 +212,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return the folder or null if no folder with such ID (or path) exists.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -215,8 +224,8 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getFolder(
      *     java.lang.String folderId, int levelOfDetail)
      */
-    public org.eclipse.stardust.engine.api.runtime.Folder getFolder(
-         java.lang.String folderId, int levelOfDetail)
+    public org.eclipse.stardust.engine.api.runtime.Folder
+         getFolder(java.lang.String folderId, int levelOfDetail)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -229,9 +238,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return list of folders found.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -251,9 +262,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return list of folders found.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -274,9 +287,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return list of folders found.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -297,17 +312,22 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return the new document.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#createDocument(
-     *     java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo document)
+     *     java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo
+     *     document)
      */
-    public org.eclipse.stardust.engine.api.runtime.Document createDocument(
-         java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo document)
+    public org.eclipse.stardust.engine.api.runtime.Document
+         createDocument(
+         java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo
+         document)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -332,20 +352,23 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return the new document.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see #requestDocumentContentUpload(String)
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#createDocument(
-     *     java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo document, byte[]
-     *     content, java.lang.String encoding)
+     *     java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo
+     *     document, byte[] content, java.lang.String encoding)
      */
-    public org.eclipse.stardust.engine.api.runtime.Document createDocument(
-         java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo document,
-         byte[] content, java.lang.String encoding)
+    public org.eclipse.stardust.engine.api.runtime.Document
+         createDocument(
+         java.lang.String folderId, org.eclipse.stardust.engine.api.runtime.DocumentInfo
+         document, byte[] content, java.lang.String encoding)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -356,17 +379,19 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return document describing the new document version
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#versionDocument(
      *     java.lang.String documentId, java.lang.String versionLabel)
      */
-    public org.eclipse.stardust.engine.api.runtime.Document versionDocument(
-         java.lang.String documentId, java.lang.String versionLabel)
+    public org.eclipse.stardust.engine.api.runtime.Document
+         versionDocument(java.lang.String documentId, java.lang.String versionLabel)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -381,9 +406,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @param documentId ID or path of the document.
      * @param documentRevisionId The revisionId of the document version to be removed.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -402,17 +429,19 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return The moved Document.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#moveDocument(
      *     java.lang.String documentId, java.lang.String targetPath)
      */
-    public org.eclipse.stardust.engine.api.runtime.Document moveDocument(
-         java.lang.String documentId, java.lang.String targetPath)
+    public org.eclipse.stardust.engine.api.runtime.Document
+         moveDocument(java.lang.String documentId, java.lang.String targetPath)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -426,9 +455,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return the updated document
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -438,8 +469,8 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      */
     public org.eclipse.stardust.engine.api.runtime.Document
          updateDocument(
-         org.eclipse.stardust.engine.api.runtime.Document document, boolean createNewRevision,
-         java.lang.String versionLabel, boolean keepLocked)
+         org.eclipse.stardust.engine.api.runtime.Document document, boolean
+         createNewRevision, java.lang.String versionLabel, boolean keepLocked)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -461,23 +492,25 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return the updated document
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see #requestDocumentContentUpload(String)
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(
-     *     org.eclipse.stardust.engine.api.runtime.Document document, byte[] content, java.lang.String
-     *     encoding, boolean createNewRevision, java.lang.String versionLabel, boolean
-     *     keepLocked)
+     *     org.eclipse.stardust.engine.api.runtime.Document document, byte[] content,
+     *     java.lang.String encoding, boolean createNewRevision, java.lang.String versionLabel,
+     *     boolean keepLocked)
      */
     public org.eclipse.stardust.engine.api.runtime.Document
          updateDocument(
-         org.eclipse.stardust.engine.api.runtime.Document document, byte[] content, java.lang.String
-         encoding, boolean createNewRevision, java.lang.String versionLabel, boolean
-         keepLocked)
+         org.eclipse.stardust.engine.api.runtime.Document document, byte[] content,
+         java.lang.String encoding, boolean createNewRevision, java.lang.String
+         versionLabel, boolean keepLocked)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -489,9 +522,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return An upload token valid for the lifetime of this service's session.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -507,9 +542,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @param documentId ID or path of the document to remove.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -529,17 +566,22 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return the new folder.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#createFolder(
-     *     java.lang.String parentFolderId, org.eclipse.stardust.engine.api.runtime.FolderInfo folder)
+     *     java.lang.String parentFolderId, org.eclipse.stardust.engine.api.runtime.FolderInfo
+     *     folder)
      */
-    public org.eclipse.stardust.engine.api.runtime.Folder createFolder(
-         java.lang.String parentFolderId, org.eclipse.stardust.engine.api.runtime.FolderInfo folder)
+    public org.eclipse.stardust.engine.api.runtime.Folder
+         createFolder(
+         java.lang.String parentFolderId,
+         org.eclipse.stardust.engine.api.runtime.FolderInfo folder)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -549,9 +591,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return the updated folder.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -569,9 +613,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @param recursive if true, documents and subfolders will be removed also
      *     (applies to all the children). If false, only the folder itself will be removed.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS specific errors
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -616,7 +662,8 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getEffectivePolicies(
      *     java.lang.String resourceId)
      */
-    public java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
+    public
+         java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getEffectivePolicies(java.lang.String resourceId)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -637,7 +684,8 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getPolicies(
      *     java.lang.String resourceId)
      */
-    public java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
+    public
+         java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getPolicies(java.lang.String resourceId)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -658,7 +706,8 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getApplicablePolicies(
      *     java.lang.String resourceId)
      */
-    public java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
+    public
+         java.util.Set<org.eclipse.stardust.engine.api.runtime.AccessControlPolicy>
          getApplicablePolicies(java.lang.String resourceId)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -680,11 +729,12 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#setPolicy(
-     *     java.lang.String resourceId, org.eclipse.stardust.engine.api.runtime.AccessControlPolicy policy)
+     *     java.lang.String resourceId,
+     *     org.eclipse.stardust.engine.api.runtime.AccessControlPolicy policy)
      */
     public void setPolicy(
-         java.lang.String resourceId, org.eclipse.stardust.engine.api.runtime.AccessControlPolicy
-         policy)
+         java.lang.String resourceId,
+         org.eclipse.stardust.engine.api.runtime.AccessControlPolicy policy)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -722,10 +772,11 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      *
      * @return a report containing information about the migration batch execution.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException if there are problems in
-     *     repository access or the user is not an administrator.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException}
-     *     will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException if there
+     *     are problems in repository access or the user is not an administrator.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -748,7 +799,8 @@ public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
      * @throws ObjectNotFoundException
      *                if the specified schema location cannot be found
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *

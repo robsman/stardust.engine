@@ -11,13 +11,12 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.Date;
-import java.util.List;
 
 import org.eclipse.stardust.engine.api.model.IExternalPackage;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.query.*;
-
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
+import org.eclipse.stardust.engine.api.query.Query;
 
 /**
  * 
@@ -111,12 +110,14 @@ public class ModelQueryEvaluator extends AbstractQueryPredicate<IModel>
       {
          ModelManager manager = ModelManagerFactory.getCurrent();
          IModel consumer = manager.findModel((Long) expected);
-         List<IExternalPackage> pkgs = consumer.getExternalPackages();
-         for (IExternalPackage pkg : pkgs)
+         if (consumer != null)
          {
-            if (model == pkg.getReferencedModel())
+            for (IExternalPackage pkg : consumer.getExternalPackages())
             {
-               return expected;
+               if (model == pkg.getReferencedModel())
+               {
+                  return expected;
+               }
             }
          }
          return 0;
@@ -125,12 +126,14 @@ public class ModelQueryEvaluator extends AbstractQueryPredicate<IModel>
       {
          ModelManager manager = ModelManagerFactory.getCurrent();
          IModel provider = manager.findModel((Long) expected);
-         List<IExternalPackage> pkgs = model.getExternalPackages();
-         for (IExternalPackage pkg : pkgs)
+         if (provider != null)
          {
-            if (provider == pkg.getReferencedModel())
+            for (IExternalPackage pkg : model.getExternalPackages())
             {
-               return expected;
+               if (provider == pkg.getReferencedModel())
+               {
+                  return expected;
+               }
             }
          }
          return 0;

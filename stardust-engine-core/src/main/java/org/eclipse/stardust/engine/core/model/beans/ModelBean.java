@@ -411,8 +411,7 @@ public class ModelBean extends RootElementBean
       if (other == null)
       {
          referencedModels.put(id, model);
-         List<IExternalPackage> externalPackages = model.getExternalPackages();
-         for (IExternalPackage pkg : externalPackages)
+         for (IExternalPackage pkg : model.getExternalPackages())
          {
             IModel referencedModel = null;
             try

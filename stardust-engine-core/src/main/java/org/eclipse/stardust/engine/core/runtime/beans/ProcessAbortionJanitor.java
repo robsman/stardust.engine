@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
@@ -77,7 +78,8 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
          }
          catch (ConcurrencyException e)
          {
-            if (triesLeft > 0)
+            BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+            if (triesLeft > 0 && rtEnv.getExecutionPlan() == null)
             {
                trace.info(MessageFormat.format(
                      "Cannot run abortion janitor for {0} due to a locking conflict, scheduling a new one. Tries left: {1}.",
@@ -153,14 +155,12 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
       }
    }
 
-   private void abortStartingActivityInstance(ProcessInstanceBean pi)
+   private void abortStartingActivityInstance(IProcessInstance pi)
    {
-      final ActivityInstanceBean startingActivityInstance = (ActivityInstanceBean) pi
-            .getStartingActivityInstance();
-      if (null != startingActivityInstance)
+      IActivityInstance startingActivityInstance = pi.getStartingActivityInstance();
+      if (startingActivityInstance != null)
       {
-         ActivityInstanceUtils
-               .scheduleNewActivityThread(startingActivityInstance);
+         ActivityInstanceUtils.scheduleNewActivityThread(startingActivityInstance);
       }
    }
 

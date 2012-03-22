@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
+import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.ContextData;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
@@ -734,6 +735,14 @@ public interface WorkflowService extends Service
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? > data,
          boolean abortProcessInstance, String comment) throws IllegalOperationException,
+         ObjectNotFoundException, InvalidArgumentException;
+
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.spawnPeerProcessInstance,
+         scope=ExecutionPermission.Scope.model,
+         defaults={ExecutionPermission.Default.ALL})
+   public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
+         String spawnProcessID, SpawnOptions options) throws IllegalOperationException,
          ObjectNotFoundException, InvalidArgumentException;
 
    /**
@@ -1497,6 +1506,34 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.ALL})
    EventHandlerBinding getProcessInstanceEventHandler(long processInstanceOID, String handler)
          throws ObjectNotFoundException;
+
+   /**
+    * Retrieves the possible targets for forward transitions starting from the specified activity instance.
+    * 
+    * @param activityInstanceOid the oid of the activity instance from where the transition will be performed.
+    * @param options search options, if null then TransitionOptions.DEFAULT will be used.
+    * @param direction TODO
+    * @return A list of possible transition targets.
+    * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
+    */
+   Set<TransitionTarget> getAdHocTransitionTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
+         throws ObjectNotFoundException;
+   
+   /**
+    * Performs the transition from the specified activity instance to the specified target.
+    * 
+    * @param activityInstanceOid the oid of the activity instance from where the transition will be performed.
+    * @param target the transition target.
+    * @param complete true if the activity instance specified should be completed, false if the activity should be aborted.
+    * @return the activity instance from which the transition was performed.
+    * @throws IllegalOperationException if the transition could not be performed because the specified TransitionTarget
+    *         did not originate from the specified activity instance, or the activity instance was already terminated
+    *         or the process instance containing the activity instance has more than one active activity instance.  
+    * @throws ObjectNotFoundException TODO
+    * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
+    */
+   ActivityInstance performAdHocTransition(long activityInstanceOid, TransitionTarget target, boolean complete)
+         throws IllegalOperationException, ObjectNotFoundException;
 
    /**
     * Retrieves the list of process definitions that can be started by the current user.

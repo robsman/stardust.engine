@@ -1,15 +1,5 @@
-/*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
 /*
- * Generated from  Revision: 52371 
+ * Generated from  Revision: 54130 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -27,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 52371
+ * @version 54130
  */
 public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingLocalService
 {
@@ -43,30 +33,35 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param activityInstanceOID the OID of the activity to be activated.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was activated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     activated.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not valid or is not
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     valid or is not
      *             granted to execute the activity instance. Also thrown if the activity
      *             instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see #activateAndComplete
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#activate(long activityInstanceOID)
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#activate(
+     *     long activityInstanceOID)
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance activate(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -77,30 +72,35 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param context the ID of the context on which the data mapping will be performed.
      * @param outData a map with the values of the out access points.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was completed.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     completed.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the activity instance is exclusively locked by
-     *     another thread.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state change is not
-     *     permitted,
-     *             i.e. the activity is not active.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the activity instance is
+     *     exclusively locked by another thread.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
      *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state
+     *     change is not permitted,
+     *             i.e. the activity is not active.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the <code>outData</object> values to
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the
+     *     <code>outData</object> values to
      *             be written is invalid, most probably as of a type conflict in case of
      *             statically typed data.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not allowed to
-     *     complete the activity.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     allowed to complete the activity.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -126,28 +126,32 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return A log describing the result of the invocation. Depends on the flags parameter.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state change is not
-     *     permitted,
-     *             i.e. the activity is not active.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
      *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state
+     *     change is not permitted,
+     *             i.e. the activity is not active.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the <code>outData</object> values to
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the
+     *     <code>outData</object> values to
      *             be written is invalid, most probably as of a type conflict in case of
      *             statically typed data.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is
      *             already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -156,9 +160,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#complete(
      *     long activityInstanceOID, java.lang.String context, java.util.Map outData, int flags)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog complete(
+    public org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog
+         complete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData, int
-         flags, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         flags, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -173,31 +179,37 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *            The value <code>null</code> will be interpreted as the default context.
      * @param outData a map with the values of the out access points.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was completed.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     completed.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state change is not
-     *     permitted,
-     *             i.e. the activity is not active.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
      *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state
+     *     change is not permitted,
+     *             i.e. the activity is not active.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the <code>outData</code> values to
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the
+     *     <code>outData</code> values to
      *             be written is invalid, most probably as of a type conflict in case of
      *             statically typed data.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not valid or is not
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     valid or is not
      *             granted to execute the activity instance. Also thrown if the activity
      *             instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -207,7 +219,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#activateAndComplete(
      *     long activityInstanceOID, java.lang.String context, java.util.Map outData)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance activateAndComplete(
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         activateAndComplete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -228,29 +241,34 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return A log describing the result of the invocation. Depends on the flags parameter.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state change is not
-     *     permitted,
-     *             i.e. the activity is not active.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
      *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state
+     *     change is not permitted,
+     *             i.e. the activity is not active.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the <code>outData</object> values to
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the
+     *     <code>outData</object> values to
      *             be written is invalid, most probably as of a type conflict in case of
      *             statically typed data.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not valid or is not
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     valid or is not
      *             granted to execute the activity instance. Also thrown if the activity
      *             instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -263,7 +281,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
     public org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog
          activateAndComplete(
          long activityInstanceOID, java.lang.String context, java.util.Map outData, int
-         flags, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         flags, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -278,11 +297,12 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return The retrieved value.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified
      *       OID or there is no mapping with the given ID under the given context.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -313,11 +333,12 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @return A Map with corresponding (data mapping ID, data value)-pairs. Data values
      *             are {@link java.io.Serializable}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified
      *       OID or not all mapping IDs can be resolved in the given context.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -342,21 +363,26 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param outData the context data containing values of out access points to be stored.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is already
-     *     terminated or is
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is
+     *     already terminated or is
      *             currently processed by another user or the current user does not have the
      *             required permission.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidArgumentException if QA AI with non empty out data map
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidArgumentException if QA AI with non empty out
+     *     data map
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -365,8 +391,9 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     long activityInstanceOID, org.eclipse.stardust.engine.api.model.ContextData outData)
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspend(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.model.ContextData outData,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         long activityInstanceOID, org.eclipse.stardust.engine.api.model.ContextData
+         outData, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -376,20 +403,23 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is already
-     *     terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is
+     *     already terminated.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -399,8 +429,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          suspendToDefaultPerformer(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -412,20 +442,23 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param context the ID of the context on which the data mapping will be performed.
      * @param outData a map with values of out access points to be stored.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is already
-     *     terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is
+     *     already terminated.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -445,30 +478,35 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is not granted to
-     *     execute
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see #suspendToUser(long, String, Map)
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#suspendToUser(long activityInstanceOID)
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#suspendToUser(
+     *     long activityInstanceOID)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspendToUser(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         suspendToUser(
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -479,21 +517,24 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param context the ID of the context on which the data mapping will be performed.
      * @param outData a map with values of out access points to be stored.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is not granted to
-     *     execute
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -501,7 +542,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#suspendToUser(
      *     long activityInstanceOID, java.lang.String context, java.util.Map outData)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspendToUser(
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         suspendToUser(
          long activityInstanceOID, java.lang.String context, java.util.Map outData,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -513,21 +555,24 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param userOID the OID of the user.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is not granted to
-     *     execute
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -535,7 +580,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#suspendToUser(
      *     long activityInstanceOID, long userOID)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspendToUser(
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         suspendToUser(
          long activityInstanceOID, long userOID,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -549,21 +595,24 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param context the ID of the context on which the data mapping will be performed.
      * @param outData a map with values of out access points to be stored.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is not granted to
-     *     execute
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -572,9 +621,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     long activityInstanceOID, long userOID, java.lang.String context, java.util.Map
      *     outData)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspendToUser(
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         suspendToUser(
          long activityInstanceOID, long userOID, java.lang.String context, java.util.Map
-         outData, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         outData, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -585,21 +636,24 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param participant the ID of the performer.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is not granted to
-     *     execute
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -607,7 +661,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#suspendToParticipant(
      *     long activityInstanceOID, java.lang.String participant)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspendToParticipant(
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         suspendToParticipant(
          long activityInstanceOID, java.lang.String participant,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -622,21 +677,24 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param context the ID of the context on which the data mapping will be performed.
      * @param outData a map with values of out access points to be stored.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is not granted to
-     *     execute
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -645,10 +703,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     long activityInstanceOID, java.lang.String participant, java.lang.String context,
      *     java.util.Map outData)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspendToParticipant(
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         suspendToParticipant(
          long activityInstanceOID, java.lang.String participant, java.lang.String context,
-         java.util.Map outData, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         java.util.Map outData,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -661,30 +720,34 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     delegated.
      * @param outData the context data containing values of out access points to be stored.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was suspended.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     suspended.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID or if the participant is not null
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID or if the participant is not null
      *             and could not be resolved to an actual user user group or model participant.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is already
-     *     terminated or is
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is
+     *     already terminated or is
      *             currently processed by another user or the current user does not have the
      *             required permission or if the delegation target is not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#suspendToParticipant(
-     *     long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo participant,
-     *     org.eclipse.stardust.engine.api.model.ContextData outData)
+     *     long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
+     *     participant, org.eclipse.stardust.engine.api.model.ContextData outData)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance suspendToParticipant(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo participant,
-         org.eclipse.stardust.engine.api.model.ContextData outData,
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         suspendToParticipant(
+         long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
+         participant, org.eclipse.stardust.engine.api.model.ContextData outData,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -693,25 +756,30 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param activityInstanceOID the OID of the activity to be hibernated.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was hibernated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     hibernated.
      *
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state change is not
-     *     permitted,
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state
+     *     change is not permitted,
      *             i.e. the activity is already completed or aborted.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#hibernate(long activityInstanceOID)
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#hibernate(
+     *     long activityInstanceOID)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance hibernate(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         hibernate(
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -729,11 +797,12 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that was started.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process with the specified ID
-     *     in the
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process with
+     *     the specified ID in the
      *             active model or an invalid data id was specified.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -768,12 +837,21 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *                if the process instance is not a case process instance, is not active or
      *                if the process definition is from a different model.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws ObjectNotFoundException
      *                if there is no process instance with the specified oid or if there is no
      *                process definition with the specified id.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ConcurrencyException
+     *                if a lock on transitions or process instances cannot be obtained.
+     *                This can happen while the process hierarchy is currently
+     *                locked because of case operations or subprocess creation.
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -784,8 +862,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          spawnSubprocessInstance(
          long parentProcessInstanceOid, java.lang.String spawnProcessID, boolean copyData,
-         java.util.Map data, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         java.util.Map data,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -799,25 +877,36 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *               A List of {@link SubprocessSpawnInfo} holding information about the
      *               subprocesses to be spawned.
      *
-     * @return A list of {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that were spawned.
+     * @return A list of {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that were
+     *     spawned.
      *
      * @throws IllegalOperationException
      *                if the process instance is not a case process instance, is not active or
      *                if the process definition is from a different model.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws ObjectNotFoundException
      *                if there is no process instance with the specified oid or if there is no
      *                process definition with the specified id.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ConcurrencyException
+     *                if a lock on transitions or process instances cannot be obtained.
+     *                This can happen while the process hierarchy is currently
+     *                locked because of case operations or subprocess creation.
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#spawnSubprocessInstances(
      *     long parentProcessInstanceOid, java.util.List subprocessSpawnInfo)
      */
-    public java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstance>
+    public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.ProcessInstance>
          spawnSubprocessInstances(
          long parentProcessInstanceOid, java.util.List subprocessSpawnInfo,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
@@ -857,17 +946,20 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     if the process instances process definition is the same as the specified process
      *     ed process definition.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws ObjectNotFoundException
      *                if the process instance for the specified oid or the process definition
      *                for the specified process id is not found.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws InvalidArgumentException
      *                if <code>abortProcessInstance</code> is false (currently not
      *                implemented).
      *     <em>Instances of {@link InvalidArgumentException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -879,6 +971,21 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          spawnPeerProcessInstance(
          long processInstanceOid, java.lang.String spawnProcessID, boolean copyData,
          java.util.Map data, boolean abortProcessInstance, java.lang.String comment,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#spawnPeerProcessInstance(
+     *     long processInstanceOid, java.lang.String spawnProcessID,
+     *     org.eclipse.stardust.engine.api.runtime.SpawnOptions options)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         spawnPeerProcessInstance(
+         long processInstanceOid, java.lang.String spawnProcessID,
+         org.eclipse.stardust.engine.api.runtime.SpawnOptions options,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -900,23 +1007,34 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *                if one of the process instances referenced by <code>memberOids</code> is
      *                not found.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws IllegalOperationException
      *                if <code>memberOids</code> contains a process instance which is not a
      *                root process.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws InvalidArgumentException
      *                if <code>memberOids</code> is empty or null.
      *     <em>Instances of {@link InvalidArgumentException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ConcurrencyException
+     *                if a lock on transitions or process instances cannot be obtained.
+     *                This can happen while the process hierarchy is currently
+     *                locked because of case operations or subprocess creation.
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#createCase(
      *     java.lang.String name, java.lang.String description, long[] memberOids)
      */
-    public org.eclipse.stardust.engine.api.runtime.ProcessInstance createCase(
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         createCase(
          java.lang.String name, java.lang.String description, long[] memberOids,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -936,23 +1054,35 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *                if one of the process instances referenced by <code>memberOids</code> is
      *                not found.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws IllegalOperationException
      *                if <code>memberOids</code> contains a process instance which is not a
      *                root process or is already a member of the case.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the user is not the owner of the case.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the user is not the
+     *     owner of the case.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ConcurrencyException
+     *                if a lock on transitions or process instances cannot be obtained.
+     *                This can happen while the process hierarchy is currently
+     *                locked because of case operations or subprocess creation.
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#joinCase(long caseOid, long[] memberOids)
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#joinCase(
+     *     long caseOid, long[] memberOids)
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance joinCase(
-         long caseOid, long[] memberOids, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         long caseOid, long[] memberOids,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -970,24 +1100,35 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *                if one of the process instances referenced by <code>memberOids</code> is
      *                not found.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws IllegalOperationException
      *                if <code>memberOids</code> contains a process instance which is not a
      *                root process or is not a member of the case.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws AccessForbiddenException
      *                if the user is not the owner of the case.
      *     <em>Instances of {@link AccessForbiddenException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ConcurrencyException
+     *                if a lock on transitions or process instances cannot be obtained.
+     *                This can happen while the process hierarchy is currently
+     *                locked because of case operations or subprocess creation.
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#leaveCase(long caseOid, long[] memberOids)
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#leaveCase(
+     *     long caseOid, long[] memberOids)
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance leaveCase(
-         long caseOid, long[] memberOids, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         long caseOid, long[] memberOids,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1007,7 +1148,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     ids</code> is
      *                not found.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws IllegalOperationException
      *                if <code>sourceCaseOids</code> contains a process instance which is not a
      *                case process instance.
@@ -1017,18 +1159,28 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     equals the <code>targetCaseOid</code>.
      *                if <code>targetCaseOid</code> is not a case process instance.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws AccessForbiddenException
      *                if the user is not the owner of the case.
      *     <em>Instances of {@link AccessForbiddenException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ConcurrencyException
+     *                if a lock on transitions or process instances cannot be obtained.
+     *                This can happen while the process hierarchy is currently
+     *                locked because of case operations or subprocess creation.
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#mergeCases(
      *     long targetCaseOid, long[] sourceCaseOids, java.lang.String comment)
      */
-    public org.eclipse.stardust.engine.api.runtime.ProcessInstance mergeCases(
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         mergeCases(
          long targetCaseOid, long[] sourceCaseOids, java.lang.String comment,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -1047,22 +1199,26 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *                if one of the process instances referenced by <code>caseOid</code> is not
      *                found.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws IllegalOperationException
      *                if <code>caseOid</code> is not a case process instance.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws AccessForbiddenException
      *                if the user is not the owner of the case.
      *     <em>Instances of {@link AccessForbiddenException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#delegateCase(
      *     long caseOid, org.eclipse.stardust.engine.api.model.ParticipantInfo participant)
      */
-    public org.eclipse.stardust.engine.api.runtime.ProcessInstance delegateCase(
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         delegateCase(
          long caseOid, org.eclipse.stardust.engine.api.model.ParticipantInfo participant,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -1086,21 +1242,24 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *                if the process instance referenced by <code>processInstanceOid</code> or
      *                <code>targetProcessInstanceOid</code> do not exist.
      *     <em>Instances of {@link ObjectNotFoundException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws IllegalOperationException
      *                if the source and target are identical.<br>
      *                if the source or target are not active.<br>
      *                if the join target is a subprocess of the source process instance.<br>
      *                if the source or target is a case process instance.
      *     <em>Instances of {@link IllegalOperationException
-     *     } will be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#joinProcessInstance(
      *     long processInstanceOid, long targetProcessInstanceOid, java.lang.String comment)
      */
-    public org.eclipse.stardust.engine.api.runtime.ProcessInstance joinProcessInstance(
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         joinProcessInstance(
          long processInstanceOid, long targetProcessInstanceOid, java.lang.String comment,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -1123,32 +1282,37 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return The {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was aborted.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified
      *             OID in the audit trail.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not valid or is not
-     *     granted
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     valid or is not granted
      *             access to the activity instance. Also thrown if the activity instance is
      *             already terminated or if the activity is not allowed to be aborted.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#abortProcessInstance(long)
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#abortActivityInstance(long, AbortScope)
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#abortProcessInstance(
+     *     long)
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#abortActivityInstance(
+     *     long, AbortScope)
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#abortActivityInstance(
      *     long activityInstanceOID)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance abortActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         abortActivityInstance(
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1156,7 +1320,7 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * instance hierarchy this activity instance belongs to.
      * <p/>
      * Aborting an activity instance is only allowed if the activity was modeled to be
-     * abortable (@see Activity#isAbortable()}). Additionally it is required that the
+     * abortable (see {@link Activity#isAbortable()}). Additionally it is required that the
      * aborting user is a valid performing participant for this activity.
      * <p/>
      * Note: Abort is performed asynchronously.
@@ -1177,31 +1341,37 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return The {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was aborted.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified
      *             OID in the audit trail.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not valid or is not
-     *     granted
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     valid or is not granted
      *             access to the activity instance. Also thrown if the activity instance is
      *             already terminated or if the activity is not allowed to be aborted.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#abortProcessInstance(long)
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#abortProcessInstance(
+     *     long)
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#abortActivityInstance(long)
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#abortActivityInstance(
-     *     long activityInstanceOid, org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope)
+     *     long activityInstanceOid, org.eclipse.stardust.engine.core.runtime.beans.AbortScope
+     *     abortScope)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance abortActivityInstance(
-         long activityInstanceOid, org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope,
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         abortActivityInstance(
+         long activityInstanceOid,
+         org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -1216,24 +1386,29 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return The {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that was aborted.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified
      *             OID in the audit trail.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not valid or is not
-     *     granted
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     valid or is not granted
      *             access to abort the process instance.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#abortProcessInstance(
-     *     long processInstanceOid, org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope)
+     *     long processInstanceOid, org.eclipse.stardust.engine.core.runtime.beans.AbortScope
+     *     abortScope)
      */
-    public org.eclipse.stardust.engine.api.runtime.ProcessInstance abortProcessInstance(
-         long processInstanceOid, org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope,
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         abortProcessInstance(
+         long processInstanceOid,
+         org.eclipse.stardust.engine.core.runtime.beans.AbortScope abortScope,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
@@ -1245,26 +1420,28 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @return the active model.
      *
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no active model.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getModel()
      */
     public org.eclipse.stardust.engine.api.runtime.DeployedModel
-         getModel(org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         getModel(
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
      * Retrieves (parts of) the worklist of the currently logged-in user.
      *
-     * @param query An instance of class {@link org.eclipse.stardust.engine.api.query.WorklistQuery} describing
-     *     the requested
+     * @param query An instance of class {@link org.eclipse.stardust.engine.api.query.WorklistQuery}
+     *     describing the requested
      *            view on the worklist.
      *
-     * @return An instance of {@link org.eclipse.stardust.engine.api.query.Worklist} making up the requested view
-     *     on the
+     * @return An instance of {@link org.eclipse.stardust.engine.api.query.Worklist} making up the
+     *     requested view on the
      *             current user's worklist.
      *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
@@ -1284,7 +1461,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param worklist query.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was activated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     activated.
      *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
@@ -1304,12 +1482,14 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param activityInstanceOID the OID of the last completed activity instance.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was activated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     activated.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1318,8 +1498,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1327,12 +1507,14 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param processInstanceOID the OID of the process instance.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was activated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     activated.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1341,8 +1523,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          activateNextActivityInstanceForProcessInstance(
-         long processInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         long processInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1353,17 +1535,19 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param id the ID of the data path as defined in the model.
      * @param object the value to set on the data path.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the
      *             specified OID, if there is no data path with the specified id or if the
      *             underlying data is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidValueException if the <code>object</object> to be written
-     *     represents
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidValueException if the <code>object</object>
+     *     to be written represents
      *             an invalid value, most probably as of a type conflict in case of statically
      *             typed data.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1384,17 +1568,19 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param values A map of (id, value) pairs to be set, where every ID has to designate
      *           a valid data path as defined in the model.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the
      *             specified OID, if there is no data path with the specified id or if the
      *             underlying data is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the <code>values</object> to be
-     *     written
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidValueException if one of the
+     *     <code>values</object> to be written
      *             represents is invalid, most probably as of a type conflict in case of
      *             statically typed data.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1416,11 +1602,13 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the value of the data path applied to the process instance.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the
      *             specified OID, if there is no data path with the specified id or if the
      *             underlying data is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1444,11 +1632,13 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the values of the data paths applied to the process instance.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the
      *             specified OID, if there is no data path with the specified id or if the
      *             underlying data is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1468,20 +1658,23 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param activityInstanceOID the OID of the activity instance.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was delegated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     delegated.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is already
-     *     terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is
+     *     already terminated.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1490,8 +1683,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          delegateToDefaultPerformer(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1500,28 +1693,32 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param activityInstanceOID the OID of the activity instance.
      * @param userOID the OID of the user to which the activity instance will be delegated.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was delegated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     delegated.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance or user with
-     *     the specified OIDs.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is not granted to
-     *     execute
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance or user with the specified OIDs.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#delegateToUser(
      *     long activityInstanceOID, long userOID)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance delegateToUser(
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         delegateToUser(
          long activityInstanceOID, long userOID,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -1532,28 +1729,32 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @param activityInstanceOID the OID of the activity instance.
      * @param performer the ID of the performer to which the activity instance will be delegated.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was delegated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     delegated.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance is being processed
-     *     by another user.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will be wrapped inside
-     *     {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is not granted to
-     *     execute
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the same activity instance
+     *     is being processed by another user.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#delegateToParticipant(
      *     long activityInstanceOID, java.lang.String performer)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance delegateToParticipant(
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         delegateToParticipant(
          long activityInstanceOID, java.lang.String performer,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -1576,29 +1777,35 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     model participant, user or user group) to which the activity instance will be
      *     delegated.
      *
-     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was delegated.
+     * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
+     *     delegated.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID or if the participant is not null
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID or if the participant is not null
      *             and could not be resolved to an actual user user group or model participant.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is already
-     *     terminated or is
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the activity instance is
+     *     already terminated or is
      *             currently processed by another user or the current user does not have the
      *             required permission or if the delegation target is not granted to execute
      *             the activity instance or if the activity instance is already terminated.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#delegateToParticipant(
-     *     long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo participant)
+     *     long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
+     *     participant)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance delegateToParticipant(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo participant,
-         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         delegateToParticipant(
+         long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
+         participant, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1608,19 +1815,21 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getActivityInstance(
      *     long activityInstanceOID)
      */
-    public org.eclipse.stardust.engine.api.runtime.ActivityInstance getActivityInstance(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         getActivityInstance(
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1630,18 +1839,21 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getProcessInstance(long processInstanceOID)
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getProcessInstance(
+     *     long processInstanceOID)
      */
-    public org.eclipse.stardust.engine.api.runtime.ProcessInstance getProcessInstance(
-         long processInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+    public org.eclipse.stardust.engine.api.runtime.ProcessInstance
+         getProcessInstance(
+         long processInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1651,23 +1863,27 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return TODO
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the process instance is not completed or
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the process instance is
+     *     not completed or
      *           the user does not have the permission to access this process.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getProcessResults(long processInstanceOID)
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getProcessResults(
+     *     long processInstanceOID)
      */
     public java.util.Map<java.lang.String,java.io.Serializable>
          getProcessResults(
-         long processInstanceOID, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
-         __tunneledContext)
+         long processInstanceOID,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1678,27 +1894,33 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding errors.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidArgumentException in case eventHandler is null.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding
+     *     errors.
+     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidArgumentException in case eventHandler is
+     *     null.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see #getActivityInstanceEventHandler
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#bindActivityEventHandler(
-     *     long activityInstanceOID, org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler)
+     *     long activityInstanceOID, org.eclipse.stardust.engine.api.runtime.EventHandlerBinding
+     *     eventHandler)
      */
     public org.eclipse.stardust.engine.api.runtime.ActivityInstance
          bindActivityEventHandler(
-         long activityInstanceOID, org.eclipse.stardust.engine.api.runtime.EventHandlerBinding
-         eventHandler, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         long activityInstanceOID,
+         org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1709,24 +1931,28 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding errors.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding
+     *     errors.
+     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see #getProcessInstanceEventHandler
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#bindProcessEventHandler(
-     *     long processInstanceOID, org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler)
+     *     long processInstanceOID, org.eclipse.stardust.engine.api.runtime.EventHandlerBinding
+     *     eventHandler)
      */
     public org.eclipse.stardust.engine.api.runtime.ProcessInstance
          bindProcessEventHandler(
-         long processInstanceOID, org.eclipse.stardust.engine.api.runtime.EventHandlerBinding
-         eventHandler, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         long processInstanceOID,
+         org.eclipse.stardust.engine.api.runtime.EventHandlerBinding eventHandler,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1737,13 +1963,15 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding errors.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding
+     *     errors.
+     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1764,13 +1992,15 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding errors.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding
+     *     errors.
+     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1791,13 +2021,15 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding errors.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding
+     *     errors.
+     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1818,13 +2050,15 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding errors.
-     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.BindingException in case of semantic binding
+     *     errors.
+     *     <em>Instances of {@link org.eclipse.stardust.engine.api.runtime.BindingException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1845,10 +2079,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.EventHandlerBinding}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1869,10 +2104,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.EventHandlerBinding}.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1886,6 +2122,82 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
+     * Retrieves the possible targets for forward transitions starting from the specified
+     * activity instance.
+     *
+     * @param activityInstanceOid the oid of the activity instance from where the transition will be
+     *     performed.
+     * @param options search options, if null then TransitionOptions.DEFAULT will be used.
+     * @param direction TODO
+     *
+     * @return A list of possible transition targets.
+     *
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getAdHocTransitionTargets(
+     *     long activityInstanceOid, org.eclipse.stardust.engine.api.runtime.TransitionOptions
+     *     options, org.eclipse.stardust.engine.api.runtime.ScanDirection direction)
+     */
+    public
+         java.util.Set<org.eclipse.stardust.engine.api.runtime.TransitionTarget>
+         getAdHocTransitionTargets(
+         long activityInstanceOid,
+         org.eclipse.stardust.engine.api.runtime.TransitionOptions options,
+         org.eclipse.stardust.engine.api.runtime.ScanDirection direction,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+         
+    /**
+     * Performs the transition from the specified activity instance to the specified target.
+     *
+     * @param activityInstanceOid the oid of the activity instance from where the transition will be
+     *     performed.
+     * @param target the transition target.
+     * @param complete true if the activity instance specified should be completed, false if the
+     *     activity should be aborted.
+     *
+     * @return the activity instance from which the transition was performed.
+     *
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the transition
+     *     could not be performed because the specified TransitionTarget
+     *     did not originate from the specified activity instance, or the activity instance was
+     *     nce was already terminated
+     *     or the process instance containing the activity instance has more than one active
+     *      active activity instance.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException TODO
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
+     *     instance with the specified oid.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#performAdHocTransition(
+     *     long activityInstanceOid, org.eclipse.stardust.engine.api.runtime.TransitionTarget
+     *     target, boolean complete)
+     */
+    public org.eclipse.stardust.engine.api.runtime.ActivityInstance
+         performAdHocTransition(
+         long activityInstanceOid,
+         org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
+         complete, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+         
+    /**
      * Retrieves the list of process definitions that can be started by the current user.
      *
      * @return a List with {@link org.eclipse.stardust.engine.api.model.ProcessDefinition} objects.
@@ -1893,9 +2205,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getStartableProcessDefinitions()
+     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getStartableProcessDefinitions(
+     *     )
      */
-    public java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
+    public
+         java.util.List<org.eclipse.stardust.engine.api.model.ProcessDefinition>
          getStartableProcessDefinitions(
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
@@ -1911,7 +2225,8 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getUser()
      */
     public org.eclipse.stardust.engine.api.runtime.User
-         getUser(org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         getUser(
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
@@ -1943,10 +2258,11 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *
      * @param attributes the container of attributes.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process instance with the
-     *     specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
+     *     instance with the specified OID.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws PublicException if the process instance is no scope process instance.
      *     <em>Instances of {@link PublicException} will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
@@ -1966,6 +2282,23 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
+     * Sets attributes for an activity instance
+     *
+     * @param attributes - the attributes to set
+     *
+     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException - if the activity instance
+     *     specified by
+     *     {@link ActivityInstanceAttributes#getActivityInstanceOid()} could no be found.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidArgumentException - when a result is set
+     *     ({@link ActivityInstanceAttributes#getQualityAssuranceResult()}
+     *     and the codes list({@link QualityAssuranceResult#getQualityAssuranceCodes(
+     *     )} contains a null element
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -2007,6 +2340,27 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
+     * Executes a {@link ServiceCommand} in a single engine transaction.
+     * 
+     * If the service command implements <code>{@link Configurable}</code>, the following
+     * option may be provided:
+     * <ul>
+     * <li>"<b>autoFlush</b>" - automatically flushes the audit trail changes after every
+     * service call.
+     * The value must be a <code>{@link Boolean}</code> object. The default value is
+     * <code>{@link Boolean#FALSE}</code>.
+     * </ul>
+     *
+     * @param serviceCmd the {@link org.eclipse.stardust.engine.core.runtime.command.ServiceCommand}
+     *     to be executed.
+     *
+     * @return the result of the execution. May be <code>null</code> if the command has no result.
+     *
+     * @throws org.eclipse.stardust.common.error.ServiceCommandException that encapsulates any
+     *     exception thrown during the execution of the command.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ServiceCommandException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *

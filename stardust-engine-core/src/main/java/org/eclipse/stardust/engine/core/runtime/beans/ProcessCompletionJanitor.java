@@ -24,11 +24,12 @@ import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.ISecondLevelTokenCache;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenManagerRegistry;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
 
 /**
  *
@@ -79,7 +80,12 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
       if (!hasParent)
       {
          IActivityInstance activityInstance = pi.getStartingActivityInstance();
-
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         ExecutionPlan plan = rtEnv.getExecutionPlan();
+         if (plan != null)
+         {
+            plan.checkNextStep(activityInstance);
+         }
          if (activityInstance != null)
          {
             activityInstance.lock();
@@ -127,6 +133,11 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
 
    public Object execute()
    {
+      return execute(false);
+   }
+   
+   public Object execute(boolean forceSynchronous)
+   {
       boolean performed = false;
       IProcessInstance pi = ProcessInstanceBean.findByOID(processInstanceOID);
 
@@ -145,7 +156,7 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
 
                if (!pi.isTerminated() && !pi.isAborting())
                {
-                  if (synchronous
+                  if (!forceSynchronous && synchronous
                         && Parameters.instance().getBoolean(
                               KernelTweakingProperties.ASYNC_PROCESS_COMPLETION, false))
                   {
@@ -177,11 +188,8 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
 
                      if (count <= 0)
                      {
-                        int timeout = Parameters
-                              .instance()
-                              .getInteger(
-                                    KernelTweakingProperties.PROCESS_COMPLETION_TOKEN_COUNT_TIMEOUT,
-                                    1);
+                        int timeout = Parameters.instance().getInteger(
+                              KernelTweakingProperties.PROCESS_COMPLETION_TOKEN_COUNT_TIMEOUT, 1);
 
                         ISecondLevelTokenCache secondLevelTokenCache = TokenManagerRegistry.instance().getSecondLevelCache(pi);
 
@@ -196,9 +204,14 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
                         }
                         else
                         {
-                           long unconsumed = TransitionTokenBean.countUnconsumedForProcessInstance(
-                                 pi, timeout);
-                           if ((unconsumed == 0) || (synchronous && (unconsumed + count == 0)))
+                           long unconsumed = TransitionTokenBean.countUnconsumedForProcessInstance(pi, timeout);
+                           /*Iterator<TransitionTokenBean> itr = TransitionTokenBean.findUnconsumedForProcessInstance(pi.getOID());
+                           while (itr.hasNext())
+                           {
+                              TransitionTokenBean token = itr.next();
+                              System.out.println(token);
+                           }*/
+                           if (unconsumed == 0 || synchronous && (unconsumed + count == 0))
                            {
                               canComplete = true;
                            }
@@ -227,6 +240,10 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
 
                      if (!performed && ProcessInstanceState.Interrupted.equals(pi.getState()))
                      {
+                        if (forceSynchronous)
+                        {
+                           throw new InternalException("Cannot complete process synchronously: " + processInstanceOID);
+                        }
                         scheduleJanitor(new InterruptionJanitorCarrier(processInstanceOID));
                      }
                   }
@@ -239,6 +256,10 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
          }
          catch (ConcurrencyException e)
          {
+            if (forceSynchronous)
+            {
+               throw e;
+            }
             trace.info("Cannot run janitor for " + processInstanceOID
                   + " due to a locking conflict, scheduling a new one.");
             scheduleJanitor(new JanitorCarrier(processInstanceOID, count));

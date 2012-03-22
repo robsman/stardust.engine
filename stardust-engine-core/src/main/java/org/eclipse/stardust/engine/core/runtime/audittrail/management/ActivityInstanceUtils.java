@@ -12,34 +12,25 @@ package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.Map;
 
+import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
+import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
-import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
-
 
 /**
  * @author stephan.born
@@ -47,7 +38,19 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
  */
 public class ActivityInstanceUtils
 {
-   private static final Logger trace = LogManager.getLogger(ActivityInstanceUtils.class);
+   /**
+    * Lock activity to guarantee, that no other session can touch this activity
+    */
+   public static ActivityInstanceBean lock(long activityInstanceOID)
+         throws ObjectNotFoundException
+   {
+      ActivityInstanceBean activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
+      if (!activityInstance.isTerminated())
+      {
+         activityInstance.lockAndCheck();
+      }
+      return activityInstance;
+   }
 
    public static void abortActivityInstance(long aiOid)
    {
@@ -62,29 +65,21 @@ public class ActivityInstanceUtils
 
       ActivityInstanceBean activityInstance = (ActivityInstanceBean) ai;
 
-      final ImplementationType implementationType = activityInstance.getActivity()
-            .getImplementationType();
-      boolean abortAiDuringSubProcessAbortion = false;
-      if (ImplementationType.SubProcess.equals(implementationType))
-      {
-         IProcessInstance subProcess = ProcessInstanceBean
-               .findForStartingActivityInstance(activityInstance.getOID());
-
-         if (subProcess != null)
-         {
-            ProcessInstanceUtils.abortProcessInstance(subProcess);
-            abortAiDuringSubProcessAbortion = true;
-         }
-      }
-
       activityInstance.removeFromWorklists();
       activityInstance.setState(ActivityInstanceState.ABORTING);
       EventUtils.detachAll(activityInstance);
       
-      if (!abortAiDuringSubProcessAbortion)
+      ImplementationType implementationType = activityInstance.getActivity().getImplementationType();
+      if (ImplementationType.SubProcess.equals(implementationType))
       {
-         scheduleNewActivityThread(activityInstance);
+         IProcessInstance subProcess = ProcessInstanceBean.findForStartingActivityInstance(ai.getOID());
+         if (subProcess != null)
+         {
+            ProcessInstanceUtils.abortProcessInstance(subProcess);
+            return;
+         }
       }
+      scheduleNewActivityThread(ai);
    }
    
    public static void abortActivityInstance(long aiOid, AbortScope abortScope)
@@ -108,7 +103,6 @@ public class ActivityInstanceUtils
       else if (AbortScope.SubHierarchy == abortScope)
       {
          ActivityInstanceUtils.abortActivityInstance(ai);
-
       }
       else
       {
@@ -122,7 +116,9 @@ public class ActivityInstanceUtils
    {
       String threadMode = Parameters.instance().getString(
             EngineProperties.PROCESS_TERMINATION_THREAD_MODE, EngineProperties.THREAD_MODE_ASYNCHRONOUS);
-      boolean synchronously = threadMode.equals(EngineProperties.THREAD_MODE_SYNCHRONOUS);
+      
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      boolean synchronously = rtEnv.getExecutionPlan() != null || threadMode.equals(EngineProperties.THREAD_MODE_SYNCHRONOUS);
 
       ActivityThread.schedule(null, null, activityInstance, synchronously, null,
             Collections.EMPTY_MAP, false);
@@ -275,5 +271,59 @@ public class ActivityInstanceUtils
          throw new IllegalOperationException(BpmRuntimeError.BPMRT_USER_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
                SecurityProperties.getUserOID(), activityInstance.getOID()));
       }
+   }
+
+   public static void setOutDataValues(String context, Map<String, ?> values,
+         IActivityInstance activityInstance) throws ObjectNotFoundException, InvalidValueException
+   {
+      if (null == context)
+      {
+         context = PredefinedConstants.DEFAULT_CONTEXT;
+      }
+      if (values != null && !values.isEmpty())
+      {
+         IActivity activity = activityInstance.getActivity();
+         IProcessInstance processInstance = ProcessInstanceBean.findByOID(activityInstance.getProcessInstanceOID());
+         for (Map.Entry<String, ?> entry : values.entrySet())
+         {
+            IDataMapping dm = activity.findDataMappingById(entry.getKey(), Direction.OUT, context);
+            if (dm == null)
+            {
+               throw new ObjectNotFoundException(
+                     BpmRuntimeError.MDL_UNKNOWN_OUT_DATA_MAPPING.raise(entry.getKey(),
+                           context, activityInstance.getOID()));
+            }
+            processInstance.setOutDataValue(dm.getData(), dm.getDataPath(), entry.getValue());
+         }
+      }
+   }
+
+   private static boolean canModifyData(IActivityInstance activityInstance)
+   {
+      boolean canModifyData = true;
+      // modifying entered data on qc instances is only allowed if in correction mode
+      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      {
+         ActivityInstanceAttributes attributes
+            = QualityAssuranceUtils.getActivityInstanceAttributes(activityInstance);
+         QualityAssuranceResult.ResultState resultState
+            = attributes.getQualityAssuranceResult().getQualityAssuranceState();
+         if(resultState != QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION)
+         {
+            canModifyData = false;
+         }
+      }
+   
+      return canModifyData;
+   }
+
+   public static void complete(IActivityInstance activityInstance, String context, Map<String, ?> outData, boolean synchronously)
+   {
+      boolean allowSetDataValues = canModifyData(activityInstance);
+      if(allowSetDataValues)
+      {
+         setOutDataValues(context, outData, activityInstance);
+      }
+      ActivityThread.schedule(null, null, activityInstance, synchronously, null, Collections.EMPTY_MAP, false);
    }
 }

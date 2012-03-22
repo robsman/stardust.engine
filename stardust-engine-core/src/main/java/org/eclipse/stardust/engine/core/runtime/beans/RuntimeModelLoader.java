@@ -40,7 +40,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataLoader;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 
-
 /**
  * @author ubirkemeyer
  * @version $Revision$
@@ -137,9 +136,8 @@ public class RuntimeModelLoader implements ModelLoader
          IModel model = unit.getModel();
          // (fh) each model has a reference to self!
          ModelRefBean.setResolvedModel(null, model, deployment.getOID());
-         for (Iterator<IExternalPackage> i = model.getExternalPackages().iterator(); i.hasNext();)
+         for (IExternalPackage externalPackage : model.getExternalPackages())
          {
-            IExternalPackage externalPackage = i.next();
             IModel referencedModel = externalPackage.getReferencedModel();
             if (referencedModel != null)
             {

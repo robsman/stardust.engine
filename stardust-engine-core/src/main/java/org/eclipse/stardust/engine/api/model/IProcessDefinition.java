@@ -13,13 +13,10 @@ package org.eclipse.stardust.engine.api.model;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-
 
 /**
  *
@@ -89,14 +86,14 @@ public interface IProcessDefinition
     */
    Iterator getAllTransitions();
    
-   ModelElementList getTransitions();
+   ModelElementList<ITransition> getTransitions();
 
    /**
     * @deprecated Use of {@link #getTriggers()} allows for more efficient iteration.
     */
    Iterator getAllTriggers();
 
-   ModelElementList getTriggers();
+   ModelElementList<ITrigger> getTriggers();
 
    Iterator getAllDescriptors();
    
@@ -125,7 +122,7 @@ public interface IProcessDefinition
     */
    Iterator getAllDataPaths();
 
-   ModelElementList getDataPaths();
+   ModelElementList<IDataPath> getDataPaths();
 
    IDataPath findDataPath(String id, Direction direction);
 

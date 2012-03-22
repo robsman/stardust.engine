@@ -18,7 +18,9 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 
@@ -107,53 +109,63 @@ public class TokenCache
    public List<TransitionTokenBean> getBoundInTokens(IActivityInstance boundActivityInstance, IActivity activity)
    {
       List<TransitionTokenBean> result = null;
-      if (activity.getId().equals(processInstance.getProcessDefinition().getRootActivity().getId()))
+      IProcessDefinition pd = activity.getProcessDefinition();
+      ITransition relocationTransition = pd.findTransition(PredefinedConstants.RELOCATION_TRANSITION_ID);
+      if (relocationTransition != null)
       {
-         TransitionTokenBean token = getBoundInToken(boundActivityInstance,
-               ActivityThread.START_TRANSITION);
+         TransitionTokenBean token = getBoundInToken(boundActivityInstance, relocationTransition);
          if (null != token)
          {
-            result = Collections.singletonList(token);
+            return Collections.singletonList(token);
          }
       }
-      else
+      if (activity.getId().equals(processInstance.getProcessDefinition().getRootActivity().getId()))
       {
-         ModelElementList inTransitions = boundActivityInstance.getActivity()
-               .getInTransitions();
-         for (int i = 0; i < inTransitions.size(); ++i)
+         TransitionTokenBean token = getBoundInToken(boundActivityInstance, ActivityThread.START_TRANSITION);
+         if (null != token)
          {
-            ITransition transition = (ITransition) inTransitions.get(i);
+            return Collections.singletonList(token);
+         }
+      }
+      ModelElementList inTransitions = boundActivityInstance.getActivity().getInTransitions();
+      for (int i = 0; i < inTransitions.size(); ++i)
+      {
+         ITransition transition = (ITransition) inTransitions.get(i);
 
-            TransitionTokenBean token = getBoundInToken(boundActivityInstance, transition);
-            if (null != token)
+         TransitionTokenBean token = getBoundInToken(boundActivityInstance, transition);
+         if (null != token)
+         {
+            if (1 == inTransitions.size())
             {
-               if (1 == inTransitions.size())
-               {
-                  result = Collections.singletonList(token);
-               }
-               else
-               {
-                  if (null == result)
-                  {
-                     result = CollectionUtils.newList(inTransitions.size());
-                  }
-                  result.add(token);
-               }
+               return Collections.singletonList(token);
             }
             else
             {
-               if (trace.isDebugEnabled())
+               if (null == result)
                {
-                  trace.debug("token for inbound not found from "+transition.getFromActivity());
+                  result = CollectionUtils.newList(inTransitions.size());
                }
+               result.add(token);
+            }
+         }
+         else
+         {
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("token for inbound not found from " + transition.getFromActivity());
             }
          }
       }
-      if(result == null)
+      if (result == null)
       {
-         return Collections.emptyList();
+         // extra try if the start token was created during relocation
+         TransitionTokenBean token = getBoundInToken(boundActivityInstance, ActivityThread.START_TRANSITION);
+         if (null != token)
+         {
+            return Collections.singletonList(token);
+         }
       }
-      return result;
+      return result == null ? Collections.<TransitionTokenBean>emptyList() : result;
    }
 
    // should not be called if we are still in a chain
@@ -172,6 +184,11 @@ public class TokenCache
       this.localTokenCache.registerToken(transition, token);
       
       return token;
+   }
+   
+   public void registerToken(ITransition transition, TransitionTokenBean token)
+   {
+      this.localTokenCache.registerToken(transition, token);
    }
 
    public void consumeToken(TransitionTokenBean token)

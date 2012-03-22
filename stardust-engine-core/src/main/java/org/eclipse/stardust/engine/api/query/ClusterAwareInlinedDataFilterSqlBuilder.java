@@ -973,6 +973,11 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
             this.modelManager = modelManager;
          }
       }
+
+      public Object visit(DocumentFilter filter, Object context)
+      {
+         return null;
+      }
    }
 
    // TODO (peekaboo): Refactor this and other classes with same name and semantic into common (base) class

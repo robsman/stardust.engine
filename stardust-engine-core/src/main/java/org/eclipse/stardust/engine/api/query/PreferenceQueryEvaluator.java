@@ -237,6 +237,12 @@ public class PreferenceQueryEvaluator implements FilterEvaluationVisitor
       throw new UnsupportedOperationException();
    }
 
+   public Object visit(DocumentFilter filter, Object context)
+   {
+      // TODO Auto-generated method stub
+      throw new UnsupportedOperationException();
+   }
+
    public PreferenceScope getScope()
    {
       return scope;

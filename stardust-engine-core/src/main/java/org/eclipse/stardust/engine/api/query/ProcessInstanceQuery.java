@@ -107,7 +107,7 @@ public class ProcessInstanceQuery extends Query
    public static final CustomOrderCriterion USER_LAST_NAME = new CustomOrderCriterion(
          UserBean.class, UserBean.FIELD__LAST_NAME);
 
-   private static final FilterVerifier FILTER_VERIFYER = new FilterScopeVerifier(
+   protected static final FilterVerifier FILTER_VERIFYER = new FilterScopeVerifier(
          new WhitelistFilterVerifyer(new Class[]
          {
             FilterTerm.class,
@@ -124,7 +124,8 @@ public class ProcessInstanceQuery extends Query
             DataPrefetchHint.class,
             CurrentPartitionFilter.class,
             ProcessInstanceLinkFilter.class,
-            ProcessInstanceHierarchyFilter.class
+            ProcessInstanceHierarchyFilter.class,
+            DocumentFilter.class
          }),
          ProcessInstanceQuery.class
    );
@@ -159,7 +160,7 @@ public class ProcessInstanceQuery extends Query
 
       return query;
    }
-   
+
    /**
     * Creates a query for finding instances of the process definition identified by
     * <code>processID</code>. Optionally retrieves subprocesses.
@@ -185,7 +186,7 @@ public class ProcessInstanceQuery extends Query
 
    /**
     * Creates a query for finding case instances.
-    * 
+    *
     * @return The configured query.
     */
    public static ProcessInstanceQuery findCases()
@@ -576,11 +577,11 @@ public class ProcessInstanceQuery extends Query
    }
 
    /**
-    * Creates a query for finding activity instances which have
-    * the given Document as a process attachment
+    * Creates a query for finding process instances which have
+    * the given Document as a process attachment, document data or document list data.
     *
-    * @param document The Document to find activity instances having a reference to.
-    * @param modelId The model id.
+    * @param document The Document to find process instances having a reference to.
+    * @param modelId The model id (<code>null</code> searches all models).
     *
     * @return The readily configured query.
     */
@@ -588,29 +589,37 @@ public class ProcessInstanceQuery extends Query
    {
       ProcessInstanceQuery query = new ProcessInstanceQuery();
 
-      String xPath = AuditTrailUtils.DOCS_DOCUMENTS + "/" + AuditTrailUtils.RES_ID;
-      query.where(DataFilter.isEqual("{" + modelId + "}" + DmsConstants.DATA_ID_ATTACHMENTS, xPath, document.getId()));
+      query.where(new DocumentFilter(document.getId(), modelId));
 
       return query;
    }
 
    /**
-    * @deprecated
+    * Creates a query for finding process instances which have
+    * the given Document as a process attachment, document data or document list data.
+    *
+    * @param document The Document to find process instances having a reference to.
+    *
+    * @return The readily configured query.
     */
    public static ProcessInstanceQuery findHavingDocument(Document document)
    {
-      return findHavingDocument(document.getId());
+      return findHavingDocument(document, null);
    }
 
    /**
-    * @deprecated
+    * Creates a query for finding process instances which have
+    * the given Document as a process attachment, document data or document list data.
+    *
+    * @param documentId The id of the Document to find process instances having a reference to.
+    *
+    * @return The readily configured query.
     */
    public static ProcessInstanceQuery findHavingDocument(String documentId)
    {
       ProcessInstanceQuery query = new ProcessInstanceQuery();
 
-      String xPath = AuditTrailUtils.DOCS_DOCUMENTS + "/" + AuditTrailUtils.RES_ID;
-      query.where(DataFilter.isEqual(DmsConstants.DATA_ID_ATTACHMENTS, xPath, documentId));
+      query.where(new DocumentFilter(documentId, null));
 
       return query;
    }

@@ -876,10 +876,15 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
 
    public Object visit(ProcessInstanceLinkFilter filter, Object context)
    {
-     return NOTHING;
+      return NOTHING;
    }
 
    public Object visit(ProcessInstanceHierarchyFilter filter, Object context)
+   {
+      return NOTHING;
+   }
+
+   public Object visit(DocumentFilter filter, Object context)
    {
       return NOTHING;
    }

@@ -137,4 +137,9 @@ public class BigDataFilterFinder implements FilterEvaluationVisitor
    {
       return Boolean.FALSE;
    }
+
+   public Object visit(DocumentFilter filter, Object context)
+   {
+      return Boolean.FALSE;
+   }
 }

@@ -51,6 +51,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.AndTerm;
 import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
@@ -88,6 +89,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
+import org.eclipse.stardust.vfs.impl.utils.StringUtils;
 
 /**
  * Filter evaluator generating SQL from a process or activity instance query.
@@ -1605,6 +1609,86 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       return NOTHING;
    }
 
+   public Object visit(DocumentFilter filter, Object rawContext)
+   {
+      VisitationContext context = (VisitationContext) rawContext;
+      FilterOrTerm dataFiltersOrTerm = null;
+      List<AbstractDataFilter> dataFilters = new LinkedList<AbstractDataFilter>();
+
+      if (ProcessInstanceBean.class.isAssignableFrom(context.getType()))
+      {
+         dataFiltersOrTerm = new FilterOrTerm(ProcessInstanceQuery.FILTER_VERIFYER);
+
+         List<IModel> allModels = null;
+         if (StringUtils.isEmpty(filter.getModelId()))
+         {
+            allModels = CollectionUtils.newListFromIterator(context.getEvaluationContext()
+                  .getModelManager()
+                  .getAllAliveModels());
+
+         }
+         else
+         {
+            allModels = CollectionUtils.newListFromIterator(context.getEvaluationContext()
+                  .getModelManager()
+                  .getAllModelsForId(filter.getModelId()));
+         }
+
+         for (IModel iModel : allModels)
+         {
+            ModelElementList<IData> data = iModel.getData();
+            for (IData iData : data)
+            {
+               String dataTypeId = iData.getType().getId();
+               if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
+               {
+                  String xPath = AuditTrailUtils.RES_ID;
+                  DataFilter dataFilter = DataFilter.isEqual(getQualifiedId(iData), xPath , filter.getDocumentId());
+                  dataFiltersOrTerm.add(dataFilter);
+                  dataFilters.add(dataFilter);
+               }
+               else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
+               {
+                  String xPath = AuditTrailUtils.DOCS_DOCUMENTS + "/" + AuditTrailUtils.RES_ID;
+                  DataFilter dataFilter = DataFilter.isEqual(getQualifiedId(iData), xPath , filter.getDocumentId());
+                  dataFiltersOrTerm.add(dataFilter);
+                  dataFilters.add(dataFilter);
+               }
+            };
+         }
+      }
+
+      // Add new data filters to data filter extension context.
+      DataFilterExtensionContext dataFilterExtensionContext = context.getDataFilterExtensionContext();
+      Map<String, List<AbstractDataFilter>> dataFiltersByDataId = dataFilterExtensionContext.getDataFiltersByDataId();
+      for (AbstractDataFilter df : dataFilters)
+      {
+         String dataId = df.getDataID();
+         if (dataFiltersByDataId.containsKey(dataId) == false)
+         {
+            dataFiltersByDataId.put(dataId, new LinkedList<AbstractDataFilter>());
+         }
+         List<AbstractDataFilter> l = (List<AbstractDataFilter>) dataFiltersByDataId.get(dataId);
+         l.add(df);
+      }
+
+      // translate using FilterOrTerm of DataFilters
+      if (dataFiltersOrTerm != null)
+      {
+         return visit(dataFiltersOrTerm, context);
+      }
+      else
+      {
+         return NOTHING;
+      }
+   }
+
+   private String getQualifiedId(IData iData)
+   {
+      IModel model = (IModel) iData.getModel();
+      return new QName(model.getId(), iData.getId()).toString();
+   }
+
    public Object visit(ParticipantAssociationFilter filter, Object context)
    {
       // todo/france consider merging this with PerformingParticipantFilter
@@ -1646,7 +1730,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    {
       final VisitationContext context = (VisitationContext) rawContext;
       Join useJoin = null;
-      
+
       if(context.getQuery().getClass().equals(ProcessInstanceQuery.class))
       {
          CasePolicy casePolicy = (CasePolicy) context.getQuery().getPolicy(CasePolicy.class);
@@ -1661,7 +1745,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
                }
             }
          }
-      }         
+      }
 
       FieldRef fieldRef;
 
@@ -1677,7 +1761,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          if(useJoin != null)
          {
             fieldRef = useJoin.fieldRef(
-                  criterion.getAttributeName());            
+                  criterion.getAttributeName());
          }
          else
          {

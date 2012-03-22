@@ -62,4 +62,6 @@ public interface FilterEvaluationVisitor
    Object visit(ProcessInstanceLinkFilter filter, Object context);
 
    Object visit(ProcessInstanceHierarchyFilter filter, Object context);
+
+   Object visit(DocumentFilter filter, Object context);
 }

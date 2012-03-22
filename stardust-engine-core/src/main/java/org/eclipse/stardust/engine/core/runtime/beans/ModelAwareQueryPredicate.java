@@ -178,5 +178,10 @@ public class ModelAwareQueryPredicate<T> extends AbstractQueryPredicate<T>
          return null;
       }
 
+      public Object visit(DocumentFilter filter, Object context)
+      {
+         return null;
+      }
+
    }
 }

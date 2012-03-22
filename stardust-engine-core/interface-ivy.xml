@@ -82,7 +82,10 @@
       
       <conf name="xerces-provider-runtime" visibility="private" />
       
-      <conf name="jackrabbit-provider-runtime" visibility="private" />
+      <conf name="jackrabbit-provider-runtime" extends="${jackrabbit.core.conf}" visibility="private" />
+      
+      <conf name="jackrabbit-core-with-full-text-search" visibility="private" />
+      <conf name="jackrabbit-core-without-full-text-search" visibility="private" />
       
       <conf name="jackrabbit-webapp-provider-runtime" visibility="private" />
             
@@ -222,8 +225,8 @@
          <exclude org="xml-apis" module="xml-apis" />
       </dependency>
       
-      <!-- jackrabbit-provider-runtime -->
-      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5" conf="jackrabbit-provider-runtime->default">
+      <!-- jackrabbit-core-with-full-text-search -->
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5" conf="jackrabbit-core-with-full-text-search->default">
          <exclude org="org.apache.derby" module="derby"/>
          <exclude org="log4j" module="log4j"/>
          <!-- the following entries prevents version conflicts -->
@@ -233,6 +236,22 @@
          <exclude org="org.bouncycastle" module="bcmail-jdk15"/>
          <exclude org="commons-pool" module="commons-pool"/>
       </dependency>
+      
+      <!-- jackrabbit-core-without-full-text-search -->
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5" conf="jackrabbit-core-without-full-text-search->default">
+         <exclude org="org.apache.derby" module="derby"/>
+         <exclude org="log4j" module="log4j"/>
+         <exclude org="edu.ucar" module="netcdf"/>
+         <exclude org="org.apache.pdfbox" module="pdfbox"/>
+         <!-- the following entries prevents version conflicts -->
+         <exclude org="commons-httpclient" module="commons-httpclient"/>
+         <exclude org="commons-codec" module="commons-codec"/>
+         <exclude org="org.bouncycastle" module="bcprov-jdk15"/>
+         <exclude org="org.bouncycastle" module="bcmail-jdk15"/>
+         <exclude org="commons-pool" module="commons-pool"/>
+      </dependency>
+      
+      <!-- jackrabbit-provider-runtime -->
       <dependency org="commons-httpclient" name="commons-httpclient" rev="3.0" conf="jackrabbit-provider-runtime->default">
          <exclude org="commons-codec" module="commons-codec"/>
       </dependency>

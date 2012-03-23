@@ -37,6 +37,7 @@ import org.junit.Test;
  */
 public class MyDmsTest extends LocalJcrH2Test
 {
+   private static final String MODEL_NAME = "MyExampleModel";
    private static final String DOC_NAME = "MyDoc";
    private static final String TOP_LEVEL_FOLDER = "/";
    
@@ -46,7 +47,7 @@ public class MyDmsTest extends LocalJcrH2Test
    @Before
    public void setUp()
    {
-      ModelDeployer.deploy("MyExampleModel", serviceFactory);
+      ModelDeployer.deploy(MODEL_NAME, serviceFactory);
    }
    
    @Test

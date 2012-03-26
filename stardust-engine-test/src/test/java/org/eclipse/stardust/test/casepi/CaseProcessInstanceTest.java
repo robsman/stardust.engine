@@ -46,8 +46,6 @@ import org.junit.Test;
  * TODO javadoc
  * </p>
  * 
- * TODO deadlock
- * 
  * @author Roland.Stamm
  * @version $Revision: $
  */

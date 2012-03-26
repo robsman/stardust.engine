@@ -45,11 +45,22 @@
       </path>
       
       <!-- Example Test Suite -->
+      <echo message="Executing the 'Example Test Suite' ..." />
       <junit fork="yes" haltonfailure="on" haltonerror="on">
          <test name="org.eclipse.stardust.test.examples.MyTestSuite" />
          <formatter type="brief" usefile="false" />
          <classpath refid="junit.rt.classpath" />
       </junit>
+      <echo message="... done with the 'Example Test Suite'." />
+      
+      <!-- Case Test Suite -->
+      <echo message="Executing the 'Case Test Suite' ..." />
+      <junit fork="yes" haltonfailure="on" haltonerror="on">
+         <test name="org.eclipse.stardust.test.picase.CaseTestSuite" />
+         <formatter type="brief" usefile="false" />
+         <classpath refid="junit.rt.classpath" />
+      </junit>
+      <echo message="... done with the 'Case Test Suite'." />
    </target>
    
    <!-- report -->

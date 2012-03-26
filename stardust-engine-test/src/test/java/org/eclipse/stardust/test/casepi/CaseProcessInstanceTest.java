@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.picase;
+package org.eclipse.stardust.test.casepi;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -51,7 +51,7 @@ import org.junit.Test;
  * @author Roland.Stamm
  * @version $Revision: $
  */
-public class CaseTest extends LocalJcrH2Test
+public class CaseProcessInstanceTest extends LocalJcrH2Test
 {
    private static final String U1 = "u1";
    private static final String U2 = "u2";

@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.picase;
+package org.eclipse.stardust.test.casepi;
 
 import org.eclipse.stardust.test.api.LocalJcrH2TestSuite;
 import org.junit.runner.RunWith;
@@ -26,8 +26,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version $Revision: $
  */
 @RunWith(Suite.class)
-@SuiteClasses({ CaseTest.class })
-public class CaseTestSuite extends LocalJcrH2TestSuite
+@SuiteClasses({ CaseProcessInstanceTest.class })
+public class CaseProcessInstanceTestSuite extends LocalJcrH2TestSuite
 {
    /* nothing to do */
 }

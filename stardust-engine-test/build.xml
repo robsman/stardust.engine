@@ -24,7 +24,8 @@
    <property name="src.test.resources.dir" value="${basedir}/src/test/resources" />
    
    <property name="build.dir" value="${basedir}/build" />
-   <property name="report.dir" value="${basedir}/report" />
+   <property name="build.classes.dir" value="${build.dir}/classes" />
+   <property name="build.report.dir" value="${build.dir}/report" />
    
    <property file="${basedir}/etc/private.properties" />
    
@@ -33,7 +34,6 @@
    <!-- clean -->
    <target name="clean" description="Cleans the project.">
       <delete dir="${build.dir}" />
-      <delete dir="${report.dir}" />
    </target>
    
    <!-- test -->
@@ -41,7 +41,7 @@
       <!-- Runtime Classpath for JUnit tests -->
       <path id="junit.rt.classpath">
          <path refid="test" />
-         <pathelement location="${build.dir}" />
+         <pathelement location="${build.classes.dir}" />
       </path>
       
       <!-- Execute the 'Example' test suite -->
@@ -65,7 +65,7 @@
    
    <!-- report -->
    <target name="report" description="Creates a dependency report." depends="init">
-      <ivy:report todir="${report.dir}" />
+      <ivy:report todir="${build.report.dir}" />
    </target>
    
    <!-- build-main -->
@@ -73,14 +73,14 @@
    
    <!-- compile-main -->
    <target name="compile-main" depends="init">
-      <ipp:javac-java6 srcdir="${src.main.java.dir}" destdir="${build.dir}">
+      <ipp:javac-java6 srcdir="${src.main.java.dir}" destdir="${build.classes.dir}">
          <classpath refid="compile.deps" />
       </ipp:javac-java6>
    </target>
    
    <!-- copy-resources-main -->
    <target name="copy-resources-main" depends="init">
-      <copy todir="${build.dir}">
+      <copy todir="${build.classes.dir}">
          <fileset dir="${src.main.resources.dir}" />
       </copy>
    </target>
@@ -90,24 +90,24 @@
    
    <!-- compile-test -->
    <target name="compile-test" depends="init">
-      <ipp:javac-java6 srcdir="${src.test.java.dir}" destdir="${build.dir}">
+      <ipp:javac-java6 srcdir="${src.test.java.dir}" destdir="${build.classes.dir}">
          <classpath>
             <path refid="test" />
-            <pathelement location="${build.dir}" />
+            <pathelement location="${build.classes.dir}" />
          </classpath>
       </ipp:javac-java6>
    </target>
    
    <!-- copy-resources-test -->
    <target name="copy-resources-test" depends="init">
-      <copy todir="${build.dir}">
+      <copy todir="${build.classes.dir}">
          <fileset dir="${src.test.resources.dir}" />
       </copy>
    </target>
    
    <!-- init -->
    <target name="init">
-      <mkdir dir="${build.dir}"/>
+      <mkdir dir="${build.classes.dir}"/>
       
       <init-ivy/>
       <init-ivy-classpath/>

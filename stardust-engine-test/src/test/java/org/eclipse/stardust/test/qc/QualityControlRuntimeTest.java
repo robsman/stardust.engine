@@ -54,7 +54,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Holger.Prause
- * @version $Revision: $
+ * @version $Revision$
  */
 public class QualityControlRuntimeTest extends LocalJcrH2Test
 {

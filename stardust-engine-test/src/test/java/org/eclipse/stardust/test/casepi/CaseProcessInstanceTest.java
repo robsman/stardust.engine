@@ -12,6 +12,7 @@ package org.eclipse.stardust.test.casepi;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.ModelDeployer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,7 +61,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
    private static final String MODEL_NAME = "CaseModel";
    
    @Rule
-   public ClientServiceFactory sf = new ClientServiceFactory("motu", "motu");
+   public ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
    
    private WorkflowService wfService;
    
@@ -70,7 +72,6 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       final AdministrationService adminService = sf.getAdministrationService();
       wfService = sf.getWorkflowService();
 
-      adminService.cleanupRuntimeAndModels();
       ModelDeployer.deploy(MODEL_NAME, sf);
       
       final Organization org1 = getTestModel().getOrganization("Org1");
@@ -85,6 +86,12 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       userService.modifyUser(u2);
    }
 
+   @After
+   public void tearDown()
+   {
+      sf.getAdministrationService().cleanupRuntimeAndModels();
+   }
+   
    /**
     * Creating the case and adding a second process instance.
     */

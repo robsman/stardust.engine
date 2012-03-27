@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.examples;
 
+import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -20,6 +21,7 @@ import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.ModelDeployer;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,12 +42,18 @@ public class MyWorkflowServiceTest extends LocalJcrH2Test
    private static final String PROCESS_DEF_ID = "ProcessDefinition_1";
    
    @Rule
-   public ClientServiceFactory serviceFactory = new ClientServiceFactory("motu", "motu");
+   public ClientServiceFactory serviceFactory = new ClientServiceFactory(MOTU, MOTU);
    
    @Before
    public void setUp()
    {
       ModelDeployer.deploy(MODEL_NAME, serviceFactory);
+   }
+   
+   @After
+   public void tearDown()
+   {
+      serviceFactory.getAdministrationService().cleanupRuntimeAndModels();
    }
    
    @Test

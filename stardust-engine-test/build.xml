@@ -25,7 +25,8 @@
    
    <property name="build.dir" value="${basedir}/build" />
    <property name="build.classes.dir" value="${build.dir}/classes" />
-   <property name="build.report.dir" value="${build.dir}/report" />
+   <property name="build.dep-report.dir" value="${build.dir}/dependency-report" />
+   <property name="build.test-report.dir" value="${build.dir}/test-report" />
    
    <property file="${basedir}/etc/private.properties" />
    
@@ -47,8 +48,8 @@
       <!-- Execute the 'Example' test suite -->
       <echo message="Executing the 'Example' test suite ..." />
       <junit fork="yes" haltonfailure="on" haltonerror="on">
-         <test name="org.eclipse.stardust.test.examples.MyTestSuite" />
-         <formatter type="brief" usefile="false" />
+         <test name="org.eclipse.stardust.test.examples.MyTestSuite" todir="${build.test-report.dir}" />
+         <formatter type="xml" />
          <classpath refid="junit.rt.classpath" />
       </junit>
       <echo message="... done with the 'Example' test suite." />
@@ -56,16 +57,16 @@
       <!-- Execute the 'Case Process Instance' test suite -->
       <echo message="Executing the 'Case Process Instance' test suite ..." />
       <junit fork="yes" haltonfailure="on" haltonerror="on">
-         <test name="org.eclipse.stardust.test.casepi.CaseProcessInstanceTestSuite" />
-         <formatter type="brief" usefile="false" />
+         <test name="org.eclipse.stardust.test.casepi.CaseProcessInstanceTestSuite" todir="${build.test-report.dir}" />
+         <formatter type="xml" />
          <classpath refid="junit.rt.classpath" />
       </junit>
       <echo message="... done with the 'Case Process Instance' test suite." />
    </target>
    
-   <!-- report -->
-   <target name="report" description="Creates a dependency report." depends="init">
-      <ivy:report todir="${build.report.dir}" />
+   <!-- dependency-report -->
+   <target name="dependency-report" description="Creates a dependency report." depends="init">
+      <ivy:report todir="${build.dep-report.dir}" />
    </target>
    
    <!-- build-main -->
@@ -108,6 +109,8 @@
    <!-- init -->
    <target name="init">
       <mkdir dir="${build.classes.dir}"/>
+      <mkdir dir="${build.dep-report.dir}"/>
+      <mkdir dir="${build.test-report.dir}"/>
       
       <init-ivy/>
       <init-ivy-classpath/>

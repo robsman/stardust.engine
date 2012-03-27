@@ -25,7 +25,7 @@ import org.junit.rules.ExternalResource;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class RuntimeConfigurer extends ExternalResource
 {

@@ -47,7 +47,7 @@ import org.junit.Test;
  * </p>
  * 
  * @author Roland.Stamm
- * @version $Revision: $
+ * @version $Revision$
  */
 public class CaseProcessInstanceTest extends LocalJcrH2Test
 {

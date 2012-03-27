@@ -45,23 +45,10 @@
          <pathelement location="${build.classes.dir}" />
       </path>
       
-      <!-- Execute the 'Example' test suite -->
-      <echo message="Executing the 'Example' test suite ..." />
-      <junit fork="yes" haltonfailure="on" haltonerror="on">
-         <test name="org.eclipse.stardust.test.examples.MyTestSuite" todir="${build.test-report.dir}" />
-         <formatter type="xml" />
-         <classpath refid="junit.rt.classpath" />
-      </junit>
-      <echo message="... done with the 'Example' test suite." />
-      
-      <!-- Execute the 'Case Process Instance' test suite -->
-      <echo message="Executing the 'Case Process Instance' test suite ..." />
-      <junit fork="yes" haltonfailure="on" haltonerror="on">
-         <test name="org.eclipse.stardust.test.casepi.CaseProcessInstanceTestSuite" todir="${build.test-report.dir}" />
-         <formatter type="xml" />
-         <classpath refid="junit.rt.classpath" />
-      </junit>
-      <echo message="... done with the 'Case Process Instance' test suite." />
+      <!-- Execute the test suites -->
+      <execute-test-suite name="Example" class="org.eclipse.stardust.test.examples.MyTestSuite" />
+      <execute-test-suite name="Case Process Instance" class="org.eclipse.stardust.test.casepi.CaseProcessInstanceTestSuite" />
+      <execute-test-suite name="Department" class="org.eclipse.stardust.test.department.DepartmentTestSuite" />
    </target>
    
    <!-- dependency-report -->
@@ -115,5 +102,20 @@
       <init-ivy/>
       <init-ivy-classpath/>
    </target>
-   
+
+   <!-- execute-test-suite (macro) -->
+   <macrodef name="execute-test-suite">
+      <attribute name="name" />
+      <attribute name="class" />
+      
+      <sequential>
+         <echo message="Executing the '@{name}' test suite ..." />
+         <junit fork="yes" haltonfailure="on" haltonerror="on">
+            <test name="@{class}" todir="${build.test-report.dir}" />
+            <formatter type="xml" />
+            <classpath refid="junit.rt.classpath" />
+         </junit>
+         <echo message="... done with the '@{name}' test suite." />
+      </sequential>
+   </macrodef>
 </project>

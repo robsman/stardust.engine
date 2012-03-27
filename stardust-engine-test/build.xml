@@ -110,7 +110,7 @@
       
       <sequential>
          <echo message="Executing the '@{name}' test suite ..." />
-         <junit fork="yes" haltonfailure="on" haltonerror="on">
+         <junit fork="yes" haltonfailure="on" haltonerror="on" printsummary="on">
             <test name="@{class}" todir="${build.test-report.dir}" />
             <formatter type="xml" />
             <classpath refid="junit.rt.classpath" />

@@ -1810,7 +1810,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       processEngineOutDataMappings();
    }
 
-   public void activate() throws IllegalStateChangeException
+   public void activate() throws IllegalStateChangeException, IllegalOperationException
    {
       QualityAssuranceUtils.assertActivationIsAllowed(this);
       IActivity activity = getActivity();

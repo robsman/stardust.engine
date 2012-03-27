@@ -408,13 +408,13 @@ public class QualityAssuranceUtils
       }
    }
    
-   public static void assertModifyDataIsAllowed(IActivityInstance activityInstance)
+   public static void assertModifyDataIsAllowed(IActivityInstance activityInstance, Map<String, ?> outData)
    {
       if (QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
          ActivityInstanceAttributes attributes = QualityAssuranceUtils
                .getActivityInstanceAttributes(activityInstance);
-         if (attributes != null)
+         if (attributes != null && outData != null && !outData.isEmpty())
          {
             QualityAssuranceResult.ResultState resultState = attributes
                   .getQualityAssuranceResult().getQualityAssuranceState();
@@ -425,20 +425,6 @@ public class QualityAssuranceUtils
             }
          }
       }
-   }
-
-   public static boolean isActivationAllowed(IActivityInstance activityInstance)
-   {
-      try 
-      {
-         assertActivationIsAllowed(activityInstance);
-      }
-      catch(IllegalOperationException ignored)
-      {
-         return false;
-      }
-      
-      return true;
    }
    
    public static void validateActivityInstanceAttributes(
@@ -470,6 +456,18 @@ public class QualityAssuranceUtils
          }
       }
    }
-   
 
+   public static boolean isActivationAllowed(IActivityInstance activityInstance)
+   {
+      try 
+      {
+         assertActivationIsAllowed(activityInstance);
+      }
+      catch(IllegalOperationException ignored)
+      {
+         return false;
+      }
+      
+      return true;
+   }
 }

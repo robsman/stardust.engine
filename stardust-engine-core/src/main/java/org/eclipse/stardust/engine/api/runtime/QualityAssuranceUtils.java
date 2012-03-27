@@ -387,10 +387,11 @@ public class QualityAssuranceUtils
       return true;
    }
    
-   public static void assertCompletingIsAllowed(IActivityInstance activityInstance)
+   public static void assertCompletingIsAllowed(IActivityInstance activityInstance,  Map<String, ?> outData)
    {
       if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
+         // on complete the activity instance attributes must be set before
          ActivityInstanceAttributes attributes = getActivityInstanceAttributes(activityInstance);
          if(attributes == null)
          {
@@ -398,8 +399,22 @@ public class QualityAssuranceUtils
                = BpmRuntimeError.BPMRT_COMPLETE_QA_NO_ATTRIBUTES_SET.raise(activityInstance.getOID());
             throw new IllegalOperationException(error);
          }
+         
+         // modifying entered data on qc instances is only allowed if in correction mode
+         if (outData != null && !outData.isEmpty())
+         {
+            QualityAssuranceResult.ResultState resultState = attributes
+                  .getQualityAssuranceResult().getQualityAssuranceState();
+            if (QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION != resultState)
+            {
+               throw new IllegalOperationException(
+                     BpmRuntimeError.BPMRT_MODIFY_DATA_QA_INSTANCE_NOT_ALLOWED.raise());
+            }
+         }
       }
    }
+   
+   
    
    public static void assertDelegationIsAllowed(IActivityInstance activityInstance, IUser delegate)
    {
@@ -436,26 +451,6 @@ public class QualityAssuranceUtils
       }
    }
    
-   public static void assertModifyDataIsAllowed(IActivityInstance activityInstance, Map<String, ?> outData)
-   {
-      if (QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
-      {
-         ActivityInstanceAttributes attributes = QualityAssuranceUtils
-               .getActivityInstanceAttributes(activityInstance);
-         if (attributes != null && outData != null && !outData.isEmpty())
-         {
-            QualityAssuranceResult.ResultState resultState = attributes
-                  .getQualityAssuranceResult().getQualityAssuranceState();
-            if (resultState != QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION)
-            {
-               throw new IllegalOperationException(
-                     BpmRuntimeError.BPMRT_MODIFY_DATA_QA_INSTANCE_NOT_ALLOWED.raise());
-            }
-         }
-      }
-   }
-   
-
    public static void validateActivityInstanceAttributes(
          ActivityInstanceAttributes attributes)
    {      

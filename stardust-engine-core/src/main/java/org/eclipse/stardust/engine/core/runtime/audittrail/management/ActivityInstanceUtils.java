@@ -315,10 +315,7 @@ public class ActivityInstanceUtils
    {
       if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
-         // modifying entered data on qc instances is only allowed if in correction mode
-         QualityAssuranceUtils.assertModifyDataIsAllowed(activityInstance, outData);
-         // the activity instance attributes must be set before
-         QualityAssuranceUtils.assertCompletingIsAllowed(activityInstance);
+         QualityAssuranceUtils.assertCompletingIsAllowed(activityInstance, outData);
       }
       
       setOutDataValues(context, outData, activityInstance);

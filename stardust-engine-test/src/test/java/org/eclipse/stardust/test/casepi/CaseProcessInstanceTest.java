@@ -37,11 +37,12 @@ import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.ModelDeployer;
-import org.junit.After;
+import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 /**
  * <p>
@@ -60,8 +61,12 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
 
    private static final String MODEL_NAME = "CaseModel";
    
+   private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
+   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(MODEL_NAME, sf);
+   
    @Rule
-   public ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
+   public TestRule chain = RuleChain.outerRule(sf)
+                                    .around(rtConfigurer);
    
    private WorkflowService wfService;
    
@@ -72,8 +77,6 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       final AdministrationService adminService = sf.getAdministrationService();
       wfService = sf.getWorkflowService();
 
-      ModelDeployer.deploy(MODEL_NAME, sf);
-      
       final Organization org1 = getTestModel().getOrganization("Org1");
       final User u1 = userService.createUser(U1, U1, U1, U1, U1, null, null, null);
       u1.addGrant(org1);
@@ -86,12 +89,6 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       userService.modifyUser(u2);
    }
 
-   @After
-   public void tearDown()
-   {
-      sf.getAdministrationService().cleanupRuntimeAndModels();
-   }
-   
    /**
     * Creating the case and adding a second process instance.
     */

@@ -21,11 +21,11 @@ import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.ModelDeployer;
-import org.junit.After;
-import org.junit.Before;
+import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 /**
  * <p>
@@ -43,20 +43,12 @@ public class MyDmsTest extends LocalJcrH2Test
    private static final String DOC_NAME = "MyDoc";
    private static final String TOP_LEVEL_FOLDER = "/";
    
+   private final ClientServiceFactory serviceFactory = new ClientServiceFactory(MOTU, MOTU);
+   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(MODEL_NAME, serviceFactory);
+   
    @Rule
-   public ClientServiceFactory serviceFactory = new ClientServiceFactory(MOTU, MOTU);
-   
-   @Before
-   public void setUp()
-   {
-      ModelDeployer.deploy(MODEL_NAME, serviceFactory);
-   }
-   
-   @After
-   public void tearDown()
-   {
-      serviceFactory.getAdministrationService().cleanupRuntimeAndModels();
-   }
+   public TestRule chain = RuleChain.outerRule(serviceFactory)
+                                    .around(rtConfigurer);
    
    @Test
    public void testCreateAndRetrieveDocument()

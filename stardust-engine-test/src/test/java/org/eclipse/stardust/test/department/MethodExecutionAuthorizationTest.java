@@ -1,3 +1,13 @@
+/**********************************************************************************
+ * Copyright (c) 2012 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
@@ -14,14 +24,18 @@ import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.Department;
+import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.ModelDeployer;
-import org.junit.After;
+import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.RuleChain;
+import org.junit.rules.TestRule;
 
 /**
  * <p>
@@ -185,7 +199,7 @@ import org.junit.Test;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 {
@@ -230,31 +244,26 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    
    private ActivityInstance ai;
 
+   private final ClientServiceFactory adminSf = new ClientServiceFactory(MOTU, MOTU);
+   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(MODEL_NAME, adminSf);
+   private final ClientServiceFactory userSf = new ClientServiceFactory(USER_NAME, USER_PWD);
+
    @Rule
-   public ClientServiceFactory motuSf = new ClientServiceFactory(MOTU, MOTU);
-   
-   @Rule
-   public ClientServiceFactory userSf = new ClientServiceFactory(USER_NAME, USER_PWD);
+   public TestRule chain = RuleChain.outerRule(adminSf)
+                                    .around(rtConfigurer)
+                                    .around(userSf);
    
    @Before
    public void setUp()
    {
-      ModelDeployer.deploy(DepartmentModelConstants.MODEL_NAME, motuSf);
-      
       createOrgsAndDepartments();
       createScopedParticipants();
       
-      final User user = motuSf.getUserService().createUser(USER_NAME, USER_NAME, USER_NAME, USER_NAME, USER_PWD, null, null, null);
+      final User user = adminSf.getUserService().createUser(USER_NAME, USER_NAME, USER_NAME, USER_NAME, USER_PWD, null, null, null);
       addAllGrantsForDelegationTo(user);
 
       startProcess();
-      ai = motuSf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAll());
-   }
-   
-   @After
-   public void tearDown()
-   {
-      motuSf.getAdministrationService().cleanupRuntimeAndModels();
+      ai = adminSf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAll());
    }
    
    /**
@@ -493,7 +502,7 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    
    private void createOrgsAndDepartments()
    {
-      final Model model = motuSf.getQueryService().getActiveModel();
+      final Model model = adminSf.getQueryService().getActiveModel();
       admin = model.getRole(ROLE_ADMIN_ID);
       org1 = model.getOrganization(ORG1_ID);
       org3 = model.getOrganization(ORG3_ID);
@@ -501,16 +510,16 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       org5 = model.getOrganization(ORG5_ID);
       readerOrg = model.getOrganization(READER_ORG_ID);
       
-      depU = motuSf.getAdministrationService().createDepartment(DEP_ID_U, DEP_ID_U, null, null, org1);
-      depV = motuSf.getAdministrationService().createDepartment(DEP_ID_V, DEP_ID_V, null, null, org1);
-      depA = motuSf.getAdministrationService().createDepartment(DEP_ID_A, DEP_ID_A, null, null, readerOrg);
-      depB = motuSf.getAdministrationService().createDepartment(DEP_ID_B, DEP_ID_B, null, null, readerOrg);
+      depU = adminSf.getAdministrationService().createDepartment(DEP_ID_U, DEP_ID_U, null, null, org1);
+      depV = adminSf.getAdministrationService().createDepartment(DEP_ID_V, DEP_ID_V, null, null, org1);
+      depA = adminSf.getAdministrationService().createDepartment(DEP_ID_A, DEP_ID_A, null, null, readerOrg);
+      depB = adminSf.getAdministrationService().createDepartment(DEP_ID_B, DEP_ID_B, null, null, readerOrg);
       
-      depUi = motuSf.getAdministrationService().createDepartment(SUB_DEP_ID_I, SUB_DEP_ID_I, null, depU, org3);
-      depUim = motuSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_M, SUB_SUB_DEP_ID_M, null, depUi, org4);
+      depUi = adminSf.getAdministrationService().createDepartment(SUB_DEP_ID_I, SUB_DEP_ID_I, null, depU, org3);
+      depUim = adminSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_M, SUB_SUB_DEP_ID_M, null, depUi, org4);
       
-      depVj = motuSf.getAdministrationService().createDepartment(SUB_DEP_ID_J, SUB_DEP_ID_J, null, depV, org3);
-      depVjn = motuSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_N, SUB_SUB_DEP_ID_N, null, depVj, org4);
+      depVj = adminSf.getAdministrationService().createDepartment(SUB_DEP_ID_J, SUB_DEP_ID_J, null, depV, org3);
+      depVjn = adminSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_N, SUB_SUB_DEP_ID_N, null, depVj, org4);
    }
    
    private void createScopedParticipants()
@@ -549,7 +558,7 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       user.addGrant(org3vj);
       user.addGrant(org4vjn);
       user.addGrant(admin);
-      motuSf.getUserService().modifyUser(user);
+      adminSf.getUserService().modifyUser(user);
    }
    
    private void startProcess()
@@ -566,13 +575,13 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    private void removeAllGrantsFor(final User user)
    {
       user.removeAllGrants();
-      motuSf.getUserService().modifyUser(user);
+      adminSf.getUserService().modifyUser(user);
    }
    
    private void addGrantFor(final User user, final ModelParticipantInfo grant)
    {
       user.addGrant(grant);
-      motuSf.getUserService().modifyUser(user);
+      adminSf.getUserService().modifyUser(user);
    }
    
    private void ensureReadActivityInstanceEventHandlerFailsFor(final ModelParticipantInfo[] grants, final long aiOID)
@@ -644,7 +653,7 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       String depStr;
       if (depInfo != null)
       {
-         final Department dep = motuSf.getAdministrationService().getDepartment(depInfo.getOID());
+         final Department dep = adminSf.getAdministrationService().getDepartment(depInfo.getOID());
          depStr = getDepartmentId(dep);
       }
       else

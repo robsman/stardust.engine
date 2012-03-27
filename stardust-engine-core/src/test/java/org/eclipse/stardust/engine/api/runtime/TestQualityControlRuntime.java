@@ -1,3 +1,5 @@
+package org.eclipse.stardust.engine.api.runtime;
+
 /*******************************************************************************
  * Copyright (c) 2011 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
@@ -8,7 +10,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.runtime;
+
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
@@ -29,8 +33,8 @@ import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceAdminServiceFacade;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceInfo;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
-import org.eclipse.stardust.engine.api.dto.QualityAssuranceResultImpl;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
+import org.eclipse.stardust.engine.api.dto.QualityAssuranceResultImpl;
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
@@ -38,6 +42,7 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
+import org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
@@ -46,16 +51,14 @@ import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.UserService;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
-
-import junit.framework.TestCase;
 
 public class TestQualityControlRuntime extends TestCase
 {
@@ -139,6 +142,45 @@ public class TestQualityControlRuntime extends TestCase
       monitoredUserWorkflowService = monitoredUserServiceFactory.getWorkflowService();      
    }
 
+   public void testCompleteBeforeAttributesSet()
+   {
+      boolean qcInstanceWasCreated = false;
+      errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>();
+      Map<String, String> outData = new HashMap<String, String>();
+
+      while (qcInstanceWasCreated == false)
+      {
+         currentProcessInstance = monitoredUserWorkflowService.startProcess(
+               PROCESS_DEFINITION_ID, null, true);
+         currentActivityInstance = monitoredUserWorkflowService
+               .activateNextActivityInstanceForProcessInstance(currentProcessInstance
+                     .getOID());
+         errorCodesDefinedForAI = currentActivityInstance.getActivity()
+               .getAllQualityAssuranceCodes();
+
+         outData.put(DATA_ID, QA_DATA_VALUE);
+         currentActivityInstance = monitoredUserWorkflowService.complete(
+               currentActivityInstance.getOID(), null, outData);
+         
+         if (currentActivityInstance.getQualityAssuranceState() == QualityAssuranceUtils.QualityAssuranceState.QUALITY_ASSURANCE_TRIGGERED)
+         {
+            qcInstanceWasCreated = true;
+         }
+      }
+      
+      //completing qa instance without having set attributes before must result in exception
+      currentActivityInstance = qcManagerWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
+      IllegalOperationException exception = null;
+      try 
+      {         
+         currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
+      }
+      catch(Exception e)
+      {
+         exception = (IllegalOperationException) e;
+      }
+      assertEquals("BPMRT04008", exception.getError().getId()); 
+   }
    
    public void testSuspendToWorkflowUser()
    {
@@ -740,7 +782,7 @@ public class TestQualityControlRuntime extends TestCase
       qcManagerWorkflowService.setActivityInstanceAttributes(attributes);
       
       //changing data on fail must have no effect
-      InvalidArgumentException exception = null;
+      IllegalOperationException exception = null;
       String modifiedData = QA_DATA_VALUE + System.currentTimeMillis();
       try 
       {         
@@ -750,7 +792,7 @@ public class TestQualityControlRuntime extends TestCase
       }
       catch(Exception e)
       {
-         exception = (InvalidArgumentException) e;
+         exception = (IllegalOperationException) e;
       }
       
       assertEquals("BPMRT04007", exception.getError().getId());          

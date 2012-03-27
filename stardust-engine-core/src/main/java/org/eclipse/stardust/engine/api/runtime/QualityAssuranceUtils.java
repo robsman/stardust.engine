@@ -373,6 +373,34 @@ public class QualityAssuranceUtils
       return probabilityKey;
    }
    
+   public static boolean isActivationAllowed(IActivityInstance activityInstance)
+   {
+      try 
+      {
+         assertActivationIsAllowed(activityInstance);
+      }
+      catch(IllegalOperationException ignored)
+      {
+         return false;
+      }
+      
+      return true;
+   }
+   
+   public static void assertCompletingIsAllowed(IActivityInstance activityInstance)
+   {
+      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      {
+         ActivityInstanceAttributes attributes = getActivityInstanceAttributes(activityInstance);
+         if(attributes == null)
+         {
+            BpmRuntimeError error 
+               = BpmRuntimeError.BPMRT_COMPLETE_QA_NO_ATTRIBUTES_SET.raise(activityInstance.getOID());
+            throw new IllegalOperationException(error);
+         }
+      }
+   }
+   
    public static void assertDelegationIsAllowed(IActivityInstance activityInstance, IUser delegate)
    {
       //delegation of an qa instance to the user who is monitored 
@@ -420,13 +448,14 @@ public class QualityAssuranceUtils
                   .getQualityAssuranceResult().getQualityAssuranceState();
             if (resultState != QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION)
             {
-               throw new InvalidArgumentException(
+               throw new IllegalOperationException(
                      BpmRuntimeError.BPMRT_MODIFY_DATA_QA_INSTANCE_NOT_ALLOWED.raise());
             }
          }
       }
    }
    
+
    public static void validateActivityInstanceAttributes(
          ActivityInstanceAttributes attributes)
    {      
@@ -457,17 +486,4 @@ public class QualityAssuranceUtils
       }
    }
 
-   public static boolean isActivationAllowed(IActivityInstance activityInstance)
-   {
-      try 
-      {
-         assertActivationIsAllowed(activityInstance);
-      }
-      catch(IllegalOperationException ignored)
-      {
-         return false;
-      }
-      
-      return true;
-   }
 }

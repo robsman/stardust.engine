@@ -311,28 +311,17 @@ public class ActivityInstanceUtils
       }
    }
 
-   
-   
-   
-   private static boolean canModifyData(IActivityInstance activityInstance, Map<String, ?> outData)
-   {
-      boolean canModifyData = true;
-      // modifying entered data on qc instances is only allowed if in correction mode
-      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
-      {
-         QualityAssuranceUtils.assertModifyDataIsAllowed(activityInstance, outData);
-      }
-   
-      return canModifyData;
-   }
-
    public static void complete(IActivityInstance activityInstance, String context, Map<String, ?> outData, boolean synchronously)
    {
-      boolean allowSetDataValues = canModifyData(activityInstance, outData);
-      if(allowSetDataValues)
+      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
-         setOutDataValues(context, outData, activityInstance);
+         // modifying entered data on qc instances is only allowed if in correction mode
+         QualityAssuranceUtils.assertModifyDataIsAllowed(activityInstance, outData);
+         // the activity instance attributes must be set before
+         QualityAssuranceUtils.assertCompletingIsAllowed(activityInstance);
       }
+      
+      setOutDataValues(context, outData, activityInstance);
       ActivityThread.schedule(null, null, activityInstance, synchronously, null, Collections.EMPTY_MAP, false);
    }
 }

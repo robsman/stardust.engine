@@ -118,7 +118,10 @@ public interface WorkflowService extends Service
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.             
+    *         and the passed <code>outData</code> argument is a non empty map.   
+    * @throws IllegalOperationException if the specified activity instance is a 
+    *         quality assurance instance and no {@link ActivityInstanceAttributes}
+    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).                             
     * @see #activateAndComplete(long, String, Map)
     * @see #complete(long, String, Map, int)
     */
@@ -153,7 +156,9 @@ public interface WorkflowService extends Service
     *         statically typed data.              
     * @throws AccessForbiddenException if the activity instance is
     *         already terminated.
-    *
+    * @throws IllegalOperationException if the specified activity instance is a 
+    *         quality assurance instance and no {@link ActivityInstanceAttributes}
+    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
     * @see #complete(long, String, Map)
     * @see #activateAndComplete(long, String, Map)
     */
@@ -198,7 +203,9 @@ public interface WorkflowService extends Service
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the current user is the one who worked on the previous workflow instance 
-    *         
+    * @throws IllegalOperationException if the specified activity instance is a 
+    *         quality assurance instance and no {@link ActivityInstanceAttributes}
+    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).             
     * @see #activate(long)
     * @see #complete(long, String, Map)
     * @see #activateAndComplete(long, String, Map, int)
@@ -246,7 +253,9 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the current user is not valid or is not
     *         granted to execute the activity instance. Also thrown if the activity
     *         instance is already terminated.
-    *
+    * @throws IllegalOperationException if the specified activity instance is a 
+    *         quality assurance instance and no {@link ActivityInstanceAttributes}
+    *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).             
     * @see #activateAndComplete(long, String, Map)
     * @see #activate(long)
     * @see #complete(long, String, Map)

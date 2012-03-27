@@ -17,14 +17,19 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
- * TODO javadoc
+ * This test suite bundles tests for the <i>Department</i> functionality,
+ * which allows for scoping organization (refer to the Stardust documentation 
+ * for details about <i>Departments</i>).
  * </p>
  * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ MethodExecutionAuthorizationTest.class, HistoricalStatesPolicyTest.class })
+@SuiteClasses({ 
+               MethodExecutionAuthorizationTest.class, 
+               HistoricalStatesPolicyTest.class
+             })
 public class DepartmentTestSuite extends LocalJcrH2TestSuite
 {
    /* nothing to do */

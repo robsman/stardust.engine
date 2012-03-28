@@ -2153,11 +2153,11 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    public void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)
          throws ObjectNotFoundException
    {
-      // TODO: validate the object coming from the client
-      QualityAssuranceUtils.validateActivityInstanceAttributes(attributes);
-      
+      QualityAssuranceUtils.assertAttributesNotNull(attributes);
       long activityInstanceOID = attributes.getActivityInstanceOid();
       ActivityInstanceBean activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
+      QualityAssuranceUtils.validateActivityInstanceAttributes(attributes, activityInstance);
+      
       List<Note> addedNotes = attributes.getAddedNotes();
       if(addedNotes != null && !addedNotes.isEmpty())
       {

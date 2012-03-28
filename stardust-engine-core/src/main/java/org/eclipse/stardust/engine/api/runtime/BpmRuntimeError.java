@@ -342,6 +342,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 BPMRT_DELEGATE_QA_INSTANCE_NOT_ALLOWED = newArgs2("BPMRT04006", BpmRuntimeErrorMessages.getString("BPMRT04006"));
    public static final Args0 BPMRT_MODIFY_DATA_QA_INSTANCE_NOT_ALLOWED = newArgs0("BPMRT04007", BpmRuntimeErrorMessages.getString("BPMRT04007"));
    public static final Args1 BPMRT_COMPLETE_QA_NO_ATTRIBUTES_SET = newArgs1("BPMRT04008", BpmRuntimeErrorMessages.getString("BPMRT04008"));
+   public static final Args0 BPMRT_NO_ERROR_CODE_SET = newArgs0("BPMRT04009", BpmRuntimeErrorMessages.getString("BPMRT04009"));
+
+   
    
    public static final Args1 BPMRT_PI_IS_CASE = newArgs1("BPMRT03831"); //$NON-NLS-1$
    public static final Args1 BPMRT_PI_IS_MEMBER = newArgs1("BPMRT03832"); //$NON-NLS-1$

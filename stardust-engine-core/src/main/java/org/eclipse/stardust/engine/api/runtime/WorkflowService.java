@@ -19,8 +19,10 @@ import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
+import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.ContextData;
+import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.Worklist;
@@ -1629,6 +1631,10 @@ public interface WorkflowService extends Service
     * {@link ActivityInstanceAttributes#getActivityInstanceOid()} could no be found.
     * @throws InvalidArgumentException - when a result is set ({@link ActivityInstanceAttributes#getQualityAssuranceResult()}
     * and the codes list({@link QualityAssuranceResult#getQualityAssuranceCodes()} contains a null element
+    * @throws InvalidArgumentException - when the specified quality assurance {@link ActivityInstanceAttributes#getActivityInstanceOid()} instance is marked as
+    * {@link ResultState#PASS_WITH_CORRECTION} or {@link ResultState#FAILED}, the corresponding activity for this activity instance
+    * supplies error codes {@link IActivity#getQualityAssuranceCodes()} and no error code was supplied    
+    * 
     */
    void setActivityInstanceAttributes(ActivityInstanceAttributes attributes)
          throws ObjectNotFoundException, InvalidArgumentException;

@@ -24,10 +24,12 @@ import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceInfo;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceInfoImpl;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
+import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
 import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
 import org.eclipse.stardust.engine.core.javascript.QualityAssuranceFormulaEvaluater;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
@@ -451,26 +453,65 @@ public class QualityAssuranceUtils
       }
    }
    
-   public static void validateActivityInstanceAttributes(
-         ActivityInstanceAttributes attributes)
-   {      
-      QualityAssuranceResult qaResult = attributes.getQualityAssuranceResult();
-      validateQualityAssuranceResult(qaResult);
-   }
-   
-   private static void validateQualityAssuranceResult(QualityAssuranceResult result)
+   public static void assertAttributesNotNull(ActivityInstanceAttributes attributes)
    {
-      if(result != null)
+      if(attributes == null)
       {
-         validateQaCodes(result.getQualityAssuranceCodes());
+         BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("attributes");
+         throw new InvalidArgumentException(errorCase);
       }
    }
    
-   private static void validateQaCodes(Set<QualityAssuranceCode> qaCodes)
-   {
-      if(qaCodes != null)
+   public static void validateActivityInstanceAttributes(
+         ActivityInstanceAttributes attributes, IActivityInstance ai)
+   {      
+      if(isQualityAssuranceInstance(ai))
       {
-         for(QualityAssuranceCode code: qaCodes)
+         QualityAssuranceResult qaResult = attributes.getQualityAssuranceResult();
+         if(qaResult == null)
+         {
+            BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ATTRIBUTE.raise("qaResult");
+            throw new InvalidArgumentException(errorCase);
+         }
+         
+         if(qaResult.getQualityAssuranceState() == null)
+         {
+            BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NULL_ATTRIBUTE.raise("resultState");
+            throw new InvalidArgumentException(errorCase);
+         }
+         
+         validateQaCodes(qaResult, ai.getActivity());
+      }
+   }
+   
+
+   private static void validateQaCodes(QualityAssuranceResult qaResult, IActivity activity)
+   {
+      //if passed with correction or failed, 
+      //and error codes are available on the activity - at least one has to be specified
+      boolean errorCodesRequired = false;
+      ResultState resultState = qaResult.getQualityAssuranceState();
+      if(resultState == ResultState.PASS_WITH_CORRECTION || resultState == ResultState.FAILED)
+      {
+         Set<IQualityAssuranceCode> errorCodesDefined = activity.getQualityAssuranceCodes();
+         if(errorCodesDefined != null && !errorCodesDefined.isEmpty())
+         {
+            errorCodesRequired = true;
+         }
+      }
+      
+      if(errorCodesRequired)
+      {
+         Set<QualityAssuranceCode> qaCodesDefined 
+            = qaResult.getQualityAssuranceCodes();
+         
+         if(qaCodesDefined == null || qaCodesDefined.isEmpty())
+         {
+            BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_NO_ERROR_CODE_SET.raise();
+            throw new InvalidArgumentException(errorCase);
+         }
+         
+         for(QualityAssuranceCode code: qaCodesDefined)
          {
             if(code == null)
             {
@@ -480,5 +521,4 @@ public class QualityAssuranceUtils
          }
       }
    }
-
 }

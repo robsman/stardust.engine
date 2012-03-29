@@ -100,7 +100,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class PerformingParticipantFilterTest extends LocalJcrH2Test
 {

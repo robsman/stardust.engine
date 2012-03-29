@@ -29,7 +29,7 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class UserHome
 {

@@ -43,7 +43,7 @@ import org.junit.rules.TestRule;
  * <p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class DepartmentQueryTest extends LocalJcrH2Test
 {

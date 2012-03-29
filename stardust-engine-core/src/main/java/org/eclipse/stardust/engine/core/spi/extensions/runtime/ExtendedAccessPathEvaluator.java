@@ -10,10 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.extensions.runtime;
 
-import java.util.Map;
-
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-
 
 /**
  * Extended version of {@link AccessPathEvaluator}, gives access to the
@@ -48,7 +45,7 @@ public interface ExtendedAccessPathEvaluator
 
    /**
     * Evaluates an in data path by applying the <code>inPath</code> expression
-    * parametrized with the given <code>value</code> against the given
+    * parameterized with the given <code>value</code> against the given
     * <code>accessPoint</code> and returns the result, if appropriate.
     * 
     * @param accessPointDefinition

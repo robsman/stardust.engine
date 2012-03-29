@@ -85,9 +85,11 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
    }
 
    /**
+    * <p>
     * A query that specifies that historical state should be retrieved
     * should contain all historical state informations (including ones
     * for departments).
+    * </p>
     */
    @Test
    public void testWithHistoricalStatesPolicy()
@@ -106,11 +108,13 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
    }
 
    /**
+    * <p>
     * Tests whether the 'onBehalfOf' information is correct in the
     * activity instances' history after first delegating the activity
     * instance to other departments and then delegating it to a user,
     * i.e. 'onBehalfOf' should still point to the last department after
     * delegating to a user.
+    * </p>
     */
    @Test
    public void testWithHistoricalStatesPolicyOnBehalfOf()
@@ -131,8 +135,10 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
    }
 
    /**
+    * <p>
     * A query that specifies that no historical state should be retrieved should
     * not contain historical state at all.
+    * </p>
     */
    @Test
    public void testWithoutHistoricalStatesPolicy()

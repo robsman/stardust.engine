@@ -268,11 +268,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * 
-    * @methodDescription When delegating to scoped participant org1-u, only descendants with proper scope can read 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition org3-u-i and org4-u-i-null,org4-u-i-m as well as org5-u-i can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase1()
@@ -288,11 +283,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * 
-    * @methodDescription When delegating to scoped participant org3-u-i, only descendants with proper scope can read 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition org3-u-i and org4-u-i-null,org4-u-i-m as well as org5-u-i can read
-    *   Any with null scope, not descending, or unscoped participant cannot read. 
     */
    @Test
    public void testCase2()
@@ -308,11 +298,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * 
-    * @methodDescription When delegating to scoped participant org4-u-i-m, only descendants with proper scope can read 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition org3-u-i and org4-u-i-null,org4-u-i-m as well as org5-u-i can read
-    *   Any with null scope, not descending, or unscoped participant cannot read. 
     */
    @Test
    public void testCase3()
@@ -328,10 +313,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition readerOrg-a can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase4()
@@ -347,10 +328,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition readerOrg-a can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase5()
@@ -366,10 +343,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition readerOrg-a can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase6()
@@ -385,11 +358,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * 
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition org3-v-null and org4-v-null-null as well as org5-v-null can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase7()
@@ -405,11 +373,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * 
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition org3-v-j and org4-v-j-null,org4-v-j-n as well as org5-v-j can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase8()
@@ -425,11 +388,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * 
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition org3-v-j and org4-v-j-null,org4-v-j-n as well as org5-v-j can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase9()
@@ -445,10 +403,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition readerOrg-a can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase10()
@@ -464,10 +418,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition readerOrg-a can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase11()
@@ -483,10 +433,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    
    /**
     * see {@link ag.carnot.hydra.regression.runtime.query.authorization.scoped.MethodExecutionAuthorizationTest}}
-    * @methodDescription 
-    * @Pre_Condition Users generated for all scopes, started process8 with scoped data set X=U,Y=I,Z=M,A=A; read grant for Reader and Org3
-    * @Post_Condition readerOrg-a can read
-    *   Any with null scope, not descending, or unscoped participant cannot read.
     */
    @Test
    public void testCase12()

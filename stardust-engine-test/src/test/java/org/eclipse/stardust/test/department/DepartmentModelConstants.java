@@ -13,7 +13,7 @@ package org.eclipse.stardust.test.department;
 /**
  * <p>
  * This class contains constants for tests dealing with the
- * 'Department' functionality.
+ * <i>Department</i> functionality.
  * </p>
  *
  * TODO remove unused constants

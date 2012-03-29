@@ -358,15 +358,6 @@
          <fileset dir="${project.res}" includes="org/eclipse/stardust/**" />
       </copy>
 
-   	  <copy todir="${build.classes}/ag/carnot">
-         <fileset dir="${project.res}/ag/carnot">
-            <include name="**/*.gif" />
-            <include name="workflow/spi/providers/applications/mail/*.properties" />
-            <include name="**/images/*.css" />
-            <include name="**/xslt/*.xsl" />
-         </fileset>
-      </copy>
-
    </target>
 
    <target name="copyJars" depends="init, dependencies:publish-local" />

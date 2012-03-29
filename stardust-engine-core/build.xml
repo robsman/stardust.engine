@@ -88,6 +88,7 @@
          <fileset dir="${build.classes}" id="fileset.carnot.client.jar">
 
             <include name="META-INF/resources/models/**" />
+            <include name="META-INF/resources/i18n/**" />
             <include name="META-INF/services/org.eclipse.stardust.*" />
             <include name="META-INF/services/com.*" />
             <include name="META-INF/services/ag.*" />
@@ -134,6 +135,7 @@
          <fileset dir="${build.classes}" id="fileset.carnot.engine.jar">
 
             <include name="META-INF/resources/models/**" />
+            <include name="META-INF/resources/i18n/**" />
             <include name="META-INF/services/org.eclipse.stardust.*" />
             <include name="META-INF/services/com.*" />
             <include name="META-INF/services/ag.*" />
@@ -336,6 +338,11 @@
       <copy todir="${build.classes}/META-INF/resources/models">
          <fileset dir="${project.res}/META-INF/resources/models" includes="*" />
       </copy>
+      <mkdir dir="${build.classes}/META-INF/resources/i18n" />
+      <copy todir="${build.classes}/META-INF/resources/i18n">
+         <fileset dir="${project.res}/META-INF/resources/i18n" includes="*" />
+      </copy>
+      
       <mkdir dir="${build.classes}/META-INF/services" />
       <copy todir="${build.classes}/META-INF/services">
          <fileset dir="${project.res}/META-INF/services" includes="*" />

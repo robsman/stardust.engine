@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -46,7 +47,7 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
  * 
  * @version $Revision$
  */
-public class StructuredDataLoader implements DataLoader
+public class StructuredDataLoader implements DataLoader, Stateless
 {
    private static final Logger trace = LogManager.getLogger(StructuredDataLoader.class);
 
@@ -296,5 +297,10 @@ public class StructuredDataLoader implements DataLoader
       }
       
       return result;
+   }
+
+   public boolean isStateless()
+   {
+      return true;
    }
 }

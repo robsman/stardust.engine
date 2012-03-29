@@ -20,14 +20,7 @@ import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.TransformingIterator;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -70,7 +63,7 @@ import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
-public class StructuredDataFilterExtension implements DataFilterExtension
+public class StructuredDataFilterExtension implements DataFilterExtension, Stateless
 {
    static final Logger trace = LogManager.getLogger(StructuredDataFilterExtension.class);
 
@@ -643,5 +636,10 @@ public class StructuredDataFilterExtension implements DataFilterExtension
       cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE));
 
       return cols;
+   }
+
+   public boolean isStateless()
+   {
+      return true;
    }
 }

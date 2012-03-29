@@ -353,11 +353,8 @@
       <copy file="${project.res}/org/eclipse/stardust/engine/core/runtime/setup/carnot-runtime-setup.xsd" todir="${build.classes}/org/eclipse/stardust/engine/core/runtime/setup" />
 
       <copy file="${project.res}/org/eclipse/stardust/engine/core/upgrade/framework/WorkflowModel.dtd" todir="${build.classes}/org/eclipse/stardust/engine/core/upgrade/framework" />
-	  <!--
-      <copy file="${project.res}/com/infinity/bpm/rt/integration/webservices/dummyServices.wsdl" todir="${build.classes}/com/infinity/bpm/rt/integration/webservices" />
-	  -->
 
-   	  <copy todir="${build.classes}">
+      <copy todir="${build.classes}">
          <fileset dir="${project.res}" includes="org/eclipse/stardust/**" />
       </copy>
 
@@ -367,13 +364,6 @@
             <include name="workflow/spi/providers/applications/mail/*.properties" />
             <include name="**/images/*.css" />
             <include name="**/xslt/*.xsl" />
-         </fileset>
-      </copy>
-
-      <copy todir="${build.classes}/com/infinity">
-         <fileset dir="${project.res}/com/infinity">
-            <include name="**/*.properties" />
-            <include name="**/hazelcast.xml" />
          </fileset>
       </copy>
 

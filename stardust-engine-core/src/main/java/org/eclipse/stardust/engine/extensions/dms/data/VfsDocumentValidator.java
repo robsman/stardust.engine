@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -23,7 +24,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.DataValidator;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator;
 
 
-public class VfsDocumentValidator implements DataValidator
+public class VfsDocumentValidator implements DataValidator, Stateless
 {
    public BridgeObject getBridgeObject(AccessPoint point, String path, Direction direction)
    {
@@ -83,6 +84,11 @@ public class VfsDocumentValidator implements DataValidator
       // TODO
       
       return inconsistencies;
+   }
+
+   public boolean isStateless()
+   {
+      return true;
    }
    
 }

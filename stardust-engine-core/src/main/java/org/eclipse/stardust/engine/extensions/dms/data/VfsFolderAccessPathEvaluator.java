@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.extensions.dms.data;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -28,7 +29,8 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPat
  * @author rsauer
  * @version $Revision$
  */
-public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathEvaluator implements ExtendedAccessPathEvaluator
+public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathEvaluator
+      implements ExtendedAccessPathEvaluator, Stateless
 {
 
    private static final Logger trace = LogManager.getLogger(VfsFolderAccessPathEvaluator.class);
@@ -174,4 +176,8 @@ public class VfsFolderAccessPathEvaluator extends AbstractVfsResourceAccessPathE
       }
    }
 
+   public boolean isStateless()
+   {
+      return true;
+   }
 }

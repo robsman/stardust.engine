@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -25,9 +26,8 @@ import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXMLValidator;
 
-
 // TODO (ab) implement 
-public class VfsFolderListValidator implements DataValidator
+public class VfsFolderListValidator implements DataValidator, Stateless
 {
    public BridgeObject getBridgeObject(AccessPoint point, String path, Direction direction)
    {
@@ -108,4 +108,8 @@ public class VfsFolderListValidator implements DataValidator
       return inconsistencies;
    }
 
+   public boolean isStateless()
+   {
+      return true;
+   }
 }

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -28,7 +29,8 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPat
 /**
  * Access path evaluator for folder lists. 
  */
-public class VfsFolderListAccessPathEvaluator extends AbstractVfsResourceAccessPathEvaluator implements ExtendedAccessPathEvaluator
+public class VfsFolderListAccessPathEvaluator extends AbstractVfsResourceAccessPathEvaluator
+      implements ExtendedAccessPathEvaluator, Stateless
 {
 
    private static final Logger trace = LogManager.getLogger(VfsFolderListAccessPathEvaluator.class);
@@ -194,5 +196,10 @@ public class VfsFolderListAccessPathEvaluator extends AbstractVfsResourceAccessP
                   outPath, accessPathEvaluationContext);
          }
       }
+   }
+
+   public boolean isStateless()
+   {
+      return true;
    }
 }

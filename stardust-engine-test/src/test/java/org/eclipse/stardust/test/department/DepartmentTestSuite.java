@@ -29,6 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
                AdminServiceCrudTest.class,
                DepartmentCleanupTest.class,
+               DepartmentQueryTest.class,
                HistoricalStatesPolicyTest.class,
                MethodExecutionAuthorizationTest.class, 
                ParticipantAssociationFilterTest.class,

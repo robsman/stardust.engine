@@ -26,7 +26,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ 
+@SuiteClasses({
+               AdminServiceCrudTest.class,
                HistoricalStatesPolicyTest.class,
                MethodExecutionAuthorizationTest.class, 
                ParticipantAssociationFilterTest.class,

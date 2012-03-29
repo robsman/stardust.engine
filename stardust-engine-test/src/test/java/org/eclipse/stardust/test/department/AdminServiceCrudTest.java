@@ -38,7 +38,8 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * This class tests CRUD functionality regarding <i>Departments</i>.
+ * This class tests CRUD functionality of the Administration Service
+ * regarding <i>Departments</i>.
  * </p>
  * 
  * @author Nicolas.Werlein

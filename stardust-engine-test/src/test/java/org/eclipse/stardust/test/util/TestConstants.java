@@ -24,6 +24,6 @@ public class TestConstants
    
    private TestConstants()
    {
-      /* utility method; do not allow the creation of an instance */
+      /* utility class; do not allow the creation of an instance */
    }
 }

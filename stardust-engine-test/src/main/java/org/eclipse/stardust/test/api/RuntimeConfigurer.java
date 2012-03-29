@@ -10,6 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api;
 
+import java.util.Arrays;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -31,7 +33,7 @@ public class RuntimeConfigurer extends ExternalResource
 {
    private static final Log LOG = LogFactory.getLog(RuntimeConfigurer.class);
    
-   private final String modelName;
+   private final String[] modelNames;
    private final ServiceFactory sf;
    
    /**
@@ -39,25 +41,25 @@ public class RuntimeConfigurer extends ExternalResource
     * Sets up a runtime configurer with the specified model using the given service factory.
     * </p>
     * 
-    * @param modelName the name of the model to deploy
     * @param sf the service factory to use for model deployment and runtime cleanup
+    * @param modelNames the names of the models to deploy
     */
-   public RuntimeConfigurer(final String modelName, final ServiceFactory sf)
+   public RuntimeConfigurer(final ServiceFactory sf, final String ... modelNames)
    {
-      if (modelName == null)
+      if (modelNames == null)
       {
-         throw new NullPointerException("Model Name must not be null.");
+         throw new NullPointerException("Model Names must not be null.");
       }
-      if (modelName.isEmpty())
+      if (modelNames.length == 0)
       {
-         throw new IllegalArgumentException("Model Name must not be empty.");
+         throw new IllegalArgumentException("Model Names must not be empty.");
       }
       if (sf == null)
       {
          throw new NullPointerException("Service Factory must not be null.");
       }
       
-      this.modelName = modelName;
+      this.modelNames = modelNames;
       this.sf = sf;
    }
    
@@ -67,8 +69,8 @@ public class RuntimeConfigurer extends ExternalResource
    @Override
    protected void before() throws Throwable
    {
-      LOG.debug("Trying to deploy model '" + modelName + "'.");
-      ModelDeployer.deploy(modelName, sf);
+      LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
+      ModelDeployer.deploy(sf.getAdministrationService(), modelNames);
    }
    
    /* (non-Javadoc)

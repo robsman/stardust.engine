@@ -42,7 +42,7 @@ public class MyWorkflowServiceTest extends LocalJcrH2Test
    private static final String PROCESS_DEF_ID = "ProcessDefinition_1";
    
    private final ClientServiceFactory serviceFactory = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(MODEL_NAME, serviceFactory);
+   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(serviceFactory, MODEL_NAME);
    
    @Rule
    public TestRule chain = RuleChain.outerRule(serviceFactory)

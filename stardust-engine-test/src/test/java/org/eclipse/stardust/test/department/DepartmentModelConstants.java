@@ -223,6 +223,6 @@ package org.eclipse.stardust.test.department;
    
    private DepartmentModelConstants()
    {
-      /* avoid creation of an instance */
+      /* utility class; do not allow the creation of an instance */
    }
 }

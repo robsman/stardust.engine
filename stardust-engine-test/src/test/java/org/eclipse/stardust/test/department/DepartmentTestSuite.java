@@ -29,7 +29,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ 
                HistoricalStatesPolicyTest.class,
                MethodExecutionAuthorizationTest.class, 
-               ParticipantAssociationFilterTest.class
+               ParticipantAssociationFilterTest.class,
+               PerformingParticipantFilterTest.class
              })
 public class DepartmentTestSuite extends LocalJcrH2TestSuite
 {

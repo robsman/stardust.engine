@@ -67,7 +67,7 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
    private ActivityInstance ai;
 
    private final ClientServiceFactory adminSf = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(MODEL_NAME, adminSf);
+   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(adminSf, MODEL_NAME);
    private final ClientServiceFactory userSf = new ClientServiceFactory(USER_NAME, USER_PWD);
 
    @Rule

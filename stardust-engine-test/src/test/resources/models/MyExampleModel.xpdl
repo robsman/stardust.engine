@@ -9,7 +9,7 @@
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
-<Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="ServiceCommandTest" Name="Service Command Test">
+<Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="MyExampleModel" Name="My Example Model">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC</Vendor>

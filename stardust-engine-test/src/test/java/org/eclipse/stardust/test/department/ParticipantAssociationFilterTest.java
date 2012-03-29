@@ -66,7 +66,7 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    private ModelParticipantInfo org1vGrant;
 
    private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(MODEL_NAME, sf);
+   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
    
    @Rule
    public TestRule chain = RuleChain.outerRule(sf)

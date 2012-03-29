@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api;
 
+import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
 import java.io.ByteArrayOutputStream;
@@ -17,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -25,7 +25,6 @@ import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
 import org.eclipse.stardust.engine.api.runtime.DeploymentException;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 
 /**
@@ -59,34 +58,54 @@ public class ModelDeployer
     * <p>
     * Models to be deployed with this method must reside in the folder
     * <code>models</code> on the classpath.
-    * </p> 
+    * </p>
     * 
-    * @param modelName the name of the model without extension (which will be assumed to be <code>xpdl</code>)
-    * @param sf a service factory of a user authorized to deploy models
+    * <p>
+    * This method ensures that either all models or none at all will be deployed.
+    * </p>
+    * 
+    * @param adminService an administration service of a user authorized to deploy models
+    * @param modelNames the names of the models without extension (which will be assumed to be <code>xpdl</code>)
     * 
     * @throws ModelIOException if an exception occurs while reading the model from the file system
     * @throws DeploymentException if an exception occurs during model deployment to the runtime
     */
-   public static void deploy(final String modelName, final ServiceFactory sf) throws ModelIOException, DeploymentException
+   public static void deploy(final AdministrationService adminService, final String ... modelNames) throws ModelIOException, DeploymentException
    {
-      if (modelName == null)
+      if (adminService == null)
       {
-         throw new NullPointerException("Name of Model file must not be null.");
+         throw new NullPointerException("Administration Service must not be null.");
       }
-      if (modelName.isEmpty())
+      if (modelNames == null)
       {
-         throw new IllegalArgumentException("Name of Model file must not be empty.");
+         throw new NullPointerException("Name of Models must not be null.");
+      }
+      if (modelNames.length == 0)
+      {
+         throw new IllegalArgumentException("Name of Models must not be empty.");
       }
 
-      final DeploymentElement deploymentElement = getDeploymentElement(modelName);
-      final List<DeploymentElement> deploymentElements = Collections.singletonList(deploymentElement);
+      final List<DeploymentElement> deploymentElements = newArrayList();
+      for (final String m : modelNames)
+      {
+         final DeploymentElement deploymentElement = getDeploymentElement(m);
+         deploymentElements.add(deploymentElement);
+      }
       
-      final AdministrationService adminService = sf.getAdministrationService();
       adminService.deployModel(deploymentElements, DeploymentOptions.DEFAULT);
    }
    
    private static DeploymentElement getDeploymentElement(final String modelName)
    {
+      if (modelName == null)
+      {
+         throw new NullPointerException("Name of Model must not be null.");
+      }
+      if (modelName.isEmpty())
+      {
+         throw new IllegalArgumentException("Name of Model must not be empty.");
+      }
+      
       DeploymentElement result = DEPLOYMENT_ELEMENTS.get(modelName);
       
       if (result == null)
@@ -140,5 +159,10 @@ public class ModelDeployer
       {
          super(errorMsg, e);
       }
+   }
+   
+   private ModelDeployer()
+   {
+      /* utility class; do not allow the creation of an instance */
    }
 }

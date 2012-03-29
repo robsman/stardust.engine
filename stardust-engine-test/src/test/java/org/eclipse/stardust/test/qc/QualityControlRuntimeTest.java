@@ -27,10 +27,8 @@ import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
 import org.eclipse.stardust.engine.api.model.Activity;
-import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.query.Worklist;
@@ -40,6 +38,7 @@ import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssu
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -63,6 +62,7 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    private static final String QC_MANAGER_ID = "QCManager";
    private static final String MONITORED_USER_ID = "MonitoredUser";
    private static final String ORGANIZATION_ID= "SungardCorp";
+   private static final String DUMMY_USER_ID = "Dummy";
    
    private final String ERROR_CODE_FOR_FAIL = "100";
    private final String ERROR_CODE_FOR_PASS_WITH_CORRECTION = "101";
@@ -85,19 +85,16 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    private ActivityInstance currentActivityInstance;
    private ProcessInstance currentProcessInstance;
    private Set<QualityAssuranceCode> errorCodesDefinedForAI;
-   private UserService us;
    
    private WorkflowService qcManagerWorkflowService;
    private WorkflowService monitoredUserWorkflowService;
    private User monitoredUser;
-   private User qcManager;
-   private User regularUser;
    private WorkflowService ws;
    private ServiceFactory qcManagerServiceFactory;
    private ServiceFactory monitoredUserServiceFactory;
 
    private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(MODEL_NAME, sf);
+   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
    
    @Rule
    public TestRule chain = RuleChain.outerRule(sf)
@@ -107,31 +104,14 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    public void setUp()
    {
       qs = sf.getQueryService();
-      us = sf.getUserService();
       ws = sf.getWorkflowService();
 
       currentProcessInstance = null;
       currentActivityInstance = null;
       
-      final DeployedModel model = qs.getActiveModel();
-      final Role qcManagerRole = model.getRole(QC_MANAGER_ID);
-      final Role monitoredUserRole = model.getRole(MONITORED_USER_ID);
-      final Organization org = model.getOrganization(ORGANIZATION_ID);
-      
-      qcManager = us.createUser(QC_MANAGER_ID, QC_MANAGER_ID, QC_MANAGER_ID, QC_MANAGER_ID, QC_MANAGER_ID, null, null, null);      
-      qcManager.addGrant(qcManagerRole);
-      qcManager.addGrant(org);
-      qcManager = us.modifyUser(qcManager);
-      
-      monitoredUser = us.createUser(MONITORED_USER_ID, MONITORED_USER_ID, MONITORED_USER_ID, MONITORED_USER_ID, MONITORED_USER_ID, null, null, null);
-      monitoredUser.addGrant(monitoredUserRole);
-      monitoredUser.addGrant(org);
-      monitoredUser = us.modifyUser(monitoredUser);
-      
-      regularUser = us.createUser("Dummy", "Dummy", "Dummy", "Dummy", "Dummy", null, null, null);
-      regularUser.addGrant(monitoredUserRole);
-      regularUser.addGrant(org);
-      regularUser = us.modifyUser(regularUser);
+      monitoredUser = UserHome.create(sf, MONITORED_USER_ID, MONITORED_USER_ID, ORGANIZATION_ID);
+      UserHome.create(sf, QC_MANAGER_ID, QC_MANAGER_ID, ORGANIZATION_ID);
+      UserHome.create(sf, DUMMY_USER_ID, MONITORED_USER_ID, ORGANIZATION_ID);
       
       qcManagerServiceFactory = ServiceFactoryLocator.get(QC_MANAGER_ID, QC_MANAGER_ID);    
       qcManagerWorkflowService = qcManagerServiceFactory.getWorkflowService();

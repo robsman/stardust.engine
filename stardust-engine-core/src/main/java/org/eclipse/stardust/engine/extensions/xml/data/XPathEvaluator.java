@@ -26,10 +26,9 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -40,42 +39,19 @@ import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
-
-
 /**
  * @author rsauer
  * @version $Revision$
  */
-public class XPathEvaluator implements AccessPathEvaluator
+public class XPathEvaluator implements AccessPathEvaluator, Stateless
 {
    private static final Logger trace = LogManager.getLogger(XPathEvaluator.class);
-
-   public static final int MUTABLE_SETTER = 1;
-
-   private int hints;
-
-   public XPathEvaluator()
-   {}
-
-   public XPathEvaluator(int hints)
-   {
-      this.hints = hints;
-   }
-
-   private boolean hasHints(int hints)
-   {
-      return (this.hints & hints) == hints;
-   }
 
    /**
     * Evaluates an out data path by applying the outPath expression against the given
@@ -245,8 +221,7 @@ public class XPathEvaluator implements AccessPathEvaluator
             trace.debug("Validation against WSDL schema not yet implemented.");
          }
       }
-      return hasHints(MUTABLE_SETTER) ? (Object) contextElement : XmlUtils
-            .toString(contextElement);
+      return XmlUtils.toString(contextElement);
    }
 
    /**
@@ -448,7 +423,6 @@ public class XPathEvaluator implements AccessPathEvaluator
          lastx = ix + 1;
          ix = path.indexOf(' ', lastx);
       }
-      XPath xPath = XPathFactory.newInstance().newXPath();
       if (lastx > 0)
       {
          String xPathExpression = path.substring(lastx);
@@ -550,5 +524,10 @@ public class XPathEvaluator implements AccessPathEvaluator
       		" string(/ns0:ShowPersonIdentity/ns0:PersonIdentity/ns3:PersonIdentifier/ns2:IdValue[@name=\"BannerUID\"]/text())";
       result = evaluator.evaluate(null, text2, path);
       System.out.println(result);
+   }
+
+   public boolean isStateless()
+   {
+      return true;
    }
 }

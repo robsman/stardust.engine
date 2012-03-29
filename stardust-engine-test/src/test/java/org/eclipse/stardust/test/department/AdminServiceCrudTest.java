@@ -266,7 +266,7 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    
    /**
     * <p>
-    * An exception should be thrown when a department can not be found.
+    * An exception should be thrown when a department cannot be found.
     * </p>
     */
    @Test(expected = ObjectNotFoundException.class)

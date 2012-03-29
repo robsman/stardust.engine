@@ -67,7 +67,7 @@ public class RuntimeConfigurer extends ExternalResource
     * @see org.junit.rules.ExternalResource#before()
     */
    @Override
-   protected void before() throws Throwable
+   protected void before()
    {
       LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
       ModelDeployer.deploy(sf.getAdministrationService(), modelNames);

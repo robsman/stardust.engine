@@ -36,8 +36,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
+import org.eclipse.stardust.test.api.DepartmentHome;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -73,20 +75,13 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
    @Before
    public void setUp()
    {
-      final UserService userService = sf.getUserService();
-      final AdministrationService adminService = sf.getAdministrationService();
       wfService = sf.getWorkflowService();
 
-      final Organization org1 = getTestModel().getOrganization("Org1");
-      final User u1 = userService.createUser(U1, U1, U1, U1, U1, null, null, null);
-      u1.addGrant(org1);
-      userService.modifyUser(u1);
-
+      UserHome.create(sf, U1, "Org1");
+      
       final Organization scopedOrg1 = getTestModel().getOrganization("ScopedOrg1");
-      final Department department1 = adminService.createDepartment(D1, D1, D1, null, scopedOrg1);
-      final User u2 = userService.createUser(U2, U2, U2, U2, U2, null, null, null);
-      u2.addGrant(department1.getScopedParticipant(scopedOrg1));
-      userService.modifyUser(u2);
+      final Department dept = DepartmentHome.create(D1, "ScopedOrg1", null, sf);
+      UserHome.create(sf, U2, dept.getScopedParticipant(scopedOrg1));
    }
 
    /**

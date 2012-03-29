@@ -31,8 +31,10 @@ import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
+import org.eclipse.stardust.test.api.DepartmentHome;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -156,16 +158,13 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final Model model = adminSf.getQueryService().getActiveModel();
 
       org = model.getOrganization(ORG_ID_1);
-      depDe = adminSf.getAdministrationService().createDepartment(DEP_ID_DE, DEP_ID_DE, null, null, org);
-      depEn = adminSf.getAdministrationService().createDepartment(DEP_ID_EN, DEP_ID_EN, null, null, org);
+      depDe = DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, adminSf);
+      depEn = DepartmentHome.create(DEP_ID_EN, ORG_ID_1, null, adminSf);
 
       orgDe = depDe.getScopedParticipant(org);
       orgEn = depEn.getScopedParticipant(org);
 
-      final User user = adminSf.getUserService().createUser(USER_NAME, USER_NAME, USER_NAME, USER_NAME, USER_PWD, null, null, null);
-      user.addGrant(orgDe);
-      user.addGrant(orgEn);
-      adminSf.getUserService().modifyUser(user);
+      UserHome.create(adminSf, USER_NAME, orgDe, orgEn);
    }
 
    private void startProcess()

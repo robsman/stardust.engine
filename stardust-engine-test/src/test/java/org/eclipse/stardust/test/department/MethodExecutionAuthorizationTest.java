@@ -31,6 +31,7 @@ import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -203,8 +204,7 @@ import org.junit.rules.TestRule;
  */
 public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 {
-   private static final String USER_NAME = "u1";
-   private static final String USER_PWD = "u1";
+   private static final String USER_ID = "User";
    
    private Role admin;
    
@@ -246,7 +246,7 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
 
    private final ClientServiceFactory adminSf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(adminSf, MODEL_NAME);
-   private final ClientServiceFactory userSf = new ClientServiceFactory(USER_NAME, USER_PWD);
+   private final ClientServiceFactory userSf = new ClientServiceFactory(USER_ID, USER_ID);
 
    @Rule
    public TestRule chain = RuleChain.outerRule(adminSf)
@@ -259,8 +259,7 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       createOrgsAndDepartments();
       createScopedParticipants();
       
-      final User user = adminSf.getUserService().createUser(USER_NAME, USER_NAME, USER_NAME, USER_NAME, USER_PWD, null, null, null);
-      addAllGrantsForDelegationTo(user);
+      UserHome.create(adminSf, USER_ID, org1u, org1v, org3ui, org4uim, org3vj, org4vjn, admin);
 
       startProcess();
       ai = adminSf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAll());
@@ -492,19 +491,6 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       
       readerOrgA = depA.getScopedParticipant(readerOrg);
       readerOrgB = depB.getScopedParticipant(readerOrg);
-   }
-   
-   private void addAllGrantsForDelegationTo(final User user)
-   {
-      user.removeAllGrants();
-      user.addGrant(org1u);
-      user.addGrant(org1v);
-      user.addGrant(org3ui);
-      user.addGrant(org4uim);
-      user.addGrant(org3vj);
-      user.addGrant(org4vjn);
-      user.addGrant(admin);
-      adminSf.getUserService().modifyUser(user);
    }
    
    private void startProcess()

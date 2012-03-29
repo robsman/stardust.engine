@@ -14,7 +14,6 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG1_ID;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG1_PWD;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.engine.api.model.Model;
@@ -28,6 +27,7 @@ import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -189,19 +189,14 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    
    private void createOrg1Users()
    {
-      org1User1 = createUser(ORG1_USERNAME_1);
+      org1User1 = UserHome.create(sf, ORG1_USERNAME_1, new String[0]);
       addGrantFor(org1User1, org1);
       
-      org1User2 = createUser(ORG1_USERNAME_2);
+      org1User2 = UserHome.create(sf, ORG1_USERNAME_2, new String[0]);
       addGrantFor(org1User2, org1);
       
-      org1User3 = createUser(ORG1_USERNAME_3);
+      org1User3 = UserHome.create(sf, ORG1_USERNAME_3, new String[0]);
       addGrantFor(org1User3, org1);
-   }
-   
-   private User createUser(final String username)
-   {
-      return sf.getUserService().createUser(username, null, null, null, ORG1_PWD, null, null, null);
    }
    
    private void createAllDepartments()

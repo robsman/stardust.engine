@@ -25,7 +25,7 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 
 /**
  * <p>
- * This utility class allows for creating user for testing purposes conveniently.
+ * This utility class allows for creating users for testing purposes.
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -39,7 +39,7 @@ public class UserHome
     * </p>
     * 
     * @param sf a service factory needed for creating the user
-    * @param userId an ID the user's <i>account<>/i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
+    * @param userId the ID the user's <i>account<>/i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
     * @param grants the grants the user should be initialized with
     * @return the created user
     */

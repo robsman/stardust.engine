@@ -11,9 +11,9 @@
 package org.eclipse.stardust.test.department;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.junit.Assert.fail;
 
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.OrganizationInfo;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.Department;
+import org.eclipse.stardust.engine.api.runtime.DepartmentExistsException;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
@@ -274,5 +275,53 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    {
       adminService.removeDepartment(-1);
       fail("Tried to remove a non-existing department.");
+   }
+   
+   /**
+    * <p>
+    * Duplicate department entries for the same organization
+    * should be rejected.
+    * </p>
+    */
+   @Test(expected = DepartmentExistsException.class)
+   public void testCreateDuplicateDepartmentIdForOneOrg()
+   {
+      DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, sf);
+      
+      DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, sf);
+      fail("Duplicate department entries for the same organization should be rejected.");
+   }
+   
+   /**
+    * <p>
+    * Duplicate department entries for different organizations
+    * should be OK.
+    * </p>
+    */
+   @Test
+   public void testCreateDuplicateDepartmentIdForTwoOrgs()
+   {
+      DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, sf);
+      
+      try 
+      {
+         DepartmentHome.create(DEP_ID_DE, ORG_ID_2, null, sf);
+      }
+      catch (final DepartmentExistsException e)
+      {
+         fail("Duplicate department entries for different organizations should be OK.");
+      }
+   }
+   
+   /**
+    * <p>
+    * Creating a department for an unscoped organization should be refused.
+    * </p>
+    */
+   @Test(expected = InvalidArgumentException.class)
+   public void testCreatingDepartmentForUnscopedOrg()
+   {
+      DepartmentHome.create(DEP_ID_DE, ORG_ID_3, null, sf);
+      fail("Creating a department for an unscoped organization should be refused.");
    }
 }

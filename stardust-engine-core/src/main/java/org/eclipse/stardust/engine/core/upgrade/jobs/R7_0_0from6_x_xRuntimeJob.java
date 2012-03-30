@@ -199,6 +199,28 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
 
       }, this);
+      
+      
+      //update datacluster setup key 
+      StringBuffer dataClusterUpdateStatement = new StringBuffer();
+      dataClusterUpdateStatement.append("UPDATE property");
+      dataClusterUpdateStatement.append(" SET name=");
+      dataClusterUpdateStatement.append("'");
+      dataClusterUpdateStatement.append("org.eclipse.stardust.engine.core.runtime.setup_definition");
+      dataClusterUpdateStatement.append("'");
+      dataClusterUpdateStatement.append(" where name=");
+      dataClusterUpdateStatement.append("'");
+      dataClusterUpdateStatement.append("ag.carnot.workflow.runtime.setup_definition");
+      dataClusterUpdateStatement.append("'");
+      
+      try
+      {
+         DatabaseHelper.executeUpdate(item, dataClusterUpdateStatement.toString());
+      }
+      catch (SQLException e)
+      {
+         reportExeption(e, "could not update data cluster setup");
+      }  
    }
 
    protected void migrateData(boolean recover) throws UpgradeException

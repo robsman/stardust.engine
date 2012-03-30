@@ -98,12 +98,12 @@ package org.eclipse.stardust.test.department;
    public static final String ROLE_SMALL_TEAM_ID = "SmallTeam";
    
    public static final String COUNTRY_CODE_DATA_NAME = "CountryCode";
-   public static final String DEP_ID_DE = "DE";
-   public static final String DEP_ID_EN = "EN";
+   public static final String DEPT_ID_DE = "DE";
+   public static final String DEPT_ID_EN = "EN";
 
    public static final String REGION_CODE_DATA_NAME = "RegionCode";
-   public static final String SUB_DEP_ID_NORTH = "North";
-   public static final String SUB_DEP_ID_SOUTH = "South";
+   public static final String SUB_DEPT_ID_NORTH = "North";
+   public static final String SUB_DEPT_ID_SOUTH = "South";
    
    public static final String CITY_CODE_DATA_NAME = "CityCode";
    public static final String SUB_SUB_DEP_ID_HH = "HH";

@@ -28,12 +28,14 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
                AdminServiceCrudTest.class,
+               DelegationTest.class,
                DepartmentCleanupTest.class,
                DepartmentQueryTest.class,
                HistoricalStatesPolicyTest.class,
                MethodExecutionAuthorizationTest.class, 
                ParticipantAssociationFilterTest.class,
-               PerformingParticipantFilterTest.class
+               PerformingParticipantFilterTest.class,
+               UserGrantsTest.class
              })
 public class DepartmentTestSuite extends LocalJcrH2TestSuite
 {

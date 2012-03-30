@@ -11,7 +11,7 @@
 package org.eclipse.stardust.test.department;
 
 import static junit.framework.Assert.assertEquals;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEP_ID_DE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_DE;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
@@ -56,7 +56,7 @@ public class DepartmentCleanupTest extends LocalJcrH2Test
    @Test
    public void testCleanupRuntimeKeepUsers()
    {
-      DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
       sf.getAdministrationService().cleanupRuntime(true);
       ensureDepartmentExists();
    }
@@ -70,7 +70,7 @@ public class DepartmentCleanupTest extends LocalJcrH2Test
    @Test
    public void testCleanupRuntimeDoNotKeepUsers() throws InterruptedException
    {
-      DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
       sf.getAdministrationService().cleanupRuntime(false);
       ensureDepartmentCleanup();
    }
@@ -84,7 +84,7 @@ public class DepartmentCleanupTest extends LocalJcrH2Test
    @Test
    public void testCleanupRuntimeAndModels()
    {
-      DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
       sf.getAdministrationService().cleanupRuntimeAndModels();
       ModelDeployer.deploy(sf.getAdministrationService(), MODEL_NAME);
       ensureDepartmentCleanup();
@@ -92,15 +92,15 @@ public class DepartmentCleanupTest extends LocalJcrH2Test
    
    private void ensureDepartmentExists()
    {
-      final Department dep = sf.getQueryService().findDepartment(null, DEP_ID_DE, new OrganizationInfoDetails(ORG_ID_1));
-      assertEquals(DEP_ID_DE, dep.getId());
+      final Department dep = sf.getQueryService().findDepartment(null, DEPT_ID_DE, new OrganizationInfoDetails(ORG_ID_1));
+      assertEquals(DEPT_ID_DE, dep.getId());
    }
    
    private void ensureDepartmentCleanup()
    {
       try
       {
-         sf.getQueryService().findDepartment(null, DEP_ID_DE, new OrganizationInfoDetails(ORG_ID_1));
+         sf.getQueryService().findDepartment(null, DEPT_ID_DE, new OrganizationInfoDetails(ORG_ID_1));
          Assert.fail("Department must not exist.");
       } 
       catch (ObjectNotFoundException e)

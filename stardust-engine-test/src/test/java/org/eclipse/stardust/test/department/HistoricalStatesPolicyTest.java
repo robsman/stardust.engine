@@ -158,8 +158,8 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final Model model = adminSf.getQueryService().getActiveModel();
 
       org = model.getOrganization(ORG_ID_1);
-      depDe = DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, adminSf);
-      depEn = DepartmentHome.create(DEP_ID_EN, ORG_ID_1, null, adminSf);
+      depDe = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
+      depEn = DepartmentHome.create(DEPT_ID_EN, ORG_ID_1, null, adminSf);
 
       orgDe = depDe.getScopedParticipant(org);
       orgEn = depEn.getScopedParticipant(org);
@@ -170,7 +170,7 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
    private void startProcess()
    {
       /* start process in scope (DE) */
-      final Map<String, String> ccData = Collections.singletonMap(COUNTRY_CODE_DATA_NAME, DEP_ID_DE);
+      final Map<String, String> ccData = Collections.singletonMap(COUNTRY_CODE_DATA_NAME, DEPT_ID_DE);
       userSf.getWorkflowService().startProcess(PROCESS_ID_1, ccData, true);
    }
 

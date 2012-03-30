@@ -13,8 +13,8 @@ package org.eclipse.stardust.test.department;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEP_ID_DE;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEP_ID_EN;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_DE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_EN;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_2;
@@ -91,8 +91,8 @@ public class UserGrantsTest extends LocalJcrH2Test
    public void testAddGrants()
    {
       final Organization[] orgs = getOrgs();
-      final Department dep1 = DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, adminSf);
-      final Department dep2 = DepartmentHome.create(DEP_ID_EN, ORG_ID_2, null, adminSf);
+      final Department dep1 = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
+      final Department dep2 = DepartmentHome.create(DEPT_ID_EN, ORG_ID_2, null, adminSf);
       final ModelParticipantInfo mpi1 = dep1.getScopedParticipant(orgs[0]);
       final ModelParticipantInfo mpi2 = dep2.getScopedParticipant(orgs[1]);
       
@@ -115,8 +115,8 @@ public class UserGrantsTest extends LocalJcrH2Test
    public void testRemoveGrants()
    {
       final Organization[] orgs = getOrgs();
-      final Department dep1 = DepartmentHome.create(DEP_ID_DE, ORG_ID_1, null, adminSf);
-      final Department dep2 = DepartmentHome.create(DEP_ID_EN, ORG_ID_2, null, adminSf);
+      final Department dep1 = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
+      final Department dep2 = DepartmentHome.create(DEPT_ID_EN, ORG_ID_2, null, adminSf);
       final ModelParticipantInfo mpi1 = dep1.getScopedParticipant(orgs[0]);
       final ModelParticipantInfo mpi2 = dep2.getScopedParticipant(orgs[1]);
       

@@ -22,8 +22,6 @@ import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
@@ -177,7 +175,7 @@ public class UserGrantsTest extends LocalJcrH2Test
       {
          if (dep1.equals(grant.getDepartment()))
          {
-            Assert.fail("grant should have been removed");
+            fail("Grant should have been removed.");
          }
          else if (dep2.equals(grant.getDepartment()))
          {
@@ -185,6 +183,6 @@ public class UserGrantsTest extends LocalJcrH2Test
          }
       }
       
-      assertTrue("grant should not have been removed", mpi2Found);
+      assertTrue("Grant should not have been removed.", mpi2Found);
    }
 }

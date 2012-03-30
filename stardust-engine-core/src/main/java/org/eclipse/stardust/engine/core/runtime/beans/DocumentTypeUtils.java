@@ -624,12 +624,12 @@ public final class DocumentTypeUtils
     *           A map of models by modelOID. It should contain all models which could be referenced by the specified model.
     * @return A list of DocumentType that are declared within the specified model.
     */
-   public static List<DocumentType> getDeclaredDocumentTypes(Model model, Map<Long, Model> referenceModels)
+   public static List<DocumentType> getDeclaredDocumentTypes(Model model, Map<Integer, Model> referenceModels)
    {
       int currentModelOid = model.getModelOID();
       List<DocumentType> documentTypes = CollectionUtils.newList();
 
-      Set<Pair<Long,String>> typeDeclarationIdsByModel = new LinkedHashSet<Pair<Long,String>>();
+      Set<Pair<Integer,String>> typeDeclarationIdsByModel = new LinkedHashSet<Pair<Integer,String>>();
 
       @SuppressWarnings("unchecked")
       List<Data> allData = model.getAllData();
@@ -641,16 +641,16 @@ public final class DocumentTypeUtils
             String metaDataTypeDeclarationId = getMetaDataTypeDeclarationId(data);
             if (!isEmpty(metaDataTypeDeclarationId))
             {
-               Pair<Long, String> typeDeclarationIdByModel = new Pair (data.getModelOID(), metaDataTypeDeclarationId);
+               Pair<Integer, String> typeDeclarationIdByModel = new Pair<Integer, String> (data.getModelOID(), metaDataTypeDeclarationId);
                typeDeclarationIdsByModel.add(typeDeclarationIdByModel);
             }
          }
       }
 
-      for (Pair<Long,String> typeDeclarationIdByModel : typeDeclarationIdsByModel)
+      for (Pair<Integer,String> typeDeclarationIdByModel : typeDeclarationIdsByModel)
       {
          Model lookupModel = model;
-         Long dataModelOid = typeDeclarationIdByModel.getFirst();
+         Integer dataModelOid = typeDeclarationIdByModel.getFirst();
          if (currentModelOid != dataModelOid)
          {
             // is externally defined data, look it up

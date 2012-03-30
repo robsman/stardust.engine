@@ -49,26 +49,41 @@ public class ActivityInstanceAttributesImpl implements ActivityInstanceAttribute
       addedNotes = new ArrayList<Note>();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public long getActivityInstanceOid()
    {
       return aiOid;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void setQualityAssuranceResult(QualityAssuranceResult result)
    {
       this.result = result;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public QualityAssuranceResult getQualityAssuranceResult()
    {
       return result;
    }
       
+   /**
+    * {@inheritDoc}
+    */
    public void setNotes(List<Note> notes)
    {
       this.notes = notes;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Note addNote(String text)
    {
       Note note = new NoteDetails(text, ContextKind.ActivityInstance, aiOid, null);
@@ -77,11 +92,17 @@ public class ActivityInstanceAttributesImpl implements ActivityInstanceAttribute
       return note;
    }
    
+   /**
+    * {@inheritDoc}
+    */
    public List<Note> getAddedNotes()
    {
       return addedNotes;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public List<Note> getNotes()
    {
       return notes;

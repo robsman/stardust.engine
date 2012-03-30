@@ -36,31 +36,49 @@ public class QualityAssuranceResultImpl implements QualityAssuranceResult
 
    private Set<QualityAssuranceCode> codes;
    
+   /**
+    * {@inheritDoc}
+    */
    public void setQualityAssuranceCodes(Set<QualityAssuranceCode> codes)
    {
       this.codes  = codes;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public Set<QualityAssuranceCode> getQualityAssuranceCodes()
    {
       return codes;
    }
-
+   
+   /**
+    * {@inheritDoc}
+    */
    public void setQualityAssuranceState(ResultState state)
    {
       this.state = state;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public ResultState getQualityAssuranceState()
    {
       return state;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public void setAssignFailedInstanceToLastPerformer(boolean assignToLastPerformer)
    {
       this.assignToLastPerformer = assignToLastPerformer;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public boolean isAssignFailedInstanceToLastPerformer()
    {
       return assignToLastPerformer;

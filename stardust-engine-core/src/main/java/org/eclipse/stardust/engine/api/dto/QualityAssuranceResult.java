@@ -15,7 +15,13 @@ import java.util.Set;
 
 import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
 
-
+/**
+ * Represents the result of a quality assurance instance resolution
+ * @see ActivityInstanceAttributes#setQualityAssuranceResult(QualityAssuranceResult)
+ * 
+ * @author Holger.Prause
+ * @version $Revision: $
+ */
 public interface QualityAssuranceResult extends Serializable
 {
    /**

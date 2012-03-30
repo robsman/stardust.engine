@@ -13,6 +13,12 @@ package org.eclipse.stardust.engine.api.dto;
 import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
 import org.eclipse.stardust.engine.api.model.QualityAssuranceCode;
 
+/**
+ * Default implementation for the {@link QualityAssuranceCode} interface.
+ * 
+ * @author Holger.Prause
+ * @version $Revision: $
+ */
 public class QualityAssuranceCodeDetails implements QualityAssuranceCode
 {
    /**
@@ -28,12 +34,18 @@ public class QualityAssuranceCodeDetails implements QualityAssuranceCode
       description = code.getDescription();   
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public String getCode()
    {
       return code;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    public String getDescription()
    {

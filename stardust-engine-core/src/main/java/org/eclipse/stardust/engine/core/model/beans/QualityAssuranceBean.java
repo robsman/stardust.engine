@@ -19,6 +19,7 @@ import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
 
 
 /**
+ * Default implementation of {@link IQualityAssurance}
  * 
  * @author barry.grotjahn
  * @version $Revision: $
@@ -31,6 +32,9 @@ public class QualityAssuranceBean implements IQualityAssurance, Serializable
    private static final long serialVersionUID = 7464972021936769626L;
    private Map<String, IQualityAssuranceCode> codes = CollectionUtils.newHashMap();
 
+   /**
+    * {@inheritDoc}
+    */
    public IQualityAssuranceCode createQualityAssuranceCode(String code, String value)
    {
       IQualityAssuranceCode codeBean = new QualityAssuranceCodeBean(code, value);      
@@ -39,11 +43,17 @@ public class QualityAssuranceBean implements IQualityAssurance, Serializable
       return codeBean;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    public IQualityAssuranceCode findQualityAssuranceCode(String code)
    {      
       return codes.get(code);
    }
-
+   
+   /**
+    * {@inheritDoc}
+    */
    public Map<String, IQualityAssuranceCode> getAllCodes()
    {
       return codes;

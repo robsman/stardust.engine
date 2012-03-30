@@ -27,7 +27,7 @@ public interface IQualityAssuranceCode extends Serializable
    String getCode();
    
    /**
-    * Get the description
+    * Gets the description
     * @return the description set in the modeler
     */
    String getDescription();

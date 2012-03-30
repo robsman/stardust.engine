@@ -39,6 +39,12 @@ public class QualityAssuranceCompleteCommand implements ServiceCommand
 
    private final ContextData context;
 
+   /**
+    * Creates the complete command
+    * 
+    * @param aiAttribute - the attributes to set
+    * @param context - the context data used for the complete command
+    */
    public QualityAssuranceCompleteCommand(ActivityInstanceAttributes aiAttribute,
          ContextData context)
    {
@@ -48,7 +54,7 @@ public class QualityAssuranceCompleteCommand implements ServiceCommand
    }
 
    /**
-    * return completed activity instance
+    * Executes the complete command for a quality assurance instance
     */
    public Serializable execute(ServiceFactory sf)
    {

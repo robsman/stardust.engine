@@ -42,6 +42,8 @@ public class RuntimeSetup implements XMLConstants
    private DataCluster[] clusters = EMPTY_DATA_CLUSTER_ARRAY;
 
    public static final String RUNTIME_SETUP_PROPERTY = "org.eclipse.stardust.engine.core.runtime.setup";
+   
+   public static final String PRE_STARDUST_RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION = "ag.carnot.workflow.runtime.setup_definition";
    public static final String RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION = "org.eclipse.stardust.engine.core.runtime.setup_definition";
    
    public static RuntimeSetup instance()
@@ -72,7 +74,12 @@ public class RuntimeSetup implements XMLConstants
       {
          PropertyPersistor prop = PropertyPersistor
                .findByName(RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
-
+         //try to load old style definition as fallback
+         if(prop == null)
+         {
+            prop = PropertyPersistor.findByName(PRE_STARDUST_RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
+         }
+         
          if (null != prop)
          {
             String xml = LargeStringHolder.getLargeString(prop.getOID(),

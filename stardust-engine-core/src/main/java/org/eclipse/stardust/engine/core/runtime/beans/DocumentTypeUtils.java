@@ -19,12 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -606,17 +601,35 @@ public final class DocumentTypeUtils
     * Creates DocumentType objects based on the Document and DocumentList data having a
     * TypeDeclaration assigned in the given model. <br>
     * It does not resolve the DocumentType of Document or DocumentList data referencing a
-    * TypeDeclaration from a external model reference.
+    * TypeDeclaration from a external model reference or externally referenced data.
     *
     * @param model
     *           The model to search for declared DocumenTypes.
     * @return A list of DocumentType that are declared within the specified model.
+    *
+    * @see #getDeclaredDocumentTypes(Model, Map)
     */
-   public static List<DocumentType> getDeclaredDocumentTypes(DeployedModel model)
+   public static List<DocumentType> getDeclaredDocumentTypes(Model model)
    {
+      return getDeclaredDocumentTypes(model, null);
+   }
+
+   /**
+    * Creates DocumentType objects based on the Document and DocumentList data having a
+    * TypeDeclaration assigned in the given model. <br>
+    *
+    * @param model
+    *           The model to search for declared DocumenTypes.
+    * @param referenceModels
+    *           A map of models by modelOID. It should contain all models which could be referenced by the specified model.
+    * @return A list of DocumentType that are declared within the specified model.
+    */
+   public static List<DocumentType> getDeclaredDocumentTypes(Model model, Map<Long, Model> referenceModels)
+   {
+      int currentModelOid = model.getModelOID();
       List<DocumentType> documentTypes = CollectionUtils.newList();
 
-      Set<String> typeDeclarationIds = new LinkedHashSet<String>();
+      Set<Pair<Long,String>> typeDeclarationIdsByModel = new LinkedHashSet<Pair<Long,String>>();
 
       @SuppressWarnings("unchecked")
       List<Data> allData = model.getAllData();
@@ -625,18 +638,36 @@ public final class DocumentTypeUtils
          String dataTypeId = data.getTypeId();
          if (isDmsDocumentData(dataTypeId))
          {
-            String typeDeclarationId = getMetaDataTypeDeclarationId(data);
-
-            if (data.getReference() == null && !isEmpty(typeDeclarationId))
+            String metaDataTypeDeclarationId = getMetaDataTypeDeclarationId(data);
+            if (!isEmpty(metaDataTypeDeclarationId))
             {
-               typeDeclarationIds.add(typeDeclarationId);
+               Pair<Long, String> typeDeclarationIdByModel = new Pair (data.getModelOID(), metaDataTypeDeclarationId);
+               typeDeclarationIdsByModel.add(typeDeclarationIdByModel);
             }
          }
       }
 
-      for (String typeDeclarationId : typeDeclarationIds)
+      for (Pair<Long,String> typeDeclarationIdByModel : typeDeclarationIdsByModel)
       {
-         DocumentType documentType = getDocumentType(typeDeclarationId, model);
+         Model lookupModel = model;
+         Long dataModelOid = typeDeclarationIdByModel.getFirst();
+         if (currentModelOid != dataModelOid)
+         {
+            // is externally defined data, look it up
+            if (referenceModels != null)
+            {
+               lookupModel = referenceModels.get(dataModelOid);
+            }
+
+            if (lookupModel == null)
+            {
+               trace.warn("Lookup for DocumentType in referenced model failed. Model not found in specified referencedModels: "
+                     + dataModelOid);
+            }
+         }
+
+         DocumentType documentType = getDocumentType(
+               typeDeclarationIdByModel.getSecond(), lookupModel);
          if (documentType != null)
          {
             documentTypes.add(documentType);

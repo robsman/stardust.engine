@@ -41,13 +41,14 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * Tests delegation functionality regarding <i>Departments</i>.
+ * Tests delegation functionality regarding <i>Departments</i>,
+ * especially the delegation to sub departments.
  * </p>
  * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class DelegationTest extends LocalJcrH2Test
+public class SubDepartmentDelegationTest extends LocalJcrH2Test
 {
    private static final String USER_ID = "User";
    

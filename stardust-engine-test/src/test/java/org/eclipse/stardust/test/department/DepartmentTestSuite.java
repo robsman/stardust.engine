@@ -28,7 +28,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
                AdminServiceCrudTest.class,
-               DelegationTest.class,
+               SubDepartmentDelegationTest.class,
                DepartmentCleanupTest.class,
                DepartmentQueryTest.class,
                HistoricalStatesPolicyTest.class,

@@ -18,5 +18,15 @@ package org.eclipse.stardust.engine.api.model;
  */
 public interface QualityAssuranceCode extends IQualityAssuranceCode
 {
-
+   /**
+    * Gets the code
+    * @return the code set in the modeler
+    */
+   String getCode();
+   
+   /**
+    * Get the description
+    * @return the description set in the modeler
+    */
+   String getDescription();
 }

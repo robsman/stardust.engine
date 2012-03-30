@@ -13,13 +13,22 @@ package org.eclipse.stardust.engine.api.model;
 import java.io.Serializable;
 
 /**
+ * Class representing an quality assurance error code
  *
- * @author ubirkemeyer
+ * @author barry.grotjahn
  * @version $Revision: 43207 $
  */
 public interface IQualityAssuranceCode extends Serializable
 {
+   /**
+    * Gets the code
+    * @return the code set in the modeler
+    */
    String getCode();
    
+   /**
+    * Get the description
+    * @return the description set in the modeler
+    */
    String getDescription();
 }

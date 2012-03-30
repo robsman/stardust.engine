@@ -28,11 +28,13 @@ public class QualityAssuranceCodeDetails implements QualityAssuranceCode
       description = code.getDescription();   
    }
 
+   @Override
    public String getCode()
    {
       return code;
    }
 
+   @Override
    public String getDescription()
    {
       return description;

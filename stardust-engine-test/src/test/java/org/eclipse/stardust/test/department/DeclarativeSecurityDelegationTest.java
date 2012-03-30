@@ -45,7 +45,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class DeclarativeSecurityDelegationTest extends LocalJcrH2Test
 {

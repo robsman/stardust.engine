@@ -92,6 +92,10 @@ package org.eclipse.stardust.test.department;
    public static final String ROLE_ADMIN_ID = "Administrator";
    public static final String ROLE_DEFAU_ID = "DefaultPerformer";
    
+   public static final String NONE_ROLE_ID = "None";
+   public static final String DTO_ROLE_ID = "Dto";
+   public static final String DTD_ROLE_ID = "Dtd";
+   
    /**
     * an unscoped role
     */
@@ -119,12 +123,12 @@ package org.eclipse.stardust.test.department;
    public static final String IN_DATA_PATH_A = "DataPathA";
    
    
-   public static final String DEP_ID_U = "u";
-   public static final String DEP_ID_V = "v";
+   public static final String DEPT_ID_U = "u";
+   public static final String DEPT_ID_V = "v";
    
-   public static final String SUB_DEP_ID_I = "i";
-   public static final String SUB_DEP_ID_J = "j";
-   public static final String SUB_DEP_ID_K = "k";
+   public static final String SUB_DEPT_ID_I = "i";
+   public static final String SUB_DEPT_ID_J = "j";
+   public static final String SUB_DEPT_ID_K = "k";
    
    public static final String SUB_SUB_DEP_ID_M = "m";
    public static final String SUB_SUB_DEP_ID_N = "n";

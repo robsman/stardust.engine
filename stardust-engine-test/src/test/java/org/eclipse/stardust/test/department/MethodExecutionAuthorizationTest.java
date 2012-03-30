@@ -455,15 +455,15 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       org5 = model.getOrganization(ORG5_ID);
       readerOrg = model.getOrganization(READER_ORG_ID);
       
-      depU = adminSf.getAdministrationService().createDepartment(DEP_ID_U, DEP_ID_U, null, null, org1);
-      depV = adminSf.getAdministrationService().createDepartment(DEP_ID_V, DEP_ID_V, null, null, org1);
+      depU = adminSf.getAdministrationService().createDepartment(DEPT_ID_U, DEPT_ID_U, null, null, org1);
+      depV = adminSf.getAdministrationService().createDepartment(DEPT_ID_V, DEPT_ID_V, null, null, org1);
       depA = adminSf.getAdministrationService().createDepartment(DEP_ID_A, DEP_ID_A, null, null, readerOrg);
       depB = adminSf.getAdministrationService().createDepartment(DEP_ID_B, DEP_ID_B, null, null, readerOrg);
       
-      depUi = adminSf.getAdministrationService().createDepartment(SUB_DEP_ID_I, SUB_DEP_ID_I, null, depU, org3);
+      depUi = adminSf.getAdministrationService().createDepartment(SUB_DEPT_ID_I, SUB_DEPT_ID_I, null, depU, org3);
       depUim = adminSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_M, SUB_SUB_DEP_ID_M, null, depUi, org4);
       
-      depVj = adminSf.getAdministrationService().createDepartment(SUB_DEP_ID_J, SUB_DEP_ID_J, null, depV, org3);
+      depVj = adminSf.getAdministrationService().createDepartment(SUB_DEPT_ID_J, SUB_DEPT_ID_J, null, depV, org3);
       depVjn = adminSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_N, SUB_SUB_DEP_ID_N, null, depVj, org4);
    }
    
@@ -497,8 +497,8 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    {
       /* start process in scope (u,i,m,a) */
       final Map<String, String> piData = new HashMap<String, String>();
-      piData.put(X_SCOPE, DEP_ID_U);
-      piData.put(Y_SCOPE, SUB_DEP_ID_I);
+      piData.put(X_SCOPE, DEPT_ID_U);
+      piData.put(Y_SCOPE, SUB_DEPT_ID_I);
       piData.put(Z_SCOPE, SUB_SUB_DEP_ID_M);
       piData.put(A_SCOPE, DEP_ID_A);
       userSf.getWorkflowService().startProcess(PROCESS_ID_8, piData, true);

@@ -103,7 +103,7 @@
       <init-ivy/>
       <init-ivy-classpath/>
    </target>
-
+   
    <!-- execute-test-suite (macro) -->
    <macrodef name="execute-test-suite">
       <attribute name="name" />
@@ -111,12 +111,13 @@
       
       <sequential>
          <echo message="Executing the '@{name}' test suite ..." />
-         <junit fork="yes" haltonfailure="on" haltonerror="on" printsummary="on">
+         <junit fork="yes" haltonfailure="on" haltonerror="on" printsummary="on" maxmemory="512m">
             <test name="@{class}" todir="${build.test-report.dir}" />
             <formatter type="xml" />
             <classpath refid="junit.rt.classpath" />
          </junit>
          <echo message="... done with the '@{name}' test suite." />
+         <echo message="${line.separator}" />
       </sequential>
    </macrodef>
 </project>

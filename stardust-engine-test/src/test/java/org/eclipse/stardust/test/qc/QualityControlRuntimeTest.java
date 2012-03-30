@@ -726,7 +726,7 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    }
 
    @Test
-   @Ignore
+   @Ignore("broken - needs to be fixed")
    public void testFail()
    {
       // TODO fix test
@@ -808,7 +808,7 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    }
 
    @Test
-   @Ignore
+   @Ignore("broken - needs to be fixed")
    public void testPassWithCorrection()
    {
       // TODO fix test
@@ -857,7 +857,7 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    }
    
    @Test
-   @Ignore
+   @Ignore("broken - needs to be fixed")
    public void testPassWithoutCorrection()
    {
       // TODO fix test

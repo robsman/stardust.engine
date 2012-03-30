@@ -16,6 +16,7 @@ import java.util.*;
 import javax.xml.transform.TransformerException;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -80,7 +81,10 @@ public class StructuredDataConverter
    {
       String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(xPath);
       String targetElementName = StructuredDataXPathUtils.getLastXPathPart(this.xPathMap.getXPath(xPathWithoutIndexes).getXPath());
-      if (rootNode.getLocalName().equals(targetElementName))
+      if ( !StringUtils.isEmpty(targetElementName)
+            && rootNode.getLocalName().equals(targetElementName)
+            && (rootNode.getChildCount() == 0 || !hasSameNameChild(rootNode,
+                  targetElementName)))
       {
          // a subdocument (not the whole document) is supplied
          // create additional nodes and attach rootNode to it
@@ -171,6 +175,29 @@ public class StructuredDataConverter
          Element node = (Element) nodelist.get(0);
          return createComplexType(rootNode, node);
       }
+   }
+
+   private boolean hasSameNameChild(Element rootNode, String targetElementName)
+   {
+      List<Element> childElements = rootNode.getChildElements();
+      if (childElements != null)
+      {
+         for (Element element : childElements)
+         {
+            String localName = element.getLocalName();
+            if (!StringUtils.isEmpty(localName) && localName.equals(targetElementName))
+            {
+               return true;
+            }
+
+            if (hasSameNameChild(element, targetElementName))
+            {
+               return true;
+            }
+         }
+      }
+
+      return false;
    }
 
    public List<Node> evaluateXPath(Element rootNode, String xPath, boolean namespaceAware)

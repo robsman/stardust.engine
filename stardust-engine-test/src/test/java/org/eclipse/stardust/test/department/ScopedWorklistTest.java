@@ -57,7 +57,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision
+ * @version $Revision$
  */
 public class ScopedWorklistTest extends LocalJcrH2Test
 {

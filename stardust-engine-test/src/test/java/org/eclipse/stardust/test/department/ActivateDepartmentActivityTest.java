@@ -34,7 +34,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ActivateDepartmentActivityTest extends LocalJcrH2Test
 {

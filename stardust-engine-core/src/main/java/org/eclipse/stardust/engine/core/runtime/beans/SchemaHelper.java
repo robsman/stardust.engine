@@ -27,6 +27,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
@@ -36,7 +37,6 @@ import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetupDocumentBuilder;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-
 
 /**
  * SchemaHelper will be used to generate DDL and copy to a specified file.
@@ -296,8 +296,10 @@ public class SchemaHelper
                carnotRealm);
          motu.setPassword(motu.getId());
 
-         new ProcessInstanceLinkTypeBean("switch", "Peer Process Instance");
-         new ProcessInstanceLinkTypeBean("join", "Join Process Instance");
+         for (PredefinedProcessInstanceLinkTypes type : PredefinedProcessInstanceLinkTypes.values())
+         {
+            new ProcessInstanceLinkTypeBean(type.getId(), type.getDescription());
+         }
 
          session.save();
       }

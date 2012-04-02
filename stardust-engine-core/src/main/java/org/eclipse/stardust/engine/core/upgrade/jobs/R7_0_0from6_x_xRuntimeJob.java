@@ -22,6 +22,8 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
@@ -298,9 +300,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       
       //Populate ProcessInstanceLinkType table
       StringBuffer insertCmd = new StringBuffer();
-      if (item.getDbDescriptor().supportsSequences())
+      DBDescriptor dbDescriptor = item.getDbDescriptor();
+      if (dbDescriptor.supportsSequences())
       {
-         String nextOid = item.getDbDescriptor().getNextValForSeqString(null, PROCESS_INSTANCE_LINK_TYPE_PK_SEQUENCE);
+         String nextOid = dbDescriptor.getNextValForSeqString(DatabaseHelper.getSchemaName(), PROCESS_INSTANCE_LINK_TYPE_PK_SEQUENCE);
          insertCmd.append("INSERT INTO ").append(tableName).append(" (");
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_OID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
@@ -308,7 +311,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION).append(") ");
          insertCmd.append("VALUES (").append(nextOid).append(",?,?,?)");
       }
-      else
+      else if (dbDescriptor.supportsIdentityColumns())
       {
          insertCmd.append("INSERT INTO ").append(tableName).append(" (");
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
@@ -316,29 +319,58 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION).append(") ");
          insertCmd.append("VALUES (?,?,?)");
       }
+      else
+      {
+         insertCmd.append("INSERT INTO ").append(tableName).append(" (");
+         insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
+         insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION).append(',');
+         insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION).append(',');
+         insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_OID).append(") ");
+         insertCmd.append("VALUES (?,?,?,?)");
+      }
       PreparedStatement insertStatement = connection.prepareStatement(insertCmd.toString());
       
+      PreparedStatement updateStatement = null;
+      boolean hasSequenceHelper = !dbDescriptor.supportsSequences() && !dbDescriptor.supportsIdentityColumns();
+      if (hasSequenceHelper)
+      {
+         String update = "UPDATE " + DatabaseHelper.getQualifiedName("sequence_helper")
+            + " SET value=?"
+            + " WHERE name='link_type_seq'"; 
+         updateStatement = connection.prepareStatement(update);
+         updateStatement.setLong(1, PredefinedProcessInstanceLinkTypes.values().length + 1);
+      }
+      
       Iterator<Pair<Long, String>> partitions = fetchListOfPartitionInfo().iterator();
+      long oid = 0;
       while (partitions.hasNext())
       {
          Pair<Long, String> partitionInfo = partitions.next();
          long partitionOid = partitionInfo.getFirst();
 
          trace.debug("Adding default link types to partition '" + partitionInfo.getSecond() + "'...");
-         
-         insertStatement.setString(1, "switch");
-         insertStatement.setString(2, "Peer Process Instance");
          insertStatement.setLong(3, partitionOid);
-         insertStatement.execute();
-         trace.debug("Added 'switch' link type");
 
-         insertStatement.setString(1, "join");
-         insertStatement.setString(2, "Join Process Instance");
-         insertStatement.setLong(3, partitionOid);
-         insertStatement.execute();
-         trace.debug("Added 'join' link type");
+         for (PredefinedProcessInstanceLinkTypes type : PredefinedProcessInstanceLinkTypes.values())
+         {
+            insertStatement.setString(1, type.getId());
+            insertStatement.setString(2, type.getDescription());
+            if (hasSequenceHelper)
+            {
+               oid++;
+               insertStatement.setLong(4, oid);
+            }
+            insertStatement.execute();
+            trace.debug("Added '" + type + "' link type.");
+         }
       }
       insertStatement.close();
+      if (hasSequenceHelper)
+      {
+         updateStatement.setLong(1, oid + 1);
+         updateStatement.execute();
+         updateStatement.close();
+      }
    }
 
    private Set<Pair<Long, String>> fetchListOfPartitionInfo() throws SQLException

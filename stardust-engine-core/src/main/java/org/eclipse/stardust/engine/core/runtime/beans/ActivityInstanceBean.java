@@ -1007,12 +1007,18 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          }
          else if (type == ImplementationType.SubProcess)
          {
-
+            final SubProcessModeKey subProcessMode = activity.getSubProcessMode();
+            final boolean synchronous = !SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode);
+            BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+            ExecutionPlan plan = rtEnv.getExecutionPlan();
+            if (plan != null && !synchronous)
+            {
+               throw new IllegalOperationException(BpmRuntimeError.BPMRT_ADHOC_ASYNC_START_ACTIVITY_THREAD.raise());
+            }
+            
             setState(ActivityInstanceState.SUSPENDED);
 
-            final SubProcessModeKey subProcessMode = activity.getSubProcessMode();
             final boolean copyAllData = ActivityBean.getCopyAllDataAttribute(activity);
-            final boolean synchronous = !SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode);
             final boolean separateData = SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode)
                   || SubProcessModeKey.SYNC_SEPARATE.equals(subProcessMode);
 
@@ -1055,7 +1061,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
 //                        DataValueBean.copyDataValue(subProcess, srcValue);
                      
-                     if(srcValue.getData().getModel().getOID() == subProcess.getProcessDefinition().getModel().getOID())
+                     if (srcValue.getData().getModel().getOID() == subProcess.getProcessDefinition().getModel().getOID())
                      {
                         subProcess.setOutDataValue(srcValue.getData(), "", srcValue.getSerializedValue());
                      }
@@ -1070,8 +1076,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                throw e;
             }
 
-            BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-            ExecutionPlan plan = rtEnv.getExecutionPlan();
             if (plan != null && plan.hasNextActivity())
             {
                if (plan.nextStep())

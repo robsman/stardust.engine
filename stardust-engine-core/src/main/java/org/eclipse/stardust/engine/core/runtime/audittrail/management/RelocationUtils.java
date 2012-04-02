@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -24,7 +24,7 @@ public final class RelocationUtils
 {
    private RelocationUtils() {}
    
-   public static Set<TransitionTarget> getRelocateTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
+   public static List<TransitionTarget> getRelocateTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
    {
       IActivityInstance ai = ActivityInstanceBean.findByOID(activityInstanceOid);
       IActivity activity = ai.getActivity();
@@ -32,11 +32,11 @@ public final class RelocationUtils
       if (!activity.getBooleanAttribute(PredefinedConstants.ACTIVITY_IS_RELOCATE_SOURCE_ATT))
       {
          // activity is not a relocation source
-         return Collections.emptySet();
+         return Collections.emptyList();
       }
       
       Stack<TransitionStep> steps = new Stack();
-      Set<TransitionTarget> targets = CollectionUtils.newSet();
+      List<TransitionTarget> targets = CollectionUtils.newList();
       Set<TransitionTarget> visited = CollectionUtils.newSet();
       switch (direction)
       {
@@ -53,7 +53,7 @@ public final class RelocationUtils
       return targets;
    }
 
-   private static void addActivities(Set<TransitionTarget> visited, Set<TransitionTarget> targets, IActivityInstance ai, TransitionOptions options, boolean forward, Stack<TransitionStep> steps)
+   private static void addActivities(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivityInstance ai, TransitionOptions options, boolean forward, Stack<TransitionStep> steps)
    {
       if (ai != null)
       {
@@ -69,29 +69,133 @@ public final class RelocationUtils
       }
    }
 
-   private static void addActivities(Set<TransitionTarget> visited, Set<TransitionTarget> targets, IActivity activity, TransitionOptions options, boolean forward, Stack<TransitionStep> steps)
+   private static void addActivities(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivity activity, TransitionOptions options, boolean forward, Stack<TransitionStep> steps)
    {
-      JoinSplitType jsType = forward ? activity.getSplitType() : activity.getJoinType();
-      if (JoinSplitType.And == jsType)
-      {
-         // end of recursion: we don't follow AND splits or joins
-         return;
-      }
       ModelElementList<ITransition> transitions = forward ? activity.getOutTransitions() : activity.getInTransitions();
-      for (ITransition transition : transitions)
+      JoinSplitType jsType = forward ? activity.getSplitType() : activity.getJoinType();
+      if (JoinSplitType.And == jsType && transitions.size() > 1)
       {
-         IActivity target = forward ? transition.getToActivity() : transition.getFromActivity();
-         jsType = forward ? target.getJoinType() : target.getSplitType();
-         if (JoinSplitType.And == jsType)
+         Stack<IActivity> startActivities = new Stack<IActivity>();
+         startActivities.push(activity);
+         IActivity target = consume(startActivities, asList(transitions), forward, options.areLoopsAllowed());
+         if (target != null)
          {
-            // end of recursion: we don't follow AND splits or joins
-            continue;
+            addActivity(visited, targets, target, options, forward, steps);
          }
-         addActivity(visited, targets, target, options, forward, steps);
+      }
+      else
+      {
+         for (ITransition transition : transitions)
+         {
+            IActivity target = forward ? transition.getToActivity() : transition.getFromActivity();
+            jsType = forward ? target.getJoinType() : target.getSplitType();
+            if (JoinSplitType.And != jsType)
+            {
+               addActivity(visited, targets, target, options, forward, steps);
+            }
+         }
       }
    }
 
-   private static void addActivity(Set<TransitionTarget> visited, Set<TransitionTarget> targets, IActivity target, TransitionOptions options,
+   private static LinkedList<ITransition> asList(ModelElementList<ITransition> transitions)
+   {
+      LinkedList<ITransition> unconsumed = CollectionUtils.newLinkedList();
+      for (ITransition transition : transitions)
+      {
+         unconsumed.add(transition);
+      }
+      return unconsumed;
+   }
+
+   private static IActivity consume(Stack<IActivity> startActivities, LinkedList<ITransition> unconsumed,
+         boolean forward, boolean supportsLoops)
+   {
+      Set<ITransition> visited = CollectionUtils.newSet();
+
+      while (!unconsumed.isEmpty())
+      {
+         ITransition transition = unconsumed.element();
+         IActivity target = forward ? transition.getToActivity() : transition.getFromActivity();
+         
+         if (startActivities.contains(target))
+         {
+            // unsupported loop
+            break;
+         }
+
+         JoinSplitType inJsType = forward ? target.getJoinType() : target.getSplitType();
+         if (JoinSplitType.And == inJsType)
+         {
+            List<ITransition> pending = CollectionUtils.newList();
+            ModelElementList<ITransition> transitions = forward ? target.getInTransitions() : target.getOutTransitions();
+            for (ITransition incoming : transitions)
+            {
+               if (unconsumed.remove(incoming))
+               {
+                  pending.add(incoming);
+               }
+            }
+            if (pending.size() == transitions.size()) // all incoming transitions consumed
+            {
+               if (unconsumed.isEmpty())
+               {
+                  return target;
+               }
+            }
+            else
+            {
+               if (!unconsumed.isEmpty()) // unable to consume all transitions, but there are more branches, put them all back to the end
+               {
+                  unconsumed.addAll(pending);
+               }
+               continue;
+            }
+         }
+         else
+         {
+            unconsumed.remove(transition);
+         }
+
+         ModelElementList<ITransition> transitions = forward ? target.getOutTransitions() : target.getInTransitions();
+         if (transitions.isEmpty())
+         {
+            return null;
+         }
+         
+         JoinSplitType outJsType = forward ? target.getSplitType() : target.getJoinType();
+         while (target != null && JoinSplitType.And == outJsType && transitions.size() > 1)
+         {
+            startActivities.push(target);
+            target = consume(startActivities, asList(transitions), forward, supportsLoops);
+            startActivities.pop();
+            if (target == null)
+            {
+               return null;
+            }
+            transitions = forward ? target.getOutTransitions() : target.getInTransitions();
+            outJsType = forward ? target.getSplitType() : target.getJoinType();
+         }
+
+         for (ITransition out : transitions)
+         {
+            if (visited.contains(out)) // loop
+            {
+               if (!supportsLoops)
+               {
+                  return null;
+               }
+            }
+            else
+            {
+               visited.add(out);
+               unconsumed.add(out);
+            }
+         }
+      }
+      return null;
+   }
+
+   private static void addActivity(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivity target, TransitionOptions options,
          boolean forward, Stack<TransitionStep> steps)
    {
       TransitionTarget candidate = TransitionTargetFactory.createTransitionTarget(target, steps, forward);
@@ -114,10 +218,9 @@ public final class RelocationUtils
          }
       }
 
-      addActivities(visited, targets, target, options, forward, steps);
-      
       if (options.isTransitionIntoSubprocessesAllowed()
-            && ImplementationType.SubProcess == target.getImplementationType())
+            && target.getImplementationType() == ImplementationType.SubProcess 
+            && target.getSubProcessMode() != SubProcessModeKey.ASYNC_SEPARATE)
       {
          IProcessDefinition process = target.getImplementationProcessDefinition();
          if (process != null)
@@ -127,9 +230,11 @@ public final class RelocationUtils
             steps.pop();
          }
       }
+
+      addActivities(visited, targets, target, options, forward, steps);
    }
 
-   private static void addActivities(Set<TransitionTarget> visited, Set<TransitionTarget> targets, IProcessDefinition process, TransitionOptions options,
+   private static void addActivities(Set<TransitionTarget> visited, List<TransitionTarget> targets, IProcessDefinition process, TransitionOptions options,
          boolean forward, Stack<TransitionStep> steps)
    {
       if (forward)
@@ -168,8 +273,8 @@ public final class RelocationUtils
       IActivity target = mm.findActivity(transitionTarget.getModelOid(), transitionTarget.getActivityRuntimeOid());
       if (target == null)
       {
-         ErrorCase errorCase = null; // TODO: (fh) - not a valid target
-         throw new IllegalOperationException(errorCase);
+         throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_ACTIVITY_IN_MODEL.raise(
+               transitionTarget.getActivityRuntimeOid(), transitionTarget.getModelOid()));
       }
       
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();

@@ -45,8 +45,6 @@ import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 
-
-
 /**
  * @author mgille
  * @version $Revision$
@@ -322,7 +320,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       assertActiveProcessInstance(targetCase);
 
-      IProcessInstanceLinkType linkType = ProcessInstanceLinkTypeBean.findById(ProcessInstanceLinkType.JOIN);
+      IProcessInstanceLinkType linkType = ProcessInstanceLinkTypeBean.findById(PredefinedProcessInstanceLinkTypes.JOIN);
 
       for (long oid : sourceCaseOids)
       {
@@ -498,19 +496,33 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    }
 
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
-         String spawnProcessID, boolean copyData, Map<String, ? > data,
+         String spawnProcessID, boolean copyData, Map<String, ? extends Serializable> data,
          boolean abortProcessInstance, String comment) throws IllegalOperationException,
          ObjectNotFoundException, InvalidArgumentException
    {
+      DataCopyOptions dataCopyOptions = new DataCopyOptions(copyData, null, data, true);
+      SpawnOptions options = new SpawnOptions(null, abortProcessInstance, comment, dataCopyOptions);
+      return spawnPeerProcessInstance(processInstanceOid, spawnProcessID, options);
+   }
+
+   public ProcessInstance spawnPeerProcessInstance(long processInstanceOid, String spawnProcessID, SpawnOptions options)
+         throws IllegalOperationException, ObjectNotFoundException, InvalidArgumentException
+   {
+      // check if the target process is specified.
       if (spawnProcessID == null)
       {
          throw new ObjectNotFoundException(
                BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(spawnProcessID), spawnProcessID);
       }
+      QName qname = QName.valueOf(spawnProcessID);
 
+      // check if the source process instance exists.
       IProcessInstance originatingProcessInstance = ProcessInstanceBean.findByOID(processInstanceOid);
+      
+      // check if the source process instance is a case.
       assertNotCaseProcessInstance(originatingProcessInstance);
 
+      // check if the source process instance is a root process instance.
       IProcessInstance rootPI = originatingProcessInstance.getRootProcessInstance();
       if (rootPI != null && rootPI != originatingProcessInstance)
       {
@@ -521,23 +533,30 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
       }
 
+      // check if the source process instance is terminated.
       if (originatingProcessInstance.isTerminated())
       {
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_PI_IS_ALREADY_TERMINATED.raise(processInstanceOid));
       }
 
-      IModel model = (IModel) originatingProcessInstance.getProcessDefinition().getModel();
-
-      QName qname = QName.valueOf(spawnProcessID);
-      String namespace = qname.getNamespaceURI();
-      String processId = qname.getLocalPart();
-      if (!namespace.equals(XMLConstants.NULL_NS_URI) && !namespace.equals(model.getId()))
+      IProcessDefinition originatingProcessDefinition = originatingProcessInstance.getProcessDefinition();
+      IModel model = (IModel) originatingProcessDefinition.getModel();
+      
+      String modelId = qname.getNamespaceURI();
+      if (!modelId.equals(XMLConstants.NULL_NS_URI))
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_AND_SPAWN_PROCESS_FRM_DIFF_MODELS.raise(processInstanceOid));
+         ModelManager mm = ModelManagerFactory.getCurrent();
+         model = mm.findActiveModel(modelId);
+         if (model == null)
+         {
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId), modelId);
+         }
       }
-      if (processId.equals(originatingProcessInstance.getProcessDefinition().getId()))
+
+      String processId = qname.getLocalPart();
+      if (processId.equals(originatingProcessDefinition.getId()) && model == originatingProcessDefinition.getModel())
       {
          throw new IllegalOperationException(
                BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
@@ -550,8 +569,12 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(processId), processId);
       }
 
+      if (options == null)
+      {
+         options = SpawnOptions.DEFAULT;
+      }
       IProcessInstanceLinkType linkType = null;
-      if (abortProcessInstance)
+      if (options.isAbortProcessInstance())
       {
          BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
          Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
@@ -561,34 +584,35 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
 
          abortProcessInstance(processInstanceOid, AbortScope.RootHierarchy);
-         linkType = ProcessInstanceLinkTypeBean.findById(ProcessInstanceLinkType.SWITCH);
+         linkType = ProcessInstanceLinkTypeBean.findById(PredefinedProcessInstanceLinkTypes.SWITCH);
       }
       else
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
-               "abortOriginatingProcessInstance", abortProcessInstance));
+               "abortOriginatingProcessInstance", options.isAbortProcessInstance()));
       }
+      
+      DataCopyOptions dco = options.getDataCopyOptions();
+      if (dco == null)
+      {
+         dco = DataCopyOptions.DEFAULT;
+      }
+      Map<String, ? extends Serializable> data = dco.getReplacementTable();
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(processDefinition,
             (IProcessInstance) null, SecurityProperties.getUser(), data);
       processInstance.setPriority(originatingProcessInstance.getPriority());
 
-      if (copyData)
+      if (dco.copyAllData() && dco.useHeuristics())
       {
-         DataCopyUtils.copyDataUsingDocumentCopyHeuristics(originatingProcessInstance, processInstance, data == null ? Collections.EMPTY_SET: data.keySet());
+         DataCopyUtils.copyDataUsingDocumentCopyHeuristics(originatingProcessInstance, processInstance,
+               data == null ? Collections.EMPTY_SET: data.keySet());
       }
 
-      new ProcessInstanceLinkBean(originatingProcessInstance, processInstance, linkType, comment);
+      new ProcessInstanceLinkBean(originatingProcessInstance, processInstance, linkType, options.getComment());
 
       runProcessInstance(processInstance);
 
       return DetailsFactory.create(processInstance);
-   }
-
-   public ProcessInstance spawnPeerProcessInstance(long processInstanceOid, String spawnProcessID, SpawnOptions options)
-         throws IllegalOperationException, ObjectNotFoundException, InvalidArgumentException
-   {
-      // TODO Auto-generated method stub
-      return null;
    }
 
    public ProcessInstance joinProcessInstance(long processInstanceOid,
@@ -642,13 +666,14 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IProcessInstanceLinkType linkType = null;
       try
       {
-         linkType = ProcessInstanceLinkTypeBean.findById(ProcessInstanceLinkType.JOIN);
+         linkType = ProcessInstanceLinkTypeBean.findById(PredefinedProcessInstanceLinkTypes.JOIN);
       }
       catch (ObjectNotFoundException e)
       {
          // Only fallback. Actually done in SchemaHelper.createSchema() to avoid concurrency issues.
-         linkType = new ProcessInstanceLinkTypeBean(ProcessInstanceLinkType.JOIN,
-               "Join Process Instance");
+         linkType = new ProcessInstanceLinkTypeBean(
+               PredefinedProcessInstanceLinkTypes.JOIN.getId(),
+               PredefinedProcessInstanceLinkTypes.JOIN.getDescription());
       }
 
       abortProcessInstance(processInstanceOid, AbortScope.RootHierarchy);
@@ -2169,7 +2194,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       QualityAssuranceUtils.setActivityInstanceAttributes(preparedAttributes , activityInstance);
    }
 
-   public Set<TransitionTarget> getAdHocTransitionTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction) throws ObjectNotFoundException
+   public List<TransitionTarget> getAdHocTransitionTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction) throws ObjectNotFoundException
    {
       return RelocationUtils.getRelocateTargets(activityInstanceOid, options, direction);
    }
@@ -2179,8 +2204,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       if (transitionTarget.getActivityInstanceOid() != activityInstanceOid)
       {
-         ErrorCase errorCase = null; // TODO: (fh) - wrong activity instance. 
-         throw new IllegalOperationException(errorCase);
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_AI_NOT_ADHOC_TRANSITION_SOURCE.raise(activityInstanceOid));
       }
       
       ActivityInstanceBean activityInstance = ActivityInstanceUtils.lock(activityInstanceOid);

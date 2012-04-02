@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
+import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -92,6 +93,11 @@ public class ProcessInstanceLinkTypeBean extends IdentifiablePersistentBean impl
    // TODO: use global cache
    private static final Map<Key, IProcessInstanceLinkType> localCache = CollectionUtils.newMap();
    
+   public static IProcessInstanceLinkType findById(PredefinedProcessInstanceLinkTypes linkType)
+   {
+      return findById(linkType.getId());
+   }
+
    public static IProcessInstanceLinkType findById(String id)
    {
       assert id != null && id.trim().length() > 0 : "Id must not be empty.";

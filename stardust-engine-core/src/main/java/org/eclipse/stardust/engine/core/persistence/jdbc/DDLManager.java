@@ -31,6 +31,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterIndex;
@@ -763,21 +764,6 @@ public class DDLManager
                   + "FROM " + dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME) + " r "
                   + "WHERE r.id = 'carnot'");
             ps.println(statementDelimiter);
-
-            // insert predefined "switch" link type
-            columns = new ArrayList();
-            columns.add(UserRealmBean.FIELD__OID);
-            columns.add(UserRealmBean.FIELD__ID);
-            columns.add(UserRealmBean.FIELD__DESCRIPTION);
-            columns.add(UserRealmBean.FIELD__PARTITION);
-            ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
-                  + buildColumnsFragment(dbDescriptor, columns)
-                  + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "link_type_seq") + ", 'switch', 'Peer Process Instance', p.oid "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
-                  + "WHERE p.id = 'default'");
-            ps.println(statementDelimiter);
-
          }
          else if (dbDescriptor.supportsIdentityColumns())
          {
@@ -867,19 +853,6 @@ public class DDLManager
                   + "0, NULL, 0, 0, r.oid "
                   + "FROM " + dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME) + " r "
                   + "WHERE r.id = 'carnot'");
-            ps.println(statementDelimiter);
-
-            // insert predefined "switch" link type
-            columns = new ArrayList();
-            columns.add(UserRealmBean.FIELD__ID);
-            columns.add(UserRealmBean.FIELD__DESCRIPTION);
-            columns.add(UserRealmBean.FIELD__PARTITION);
-            ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
-                  + buildColumnsFragment(dbDescriptor, columns)
-                  + "SELECT 'switch', 'Peer Process Instance', p.oid "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
-                  + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
          }
          else
@@ -986,22 +959,10 @@ public class DDLManager
                   "UPDATE " + getQualifiedName(schemaName, "sequence_helper") + " SET value=2 WHERE name='user_seq'");
             ps.println(statementDelimiter);
 
-            // insert predefined "switch" link type
-            columns = new ArrayList();
-            columns.add(UserRealmBean.FIELD__OID);
-            columns.add(UserRealmBean.FIELD__ID);
-            columns.add(UserRealmBean.FIELD__DESCRIPTION);
-            columns.add(UserRealmBean.FIELD__PARTITION);
-            ps.println(
-                  "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
-                  + buildColumnsFragment(dbDescriptor, columns)
-                  + "VALUES (1, 'switch', 'Peer Process Instance', 1)");
-            ps.println(statementDelimiter);
-            ps.println(
-                  "UPDATE " + getQualifiedName(schemaName, "sequence_helper") + " SET value=2 WHERE name='link_type_seq'");
-            ps.println(statementDelimiter);
-
          }
+
+         insertPredefinedLinkTypes(schemaName, statementDelimiter, ps);
+
          ps.println("COMMIT");
          ps.println(statementDelimiter);
          ps.println();
@@ -1013,6 +974,81 @@ public class DDLManager
       }
    }
 
+   private void insertPredefinedLinkTypes(String schemaName, String statementDelimiter, PrintStream ps)
+   {
+      int oid = 0;
+      for (PredefinedProcessInstanceLinkTypes type : PredefinedProcessInstanceLinkTypes.values())
+      {
+         oid++;
+         ps.println(getInsertLinkTypeStatement(schemaName, type.getId(), type.getDescription(), oid));
+         ps.println(statementDelimiter);
+      }
+      if (!dbDescriptor.supportsSequences() && !dbDescriptor.supportsIdentityColumns())
+      {
+         ps.println(getUpdateLinkTypeSequenceHelperStatement(schemaName));
+         ps.println(statementDelimiter);
+      }
+   }
+
+   private static String getUpdateLinkTypeSequenceHelperStatement(String schemaName)
+   {
+      return "UPDATE " + getQualifiedName(schemaName, "sequence_helper")
+          + " SET value=" + (PredefinedProcessInstanceLinkTypes.values().length + 1)
+          + " WHERE name='link_type_seq'";
+   }
+
+   private String getInsertLinkTypeStatement(String schemaName, String id, String name, int index)
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append("INSERT INTO ");
+      sb.append(getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(ProcessInstanceLinkTypeBean.TABLE_NAME)));
+      List columns = new ArrayList();
+      if (dbDescriptor.supportsSequences() || !dbDescriptor.supportsIdentityColumns())
+      {
+         columns.add(ProcessInstanceLinkTypeBean.FIELD__OID);
+      }
+      columns.add(ProcessInstanceLinkTypeBean.FIELD__ID);
+      columns.add(ProcessInstanceLinkTypeBean.FIELD__DESCRIPTION);
+      columns.add(ProcessInstanceLinkTypeBean.FIELD__PARTITION);
+      sb.append(buildColumnsFragment(dbDescriptor, columns));
+      if (dbDescriptor.supportsSequences() || dbDescriptor.supportsIdentityColumns())
+      {
+         sb.append("SELECT ");
+      }
+      else
+      {
+         sb.append("VALUES (");
+      }
+      if (dbDescriptor.supportsSequences())
+      {
+         sb.append(dbDescriptor.getNextValForSeqString(schemaName, "link_type_seq"));
+      }
+      else if (!dbDescriptor.supportsIdentityColumns())
+      {
+         sb.append(index);
+      }
+      if (dbDescriptor.supportsSequences() || !dbDescriptor.supportsIdentityColumns())
+      {
+         sb.append(", ");
+      }
+      sb.append('\'');
+      sb.append(id);
+      sb.append("', '");
+      sb.append(name);
+      sb.append("', ");
+      if (dbDescriptor.supportsSequences() || dbDescriptor.supportsIdentityColumns())
+      {
+         sb.append("p.oid FROM ");
+         sb.append(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME));
+         sb.append(" p WHERE p.id = 'default'");
+      }
+      else
+      {
+         sb.append(index);
+         sb.append(')');
+      }
+      return sb.toString();
+   }
 
    public void dumpCreateArchiveSchemaDDLToFile(File file, String schemaName,
          Collection classes)
@@ -2391,85 +2427,19 @@ public class DDLManager
 
          executeOrSpoolStatement(insBuffer.toString(), connection, spoolFile);
 
-         // insert partitions "switch" link type
-         typeManager = TypeDescriptor.get(ProcessInstanceLinkTypeBean.class);
-         tableName = typeManager.getTableName();
-         String linkTypeTableName = getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(tableName));
-
-         if (dbDescriptor.supportsSequences())
+         // insert predefined link type
+         int oid = 0;
+         for (PredefinedProcessInstanceLinkTypes type : PredefinedProcessInstanceLinkTypes.values())
          {
-            List columns = new ArrayList();
-            columns.add(UserRealmBean.FIELD__OID);
-            columns.add(UserRealmBean.FIELD__ID);
-            columns.add(UserRealmBean.FIELD__DESCRIPTION);
-            columns.add(UserRealmBean.FIELD__PARTITION);
-
-            columnPart = buildColumnsFragment(dbDescriptor, columns);
-            valuesPart = MessageFormat.format("{0}, ''{1}'', ''{2}'', {3}",
-                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()),
-                  "switch", "Peer Process Instance",
-                  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
+            oid++;
+            String insertStmt = getInsertLinkTypeStatement(schemaName, type.getId(), type.getDescription(), oid);
+            executeOrSpoolStatement(insertStmt, connection, spoolFile);
          }
-         else if (dbDescriptor.supportsIdentityColumns())
+         if (!dbDescriptor.supportsSequences() && !dbDescriptor.supportsIdentityColumns())
          {
-            List columns = new ArrayList();
-            columns.add(UserRealmBean.FIELD__ID);
-            columns.add(UserRealmBean.FIELD__DESCRIPTION);
-            columns.add(UserRealmBean.FIELD__PARTITION);
-
-            columnPart = buildColumnsFragment(dbDescriptor, columns);
-            valuesPart = MessageFormat.format("''{0}'', ''{1}'', {2}",
-                  "switch", "Peer Process Instance",
-                  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
+            String updateStmt = getUpdateLinkTypeSequenceHelperStatement(schemaName);
+            executeOrSpoolStatement(updateStmt, connection, spoolFile);
          }
-
-         insBuffer = new StringBuffer(200);
-         insBuffer//
-               .append("INSERT INTO ").append(linkTypeTableName).append(columnPart)//
-               .append(" SELECT ").append(valuesPart)
-               .append(" FROM ").append(partitionTableName)
-               .append(" WHERE ")
-               .append(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__ID)).append(" = '").append(partitionId).append("'");
-
-         executeOrSpoolStatement(insBuffer.toString(), connection, spoolFile);
-
-         // insert partitions "join" link type
-         if (dbDescriptor.supportsSequences())
-         {
-            List columns = new ArrayList();
-            columns.add(UserRealmBean.FIELD__OID);
-            columns.add(UserRealmBean.FIELD__ID);
-            columns.add(UserRealmBean.FIELD__DESCRIPTION);
-            columns.add(UserRealmBean.FIELD__PARTITION);
-
-            columnPart = buildColumnsFragment(dbDescriptor, columns);
-            valuesPart = MessageFormat.format("{0}, ''{1}'', ''{2}'', {3}",
-                  dbDescriptor.getNextValForSeqString(schemaName, typeManager.getPkSequence()),
-                  "join", "Join Process Instance",
-                  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
-         }
-         else if (dbDescriptor.supportsIdentityColumns())
-         {
-            List columns = new ArrayList();
-            columns.add(UserRealmBean.FIELD__ID);
-            columns.add(UserRealmBean.FIELD__DESCRIPTION);
-            columns.add(UserRealmBean.FIELD__PARTITION);
-
-            columnPart = buildColumnsFragment(dbDescriptor, columns);
-            valuesPart = MessageFormat.format("''{0}'', ''{1}'', {2}",
-                  "join", "Join Process Instance",
-                  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
-         }
-
-         insBuffer = new StringBuffer(200);
-         insBuffer//
-               .append("INSERT INTO ").append(linkTypeTableName).append(columnPart)//
-               .append(" SELECT ").append(valuesPart)
-               .append(" FROM ").append(partitionTableName)
-               .append(" WHERE ")
-               .append(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__ID)).append(" = '").append(partitionId).append("'");
-
-         executeOrSpoolStatement(insBuffer.toString(), connection, spoolFile);
       }
       catch (SQLException x)
       {

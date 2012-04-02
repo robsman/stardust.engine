@@ -25,7 +25,13 @@ import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 
 /**
  * <p>
- * This utility class allows for creating users for testing purposes.
+ * This utility class allows for
+ * <ul>
+ *    <li>creating users,</li>
+ *    <li>adding grants to existing users, and</li>
+ *    <li>removing grants from existing users</li>
+ * </ul>
+ * for testing purposes.
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -82,6 +88,97 @@ public class UserHome
     */
    public static User create(final ServiceFactory sf, final String userId, final String ... grants)
    {
+      final ModelParticipantInfo[] mpGrants = resolveModelParticipants(sf, grants);
+      return create(sf, userId, mpGrants);
+   }
+
+   /**
+    * <p>
+    * Adds the specified grants to the already existing user.
+    * </p>
+    * 
+    * @param sf a service factory needed for adding the grants
+    * @param user the already created user
+    * @param grants the grants that should be applied to the user
+    * @return the user with the specified grants added
+    */
+   public static User addGrants(final ServiceFactory sf, final User user, final ModelParticipantInfo ... grants)
+   {
+      for (final ModelParticipantInfo m : grants)
+      {
+         user.addGrant(m);
+      }
+      return sf.getUserService().modifyUser(user);
+   }
+
+   /**
+    * <p>
+    * Adds the specified grants to the already existing user.
+    * </p>
+    * 
+    * @param sf a service factory needed for adding the grants
+    * @param user the already created user
+    * @param grants the IDs of the grants that should be applied to the user
+    * @return the user with the specified grants added
+    */
+   public static User addGrants(final ServiceFactory sf, final User user, final String ... grants)
+   {
+      final ModelParticipantInfo[] mpGrants = resolveModelParticipants(sf, grants);
+      return addGrants(sf, user, mpGrants);
+   }
+
+   /**
+    * <p>
+    * Removes the specified grants from the already existing user.
+    * </p>
+    * 
+    * @param sf a service factory needed for removing the grants
+    * @param user the already created user
+    * @param grants the grants that should be removed from the user
+    * @return the user with the specified grants removed
+    */
+   public static User removeGrants(final ServiceFactory sf, final User user, final ModelParticipantInfo ... grants)
+   {
+      for (final ModelParticipantInfo m : grants)
+      {
+         user.removeGrant(m);
+      }
+      return sf.getUserService().modifyUser(user);
+   }
+
+   /**
+    * <p>
+    * Removes the specified grants from the already existing user.
+    * </p>
+    * 
+    * @param sf a service factory needed for removing the grants
+    * @param user the already created user
+    * @param grants the IDs of the grants that should be removed from the user
+    * @return the user with the specified grants removed
+    */
+   public static User removeGrants(final ServiceFactory sf, final User user, final String ... grants)
+   {
+      final ModelParticipantInfo[] mpGrants = resolveModelParticipants(sf, grants);
+      return removeGrants(sf, user, mpGrants);
+   }
+   
+   /**
+    * <p>
+    * Removes all grants from the given already existing user.
+    * </p>
+    * 
+    * @param sf a service factory needed for removing the grants
+    * @param user the already created user
+    * @return the user with all grants removed
+    */
+   public static User removeAllGrants(final ServiceFactory sf, final User user)
+   {
+      user.removeAllGrants();
+      return sf.getUserService().modifyUser(user);
+   }
+   
+   private static ModelParticipantInfo[] resolveModelParticipants(final ServiceFactory sf, final String ... grants)
+   {
       final Set<ModelParticipantInfo> mpGrants = newHashSet();
       if (grants != null)
       {
@@ -96,8 +193,7 @@ public class UserHome
             mpGrants.add((ModelParticipantInfo) participant);
          }
       }
-      
-      return create(sf, userId, mpGrants.toArray(new ModelParticipantInfo[mpGrants.size()]));
+      return mpGrants.toArray(new ModelParticipantInfo[mpGrants.size()]);
    }
    
    private UserHome()

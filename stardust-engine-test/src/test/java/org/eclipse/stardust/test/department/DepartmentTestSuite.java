@@ -37,6 +37,7 @@ import org.junit.runners.Suite.SuiteClasses;
                NullScopeFallbackTest.class,
                ParticipantAssociationFilterTest.class,
                PerformingParticipantFilterTest.class,
+               ScopedWorklistTest.class,
                SubDepartmentDelegationTest.class,
                UserGrantsTest.class
              })

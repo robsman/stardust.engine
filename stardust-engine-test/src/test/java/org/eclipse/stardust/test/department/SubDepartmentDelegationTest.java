@@ -22,7 +22,6 @@ import org.eclipse.stardust.engine.api.dto.ModelParticipantInfoDetails;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
-import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
@@ -79,12 +78,11 @@ public class SubDepartmentDelegationTest extends LocalJcrH2Test
    @Before
    public void setUp()
    {
-      UserHome.create(adminSf, USER_ID, ORG3_ID);
-
       initAllOrgsAndRoles();
       createAllDepartments();
       createScopedParticipants();
-      createNeededGrants();
+      
+      UserHome.create(adminSf, USER_ID, org1de, org1en, org3deNorth, org3deSouth);
 
       startProcess();
       ai = adminSf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAll());
@@ -208,7 +206,8 @@ public class SubDepartmentDelegationTest extends LocalJcrH2Test
       final DepartmentInfo originalDept = getDepartmentFor(ai);
       assertEquals(deDept.getOID(), originalDept.getOID());
 
-      addAdmnistratorGrant();
+      final User user = userSf.getUserService().getUser();
+      UserHome.addGrants(adminSf, user, DepartmentModelConstants.ROLE_ADMIN_ID);
       ai = userSf.getWorkflowService().delegateToParticipant(ai.getOID(), org1en);
       ai = userSf.getWorkflowService().delegateToParticipant(ai.getOID(), org3);
 
@@ -242,19 +241,6 @@ public class SubDepartmentDelegationTest extends LocalJcrH2Test
       org3deSouth = deSouthDept.getScopedParticipant(org3);
    }
 
-   private void createNeededGrants()
-   {
-      final User user = userSf.getWorkflowService().getUser();
-
-      user.removeAllGrants();
-      user.addGrant(org1de);
-      user.addGrant(org1en);
-      user.addGrant(org3deNorth);
-      user.addGrant(org3deSouth);
-
-      adminSf.getUserService().modifyUser(user);
-   }
-
    private void startProcess()
    {
       /* start process in scope "(DE,South)" */
@@ -268,13 +254,5 @@ public class SubDepartmentDelegationTest extends LocalJcrH2Test
    private DepartmentInfo getDepartmentFor(final ActivityInstance ai)
    {
       return ((ModelParticipantInfoDetails) ai.getCurrentPerformer()).getDepartment();
-   }
-
-   private void addAdmnistratorGrant()
-   {
-      final User user = userSf.getWorkflowService().getUser();
-      final Role adminRole = (Role) adminSf.getQueryService().getParticipant(ROLE_ADMIN_ID);
-      user.addGrant(adminRole);
-      adminSf.getUserService().modifyUser(user);
    }
 }

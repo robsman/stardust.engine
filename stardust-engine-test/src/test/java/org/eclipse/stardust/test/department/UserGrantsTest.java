@@ -96,11 +96,9 @@ public class UserGrantsTest extends LocalJcrH2Test
       final ModelParticipantInfo mpi1 = dep1.getScopedParticipant(orgs[0]);
       final ModelParticipantInfo mpi2 = dep2.getScopedParticipant(orgs[1]);
       
-      user.removeAllGrants();
-      user.addGrant(mpi1);
-      user.addGrant(mpi2);
+      UserHome.removeAllGrants(adminSf, user);
+      UserHome.addGrants(adminSf, user, mpi1, mpi2);
       
-      adminSf.getUserService().modifyUser(user);
       final User retrievedUser = userSf.getWorkflowService().getUser();
       ensureGrantsExist(dep1, dep2, retrievedUser);
    }
@@ -120,17 +118,14 @@ public class UserGrantsTest extends LocalJcrH2Test
       final ModelParticipantInfo mpi1 = dep1.getScopedParticipant(orgs[0]);
       final ModelParticipantInfo mpi2 = dep2.getScopedParticipant(orgs[1]);
       
-      user.removeAllGrants();
-      user.addGrant(mpi1);
-      user.addGrant(mpi2);
+      UserHome.removeAllGrants(adminSf, user);
+      UserHome.addGrants(adminSf, user, mpi1, mpi2);
       
-      adminSf.getUserService().modifyUser(user);
       user = userSf.getWorkflowService().getUser();
       ensureGrantsExist(dep1, dep2, user);
       
-      user.removeGrant(mpi1);
-      
-      adminSf.getUserService().modifyUser(user);
+      UserHome.removeGrants(adminSf, user, mpi1);
+
       user = userSf.getWorkflowService().getUser();
       ensureGrantIsRemoved(dep1, dep2, user);
    }

@@ -504,28 +504,16 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       userSf.getWorkflowService().startProcess(PROCESS_ID_8, piData, true);
    }
    
-   private void removeAllGrantsFor(final User user)
-   {
-      user.removeAllGrants();
-      adminSf.getUserService().modifyUser(user);
-   }
-   
-   private void addGrantFor(final User user, final ModelParticipantInfo grant)
-   {
-      user.addGrant(grant);
-      adminSf.getUserService().modifyUser(user);
-   }
-   
    private void ensureReadActivityInstanceEventHandlerFailsFor(final ModelParticipantInfo[] grants, final long aiOID)
    {
       final User user = userSf.getWorkflowService().getUser();
-      removeAllGrantsFor(user);
+      UserHome.removeAllGrants(adminSf, user);
       ensureReadActivityInstanceEventHandlerFailsInternal(null, aiOID);
       
-      for (ModelParticipantInfo grant : grants)
+      for (final ModelParticipantInfo grant : grants)
       {
-         removeAllGrantsFor(user);
-         addGrantFor(user, grant);
+         UserHome.removeAllGrants(adminSf, user);
+         UserHome.addGrants(adminSf, user, grant);
          
          ensureReadActivityInstanceEventHandlerFailsInternal(grant, aiOID);
       }
@@ -555,10 +543,10 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    {
       final User user = userSf.getWorkflowService().getUser();
       
-      for (ModelParticipantInfo grant : grants)
+      for (final ModelParticipantInfo grant : grants)
       {
-         removeAllGrantsFor(user);
-         addGrantFor(user, grant);
+         UserHome.removeAllGrants(adminSf, user);
+         UserHome.addGrants(adminSf, user, grant);
 
          final StringBuffer sb = new StringBuffer("Attempt to read AI data should succeed for grant: ");
          sb.append(getDepartmentStringFor(grant) + " ... ");

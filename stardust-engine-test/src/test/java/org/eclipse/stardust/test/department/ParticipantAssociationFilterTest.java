@@ -48,14 +48,12 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
 {
    private static final String ORG1_USERNAME_1 = "org1_1";
    private static final String ORG1_USERNAME_2 = "org1_2";
-   private static final String ORG1_USERNAME_3 = "org1_3";
    
    private static final String DEP_ID_U = "u";
    private static final String DEP_ID_V = "v";
    
    private User org1User1;
    private User org1User2;
-   private User org1User3;
    
    private Organization org1;
    
@@ -75,7 +73,7 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    @Before
    public void setUp()
    {
-      createOrg1();
+      initOrg1();
       createOrg1Users();
       createAllDepartments();
       createScopedGrants();
@@ -105,13 +103,12 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    @Test
    public void testForParticipantOrg1uGrantOneUser()
    {
-      final User user = sf.getUserService().getUser(ORG1_USERNAME_1);
-      addGrantFor(user, org1uGrant);
+      UserHome.addGrants(sf, org1User1, org1uGrant);
       
       final Users users = getUsersFor(org1uGrant);
       
       assertEquals(1, users.size());
-      assertEquals(user, users.get(0));
+      assertEquals(org1User1, users.get(0));
    }
    
    /**
@@ -124,16 +121,14 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    @Test
    public void testForParticipantOrg1uGrantTwoUsers()
    {
-      final User user1 = sf.getUserService().getUser(ORG1_USERNAME_1);
-      addGrantFor(user1, org1uGrant);
-      final User user2 = sf.getUserService().getUser(ORG1_USERNAME_2);
-      addGrantFor(user2, org1uGrant);
+      UserHome.addGrants(sf, org1User1, org1uGrant);
+      UserHome.addGrants(sf, org1User2, org1uGrant);
       
       final Users users = getUsersFor(org1uGrant);
       
       assertEquals(2, users.size());
-      assertTrue(users.contains(user1));
-      assertTrue(users.contains(user2));
+      assertTrue(users.contains(org1User1));
+      assertTrue(users.contains(org1User2));
    }   
    
    /**
@@ -146,16 +141,13 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    @Test
    public void testForParticipantOrg1uAndOrg1vGrant()
    {
-      final User user1 = sf.getUserService().getUser(ORG1_USERNAME_1);
-      addGrantFor(user1, org1uGrant);
-      addGrantFor(user1, org1vGrant);
-      final User user2 = sf.getUserService().getUser(ORG1_USERNAME_2);
-      addGrantFor(user2, org1uGrant);
+      UserHome.addGrants(sf, org1User1, org1uGrant, org1vGrant);
+      UserHome.addGrants(sf, org1User2, org1uGrant);
       
       final Users users = getUsersForAndTerm(org1uGrant, org1vGrant);
       
       assertEquals(1, users.size());
-      assertEquals(user1, users.get(0));
+      assertEquals(org1User1, users.get(0));
    }
    
    /**
@@ -169,19 +161,17 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    @Test
    public void testForParticipantOrg1uOrOrg1vGrant()
    {
-      final User user1 = sf.getUserService().getUser(ORG1_USERNAME_1);
-      addGrantFor(user1, org1uGrant);
-      final User user2 = sf.getUserService().getUser(ORG1_USERNAME_2);
-      addGrantFor(user2, org1vGrant);
+      UserHome.addGrants(sf, org1User1, org1uGrant);
+      UserHome.addGrants(sf, org1User2, org1vGrant);
       
       final Users users = getUsersForOrTerm(org1uGrant, org1vGrant);
       
       assertEquals(2, users.size());
-      assertTrue(users.contains(user1));
-      assertTrue(users.contains(user2));
+      assertTrue(users.contains(org1User1));
+      assertTrue(users.contains(org1User2));
    }
 
-   private void createOrg1()
+   private void initOrg1()
    {
       final Model model = sf.getQueryService().getActiveModel();
       org1 = model.getOrganization(ORG1_ID);
@@ -189,14 +179,8 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    
    private void createOrg1Users()
    {
-      org1User1 = UserHome.create(sf, ORG1_USERNAME_1, new String[0]);
-      addGrantFor(org1User1, org1);
-      
-      org1User2 = UserHome.create(sf, ORG1_USERNAME_2, new String[0]);
-      addGrantFor(org1User2, org1);
-      
-      org1User3 = UserHome.create(sf, ORG1_USERNAME_3, new String[0]);
-      addGrantFor(org1User3, org1);
+      org1User1 = UserHome.create(sf, ORG1_USERNAME_1, org1);
+      org1User2 = UserHome.create(sf, ORG1_USERNAME_2, org1);
    }
    
    private void createAllDepartments()
@@ -209,12 +193,6 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
    {
       org1uGrant = uDep.getScopedParticipant(org1);
       org1vGrant = vDep.getScopedParticipant(org1);
-   }
-   
-   private void addGrantFor(final User user, final ModelParticipantInfo grant)
-   {
-      user.addGrant(grant);
-      sf.getUserService().modifyUser(user);
    }
    
    private Users getUsersFor(final ModelParticipantInfo p1)

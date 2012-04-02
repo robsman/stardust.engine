@@ -54,7 +54,7 @@ public class TriggerDetails extends AuditTrailModelElementDetails implements Tri
       this.accessPoints = DetailsFactory.createCollection(trigger.getAllAccessPoints(),
             org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint.class, AccessPointDetails.class);
 
-      this.parameterMappings = DetailsFactory.createCollection(trigger.getAllParameterMappings(),
+      this.parameterMappings = DetailsFactory.createCollection(trigger.getParameterMappings(),
             IParameterMapping.class, ParameterMappingDetails.class);
    }
 
@@ -73,7 +73,7 @@ public class TriggerDetails extends AuditTrailModelElementDetails implements Tri
       return isSynchronous;
    }
 
-   public List getAllAccessPoints()
+   public List<AccessPoint> getAllAccessPoints()
    {
       return Collections.unmodifiableList(accessPoints);
    }
@@ -93,7 +93,7 @@ public class TriggerDetails extends AuditTrailModelElementDetails implements Tri
       return accessPoint;
    }
 
-   public List getAllParameterMappings()
+   public List<ParameterMapping> getAllParameterMappings()
    {
       return Collections.unmodifiableList(parameterMappings);
    }

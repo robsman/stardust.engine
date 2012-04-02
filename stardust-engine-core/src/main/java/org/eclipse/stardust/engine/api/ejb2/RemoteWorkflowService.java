@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 54130 
+ * Generated from  Revision: 54785 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 54130
+ * @version 54785
  */
 public interface RemoteWorkflowService extends javax.ejb.EJBObject
 {
@@ -52,6 +52,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the current user is the one who worked on the previous workflow instance.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -101,6 +108,26 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument is a non empty map.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *     quality assurance instance and no {@link
+     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *     has been set before({@link
+     *     ({@link
+     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
+     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -152,6 +179,17 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *     quality assurance instance and no {@link
+     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *     has been set before({@link
+     *     ({@link
+     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
+     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -210,6 +248,33 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument is a non empty map.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the current user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *     quality assurance instance and no {@link
+     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *     has been set before({@link
+     *     ({@link
+     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
+     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -262,6 +327,22 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *             statically typed data.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
      *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument is a non empty map.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the current user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
      *     valid or is not
      *             granted to execute the activity instance. Also thrown if the activity
@@ -269,6 +350,17 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *     quality assurance instance and no {@link
+     *      {@link org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes}
+     *     has been set before({@link
+     *     ({@link
+     *     WorkflowService#setorg.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes(
+     *     org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes)}).
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -378,11 +470,15 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidArgumentException if QA AI with non empty out
-     *     data map
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
-     *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument contains a non empty data map.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -458,6 +554,15 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument is a non empty map.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -533,6 +638,15 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument is a non empty map.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -569,6 +683,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidArgumentException if the specified activity
+     *     instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the specified user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
@@ -610,6 +731,20 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws IllegalOperationExceptionn if the specified activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument is a non empty map.
+     *     <em>Instances of {@link IllegalOperationExceptionn} will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the specified user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -691,6 +826,15 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument is a non empty map.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -733,6 +877,23 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     which is not marked as pass with correction {@link
+     *      {@link ResultState#PASS_WITH_CORRECTION}
+     *             and the passed <code>outData</code> argument contains a non empty data map
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *     and the passed participant is a user who worked on the previous workflow
+     *     orkflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1204,6 +1365,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link AccessForbiddenException
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the specified user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1451,6 +1619,14 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *
      * @param worklist query.
      *
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the current user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
      *     activated.
      *
@@ -1475,6 +1651,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
      *     activated.
      *
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the current user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
@@ -1499,6 +1682,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * @return the {@link org.eclipse.stardust.engine.api.runtime.ActivityInstance} that was
      *     activated.
      *
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the current user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no process
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
@@ -1696,6 +1886,19 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the delegation target is
+     *     not granted to execute
+     *             the activity instance or if the activity instance is already terminated.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the specified user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1777,6 +1980,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
+     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
+     *             and the specified user is the one who worked on the previous workflow instance
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -2120,7 +2330,7 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     options, org.eclipse.stardust.engine.api.runtime.ScanDirection direction)
      */
     public
-         java.util.Set<org.eclipse.stardust.engine.api.runtime.TransitionTarget>
+         java.util.List<org.eclipse.stardust.engine.api.runtime.TransitionTarget>
          getAdHocTransitionTargets(
          long activityInstanceOid,
          org.eclipse.stardust.engine.api.runtime.TransitionOptions options,
@@ -2270,6 +2480,16 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     ({@link ActivityInstanceAttributes#getQualityAssuranceResult()}
      *     and the codes list({@link QualityAssuranceResult#getQualityAssuranceCodes(
      *     )} contains a null element
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
+     *     will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.InvalidArgumentException - when the specified
+     *     quality assurance {@link ActivityInstanceAttributes#getActivityInstanceOid(
+     *     )} instance is marked as
+     *     {@link ResultState#PASS_WITH_CORRECTION} or {@link ResultState#FAILED}, the
+     *     corresponding activity for this activity instance
+     *     supplies error codes {@link IActivity#getQualityAssuranceCodes(
+     *     )} and no error code was supplied
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>

@@ -12,6 +12,8 @@ package org.eclipse.stardust.test.department;
 
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.List;
@@ -58,9 +60,9 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
    
    private Organization org;
 
-   private Department depDe;
+   private Department deptDe;
 
-   private Department depEn;
+   private Department deptEn;
 
    private ModelParticipantInfo orgDe;
 
@@ -104,9 +106,9 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final List<HistoricalState> states = ai.getHistoricalStates();
 
       Assert.assertEquals(3, states.size());
-      Assert.assertEquals(depDe.getOID(), getDepartmentOidFor(states.get(0)));
-      Assert.assertEquals(depEn.getOID(), getDepartmentOidFor(states.get(1)));
-      Assert.assertEquals(depDe.getOID(), getDepartmentOidFor(states.get(2)));
+      Assert.assertEquals(deptDe.getOID(), getDepartmentOidFor(states.get(0)));
+      Assert.assertEquals(deptEn.getOID(), getDepartmentOidFor(states.get(1)));
+      Assert.assertEquals(deptDe.getOID(), getDepartmentOidFor(states.get(2)));
    }
 
    /**
@@ -130,10 +132,10 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final List<HistoricalState> states = ai.getHistoricalStates();
 
       Assert.assertEquals(4, states.size());
-      Assert.assertEquals(depDe.getOID(), getOnBehalfOfDepartmentOidFor(states.get(0)));
-      Assert.assertEquals(depDe.getOID(), getOnBehalfOfDepartmentOidFor(states.get(1)));
-      Assert.assertEquals(depEn.getOID(), getOnBehalfOfDepartmentOidFor(states.get(2)));
-      Assert.assertEquals(depDe.getOID(), getOnBehalfOfDepartmentOidFor(states.get(3)));
+      Assert.assertEquals(deptDe.getOID(), getOnBehalfOfDepartmentOidFor(states.get(0)));
+      Assert.assertEquals(deptDe.getOID(), getOnBehalfOfDepartmentOidFor(states.get(1)));
+      Assert.assertEquals(deptEn.getOID(), getOnBehalfOfDepartmentOidFor(states.get(2)));
+      Assert.assertEquals(deptDe.getOID(), getOnBehalfOfDepartmentOidFor(states.get(3)));
    }
 
    /**
@@ -158,11 +160,11 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final Model model = adminSf.getQueryService().getActiveModel();
 
       org = model.getOrganization(ORG_ID_1);
-      depDe = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
-      depEn = DepartmentHome.create(DEPT_ID_EN, ORG_ID_1, null, adminSf);
+      deptDe = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
+      deptEn = DepartmentHome.create(DEPT_ID_EN, ORG_ID_1, null, adminSf);
 
-      orgDe = depDe.getScopedParticipant(org);
-      orgEn = depEn.getScopedParticipant(org);
+      orgDe = deptDe.getScopedParticipant(org);
+      orgEn = deptEn.getScopedParticipant(org);
 
       UserHome.create(adminSf, USER_NAME, orgDe, orgEn);
    }
@@ -213,11 +215,11 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final ParticipantInfo participant = state.getParticipant();
       if (!(participant instanceof ModelParticipantInfo))
       {
-         Assert.fail("Participant must be of type 'ModelParticipantInfo'.");
+         fail("Participant must be of type 'ModelParticipantInfo'.");
       }
-      final DepartmentInfo depInfo = ((ModelParticipantInfo) participant).getDepartment();
-      Assert.assertNotNull("department must not be null", depInfo);
-      return depInfo.getOID();
+      final DepartmentInfo deptInfo = ((ModelParticipantInfo) participant).getDepartment();
+      assertNotNull("Department must not be null.", deptInfo);
+      return deptInfo.getOID();
    }
 
    private long getOnBehalfOfDepartmentOidFor(final HistoricalState state)
@@ -225,10 +227,10 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final ParticipantInfo participant = state.getOnBehalfOfParticipant();
       if (!(participant instanceof ModelParticipantInfo))
       {
-         Assert.fail("Participant must be of type 'ModelParticipantInfo'.");
+         fail("Participant must be of type 'ModelParticipantInfo'.");
       }
-      final DepartmentInfo depInfo = ((ModelParticipantInfo) participant).getDepartment();
-      Assert.assertNotNull("department must not be null", depInfo);
-      return depInfo.getOID();
+      final DepartmentInfo deptInfo = ((ModelParticipantInfo) participant).getDepartment();
+      assertNotNull("Department must not be null.", deptInfo);
+      return deptInfo.getOID();
    }
 }

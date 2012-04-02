@@ -92,8 +92,8 @@ public class DepartmentCleanupTest extends LocalJcrH2Test
    
    private void ensureDepartmentExists()
    {
-      final Department dep = sf.getQueryService().findDepartment(null, DEPT_ID_DE, new OrganizationInfoDetails(ORG_ID_1));
-      assertEquals(DEPT_ID_DE, dep.getId());
+      final Department dept = sf.getQueryService().findDepartment(null, DEPT_ID_DE, new OrganizationInfoDetails(ORG_ID_1));
+      assertEquals(DEPT_ID_DE, dept.getId());
    }
    
    private void ensureDepartmentCleanup()

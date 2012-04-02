@@ -126,8 +126,8 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test(expected = ObjectNotFoundException.class)
    public void testCreateDepartmentParentDoesNotExist()
    {
-      final DepartmentInfo dep = new DepartmentInfoDetails(-1, "N/A", "N/A", -1);
-      DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, dep, sf);
+      final DepartmentInfo dept = new DepartmentInfoDetails(-1, "N/A", "N/A", -1);
+      DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, dept, sf);
       fail("The parent must resolve to an exisiting department.");
    }
    
@@ -259,10 +259,10 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test(expected = ObjectNotFoundException.class)
    public void testRemoveDepartment()
    {
-      final Department dep = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
-      adminService.removeDepartment(dep.getOID());
+      final Department dept = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      adminService.removeDepartment(dept.getOID());
       
-      adminService.getDepartment(dep.getOID());
+      adminService.getDepartment(dept.getOID());
       fail("Found a department which has been removed.");
    }
    

@@ -214,14 +214,14 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
    private Organization org5;
    private Organization readerOrg;
    
-   private Department depU;
-   private Department depV;
-   private Department depUi;
-   private Department depVj;
-   private Department depUim;
-   private Department depVjn;
-   private Department depA;
-   private Department depB;
+   private Department deptU;
+   private Department deptV;
+   private Department deptUi;
+   private Department deptVj;
+   private Department deptUim;
+   private Department deptVjn;
+   private Department deptA;
+   private Department deptB;
    
    private ModelParticipantInfo org1u;
    private ModelParticipantInfo org1v;
@@ -455,42 +455,42 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       org5 = model.getOrganization(ORG5_ID);
       readerOrg = model.getOrganization(READER_ORG_ID);
       
-      depU = adminSf.getAdministrationService().createDepartment(DEPT_ID_U, DEPT_ID_U, null, null, org1);
-      depV = adminSf.getAdministrationService().createDepartment(DEPT_ID_V, DEPT_ID_V, null, null, org1);
-      depA = adminSf.getAdministrationService().createDepartment(DEP_ID_A, DEP_ID_A, null, null, readerOrg);
-      depB = adminSf.getAdministrationService().createDepartment(DEP_ID_B, DEP_ID_B, null, null, readerOrg);
+      deptU = adminSf.getAdministrationService().createDepartment(DEPT_ID_U, DEPT_ID_U, null, null, org1);
+      deptV = adminSf.getAdministrationService().createDepartment(DEPT_ID_V, DEPT_ID_V, null, null, org1);
+      deptA = adminSf.getAdministrationService().createDepartment(DEP_ID_A, DEP_ID_A, null, null, readerOrg);
+      deptB = adminSf.getAdministrationService().createDepartment(DEP_ID_B, DEP_ID_B, null, null, readerOrg);
       
-      depUi = adminSf.getAdministrationService().createDepartment(SUB_DEPT_ID_I, SUB_DEPT_ID_I, null, depU, org3);
-      depUim = adminSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_M, SUB_SUB_DEP_ID_M, null, depUi, org4);
+      deptUi = adminSf.getAdministrationService().createDepartment(SUB_DEPT_ID_I, SUB_DEPT_ID_I, null, deptU, org3);
+      deptUim = adminSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_M, SUB_SUB_DEP_ID_M, null, deptUi, org4);
       
-      depVj = adminSf.getAdministrationService().createDepartment(SUB_DEPT_ID_J, SUB_DEPT_ID_J, null, depV, org3);
-      depVjn = adminSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_N, SUB_SUB_DEP_ID_N, null, depVj, org4);
+      deptVj = adminSf.getAdministrationService().createDepartment(SUB_DEPT_ID_J, SUB_DEPT_ID_J, null, deptV, org3);
+      deptVjn = adminSf.getAdministrationService().createDepartment(SUB_SUB_DEP_ID_N, SUB_SUB_DEP_ID_N, null, deptVj, org4);
    }
    
    private void createScopedParticipants()
    {
-      org1u = depU.getScopedParticipant(org1);
-      org1v = depV.getScopedParticipant(org1);
+      org1u = deptU.getScopedParticipant(org1);
+      org1v = deptV.getScopedParticipant(org1);
       
-      org3ui = depUi.getScopedParticipant(org3);
-      org3uNull = depU.getScopedParticipant(org3);
-      org3vj = depVj.getScopedParticipant(org3);
-      org3vNull = depV.getScopedParticipant(org3);
+      org3ui = deptUi.getScopedParticipant(org3);
+      org3uNull = deptU.getScopedParticipant(org3);
+      org3vj = deptVj.getScopedParticipant(org3);
+      org3vNull = deptV.getScopedParticipant(org3);
 
-      org5ui = depUi.getScopedParticipant(org5);
-      org5uNull = depU.getScopedParticipant(org5);
-      org5vj = depVj.getScopedParticipant(org5);
-      org5vNull = depV.getScopedParticipant(org5);
+      org5ui = deptUi.getScopedParticipant(org5);
+      org5uNull = deptU.getScopedParticipant(org5);
+      org5vj = deptVj.getScopedParticipant(org5);
+      org5vNull = deptV.getScopedParticipant(org5);
       
-      org4uim = depUim.getScopedParticipant(org4);
-      org4uiNull = depUi.getScopedParticipant(org4);
-      org4uNullNull = depU.getScopedParticipant(org4);
-      org4vjn = depVjn.getScopedParticipant(org4);
-      org4vjNull = depVj.getScopedParticipant(org4);
-      org4vNullNull = depV.getScopedParticipant(org4);
+      org4uim = deptUim.getScopedParticipant(org4);
+      org4uiNull = deptUi.getScopedParticipant(org4);
+      org4uNullNull = deptU.getScopedParticipant(org4);
+      org4vjn = deptVjn.getScopedParticipant(org4);
+      org4vjNull = deptVj.getScopedParticipant(org4);
+      org4vNullNull = deptV.getScopedParticipant(org4);
       
-      readerOrgA = depA.getScopedParticipant(readerOrg);
-      readerOrgB = depB.getScopedParticipant(readerOrg);
+      readerOrgA = deptA.getScopedParticipant(readerOrg);
+      readerOrgB = deptB.getScopedParticipant(readerOrg);
    }
    
    private void startProcess()
@@ -568,20 +568,20 @@ public class MethodExecutionAuthorizationTest extends LocalJcrH2Test
       
       final String orgStr = grant.getId();
 
-      final DepartmentInfo depInfo = grant.getDepartment();
+      final DepartmentInfo deptInfo = grant.getDepartment();
       
-      String depStr;
-      if (depInfo != null)
+      String deptStr;
+      if (deptInfo != null)
       {
-         final Department dep = adminSf.getAdministrationService().getDepartment(depInfo.getOID());
-         depStr = getDepartmentId(dep);
+         final Department dept = adminSf.getAdministrationService().getDepartment(deptInfo.getOID());
+         deptStr = getDepartmentId(dept);
       }
       else
       {
-         depStr = "null";
+         deptStr = "null";
       }         
       
-      return orgStr + "<" + depStr + ">";
+      return orgStr + "<" + deptStr + ">";
    }
    
    private String getDepartmentId(final Department department)

@@ -143,8 +143,8 @@ public class NullScopeFallbackTest extends LocalJcrH2Test
             {
                fail("Participant must be a Model Participant.");
             }
-            final DepartmentInfo depInfo = ((ModelParticipantInfo) participant).getDepartment();
-            assertNull("Department must be null.", depInfo);
+            final DepartmentInfo deptInfo = ((ModelParticipantInfo) participant).getDepartment();
+            assertNull("Department must be null.", deptInfo);
             
             found = true;
             break;

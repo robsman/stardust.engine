@@ -354,10 +354,10 @@ public class PerformingParticipantFilterTest extends LocalJcrH2Test
       startProcess(PROCESS_ID_6, DEP_ID_V, SUB_DEP_ID_K);
    }
    
-   private void startProcess(final String processId, final String depID, final String subDepId)
+   private void startProcess(final String processId, final String deptID, final String subDepId)
    {
       final Map<String, String> piData = new HashMap<String, String>();
-      piData.put(X_SCOPE, depID);
+      piData.put(X_SCOPE, deptID);
       if (subDepId != null)
       {
          piData.put(Y_SCOPE, subDepId);

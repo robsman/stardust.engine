@@ -12,6 +12,10 @@ package org.eclipse.stardust.test.department;
 
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,13 +31,13 @@ import org.eclipse.stardust.engine.api.model.Role;
 import org.eclipse.stardust.engine.api.query.ParticipantWorklist;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.Department;
+import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.DepartmentHome;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.UserHome;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -72,8 +76,8 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
    
    private Role role1;
    
-   private Department depDe;
-   private Department depDeNorth;
+   private Department deptDe;
+   private Department deptDeNorth;
    
    private ModelParticipantInfo org1De;
    private ModelParticipantInfo org2De;
@@ -117,7 +121,7 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
    {
       startProcess(PROCESS_ID_3);
       
-      ensureCorrectWorklistScopeId(depDe.getId());
+      ensureCorrectWorklistScopeId(deptDe.getId());
    }
    
    /**
@@ -131,7 +135,7 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
    {
       startProcess(PROCESS_ID_4);
       
-      ensureCorrectWorklistScopeId(depDe.getId());
+      ensureCorrectWorklistScopeId(deptDe.getId());
    }
    
    /**
@@ -145,8 +149,8 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
    {
       startProcess(PROCESS_ID_5);
       
-      ensureCorrectWorklistScopeId(depDeNorth.getId());
-      ensureCorrectWorklistParentScopeId(depDe.getId());
+      ensureCorrectWorklistScopeId(deptDeNorth.getId());
+      ensureCorrectWorklistParentScopeId(deptDe.getId());
    }
    
    /**
@@ -160,7 +164,7 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
    {
       startProcess(PROCESS_ID_6);
       
-      ensureCorrectWorklistScopeId(depDe.getId());
+      ensureCorrectWorklistScopeId(deptDe.getId());
    }
    
    private void initOrgsAndRoles()
@@ -174,8 +178,8 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
    
    private void createDepts()
    {
-      depDe = DepartmentHome.create(DEPT_ID_DE, ORG1_ID, null, adminSf);
-      depDeNorth = DepartmentHome.create(SUB_DEPT_ID_NORTH, ORG3_ID, depDe, adminSf);
+      deptDe = DepartmentHome.create(DEPT_ID_DE, ORG1_ID, null, adminSf);
+      deptDeNorth = DepartmentHome.create(SUB_DEPT_ID_NORTH, ORG3_ID, deptDe, adminSf);
    }
    
    private void createScopedParticipants()
@@ -186,10 +190,10 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
       final Organization org3 = model.getOrganization(ORG3_ID);
       final Role role1 = model.getRole(ROLE1_ID);
       
-      org1De = depDe.getScopedParticipant(org1);
-      org2De = depDe.getScopedParticipant(org2);
-      org3DeNorth = depDeNorth.getScopedParticipant(org3);
-      role1De = depDe.getScopedParticipant(role1);
+      org1De = deptDe.getScopedParticipant(org1);
+      org2De = deptDe.getScopedParticipant(org2);
+      org3DeNorth = deptDeNorth.getScopedParticipant(org3);
+      role1De = deptDe.getScopedParticipant(role1);
    }
    
    private void startProcess(final String processID)
@@ -206,8 +210,8 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
       
       while (iter.hasNext())
       {
-         DepartmentInfo depInfo = ((ModelParticipantInfo) iter.next().getOwner()).getDepartment();
-         Assert.assertNotNull("workitem must not be unscoped", depInfo);
+         DepartmentInfo deptInfo = ((ModelParticipantInfo) iter.next().getOwner()).getDepartment();
+         assertNotNull("Work item must not be unscoped.", deptInfo);
       }
    }
    
@@ -215,25 +219,25 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
    {
       final Iterator<Worklist> iter = getParticipantWorklist();
       
-      Assert.assertTrue("there should be a workitem", iter.hasNext());
+      assertTrue("There should be a work item.", iter.hasNext());
       final Worklist pwl = iter.next();
-      Assert.assertFalse("there should be just one workitem", iter.hasNext());
+      assertFalse("There should be just one work item.", iter.hasNext());
       
-      final DepartmentInfo depInfo = ((ModelParticipantInfo) pwl.getOwner()).getDepartment();
-      Assert.assertNotNull("workitem must not be unscoped", depInfo);
+      final DepartmentInfo deptInfo = ((ModelParticipantInfo) pwl.getOwner()).getDepartment();
+      assertNotNull("Work item must not be unscoped.", deptInfo);
       
-      final String actualScopeId = depInfo.getId();
-      Assert.assertEquals(expectedScopeId, actualScopeId);
+      final String actualScopeId = deptInfo.getId();
+      assertEquals(expectedScopeId, actualScopeId);
    }
    
    private void ensureCorrectWorklistParentScopeId(final String expectedParentScopeId)
    {
       final Iterator<Worklist> iter = getParticipantWorklist();
-      final DepartmentInfo depInfo = ((ModelParticipantInfo) iter.next().getOwner()).getDepartment();
-      final DepartmentDetails depDetails = (DepartmentDetails) depInfo;
+      final DepartmentInfo deptInfo = ((ModelParticipantInfo) iter.next().getOwner()).getDepartment();
+      final DepartmentDetails deptDetails = (DepartmentDetails) deptInfo;
       
-      final Department parent = depDetails.getParentDepartment();
-      Assert.assertEquals(expectedParentScopeId, parent.getId());
+      final Department parent = deptDetails.getParentDepartment();
+      assertEquals(expectedParentScopeId, parent.getId());
    }
    
    private Iterator<Worklist> getParticipantWorklist()

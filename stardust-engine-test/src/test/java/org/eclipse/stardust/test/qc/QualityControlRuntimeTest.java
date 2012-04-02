@@ -41,7 +41,6 @@ import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -726,11 +725,8 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    }
 
    @Test
-   @Ignore("broken - needs to be fixed")
    public void testFail()
    {
-      // TODO fix test
-      
       boolean qcInstanceWasCreated = false;      
       errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>(); 
       Map<String, String> outData = new HashMap<String, String>();
@@ -808,11 +804,8 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    }
 
    @Test
-   @Ignore("broken - needs to be fixed")
    public void testPassWithCorrection()
    {
-      // TODO fix test
-      
       testFail();
       
       //let the user correct his value
@@ -857,11 +850,8 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
    }
    
    @Test
-   @Ignore("broken - needs to be fixed")
    public void testPassWithoutCorrection()
    {
-      // TODO fix test
-      
       boolean qcInstanceWasCreated = false;      
       errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>(); 
       Map<String, String> outData = new HashMap<String, String>();
@@ -898,7 +888,7 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       //the correction made by the qc manager should have no effect
       
       
-      InvalidArgumentException exception = null;
+      IllegalOperationException exception = null;
       try 
       {         
          outData.put(DATA_ID, modifiedData);
@@ -906,7 +896,7 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       }
       catch(Exception e)
       {
-         exception = (InvalidArgumentException) e;
+         exception = (IllegalOperationException) e;
       }    
       assertEquals("BPMRT04007", exception.getError().getId());
       assertDataNotExists(modifiedData);

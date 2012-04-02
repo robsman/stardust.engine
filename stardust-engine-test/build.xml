@@ -111,7 +111,7 @@
       
       <sequential>
          <echo message="Executing the '@{name}' test suite ..." />
-         <junit fork="yes" haltonfailure="on" haltonerror="on" printsummary="on" maxmemory="512m">
+         <junit fork="yes" maxmemory="512m" haltonfailure="off" haltonerror="off" printsummary="on">
             <test name="@{class}" todir="${build.test-report.dir}" />
             <formatter type="xml" />
             <classpath refid="junit.rt.classpath" />

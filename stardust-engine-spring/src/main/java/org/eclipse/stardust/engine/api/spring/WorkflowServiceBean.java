@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 54130 
+ * Generated from Revision: 54785 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 54130
+ * @version 54785
  */
 public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IWorkflowService
 {
@@ -44,7 +44,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException,
          org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.InvalidValueException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).complete(activityInstanceOID, context, outData);
@@ -61,7 +62,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException,
          org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.InvalidValueException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).complete(activityInstanceOID, context, outData, flags);
@@ -157,7 +159,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.ConcurrencyException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).suspendToDefaultPerformer(
@@ -185,7 +188,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          long activityInstanceOID, java.lang.String context, java.util.Map outData)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.ConcurrencyException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).suspendToUser(activityInstanceOID, context, outData);
@@ -198,7 +202,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          suspendToUser(long activityInstanceOID, long userOID)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.ConcurrencyException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).suspendToUser(activityInstanceOID, userOID);
@@ -213,7 +218,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          outData)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.ConcurrencyException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).suspendToUser(activityInstanceOID, userOID, context, outData);
@@ -241,7 +247,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          java.util.Map outData)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.ConcurrencyException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).suspendToParticipant(
@@ -256,7 +263,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
          participant, org.eclipse.stardust.engine.api.model.ContextData outData)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).suspendToParticipant(activityInstanceOID, participant, outData);
@@ -595,7 +603,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          delegateToUser(long activityInstanceOID, long userOID)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.common.error.ConcurrencyException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).delegateToUser(activityInstanceOID, userOID);
@@ -622,7 +631,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          long activityInstanceOID, org.eclipse.stardust.engine.api.model.ParticipantInfo
          participant)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException,
-         org.eclipse.stardust.common.error.AccessForbiddenException
+         org.eclipse.stardust.common.error.AccessForbiddenException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).delegateToParticipant(activityInstanceOID, participant);
@@ -765,7 +775,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
    /**
     * @see org.eclipse.stardust.engine.api.runtime.WorkflowService#getAdHocTransitionTargets(long activityInstanceOid, org.eclipse.stardust.engine.api.runtime.TransitionOptions options, org.eclipse.stardust.engine.api.runtime.ScanDirection direction)
     */
-   public java.util.Set<org.eclipse.stardust.engine.api.runtime.TransitionTarget>
+   public
+         java.util.List<org.eclipse.stardust.engine.api.runtime.TransitionTarget>
          getAdHocTransitionTargets(
          long activityInstanceOid,
          org.eclipse.stardust.engine.api.runtime.TransitionOptions options,

@@ -52,7 +52,7 @@ public class ActivateDepartmentActivityTest extends LocalJcrH2Test
    @Before
    public void setUp()
    {
-      UserHome.create(adminSf, USER_ID, ORG_ID_1);
+      UserHome.create(adminSf, USER_ID, new String[0]);
       DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
    }
    

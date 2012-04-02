@@ -27,16 +27,6 @@ import java.io.Serializable;
 public interface ProcessInstanceLinkType extends Serializable
 {
    /**
-    * The predefined switch link type.
-    */
-   public static final String SWITCH = "switch";
-
-   /**
-    * The predefined join link type.
-    */
-   public static final String JOIN = "join";
-
-   /**
     * @return the OID of this link type
     */
    long getOID();

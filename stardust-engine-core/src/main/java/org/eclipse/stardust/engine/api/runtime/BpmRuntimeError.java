@@ -50,6 +50,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_UNKNOWN_ACTIVITY_DEFINITION = newArgs1("MDL_01112", BpmRuntimeErrorMessages.getString("MDL_01112")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 MDL_UNKNOWN_ACTIVITY_FOR_AI = newArgs2("MDL_01113", BpmRuntimeErrorMessages.getString("MDL_01113")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 MDL_UNKNOWN_ACTIVITY_FOR_WORK_ITEM = newArgs2("MDL_01114", BpmRuntimeErrorMessages.getString("MDL_01114")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 MDL_UNKNOWN_ACTIVITY_IN_MODEL = newArgs2("MDL_01115"); //$NON-NLS-1$
 
    public static final Args1 MDL_UNKNOWN_DATA_ID = newArgs1("MDL01122", BpmRuntimeErrorMessages.getString("MDL01122")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_UNKNOWN_XPATH = newArgs1("MDL01123", BpmRuntimeErrorMessages.getString("MDL01123")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -307,6 +308,10 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args0 BPMRT_START_ACTIVITY_THREAD_MISSING_PI = newArgs0("BPMRT03704", BpmRuntimeErrorMessages.getString("BPMRT03704")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args0 BPMRT_ADHOC_ASYNC_START_ACTIVITY_THREAD = newArgs0("BPMRT03705"); //$NON-NLS-1$
+
+   public static final Args1 BPMRT_AI_NOT_ADHOC_TRANSITION_SOURCE = newArgs1("BPMRT03706"); //$NON-NLS-1$
+
    public static final Args1 BPMRT_NULL_ARGUMENT = newArgs1("BPMRT03810", BpmRuntimeErrorMessages.getString("BPMRT03810")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_NULL_ELEMENT_IN_COLLECTION = newArgs1(
@@ -427,6 +432,14 @@ public class BpmRuntimeError extends ErrorCase
    public String toString()
    {
       return getId() + " - " + MessageFormat.format(getDefaultMessage(), args); //$NON-NLS-1$
+   }
+
+   /**
+    * Static factory to prepare for future generification.
+    */
+   public static Args0 newArgs0(String errorCode)
+   {
+      return new Args0(errorCode, BpmRuntimeErrorMessages.getString(errorCode));
    }
 
    /**

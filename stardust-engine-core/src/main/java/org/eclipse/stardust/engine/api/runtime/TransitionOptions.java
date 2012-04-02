@@ -25,16 +25,16 @@ public final class TransitionOptions implements Serializable
    /**
     * Default options that limits the search to the process definition of the specified activity instance.
     */
-   public static final TransitionOptions DEFAULT = new TransitionOptions(false, false/*, false*/);
+   public static final TransitionOptions DEFAULT = new TransitionOptions(false, false, false);
    
    /**
     * Full options that allows relocation transitions inside sub processes and out of them.
     */
-   public static final TransitionOptions FULL = new TransitionOptions(true, true/*, false*/);
+   public static final TransitionOptions FULL = new TransitionOptions(true, true, true);
    
-   private boolean transitionOutOfSubprocessesAllowed = false;
-   private boolean transitionIntoSubprocessesAllowed = false;
-   //private boolean activityHistoryUsed = false;
+   private boolean transitionOutOfSubprocessesAllowed;
+   private boolean transitionIntoSubprocessesAllowed;
+   private boolean loopsAllowed;
 
    private String processIdPattern;
    private String activityIdPattern;
@@ -46,36 +46,29 @@ public final class TransitionOptions implements Serializable
     * 
     * @param allowTransitionOutOfSubprocesses specifies that transitions out of the sub process should be allowed.
     * @param allowTransitionIntoSubprocesses specifies that transitions into sub process should be allowed.
+    * @param allowLoops specifies that loops should be allowed.
     */
    public TransitionOptions(
          boolean allowTransitionOutOfSubprocesses,
-         boolean allowTransitionIntoSubprocesses)
-   {
-      this.transitionOutOfSubprocessesAllowed = allowTransitionOutOfSubprocesses;
-      this.transitionIntoSubprocessesAllowed = allowTransitionIntoSubprocesses;
-   }
-
-   /*public TransitionOptions(
-         boolean allowTransitionOutOfSubprocesses,
          boolean allowTransitionIntoSubprocesses,
-         boolean useActivityHistory)
+         boolean allowLoops)
    {
-      this.transitionOutOfSubprocessesAllowed = allowTransitionOutOfSubprocesses;
-      this.transitionIntoSubprocessesAllowed = allowTransitionIntoSubprocesses;
-      this.activityHistoryUsed = useActivityHistory;
-   }*/
+      this(allowTransitionOutOfSubprocesses, allowTransitionIntoSubprocesses, allowLoops, null, null);
+   }
 
    /**
     * Constructs a new instance of transition options.
     * 
     * @param allowTransitionOutOfSubprocesses specifies that transitions out of the sub process should be allowed.
     * @param allowTransitionIntoSubprocesses specifies that transitions into sub process should be allowed.
+    * @param allowLoops specifies that loops should be allowed.
     * @param processIdPattern regex expression to match process definition ids.
     * @param activityIdPattern regex expression to match activity ids.
     */
    public TransitionOptions(
          boolean allowTransitionOutOfSubprocesses,
          boolean allowTransitionIntoSubprocesses,
+         boolean allowLoops,
          String processIdPattern, String activityIdPattern)
    {
       this.transitionOutOfSubprocessesAllowed = allowTransitionOutOfSubprocesses;
@@ -100,16 +93,25 @@ public final class TransitionOptions implements Serializable
       return transitionIntoSubprocessesAllowed;
    }
 
-   /*public boolean isActivityHistoryUsed()
+   /**
+    * Checks if loops should be allowed. 
+    */
+   public boolean areLoopsAllowed()
    {
-      return activityHistoryUsed;
-   }*/
+      return loopsAllowed;
+   }
 
+   /**
+    * Retrieves the regular expression pattern for matching process definition ids.
+    */
    public String getProcessIdPattern()
    {
       return processIdPattern;
    }
 
+   /**
+    * Retrieves the regular expression pattern for matching activity ids.
+    */
    public String getActivityIdPattern()
    {
       return activityIdPattern;

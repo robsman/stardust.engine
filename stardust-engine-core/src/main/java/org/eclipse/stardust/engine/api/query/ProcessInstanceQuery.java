@@ -14,14 +14,11 @@ import java.io.Serializable;
 
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-
-
 
 /**
  * Query container for building complex queries for process instances.
@@ -574,6 +571,28 @@ public class ProcessInstanceQuery extends Query
       query.where(new ProcessInstanceLinkFilter(processInstanceOid, direction, linkType));
 
       return query;
+   }
+
+   /**
+    * Creates a query for finding process instances the given process instance is linked to via the given link type(s) and direction.
+    *
+    * @param piOid The OID of the process instance the query should be executed for
+    * @param direction The direction of the links that should be taken into account when determining the linked process instances
+    * @param linkType The link types that should be taken into account when determining the linked process instances
+    * @return The readily configured query.
+    */
+   public static ProcessInstanceQuery findLinked(long processInstanceOid, LinkDirection direction, PredefinedProcessInstanceLinkTypes ... linkType)
+   {
+      String[] linkTypeIds = null;
+      if (linkType != null)
+      {
+         linkTypeIds = new String[linkType.length];
+         for (int i = 0; i < linkType.length; i++)
+         {
+            linkTypeIds[i] = linkType[i].getId();
+         }
+      }
+      return findLinked(processInstanceOid, direction, linkTypeIds);
    }
 
    /**

@@ -47,7 +47,4 @@ public class ProcessInstanceLinkFilter implements FilterCriterion
    {
       return linkType;
    }
-
-
-
 }

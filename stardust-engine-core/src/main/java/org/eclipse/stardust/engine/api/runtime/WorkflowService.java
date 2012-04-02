@@ -19,10 +19,8 @@ import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
-import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.ContextData;
-import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.Worklist;
@@ -84,9 +82,10 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
     * @throws AccessForbiddenException if the current user is not valid or is not
     *         granted to execute the activity instance. Also thrown if the activity
+    *         instance is already terminated.
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the current user is the one who worked on the previous workflow instance        
+    *         and the current user is the one who worked on the previous workflow instance.
     *
     * @see #activateAndComplete
     */
@@ -120,7 +119,7 @@ public interface WorkflowService extends Service
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.   
+    *         and the passed <code>outData</code> argument is a non empty map.
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance and no {@link ActivityInstanceAttributes}
     *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).                             
@@ -155,12 +154,13 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
     * @throws InvalidValueException if one of the <code>outData</object> values to
     *         be written is invalid, most probably as of a type conflict in case of
-    *         statically typed data.              
+    *         statically typed data.
     * @throws AccessForbiddenException if the activity instance is
     *         already terminated.
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance and no {@link ActivityInstanceAttributes}
     *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).
+    *
     * @see #complete(long, String, Map)
     * @see #activateAndComplete(long, String, Map)
     */
@@ -208,6 +208,7 @@ public interface WorkflowService extends Service
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance and no {@link ActivityInstanceAttributes}
     *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).             
+    *
     * @see #activate(long)
     * @see #complete(long, String, Map)
     * @see #activateAndComplete(long, String, Map, int)
@@ -756,7 +757,7 @@ public interface WorkflowService extends Service
          scope=ExecutionPermission.Scope.model,
          defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
-         String spawnProcessID, boolean copyData, Map<String, ? > data,
+         String spawnProcessID, boolean copyData, Map<String, ? extends Serializable> data,
          boolean abortProcessInstance, String comment) throws IllegalOperationException,
          ObjectNotFoundException, InvalidArgumentException;
 
@@ -904,7 +905,7 @@ public interface WorkflowService extends Service
     * @throws IllegalOperationException
     *            if <code>caseOid</code> is not a case process instance.
     * @throws AccessForbiddenException
-    *            if the user is not the owner of the case.           
+    *            if the user is not the owner of the case.
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the specified user is the one who worked on the previous workflow instance          
@@ -1090,10 +1091,11 @@ public interface WorkflowService extends Service
    /**
     * Activates the next activity instance from the given worklist query if any.
     *
-    * @param worklist query.           
+    * @param worklist query.
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the current user is the one who worked on the previous workflow instance 
+    *
     * @return the {@link ActivityInstance} that was activated.
     */
    @ExecutionPermission(
@@ -1109,7 +1111,8 @@ public interface WorkflowService extends Service
     *
     * @param activityInstanceOID the OID of the last completed activity instance.
     *
-    * @return the {@link ActivityInstance} that was activated.         
+    * @return the {@link ActivityInstance} that was activated.
+    *
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the current user is the one who worked on the previous workflow instance 
@@ -1130,7 +1133,8 @@ public interface WorkflowService extends Service
     *
     * @param processInstanceOID the OID of the process instance.
     *
-    * @return the {@link ActivityInstance} that was activated.        
+    * @return the {@link ActivityInstance} that was activated.
+    *
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the current user is the one who worked on the previous workflow instance 
@@ -1330,7 +1334,7 @@ public interface WorkflowService extends Service
     *         the activity instance or if the activity instance is already terminated.           
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         and the sspecified user is the one who worked on the previous workflow instance           
+    *         and the specified user is the one who worked on the previous workflow instance           
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.delegateToOther,
@@ -1548,7 +1552,7 @@ public interface WorkflowService extends Service
     * @return A list of possible transition targets.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
     */
-   Set<TransitionTarget> getAdHocTransitionTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
+   List<TransitionTarget> getAdHocTransitionTargets(long activityInstanceOid, TransitionOptions options, ScanDirection direction)
          throws ObjectNotFoundException;
    
    /**
@@ -1564,6 +1568,10 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException TODO
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
     */
+   @ExecutionPermission(
+         id=ExecutionPermission.Id.performActivity,
+         scope=ExecutionPermission.Scope.activity,
+         defaults={ExecutionPermission.Default.OWNER})
    ActivityInstance performAdHocTransition(long activityInstanceOid, TransitionTarget target, boolean complete)
          throws IllegalOperationException, ObjectNotFoundException;
 

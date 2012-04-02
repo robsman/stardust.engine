@@ -75,7 +75,7 @@ public interface Trigger extends ModelElement
     *
     * @return a List of {@link AccessPoint} objects.
     */
-   List getAllAccessPoints();
+   List<AccessPoint> getAllAccessPoints();
 
    /**
     * Gets an AccessPointBean with the specified name.
@@ -91,5 +91,5 @@ public interface Trigger extends ModelElement
     *
     * @return a List of {@link ParameterMapping} objects.
     */
-   List getAllParameterMappings();
+   List<ParameterMapping> getAllParameterMappings();
 }

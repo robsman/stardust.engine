@@ -429,7 +429,7 @@ public class QualityAssuranceUtils
          {
             BpmRuntimeError errorCase = BpmRuntimeError.BPMRT_DELEGATE_QA_INSTANCE_NOT_ALLOWED.raise(
                   activityInstance.getOID(), monitoredUser.getOID());
-            throw new InvalidArgumentException(errorCase);
+            throw new IllegalOperationException(errorCase);
          }
       }
    }

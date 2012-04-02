@@ -12,218 +12,282 @@ package org.eclipse.stardust.test.department;
 
 /**
  * <p>
- * This class contains constants for tests dealing with the
- * <i>Department</i> functionality.
+ * This class contains constants related to the model
+ * used for tests dealing with the <i>Department</i> functionality.
  * </p>
  *
- * TODO remove unused constants
- * 
  * @author Nicolas.Werlein
  * @version $Revision$ 
  */
 /* package-private */ class DepartmentModelConstants
 {
+   /**
+    * the name of the model used for <i>Department</i> tests
+    */
    /* package-private */ static final String MODEL_NAME = "DepartmentModel";
    
-   /**
-    * a scoped organization
-    */
-   public static final String ORG_ID_1 = "O1";
+   
+   /******************************************************************
+    *                                                                *
+    *                      Organization IDs                          *
+    *                                                                *
+    ******************************************************************/
    
    /**
     * a scoped organization
     */
-   public static final String ORG_ID_2 = "O2";
+   /* package-private */ static final String ORG_ID_1 = "O1";
+   
+   /**
+    * a scoped organization
+    */
+   /* package-private */ static final String ORG_ID_2 = "O2";
    
    /**
     * a scoped sub organization of {@link DepartmentModelConstants#ORG_ID_2} 
     */
-   public static final String SUB_ORG_ID_2 = "SubO2";
+   /* package-private */ static final String SUB_ORG_ID_2 = "SubO2";
    
    /**
     * a scoped sub organization of {@link DepartmentModelConstants#SUB_ORG_ID_2}
     */
-   public static final String SUB_SUB_ORG_ID_2 = "SubSubO2";
+   /* package-private */ static final String SUB_SUB_ORG_ID_2 = "SubSubO2";
    
    /**
     * an unscoped organization
     */
-   public static final String ORG_ID_3 = "O3";
-   
-   /**
-    * an unscoped organization, user for authorization tests on model level {@link TestModifyDepartment} 
-    */
-   public static final String ORG_ID = "Org";
+   /* package-private */ static final String ORG_ID_3 = "O3";
    
    /**
     * a scoped organization
     */
-   public static final String ORG1_ID = "Org1";
+   /* package-private */ static final String ORG1_ID = "Org1";
    
    /**
     * an unscoped organization
     */
-   public static final String ORG2_ID = "Org2";
+   /* package-private */ static final String ORG2_ID = "Org2";
    
    /**
     * a scoped organization
     */
-   public static final String ORG3_ID = "Org3";
+   /* package-private */ static final String ORG3_ID = "Org3";
    
    /**
     * a scoped organization
     */
-   public static final String ORG4_ID = "Org4";
+   /* package-private */ static final String ORG4_ID = "Org4";
    
    /**
     * a scoped organization
     */
-   public static final String ORG5_ID = "Org5";
+   /* package-private */ static final String ORG5_ID = "Org5";
    
    /**
     * a scoped organization 
     */
-   public static final String READER_ORG_ID = "Reader";
+   /* package-private */ static final String READER_ORG_ID = "Reader";
+   
+   
+   /******************************************************************
+    *                                                                *
+    *                            Role IDs                            *
+    *                                                                *
+    ******************************************************************/
    
    /**
     * an unscoped role
     */
-   public static final String ROLE1_ID = "Role1";
-   public static final String ROLE_ADMIN_ID = "Administrator";
-   public static final String ROLE_DEFAU_ID = "DefaultPerformer";
-   
-   public static final String NONE_ROLE_ID = "None";
-   public static final String DTO_ROLE_ID = "Dto";
-   public static final String DTD_ROLE_ID = "Dtd";
+   /* package-private */ static final String ROLE1_ID = "Role1";
    
    /**
-    * an unscoped role
+    * the 'Administrator' role
     */
-   public static final String ROLE_SMALL_TEAM_ID = "SmallTeam";
-   
-   public static final String COUNTRY_CODE_DATA_NAME = "CountryCode";
-   public static final String DEPT_ID_DE = "DE";
-   public static final String DEPT_ID_EN = "EN";
+   /* package-private */ static final String ROLE_ADMIN_ID = "Administrator";
 
-   public static final String REGION_CODE_DATA_NAME = "RegionCode";
-   public static final String SUB_DEPT_ID_NORTH = "North";
-   public static final String SUB_DEPT_ID_SOUTH = "South";
+   /**
+    * a role with no permission to delegate
+    */
+   /* package-private */ static final String NONE_ROLE_ID = "None";
    
-   public static final String CITY_CODE_DATA_NAME = "CityCode";
-   public static final String SUB_SUB_DEP_ID_HH = "HH";
+   /**
+    * a role with the permission 'delegate to others'
+    */
+   /* package-private */ static final String DTO_ROLE_ID = "Dto";
    
-   public static final String X_SCOPE = "X";
-   public static final String Y_SCOPE = "Y";
-   public static final String Z_SCOPE = "Z";
-   public static final String A_SCOPE = "A";
-   
-   public static final String IN_DATA_PATH_X = "DataPathX";
-   public static final String IN_DATA_PATH_Y = "DataPathY";
-   public static final String IN_DATA_PATH_Z = "DataPathZ";
-   public static final String IN_DATA_PATH_A = "DataPathA";
+   /**
+    * a role with the permission 'delegate to department'
+    */
+   /* package-private */ static final String DTD_ROLE_ID = "Dtd";
    
    
-   public static final String DEPT_ID_U = "u";
-   public static final String DEPT_ID_V = "v";
+   /******************************************************************
+    *                                                                *
+    *                   'Department Data' IDs                        *
+    *                                                                *
+    ******************************************************************/
    
-   public static final String SUB_DEPT_ID_I = "i";
-   public static final String SUB_DEPT_ID_J = "j";
-   public static final String SUB_DEPT_ID_K = "k";
+   /**
+    * the ID of 'department data' 'Country Code'
+    */
+   /* package-private */ static final String COUNTRY_CODE_DATA_NAME = "CountryCode";
+      
+   /**
+    * the ID of 'department data' 'A'
+    */
+   /* package-private */ static final String A_SCOPE = "A";
+
+   /**
+    * the ID of 'department data' 'X'
+    */
+   /* package-private */ static final String X_SCOPE = "X";
    
-   public static final String SUB_SUB_DEP_ID_M = "m";
-   public static final String SUB_SUB_DEP_ID_N = "n";
+   /**
+    * the ID of 'department data' 'Y'
+    */
+   /* package-private */ static final String Y_SCOPE = "Y";
    
-   public static final String DEP_ID_A = "a";
-   public static final String DEP_ID_B = "b";
+   /**
+    * the ID of 'department data' 'Z'
+    */
+   /* package-private */ static final String Z_SCOPE = "Z";
    
-   public static final String O1_USERNAME = "o1";
-   public static final String O1_PWD = "pwd";
    
-   public static final String ORG1_USERNAME = "org1";
-   public static final String ORG1_PWD = "pwd";
+   /******************************************************************
+    *                                                                *
+    *                        Department IDs                          *
+    *                                                                *
+    ******************************************************************/
    
-   public static final String ORG2_USERNAME = "org2";
-   public static final String ORG2_PWD = "pwd";
+   /**
+    * the ID of department 'DE'
+    */
+   /* package-private */ static final String DEPT_ID_DE = "DE";
    
-   public static final String ORG3_USERNAME = "org3";
-   public static final String ORG3_PWD = "pwd";
+   /**
+    * the ID of department 'EN'
+    */
+   /* package-private */ static final String DEPT_ID_EN = "EN";
+
+   /**
+    * the ID of (sub-) department 'North'
+    */
+   /* package-private */ static final String SUB_DEPT_ID_NORTH = "North";
    
-   public static final String ROLE1_USERNAME = "role1";
-   public static final String ROLE1_PWD = "pwd";
+   /**
+    * the ID of (sub-) department 'South'
+    */
+   /* package-private */ static final String SUB_DEPT_ID_SOUTH = "South";
    
-   public static final String ABORT_ORG_USERNAME = "abort";
-   public static final String ABORT_ORG_PWD = "pwd";
+   /**
+    * the ID of (sub-) department 'HH'
+    */
+   /* package-private */ static final String SUB_SUB_DEP_ID_HH = "HH";
+   
+   /**
+    * the ID of department 'a'
+    */
+   /* package-private */ static final String DEP_ID_A = "a";
+
+   /**
+    * the ID of department 'b'
+    */
+   /* package-private */ static final String DEP_ID_B = "b";
+   
+   /**
+    * the ID of department 'u'
+    */
+   /* package-private */ static final String DEPT_ID_U = "u";
+   
+   /**
+    * the ID of department 'v'
+    */
+   /* package-private */ static final String DEPT_ID_V = "v";
+   
+   /**
+    * the ID of (sub-) department 'i'
+    */
+   /* package-private */ static final String SUB_DEPT_ID_I = "i";
+   
+   /**
+    * the ID of (sub-) department 'j'
+    */
+   /* package-private */ static final String SUB_DEPT_ID_J = "j";
+   
+   /**
+    * the ID of (sub-) department 'k'
+    */
+   /* package-private */ static final String SUB_DEPT_ID_K = "k";
+   
+   /**
+    * the ID of (sub-) department 'm'
+    */
+   /* package-private */ static final String SUB_SUB_DEP_ID_M = "m";
+   
+   /**
+    * the ID of (sub-) department 'n'
+    */
+   /* package-private */ static final String SUB_SUB_DEP_ID_N = "n";
+
+   
+   /******************************************************************
+    *                                                                *
+    *                   Process Definition IDs                       *
+    *                                                                *
+    ******************************************************************/
+   
+   /**
+    * identifies process definition #1
+    */
+   /* package-private */ static final String PROCESS_ID_1 = "P1";
    
    /** 
-    * identifies a process definition that comprises 
-    * a manual activity connected to department org
+    * identifies process definition #2
     */
-   public static final String PROCESS_ID_SUSPEND = "P_SUSPEND";
+   /* package-private */ static final String PROCESS_ID_2 = "P2";
    
    /** 
-    * identifies a process definition that comprises 
-    * a activity connected to a department and a preceding
-    * route activity with fork and traversal
+    * identifies process definition #3
     */
-   public static final String PROCESS_ID_1 = "P1";
+   /* package-private */ static final String PROCESS_ID_3 = "P3";
    
    /** 
-    * identifies a process definition that comprises 
-    * a single activity connected to a department
+    * identifies process definition #4
     */
-   public static final String PROCESS_ID_2 = "P2";
+   /* package-private */ static final String PROCESS_ID_4 = "P4";
    
-   /**
-    * identifies a process definition that comprises
-    * a single activity connected to an organization
-    * hierarchy (scoped and unscoped) 
+   /** 
+    * identifies process definition #5
     */
-   public static final String PROCESS_ID_3 = "P3";
+   /* package-private */ static final String PROCESS_ID_5 = "P5";
    
-   public static final String PROCESS_ID_4 = "P4";
+   /** 
+    * identifies process definition #6
+    */
+   /* package-private */ static final String PROCESS_ID_6 = "P6";
    
-   public static final String PROCESS_ID_5 = "P5";
+   /** 
+    * identifies process definition #7
+    */
+   /* package-private */ static final String PROCESS_ID_7 = "P7";
    
-   public static final String PROCESS_ID_6 = "P6";
-   
-   public static final String PROCESS_ID_7 = "P7";
-   
-   public static final String PROCESS_ID_8 = "P8";
-   
-
-   /**
-    * identifies a process definition that has scoped particpants set on process level    
-    * */
-   public static final String PROCESS_ID_ORG3 = "POrg3";
-   /**
-    * identifies a process definition that has scoped particpants set on process level    
-    * */  
-   public static final String PROCESS_ID_ORG2 = "POrg2";
-   /**
-    * identifies a process definition that has scoped particpants set on process level    
-    * */   
-   public static final String PROCESS_ID_ST = "PSt";
-   
-   /**
-    * identifies a data definition that has scoped particpants set on data level    
-    * */ 
-   public static final String  DATA_STRING_ORG3 = "DataStringOrg3";
-   public static final String  DATA_STRING_ORG2 = "DataStringOrg2";
-   public static final String  DATA_STRING_ST = "DataStringST";
-   /**
-    * identifies an in data path or Process P_x     
-    * */ 
-   public static final String IN_DATA_PATH_ORG3 = "DataPathOrg3";
-   public static final String IN_DATA_PATH_ORG2 = "DataPathOrg2";
-   public static final String IN_DATA_PATH_ST = "DataPathST";
+   /** 
+    * identifies process definition #8
+    */
+   /* package-private */ static final String PROCESS_ID_8 = "P8";
 
    
+   /******************************************************************
+    *                                                                *
+    *                    Exception Handler IDs                       *
+    *                                                                *
+    ******************************************************************/
+   
    /**
-    * identifies a data definition that has scoped particpants set on data level    
-    * */ 
-   public static final String  DATA_STRING_STL = "DataStringOrgSMT";
-
-   public static final String ON_EXCEPTION_HANDLER_ID = "OnExceptionHandler";
+    * the ID of an exception handler
+    */
+   /* package-private */ static final String ON_EXCEPTION_HANDLER_ID = "OnExceptionHandler";
+   
    
    private DepartmentModelConstants()
    {

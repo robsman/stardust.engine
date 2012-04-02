@@ -39,7 +39,8 @@ import org.junit.runners.Suite.SuiteClasses;
                PerformingParticipantFilterTest.class,
                ScopedWorklistTest.class,
                SubDepartmentDelegationTest.class,
-               UserGrantsTest.class
+               UserGrantsTest.class,
+               WorkitemsAssignmentCreationTest.class
              })
 public class DepartmentTestSuite extends LocalJcrH2TestSuite
 {

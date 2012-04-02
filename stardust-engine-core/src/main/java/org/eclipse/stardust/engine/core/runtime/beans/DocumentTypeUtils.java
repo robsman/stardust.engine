@@ -679,7 +679,7 @@ public final class DocumentTypeUtils
 
    /**
     * Retrieves data which are of type Document or DocumentList and having a Reference to
-    * an external TypeDefinition.
+    * an external TypeDefinition or data which is externally defined itself.
     *
     * @param model
     *           The model to search for data referencing DocumentTypes.
@@ -687,7 +687,7 @@ public final class DocumentTypeUtils
     */
    public static List<Data> getReferencedDocumentData(DeployedModel model)
    {
-      List<Data> documentDataReferencingExternalTypeDefinition = new ArrayList<Data>();
+      List<Data> externalDocumentData = new ArrayList<Data>();
 
       @SuppressWarnings("unchecked")
       List<Data> allData = model.getAllData();
@@ -698,13 +698,13 @@ public final class DocumentTypeUtils
          {
             String typeDeclarationId = getMetaDataTypeDeclarationId(data);
 
-            if (data.getReference() != null && !isEmpty(typeDeclarationId))
+            if ((data.getReference() != null || data.getModelOID() != model.getModelOID()) && !isEmpty(typeDeclarationId))
             {
-               documentDataReferencingExternalTypeDefinition.add(data);
+               externalDocumentData.add(data);
             }
          }
       }
-      return documentDataReferencingExternalTypeDefinition;
+      return externalDocumentData;
    }
 
    /**

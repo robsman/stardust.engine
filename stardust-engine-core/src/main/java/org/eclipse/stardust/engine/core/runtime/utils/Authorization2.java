@@ -74,7 +74,7 @@ public class Authorization2
             else
             {
                long aiOid = ((Long) args[0]).longValue();
-               if (ExecutionPermission.Id.abortActivityInstances.name().equals(permission.id()) &&
+               if (ExecutionPermission.Id.abortActivityInstances.name().equals(permission.id) &&
                      (args.length == 1 || AbortScope.RootHierarchy.equals(args[1])))
                {
                   // change context to process instance if you want to abort the complete process hierarchy
@@ -83,6 +83,10 @@ public class Authorization2
                   IProcessInstance rootPi = processInstance.getRootProcessInstance();
                   context = AuthorizationContext.create(AdministrationService.class, "abortProcessInstance", long.class);
                   context.setProcessInstance(rootPi);
+               }
+               else if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
+               {
+                  permission.id = ExecutionPermission.Id.abortActivityInstances.name();
                }
                else
                {
@@ -240,7 +244,7 @@ public class Authorization2
                else
                {
                   pi = ProcessInstanceBean.findByOID((Long) args[0]);
-                  if (ExecutionPermission.Id.abortProcessInstances.name().equals(permission.id()) &&
+                  if (ExecutionPermission.Id.abortProcessInstances.name().equals(permission.id) &&
                         AbortScope.RootHierarchy.equals(args[args.length - 1]))
                   {
                      // change to root process instance if you want to abort the complete process hierarchy
@@ -725,18 +729,18 @@ public class Authorization2
       if (ids == null)
       {
          ids = CollectionUtils.newSet();
-         ids.add(permission.id());
+         ids.add(permission.id);
          processed.put(permission.scope(), ids);
       }
       else
       {
-         if (ids.contains(permission.id()))
+         if (ids.contains(permission.id))
          {
             return true;
          }
          else
          {
-            ids.add(permission.id());
+            ids.add(permission.id);
          }
       }
       return false;

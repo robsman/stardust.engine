@@ -18,7 +18,7 @@ public class ClientPermission
 {
    static final ClientPermission NULL = new ClientPermission();
    
-   private String id;
+   String id;
    private Scope scope = Scope.model;
    private Default[] defaults = {Default.ADMINISTRATOR};
    private Default[] fixed = {};

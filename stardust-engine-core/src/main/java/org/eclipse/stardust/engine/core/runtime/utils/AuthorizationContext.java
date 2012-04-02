@@ -87,7 +87,7 @@ public class AuthorizationContext
       this.permission = permission;
       if (permission != null)
       {
-         String id = permission.id();
+         String id = permission.id;
          Scope scope = permission.scope();
          String[] implied = permission == null ? EMPTY : permission.implied();
          permissionIds = new String[1 + implied.length];
@@ -335,7 +335,7 @@ public class AuthorizationContext
       if (permission.changeable())
       {
          String def = null;
-         Id permissionId = getId(permission.id());
+         Id permissionId = getId(permission.id);
          Scope scope = permission.scope();
          if (scope == Scope.activity
                && permissionId == Id.abortActivityInstances)

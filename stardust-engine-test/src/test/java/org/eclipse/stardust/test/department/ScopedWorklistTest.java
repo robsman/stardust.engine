@@ -10,13 +10,11 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.COUNTRY_CODE_DATA_NAME;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_DE;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_2;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -24,19 +22,24 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.model.ModelParticipant;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
-import org.eclipse.stardust.engine.api.query.ParticipantWorklist;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
+import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.DepartmentHome;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.UserHome;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -69,16 +72,10 @@ public class ScopedWorklistTest extends LocalJcrH2Test
                                     .around(rtConfigurer)
                                     .around(userSf);
 
-   private Department dept;
-   
    @Before
    public void setUp()
    {
-      dept = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
-      final ModelParticipant org1 = (ModelParticipant) adminSf.getQueryService().getParticipant(ORG_ID_1);
-      final ModelParticipantInfo mpi = dept.getScopedParticipant(org1);
-
-      UserHome.create(adminSf, USER_ID, mpi);
+      UserHome.create(adminSf, USER_ID, new String[0]);
    }
    
    /**
@@ -90,17 +87,92 @@ public class ScopedWorklistTest extends LocalJcrH2Test
    @Test
    public void testCreatingScopedWorklistItem()
    {
-      final Map<String, String> ccData = Collections.singletonMap(COUNTRY_CODE_DATA_NAME, DEPT_ID_DE);
-      userSf.getWorkflowService().startProcess(PROCESS_ID_2, ccData, false);
+      final Department dept = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
+      final ModelParticipant org1 = (ModelParticipant) adminSf.getQueryService().getParticipant(ORG_ID_1);
+      final ModelParticipantInfo mpi = dept.getScopedParticipant(org1);
+      
+      final User user = userSf.getUserService().getUser();
+      UserHome.addGrants(adminSf, user, mpi);
+      
+      startProcess(PROCESS_ID_2, COUNTRY_CODE_DATA_NAME);
       
       ensureWorklistAssignedTo(dept);
    }
 
+   /**
+    * <p>
+    * Tests whether a created activity instance is assigned
+    * to a scoped participant correctly.
+    * </p>
+    */
+   @Test
+   public void testActivityInstanceAssignedToDepartment()
+   {
+      final Department originalDept = DepartmentHome.create(DEPT_ID_DE, ORG1_ID, null, adminSf);
+      
+      startProcess(PROCESS_ID_3, X_SCOPE);
+      
+      final ActivityInstances ais = adminSf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findAlive());
+      assertEquals(1, ais.size());
+      
+      final ActivityInstanceDetails aid = (ActivityInstanceDetails) ais.get(0);
+      final ModelParticipantInfo performer = (ModelParticipantInfo) aid.getCurrentPerformer();
+      final DepartmentInfo retrievedDept = performer.getDepartment();
+      
+      assertNotNull("Department must not be null.", retrievedDept);
+      assertEquals(originalDept.getOID(), retrievedDept.getOID());
+   }
+   
+   /**
+    * <p>
+    * Tests whether a worklist item of a created activity instance
+    * can only be seen by users who have grants to these scoped
+    * participants for the matching department.
+    * </p>
+    */
+   @Test
+   public void testWorklistAssignedToDepartmentNoPermission()
+   {
+      startProcess(PROCESS_ID_3, X_SCOPE);
+      
+      final Iterator<Worklist> iter = getSubWorklists();
+      while (iter.hasNext())
+      {
+         final Worklist wl = iter.next();
+         assertTrue("There should be no work items due to insufficient grants.", wl.isEmpty());
+      }
+   }
+   
+   /**
+    * <p>
+    * Tests whether a worklist item of a created activity instance
+    * is assigned to a scoped participant correctly.
+    * </p>
+    */
+   @Test
+   public void testWorklistAssignedToDepartment()
+   {
+      final Department dept = DepartmentHome.create(DEPT_ID_DE, ORG1_ID, null, adminSf);
+      final Organization org = dept.getOrganization();
+      
+      startProcess(PROCESS_ID_3, X_SCOPE);
+      
+      final User user = userSf.getUserService().getUser();
+      UserHome.addGrants(adminSf, user, dept.getScopedParticipant(org));
+      
+      final Iterator<Worklist> iter = getSubWorklists();
+      Assert.assertTrue("There should be a work item.", iter.hasNext());
+      
+      final Worklist wl = iter.next();
+      assertFalse("There should be just one work item.", iter.hasNext());
+      
+      final DepartmentInfo assignedDep = ((ModelParticipantInfo) wl.getOwner()).getDepartment();
+      assertEquals(dept.getOID(), assignedDep.getOID());
+   }
+   
    private void ensureWorklistAssignedTo(final Department createdDept)
    {
-      final Worklist wl = userSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
-      @SuppressWarnings("unchecked")
-      final Iterator<ParticipantWorklist> worklistIter = wl.getSubWorklists();
+      final Iterator<Worklist> worklistIter = getSubWorklists();
       
       boolean found = false;
       while (worklistIter.hasNext())
@@ -121,5 +193,18 @@ public class ScopedWorklistTest extends LocalJcrH2Test
          }
       }
       assertTrue("No appropriate work item found.", found);
+   }
+   
+   private void startProcess(final String processId, final String dataId)
+   {
+      final Map<String, String> piData = Collections.singletonMap(dataId, DEPT_ID_DE);
+      userSf.getWorkflowService().startProcess(processId, piData, true);
+   }
+   
+   @SuppressWarnings("unchecked")
+   private Iterator<Worklist> getSubWorklists()
+   {
+      final Worklist wl = userSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
+      return wl.getSubWorklists();
    }
 }

@@ -27,6 +27,7 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({
+               ActivateDepartmentActivityTest.class,
                AdminServiceCrudTest.class,
                DeclarativeSecurityDelegationTest.class,
                DepartmentCleanupTest.class,

@@ -51,7 +51,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
 {

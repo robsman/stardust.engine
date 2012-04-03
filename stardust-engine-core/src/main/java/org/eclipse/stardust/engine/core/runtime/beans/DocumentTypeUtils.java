@@ -567,20 +567,23 @@ public final class DocumentTypeUtils
       if (typeDeclarationId != null)
       {
          TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
-         XpdlType xpdlType = typeDeclaration.getXpdlType();
-         if (xpdlType instanceof ExternalReference)
+         if (typeDeclaration != null)
          {
-            String xref = ((ExternalReference) xpdlType).getXref();
-            String location = ((ExternalReference) xpdlType).getLocation();
+            XpdlType xpdlType = typeDeclaration.getXpdlType();
+            if (xpdlType instanceof ExternalReference)
+            {
+               String xref = ((ExternalReference) xpdlType).getXref();
+               String location = ((ExternalReference) xpdlType).getLocation();
 
-            result = buildExternalSchemaDocumentType(location, xref);
-         }
-         else if (xpdlType instanceof SchemaType)
-         {
-            XSDSchema xsdSchema = ((SchemaType) xpdlType).getSchema();
+               result = buildExternalSchemaDocumentType(location, xref);
+            }
+            else if (xpdlType instanceof SchemaType)
+            {
+               XSDSchema xsdSchema = ((SchemaType) xpdlType).getSchema();
 
-            result = buildInternalSchemaDocumentType(xsdSchema, model.getModelOID(),
-                  typeDeclarationId);
+               result = buildInternalSchemaDocumentType(xsdSchema, model.getModelOID(),
+                     typeDeclarationId);
+            }
          }
       }
       return result;
@@ -649,25 +652,34 @@ public final class DocumentTypeUtils
 
       for (Pair<Integer,String> typeDeclarationIdByModel : typeDeclarationIdsByModel)
       {
-         Model lookupModel = model;
+         DocumentType documentType = null;
          Integer dataModelOid = typeDeclarationIdByModel.getFirst();
          if (currentModelOid != dataModelOid)
          {
             // is externally defined data, look it up
+            Model lookupModel = null;
             if (referenceModels != null)
             {
                lookupModel = referenceModels.get(dataModelOid);
             }
-
-            if (lookupModel == null)
+            
+            if (lookupModel != null)
+            {
+               documentType = getDocumentType(
+                     typeDeclarationIdByModel.getSecond(), lookupModel);
+            }
+            else
             {
                trace.warn("Lookup for DocumentType in referenced model failed. Model not found in specified referencedModels: "
                      + dataModelOid);
             }
          }
-
-         DocumentType documentType = getDocumentType(
-               typeDeclarationIdByModel.getSecond(), lookupModel);
+         else
+         {
+            documentType = getDocumentType(
+                  typeDeclarationIdByModel.getSecond(), model);
+         }
+         
          if (documentType != null)
          {
             documentTypes.add(documentType);

@@ -221,13 +221,19 @@ public class ActivityThread implements Runnable
          ITransition transition = null;
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          ExecutionPlan plan = rtEnv.getExecutionPlan();
-         if (plan != null && plan.hasNextActivity() && !plan.hasMoreSteps())
+         if (plan != null)
          {
-            transition = plan.getTransition();
-            tokenCache.registerToken(transition, plan.getToken());
+            if (!plan.hasStartActivity() || plan.hasMoreSteps())
+            {
+               transition = START_TRANSITION;
+            }
+            else if (plan.hasNextActivity())
+            {
+               transition = plan.getTransition();
+               tokenCache.registerToken(transition, plan.getToken());
+            }
          }
-         else if (processInstance.getProcessDefinition().getRootActivity().getId().equals(activity.getId())
-               || plan != null && plan.hasMoreSteps())
+         else if (processInstance.getProcessDefinition().getRootActivity().getId().equals(activity.getId()))
          {
             transition = START_TRANSITION;
          }

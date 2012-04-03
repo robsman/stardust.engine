@@ -60,6 +60,27 @@ public final class TransitionTargetFactory
             activityName, processId, processName, modelId, modelName);
    }
 
+   public static TransitionTarget createTransitionTarget(IActivity activity)
+   {
+      String activityId = activity.getId();
+      String activityName = activity.getName();
+      
+      IProcessDefinition process = activity.getProcessDefinition();
+      String processId = process.getId();
+      String processName = process.getName();
+      
+      IModel model = (IModel) process.getModel();
+      String modelId = model.getId();
+      String modelName = model.getName();
+      
+      long modelOid = model.getModelOID();
+      ModelManager mm = ModelManagerFactory.getCurrent();
+      long activityRuntimeOid = mm.getRuntimeOid(activity);
+
+      return new TransitionTarget(-1, modelOid, activityRuntimeOid, activityId,
+            activityName, processId, processName, modelId, modelName, Collections.<TransitionStep>emptyList(), true);
+   }
+   
    public static TransitionTarget createTransitionTarget(IActivity activity, Stack<TransitionStep> currentSteps, boolean forward)
    {
       String activityId = activity.getId();

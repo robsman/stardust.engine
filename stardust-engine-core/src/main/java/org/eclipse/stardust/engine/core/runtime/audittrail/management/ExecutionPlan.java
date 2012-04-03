@@ -240,4 +240,9 @@ public class ExecutionPlan
       }
       return false;
    }
+
+   public boolean hasStartActivity()
+   {
+      return transitionTarget.getActivityInstanceOid() >= 0;
+   }
 }

@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.RelocationUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -122,7 +123,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          DataCopyUtils.copyDataUsingDocumentCopyHeuristics(parentProcessInstance, processInstance, data == null ? Collections.EMPTY_SET: data.keySet());
       }
-      runProcessInstance(processInstance);
+      runProcessInstance(processInstance, null);
 
       return DetailsFactory.create(processInstance);
    }
@@ -135,7 +136,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
    }
 
-   private void runProcessInstance(IProcessInstance processInstance)
+   private void runProcessInstance(IProcessInstance processInstance, String startActivityId)
    {
       IProcessDefinition processDefinition = processInstance.getProcessDefinition();
 
@@ -145,11 +146,32 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                + processInstance.getOID());
       }
 
-      IActivity rootActivity = processDefinition.getRootActivity();
+      // schedule async unless it's an upgrade.
+      boolean sync = false;
+      
+      IActivity startActivity = null;
+      if (startActivityId == null)
+      {
+         processDefinition.getRootActivity();
+      }
+      else
+      {
+         startActivity = processDefinition.findActivity(startActivityId);
+         if (startActivity == null)
+         {
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_UNKNOWN_ACTIVITY_DEFINITION.raise(startActivityId),
+                  startActivityId);
+         }
+         TransitionTarget transitionTarget = TransitionTargetFactory.createTransitionTarget(startActivity);
+         ExecutionPlan plan = new ExecutionPlan(transitionTarget);
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         rtEnv.setExecutionPlan(plan);
+         sync = true;
+      }
 
-      // schedule async
-      ActivityThread.schedule(processInstance, rootActivity, null, false, null,
-            Collections.EMPTY_MAP, false);
+      ActivityThread.schedule(processInstance, startActivity, null, sync, null,
+            Collections.EMPTY_MAP, sync);
    }
 
    public List<ProcessInstance> spawnSubprocessInstances(long rootProcessInstanceOid,
@@ -610,7 +632,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       new ProcessInstanceLinkBean(originatingProcessInstance, processInstance, linkType, options.getComment());
 
-      runProcessInstance(processInstance);
+      runProcessInstance(processInstance, options.getStartActivity());
 
       return DetailsFactory.create(processInstance);
    }

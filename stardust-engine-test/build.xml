@@ -47,6 +47,7 @@
       
       <!-- Execute the test suites -->
       <execute-test-suite name="Example" class="org.eclipse.stardust.test.examples.MyTestSuite" />
+      <execute-test-suite name="Basic Workflow" class="org.eclipse.stardust.test.workflow.BasicWorkflowTestSuite" />
       <execute-test-suite name="Case Process Instance" class="org.eclipse.stardust.test.casepi.CaseProcessInstanceTestSuite" />
       <execute-test-suite name="Department" class="org.eclipse.stardust.test.department.DepartmentTestSuite" />
       <execute-test-suite name="Quality Control" class="org.eclipse.stardust.test.qc.QualityControlTestSuite" />

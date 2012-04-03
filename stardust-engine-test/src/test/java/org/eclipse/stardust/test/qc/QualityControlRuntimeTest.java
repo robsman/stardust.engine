@@ -11,11 +11,8 @@
 package org.eclipse.stardust.test.qc;
 
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult.ResultState;
 import org.eclipse.stardust.engine.api.model.Activity;
@@ -39,6 +35,7 @@ import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.UserHome;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -119,7 +116,7 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       monitoredUserWorkflowService = monitoredUserServiceFactory.getWorkflowService();      
    }
 
-   @Test(expected = Exception.class)
+   @Test(expected = IllegalOperationException.class)
    public void testCompleteBeforeAttributesSet()
    {
       boolean qcInstanceWasCreated = false;
@@ -186,15 +183,16 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       //try to suspend the qa activity to the user who worked on the previous instance
       //this must result in an exception
       
-      InvalidArgumentException exception = null;
+      IllegalOperationException exception = null;
       try
       {
          currentActivityInstance = qcManagerWorkflowService.suspendToUser(currentActivityInstance.getOID(), monitoredUser.getOID());
-         assertNull(currentActivityInstance);
+         fail();
       }
       catch(Exception e)
       {
-         exception = (InvalidArgumentException) e;
+         assertThat(e, instanceOf(IllegalOperationException.class));
+         exception = (IllegalOperationException) e;
       }
       
       assertEquals("BPMRT04006", exception.getError().getId());
@@ -277,7 +275,6 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       // data value should be written
       assertDataExists(QA_DATA_VALUE);
       
-      
       ActivityInstance nextUserInstance = completionLog.getNextForUser();
       assertNull("CRNT-23053: next instance cannot be activated and should be null", nextUserInstance);
    }
@@ -319,9 +316,11 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
          currentActivityInstance 
          = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance
             .getOID());
+         fail();
       }
       catch(Exception e)
       {
+         assertThat(e, instanceOf(IllegalOperationException.class));
          exception = (IllegalOperationException) e;
       }
       assertEquals("BPMRT04005", exception.getError().getId());
@@ -555,14 +554,12 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       monitoredUserWorkflowService.setActivityInstanceAttributes(noteAttributes);
       assertNotesExists(failNoteText1, failNoteText2, failNoteText3);
       
-      
       //CRNT-22865: now use query service again to fetch activity instance 
       ActivityInstance checkInstance = qs.findFirstActivityInstance(ActivityInstanceQuery.findAlive());
       List<Note> notes = checkInstance.getAttributes().getNotes();
       assertNoteExists(notes, failNoteText1);
       assertNoteExists(notes, failNoteText2);
       assertNoteExists(notes, failNoteText3);
-      
    }
    
    @Test
@@ -655,7 +652,6 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       long userPerformer = currentActivityInstance.getUserPerformerOID();
       
-      
       assertEquals("Activity should be delagated", monitoredUser.getOID(), userPerformer);
    
       //the instance should be in the worklist of the user again
@@ -711,7 +707,6 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
      
       currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       
-      
       String partiticpantId = currentActivityInstance.getParticipantPerformerID();
       assertEquals("Activity should be delagated", MONITORED_USER_ID, partiticpantId);
    
@@ -766,10 +761,11 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       {         
          outData.put(DATA_ID, modifiedData);
          currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
-         Assert.fail();
+         fail();
       }
       catch(Exception e)
       {
+         assertThat(e, instanceOf(IllegalOperationException.class));
          exception = (IllegalOperationException) e;
       }
       
@@ -887,15 +883,16 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       
       //the correction made by the qc manager should have no effect
       
-      
       IllegalOperationException exception = null;
       try 
       {         
          outData.put(DATA_ID, modifiedData);
          currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
+         fail();
       }
       catch(Exception e)
       {
+         assertThat(e, Matchers.instanceOf(IllegalOperationException.class));
          exception = (IllegalOperationException) e;
       }    
       assertEquals("BPMRT04007", exception.getError().getId());

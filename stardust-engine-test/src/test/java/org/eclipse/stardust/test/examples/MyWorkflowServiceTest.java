@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.examples;
 
+import static org.eclipse.stardust.test.examples.MyConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -38,7 +39,6 @@ import org.junit.rules.TestRule;
  */
 public class MyWorkflowServiceTest extends LocalJcrH2Test
 {
-   private static final String MODEL_NAME = "MyExampleModel";
    private static final String PROCESS_DEF_ID = "ProcessDefinition_1";
    
    private final ClientServiceFactory serviceFactory = new ClientServiceFactory(MOTU, MOTU);

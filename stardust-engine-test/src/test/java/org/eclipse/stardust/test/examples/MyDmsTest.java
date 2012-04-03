@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.examples;
 
+import static org.eclipse.stardust.test.examples.MyConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
@@ -39,7 +40,6 @@ import org.junit.rules.TestRule;
  */
 public class MyDmsTest extends LocalJcrH2Test
 {
-   private static final String MODEL_NAME = "MyExampleModel";
    private static final String DOC_NAME = "MyDoc";
    private static final String TOP_LEVEL_FOLDER = "/";
    

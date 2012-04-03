@@ -217,8 +217,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             for (int i = 0; i < v.size(); i++)
             {
                ITransition t = (ITransition) v.get(i);
-               if (t.getFromActivity().equals(transition.getFromActivity()) &&
-                     t.getToActivity().equals(transition.getToActivity()))
+               if (CompareHelper.areEqual(t.getFromActivity(), transition.getFromActivity()) &&
+                   CompareHelper.areEqual(t.getToActivity(), transition.getToActivity()))
                {
                   inconsistencies.add(new Inconsistency("Duplicate transition: "
                         + t + " has the same source/target with " + transition,

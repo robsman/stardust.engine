@@ -41,7 +41,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
 {

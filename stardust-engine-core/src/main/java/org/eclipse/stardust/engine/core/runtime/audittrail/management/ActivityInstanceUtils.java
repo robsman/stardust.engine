@@ -20,14 +20,29 @@ import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
-import org.eclipse.stardust.engine.api.dto.QualityAssuranceResult;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -38,6 +53,9 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
  */
 public class ActivityInstanceUtils
 {
+   
+   private static final Logger trace = LogManager.getLogger(ActivityThread.class);
+   
    /**
     * Lock activity to guarantee, that no other session can touch this activity
     */
@@ -298,14 +316,32 @@ public class ActivityInstanceUtils
       }
    }
 
-   public static void complete(IActivityInstance activityInstance, String context, Map<String, ?> outData, boolean synchronously)
+   public static void complete(IActivityInstance activityInstance, String context,
+         Map<String, ? > outData, boolean synchronously)
    {
-      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      boolean performDataMapping = true;
+      if (QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
          QualityAssuranceUtils.assertCompletingIsAllowed(activityInstance, outData);
+         performDataMapping = QualityAssuranceUtils.canDataMappingsBePerformed(
+               activityInstance, outData);
+         if (!performDataMapping)
+         {
+            StringBuffer errorMessage = new StringBuffer();
+            errorMessage.append("Datamapping will not be executed for qa instance with oid");
+            errorMessage.append("'");
+            errorMessage.append(activityInstance.getOID());
+            errorMessage.append("'");
+            trace.warn(errorMessage);
+         }
       }
       
-      setOutDataValues(context, outData, activityInstance);
-      ActivityThread.schedule(null, null, activityInstance, synchronously, null, Collections.EMPTY_MAP, false);
+      if (performDataMapping)
+      {
+         setOutDataValues(context, outData, activityInstance);
+      }
+
+      ActivityThread.schedule(null, null, activityInstance, synchronously, null,
+            Collections.EMPTY_MAP, false);
    }
 }

@@ -55,6 +55,8 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
  */
 public class QualityAssuranceUtils
 {
+   
+   
    /**
     * key under which the user probability will be stored in the user properties
     */
@@ -401,6 +403,16 @@ public class QualityAssuranceUtils
                = BpmRuntimeError.BPMRT_COMPLETE_QA_NO_ATTRIBUTES_SET.raise(activityInstance.getOID());
             throw new IllegalOperationException(error);
          }
+      }
+   }
+   
+   public static boolean canDataMappingsBePerformed(IActivityInstance activityInstance,  Map<String, ?> outData)
+   {
+      boolean performDataMappings = true;
+      if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      {
+         // on complete the activity instance attributes must be set before
+         ActivityInstanceAttributes attributes = getActivityInstanceAttributes(activityInstance);
          
          // modifying entered data on qc instances is only allowed if in correction mode
          if (outData != null && !outData.isEmpty())
@@ -409,14 +421,13 @@ public class QualityAssuranceUtils
                   .getQualityAssuranceResult().getQualityAssuranceState();
             if (QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION != resultState)
             {
-               throw new IllegalOperationException(
-                     BpmRuntimeError.BPMRT_MODIFY_DATA_QA_INSTANCE_NOT_ALLOWED.raise());
+               performDataMappings = false;
             }
          }
       }
+      
+      return performDataMappings;
    }
-   
-   
    
    public static void assertDelegationIsAllowed(IActivityInstance activityInstance, IUser delegate)
    {

@@ -117,10 +117,6 @@ public interface WorkflowService extends Service
     *         statically typed data.
     * @throws AccessForbiddenException if the current user is not allowed to complete the activity.
     * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.
-    * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance and no {@link ActivityInstanceAttributes}
     *         has been set before({@link WorkflowService#setActivityInstanceAttributes(ActivityInstanceAttributes)}).                             
     * @see #activateAndComplete(long, String, Map)
@@ -197,11 +193,7 @@ public interface WorkflowService extends Service
     *         statically typed data.
     * @throws AccessForbiddenException if the current user is not valid or is not
     *         granted to execute the activity instance. Also thrown if the activity
-    *         instance is already terminated.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.             
+    *         instance is already terminated.            
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the current user is the one who worked on the previous workflow instance 
@@ -245,11 +237,7 @@ public interface WorkflowService extends Service
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
     * @throws InvalidValueException if one of the <code>outData</object> values to
     *         be written is invalid, most probably as of a type conflict in case of
-    *         statically typed data.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.             
+    *         statically typed data.            
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the current user is the one who worked on the previous workflow instance         
@@ -344,10 +332,6 @@ public interface WorkflowService extends Service
     *         currently processed by another user or the current user does not have the
     *         required permission.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument contains a non empty data map.
     *
     * @see #suspendToDefaultPerformer(long, String, Map)
     */
@@ -396,10 +380,6 @@ public interface WorkflowService extends Service
     * @throws ConcurrencyException if the same activity instance is being processed by another user.
     * @throws AccessForbiddenException if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.
     *
     * @see #suspendToDefaultPerformer(long)
     */
@@ -449,10 +429,6 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.
     * @see #suspendToUser(long)
     */
    @ExecutionPermission(
@@ -505,10 +481,6 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws IllegalOperationExceptionn if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the specified user is the one who worked on the previous workflow instance  
@@ -562,10 +534,6 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument is a non empty map.
     * @see #suspendToParticipant(long, String)
     */
    @ExecutionPermission(
@@ -589,11 +557,7 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the activity instance is already terminated or is
     *         currently processed by another user or the current user does not have the
     *         required permission or if the delegation target is not granted to execute
-    *         the activity instance or if the activity instance is already terminated.
-    * @throws IllegalOperationException if the specified activity instance is a 
-    *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-    *         which is not marked as pass with correction {@link ResultState#PASS_WITH_CORRECTION}
-    *         and the passed <code>outData</code> argument contains a non empty data map  
+    *         the activity instance or if the activity instance is already terminated. 
     * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the passed participant is a user who worked on the previous workflow instance              

@@ -29,5 +29,5 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ QualityControlRuntimeTest.class })
 public class QualityControlTestSuite extends LocalJcrH2TestSuite
 {
-   /* nothing to do */
+   /* test suite */
 }

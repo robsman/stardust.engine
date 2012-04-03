@@ -29,5 +29,5 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ CaseProcessInstanceTest.class })
 public class CaseProcessInstanceTestSuite extends LocalJcrH2TestSuite
 {
-   /* nothing to do */
+   /* test suite */
 }

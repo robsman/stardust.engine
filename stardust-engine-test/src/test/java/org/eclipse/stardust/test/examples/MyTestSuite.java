@@ -28,5 +28,5 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ MyWorkflowServiceTest.class, MyDmsTest.class })
 public class MyTestSuite extends LocalJcrH2TestSuite
 {
-   /* nothing to do */
+   /* test suite */
 }

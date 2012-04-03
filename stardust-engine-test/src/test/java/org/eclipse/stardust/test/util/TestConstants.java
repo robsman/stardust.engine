@@ -20,6 +20,9 @@ package org.eclipse.stardust.test.util;
  */
 public class TestConstants
 {
+   /**
+    * the username and password of the predefined administrator user
+    */
    public static final String MOTU = "motu";
    
    private TestConstants()

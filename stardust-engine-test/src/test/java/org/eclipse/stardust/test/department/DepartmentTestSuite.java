@@ -44,5 +44,5 @@ import org.junit.runners.Suite.SuiteClasses;
              })
 public class DepartmentTestSuite extends LocalJcrH2TestSuite
 {
-   /* nothing to do */
+   /* test suite */
 }

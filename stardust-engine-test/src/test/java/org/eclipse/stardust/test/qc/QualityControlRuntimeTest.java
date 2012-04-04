@@ -866,24 +866,7 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       String modifiedData = QA_DATA_VALUE + System.currentTimeMillis();
       outData.put(DATA_ID, modifiedData );
       
-      //the correction made by the qc manager should have no effect
-      
-      IllegalOperationException exception = null;
-      try 
-      {         
-         outData.put(DATA_ID, modifiedData);
-         currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, outData);
-         fail();
-      }
-      catch(Exception e)
-      {
-         assertThat(e, Matchers.instanceOf(IllegalOperationException.class));
-         exception = (IllegalOperationException) e;
-      }    
-      assertEquals("BPMRT04007", exception.getError().getId());
-      assertDataNotExists(modifiedData);
-      assertDataExists(QA_DATA_VALUE);
-      
+      //the correction made by the qc manager should have no effect      
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
       assertDataNotExists(modifiedData);
       assertDataExists(QA_DATA_VALUE);

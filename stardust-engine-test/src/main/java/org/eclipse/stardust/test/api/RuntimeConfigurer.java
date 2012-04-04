@@ -37,6 +37,8 @@ public class RuntimeConfigurer extends ExternalResource
 {
    private static final Log LOG = LogFactory.getLog(RuntimeConfigurer.class);
    
+   private static final short CLEAN_UP_RUNTIME_AND_MODELS_RETRY_COUNT = 3;
+   
    private final String[] modelNames;
    private final ServiceFactory sf;
    
@@ -87,7 +89,7 @@ public class RuntimeConfigurer extends ExternalResource
       stopAllDaemons();
       
       LOG.debug("Trying to clean up runtime and models.");
-      sf.getAdministrationService().cleanupRuntimeAndModels();
+      cleanUpRuntimeAndModels();
    }
    
    private void stopAllDaemons()
@@ -103,6 +105,33 @@ public class RuntimeConfigurer extends ExternalResource
          {
             throw new TestRtEnvException("Unable to stop daemon '" + daemon + "'.", TestRtEnvAction.DAEMON_TEARDOWN);
          }
+      }
+   }
+   
+   private void cleanUpRuntimeAndModels()
+   {
+      short retry = CLEAN_UP_RUNTIME_AND_MODELS_RETRY_COUNT;
+      boolean success = false;
+
+      while (!success && retry > 0)
+      {
+         try
+         {
+            sf.getAdministrationService().cleanupRuntimeAndModels();
+            success = true;
+         }
+         catch (final Exception e)
+         {
+            retry--;
+            LOG.warn("Attempt to clean up runtime and models failed. Reattempting " + retry + " times:" + e.getMessage());
+         }
+      }
+      
+      if ( !success)
+      {
+         final String errorMsg = "Unable to clean up runtime and models.";
+         LOG.error(errorMsg);
+         throw new TestRtEnvException(errorMsg, TestRtEnvAction.CLEAN_UP_RUNTIME_AND_MODELS);
       }
    }
 }

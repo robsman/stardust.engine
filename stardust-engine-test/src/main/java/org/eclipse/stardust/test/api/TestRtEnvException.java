@@ -88,6 +88,7 @@ public class TestRtEnvException extends RuntimeException
                                           WORKSPACE_SETUP, WORKSPACE_TEARDOWN,
                                           DB_SETUP, DB_TEARDOWN,
                                           APP_CTX_SETUP, APP_CTX_TEARDOWN,
-                                          DAEMON_TEARDOWN
+                                          DAEMON_TEARDOWN,
+                                          CLEAN_UP_RUNTIME_AND_MODELS
                                       };
 }

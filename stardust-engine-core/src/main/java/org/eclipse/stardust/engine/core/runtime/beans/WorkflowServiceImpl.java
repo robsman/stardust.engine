@@ -152,7 +152,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IActivity startActivity = null;
       if (startActivityId == null)
       {
-         processDefinition.getRootActivity();
+         startActivity = processDefinition.getRootActivity();
       }
       else
       {

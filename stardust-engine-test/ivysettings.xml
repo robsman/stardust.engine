@@ -10,9 +10,13 @@
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
 <ivysettings>
-   <!-- Use property 'buildtools.home' in file 'etc/ivy.eclipse.properties' to point to the home directory of 'build.tools' ... -->
+   <!-- Use property 'buildtools.home' in file 'etc/ivy.eclipse.properties'  -->
+   <!-- to point to the home directory of project 'build.tools' ...          -->
    <properties file="./etc/ivy.eclipse.properties" />
    
-   <!-- ... to be able to locate and load Ivy settings common to all Stardust projects. -->
+   <!-- ... to be able to                                                    -->
+   <!-- * locate (in the file system) and                                    -->
+   <!-- * load (the referenced settings file assumes the property to be set) -->
+   <!-- Ivy settings common to all Stardust projects.                        -->
    <include file="${buildtools.home}/ivysettings-build.xml" />
 </ivysettings>

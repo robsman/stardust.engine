@@ -393,12 +393,15 @@ public class AuditTrailUtils
          for (Iterator i = propertyList.iterator(); i.hasNext();)
          {
             Map property = (Map) i.next();
-            Integer typeKey = (Integer) property.get(AuditTrailUtils.PRP_TYPE_KEY);
-            String propertyName = (String) property.get(AuditTrailUtils.PRP_NAME);
-            String stringValue = (String) property.get(AuditTrailUtils.PRP_STRING_VALUE);
-            Serializable propertyValue = (Serializable) StructuredDataValueFactory.convertTo(
-                  typeKey.intValue(), stringValue);
-            propertyMap.put(propertyName, propertyValue);
+            if (property != null && !property.isEmpty())
+            {
+               Integer typeKey = (Integer) property.get(AuditTrailUtils.PRP_TYPE_KEY);
+               String propertyName = (String) property.get(AuditTrailUtils.PRP_NAME);
+               String stringValue = (String) property.get(AuditTrailUtils.PRP_STRING_VALUE);
+               Serializable propertyValue = (Serializable) StructuredDataValueFactory.convertTo(
+                     typeKey.intValue(), stringValue);
+               propertyMap.put(propertyName, propertyValue);
+            }
          }
       }
       return propertyMap;

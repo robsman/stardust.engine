@@ -756,12 +756,10 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
       
       //changing data on fail must have no effect
       String modifiedData = QA_DATA_VALUE + System.currentTimeMillis();
-         
+      currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
       assertDataNotExists(modifiedData);
       assertDataExists(QA_DATA_VALUE);
       
-      currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null, null);
-
       //the result of the qc instance should be marked as failed
       attributes = currentActivityInstance.getAttributes();
       QualityAssuranceResult result = attributes.getQualityAssuranceResult();

@@ -73,6 +73,7 @@ public final class TransitionOptions implements Serializable
    {
       this.transitionOutOfSubprocessesAllowed = allowTransitionOutOfSubprocesses;
       this.transitionIntoSubprocessesAllowed = allowTransitionIntoSubprocesses;
+      this.loopsAllowed = allowLoops;
       this.processIdPattern = processIdPattern;
       this.activityIdPattern = activityIdPattern;
    }

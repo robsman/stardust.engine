@@ -75,9 +75,7 @@ public final class RelocationUtils
       JoinSplitType jsType = forward ? activity.getSplitType() : activity.getJoinType();
       if (JoinSplitType.And == jsType && transitions.size() > 1)
       {
-         Stack<IActivity> startActivities = new Stack<IActivity>();
-         startActivities.push(activity);
-         IActivity target = consume(startActivities, asList(transitions), forward, options.areLoopsAllowed());
+         IActivity target = consume(activity, asList(transitions), CollectionUtils.<ITransition>newHashSet(), forward, options.areLoopsAllowed());
          if (target != null)
          {
             addActivity(visited, targets, target, options, forward, steps);
@@ -107,17 +105,16 @@ public final class RelocationUtils
       return unconsumed;
    }
 
-   private static IActivity consume(Stack<IActivity> startActivities, LinkedList<ITransition> unconsumed,
+   private static IActivity consume(IActivity startActivity, LinkedList<ITransition> unconsumed, HashSet<ITransition> visited,
          boolean forward, boolean supportsLoops)
    {
-      Set<ITransition> visited = CollectionUtils.newSet();
-
+      int unchanged = 0;
       while (!unconsumed.isEmpty())
       {
          ITransition transition = unconsumed.element();
          IActivity target = forward ? transition.getToActivity() : transition.getFromActivity();
          
-         if (startActivities.contains(target))
+         if (startActivity == target)
          {
             // unsupported loop
             break;
@@ -147,6 +144,11 @@ public final class RelocationUtils
                if (!unconsumed.isEmpty()) // unable to consume all transitions, but there are more branches, put them all back to the end
                {
                   unconsumed.addAll(pending);
+                  unchanged++;
+               }
+               if (unchanged == unconsumed.size())
+               {
+                  return null;
                }
                continue;
             }
@@ -155,6 +157,7 @@ public final class RelocationUtils
          {
             unconsumed.remove(transition);
          }
+         unchanged = 0;
 
          ModelElementList<ITransition> transitions = forward ? target.getOutTransitions() : target.getInTransitions();
          if (transitions.isEmpty())
@@ -163,36 +166,67 @@ public final class RelocationUtils
          }
          
          JoinSplitType outJsType = forward ? target.getSplitType() : target.getJoinType();
-         while (target != null && JoinSplitType.And == outJsType && transitions.size() > 1)
+         if (JoinSplitType.Xor == outJsType && transitions.size() > 1)
          {
-            startActivities.push(target);
-            target = consume(startActivities, asList(transitions), forward, supportsLoops);
-            startActivities.pop();
-            if (target == null)
-            {
-               return null;
-            }
-            transitions = forward ? target.getOutTransitions() : target.getInTransitions();
-            outJsType = forward ? target.getSplitType() : target.getJoinType();
+            return consumeXor(startActivity, unconsumed, visited, forward, supportsLoops, transitions);
          }
-
-         for (ITransition out : transitions)
+         else
          {
-            if (visited.contains(out)) // loop
+            for (ITransition out : transitions)
             {
-               if (!supportsLoops)
+               if (visited.contains(out)) // loop
                {
-                  return null;
+                  if (!supportsLoops)
+                  {
+                     return null;
+                  }
                }
-            }
-            else
-            {
-               visited.add(out);
-               unconsumed.add(out);
+               else
+               {
+                  visited.add(out);
+                  unconsumed.add(out);
+               }
             }
          }
       }
       return null;
+   }
+
+   private static IActivity consumeXor(IActivity startActivity, LinkedList<ITransition> unconsumed, HashSet<ITransition> visited,
+         boolean forward, boolean supportsLoops, ModelElementList<ITransition> transitions)
+   {
+      IActivity result = null;
+      for (ITransition out : transitions)
+      {
+         if (visited.contains(out)) // loop
+         {
+            if (!supportsLoops)
+            {
+               return null;
+            }
+         }
+         else
+         {
+            LinkedList<ITransition> unconsumedClone = (LinkedList<ITransition>) unconsumed.clone();
+            HashSet<ITransition> visitedClone = (HashSet<ITransition>) visited.clone();
+            visitedClone.add(out);
+            unconsumedClone.add(out);
+            IActivity next = consume(startActivity, unconsumedClone, visitedClone, forward, supportsLoops);
+            if (next == null)
+            {
+               return null;
+            }
+            else if (result == null)
+            {
+               result = next;
+            }
+            else if (result != next)
+            {
+               return null;
+            }
+         }
+      }
+      return result;
    }
 
    private static void addActivity(Set<TransitionTarget> visited, List<TransitionTarget> targets, IActivity target, TransitionOptions options,

@@ -42,7 +42,7 @@ public class SpringAppContext
       try
       {
          /* causes the Spring Application Context to be initialized */
-         SpringUtils.getApplicationContext();
+         ((ConfigurableApplicationContext) SpringUtils.getApplicationContext()).refresh();
       }
       catch (final Exception e)
       {

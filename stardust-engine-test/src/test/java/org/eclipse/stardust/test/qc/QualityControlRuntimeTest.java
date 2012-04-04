@@ -35,7 +35,6 @@ import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.UserHome;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;

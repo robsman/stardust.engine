@@ -84,5 +84,10 @@ public class TestRtEnvException extends RuntimeException
     * 
     * @author Nicolas.Werlein
     */
-   public static enum TestRtEnvAction { WORKSPACE_SETUP, WORKSPACE_TEARDOWN, DB_SETUP, DB_TEARDOWN, APP_CTX_SETUP, APP_CTX_TEARDOWN };
+   public static enum TestRtEnvAction { 
+                                          WORKSPACE_SETUP, WORKSPACE_TEARDOWN,
+                                          DB_SETUP, DB_TEARDOWN,
+                                          APP_CTX_SETUP, APP_CTX_TEARDOWN,
+                                          DAEMON_TEARDOWN
+                                      };
 }

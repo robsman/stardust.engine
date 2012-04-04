@@ -11,10 +11,14 @@
 package org.eclipse.stardust.test.api;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
+import org.eclipse.stardust.engine.api.runtime.Daemon;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.test.api.TestRtEnvException.TestRtEnvAction;
 import org.junit.rules.ExternalResource;
 
 /**
@@ -79,7 +83,26 @@ public class RuntimeConfigurer extends ExternalResource
    @Override
    protected void after()
    {
+      LOG.debug("Trying to stop all deamons.");
+      stopAllDaemons();
+      
       LOG.debug("Trying to clean up runtime and models.");
       sf.getAdministrationService().cleanupRuntimeAndModels();
+   }
+   
+   private void stopAllDaemons()
+   {
+      final List<Daemon> allDaemons = sf.getAdministrationService().getAllDaemons(false);
+      for (final Daemon d : allDaemons)
+      {
+         final Daemon daemon = sf.getAdministrationService().stopDaemon(d.getType(), true);
+         
+         final boolean isRunning = daemon.isRunning();
+         final boolean isAck = daemon.getAcknowledgementState().equals(AcknowledgementState.RespondedOK);
+         if (isRunning || !isAck)
+         {
+            throw new TestRtEnvException("Unable to stop daemon '" + daemon + "'.", TestRtEnvAction.DAEMON_TEARDOWN);
+         }
+      }
    }
 }

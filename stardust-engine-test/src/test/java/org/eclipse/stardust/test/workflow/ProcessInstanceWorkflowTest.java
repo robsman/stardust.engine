@@ -80,11 +80,11 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
     * </p>
     */
    @Test
-   @Ignore
    public void testStartProcessAsynchronously()
    {
-      // TODO implement
-      fail("Not Yet Implemented");
+      final ProcessInstance pi = defaultRoleSf.getWorkflowService().startProcess(PD_1_ID, null, false);
+      assertNotNull(pi);
+      assertEquals(ProcessInstanceState.Active, pi.getState());
    }
 
    /**

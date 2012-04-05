@@ -97,8 +97,11 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
    @Ignore
    public void testStartProcessQualifiedId()
    {
-      // TODO implement ...
-      fail("Not Yet Implemented");
+      final String modelId = MODEL_NAME;
+      final String fqProcessId = "{" + modelId + "}" + PD_1_ID;
+      final ProcessInstance pi = defaultRoleSf.getWorkflowService().startProcess(fqProcessId, null, true);
+      assertNotNull(pi);
+      assertEquals(ProcessInstanceState.Active, pi.getState());
    }
    
    /**

@@ -54,30 +54,6 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Participant>
-      <Participant Id="SmallTeam" Name="SmallTeam">
-         <ParticipantType Type="ROLE"/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:Role Oid="10164"/>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </Participant>
-      <Participant Id="BigTeam" Name="BigTeam">
-         <ParticipantType Type="ROLE"/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:Role Oid="10166"/>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </Participant>
-      <Participant Id="DefaultPerformer" Name="Default Performer">
-         <ParticipantType Type="ROLE"/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:Role Oid="10198"/>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </Participant>
       <Participant Id="O1" Name="o1">
          <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
          <ExtendedAttributes>
@@ -148,7 +124,7 @@
          <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
-               <carnot:Organization Oid="10089" TeamLead="BigTeam">
+               <carnot:Organization Oid="10089">
                   <carnot:Members>
                      <carnot:Member Id="Org3"/>
                      <carnot:Member Id="Org2"/>
@@ -182,7 +158,7 @@
          <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
-               <carnot:Organization Oid="10093" TeamLead="SmallTeam">
+               <carnot:Organization Oid="10093">
                   <carnot:Members>
                      <carnot:Member Id="Role1"/>
                   </carnot:Members>
@@ -220,47 +196,6 @@
                      <carnot:Attribute Name="carnot:engine:bound" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:dataId" Value="A"/>
                   </carnot:Attributes>
-               </carnot:Organization>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </Participant>
-      <Participant Id="Organization1" Name="Organization1">
-         <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:Organization Oid="10275">
-                  <carnot:Members>
-                     <carnot:Member Id="Organization2"/>
-                  </carnot:Members>
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:bound" Value="true" Type="boolean"/>
-                     <carnot:Attribute Name="carnot:engine:dataId" Value="ScopeData"/>
-                  </carnot:Attributes>
-               </carnot:Organization>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </Participant>
-      <Participant Id="Organization3" Name="Organization3">
-         <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:Organization Oid="10281">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:bound" Value="true" Type="boolean"/>
-                     <carnot:Attribute Name="carnot:engine:dataId" Value="ScopeData"/>
-                  </carnot:Attributes>
-               </carnot:Organization>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </Participant>
-      <Participant Id="Organization2" Name="Organization2">
-         <ParticipantType Type="ORGANIZATIONAL_UNIT"/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:Organization Oid="10277">
-                  <carnot:Members>
-                     <carnot:Member Id="Organization3"/>
-                  </carnot:Members>
                </carnot:Organization>
             </ExtendedAttribute>
          </ExtendedAttributes>
@@ -533,63 +468,6 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
-      <DataField Id="DataStringOrg3" Name="Data String Org3" IsArray="FALSE">
-         <DataType>
-            <BasicType Type="STRING"/>
-         </DataType>
-         <InitialValue>TEST</InitialValue>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="10230" Type="primitive">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="TEST"/>
-                     <carnot:Attribute Name="authorization:data.readDataValues[0]" Value="Org3"/>
-                     <carnot:Attribute Name="authorization:data.readDataValues[1]" Value="Reader"/>
-                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
-      <DataField Id="DataStringOrg2" Name="Data String Org2" IsArray="FALSE">
-         <DataType>
-            <BasicType Type="STRING"/>
-         </DataType>
-         <InitialValue>TEST</InitialValue>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="10232" Type="primitive">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="TEST"/>
-                     <carnot:Attribute Name="authorization:data.readDataValues[0]" Value="Org2"/>
-                     <carnot:Attribute Name="authorization:data.readDataValues[1]" Value="Reader"/>
-                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
-      <DataField Id="DataStringST" Name="Data String ST" IsArray="FALSE">
-         <DataType>
-            <BasicType Type="STRING"/>
-         </DataType>
-         <InitialValue>TEST</InitialValue>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:DataField Oid="10233" Type="primitive">
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:defaultValue" Value="TEST"/>
-                     <carnot:Attribute Name="authorization:data.readDataValues[0]" Value="SmallTeam"/>
-                     <carnot:Attribute Name="authorization:data.readDataValues[1]" Value="Reader"/>
-                     <carnot:Attribute Name="authorization:data.modifyDataValues" Value="__carnot_internal_all_permissions__"/>
-                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
-                  </carnot:Attributes>
-               </carnot:DataField>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </DataField>
       <DataField Id="ScopeData" Name="ScopeData" IsArray="FALSE">
          <DataType>
             <BasicType Type="STRING"/>
@@ -838,8 +716,6 @@
                                  <carnot:Symbol Kind="DATA" Oid="10118" X="-25" Y="285" Width="60" Height="60" ModelElement="Z"/>
                                  <carnot:Symbol Kind="DATA" Oid="10122" X="580" Y="40" Width="90" Height="60" ModelElement="A"/>
                                  <carnot:Symbol Kind="ORGANIZATION" Oid="10124" X="470" Y="65" Width="90" Height="40" ModelElement="Reader"/>
-                                 <carnot:Symbol Kind="ROLE" Oid="10165" X="495" Y="210" Width="70" Height="40" ModelElement="SmallTeam"/>
-                                 <carnot:Symbol Kind="ROLE" Oid="10167" X="390" Y="125" Width="60" Height="40" ModelElement="BigTeam"/>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="PART_OF" Oid="10097" SourceSymbol="10092" TargetSymbol="10090"/>
@@ -852,8 +728,6 @@
                                  <carnot:Connection Kind="GENERIC_LINK" Oid="10161" LinkType="DepartmentScope" SourceSymbol="10104" TargetSymbol="10092"/>
                                  <carnot:Connection Kind="GENERIC_LINK" Oid="10162" LinkType="DepartmentScope" SourceSymbol="10102" TargetSymbol="10090"/>
                                  <carnot:Connection Kind="GENERIC_LINK" Oid="10163" LinkType="DepartmentScope" SourceSymbol="10122" TargetSymbol="10124"/>
-                                 <carnot:Connection Kind="TEAM_LEAD" Oid="10168" SourceSymbol="10165" TargetSymbol="10094"/>
-                                 <carnot:Connection Kind="TEAM_LEAD" Oid="10269" SourceSymbol="10167" TargetSymbol="10090"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -1194,93 +1068,6 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
-      <WorkflowProcess Id="PSt" Name="P st" AccessLevel="PRIVATE">
-         <ProcessHeader>
-            <Description>All declarative security settings set to SMallTeamLead</Description>
-         </ProcessHeader>
-         <Activities>
-            <Activity Id="Activity_1" Name="Route Activity 1">
-               <Implementation>
-                  <No/>
-               </Implementation>
-               <Performer/>
-               <StartMode>
-                  <Automatic/>
-               </StartMode>
-               <FinishMode>
-                  <Manual/>
-               </FinishMode>
-               <ExtendedAttributes>
-                  <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Activity Oid="10211" IsHibernatedOnCreation="true">
-                        <carnot:EventHandlers>
-                           <carnot:EventHandler Oid="10229" Id="timer_1" Name="Timer 1" Type="timer">
-                              <carnot:EventActions/>
-                              <carnot:Attributes>
-                                 <carnot:Attribute Name="carnot:engine:useData" Value="false" Type="boolean"/>
-                                 <carnot:Attribute Name="carnot:engine:period" Value="000000:000000:000000:000000:000000:000001" Type="Period"/>
-                              </carnot:Attributes>
-                           </carnot:EventHandler>
-                        </carnot:EventHandlers>
-                        <carnot:DataFlows/>
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
-                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
-                           <carnot:Attribute Name="authorization:activity.manageEventHandlers[0]" Value="SmallTeam"/>
-                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
-                        </carnot:Attributes>
-                     </carnot:Activity>
-                  </ExtendedAttribute>
-               </ExtendedAttributes>
-            </Activity>
-         </Activities>
-         <Transitions/>
-         <ExtendedAttributes>
-            <ExtendedAttribute Name="CarnotExt">
-               <carnot:WorkflowProcess Oid="10208">
-                  <carnot:Triggers/>
-                  <carnot:DataPaths>
-                     <carnot:DataPath Oid="10220" Id="DataPathA" Name="Data Path A" Direction="IN" IsDescriptor="true">
-                        <carnot:DataRef Id="A" Expression=""/>
-                     </carnot:DataPath>
-                     <carnot:DataPath Oid="10221" Id="DataPathZ" Name="Data Path Z" Direction="IN" IsDescriptor="true">
-                        <carnot:DataRef Id="Z" Expression=""/>
-                     </carnot:DataPath>
-                     <carnot:DataPath Oid="10222" Id="DataPathY" Name="Data Path Y" Direction="IN" IsDescriptor="true">
-                        <carnot:DataRef Id="Y" Expression=""/>
-                     </carnot:DataPath>
-                     <carnot:DataPath Oid="10223" Id="DataPathX" Name="Data Path X" Direction="IN" IsDescriptor="false">
-                        <carnot:DataRef Id="X" Expression=""/>
-                     </carnot:DataPath>
-                     <carnot:DataPath Oid="10235" Id="DataPathST" Name="Data Path ST" Direction="IN" IsDescriptor="true">
-                        <carnot:DataRef Id="DataStringST" Expression=""/>
-                     </carnot:DataPath>
-                  </carnot:DataPaths>
-                  <carnot:EventHandlers/>
-                  <carnot:Attributes>
-                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="SmallTeam"/>
-                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="SmallTeam"/>
-                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="SmallTeam"/>
-                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData[0]" Value="SmallTeam"/>
-                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Org3"/>
-                  </carnot:Attributes>
-                  <carnot:Diagrams>
-                     <carnot:Diagram Oid="10209" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
-                        <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="10210" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
-                              <carnot:Symbols/>
-                              <carnot:Connections/>
-                           </carnot:Symbol>
-                        </carnot:Symbols>
-                        <carnot:Connections/>
-                     </carnot:Diagram>
-                  </carnot:Diagrams>
-               </carnot:WorkflowProcess>
-            </ExtendedAttribute>
-         </ExtendedAttributes>
-      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
@@ -1587,16 +1374,11 @@
                      <carnot:Symbol Kind="ORGANIZATION" Oid="10184" X="305" Y="290" Width="40" Height="40" ModelElement="Org4"/>
                      <carnot:Symbol Kind="ORGANIZATION" Oid="10186" X="405" Y="285" Width="40" Height="40" ModelElement="Org5"/>
                      <carnot:Symbol Kind="ORGANIZATION" Oid="10188" X="630" Y="35" Width="50" Height="40" ModelElement="Reader"/>
-                     <carnot:Symbol Kind="ROLE" Oid="10189" X="555" Y="135" Width="70" Height="40" ModelElement="SmallTeam"/>
-                     <carnot:Symbol Kind="ROLE" Oid="10191" X="540" Y="45" Width="60" Height="40" ModelElement="BigTeam"/>
                      <carnot:Symbol Kind="ROLE" Oid="10192" X="620" Y="320" Width="80" Height="40" ModelElement="Administrator"/>
                      <carnot:Symbol Kind="ROLE" Oid="10193" X="695" Y="145" Width="30" Height="40" ModelElement="Dtd"/>
                      <carnot:Symbol Kind="ROLE" Oid="10194" X="715" Y="215" Width="30" Height="40" ModelElement="Dto"/>
                      <carnot:Symbol Kind="ROLE" Oid="10195" X="710" Y="270" Width="40" Height="40" ModelElement="None"/>
                      <carnot:Symbol Kind="ROLE" Oid="10239" X="215" Y="100" Width="40" Height="40" ModelElement="None"/>
-                     <carnot:Symbol Kind="ORGANIZATION" Oid="10276" X="250" Y="665" Width="90" Height="40" ModelElement="Organization1"/>
-                     <carnot:Symbol Kind="ORGANIZATION" Oid="10279" X="245" Y="745" Width="90" Height="40" ModelElement="Organization2"/>
-                     <carnot:Symbol Kind="ORGANIZATION" Oid="10283" X="245" Y="855" Width="90" Height="40" ModelElement="Organization3"/>
                   </carnot:Symbols>
                   <carnot:Connections>
                      <carnot:Connection Kind="PART_OF" Oid="10074" SourceSymbol="10073" TargetSymbol="10069"/>
@@ -1606,10 +1388,6 @@
                      <carnot:Connection Kind="WORKS_FOR" Oid="10183" SourceSymbol="10182" TargetSymbol="10178"/>
                      <carnot:Connection Kind="PART_OF" Oid="10185" SourceSymbol="10184" TargetSymbol="10180"/>
                      <carnot:Connection Kind="PART_OF" Oid="10187" SourceSymbol="10186" TargetSymbol="10180"/>
-                     <carnot:Connection Kind="TEAM_LEAD" Oid="10190" SourceSymbol="10189" TargetSymbol="10178"/>
-                     <carnot:Connection Kind="TEAM_LEAD" Oid="10224" SourceSymbol="10191" TargetSymbol="10177"/>
-                     <carnot:Connection Kind="PART_OF" Oid="10280" SourceSymbol="10279" TargetSymbol="10276"/>
-                     <carnot:Connection Kind="PART_OF" Oid="10284" SourceSymbol="10283" TargetSymbol="10279"/>
                   </carnot:Connections>
                </carnot:Diagram>
             </carnot:Diagrams>
@@ -1626,7 +1404,6 @@
                <carnot:Attribute Name="authorization:model.readAuditTrailStatistics[0]" Value="Administrator"/>
                <carnot:Attribute Name="authorization:model.readUserData" Value="__carnot_internal_all_permissions__"/>
                <carnot:Attribute Name="authorization:model.manageAuthorization[0]" Value="Administrator"/>
-               <carnot:Attribute Name="authorization:model.manageAuthorization[1]" Value="DefaultPerformer"/>
                <carnot:Attribute Name="authorization:model.readModelData" Value="__carnot_internal_all_permissions__"/>
                <carnot:Attribute Name="authorization:model.readDepartments" Value="__carnot_internal_all_permissions__"/>
                <carnot:Attribute Name="authorization:model.modifyDepartments[0]" Value="Administrator"/>

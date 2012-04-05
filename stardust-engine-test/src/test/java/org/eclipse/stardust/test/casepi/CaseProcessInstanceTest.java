@@ -485,6 +485,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
 
       waitForTransitionTo(ProcessInstanceState.Active, 3, caseProcess1.getOID());
       
+      // TODO consider introducing a retry mechanism since now and then this call causes a deadlock
       wfService.leaveCase(casePi.getOID(), new long[]{caseProcess1.getOID()});
 
       waitForTransitionTo(ProcessInstanceState.Aborted, 3, casePi.getOID());

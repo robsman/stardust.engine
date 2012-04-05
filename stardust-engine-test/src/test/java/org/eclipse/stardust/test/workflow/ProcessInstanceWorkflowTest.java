@@ -94,7 +94,6 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
     * </p>
     */
    @Test
-   @Ignore
    public void testStartProcessQualifiedId()
    {
       final String modelId = MODEL_NAME;

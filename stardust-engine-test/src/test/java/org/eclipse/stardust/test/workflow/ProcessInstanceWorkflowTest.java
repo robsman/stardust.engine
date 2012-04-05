@@ -273,6 +273,21 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
    
    /**
     * <p>
+    * Tests whether the correct exception is thrown when the process instance cannot be found.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testSetProcessInstanceAttributesFailProcessInstanceNotFound()
+   {
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      final ProcessInstanceAttributes attributes = pi.getAttributes();
+      adminSf.getAdministrationService().cleanupRuntime(true);
+      
+      userSf.getWorkflowService().setProcessInstanceAttributes(attributes);
+   }
+   
+   /**
+    * <p>
     * Tests whether the correct exception is thrown when the process instance is not
     * a scope process instance.
     * </p>

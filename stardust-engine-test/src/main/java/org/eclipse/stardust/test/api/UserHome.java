@@ -61,7 +61,7 @@ public class UserHome
       }
       
       final Set<ModelParticipantInfo> grantSet;
-      if (grants == null)
+      if (grants == null || grants.length == 0)
       {
          grantSet = Collections.emptySet();
       }
@@ -92,6 +92,20 @@ public class UserHome
       return create(sf, userId, mpGrants);
    }
 
+   /**
+    * <p>
+    * Creates a new user with the given user ID and does not initializes the created user with any grants.
+    * </p>
+    * 
+    * @param userId an ID the user's <i>account<>/i>, <i>first name</i>, <i>last name</i>, <i>description</i> and <i>password</i> will be initialized with
+    * @param sf a service factory needed for creating the user
+    * @return the created user
+    */
+   public static User create(final ServiceFactory sf, final String userId)
+   {
+      return create(sf, userId, new ModelParticipantInfo[0]);
+   }
+   
    /**
     * <p>
     * Adds the specified grants to the already existing user.

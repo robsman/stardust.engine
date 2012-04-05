@@ -49,9 +49,14 @@ package org.eclipse.stardust.test.workflow;
 
    
    /**
-    * the ID of a manual activity
+    * the ID of manual activity #1
     */
    /* package-private */ static final String MANUAL_ACTIVITY_1_ID = "Activity_1";
+   
+   /**
+    * the ID of manual activity #2
+    */
+   /* package-private */ static final String MANUAL_ACTIVITY_2_ID = "Activity_2";
 
    
    /**

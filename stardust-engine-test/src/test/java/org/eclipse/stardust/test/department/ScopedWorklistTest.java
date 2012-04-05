@@ -75,7 +75,7 @@ public class ScopedWorklistTest extends LocalJcrH2Test
    @Before
    public void setUp()
    {
-      UserHome.create(adminSf, USER_ID, new String[0]);
+      UserHome.create(adminSf, USER_ID);
    }
    
    /**

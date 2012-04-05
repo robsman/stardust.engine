@@ -238,6 +238,34 @@
                   <ExtendedAttribute Name="CarnotExt">
                      <carnot:Activity Oid="10048" Implementation="Manual">
                         <carnot:EventHandlers/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="10086" Id="MyString" Name="MyString" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyString"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="Activity_2" Name="Manual Activity 2">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer>DefaultRole</Performer>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10088" Implementation="Manual">
+                        <carnot:EventHandlers/>
                         <carnot:DataFlows/>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>
@@ -247,7 +275,16 @@
                </ExtendedAttributes>
             </Activity>
          </Activities>
-         <Transitions/>
+         <Transitions>
+            <Transition Id="Transition_1" Name="Transition 1" From="Activity_1" To="Activity_2">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10090"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
                <carnot:WorkflowProcess Oid="10045">
@@ -274,12 +311,16 @@
                            <carnot:Symbol Kind="POOL" Oid="10047" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
                               <carnot:Symbols>
                                  <carnot:Symbol Kind="ACTIVITY" Oid="10049" X="210" Y="125" Width="140" Height="50" ModelElement="Activity_1"/>
-                                 <carnot:Symbol Kind="ROLE" Oid="10051" X="430" Y="130" Width="80" Height="40" ModelElement="DefaultRole"/>
-                                 <carnot:Symbol Kind="DATA" Oid="10054" X="-15" Y="120" Width="90" Height="60" ModelElement="MyString"/>
+                                 <carnot:Symbol Kind="ROLE" Oid="10051" X="425" Y="185" Width="80" Height="40" ModelElement="DefaultRole"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10054" X="90" Y="220" Width="90" Height="60" ModelElement="MyString"/>
                                  <carnot:Symbol Kind="DATA" Oid="10056" X="90" Y="120" Width="90" Height="60" ModelElement="MyInt"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10089" X="210" Y="255" Width="140" Height="50" ModelElement="Activity_2"/>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="PERFORMS" Oid="10052" SourceSymbol="10051" TargetSymbol="10049"/>
+                                 <carnot:Connection Kind="DATA_FLOW" Oid="10087" SourceSymbol="10054" TargetSymbol="10049"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10091" ModelElement="Transition_1" SourceSymbol="10049" TargetSymbol="10089" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="PERFORMS" Oid="10092" SourceSymbol="10051" TargetSymbol="10089"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>

@@ -13,16 +13,24 @@ package org.eclipse.stardust.test.workflow;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.*;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.dto.Note;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
+import org.eclipse.stardust.engine.api.model.ProcessDefinition;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
@@ -182,11 +190,114 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
       userSf.getWorkflowService().abortProcessInstance(pi.getOID(), AbortScope.SubHierarchy);
    }
    
-   // TODO write test cases for getProcessInstance()
+   /**
+    * <p>
+    * Tests whether retrieving the process instance works correctly.
+    * </p>
+    */
+   @Test
+   public void testGetProcessInstance()
+   {
+      final ProcessInstance originalPi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      final ProcessInstance retrievedPi = userSf.getWorkflowService().getProcessInstance(originalPi.getOID());
+      
+      assertThat(retrievedPi, equalTo(originalPi));
+   }
    
-   // TODO write test cases for getProcessResults()
+   /**
+    * <p>
+    * Tests whether the process instance abortion throws the correct exception
+    * when the process instance cannot be found.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testGetProcessInstanceFailProcessInstanceNotFound()
+   {
+      userSf.getWorkflowService().getProcessInstance(-1);
+   }
+
+   /**
+    * <p>
+    * Tests whether the retrieval of the startable process definitions for a user
+    * holding the 'Default Role' grant works correctly.
+    * </p>
+    */
+   @Test
+   public void testGetStartableProcessDefinitionsForDefaultRole()
+   {
+      final List<ProcessDefinition> userPds = userSf.getWorkflowService().getStartableProcessDefinitions();
+      
+      assertThat(userPds.size(), is(1));
+      final ProcessDefinition pd = userPds.get(0);
+      assertThat(pd.getId(), is(PD_3_ID));
+   }
+
+   /**
+    * <p>
+    * Tests whether the retrieval of the startable process definitions for a user
+    * holding the 'Administrator' grant works correctly.
+    * </p>
+    */
+   @Test
+   public void testGetStartableProcessDefinitionsForAdminRole()
+   {
+      final List<ProcessDefinition> adminPds = adminSf.getWorkflowService().getStartableProcessDefinitions();
+      
+      assertThat(adminPds.size(), is(1));
+      final ProcessDefinition pd = adminPds.get(0);
+      assertThat(pd.getId(), is(PD_2_ID));
+   }
    
-   // TODO write test cases for getStartableProcessDefinitions()
+   /**
+    * <p>
+    * Tests whether setting of process instance attributes works correctly.
+    * </p>
+    */
+   @Test
+   public void testSetProcessInstanceAttributes()
+   {
+      final String testText = "This is a test";
+      
+      final ProcessInstance originalPi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      final ProcessInstanceAttributes originalAttributes = originalPi.getAttributes();
+      originalAttributes.addNote(testText);
+      userSf.getWorkflowService().setProcessInstanceAttributes(originalAttributes);
+      
+      final ProcessInstance retrievedPi = userSf.getWorkflowService().getProcessInstance(originalPi.getOID());
+      final ProcessInstanceAttributes retrievedAttributes = retrievedPi.getAttributes();
+      final List<Note> notes = retrievedAttributes.getNotes();
+      assertThat(notes.size(), is(1));
+      final Note note = notes.get(0);
+      assertThat(note.getText(), equalTo(testText));
+   }
    
-   // TODO write test cases for setProcessInstanceAttributes()
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown when the process instance is not
+    * a scope process instance.
+    * </p>
+    */
+   @Test(expected = PublicException.class)
+   public void testSetProcessInstanceAttributesFailNotScopeProcessInstance()
+   {
+      final String testText = "This is a test.";
+      
+      userSf.getWorkflowService().startProcess(PD_4_ID, null, true);
+      final ProcessInstance pi = adminSf.getQueryService().findFirstProcessInstance(ProcessInstanceQuery.findForProcess(PD_1_ID));
+      final ProcessInstanceAttributes attributes = pi.getAttributes();
+      attributes.addNote(testText);
+      userSf.getWorkflowService().setProcessInstanceAttributes(attributes);
+   }
+   
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown when the process instance attribute
+    * is <code>null</code>.
+    * </p>
+    */
+   @Test(expected = InvalidArgumentException.class)
+   public void testSetProcessInstanceAttributesFailNullAttribute()
+   {
+      adminSf.getWorkflowService().setProcessInstanceAttributes(null);
+   }
 }

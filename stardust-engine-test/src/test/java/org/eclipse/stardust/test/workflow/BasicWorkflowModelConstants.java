@@ -31,6 +31,21 @@ package org.eclipse.stardust.test.workflow;
     * the ID of process definition #1
     */
    /* package-private */ static final String PD_1_ID = "ProcessDefinition_1";
+   
+   /**
+    * the ID of process definition #1
+    */
+   /* package-private */ static final String PD_2_ID = "ProcessDefinition_2";
+   
+   /**
+    * the ID of process definition #1
+    */
+   /* package-private */ static final String PD_3_ID = "ProcessDefinition_3";
+   
+   /**
+    * the ID of process definition #1
+    */
+   /* package-private */ static final String PD_4_ID = "ProcessDefinition_4";
 
    
    /**

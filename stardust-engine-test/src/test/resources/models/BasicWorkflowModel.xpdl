@@ -188,6 +188,36 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </DataField>
+      <DataField Id="MyString" Name="MyString" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="STRING"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10053" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
+      <DataField Id="MyInt" Name="MyInt" IsArray="FALSE">
+         <DataType>
+            <BasicType Type="INTEGER"/>
+         </DataType>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:DataField Oid="10055" Type="primitive">
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
+                     <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                  </carnot:Attributes>
+               </carnot:DataField>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </DataField>
    </DataFields>
    <WorkflowProcesses>
       <WorkflowProcess Id="ProcessDefinition_1" Name="Process Definition 1" AccessLevel="PRIVATE">
@@ -222,8 +252,22 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:WorkflowProcess Oid="10045">
                   <carnot:Triggers/>
-                  <carnot:DataPaths/>
+                  <carnot:DataPaths>
+                     <carnot:DataPath Oid="10057" Id="MyStringInDataPath" Name="MyStringInDataPath" Direction="IN" IsDescriptor="false">
+                        <carnot:DataRef Id="MyString" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10058" Id="MyIntInDataPath" Name="MyIntInDataPath" Direction="IN" IsDescriptor="false">
+                        <carnot:DataRef Id="MyInt" Expression=""/>
+                     </carnot:DataPath>
+                  </carnot:DataPaths>
                   <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
+                     <carnot:Attribute Name="authorization:processDefinition.readProcessInstanceData" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="authorization:processDefinition.manageEventHandlers[0]" Value="Administrator"/>
+                  </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="10046" Name="Default" Orientation="Vertical" Mode="MODE_4_0_0">
                         <carnot:Symbols>
@@ -231,6 +275,8 @@
                               <carnot:Symbols>
                                  <carnot:Symbol Kind="ACTIVITY" Oid="10049" X="210" Y="125" Width="140" Height="50" ModelElement="Activity_1"/>
                                  <carnot:Symbol Kind="ROLE" Oid="10051" X="430" Y="130" Width="80" Height="40" ModelElement="DefaultRole"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10054" X="-15" Y="120" Width="90" Height="60" ModelElement="MyString"/>
+                                 <carnot:Symbol Kind="DATA" Oid="10056" X="90" Y="120" Width="90" Height="60" ModelElement="MyInt"/>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="PERFORMS" Oid="10052" SourceSymbol="10051" TargetSymbol="10049"/>

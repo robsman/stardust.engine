@@ -11,22 +11,26 @@
 package org.eclipse.stardust.test.workflow;
 
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.DEFAULT_ROLE_ID;
-import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MODEL_NAME;
-import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.PD_1_ID;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertThat;
 
+import java.util.Map;
+
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.test.api.ClientServiceFactory;
 import org.eclipse.stardust.test.api.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -46,12 +50,12 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
    
    private final ClientServiceFactory adminSf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(adminSf, MODEL_NAME);
-   private final ClientServiceFactory defaultRoleSf = new ClientServiceFactory(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID);
+   private final ClientServiceFactory userSf = new ClientServiceFactory(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID);
    
    @Rule
    public TestRule chain = RuleChain.outerRule(adminSf)
                                     .around(rtConfigurer)
-                                    .around(defaultRoleSf);
+                                    .around(userSf);
    
    @Before
    public void setUp()
@@ -68,7 +72,7 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testStartProcessSynchronously()
    {
-      final ProcessInstance pi = defaultRoleSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
       assertNotNull(pi);
       assertEquals(ProcessInstanceState.Active, pi.getState());
    }
@@ -82,7 +86,7 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testStartProcessAsynchronously()
    {
-      final ProcessInstance pi = defaultRoleSf.getWorkflowService().startProcess(PD_1_ID, null, false);
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, false);
       assertNotNull(pi);
       assertEquals(ProcessInstanceState.Active, pi.getState());
    }
@@ -98,7 +102,7 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
    {
       final String modelId = MODEL_NAME;
       final String fqProcessId = "{" + modelId + "}" + PD_1_ID;
-      final ProcessInstance pi = defaultRoleSf.getWorkflowService().startProcess(fqProcessId, null, true);
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(fqProcessId, null, true);
       assertNotNull(pi);
       assertEquals(ProcessInstanceState.Active, pi.getState());
    }
@@ -106,15 +110,25 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
    /**
     * <p>
     * Tests whether the process data will be initialized correctly with the
-    * passed data values. 
+    * passed data values (tests only String and Integer data).
     * </p>
     */
    @Test
-   @Ignore
    public void testStartProcessPassData()
    {
-      // TODO implement ...
-      fail("Not Yet Implemented");
+      final String originalString = "a string";
+      final int originalInt = 81;
+      final Map<String, Object> data = CollectionUtils.newHashMap();
+      data.put(MY_STRING_DATA_ID, originalString);
+      data.put(MY_INT_DATA_ID, originalInt);
+      
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, data, true);
+      
+      final String actualString = (String) userSf.getWorkflowService().getInDataPath(pi.getOID(), MY_STRING_IN_DATA_PATH_ID);
+      final int actualInt = (Integer) userSf.getWorkflowService().getInDataPath(pi.getOID(), MY_INT_IN_DATA_PATH_ID);
+      
+      assertThat(actualString, equalTo(originalString));
+      assertThat(actualInt, equalTo(originalInt));
    }   
    
    /**
@@ -126,26 +140,47 @@ public class ProcessInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = ObjectNotFoundException.class)
    public void testStartProcessFailProcessDefinitionNotFound()
    {
-      defaultRoleSf.getWorkflowService().startProcess("N/A", null, true);
+      userSf.getWorkflowService().startProcess("N/A", null, true);
    }
    
-   // TODO write test cases for spawnSubprocessInstance()
+   /**
+    * <p>
+    * Tests whether aborting a process instance works correctly.
+    * </p>
+    */
+   @Test
+   public void testAbortProcessInstance()
+   {
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      final ProcessInstance abortedPi = adminSf.getWorkflowService().abortProcessInstance(pi.getOID(), AbortScope.SubHierarchy);
+      assertThat(abortedPi.getState(), isOneOf(ProcessInstanceState.Aborting, ProcessInstanceState.Aborted));
+   }
    
-   // TODO write test cases for spawnPeerProcessInstance()
-   
-   // TODO write test cases for createCase()
-   
-   // TODO write test cases for joinCase()
-   
-   // TODO write test cases for leaveCase()
-   
-   // TODO write test cases for mergeCases()
-   
-   // TODO write test cases for delegateCase()
-   
-   // TODO write test cases for joinProcessInstance()
-   
-   // TODO write test cases for abortProcessInstance()
+   /**
+    * <p>
+    * Tests whether the process instance abortion throws the correct exception
+    * when the process instance cannot be found.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testAbortProcessInstanceFailProcessInstanceNotFound()
+   {
+      userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      userSf.getWorkflowService().abortProcessInstance(-1, AbortScope.SubHierarchy);
+   }
+
+   /**
+    * <p>
+    * Tests whether the process instance abortion throws the correct exception
+    * when the user has insufficient grants.
+    * </p>
+    */
+   @Test(expected = AccessForbiddenException.class)
+   public void testAbortProcessInstanceFailInsufficientGrants()
+   {
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
+      userSf.getWorkflowService().abortProcessInstance(pi.getOID(), AbortScope.SubHierarchy);
+   }
    
    // TODO write test cases for getProcessInstance()
    

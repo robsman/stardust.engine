@@ -26,10 +26,18 @@ package org.eclipse.stardust.test.workflow;
     */
    /* package-private */ static final String MODEL_NAME = "BasicWorkflowModel";
    
+   
    /**
     * the ID of process definition #1
     */
    /* package-private */ static final String PD_1_ID = "ProcessDefinition_1";
+
+   
+   /**
+    * the ID of a manual activity
+    */
+   /* package-private */ static final String MANUAL_ACTIVITY_1_ID = "Activity_1";
+
    
    /**
     * the ID of the default role
@@ -37,7 +45,22 @@ package org.eclipse.stardust.test.workflow;
    /* package-private */ static final String DEFAULT_ROLE_ID = "DefaultRole";
    
    /**
-    * the ID of a manual activity
+    * a string data
     */
-   /* package-private */ static final String MANUAL_ACTIVITY_1_ID = "Activity_1";
+   /* package-private */ static final String MY_STRING_DATA_ID = "MyString";
+   
+   /**
+    * an integer data
+    */
+   /* package-private */ static final String MY_INT_DATA_ID = "MyInt";
+   
+   /**
+    * a string in data path 
+    */
+   /* package-private */ static final String MY_STRING_IN_DATA_PATH_ID = "MyStringInDataPath";
+   
+   /**
+    * an integer in data path
+    */
+   /* package-private */ static final String MY_INT_IN_DATA_PATH_ID = "MyIntInDataPath";
 }

@@ -22,6 +22,7 @@ import junit.framework.Assert;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.model.DataPath;
@@ -475,17 +476,15 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
    @Test
    public void testSpawnedProcessInstanceLeave() throws InterruptedException
    {
-      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
-            true);
+      ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null, true);
 
       long[] members = {caseProcess1.getOID()};
       ProcessInstance casePi = wfService.createCase("Case1", null, members);
 
-      wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2",true, null);
-
-      waitForTransitionTo(ProcessInstanceState.Active, 3, caseProcess1.getOID());
+      ProcessInstance spawnedPi = wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2", true, null);
+      /* make sure that spawning is completed before moving on */
+      waitForAiCreation(spawnedPi.getOID(), 3);
       
-      // TODO consider introducing a retry mechanism since now and then this call causes a deadlock
       wfService.leaveCase(casePi.getOID(), new long[]{caseProcess1.getOID()});
 
       waitForTransitionTo(ProcessInstanceState.Aborted, 3, casePi.getOID());
@@ -738,6 +737,26 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       while (--retryCount > 0);
       
       throw new IllegalStateException("PI is still NOT in state '" + state + "'");
+   }
+   
+   private void waitForAiCreation(long piOid, int retryCount) throws InterruptedException
+   {
+      do
+      {
+         Thread.sleep(1000);
+         try
+         {
+            sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(piOid));
+            return;
+         }
+         catch (ObjectNotFoundException e)
+         {
+            /* not found, try again */
+         }
+      }
+      while (--retryCount > 0);
+      
+      throw new IllegalStateException("AI has still NOT been created.");
    }
    
    private DeployedModel getTestModel()

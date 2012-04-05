@@ -558,7 +558,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testCaseInclusionQueryCount()
+   public void testCaseInclusionQueryCount() throws InterruptedException
    {
       QueryService queryService = sf.getQueryService();
 
@@ -567,6 +567,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
       assertNotNull(rootCaseProcess);
       wfService.abortProcessInstance(caseProcess.getOID(), AbortScope.SubHierarchy);
+      waitForTransitionTo(ProcessInstanceState.Aborted, 3, caseProcess.getOID());
       
       ProcessInstanceQuery queryRoot0 = ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted);
       queryRoot0.setPolicy(CasePolicy.INCLUDE_CASES);

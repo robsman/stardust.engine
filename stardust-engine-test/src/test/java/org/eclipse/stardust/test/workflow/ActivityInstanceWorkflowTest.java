@@ -148,12 +148,6 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    
    // TODO write test cases for suspend()
    
-   // TODO write test cases for suspendToDefaultPerformer()
-   
-   // TODO write test cases for suspendToUser()
-   
-   // TODO write test cases for suspendToParticipant()
-   
    // TODO write test cases for hibernate()
    
    // TODO write test cases for abortActivityInstance()
@@ -164,17 +158,7 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    
    // TODO write test cases for activateNextActivityInstanceForProcessInstance()
    
-   // TODO write test cases for delegateToDefaultPerformer()
-   
-   // TODO write test cases for delegateToUser()
-   
-   // TODO write test cases for delegateToParticipant()
-   
    // TODO write test cases for getActivityInstance()
-   
-   // TODO write test cases for getAdHocTransitionTargets()
-   
-   // TODO write test cases for performAdHocTransition()
    
    // TODO write test cases for setActivityInstanceAttributes()
    

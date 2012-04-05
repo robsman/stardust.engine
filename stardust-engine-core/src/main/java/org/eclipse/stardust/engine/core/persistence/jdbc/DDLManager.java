@@ -961,7 +961,7 @@ public class DDLManager
 
          }
 
-         insertPredefinedLinkTypes(schemaName, statementDelimiter, ps);
+         insertPredefinedLinkTypes(schemaName, PredefinedConstants.DEFAULT_PARTITION_ID, statementDelimiter, ps);
 
          ps.println("COMMIT");
          ps.println(statementDelimiter);
@@ -974,13 +974,13 @@ public class DDLManager
       }
    }
 
-   private void insertPredefinedLinkTypes(String schemaName, String statementDelimiter, PrintStream ps)
+   private void insertPredefinedLinkTypes(String schemaName, String partitionId, String statementDelimiter, PrintStream ps)
    {
       int oid = 0;
       for (PredefinedProcessInstanceLinkTypes type : PredefinedProcessInstanceLinkTypes.values())
       {
          oid++;
-         ps.println(getInsertLinkTypeStatement(schemaName, type.getId(), type.getDescription(), oid));
+         ps.println(getInsertLinkTypeStatement(schemaName, type.getId(), type.getDescription(), oid, partitionId));
          ps.println(statementDelimiter);
       }
       if (!dbDescriptor.supportsSequences() && !dbDescriptor.supportsIdentityColumns())
@@ -997,7 +997,7 @@ public class DDLManager
           + " WHERE name='link_type_seq'";
    }
 
-   private String getInsertLinkTypeStatement(String schemaName, String id, String name, int index)
+   private String getInsertLinkTypeStatement(String schemaName, String id, String name, int index, String partitionId)
    {
       StringBuilder sb = new StringBuilder();
       sb.append("INSERT INTO ");
@@ -1040,7 +1040,7 @@ public class DDLManager
       {
          sb.append("p.oid FROM ");
          sb.append(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME));
-         sb.append(" p WHERE p.id = 'default'");
+         sb.append(" p WHERE p.id = '" + partitionId + "'");
       }
       else
       {
@@ -2432,7 +2432,7 @@ public class DDLManager
          for (PredefinedProcessInstanceLinkTypes type : PredefinedProcessInstanceLinkTypes.values())
          {
             oid++;
-            String insertStmt = getInsertLinkTypeStatement(schemaName, type.getId(), type.getDescription(), oid);
+            String insertStmt = getInsertLinkTypeStatement(schemaName, type.getId(), type.getDescription(), oid, partitionId);
             executeOrSpoolStatement(insertStmt, connection, spoolFile);
          }
          if (!dbDescriptor.supportsSequences() && !dbDescriptor.supportsIdentityColumns())

@@ -37,6 +37,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.vfs.impl.utils.StringUtils;
 
 
 /**
@@ -167,7 +168,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       {
          queryExtension.getHints().put(CasePolicy.class.getName(), true);
       }
-      
+
       FetchPredicate fetchPredicate = parsedQuery.getFetchPredicate();
       if (authorizationPredicate != null)
       {
@@ -260,7 +261,8 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
    private static void applyDistinctOnQueryExtension(QueryExtension queryExtension,
          SqlBuilder.ParsedQuery parsedQuery)
    {
-      if (includesOrderOnJoinedTable(parsedQuery.getOrderCriteria()))
+      // custom select alias needs distinct else the total count is calculated incorrectly.
+      if (includesOrderOnJoinedTable(parsedQuery.getOrderCriteria()) && StringUtils.isEmpty(queryExtension.getSelectAlias()))
       {
          queryExtension.setDistinct(false);
          queryExtension.setEngineDistinct(parsedQuery.useDistinct());

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.jdbc;
 
+import static org.eclipse.stardust.engine.core.runtime.beans.DataValueBean.TABLE_NAME;
+import static org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean.DEFAULT_ALIAS;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -68,6 +71,7 @@ import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
 
@@ -925,7 +929,7 @@ public class DmlManager
 
    private void applyJoins(Joins joins, StringBuffer whereClause,
          StringBuffer fromClause, List<Pair<Class<?>, ?>> bindValueList, FieldRefResolver fieldRefResolver,
-         boolean setDefaultAlias, boolean useLiteralsWhereAppropriate)
+         boolean setDefaultAlias, boolean useLiteralsWhereAppropriate, String selectAlias)
    {
       boolean useAnsiJoins = ((Session) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL)).getDBDescriptor().useAnsiJoins();
@@ -936,14 +940,14 @@ public class DmlManager
       {
          applyJoin(joinItr.next(), whereClause, fromClause, bindValueList,
                useAnsiJoins, appliedJoins, fieldRefResolver, setDefaultAlias,
-               useLiteralsWhereAppropriate);
+               useLiteralsWhereAppropriate, selectAlias);
       }
    }
 
    private void applyJoin(Join join, StringBuffer whereClause, StringBuffer fromClause,
          List<Pair<Class<?>, ?>> bindValues, boolean useAnsiJoins, Set<Join> appliedJoins,
          FieldRefResolver fieldRefResolver, boolean setDefaultAlias,
-         boolean useLiteralsWhereAppropriate)
+         boolean useLiteralsWhereAppropriate, String selectAlias)
    {
       if (!appliedJoins.contains(join))
       {
@@ -954,7 +958,7 @@ public class DmlManager
          {
             applyJoin(join.getDependency(), whereClause, fromClause, bindValues,
                   useAnsiJoins, appliedJoins, fieldRefResolver, setDefaultAlias,
-                  useLiteralsWhereAppropriate);
+                  useLiteralsWhereAppropriate, selectAlias);
          }
 
          if (useAnsiJoins)
@@ -994,7 +998,18 @@ public class DmlManager
                   }
                }
 
-               sqlUtils.appendFieldRef(fromClause, lhsField);
+               // Data_Value prefetch join needs to use the custom selectAlias instead of default alias.
+               if (DEFAULT_ALIAS.equals(lhsField.getType()
+                     .getTableAlias())
+                     && TABLE_NAME.equals(join.getRhsTableDescriptor()
+                           .getTableName()))
+               {
+                  sqlUtils.appendFieldRef(fromClause, lhsField, selectAlias);
+               }
+               else
+               {
+                  sqlUtils.appendFieldRef(fromClause, lhsField);
+               }
                fromClause.append(" = ");
                if (rhs instanceof FieldRef)
                {
@@ -1809,7 +1824,7 @@ public class DmlManager
                sqlUtils.appendTableRef(buffer, delete, false);
 
                applyJoins(delete.getQueryExtension().getJoins(), whereBuffer, buffer,
-                     bindValueList, resolver, false, false);
+                     bindValueList, resolver, false, false, null);
             }
 
             StringBuffer predicateBuffer = buildWhereClause(delete.getPredicateTerm(),
@@ -1962,7 +1977,7 @@ public class DmlManager
          {
             // add joins behind primary table
             applyJoins(queryExtension.getJoins(), whereBuffer, fromBuffer, bindValues,
-                  resolver, true, useLiteralsWhereAppropriate);
+                  resolver, true, useLiteralsWhereAppropriate, queryExtension.getSelectAlias());
          }
 
          // add predicates
@@ -1977,14 +1992,14 @@ public class DmlManager
 
          // add group by elements
          String groupByConcatToken = "";
-                                 
+
          for (Iterator<FieldRef> i = queryExtension.getGroupCriteria().iterator(); i.hasNext();)
          {
             groupBuffer.append(groupByConcatToken);
             groupByConcatToken = ", ";
-              
+
             FieldRef field = resolver.resolveFieldRef(i.next());
-            
+
             if (null != query.getQueryExtension()
                   .getHints()
                   .get(CasePolicy.class.getName()))

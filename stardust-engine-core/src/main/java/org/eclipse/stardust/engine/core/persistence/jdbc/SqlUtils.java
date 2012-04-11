@@ -117,7 +117,8 @@ public class SqlUtils
 
       if (useAlias)
       {
-         if ( !StringUtils.isEmpty(selectAlias))
+         // Only use custom select alias for TypeDescriptors, any additions e.g. data prefetch have to be ignored.
+         if ( !StringUtils.isEmpty(selectAlias) && fieldRef.getType() instanceof TypeDescriptor)
          {
             buffer.append(selectAlias).append(".");
          }

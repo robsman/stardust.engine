@@ -56,6 +56,7 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IParticipant;
+import org.eclipse.stardust.engine.api.query.CasePolicy;
 import org.eclipse.stardust.engine.api.runtime.ActivityExecutionUtils;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -134,23 +135,23 @@ import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
  */
 public class Session implements org.eclipse.stardust.engine.core.persistence.Session
 {
-   
+
    public static final String KEY_AUDIT_TRAIL_SCHEMA = SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX;
-   
+
    private static final String KEY_AUDIT_TRAIL_CONNECTION_HOOK = SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_CONNECTION_HOOK_SUFFIX;
-   
+
    private static final String KEY_AUDIT_TRAIL_USE_PREPARED_STATEMENTS = SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USE_PREPARED_STATEMENTS_SUFFIX;
-   
+
    private static final String KEY_AUDIT_TRAIL_USE_JDBC_RETURN_GENERATED_KEYS = SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USE_JDBC_RETURN_GENERATED_KEYS;
 
    private static final Joins NO_JOINS = null;
 
    private static final Logger trace = LogManager.getLogger(Session.class);
-   
+
    private static final String EAGER_LINK_FETCH_ALIAS_PREFIX = "ELF";
 
    private static final SessionCacheComparator SESSION_CACHE_COMPARATOR = new SessionCacheComparator();
-   
+
    public static final TypeDescriptorRegistryProvider DEFAULT_TYPE_DESCRIPTOR_REGISTRY_PROVIDER = new TypeDescriptorRegistryProvider()
    {
       public TypeDescriptorRegistry getTypeDescriptorRegistry()
@@ -180,9 +181,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
     * The JDBC connectionManager may be exchanged after abort.
     */
    private Connection jdbcConnection;
-   
+
    private final TypeDescriptorRegistry tdRegistry;
-   
+
    /**
     * This is the registry for caches holding the persistenceControllers of persistent
     * objects. Registry keys are the type of the persistent object.
@@ -212,21 +213,21 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    private List /*<BulkDeleteStatement>*/ bulkDeleteStatements = new ArrayList();
    private DBDescriptor dbDescriptor;
    private String name;
-   
+
    private final boolean isArchiveAuditTrail;
-   
+
    private DataCluster[] cachedClusterSetup;
 
    private SqlUtils sqlUtils;
-         
+
    private List connectionHooks = Collections.EMPTY_LIST;
-   
+
    private final Parameters params;
 
    private final SequenceGenerator uniqueIdGenerator;
-   
+
    private final boolean forceImmediateInsert;
-   
+
    public Session(String name)
    {
       this(name, Parameters.instance(), DBDescriptor.create(name),
@@ -239,20 +240,20 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          DmlManagerRegistryProvider dmlManagerRegistryProvider)
    {
       this.params = params;
-      
+
       this.tdRegistry = tdRegistryProvider.getTypeDescriptorRegistry();
-      
+
       this.name = name;
       this.schemaName = params.getString(SessionProperties.DS_NAME_AUDIT_TRAIL.equals(name)
             ? KEY_AUDIT_TRAIL_SCHEMA
             : name + SessionProperties.DS_SCHEMA_SUFFIX);
-      
+
       this.dbDescriptor = dbDescriptor;
       this.sqlUtils = new SqlUtils(this.schemaName, this.dbDescriptor);
-      
+
       this.dmlManagers = dmlManagerRegistryProvider.getDmlManagerRegistry(name, sqlUtils,
             dbDescriptor, tdRegistry);
-      
+
       if (dbDescriptor.supportsSequences())
       {
          this.uniqueIdGenerator = getUniqueIdGenerator();
@@ -261,24 +262,24 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          this.uniqueIdGenerator = null;
       }
-      
+
       this.isArchiveAuditTrail = params.getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL,
             false);
-      
+
       this.forceImmediateInsert = params.getBoolean(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, false);
-      
-/*      
+
+/*
       for (int i = 0; i < Constants.PERSISTENT_RUNTIME_CLASSES.length; ++i)
       {
          objCacheRegistry.put(Constants.PERSISTENT_RUNTIME_CLASSES[i], new TreeMap());
       }
-      
+
       for (int i = 0; i < Constants.PERSISTENT_MODELING_CLASSES.length; ++i)
       {
          objCacheRegistry.put(Constants.PERSISTENT_MODELING_CLASSES[i], new TreeMap());
       }
 */
-      
+
       String cnConnectionHook = params.getString(SessionProperties.DS_NAME_AUDIT_TRAIL.equals(name)
             ? KEY_AUDIT_TRAIL_CONNECTION_HOOK
             : name + SessionProperties.DS_CONNECTION_HOOK_SUFFIX);
@@ -287,7 +288,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          try
          {
             Object object = Reflect.createInstance(cnConnectionHook);
-            
+
             if (object instanceof ConnectionHook)
             {
                addConnectionHook((ConnectionHook) object);
@@ -303,25 +304,25 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
    }
-   
+
    public boolean isReadOnly()
    {
       return this.isArchiveAuditTrail;
    }
-   
+
    public TypeDescriptor getTypeDescriptor(Class type)
    {
       return tdRegistry.getDescriptor(type);
    }
 
-   private SequenceGenerator getUniqueIdGenerator() 
+   private SequenceGenerator getUniqueIdGenerator()
    {
       SequenceGenerator generator = (SequenceGenerator) this.params.get(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY);
 
       if (null == generator)
       {
          String sequenceGeneratorName = params.getString(name + ".SequenceGenerator");
-         
+
          if ( !StringUtils.isEmpty(sequenceGeneratorName))
          {
             generator = (SequenceGenerator) Reflect.createInstance(sequenceGeneratorName);
@@ -330,7 +331,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             generator = new CachingSequenceGenerator();
          }
-         
+
          generator.init(dbDescriptor, sqlUtils);
 
          //generator = new NonCachingSequenceGenerator(dbDescriptor, sqlUtils);
@@ -338,7 +339,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
       return generator;
    }
-   
+
    public String getSchemaName()
    {
       return schemaName;
@@ -353,7 +354,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       return cachedClusterSetup;
    }
-   
+
    public boolean isUsingDataClusters()
    {
       DataCluster[] clusterSetup = getClusterSetup();
@@ -373,15 +374,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          trace.debug(this + ", created.");
       }
    }
-   
+
    /**
-    * 
+    *
     */
    public void postBindingInitialization()
    {
       this.cachedClusterSetup = RuntimeSetup.instance().getDataClusterSetup();
    }
-   
+
    public Collection getCache(Class type)
    {
       Map cache = (Map) objCacheRegistry.get(type);
@@ -398,22 +399,22 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          // readonly
          throw new PublicException("Archive AuditTrail does not allow changes.");
       }
-      
+
 
       String stmtString = null;
       try
       {
          Class<? extends Persistent> type = persistent.getClass();
          final TypeDescriptor typeDescriptor = TypeDescriptor.get(type);
-         
+
          DmlManager dmlManager = getDMLManager(persistent.getClass());
-         
+
          if ((dbDescriptor.supportsSequences())
                && typeDescriptor.requiresPKCreation())
          {
             dmlManager.setPK(persistent, this.uniqueIdGenerator.getNextSequence(typeDescriptor, this));
          }
-         
+
          // if insert is deferred, it will be performed in flush()
          if (isImmediateInsert(persistent, typeDescriptor))
          {
@@ -421,7 +422,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                ((LazilyEvaluated) persistent).performLazyEvaluation();
             }
-            
+
             // new DefaultPersistenceController marks itself as OPENED
             insertPersistent(persistent, dmlManager, typeDescriptor);
             update(CacheHelper.getCache(type), persistent);
@@ -451,13 +452,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          return true;
       }
-      
+
       if ((persistent instanceof DeferredInsertable)
             && ((DeferredInsertable) persistent).deferInsert())
       {
          return typeDescriptor.requiresPKCreation() && !dbDescriptor.supportsSequences();
       }
-      
+
       if ( !typeDescriptor.isTryDeferredInsert())
       {
          // immediate insert is required
@@ -465,7 +466,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
       if (typeDescriptor.requiresPKCreation() && !dbDescriptor.supportsSequences())
       {
-         // can not defer insert since pkcreation is required and the DB does not 
+         // can not defer insert since pkcreation is required and the DB does not
          // support sequences
          return true;
       }
@@ -481,21 +482,21 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   ? KEY_AUDIT_TRAIL_USE_JDBC_RETURN_GENERATED_KEYS //
                   : name + SessionProperties.DS_USE_JDBC_RETURN_GENERATED_KEYS, //
                   false);
-      
+
       if (isUsingPreparedStatements(persistent.getClass()))
       {
          boolean useBatchStatement = true;
-         
+
          if (DBMSKey.MSSQL8.equals(dbDescriptor.getDbmsKey()))
-         {  
+         {
             // MSSQL needs to use getGeneratedKeys() method,
             // since SELECT SCOPE_IDENTITY() has scope problems in Prepared Statements
             useJdbc14GeneratedKeys = true;
-            
+
             // getGeneratedKeys() is not supported after executed Batch Statements
             useBatchStatement = false;
          }
-               
+
          PreparedStatement stmt = null;
          try
          {
@@ -503,7 +504,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             BatchStatementWrapper wrapper = dmlManager.prepareInsertRowStatement(
                   getConnection(), persistent, useJdbc14GeneratedKeys, useBatchStatement);
             stmt = wrapper.getStatement();
-            
+
             try
             {
                // TODO always use executeUpdate because of only one persistent no
@@ -516,7 +517,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                {
                   stmt.executeUpdate();
                }
-               
+
                if (useJdbc14GeneratedKeys)
                {
                   ResultSet rsGeneratedKeys = null;
@@ -603,14 +604,14 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                throw sqle;
             }
             }
-            
+
             monitorSqlExecution(stmtString, startTime, System.currentTimeMillis());
          }
          finally
          {
             QueryUtils.closeStatement(stmt);
          }
-         
+
       }
       if (dbDescriptor.supportsIdentityColumns()
             && typeDescriptor.requiresPKCreation())
@@ -619,7 +620,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                ? identityOid.longValue()
                : dmlManager.getIdentityOID(this));
       }
-      
+
       // creating lock table entry just after being sure to have proper PK values
       if (isUsingLockTables() && typeDescriptor.isDistinctLockTableName())
       {
@@ -635,7 +636,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          // NOTE touch self references, to make sure the retrieved OID gets persisted
          // as FK-value
-         
+
          for (Iterator i = dmlManager.getTypeDescriptor().getLinks().iterator(); i.hasNext();)
          {
             boolean touchLink = false;
@@ -645,7 +646,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                if ( !link.getField().isAccessible())
                {
                   link.getField().setAccessible(true);
-               }                  
+               }
                touchLink = persistent == link.getField().get(persistent);
             }
             catch (Exception e)
@@ -663,13 +664,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
          }
       }
-      
+
       if (trace.isDebugEnabled())
       {
          trace.debug(this + ", inserted: " + persistent.getClass().getName());
       }
    }
-   
+
    private void doBatchInsert(List<Persistent> persistentToBeInserted,
          List<Persistent> persistentAlreadyExists, DmlManager dmlManager,
          TypeDescriptor typeDescriptor) throws SQLException
@@ -678,7 +679,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          return;
       }
-      
+
       if (dbDescriptor.supportsIdentityColumns()
             && typeDescriptor.requiresPKCreation())
       {
@@ -690,7 +691,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       else
       {
          final Connection connection = getConnection();
-         
+
          if (isUsingPreparedStatements(typeDescriptor.getType()))
          {
             PreparedStatement stmt = null;
@@ -756,7 +757,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                QueryUtils.closeStatement(stmt);
             }
          }
-         
+
          // create lock table entries and register all inserted
          for (Iterator i = persistentToBeInserted.iterator(); i.hasNext();)
          {
@@ -778,13 +779,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    /**
     * Executes statements as batch statement. If an BatchUpdateException is thrown then
-    * all nested exceptions will be tested to be a unique constraint violation exception. 
-    * If this is true then a single UniqueConstraintViolatedException is thrown wrapping 
+    * all nested exceptions will be tested to be a unique constraint violation exception.
+    * If this is true then a single UniqueConstraintViolatedException is thrown wrapping
     * that BatchUpdateException, otherwise the original exception is thrown.
-    * 
+    *
     * @param stmt The statements
     * @return result from stmt.executeBatch(), otherwise an exception
-    * 
+    *
     * @throws SQLException
     */
    private int[] executeBatchAndTransformException(Statement stmt) throws SQLException
@@ -797,7 +798,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          // do not want to log all created UniqueConstraintViolatedException instances.
          final NoopLogger noopLogger = new NoopLogger();
-         
+
          // check that all exceptions are UniqueConstraintViolatedException
          boolean foundUniqueConstraintViolatedException = false;
          SQLException innerException = x.getNextException();
@@ -810,7 +811,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                // not all exceptions are about unique constraint violation. Cannot handle it.
                throw x;
             }
-            
+
             foundUniqueConstraintViolatedException = true;
             innerException = innerException.getNextException();
          }
@@ -819,7 +820,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             trace.warn("BatchUpdateException did not proof to be caused by an unique constraint violation.");
          }
-         
+
          // Throw an UniqueConstraintViolatedException which wraps the BatchUpdateException
          throw ExceptionUtils.createUniqueConstraintViolationException(x, noopLogger);
       }
@@ -829,7 +830,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
     * Tries to insert persistent objects taken from list persistentToBeInserted.
     * If unique constraint is violated then the persistent will be removed from that list
     * and copied to list persistentAlreadyExists.
-    *  
+    *
     * @param persistentToBeInserted
     * @param persistentAlreadyExists
     * @param dmlManager
@@ -862,15 +863,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
    }
-   
+
    /**
     * This method handles a BatchUpdateException with the assumption that all
     * nested exceptions are thrown due to unique constraint violation.
-    * If unique constraint is violated then the persistent will be removed from 
+    * If unique constraint is violated then the persistent will be removed from
     * list persistentToBeInserted and copied to list persistentAlreadyExists.
-    *  
+    *
     * @param bux the batch exception
-    * @param persistentToBeInserted complete list of persistent objects which need to be inserted. Some of them may already be inserted by previous batch statement. 
+    * @param persistentToBeInserted complete list of persistent objects which need to be inserted. Some of them may already be inserted by previous batch statement.
     * @param persistentAlreadyExists list which will be filled with already existing persistent objects.
     * @param dmlManager
     * @param typeDescriptor
@@ -885,25 +886,25 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          throw bux;
       }
-      
+
       trace.warn("Catched batch exception caused by 'unique constraint violated' exceptions thrown during batch insertion of"
            + typeDescriptor.getType().getSimpleName() + ".");
-      
+
       int[] updateCounts = bux.getUpdateCounts();
-      
+
       if (updateCounts.length < persistentToBeInserted.size())
       {
          // JDBC driver decided to stop batch update on first exception.
-         // Try to insert remaining persistent objects one by one, and move 
+         // Try to insert remaining persistent objects one by one, and move
          // them to "already exists" list if insert fails.
-         
+
          trace.info("Performing insert of remaining items by single insert statements.");
-         
+
          // This element at least can be assumed to already exists.
          persistentAlreadyExists.add(persistentToBeInserted.get(updateCounts.length));
          persistentToBeInserted.remove(updateCounts.length);
 
-         // Now try to insert the remaining persistent objects. Next index is the same as 
+         // Now try to insert the remaining persistent objects. Next index is the same as
          // before as we removed one item from list.
          int nextIdx = updateCounts.length;
          if (nextIdx < persistentToBeInserted.size())
@@ -917,9 +918,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          // JDBC driver decided to continue batch update on exceptions.
          // Move persistent objects which failed to be inserted to "already exists" list.
-         
+
          trace.info("Preparing conversion from insert to update for items which failed insertion.");
-         
+
          int idx = 0;
          for (Iterator<Persistent> i = persistentToBeInserted.iterator(); i.hasNext();)
          {
@@ -938,7 +939,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                new Object[] { updateCounts.length, persistentToBeInserted.size() }));
       }
    }
-   
+
    private void doBatchUpdate(List<Persistent> persistentToBeUpdated,
          DmlManager dmlManager, TypeDescriptor typeDescriptor) throws SQLException
    {
@@ -962,7 +963,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                trace.debug("SQL: " + stmtString);
             }
-            
+
             //((IdentifiablePersistent) dpc.getPersistent()).lock();
             int [] updateCounts = stmt.executeBatch();
             if (trace.isDebugEnabled())
@@ -1016,13 +1017,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       final DmlManager dmlManager = getDMLManager(persistent.getClass());
       final TypeDescriptor typeDescriptor = dmlManager.getTypeDescriptor();
-      
+
       if (isUsingLockTables() && typeDescriptor.isDistinctLockTableName())
       {
          long startTime;
          long stopTime;
          String sqlString;
-         
+
          if (isUsingPreparedStatements(persistent.getClass()))
          {
             Field[] pkFields = typeDescriptor.getPkFields();
@@ -1034,7 +1035,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                insLckBuffer.append(schemaName).append(".");
             }
             insLckBuffer.append(typeDescriptor.getLockTableName()).append(" (");
-            
+
             for (int i = 0; i < pkFields.length; i++ )
             {
                if (0 < i)
@@ -1075,7 +1076,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                         1 + typeDescriptor.getFieldColumnIndex(pkFields[i]),
                         pkFields[i].getType(), pkValue, dbDescriptor);
                }
-               startTime = System.currentTimeMillis(); 
+               startTime = System.currentTimeMillis();
                insLckStmt.executeUpdate();
                stopTime = System.currentTimeMillis();
             }
@@ -1087,7 +1088,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          else
          {
             Field[] pkFields = typeDescriptor.getPkFields();
-            
+
             StringBuffer insLckBuffer = new StringBuffer(200);
             insLckBuffer.append("INSERT INTO ");
             if ( !StringUtils.isEmpty(schemaName))
@@ -1124,7 +1125,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      pkValue, dbDescriptor));
             }
             insLckBuffer.append(")");
-            
+
             Statement insLckStmt = getConnection().createStatement();
             try
             {
@@ -1138,15 +1139,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                QueryUtils.closeStatement(insLckStmt);
             }
          }
-         
+
          monitorSqlExecution(sqlString, startTime, stopTime);
       }
    }
-   
+
    public void cluster(DataClusterInstance cluster)
    {
       StringBuffer insertStmt = new StringBuffer(100);
-      
+
       insertStmt.append("INSERT INTO ");
       if ( !StringUtils.isEmpty(schemaName))
       {
@@ -1154,22 +1155,22 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
       insertStmt.append(cluster.getTableName()).append(" (")
             .append(cluster.getProcessInstanceColumn()).append(") VALUES (");
-      
+
       long startTime;
       long stopTime;
       String sqlString;
-      
+
       if (isUsingPreparedStatements(null))
       {
          insertStmt.append("?)");
-         
+
          PreparedStatement stmt = null;
          try
          {
             sqlString = insertStmt.toString();
             stmt = getConnection().prepareStatement(sqlString);
             stmt.setLong(1, cluster.getProcessInstanceOid());
-            
+
             startTime = System.currentTimeMillis();
             stmt.executeUpdate();
             stopTime = System.currentTimeMillis();
@@ -1187,13 +1188,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       else
       {
          insertStmt.append(cluster.getProcessInstanceOid()).append(")");
-         
+
          Statement stmt = null;
          try
          {
             stmt = getConnection().createStatement();
             sqlString = insertStmt.toString();
-            
+
             startTime = System.currentTimeMillis();
             stmt.executeUpdate(sqlString);
             stopTime = System.currentTimeMillis();
@@ -1208,10 +1209,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             QueryUtils.closeStatement(stmt);
          }
       }
-      
+
       monitorSqlExecution(sqlString, startTime, stopTime);
    }
-   
+
    public DmlManager getDMLManager(Class type)
    {
       DmlManager result = dmlManagers.getDmlManager(type);
@@ -1232,7 +1233,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       if (null == cache)
       {
          cache = new TreeMap(SESSION_CACHE_COMPARATOR);
-         
+
          // check if a saved session is being reused (archiver)
          // then, the empty maps set in fastCloseAndClearPersistenceControllers
          // must be recreated
@@ -1259,7 +1260,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
    }
-   
+
    public void addToDeadPersistenceControllers(Object identityKey,
          PersistenceController cntrl)
    {
@@ -1269,7 +1270,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       if (null == cache)
       {
          cache = new TreeMap();
-         
+
          // check if a saved session is being reused (archiver)
          // then, the empty maps set in fastCloseAndClearPersistenceControllers
          // must be recreated
@@ -1277,22 +1278,22 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             deadObjCacheRegistry = CollectionUtils.newMap();
          }
-         
+
          deadObjCacheRegistry.put(type, cache);
       }
       cache.put(identityKey, cntrl);
    }
-   
+
    public boolean exists(Class type, QueryExtension queryExtension)
    {
       return 1 <= getCount(type, queryExtension);
       }
-      
+
    public long getCount(Class type)
    {
       return getCount(type, NO_QUERY_EXTENSION, false, NO_FETCH_PREDICATE, NO_TIMEOUT);
    }
-   
+
    public long getCount(Class type, QueryExtension queryExtension)
    {
       return getCount(type, queryExtension, false, NO_FETCH_PREDICATE, NO_TIMEOUT);
@@ -1332,13 +1333,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
          }
       }
-      
+
       ResultSet resultSet = null;
-      
+
       try
       {
          QueryExtension innerQueryExtension = QueryExtension.deepCopy(queryExtension);
-         
+
          TypeDescriptor typeDescriptor = getDMLManager(type).getTypeDescriptor();
          if (null == fetchPredicate)
          {
@@ -1350,7 +1351,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             else
             {
                Field[] pkFields = typeDescriptor.getPkFields();
-               
+
                FieldRef[] fields = new FieldRef[pkFields.length];
                for (int i = 0; i < pkFields.length; i++ )
                {
@@ -1360,9 +1361,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
             innerQueryExtension.setSelection(new Column[] {countSelectList});
             innerQueryExtension.setDistinct(false);
-            
+
             resultSet = executeQuery(type, innerQueryExtension, timeout);
-            
+
             if (resultSet.next())
             {
                return resultSet.getLong(1);
@@ -1400,17 +1401,26 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             innerQueryExtension.setSelection((Column[]) selectList.toArray(
                   new Column[selectList.size()]));
             resultSet = executeQuery(type, innerQueryExtension, timeout);
-            
+
             long count = 0;
             while (resultSet.next())
             {
                if (fetchPredicate.accept(resultSet))
                {
-                  long partialCount = resultSet.getLong(1);
-                  count += partialCount;
+                  // With the case policy it is possible for a single oid to be counted multiple times by the COUNT function
+                  // leading to a wrong total count.
+                  if (queryExtension.getHints() != null && Boolean.TRUE.equals(queryExtension.getHints().get(CasePolicy.class.getName())))
+                  {
+                     count++;
+                  }
+                  else
+                  {
+                     long partialCount = resultSet.getLong(1);
+                     count += partialCount;
+                  }
                }
             }
-            
+
             return count;
          }
       }
@@ -1462,10 +1472,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          int startIndex, int extent, FetchPredicate fetchPredicate, boolean countAll,
          int timeout)
    {
-      boolean distinct = queryExtension == null 
-            ? false 
-            : queryExtension.isDistinct() || queryExtension.isEngineDistinct(); 
-      
+      boolean distinct = queryExtension == null
+            ? false
+            : queryExtension.isDistinct() || queryExtension.isEngineDistinct();
+
       ResultSet resultSet = executePersistentQuery(QueryDescriptor.from(type,
             queryExtension), timeout);
       return new ResultSetIterator(this, type, distinct, resultSet, startIndex, extent,
@@ -1474,7 +1484,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    /**
     * Retrieves a {@link Vector} of instances of <code>type</code>.
-    * 
+    *
     * @see #getIterator(Class)
     */
    public Vector getVector(Class type)
@@ -1496,7 +1506,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    public <T extends Persistent> T findFirst(Class<T> type, QueryExtension queryExtension, int timeout)
    {
       T persistent = null;
-      
+
       ResultIterator iterator = getIterator(type, queryExtension, 0, 1, timeout);
       try
       {
@@ -1509,7 +1519,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          iterator.close();
       }
-      
+
       return persistent;
    }
 
@@ -1517,7 +1527,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       save(true);
    }
-   
+
    public void save(boolean closeConnection)
    {
       if (trace.isDebugEnabled())
@@ -1535,7 +1545,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                getConnection().commit();
             }
-            
+
             if (trace.isDebugEnabled())
             {
                trace.debug(this + ", committed.");
@@ -1559,7 +1569,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       rollback(true);
    }
-   
+
    public void rollback(boolean closeConnection)
    {
       try
@@ -1635,33 +1645,33 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
          }
          // update modified objects
-         
+
          Map aiCache = (Map) objCacheRegistry.get(ActivityInstanceBean.class);
          if ((null != aiCache) && !aiCache.isEmpty())
          {
             updateWorkItems(aiCache);
             updateActivityInstancesHistory(aiCache);
          }
-         
+
          // TODO make sure no non-PI related data is lost
-         
+
          Map pis = (Map) objCacheRegistry.get(ProcessInstanceBean.class);
 
          boolean supportsAsynchWrite = params.getBoolean("Carnot.Engine.Tuning.SupportAsyncAuditTrailWrite", false);
-         
+
          supportsAsynchWrite &= supportsAsynchWrite && (null != pis) && !pis.isEmpty();
-         
+
          if (supportsAsynchWrite)
          {
             for (Iterator i = pis.values().iterator(); i.hasNext();)
             {
                PersistenceController pcPi = (PersistenceController) i.next();
                IProcessInstance pi = (IProcessInstance) pcPi.getPersistent();
-               
+
                supportsAsynchWrite &= pcPi.isCreated() && pi.isTerminated();
             }
          }
-         
+
          BlobBuilder blobBuilder = null;
          if (supportsAsynchWrite)
          {
@@ -1684,8 +1694,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             blobBuilder.init(params);
          }
-         
-         
+
+
          Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv = isUsingDataClusters()
                ? CollectionUtils.newMap()
                : Collections.EMPTY_MAP;
@@ -1738,7 +1748,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   persistentToBeUpdated.add(persistent);
                   update(externalCache, persistent);
                }
-               
+
                // // DataCluster update - step 1
                if (isUsingDataClusters() && DataValueBean.class.equals(type))
                {
@@ -1746,12 +1756,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   {
                      dpcDelayedCloseSet = CollectionUtils.newSet();
                   }
-                  
+
                   DataClusterHelper.prepareDataValueUpdate(dpc, piToDv,
                         dpcDelayedCloseSet);
                }
             }
-            
+
             if (supportsAsynchWrite)
             {
                if (persistentToBeUpdated.isEmpty())
@@ -1770,15 +1780,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                               + type + " unexpectedly contained modified instances.");
                }
             }
-            
+
             List<Persistent> persistentAlreadyExists = null;
             if (DataValueBean.class.equals(type))
             {
-               // this type supports conversion from failing inserts into updates 
+               // this type supports conversion from failing inserts into updates
                persistentAlreadyExists = CollectionUtils
                      .newArrayList(persistentToBeInserted.size());
             }
-            
+
             doBatchInsert(persistentToBeInserted, persistentAlreadyExists, dmlManager,
                   dmlManager.getTypeDescriptor());
             if (persistentAlreadyExists != null && !persistentAlreadyExists.isEmpty()
@@ -1790,7 +1800,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
             doBatchUpdate(persistentToBeUpdated, dmlManager, dmlManager
                   .getTypeDescriptor());
-            
+
             // close persistence controllers
             for (int i = 0; i < persistentToBeInserted.size(); ++i)
             {
@@ -1818,7 +1828,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             DataClusterHelper.completeDataValueUpdate(piToDv, this);
          }
-         
+
          if (null != dpcDelayedCloseSet)
          {
             for (Iterator i = dpcDelayedCloseSet.iterator(); i.hasNext();)
@@ -1826,7 +1836,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                ((PersistenceController) i.next()).close();
             }
          }
-         
+
          // delete dead objects
          if ( !piToDv.isEmpty())
          {
@@ -1844,12 +1854,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                PersistenceController cntrl = (PersistenceController) i.next();
                Persistent persistent = cntrl.getPersistent();
                remove(externalCache, persistent);
-               
+
                if (trace.isDebugEnabled())
                {
                   trace.debug(this + ", deleting: " + persistent);
                }
-               
+
                if (isUsingDataClusters() && ProcessInstanceBean.class.equals(type))
                {
                   long piOid;
@@ -1866,21 +1876,21 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   long startTime;
                   long stopTime;
                   String statementString;
-                  
+
                   DataCluster[] clusterSetup = getClusterSetup();
                   for (int j = 0; j < clusterSetup.length; ++j)
                   {
                      StringBuffer stmt = new StringBuffer(100);
-                     
+
                      stmt.append("DELETE FROM ");
                      sqlUtils.appendTableRef(stmt, clusterSetup[j], false);
                      stmt.append(" WHERE ").append(clusterSetup[j].getProcessInstanceColumn());
                      stmt.append("=?");
-                     
+
                      PreparedStatement statement = null;
                      try
                      {
-                        
+
                         statementString = stmt.toString();
                         statement = getConnection().prepareStatement(statementString);
                         if (trace.isDebugEnabled())
@@ -1896,11 +1906,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      {
                         QueryUtils.closeStatement(statement);
                      }
-                     
+
                      monitorSqlExecution(statementString, startTime, stopTime);
                   }
                }
-               
+
                // DataCluster delete - step 1
                if (isUsingDataClusters() && DataValueBean.class.equals(type))
                {
@@ -1908,11 +1918,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   {
                      dpcDelayedCloseSet = CollectionUtils.newSet();
                   }
-                  
+
                   DataClusterHelper.prepareDataValueDelete(cntrl, piToDv,
                         dpcDelayedCloseSet);
                }
-               
+
                if ((null == dpcDelayedCloseSet) || !dpcDelayedCloseSet.contains(cntrl))
                {
                   if ( !((cntrl instanceof DefaultPersistenceController) && ((DefaultPersistenceController) cntrl).isTransientlyDeleted()))
@@ -1939,18 +1949,18 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                delete(type, persistent);
             }
          }
-         
+
          if (null != blobBuilder)
          {
             try
             {
                blobBuilder.persistAndClose();
-               
+
                if (trace.isDebugEnabled())
                {
                   trace.debug("Persisted processes to BLOB.");
                }
-               
+
                if (blobBuilder instanceof ByteArrayBlobBuilder)
                {
                   BlobReader blobReader = new ByteArrayBlobReader(
@@ -1961,10 +1971,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                   ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
                   persistor.persistBlob(blobReader);
-                  
+
                   // TODO configure
                   persistor.writeIntoAuditTrail(this, 1);
-                  
+
                   blobReader.close();
                }
             }
@@ -2011,15 +2021,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    /**
     * Converts persistent objects from "to be inserted" (contained in list persistentAlreadyExists)
-    * into "to be updated". For that the already existing objects will be fetched (as these 
+    * into "to be updated". For that the already existing objects will be fetched (as these
     * have different OIDs, they will be hold as different objects in cache) and the necessary
     * data is copied to them.
-    * 
+    *
     * @param persistentAlreadyExists persistent objects which where planned to be inserted but already exist (Threw UniqueConstraintVialoationException on insert).
     * @param persistentToBeUpdated list of persistent objects to be updated.
     * @param dmlManager
-    * @param typeDescriptor type descriptor for the persistent objects. 
-    * @throws SQLException 
+    * @param typeDescriptor type descriptor for the persistent objects.
+    * @throws SQLException
     */
    private void convertAlreadyExistingPersistentsIntoUpdateList(List<Persistent> persistentAlreadyExists,
          List<Persistent> persistentToBeUpdated, DmlManager dmlManager,
@@ -2043,7 +2053,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                // add to predicate
                orTerm.add(Predicates.andTerm( //
-                     Predicates.isEqual(DataValueBean.FR__PROCESS_INSTANCE, piOid), // 
+                     Predicates.isEqual(DataValueBean.FR__PROCESS_INSTANCE, piOid), //
                      Predicates.isEqual(DataValueBean.FR__DATA, dataRtOid)));
             }
 
@@ -2055,7 +2065,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             while (dvIter.hasNext())
             {
                DataValueBean dv = (DataValueBean) dvIter.next();
-               
+
                long piOid = dv.getProcessInstance().getOID();
                long dataRtOid = modelManager.getRuntimeOid(dv.getData());
 
@@ -2175,8 +2185,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    public boolean hasConnection()
    {
       return null != jdbcConnection;
-   }   
-   
+   }
+
    /**
     * Gets the current JDBC connectionManager or retrieves a new
     * connectionManager form the pool if the current JDBC connectionManager is
@@ -2191,13 +2201,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       if (null == jdbcConnection)
       {
          this.threadBinding = Thread.currentThread().hashCode();
-         
+
          Connection rawConnection = dataSource.getConnection();
-         
+
          this.jdbcConnection = isInterceptingJdbcCalls()
                ? JdbcProxy.newInstance(rawConnection)
                : rawConnection;
-         
+
          if (params.getBoolean(name
                + SessionProperties.DS_ASSERT_READ_COMMITTED_SUFFIX, true)
                && Connection.TRANSACTION_READ_COMMITTED != jdbcConnection
@@ -2252,7 +2262,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       return executeDelete(type, predicate, joins, useBulkDeleteStatements, false);
    }
-   
+
    private int executeDelete(Class type, PredicateTerm predicate, Joins joins,
          boolean useBulkDeleteStatements, boolean useLockTable)
    {
@@ -2287,7 +2297,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       return processedRows;
    }
-   
+
    public int executeDelete(DeleteDescriptor delete)
    {
       int processedRows = 0;
@@ -2303,22 +2313,22 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       return processedRows;
    }
-   
+
    private int executeDelete(String deleteStatement, List bindValueList, Class type)
    {
       int processedRows = 0;
       Statement statement = null;
-      
+
       try
       {
          long startTime;
          long stopTime;
-         
+
          if (isUsingPreparedStatements(type))
          {
             Assert.isNotNull(bindValueList,
                   "Execution of prepared delete statement needs valid bind value list.");
-            
+
             statement = createAndBindPreparedStatement(deleteStatement, bindValueList);
 
             startTime = System.currentTimeMillis();
@@ -2328,12 +2338,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          else
          {
             statement = getConnection().createStatement();
-            
+
             startTime = System.currentTimeMillis();
             processedRows = statement.executeUpdate(deleteStatement);
             stopTime = System.currentTimeMillis();
          }
-         
+
          monitorSqlExecution(deleteStatement, startTime, stopTime);
       }
       catch (SQLException x)
@@ -2345,10 +2355,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          QueryUtils.closeStatement(statement);
       }
-      
+
       return processedRows;
    }
-   
+
    private ResultSet executeLockQuery(Class type, long oid) throws SQLException
    {
       List bindValueList = isUsingPreparedStatements(type) ? new ArrayList() : null;
@@ -2419,7 +2429,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                statement.setQueryTimeout(1);
             }
-           
+
             startTime = System.currentTimeMillis();
             resultSet = ManagedResultSet.createManager(statement, statement
                   .executeQuery(statementString));
@@ -2436,12 +2446,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             throw x;
          }
       }
-      
+
       monitorSqlExecution(statementString, startTime, stopTime);
 
       return resultSet;
    }
-   
+
    private int executeLockUpdate(Class type, long oid) throws SQLException
    {
       List bindValueList = isUsingPreparedStatements(type) ? new ArrayList() : null;
@@ -2500,7 +2510,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             processedRows = statement.executeUpdate(statementString);
             stopTime = System.currentTimeMillis();
          }
-         
+
          monitorSqlExecution(statementString, startTime, stopTime);
 
          return processedRows;
@@ -2510,7 +2520,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          QueryUtils.closeStatement(statement);
       }
    }
-   
+
 
    public ResultSet executeQuery(Class type, QueryExtension queryExtension)
    {
@@ -2520,7 +2530,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    /**
     * Fires a query statement directly in the transactional context of this
     * session.
-    * 
+    *
     * @param type The primary type the query statement works on
     * @param queryExtension A query extension
     * @return A result set which must be closed by the caller
@@ -2534,18 +2544,18 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       return executeQuery(queryDescr, NO_TIMEOUT);
    }
-   
+
    public ResultSet executeQuery(QueryDescriptor queryDescr, int timeout)
    {
       List bindValueList = isUsingPreparedStatements(queryDescr.getType()) ? new ArrayList() : null;
       ResultSet  resultSet = null;
-      
+
       try
       {
          DmlManager dmlManager = getDMLManager(queryDescr.getType());
          String sqlString = dmlManager.prepareSelectStatement(queryDescr, true,
                bindValueList, isUsingMixedPreparedStatements());
-         
+
          final long startTime;
          final long stopTime;
 
@@ -2553,7 +2563,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             PreparedStatement stmt = createAndBindPreparedStatement(sqlString,
                   bindValueList);
-            
+
             try
             {
                if (timeout > NO_TIMEOUT)
@@ -2577,7 +2587,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          else
          {
             Statement stmt = getConnection().createStatement();
-            
+
             try
             {
                if (timeout > NO_TIMEOUT)
@@ -2586,7 +2596,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                }
 
                startTime = System.currentTimeMillis();
-               
+
                resultSet = ManagedResultSet.createManager(stmt,
                      stmt.executeQuery(sqlString));
                stopTime = System.currentTimeMillis();
@@ -2600,7 +2610,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                throw new PublicException(e);
             }
          }
-         
+
          monitorSqlExecution(sqlString, startTime, stopTime);
       }
       catch (SQLException e)
@@ -2612,11 +2622,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       return resultSet;
    }
-   
+
    /**
     * Wrapper method for {@link #executeQuery(Class, QueryExtension, int)} which
-    * extents the query in order to reduce later lookup of dependent persisten objects.  
-    * 
+    * extents the query in order to reduce later lookup of dependent persisten objects.
+    *
     * @param type The primary type the query statement works on
     * @param queryExtension A query extension
     * @return A result set which must be closed by the caller
@@ -2624,22 +2634,22 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    public ResultSet executePersistentQuery(QueryDescriptor query, int timeout)
    {
       ResultSet resultSet = null;
-      
+
       List<Column> additionalSelection = CollectionUtils.newArrayList();
       Map<ITableDescriptor, Join> descrToJoinAssociator = CollectionUtils.newHashMap();
       Join piDvHelperJoin = null;
-      
+
       Serializable withDescrRaw = query.getQueryExtension().getHints()
             .get(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS);
       boolean withDescr = false;
       if (withDescrRaw instanceof Boolean)
       {
          withDescr = ((Boolean) withDescrRaw).booleanValue();
-      }      
-      
+      }
+
       boolean reuseFilterJoins = params.getBoolean(
             KernelTweakingProperties.DESCRIPTOR_PREFETCH_REUSE_FILTER_JOINS, false);
-      
+
       if (withDescr && reuseFilterJoins)
       {
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
@@ -2649,17 +2659,17 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             rtEnv.setProperty(KernelTweakingProperties.DESCRIPTOR_PREFETCHED_RTOID_SET,
                   prefetchedDataRtOids);
          }
-         
+
          processDataValueFilterJoins(query, prefetchedDataRtOids, additionalSelection,
                descrToJoinAssociator);
-         
+
          if ( !descrToJoinAssociator.isEmpty())
          {
             // get the first join as all DVs / data cluster table will join to the same table
             Entry<ITableDescriptor, Join> entry = descrToJoinAssociator.entrySet().iterator().next();
             Join join = entry.getValue();
             Join dependency = join.getDependency();
-            
+
             piDvHelperJoin = new Join(ProcessInstanceBean.class, "DV_F_PIS");
             piDvHelperJoin.setRequired(false);
             if(dependency != null)
@@ -2673,14 +2683,14 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
          }
       }
-      
+
       if (isUsingEagerLinkFetching() || !descrToJoinAssociator.isEmpty())
       {
          int linkCounter = 0;
 
          Joins linkJoins = new Joins();
          List linkToJoinAssociator = new ArrayList(query.getLinks().size());
-         
+
          if (isUsingEagerLinkFetching())
          {
             for (Iterator i = query.getLinks().iterator(); i.hasNext();)
@@ -2698,7 +2708,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                         linkDescriptor.getFkField().getName());
                   elfJoin.setRequired(linkDescriptor.isMandatory());
 
-                  // Checks if there already exists an equal join in the given query extension. 
+                  // Checks if there already exists an equal join in the given query extension.
                   for (Iterator j = query.getQueryExtension().getJoins().iterator(); j
                         .hasNext();)
                   {
@@ -2746,12 +2756,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             query.getQueryExtension().setSelection(
                   (Column[]) newSelection.toArray(new Column[newSelection.size()]));
-            
+
             if(piDvHelperJoin != null)
             {
                query.getQueryExtension().getJoins().add(piDvHelperJoin);
             }
-            
+
             // if any then add joins for eager link fetching
             query.getQueryExtension().getJoins().add(linkJoins);
          }
@@ -2763,12 +2773,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             // Since there exist some additional persistent objects to be fetched eagerly
             // the original result set has to be wrapped by an MultiPersistenResultSet.
-            
+
             Column[] selectionList = query.getQueryExtension().getSelection();
             ResultSet baseResultSet = resultSet;
             resultSet = MultiplePersistentResultSet.createPersistentProjector(
                   query.getType(), query, baseResultSet, selectionList);
-            
+
             // first: handle additional scope PI
             if (piDvHelperJoin != null)
             {
@@ -2777,7 +2787,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                            baseResultSet, selectionList);
                ((MultiplePersistentResultSet) resultSet).add(projector);
             }
-            
+
             // second: handle existing data values
             for (ITableDescriptor tableDescr : descrToJoinAssociator.keySet())
             {
@@ -2786,7 +2796,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                            baseResultSet, selectionList);
                ((MultiplePersistentResultSet) resultSet).add(projector);
             }
-            
+
             // last but not least: handle existing ELF values
             for (Iterator i = linkToJoinAssociator.iterator(); i.hasNext();)
             {
@@ -2806,13 +2816,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       {
          resultSet = executeQuery(query, timeout);
       }
-      
+
       return resultSet;
    }
 
    /**
     * Fires an UPDATE statement directly in the transactional context of this session.
-    * 
+    *
     * @param updateDescriptor A description of the UPDATE to be performed
     *
     * @return The number of rows updates.
@@ -2821,10 +2831,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       return executeUpdate(updateDescriptor, NO_TIMEOUT);
    }*/
-   
+
    /**
     * Fires an UPDATE statement directly in the transactional context of this session.
-    * 
+    *
     * @param updateDescriptor A description of the UPDATE to be performed
     *
     * @return The number of rows updates.
@@ -2834,17 +2844,17 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       int nRows = 0;
 
       List bindValueList = isUsingPreparedStatements(updateDescriptor.getType()) ? new ArrayList() : null;
-      
+
       try
       {
          // TODO how about lock table maintenance
-         
+
          // TODO build INSERT statement
-         
+
          DmlManager dmlManager = getDMLManager(updateDescriptor.getType());
          String sqlString = dmlManager.prepareUpdateStatement(updateDescriptor,
                bindValueList, false);
-         
+
          final long startTime;
          final long stopTime;
 
@@ -2902,7 +2912,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             QueryUtils.closeStatement(stmt);
          }
-         
+
          monitorSqlExecution(sqlString, startTime, stopTime);
       }
       catch (SQLException e)
@@ -2916,7 +2926,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    /**
     * Fires an INSERT statement directly in the transactional context of this session.
-    * 
+    *
     * @param insertDescriptor A description of the INSERT to be performed
     *
     * @return The number of rows inserted.
@@ -2925,10 +2935,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       return executeInsert(insertDescriptor, NO_TIMEOUT);
    }
-   
+
    /**
     * Fires an INSERT statement directly in the transactional context of this session.
-    * 
+    *
     * @param insertDescriptor A description of the INSERT to be performed
     *
     * @return The number of rows inserted.
@@ -2938,17 +2948,17 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       int nRows = 0;
 
       List bindValueList = isUsingPreparedStatements(insertDescriptor.getType()) ? new ArrayList() : null;
-      
+
       try
       {
          // TODO how about lock table maintenance
-         
+
          // TODO build INSERT statement
-         
+
          DmlManager dmlManager = getDMLManager(insertDescriptor.getType());
          String sqlString = dmlManager.prepareInsertStatement(insertDescriptor,
                bindValueList, false);
-         
+
          final long startTime;
          final long stopTime;
 
@@ -3006,7 +3016,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             QueryUtils.closeStatement(stmt);
          }
-         
+
          monitorSqlExecution(sqlString, startTime, stopTime);
       }
       catch (SQLException e)
@@ -3021,12 +3031,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    /**
     * This method creates a <code>PreparedStatement</code> from a given <code>statementString</code>
     * and binds the values given in <code>bindValueList</code> to this PreparedStatement.
-    * 
+    *
     * @param statementString Query in SQL-syntax
     * @param bindValueList List of type List<Pair<Class, Object>> with typed values
-    * 
+    *
     * @return The PreparedStatement with bound values
-    * 
+    *
     * @throws SQLException
     */
    private PreparedStatement createAndBindPreparedStatement(String statementString,
@@ -3040,7 +3050,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          Pair pair = (Pair) i.next();
 
          ++position;
-         
+
          DmlManager.setSQLValue(preparedStmt, position, (Class) pair.getFirst(),
                pair.getSecond(), dbDescriptor);
       }
@@ -3052,7 +3062,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       DmlManager dmlManager = getDMLManager(type);
       Field[] pkFields = dmlManager.getTypeDescriptor().getPkFields();
-      
+
       try
       {
          AndTerm pkPredicate = new AndTerm();
@@ -3082,16 +3092,16 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    public void delete(Class type, PredicateTerm predicate, Join join, boolean delay)
    {
       Joins joins = null;
-      
+
       if (null != join)
       {
          joins = new Joins();
          joins.add(join);
       }
-      
+
       delete(type, predicate, joins, delay);
    }
-   
+
    public void delete(Class type, PredicateTerm predicate, Joins joins, boolean delay)
    {
       if (isArchiveAuditTrail)
@@ -3099,20 +3109,20 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          // readonly
          throw new PublicException("Archive AuditTrail does not allow changes.");
       }
-      
+
       DmlManager dmlManager = getDMLManager(type);
 
       final TypeDescriptor typeDescriptor = tdRegistry.getDescriptor(type);
-      
+
       if (isUsingLockTables() && dmlManager.getTypeDescriptor().isDistinctLockTableName())
       {
          final Field[] pkFields = typeDescriptor.getPkFields();
          AndTerm deletePredicate = null;
-         
+
          if (null != predicate)
          {
             deletePredicate = new AndTerm();
-            
+
             for (int i = 0; i < pkFields.length; i++ )
             {
                QueryDescriptor subQuery = QueryDescriptor
@@ -3130,14 +3140,14 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      tdLockTable.fieldRef(pkFields[i].getName()), subQuery));
             }
          }
-         
+
          executeDelete(type, deletePredicate, null, delay, true);
       }
 
-      
+
       // Deleting DataValueBeans needs no special handling because everything is done
       // by deletion of ProcessInstanceBeans (DataClusters)
-      
+
       if (isUsingDataClusters() && ProcessInstanceBean.class.equals(type)
             && (null == predicate))
       {
@@ -3153,7 +3163,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             try
             {
                statement = getConnection().prepareStatement(sqlString);
-               
+
                long startTime = System.currentTimeMillis();
                statement.executeUpdate();
                monitorSqlExecution(sqlString, startTime, System.currentTimeMillis());
@@ -3163,7 +3173,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                RuntimeLog.SQL.debug(MessageFormat.format("Failed update: {0}",
                      new Object[] { sqlString }));
                trace.warn(x);
-               throw new PublicException(x); 
+               throw new PublicException(x);
             }
             finally
             {
@@ -3268,7 +3278,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
    }
-   
+
    public boolean isSynchronized(Persistent persistent)
    {
       TypeDescriptor typeManager = tdRegistry.getDescriptor(persistent.getClass());
@@ -3291,7 +3301,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
       TypeDescriptor typeManager = tdRegistry.getDescriptor(type);
       DmlManager dmlManager = getDMLManager(type);
-      
+
       if ( !((1 == typeManager.getPkFields().length)
             && (Long.class.isAssignableFrom(typeManager.getPkFields()[0].getType())
                   || Long.TYPE.isAssignableFrom(typeManager.getPkFields()[0].getType()))))
@@ -3299,7 +3309,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          Assert.condition(false, "Invalid argument: type " + type
                + " has more than one PK field.");
       }
-      
+
       Object identityKey = typeManager.getIdentityKey(new Long(oid));
       Persistent persistent = retrieveFromCache(type, identityKey);
       if (persistent != null)
@@ -3334,21 +3344,21 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       try
       {
          Field[] pkFields = typeManager.getPkFields();
-         
+
          if (1 != pkFields.length)
          {
             Assert.condition(false, "FindByOid does not support type "
                   + typeManager.getType() + " as it has more than one PK field.");
          }
-         
+
          QueryDescriptor query = QueryDescriptor
                .from(type);
-         
+
          query.where(Predicates.isEqual(query.fieldRef(pkFields[0].getName()), oid));
-         
+
          resultSet = executePersistentQuery(query
                .where(Predicates.isEqual(query.fieldRef(pkFields[0].getName()), oid)), Session.NO_TIMEOUT);
-         
+
          if (resultSet.next())
          {
             result = createObjectFromRow(type, resultSet, null, NO_FETCH_PREDICATE);
@@ -3391,7 +3401,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             if ((null == deadCache) || !deadCache.containsKey(identityKey))
             {
                object = cachedObject;
-               
+
                if (resultSet instanceof MultiplePersistentResultSet)
                {
                   MultiplePersistentResultSet mpResultSet = (MultiplePersistentResultSet) resultSet;
@@ -3405,7 +3415,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          else
          {
             object = createObjectFromRow(type, resultSet, createdObjects);
-            
+
             if (resultSet instanceof MultiplePersistentResultSet)
             {
                MultiplePersistentResultSet mpResultSet = (MultiplePersistentResultSet) resultSet;
@@ -3428,7 +3438,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             DmlManager dmlManager = getDMLManager(mpResultSet.getPersistentType());
             TypeDescriptor typeDescriptor = dmlManager.getTypeDescriptor();
-            
+
             Field[] pkFields = typeDescriptor.getPkFields();
             Object[] joinedPkValues = new Object[pkFields.length];
             for (int i = 0; i < pkFields.length; i++ )
@@ -3440,7 +3450,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      1 + typeDescriptor.getFieldColumnIndex(pkFields[i]),
                      false, false);
             }
-            
+
             boolean nullPk = false;
             for (int i = 0; i < joinedPkValues.length; i++ )
             {
@@ -3461,7 +3471,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          mpResultSet.activatePrimary();
       }
    }
-   
+
    private Persistent createObjectFromRow(Class type, ResultSet resultSet, List createdObjects)
    {
       DmlManager dmlManager = getDMLManager(type);
@@ -3470,13 +3480,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       Persistent result = cntrl.getPersistent();
 
       addToPersistenceControllers(typeDescriptor.getIdentityKey(result), cntrl);
-      
+
       if (createdObjects != null)
       {
 //         trace.info("Adding object " + result);
          createdObjects.add(result);
       }
-      
+
 /*      if (typeDescriptor.getLoader() != null)
       {
          typeDescriptor.getLoader().load(result);
@@ -3493,11 +3503,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       return result;
    }
-   
+
    private Persistent retrieveFromCache(Class type, Object identityKey)
    {
       Persistent po = null;
-      
+
       Map cache = (Map) objCacheRegistry.get(type);
       if (null != cache)
       {
@@ -3515,7 +3525,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
       return po;
    }
-   
+
    public boolean existsInCache(Class type, Object identityKey)
    {
       Map cache = (Map) objCacheRegistry.get(type);
@@ -3525,12 +3535,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    public void setSynchronized(Persistent persistent)
    {
       TypeDescriptor typeDescr = tdRegistry.getDescriptor(persistent.getClass());
-      
+
       if (null == synchronizationCache)
       {
          this.synchronizationCache = CollectionUtils.newMap();
       }
-      
+
       Set typeCache = (Set) synchronizationCache.get(typeDescr.getType());
       if (null == typeCache)
       {
@@ -3559,7 +3569,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             ((ConnectionHook) connectionHooks.get(i)).onCloseConnection(jdbcConnection);
          }
-         
+
          jdbcConnection.close();
 
          if (trace.isDebugEnabled())
@@ -3596,7 +3606,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          synchronizationCache.clear();
       }
    }
-   
+
    /**
     *  possibly closing persistence controllers is not necessary because
     * the hashmap is cleaned  up anyway.
@@ -3608,12 +3618,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       this.synchronizationCache = null;
    }
-   
+
    /**
     * Disconnects the persistence controller of a persistent object from the session
     * and from the persistent, so that the persistent object has to rebind to
     * a new session, if persistence is required
-    * 
+    *
     * @param persistenceControllers the bundle of persistenceControllers to clear
     */
    private void disconnectPersistenceControllers(Map persistenceControllers)
@@ -3790,7 +3800,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       TypeDescriptor typeDescriptor = tdRegistry.getDescriptor(persistent.getClass());
 
       addToDeadPersistenceControllers(typeDescriptor.getIdentityKey(persistent), cntrl);
-      
+
       if (writeThrough)
       {
          delete(persistent.getClass(), persistent);
@@ -3840,21 +3850,21 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                : name + SessionProperties.DS_USE_PREPARED_STATEMENTS_SUFFIX, false);
       }
    }
-   
+
    public boolean isUsingMixedPreparedStatements()
    {
       String property = SessionProperties.DS_NAME_AUDIT_TRAIL.equals(name)
          ? KEY_AUDIT_TRAIL_USE_PREPARED_STATEMENTS
          : name + SessionProperties.DS_USE_PREPARED_STATEMENTS_SUFFIX;
       String option = params.getString(property);
-      return StringUtils.isNotEmpty(option) && 
+      return StringUtils.isNotEmpty(option) &&
            SessionProperties.OPT_MIXED_PREPARED_STATEMENTS.equals(option.toLowerCase().trim());
    }
-   
+
    /**
     * This method tells whether distinct locking tables should be used for locking
     * operations in this session.
-    * 
+    *
     * @return <code>true</code> if lock tables are used.
     */
    public boolean isUsingLockTables()
@@ -3863,17 +3873,17 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       return params.getBoolean(name + SessionProperties.DS_USE_LOCK_TABLES_SUFFIX,
             useLockTablesDefault);
    }
-   
+
    public boolean isUsingEagerLinkFetching()
    {
       return params.getBoolean(
             name + SessionProperties.DS_USE_EAGER_LINK_FETCH_SUFFIX, false);
    }
-   
+
    /**
-    * This method tells whether jdbc calls on {@link Connection}, {@link Statement}, 
+    * This method tells whether jdbc calls on {@link Connection}, {@link Statement},
     * {@link PreparedStatement} and {@link ResultSet} are intercepted.
-    *  
+    *
     * @return <code>true</code> if jdbc call interception takes place.
     */
    public boolean isInterceptingJdbcCalls()
@@ -3881,11 +3891,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       return params.getBoolean(
             name + SessionProperties.DS_INTERCEPT_JDBC_CALLS_SUFFIX, false);
    }
-   
+
    /**
     * This method tells whether method call monitoring on jdbc calls takes place
     * in case that transaction state allows only certain methods to be executed.
-    * 
+    *
     * @return
     */
    public boolean isMonitoringOnJdbcInterception()
@@ -3893,11 +3903,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       return isInterceptingJdbcCalls() && params.getBoolean(
             name + SessionProperties.DS_MONITOR_ON_JDBC_INTERCEPTION_SUFFIX, false);
    }
-   
+
    /**
     * SQL execution is monitored. Statements are recorded with their execution
     * time for later tracing. Slow statements will be traced at once.
-    * 
+    *
     * @param sqlString the SQL string.
     * @param startTime the start time of execution in milliseconds.
     * @param stopTime the stop time of execution in milliseconds.
@@ -3919,24 +3929,24 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       for (Iterator aiItr = aiCache.values().iterator(); aiItr.hasNext();)
       {
          PersistenceController dpc = (PersistenceController) aiItr.next();
-         
+
          if (dpc.isModified() || dpc.isCreated())
          {
             ActivityInstanceBean ai = (ActivityInstanceBean) dpc.getPersistent();
-            
-            // support polymorphism wrt. activity definition 
+
+            // support polymorphism wrt. activity definition
             IActivityExecutionStrategy aeStrategy = ActivityExecutionUtils.getExecutionStrategy(ai.getActivity());
             if (null != aeStrategy)
             {
                aeStrategy.updateWorkItem(ai);
-               
+
                continue;
             }
-            
+
             // TODO refactor default behavior to be accessible to custom execution strategies
-            
+
             if (ai.getActivity().isInteractive())
-            { 
+            {
                // TODO lock AI before any change to workitems to be safe from concurrency issues?
                if ((null != ai.getOriginalState()) || (null != ai.getOriginalPerformer())
                      || ai.getPersistenceController().getModifiedFields().contains(ActivityInstanceBean.FIELD__CRITICALITY))
@@ -3949,7 +3959,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                                  (IModel) ai.getActivity().getModel())
                            : null;
                      IParticipant currentPerformer = ai.getPerformer();
-                     
+
                      if (previousPerformer != currentPerformer)
                      {
                         if (trace.isDebugEnabled())
@@ -3981,7 +3991,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                            || ActivityInstanceState.Application.equals(wiState))
                      {
                         // update existing workitem
-                        
+
                         // TODO do not load, but update from transiently created instance
                         WorkItemBean wi = WorkItemBean.findByOID(ai.getOID());
                         wi.update(ai);
@@ -3989,7 +3999,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      else
                      {
                         // insert new workitem
-                        
+
                         // TODO try not to load PI here
                         new WorkItemBean(ai, ai.getProcessInstance());
                      }
@@ -4011,19 +4021,19 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       final ChangeLogDigester digester = PropertyLayerProviderInterceptor.getCurrent()
             .getChangeLogDigester();
-      
+
       for (Iterator aiItr = aiCache.values().iterator(); aiItr.hasNext();)
       {
          PersistenceController dpc = (PersistenceController) aiItr.next();
          ActivityInstanceBean ai = (ActivityInstanceBean) dpc.getPersistent();
-         
+
          List historicStates = ai.getHistoricStates();
          if ( !historicStates.isEmpty())
          {
             // append current state with open interval
             historicStates.add(new ChangeLogDigester.HistoricState(
                   ai.getLastModificationTime(), ai.getState(), ai.getPerformer(), ai.getCurrentDepartment()));
-            
+
             // apply (optional) post processing
             historicStates = digester.digestChangeLog(ai, historicStates);
 
@@ -4032,7 +4042,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             {
                // persist digested change log
                PerformerUtils.EncodedPerformer performedOnBehalfOf = null;
-               
+
                // first state may be a follow up to the last persisted one
                ChangeLogDigester.HistoricState initialState = (ChangeLogDigester.HistoricState) historicStates.get(0);
                if (initialState.isUpdatedRecord())
@@ -4051,12 +4061,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   {
                      updatedRecord.setUntil(initialState.getUntil());
                      predecessor = initialState.getUntil();
-                     
+
                      performedOnBehalfOf = updatedRecord.getEncodedOnBehalfOf();
                   }
                   else
                   {
-                     // Throwing an exception is not allowed here because the entries 
+                     // Throwing an exception is not allowed here because the entries
                      // are written only since version 4.5. The upgrade job had not all
                      // informations to generate a consistent set of history entries for
                      // previously existing AIs.
@@ -4064,15 +4074,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                            + " with from timestamp " + initialState.getFrom().getTime());
                   }
                }
-               
+
                for (int i = 0; i < historicStates.size(); ++i)
                {
                   ChangeLogDigester.HistoricState state = (ChangeLogDigester.HistoricState) historicStates.get(i);
-                  
+
                   if ( !state.isUpdatedRecord())
                   {
                      // TODO propagate onBehalfOf
-                     
+
                      IParticipant performer = state.getPerformer();
                      IDepartment department = state.getDepartment();
                      if (null != performer && !(performer instanceof IUser))
@@ -4100,7 +4110,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    /**
     * This method adds a provided connection hook. All added hooks
     * will be called arbitrarily.
-    *  
+    *
     * @param hook A connection hook
     * @return true if the specified hook has not already been added.
     */
@@ -4112,7 +4122,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
       return connectionHooks.add(hook);
    }
-   
+
    private void processDataValueFilterJoins(QueryDescriptor query,
          Set<Long> prefetchedDataRtOids, List<Column> additionalSelection,
          Map<ITableDescriptor, Join> descrToJoinAssociator)
@@ -4123,13 +4133,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          if (tableDescriptor instanceof DataCluster)
          {
             DataCluster cluster = (DataCluster) tableDescriptor;
-            
+
             ModelManager modelManager = ModelManagerFactory.getCurrent();
-            
+
             int usedSlotCnt = 0;
             for (DataSlot slot : cluster.getAllSlots())
             {
-               // only apply slots for this cluster if it is not for structured data values 
+               // only apply slots for this cluster if it is not for structured data values
                if (StringUtils.isEmpty(slot.getAttributeName()))
                {
                   List<IModel> models = modelManager.getModels();
@@ -4143,7 +4153,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      }
                   }
                   usedSlotCnt++;
-   
+
                   if (data == null)
                   {
                      trace.warn("Data with ID "
@@ -4151,7 +4161,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                            + " referenced by data cluster does not exist. Will be skipped for prefetching.");
                      break;
                   }
-   
+
                   TableAliasDecorator typeDescr = new TableAliasDecorator(
                         join.getTableAlias() + "_S" + usedSlotCnt, null)
                   {
@@ -4161,29 +4171,29 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                         return join.getTableName();
                      }
                   };
-   
+
                   // currently the following order of columns has to be used:
                   // dv.oid, dv.model, dv.data, dv.string_value, dv.number_value, dv.type_key, dv.processInstance
-   
+
                   // oid
                   FieldRef oid = new FieldRef(join, slot.getOidColumn());
                   additionalSelection.add(Functions.constantExpression(oid.toString(),
                         typeDescr.getTableAlias() + "." + DataValueBean.FIELD__OID));
-   
+
                   // model: valid for PI, AI and WI queries
                   additionalSelection.add(Functions.constantExpression(
                         query.fieldRef(DataValueBean.FIELD__MODEL).toString(),
                         typeDescr.getTableAlias() + "." + DataValueBean.FIELD__MODEL));
-   
+
                   // data
                   long dataRtOid = modelManager.getRuntimeOid(data);
                   additionalSelection.add(Functions.constantExpression(
                         Long.toString(dataRtOid), typeDescr.getTableAlias() + "."
                               + DataValueBean.FIELD__DATA));
-                  
+
                   // record that dataRtOid for later optimization
                   prefetchedDataRtOids.add(dataRtOid);
-   
+
                   // string_value
                   if (StringUtils.isNotEmpty(slot.getSValueColumn()))
                   {
@@ -4198,7 +4208,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                            typeDescr.getTableAlias() + "."
                                  + DataValueBean.FIELD__STRING_VALUE));
                   }
-   
+
                   // number_value
                   if (StringUtils.isNotEmpty(slot.getNValueColumn()))
                   {
@@ -4213,20 +4223,20 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                            typeDescr.getTableAlias() + "."
                                  + DataValueBean.FIELD__NUMBER_VALUE));
                   }
-   
+
                   // dv.type_key
                   FieldRef typeKey = new FieldRef(join, slot.getTypeColumn());
                   additionalSelection.add(Functions.constantExpression(
                         typeKey.toString(), typeDescr.getTableAlias() + "."
                               + DataValueBean.FIELD__TYPE_KEY));
-   
+
                   // dv.processInstance
                   FieldRef processInstance = new FieldRef(join,
                         cluster.getProcessInstanceColumn());
                   additionalSelection.add(Functions.constantExpression(
                         processInstance.toString(), typeDescr.getTableAlias() + "."
                               + DataValueBean.FIELD__PROCESS_INSTANCE));
-   
+
                   // add cluster join for each slot which will be fetched
                   descrToJoinAssociator.put(typeDescr, join);
                }
@@ -4242,7 +4252,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                additionalSelection.addAll(SqlUtils
                      .getDefaultSelectFieldList(typeDescr));
                descrToJoinAssociator.put(typeDescr, join);
-               
+
                List<PredicateTerm> parts = join.getRestriction().getParts();
                addDataRtOids(prefetchedDataRtOids, parts);
             }
@@ -4307,12 +4317,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
       }
    }
-   
+
    public static interface TypeDescriptorRegistryProvider
    {
       TypeDescriptorRegistry getTypeDescriptorRegistry();
    }
-   
+
    public static interface DmlManagerRegistryProvider
    {
       DmlManagerRegistry getDmlManagerRegistry(String sessionName, SqlUtils sqlUtils,

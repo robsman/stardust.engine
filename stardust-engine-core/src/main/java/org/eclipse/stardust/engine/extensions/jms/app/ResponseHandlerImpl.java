@@ -19,6 +19,7 @@ import java.util.Map;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
+import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.StringKey;
@@ -156,7 +157,37 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       {
          trace.debug("Bootstrapping trigger acceptors");
       }
-      final IModel model = ModelManagerFactory.getCurrent().findActiveModel();
+      
+      String processId = null;
+      try
+      {
+         processId = message.getStringProperty("processID");
+      }
+      catch (JMSException e)
+      {
+      }
+
+      IModel findModel = null;
+      String namespace = null;         
+      if(processId != null)
+      {
+         if (processId.startsWith("{"))
+         {
+            QName qname = QName.valueOf(processId);
+            namespace = qname.getNamespaceURI(); 
+         }         
+      }
+
+      if(namespace != null)
+      {
+         findModel = ModelManagerFactory.getCurrent().findActiveModel(namespace);
+      }
+      else
+      {
+         findModel = ModelManagerFactory.getCurrent().findActiveModel();
+      }
+      
+      final IModel model = findModel;
       if (null == model)
       {
          throw new PublicException("No active model found.");

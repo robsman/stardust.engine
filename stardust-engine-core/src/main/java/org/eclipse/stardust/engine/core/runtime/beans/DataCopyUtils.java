@@ -10,24 +10,24 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.io.Serializable;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataPath;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.DataCopyOptions;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-
 import org.eclipse.stardust.vfs.VfsUtils;
 
 public class DataCopyUtils
@@ -734,4 +734,194 @@ public class DataCopyUtils
       return false;
    }
 
+   public static Map<String, ? extends Serializable> copyData(IProcessInstance pi, IModel target, DataCopyOptions dco)
+   {
+      DataCopyResult dcr = new DataCopyResult(target);
+      addExplicitValues(dcr, dco.getReplacementTable());
+      Set<String> translated = addSpecifiedValues(dcr, pi, dco.getDataTranslationTable());
+      if (dco.copyAllData() && !dco.useHeuristics())
+      {
+         addExistingValues(dcr, pi, translated);
+      }
+      return dcr.result;
+   }
+
+   private static void addExplicitValues(DataCopyResult dcr, Map<String, ? extends Serializable> values)
+   {
+      if (values != null)
+      {
+         for (Map.Entry<String, ? extends Serializable> entry : values.entrySet())
+         {
+            dcr.addValue(null, entry.getKey(), entry.getValue());
+         }
+      }
+   }
+
+   private static Set<String> addSpecifiedValues(DataCopyResult dcr, IProcessInstance pi,
+         Map<String, String> translation)
+   {
+      if (translation != null)
+      {
+         Set<String> translated = CollectionUtils.newSet();
+         IProcessDefinition pd = pi.getProcessDefinition();
+         IModel model = (IModel) pd.getModel();
+         
+         for (Map.Entry<String, String> entry : translation.entrySet())
+         {
+            String newDataId = entry.getKey();
+            if (!dcr.result.containsKey(newDataId))
+            {
+               String dataId = entry.getValue();
+               if (dataId == null)
+               {
+                  dataId = newDataId;
+               }
+               translated.add(dataId);
+               IData data = model.findData(dataId);
+               Object value = pi.getInDataValue(data, "");
+               if (value instanceof Serializable)
+               {
+                  dcr.addValue(data, newDataId, (Serializable) value);
+               }
+            }
+         }
+         return translated;
+      }
+      return Collections.emptySet();
+   }
+
+   private static void addExistingValues(DataCopyResult dcr,
+         IProcessInstance pi, Set<String> translated)
+   {
+      Iterator<IDataValue> dataValues = pi.getAllDataValues();
+      while (dataValues.hasNext())
+      {
+         IDataValue dv = dataValues.next();
+         IData data = dv.getData();
+         String dataId = data.getId();
+         if (!data.isPredefined() && !dcr.result.containsKey(dataId) && !translated.contains(dataId))
+         {
+            Object value = pi.getInDataValue(data, "");
+            if (value instanceof Serializable)
+            {
+               dcr.addValue(data, dataId, (Serializable) value);
+            }
+         }
+      }
+   }
+
+   private static class DataCopyResult
+   {
+      private Map<String, Serializable> result = CollectionUtils.newMap();
+      
+      private final IModel target;
+
+      private DataCopyResult(IModel target)
+      {
+         this.target = target;
+      }
+
+      private void addValue(IData source, String dataId, Serializable value)
+      {
+         IData data = target.findData(dataId);
+         if (data != null)
+         {
+            if (source != null)
+            {
+               if (!CompareHelper.areEqual(source.getType().getId(), data.getType().getId()))
+               {
+                  // data type changed.
+                  return;
+               }
+               boolean isStruct = PredefinedConstants.STRUCTURED_DATA.equals(data.getType().getId());
+               if (!isStruct && !data.getAllAttributes().equals(source.getAllAttributes()))
+               {
+                  // data definition changed.
+                  return;
+               }
+               if (isStruct)
+               {
+                  // traverse and fix
+                  IXPathMap srcMap = StructuredTypeRtUtils.getXPathMap(source);
+                  TypedXPath srcPath = srcMap.getRootXPath();
+                  IXPathMap tgtMap = StructuredTypeRtUtils.getXPathMap(data);
+                  TypedXPath tgtPath = tgtMap.getRootXPath();
+                  Map<String, Serializable> map = CollectionUtils.newMap();
+                  map.put(srcPath.getId(), value);
+                  repair(tgtPath, srcPath, map);
+                  value = map.get(tgtPath.getId());
+                  if (value == null)
+                  {
+                     // incompatible.
+                     return;
+                  }
+               }
+            }
+            result.put(dataId, value);
+         }
+      }
+
+      private void repair(TypedXPath tgtPath, TypedXPath srcPath, Map<String, ?> map)
+      {
+         if (compatible(tgtPath, srcPath))
+         {
+            Object o = map.get(tgtPath.getId());
+            if (tgtPath.getType() == -1)
+            {
+               if (tgtPath.isList())
+               {
+                  // TODO: lists of lists
+                  for (Object item : (List) o)
+                  {
+                     repairChildren(tgtPath, srcPath, item);
+                  }
+               }
+               else
+               {
+                  repairChildren(tgtPath, srcPath, o);
+               }
+            }
+         }
+         else
+         {
+            map.remove(srcPath.getId());
+         }
+      }
+
+      private void repairChildren(TypedXPath tgtPath, TypedXPath srcPath, Object o)
+      {
+         if (o instanceof Map)
+         {
+            Map<String, ?> m = (Map) o;
+            Set<String> keys = CollectionUtils.newSet(); 
+            keys.addAll(m.keySet());
+            for (String key : keys)
+            {
+               TypedXPath tgtChild = tgtPath.getChildXPath(key);
+               if (tgtChild == null)
+               {
+                  m.remove(key);
+               }
+               else
+               {
+                  TypedXPath srcChild = srcPath.getChildXPath(key);
+                  repair(tgtChild, srcChild, m);
+               }
+            }
+         }
+      }
+
+      private boolean compatible(TypedXPath tgtPath, TypedXPath srcPath)
+      {
+         if (!CompareHelper.areEqual(tgtPath.getId(), srcPath.getId()))
+         {
+            return false;
+         }
+         if (tgtPath.getType() != srcPath.getType())
+         {
+            return false;
+         }
+         return tgtPath.isList() == srcPath.isList();
+      }
+   }
 }

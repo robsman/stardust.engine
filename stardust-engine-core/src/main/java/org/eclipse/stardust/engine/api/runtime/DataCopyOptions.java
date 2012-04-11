@@ -14,7 +14,8 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * TODO
+ * Options class that specifies how the data should be copied between two process instances. 
+ * 
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -23,22 +24,24 @@ public class DataCopyOptions
    public static final DataCopyOptions DEFAULT = new DataCopyOptions();
 
    /**
-    * TODO
+    * If true, the engine will attempt to copy all compatible data.
     */
    private boolean copyAllData;
    
    /**
-    * TODO
+    * Map that specifies renamed data objects. The key is the data id of the new process instance,
+    * the value is the data id in the originating process.
     */
    private Map<String, String> dataTranslationTable;
    
    /**
-    * TODO
+    * Map that specifies new values for specific data objects.
     */
    private Map<String, ? extends Serializable> replacementTable;
    
    /**
-    * TODO
+    * If true and copyAllData is true, it will attempt to copy those data that are used in data paths and data mappings
+    * of directly contained activities.
     */
    private boolean useHeuristics;
 

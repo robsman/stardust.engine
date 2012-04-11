@@ -34,6 +34,13 @@ public class PreferenceStorageFactory
    public static IPreferenceStorageManager getCurrent()
    {
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      
+      if (rtEnv == null)
+      {
+         rtEnv = new BpmRuntimeEnvironment(null);
+         PropertyLayerProviderInterceptor.setCurrent(rtEnv);         
+      }
+      
       if (rtEnv.getPreferenceStore() == null)
       {
          rtEnv.setPreferenceStore(new PreferenceStorageManager(createHandlers()));

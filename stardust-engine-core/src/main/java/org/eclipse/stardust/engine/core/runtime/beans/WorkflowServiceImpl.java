@@ -577,11 +577,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
       }
 
+      PredefinedProcessInstanceLinkTypes linkType = PredefinedProcessInstanceLinkTypes.SWITCH;
+
       String processId = qname.getLocalPart();
-      if (processId.equals(originatingProcessDefinition.getId()) && model == originatingProcessDefinition.getModel())
+      if (processId.equals(originatingProcessDefinition.getId()))
       {
-         throw new IllegalOperationException(
-               BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
+         if (model == originatingProcessDefinition.getModel())
+         {
+            throw new IllegalOperationException(
+                  BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
+         }
+         else
+         {
+            linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
+         }
       }
 
       IProcessDefinition processDefinition = model.findProcessDefinition(processId);
@@ -595,7 +604,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          options = SpawnOptions.DEFAULT;
       }
-      IProcessInstanceLinkType linkType = null;
       if (options.isAbortProcessInstance())
       {
          BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
@@ -606,7 +614,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
 
          abortProcessInstance(processInstanceOid, AbortScope.RootHierarchy);
-         linkType = ProcessInstanceLinkTypeBean.findById(PredefinedProcessInstanceLinkTypes.SWITCH);
       }
       else
       {
@@ -619,7 +626,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          dco = DataCopyOptions.DEFAULT;
       }
-      Map<String, ? extends Serializable> data = dco.getReplacementTable();
+      Map<String, ? extends Serializable> data = DataCopyUtils.copyData(originatingProcessInstance, model, dco);
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(processDefinition,
             (IProcessInstance) null, SecurityProperties.getUser(), data);
       processInstance.setPriority(originatingProcessInstance.getPriority());
@@ -630,7 +637,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                data == null ? Collections.EMPTY_SET: data.keySet());
       }
 
-      new ProcessInstanceLinkBean(originatingProcessInstance, processInstance, linkType, options.getComment());
+      IProcessInstanceLinkType link = ProcessInstanceLinkTypeBean.findById(linkType);
+      new ProcessInstanceLinkBean(originatingProcessInstance, processInstance, link, options.getComment());
 
       runProcessInstance(processInstance, options.getStartActivity());
 

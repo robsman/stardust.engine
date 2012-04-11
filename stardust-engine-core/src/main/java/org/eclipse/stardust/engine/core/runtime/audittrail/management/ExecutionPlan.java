@@ -41,6 +41,7 @@ public class ExecutionPlan
    private ITransition transition;
 
    private TransitionTokenBean token;
+   private boolean terminated;
 
    public ExecutionPlan(TransitionTarget transitionTarget)
    {
@@ -68,21 +69,28 @@ public class ExecutionPlan
 
    public void checkNextStep(IActivityInstance activityInstance)
    {
-      List<TransitionStep> steps = transitionTarget.getTransitionSteps();
-      if (current < steps.size())
+      if (!terminated)
       {
-         TransitionStep step = steps.get(current);
-         if (step.isUpwards() && activityInstance != null && activityInstance.getOID() == step.getActivityInstanceOid())
+         List<TransitionStep> steps = transitionTarget.getTransitionSteps();
+         if (current < steps.size())
          {
-            current++;
-            return;
+            TransitionStep step = steps.get(current);
+            if (step.isUpwards() && activityInstance != null && activityInstance.getOID() == step.getActivityInstanceOid())
+            {
+               current++;
+               return;
+            }
          }
+         throw new InternalException("Execution plan failed. Unexpected activity instance: " + activityInstance);
       }
-      throw new InternalException("Execution plan failed. Unexpected activity instance: " + activityInstance);
    }
 
    public boolean hasNextActivity()
    {
+      if (terminated)
+      {
+         return false;
+      }
       List<TransitionStep> steps = transitionTarget.getTransitionSteps();
       return current == steps.size() || current < steps.size() && !steps.get(current).isUpwards();
    }
@@ -244,5 +252,10 @@ public class ExecutionPlan
    public boolean hasStartActivity()
    {
       return transitionTarget.getActivityInstanceOid() >= 0;
+   }
+
+   public void terminate()
+   {
+      terminated  = true;
    }
 }

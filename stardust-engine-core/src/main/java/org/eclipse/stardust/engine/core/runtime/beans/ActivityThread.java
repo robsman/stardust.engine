@@ -598,15 +598,14 @@ public class ActivityThread implements Runnable
             if (plan != null && plan.hasNextActivity())
             {
                IActivity step = plan.getCurrentStep();
-//               plan.nextStep();
                if (step != null)
                {
                   activity = step;
                   createActivityInstance(Collections.<TransitionTokenBean>emptyList());
                   return;
                }
-//               tokenCache.registerToken(plan.getTransition(), plan.getToken());
                freeOutTokens = Collections.singletonList(tokenCache.lockFreeToken(plan.getTransition()));
+               plan.terminate();
             }
             else
             {

@@ -861,17 +861,50 @@ public class DataCopyUtils
          }
       }
 
-      private void repair(TypedXPath tgtPath, TypedXPath srcPath, Map<String, ?> map)
+      /**
+       * Transformations:
+       * <ul>
+       * <li>from attribute to element or from element to attribute</li>
+       * <li>from list to single item or from single item to list</li>
+       * <li>empty collections are removed</li>
+       * <li>namespace change is accepted</li>
+       * <li>values for removed attributes or elements are dropped</li>
+       * <li>values for attributes or elements with a different type are dropped (no type conversion)</li>
+       * </ul>
+       */
+      private void repair(TypedXPath tgtPath, TypedXPath srcPath, Map<String, Serializable> map)
       {
          if (compatible(tgtPath, srcPath))
          {
-            Object o = map.get(tgtPath.getId());
+            Serializable o = map.get(tgtPath.getId());
+            if (tgtPath.isList())
+            {
+               if (!srcPath.isList())
+               {
+                  ArrayList<Serializable> list = new ArrayList<Serializable>();
+                  list.add(o);
+                  o = list;
+                  map.put(tgtPath.getId(), o);
+               }
+            }
+            else if (srcPath.isList())
+            {
+               if (((List) o).isEmpty())
+               {
+                  map.remove(srcPath.getId());
+                  return;
+               }
+               else
+               {
+                  o = ((List<Serializable>) o).get(0);
+                  map.put(tgtPath.getId(), o);
+               }
+            }
             if (tgtPath.getType() == -1)
             {
                if (tgtPath.isList())
                {
-                  // TODO: lists of lists
-                  for (Object item : (List) o)
+                  for (Serializable item : (List<Serializable>) o)
                   {
                      repairChildren(tgtPath, srcPath, item);
                   }
@@ -881,6 +914,13 @@ public class DataCopyUtils
                   repairChildren(tgtPath, srcPath, o);
                }
             }
+            if (o instanceof Collection)
+            {
+               if (((Collection) o).isEmpty())
+               {
+                  map.remove(srcPath.getId());
+               }
+            }
          }
          else
          {
@@ -888,11 +928,11 @@ public class DataCopyUtils
          }
       }
 
-      private void repairChildren(TypedXPath tgtPath, TypedXPath srcPath, Object o)
+      private void repairChildren(TypedXPath tgtPath, TypedXPath srcPath, Serializable o)
       {
          if (o instanceof Map)
          {
-            Map<String, ?> m = (Map) o;
+            Map<String, Serializable> m = (Map) o;
             Set<String> keys = CollectionUtils.newSet(); 
             keys.addAll(m.keySet());
             for (String key : keys)
@@ -917,11 +957,7 @@ public class DataCopyUtils
          {
             return false;
          }
-         if (tgtPath.getType() != srcPath.getType())
-         {
-            return false;
-         }
-         return tgtPath.isList() == srcPath.isList();
+         return tgtPath.getType() == srcPath.getType();
       }
    }
 }

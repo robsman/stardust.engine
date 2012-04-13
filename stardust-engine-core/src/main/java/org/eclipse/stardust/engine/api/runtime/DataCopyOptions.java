@@ -19,8 +19,10 @@ import java.util.Map;
  * @author Florin.Herinean
  * @version $Revision: $
  */
-public class DataCopyOptions
+public class DataCopyOptions implements Serializable
 {
+   private static final long serialVersionUID = 1L;
+
    public static final DataCopyOptions DEFAULT = new DataCopyOptions();
 
    /**

@@ -258,4 +258,14 @@ public class ExecutionPlan
    {
       terminated  = true;
    }
+
+   public boolean isTerminated()
+   {
+      return terminated;
+   }
+
+   public IActivityInstance getStartActivityInstance()
+   {
+      return ActivityInstanceBean.findByOID(transitionTarget.getActivityInstanceOid());
+   }
 }

@@ -221,7 +221,7 @@ public class ActivityThread implements Runnable
          ITransition transition = null;
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          ExecutionPlan plan = rtEnv.getExecutionPlan();
-         if (plan != null)
+         if (plan != null && !plan.isTerminated())
          {
             if (!plan.hasStartActivity() || plan.hasMoreSteps())
             {
@@ -230,7 +230,8 @@ public class ActivityThread implements Runnable
             else if (plan.hasNextActivity())
             {
                transition = plan.getTransition();
-               tokenCache.registerToken(transition, plan.getToken());
+               TransitionTokenBean token = plan.getToken();
+               tokenCache.registerToken(transition, token);
             }
          }
          else if (processInstance.getProcessDefinition().getRootActivity().getId().equals(activity.getId()))
@@ -491,7 +492,7 @@ public class ActivityThread implements Runnable
          
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          ExecutionPlan plan = rtEnv.getExecutionPlan();
-         if (plan != null)
+         if (plan != null && !plan.isTerminated())
          {
             if (plan.hasNextActivity())
             {
@@ -499,11 +500,18 @@ public class ActivityThread implements Runnable
                {
                   enabledTransitions = Collections.singletonList(plan.getTransition());
                }
-/*               else if (!plan.hasMoreSteps())
+               else
                {
-                  addedTokens++;
-               }*/
-               // otherwise do nothing
+                  TransitionTokenBean token = plan.getToken();
+                  if (token == null && plan.hasStartActivity())
+                  {
+                     ITransition transition = plan.getTransition();
+                     token = tokenCache.createToken(transition , plan.getStartActivityInstance());
+                     plan.setToken(token);
+                     addedTokens++;
+                     getCurrentActivityThreadContext().enteringTransition(token);
+                  }
+               }
             }
             else if (plan.isStepUpwards())
             {
@@ -572,14 +580,14 @@ public class ActivityThread implements Runnable
          {
             ITransition transition = enabledOutTransitions.get(i);
             TransitionTokenBean token = tokenCache.createToken(transition, this.activityInstance);
-            addedTokens++;
-
-            getCurrentActivityThreadContext().enteringTransition(token);
-
             if (plan != null && transition == plan.getTransition())
             {
                plan.setToken(token);
             }
+            addedTokens++;
+
+            getCurrentActivityThreadContext().enteringTransition(token);
+
             if (JoinSplitType.Xor == activity.getSplitType())
             {
                break;
@@ -588,7 +596,7 @@ public class ActivityThread implements Runnable
          
          janitor.incrementCount(addedTokens - removedTokens);
 
-         if (addedTokens == 0)
+         if (addedTokens == 0 && (plan == null || !plan.hasMoreSteps()))
          {
             activityInstance = null;
          }

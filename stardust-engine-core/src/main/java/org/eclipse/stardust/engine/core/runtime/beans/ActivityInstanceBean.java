@@ -1029,7 +1029,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                {
                   subProcess = doWithRetry(10, 500, new Callable<IProcessInstance>()
                   {
-
                      public IProcessInstance call() throws Exception
                      {
                         return ProcessInstanceBean.createInstance(
@@ -1037,7 +1036,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                               ActivityInstanceBean.this, SecurityProperties.getUser(),
                               Collections.EMPTY_MAP);
                      }
-
                   });
                }
                else

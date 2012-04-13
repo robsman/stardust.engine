@@ -82,7 +82,7 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
          IActivityInstance activityInstance = pi.getStartingActivityInstance();
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          ExecutionPlan plan = rtEnv.getExecutionPlan();
-         if (plan != null)
+         if (plan != null && !plan.isTerminated())
          {
             plan.checkNextStep(activityInstance);
          }

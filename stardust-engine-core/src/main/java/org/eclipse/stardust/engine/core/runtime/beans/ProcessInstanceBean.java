@@ -380,7 +380,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExecutionPlan plan = rtEnv.getExecutionPlan();
-      if (plan == null || !plan.hasStartActivity() || plan.hasMoreSteps2())
+      if (plan == null || plan.isTerminated() || !plan.hasStartActivity() || plan.hasMoreSteps2())
       {
          TransitionTokenBean.createStartToken(this);
       }

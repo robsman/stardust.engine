@@ -10,13 +10,17 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.runtime;
 
+import java.io.Serializable;
+
 /**
  * TODO
  * @author Florin.Herinean
  * @version $Revision: $
  */
-public class SpawnOptions
+public class SpawnOptions implements Serializable
 {
+   private static final long serialVersionUID = 1L;
+
    public static final SpawnOptions DEFAULT = new SpawnOptions("");
 
    /**

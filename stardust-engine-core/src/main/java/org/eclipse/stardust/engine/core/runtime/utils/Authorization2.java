@@ -84,12 +84,12 @@ public class Authorization2
                   context = AuthorizationContext.create(AdministrationService.class, "abortProcessInstance", long.class);
                   context.setProcessInstance(rootPi);
                }
-               else if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
-               {
-                  permission.id = ExecutionPermission.Id.abortActivityInstances.name();
-               }
                else
                {
+                  if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
+                  {
+                     permission.id = ExecutionPermission.Id.abortActivityInstances.name();
+                  }
                   context.setActivityInstance(ActivityInstanceBean.findByOID(aiOid));
                }
                requiredGrant = checkPermission(context);
@@ -156,16 +156,22 @@ public class Authorization2
                else if (method.getDeclaringClass().equals(WorkflowService.class)
                      && method.getName().equals("spawnPeerProcessInstance"))
                {
-                  Boolean abortProcess = (Boolean) args[4];
-                  if (Boolean.TRUE.equals(abortProcess))
+                  boolean abortProcess = false;
+                  if (args.length > 4)
                   {
-
+                     abortProcess = (Boolean) args[4];
+                  }
+                  else
+                  {
+                     SpawnOptions options = (SpawnOptions) args[2];
+                     abortProcess = options.isAbortProcessInstance();
+                  }
+                  if (abortProcess)
+                  {
                      ClientPermission xpermission = new ClientPermission(
                            Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
                      AuthorizationContext xcontext = AuthorizationContext.create(xpermission);
-
-                     authorizationPredicate = new ProcessInstanceAuthorization2Predicate(
-                           xcontext);
+                     authorizationPredicate = new ProcessInstanceAuthorization2Predicate(xcontext);
                   }
                }
 

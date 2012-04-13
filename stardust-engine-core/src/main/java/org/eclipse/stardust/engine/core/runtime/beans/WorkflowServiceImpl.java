@@ -2253,7 +2253,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       }
 
-      if (activityInstance.getState() == ActivityInstanceState.Application)
+      boolean interactive = activityInstance.getActivity().isInteractive();
+      ActivityInstanceState state = activityInstance.getState();
+      if (interactive && state == ActivityInstanceState.Application ||
+         !interactive && (state == ActivityInstanceState.Interrupted || state == ActivityInstanceState.Hibernated))
       {
          RelocationUtils.performTransition(activityInstance, transitionTarget, complete);
       }
@@ -2261,7 +2264,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          throw new IllegalStateChangeException(activityInstance.toString(),
                complete ? ActivityInstanceState.Completed : ActivityInstanceState.Aborted,
-               activityInstance.getState());
+               state);
       }
       return DetailsFactory.create(activityInstance, IActivityInstance.class, ActivityInstanceDetails.class);
    }

@@ -894,17 +894,15 @@ public class Archiver
 
    private List<Long> findRootPiOidsHavingLinks(List<Long> rootPiOids)
    {
-      QueryDescriptor qFindLinkedPis = QueryDescriptor.from(ProcessInstanceLinkBean.class)
+      QueryDescriptor qFindLinkedPis = QueryDescriptor.from(ProcessInstanceBean.class)
             .selectDistinct(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE)
             .where(splitUpOidsSubList(rootPiOids, ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE));
 
-      qFindLinkedPis.innerJoin(ProcessInstanceBean.class, "PIL_PI")
-            .on(ProcessInstanceLinkBean.FR__PROCESS_INSTANCE,
-                  ProcessInstanceBean.FIELD__OID)
-            .orOn(ProcessInstanceLinkBean.FR__LINKED_PROCESS_INSTANCE,
-                  ProcessInstanceBean.FIELD__OID);
-
-      qFindLinkedPis.getQueryExtension().setSelectAlias("PIL_PI");
+      qFindLinkedPis.innerJoin(ProcessInstanceLinkBean.class, "PIL_PI")
+            .on(ProcessInstanceBean.FR__OID,
+                  ProcessInstanceLinkBean.FIELD__PROCESS_INSTANCE)
+            .orOn(ProcessInstanceBean.FR__OID,
+                  ProcessInstanceLinkBean.FIELD__LINKED_PROCESS_INSTANCE);
 
       ResultSet rsLinkedPis = session.executeQuery(qFindLinkedPis, Session.NO_TIMEOUT);
 

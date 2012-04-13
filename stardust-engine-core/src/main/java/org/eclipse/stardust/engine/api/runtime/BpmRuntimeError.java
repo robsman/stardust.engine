@@ -130,6 +130,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 DMS_NO_MATCHING_DOC_FOUND = newArgs0("DMS01122", BpmRuntimeErrorMessages.getString("DMS01122")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_ITEM_EXISTS = newArgs0("DMS01123", BpmRuntimeErrorMessages.getString("DMS01123")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 DMS_FAILED_PATH_RESOLVE = newArgs1("DMS01131", "Failed to resolve path. Repository message: {0}");
+
    public static final Args0 DMS_UNKNOWN_FILE_VERSION_ID = newArgs0("DMS01153", "Document version not found.");
    public static final Args0 DMS_CANNOT_REMOVE_ROOT_FILE_VERSION = newArgs0("DMS01156", "Root document version cannot be removed.");
 
@@ -332,7 +334,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args0 BPMRT_INVALID_ORGANIZATION_HIERARCHY = newArgs0("BPMRT03813", BpmRuntimeErrorMessages.getString("BPMRT03813")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 BPMRT_DEPARTMENT_HAS_ACTIVE_ACTIVITY_INSTANCES = newArgs1("BPMRT03814", BpmRuntimeErrorMessages.getString("BPMRT03814")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    public static final Args0 BPMRT_INVALID_INDEXED_XPATH = newArgs0("BPMRT03815", "Invalid XPath, indexed XPath not supported.");
 
    public static final Args2 BPMRT_ILLEGAL_AI_STATE_CHANGE = newArgs2("BPMRT03901", BpmRuntimeErrorMessages.getString("BPMRT03901")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -349,8 +351,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 BPMRT_COMPLETE_QA_NO_ATTRIBUTES_SET = newArgs1("BPMRT04008", BpmRuntimeErrorMessages.getString("BPMRT04008"));
    public static final Args0 BPMRT_NO_ERROR_CODE_SET = newArgs0("BPMRT04009", BpmRuntimeErrorMessages.getString("BPMRT04009"));
 
-   
-   
+
+
    public static final Args1 BPMRT_PI_IS_CASE = newArgs1("BPMRT03831"); //$NON-NLS-1$
    public static final Args1 BPMRT_PI_IS_MEMBER = newArgs1("BPMRT03832"); //$NON-NLS-1$
    public static final Args1 BPMRT_PI_NOT_ACTIVE = newArgs1("BPMRT03833"); //$NON-NLS-1$

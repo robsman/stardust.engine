@@ -397,18 +397,26 @@ public class DocumentManagementServiceImpl
 
             if (folder == null)
             {
-               ensureVirtualFolderExists(folderIdWithPrefix);
-
-               checkValidDocumentType(document);
-
-               return getVirtualFolderHandler().runIsolateAction(new Action<Document>()
+               if (ensureVirtualFolderExists(folderIdWithPrefix))
                {
-                  public Document execute()
-                  {
-                     return fromVfs(vfs.createFile(folderIdWithPrefix, toVfs(document),
-                           content, encoding), getPartitionPrefix());
-                  }
-               });
+                  checkValidDocumentType(document);
+
+                  return getVirtualFolderHandler().runIsolateAction(
+                        new Action<Document>()
+                        {
+                           public Document execute()
+                           {
+                              return fromVfs(vfs.createFile(folderIdWithPrefix,
+                                    toVfs(document), content, encoding),
+                                    getPartitionPrefix());
+                           }
+                        });
+               }
+               else
+               {
+                  throw new DocumentManagementServiceException(
+                        BpmRuntimeError.DMS_UNKNOWN_FOLDER_ID.raise(folderId));
+               }
             }
             else if (hasValidPartitionPrefix(folder.getPath(), getPartitionPrefix(),
                   AccessMode.Write))
@@ -1080,6 +1088,10 @@ public class DocumentManagementServiceImpl
          {
             error = BpmRuntimeError.DMS_ITEM_EXISTS.raise();
          }
+         else if (tr instanceof RepositoryException && tr.getMessage().startsWith("Failed to resolve path"))
+         {
+            error = BpmRuntimeError.DMS_FAILED_PATH_RESOLVE.raise(tr.getCause().getMessage());
+         }
          throw new DocumentManagementServiceException(error, e);
       }
       catch (Exception e)
@@ -1219,10 +1231,10 @@ public class DocumentManagementServiceImpl
       return getVirtualFolderHandler().decodeResourceName(string);
    }
 
-   private void ensureVirtualFolderExists(String folderPath)
+   private boolean ensureVirtualFolderExists(String folderPath)
          throws DocumentManagementServiceException
    {
-      getVirtualFolderHandler().ensureVirtualFolderExists(folderPath);
+      return getVirtualFolderHandler().ensureVirtualFolderExists(folderPath);
    }
 
    private Folder substituteVirtualFolder(String folderPath)
@@ -1493,15 +1505,17 @@ public class DocumentManagementServiceImpl
          return string;
       }
 
-      public void ensureVirtualFolderExists(String folderPath)
+      public boolean ensureVirtualFolderExists(String folderPath)
             throws DocumentManagementServiceException
       {
+         boolean isVirtualFolderPath = false;
          updatePathsAndPermissions();
 
          for (String allowedVirtualFolder : virtualFolderPaths.values())
          {
             if (allowedVirtualFolder.equals(folderPath))
             {
+               isVirtualFolderPath = true;
                synchronized (VirtualFolderHandler.class)
                {
                   // only use adminSession for jcr security enabled environment
@@ -1537,6 +1551,7 @@ public class DocumentManagementServiceImpl
                }
             }
          }
+         return isVirtualFolderPath;
       }
 
       private <T extends Object> T runIsolateAction(Action<T> action)

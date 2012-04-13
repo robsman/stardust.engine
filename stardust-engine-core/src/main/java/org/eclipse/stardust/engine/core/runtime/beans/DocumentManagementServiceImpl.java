@@ -1088,14 +1088,28 @@ public class DocumentManagementServiceImpl
          {
             error = BpmRuntimeError.DMS_ITEM_EXISTS.raise();
          }
+         // special case for jackrabbit, thrown if Document.name contains '*' or other unsupported characters
          else if (tr instanceof RepositoryException && tr.getMessage().startsWith("Failed to resolve path"))
          {
             error = BpmRuntimeError.DMS_FAILED_PATH_RESOLVE.raise(tr.getCause().getMessage());
          }
+         else if (tr instanceof PathNotFoundException)
+         {
+            error = BpmRuntimeError.DMS_FAILED_PATH_RESOLVE.raise(tr.getMessage());
+         }
+
          throw new DocumentManagementServiceException(error, e);
       }
       catch (Exception e)
       {
+         // special case for jackrabbit, thrown if Document.name contains '/'
+         if (e instanceof IllegalArgumentException
+               && e.getMessage().startsWith("relPath is not a relative path"))
+         {
+            BpmRuntimeError error = BpmRuntimeError.DMS_FAILED_PATH_RESOLVE.raise(e.getMessage());
+            throw new DocumentManagementServiceException(error, e);
+         }
+
          throw new DocumentManagementServiceException(
                BpmRuntimeError.DMS_GENERIC_ERROR.raise(), e);
       }

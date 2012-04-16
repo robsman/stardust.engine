@@ -245,6 +245,11 @@ public class ModelManagerBean implements ModelManager
    {
       return getModelManagerPartition().getAllAliveModels();
    }
+   
+   public long getLastDeployment() 
+   {
+	   return getModelManagerPartition().getLastDeployment();
+   }
 
    public boolean isAlive(IModel model)
    {
@@ -714,6 +719,8 @@ public class ModelManagerBean implements ModelManager
       private MyDependentObjectsCache dependentObjectCache = new MyDependentObjectsCache();
 
       private final IRuntimeOidRegistry rtOidRegistry;
+      
+      private long lastDeployment;
 
       private class ElementByRtOidCache
       {
@@ -735,6 +742,7 @@ public class ModelManagerBean implements ModelManager
          this.unorderedModels = CollectionUtils.newList();
          this.loader = loader;
          managerPartitions.put(partitionOid, this);
+         this.lastDeployment = ModelDeploymentBean.getLastDeployment();
 
          // sort with ascending model OID
          Map<Long, IModelPersistor> loadedModels = new TreeMap();
@@ -1155,6 +1163,8 @@ public class ModelManagerBean implements ModelManager
          ModelManagerFactory.setDirty();
          SynchronizationService.flush();
 
+         this.lastDeployment = ModelDeploymentBean.getLastDeployment();
+               
          for (int i = 0; i < infos.size(); i++)
          {
             DeploymentUtils.attachDeploymentAttributes(
@@ -2047,6 +2057,11 @@ public class ModelManagerBean implements ModelManager
             }
          }
          return null;
+      }
+      
+      public long getLastDeployment()
+      {
+    	  return lastDeployment;
       }
    }
 

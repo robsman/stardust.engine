@@ -83,6 +83,8 @@ public interface ModelManager
    void deleteAllModels();
 
    Iterator getAllAliveModels();
+   
+   long getLastDeployment();
 
    boolean isAlive(IModel model);
    

@@ -278,7 +278,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else
       {
-         processInstance.setDeployment(ModelDeploymentBean.getLastDeployment());
+			processInstance.setDeployment(ModelManagerFactory.getCurrent()
+					.getLastDeployment());
       }
       if (parentActivityInstance != null)
       {

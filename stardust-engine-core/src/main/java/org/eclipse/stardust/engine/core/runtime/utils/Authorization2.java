@@ -89,6 +89,7 @@ public class Authorization2
                   if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
                   {
                      permission.id = ExecutionPermission.Id.abortActivityInstances.name();
+                     context = AuthorizationContext.create(permission);
                   }
                   context.setActivityInstance(ActivityInstanceBean.findByOID(aiOid));
                }

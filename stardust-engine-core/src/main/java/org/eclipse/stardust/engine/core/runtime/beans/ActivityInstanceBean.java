@@ -1814,13 +1814,18 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void activate() throws IllegalStateChangeException, IllegalOperationException
    {
+      activate(true);
+   }
+
+   public void activate(boolean executeNonInteractive) throws IllegalStateChangeException, IllegalOperationException
+   {
       QualityAssuranceUtils.assertActivationIsAllowed(this);
       IActivity activity = getActivity();
       if (activity.isHibernateOnCreation() && getState().equals(ActivityInstanceState.Hibernated))
       {
          setState(ActivityInstanceState.APPLICATION);
-         ImplementationType type = activity.getImplementationType();
-         if (type == ImplementationType.Application)
+         if (executeNonInteractive
+               && activity.getImplementationType() == ImplementationType.Application)
          {
             invokeApplication(activity);
          }

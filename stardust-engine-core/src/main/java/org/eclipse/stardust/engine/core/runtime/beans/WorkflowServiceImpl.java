@@ -2255,9 +2255,14 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       boolean interactive = activityInstance.getActivity().isInteractive();
       ActivityInstanceState state = activityInstance.getState();
-      if (interactive && state == ActivityInstanceState.Application ||
-         !interactive && (state == ActivityInstanceState.Interrupted || state == ActivityInstanceState.Hibernated))
+      if (state == ActivityInstanceState.Hibernated
+            || interactive && state == ActivityInstanceState.Application
+            || !interactive && state == ActivityInstanceState.Interrupted)
       {
+         if (state == ActivityInstanceState.Hibernated)
+         {
+            activityInstance.activate(false);
+         }
          RelocationUtils.performTransition(activityInstance, transitionTarget, complete);
       }
       else

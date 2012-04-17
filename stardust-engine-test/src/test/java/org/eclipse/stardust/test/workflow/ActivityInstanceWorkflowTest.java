@@ -20,8 +20,12 @@ import java.util.Collections;
 import java.util.Map;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributesImpl;
+import org.eclipse.stardust.engine.api.dto.Note;
 import org.eclipse.stardust.engine.api.model.ContextData;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.Worklist;
@@ -515,7 +519,48 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       userSf.getWorkflowService().suspend(-1, null);
    }
    
-   // TODO write test cases for hibernate()
+   /**
+    * <p>
+    * Tests whether hibernation of an activity instance works correctly.
+    * </p>
+    */
+   @Test
+   public void testHibernate()
+   {
+      final ProcessInstance pi = startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      final ActivityInstance hibernatedAi = userSf.getWorkflowService().hibernate(ai.getOID());
+      
+      assertThat(hibernatedAi.getState(), equalTo(ActivityInstanceState.Hibernated));
+   }
+   
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown when the activity instance
+    * is already terminated during activity instance hibernation.
+    * </p>
+    */
+   @Test(expected = IllegalStateChangeException.class)
+   public void testHibernateFailActivityInstanceTerminated()
+   {
+      final ProcessInstance pi = startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      
+      userSf.getWorkflowService().hibernate(ai.getOID());
+   }
+   
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown when the activity instance
+    * cannot be found.
+    * </p> 
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testHibernateFailActivityInstanceNotFound()
+   {
+      userSf.getWorkflowService().hibernate(-1);
+   }
    
    // TODO write test cases for abortActivityInstance()
    
@@ -526,8 +571,53 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    // TODO write test cases for activateNextActivityInstanceForProcessInstance()
    
    // TODO write test cases for getActivityInstance()
+
+   /**
+    * <p>
+    * Tests whether setting of activity instance attributes works correctly.
+    * </p>
+    */
+   @Test
+   public void testSetActivityInstanceAttributes()
+   {
+      final String testText = "This is a test.";
+      
+      final ProcessInstance pi = startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      final ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(ai.getOID());
+      attributes.addNote(testText);
+      userSf.getWorkflowService().setActivityInstanceAttributes(attributes);
+      
+      final ActivityInstance retrievedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
+      final ActivityInstanceAttributes retrievedAttributes = retrievedAi.getAttributes();
+      assertThat(retrievedAttributes.getNotes().size(), is(1));
+      final Note retrievedNote = retrievedAttributes.getNotes().get(0);
+      assertThat(retrievedNote.getText(), equalTo(testText));
+   }
    
-   // TODO write test cases for setActivityInstanceAttributes()
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown when the activity instance cannot be found.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testSetActivityInstanceAttributesFailActivityInstanceNotFound()
+   {
+      final ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(-1);
+      userSf.getWorkflowService().setActivityInstanceAttributes(attributes);
+   }
+   
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown when the activity instance attribute
+    * is <code>null</code>.
+    * </p>
+    */
+   @Test(expected = InvalidArgumentException.class)
+   public void testSetActivityInstanceAttributesFailNullAttribute()
+   {
+      adminSf.getWorkflowService().setActivityInstanceAttributes(null);
+   }
    
    private ProcessInstance startProcess(final String processId)
    {

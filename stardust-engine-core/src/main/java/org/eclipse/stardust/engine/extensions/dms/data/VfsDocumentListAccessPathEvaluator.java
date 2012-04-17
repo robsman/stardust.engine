@@ -19,14 +19,12 @@ import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
@@ -119,29 +117,7 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
 
                for (Document document : documentList)
                {
-                  DocumentType inferredDocumentType = DocumentTypeUtils.inferDocumentType(
-                        data, document);
-                  if (inferredDocumentType != null)
-                  {
-                     DocumentType inputDocumentType = document.getDocumentType();
-                     if (inputDocumentType == null)
-                     {
-                        document.setDocumentType(inferredDocumentType);
-                        toSyncDocuments.add(((DmsDocumentBean)document).vfsResource());
-                        if (trace.isInfoEnabled())
-                        {
-                           trace.info("Inferred document type of document '"
-                                 + document.getName() + "' as '"
-                                 + inferredDocumentType.getDocumentTypeId()
-                                 + "' based on data '" + data.getId() + "'.");
-                        }
-                     }
-                     else if ( !inferredDocumentType.equals(inputDocumentType))
-                     {
-                        throw new InvalidValueException(
-                              BpmRuntimeError.DMS_DOCUMENT_TYPE_INVALID.raise(inputDocumentType.getDocumentTypeId()));
-                     }
-                  }
+                  DocumentTypeUtils.inferDocumentTypeAndStoreDocument(data, document);
                }
             }
 

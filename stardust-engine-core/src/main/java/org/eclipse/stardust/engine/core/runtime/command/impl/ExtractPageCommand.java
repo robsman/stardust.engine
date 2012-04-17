@@ -32,6 +32,7 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.SubprocessSpawnInfo;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.DocumentAnnotations;
@@ -54,9 +55,9 @@ public class ExtractPageCommand implements ServiceCommand
    private ProcessInstance processInstance;
    private List<PageModel> pages;
    private String sourceDocumentName;
-   private String sourceDocumentPath;   
+   private String sourceDocumentPath;
    private ServiceFactory sf;
-   private String mimeType;   
+   private String mimeType;
    private String fileName;
    private String fileExtn;
 
@@ -78,7 +79,7 @@ public class ExtractPageCommand implements ServiceCommand
       }
 
    }
-   
+
    private void init()
    {
       fileName = stripExtension(sourceDocumentName);
@@ -131,7 +132,7 @@ public class ExtractPageCommand implements ServiceCommand
          page.setDocument(document);
       }
       return processInstances;
-   }   
+   }
 
    /**
     * if document is associated with process then call this method create document in root
@@ -235,7 +236,7 @@ public class ExtractPageCommand implements ServiceCommand
    {
       this.sourceDocumentName = sourceDocumentName;
    }
-   
+
 
    public String getMimeType()
    {
@@ -424,7 +425,8 @@ public class ExtractPageCommand implements ServiceCommand
        */
       public static Folder getProcessAttachmentsFolder(ServiceFactory sf, ProcessInstance pi)
       {
-         String path = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime()) + "/" + "process-attachments";
+         String path = DmsUtils.composeDefaultPath(pi.getOID(), pi.getStartTime()) + "/"
+               + DocumentRepositoryFolderNames.PROCESS_ATTACHMENTS_SUBFOLDER;
          Folder folder = createFolderIfNotExists(sf, path);
 
          return folder;
@@ -500,23 +502,23 @@ public class ExtractPageCommand implements ServiceCommand
    }
    /**
     * generate new file name by appending date-time in source file name
-    * 
+    *
     * @return
     */
    private String generateName()
    {
       StringBuilder name = new StringBuilder().append(fileName).append("_")
             .append(String.valueOf(new Date().getTime()));
-      
+
       if (StringUtils.isNotEmpty(fileExtn))
       {
          name.append(".").append(fileExtn);
       }
       return name.toString();
    }
-   
+
    /**
-    * 
+    *
     * @param fileName
     */
    private String stripExtension(String fileName)

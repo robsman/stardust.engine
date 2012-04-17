@@ -30,6 +30,7 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -47,14 +48,7 @@ import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.SchemaType;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-import org.eclipse.stardust.engine.api.runtime.DmsUtils;
-import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
-import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
-import org.eclipse.stardust.engine.api.runtime.Folder;
-import org.eclipse.stardust.engine.api.runtime.FolderInfo;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory.EmbeddedInvocationManager;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -63,6 +57,7 @@ import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
+import org.eclipse.stardust.engine.extensions.dms.data.VfsMediator;
 import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDSchemaDirective;
@@ -341,6 +336,47 @@ public final class DocumentTypeUtils
                model.getModelOID(), typeDeclaration.getId());
       }
       return documentType;
+   }
+
+   /**
+    * For internal use only.
+    *
+    * @param data
+    * @param document
+    * @return
+    *
+    * @throws InvalidValueException if a incompatible document type is set on the document.
+    */
+   public static DocumentType inferDocumentTypeAndStoreDocument(IData data, Document document)
+   {
+      DocumentType inferredDocumentType = DocumentTypeUtils.inferDocumentType(
+            data, document);
+      if (inferredDocumentType != null)
+      {
+         Map newAuditTrailDocument = ((DmsDocumentBean) document).vfsResource();
+         {
+            DocumentType inputDocumentType = document.getDocumentType();
+            if (inputDocumentType == null)
+            {
+               document.setDocumentType(inferredDocumentType);
+               new VfsMediator().writeDocumentToVfs(newAuditTrailDocument,
+                     false, null, false);
+               if (trace.isInfoEnabled())
+               {
+                  trace.info("Inferred document type of document '"
+                        + document.getName() + "' as '"
+                        + inferredDocumentType.getDocumentTypeId()
+                        + "' based on data '" + data.getId() + "'.");
+               }
+            }
+            else if ( !inferredDocumentType.equals(inputDocumentType))
+            {
+               throw new InvalidValueException(
+                     BpmRuntimeError.DMS_DOCUMENT_TYPE_INVALID.raise(inputDocumentType.getDocumentTypeId()));
+            }
+         }
+      }
+      return inferredDocumentType;
    }
 
    private static void adaptReferences(List<DocumentTypeXsdSyncEntry> toSyncXsds)
@@ -662,7 +698,7 @@ public final class DocumentTypeUtils
             {
                lookupModel = referenceModels.get(dataModelOid);
             }
-            
+
             if (lookupModel != null)
             {
                documentType = getDocumentType(
@@ -679,7 +715,7 @@ public final class DocumentTypeUtils
             documentType = getDocumentType(
                   typeDeclarationIdByModel.getSecond(), model);
          }
-         
+
          if (documentType != null)
          {
             documentTypes.add(documentType);

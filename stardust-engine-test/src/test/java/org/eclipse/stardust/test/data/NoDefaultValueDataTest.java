@@ -34,7 +34,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 @Ignore("CRNT-22830")
 public class NoDefaultValueDataTest extends LocalJcrH2Test

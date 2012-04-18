@@ -22,7 +22,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 @RunWith(Suite.class)
 @SuiteClasses({ NoDefaultValueDataTest.class })

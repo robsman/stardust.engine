@@ -32,11 +32,7 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.ClientServiceFactory;
-import org.eclipse.stardust.test.api.DepartmentHome;
-import org.eclipse.stardust.test.api.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.RuntimeConfigurer;
-import org.eclipse.stardust.test.api.UserHome;
+import org.eclipse.stardust.test.api.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -80,11 +76,11 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
                                     .around(userSf);
    
    @Before
-   public void setUp()
+   public void setUp() throws InterruptedException
    {
       createUser();
       startProcess();
-      waitForFirstActivityInstanceToGetAlive();
+      new AiAliveBarrier().await();
       ai = adminSf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive());
    }
 
@@ -176,17 +172,6 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       userSf.getWorkflowService().startProcess(PROCESS_ID_1, ccData, true);
    }
 
-   private void waitForFirstActivityInstanceToGetAlive()
-   {
-      boolean isAlive;
-      do
-      {
-         final ActivityInstances ais = adminSf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findAlive());
-         isAlive = ais.isEmpty() ? false : true;
-      }
-      while (!isAlive);
-   }
-
    /**
     * CountryCode&lt;DE&gt; -> CountryCode&lt;EN&gt; -> CountryCode&lt;DE&gt;
     */
@@ -232,5 +217,21 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final DepartmentInfo deptInfo = ((ModelParticipantInfo) participant).getDepartment();
       assertNotNull("Department must not be null.", deptInfo);
       return deptInfo.getOID();
+   }
+   
+   private final class AiAliveBarrier extends BarrierTemplate
+   {
+      @Override
+      public ConditionStatus checkCondition()
+      {
+         final ActivityInstances ais = adminSf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findAlive());
+         return ais.isEmpty() ? ConditionStatus.NOT_MET : ConditionStatus.MET;
+      }
+      
+      @Override
+      public String getConditionDescription()
+      {
+         return "Waiting for activity instance to get alive.";
+      }
    }
 }

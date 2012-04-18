@@ -64,6 +64,7 @@ package org.eclipse.stardust.test.workflow;
     */
    /* package-private */ static final String DEFAULT_ROLE_ID = "DefaultRole";
    
+   
    /**
     * a string data
     */
@@ -73,6 +74,7 @@ package org.eclipse.stardust.test.workflow;
     * an integer data
     */
    /* package-private */ static final String MY_INT_DATA_ID = "MyInt";
+   
    
    /**
     * a string in data path 

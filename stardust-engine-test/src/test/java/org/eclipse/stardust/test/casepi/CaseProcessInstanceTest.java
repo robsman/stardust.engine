@@ -36,10 +36,7 @@ import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
-import org.eclipse.stardust.test.api.ClientServiceFactory;
-import org.eclipse.stardust.test.api.DepartmentHome;
-import org.eclipse.stardust.test.api.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.*;
 import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Before;
 import org.junit.Rule;
@@ -150,7 +147,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       assertSameProcessInstance(casePi, rootCaseProcess1);
       assertSameProcessInstance(rootCaseProcess1, rootCaseProcess2);
 
-      waitForTransitionTo(ProcessInstanceState.Aborted, 3, casePi.getOID());
+      new ProcessInstanceStateBarrier(sf, casePi.getOID(), ProcessInstanceState.Aborted);
       
       ProcessInstance processInstance = wfService.getProcessInstance(casePi.getOID());
       assertEquals(ProcessInstanceState.Aborted, processInstance.getState());
@@ -180,7 +177,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       ActivityInstance ai = wfService.activateNextActivityInstanceForProcessInstance(caseProcess2.getOID());
       wfService.complete(ai.getOID(), null, null);
 
-      waitForTransitionTo(ProcessInstanceState.Completed, 3, casePi.getOID());
+      new ProcessInstanceStateBarrier(sf, casePi.getOID(), ProcessInstanceState.Completed);
 
       ProcessInstance processInstance = wfService.getProcessInstance(casePi.getOID());
       assertEquals(ProcessInstanceState.Completed, processInstance.getState());
@@ -355,7 +352,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       ProcessInstance joinProcessInstance = wfService.joinProcessInstance(caseProcess1.getOID(), caseProcess4.getOID(), "joined by test case");
       assertEquals(joinProcessInstance.getOID(), caseProcess4.getOID());
       
-      waitForTransitionTo(ProcessInstanceState.Aborted, 3, caseProcess1.getOID());
+      new ProcessInstanceStateBarrier(sf, caseProcess1.getOID(), ProcessInstanceState.Aborted);
       
       assertEquals(ProcessInstanceState.Aborted, getPiWithHierarchy(caseProcess1.getOID(), sf.getQueryService()).getState());
       assertEquals(ProcessInstanceState.Active, getPiWithHierarchy(casePi.getOID(), sf.getQueryService()).getState());
@@ -483,11 +480,11 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
 
       ProcessInstance spawnedPi = wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2", true, null);
       /* make sure that spawning is completed before moving on */
-      waitForAiCreation(spawnedPi.getOID(), 3);
+      new AiCreationBarrier(spawnedPi.getOID()).await();
       
       wfService.leaveCase(casePi.getOID(), new long[]{caseProcess1.getOID()});
 
-      waitForTransitionTo(ProcessInstanceState.Aborted, 3, casePi.getOID());
+      new ProcessInstanceStateBarrier(sf, casePi.getOID(), ProcessInstanceState.Aborted);
       ProcessInstance processInstance = wfService.getProcessInstance(casePi.getOID());
       assertEquals(ProcessInstanceState.Aborted, processInstance.getState());
    }
@@ -566,7 +563,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
       assertNotNull(rootCaseProcess);
       wfService.abortProcessInstance(caseProcess.getOID(), AbortScope.SubHierarchy);
-      waitForTransitionTo(ProcessInstanceState.Aborted, 3, caseProcess.getOID());
+      new ProcessInstanceStateBarrier(sf, caseProcess.getOID(), ProcessInstanceState.Aborted);
       
       ProcessInstanceQuery queryRoot0 = ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted);
       queryRoot0.setPolicy(CasePolicy.INCLUDE_CASES);
@@ -722,42 +719,6 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
          assertNotNull(rootCaseProcess);
       }
    }
-
-   private void waitForTransitionTo(ProcessInstanceState state, int retryCount, long piOid) throws InterruptedException
-   {
-      do
-      {
-         Thread.sleep(1000);
-         ProcessInstance pi = wfService.getProcessInstance(piOid);
-         if (state.equals(pi.getState()))
-         {
-            return;
-         }
-      }
-      while (--retryCount > 0);
-      
-      throw new IllegalStateException("PI is still NOT in state '" + state + "'");
-   }
-   
-   private void waitForAiCreation(long piOid, int retryCount) throws InterruptedException
-   {
-      do
-      {
-         Thread.sleep(1000);
-         try
-         {
-            sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(piOid));
-            return;
-         }
-         catch (ObjectNotFoundException e)
-         {
-            /* not found, try again */
-         }
-      }
-      while (--retryCount > 0);
-      
-      throw new IllegalStateException("AI has still NOT been created.");
-   }
    
    private DeployedModel getTestModel()
    {
@@ -805,5 +766,35 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       query.setPolicy(pidp);
       query.where(ProcessInstanceQuery.OID.isEqual(oid));
       return qs.findFirstProcessInstance(query);
+   }
+   
+   private final class AiCreationBarrier extends BarrierTemplate
+   {
+      private final long piOid;
+      
+      public AiCreationBarrier(final long piOid)
+      {
+         this.piOid = piOid;
+      }
+      
+      @Override
+      public ConditionStatus checkCondition()
+      {
+         try
+         {
+            sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(piOid));
+            return ConditionStatus.MET;
+         }
+         catch (ObjectNotFoundException e)
+         {
+            return ConditionStatus.NOT_MET;
+         }
+      }
+      
+      @Override
+      public String getConditionDescription()
+      {
+         return "Waiting for activity instance creation.";
+      }
    }
 }

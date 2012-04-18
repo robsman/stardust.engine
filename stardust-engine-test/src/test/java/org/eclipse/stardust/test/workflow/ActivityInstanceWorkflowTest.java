@@ -32,11 +32,11 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.test.api.ClientServiceFactory;
-import org.eclipse.stardust.test.api.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.RuntimeConfigurer;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
+import org.eclipse.stardust.test.api.*;
 import org.eclipse.stardust.test.api.UserHome;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -76,8 +76,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testInteractiveActivityInstanceIsSuspended()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       assertThat(ai.getState(), equalTo(ActivityInstanceState.Suspended));
    }
@@ -95,8 +95,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testActivate()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       /* before activation */
       final Worklist wlBefore = userSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
@@ -140,8 +140,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       final User user = userSf.getWorkflowService().getUser();
       UserHome.removeAllGrants(adminSf, user);
       
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       userSf.getWorkflowService().activate(ai.getOID());
    }
@@ -155,8 +155,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = AccessForbiddenException.class)
    public void testActivateFailAiTerminated()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
       userSf.getWorkflowService().activate(ai.getOID());
@@ -170,8 +170,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testComplete()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
       
       final ActivityInstance completedAi = userSf.getWorkflowService().complete(ai.getOID(), null, null);
@@ -191,7 +191,7 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       final String testText = "This is a test";
       
       final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
       
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, testText);
@@ -211,8 +211,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testCompleteActivateNextActivityInstance()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
       
       final ActivityCompletionLog aiLog = userSf.getWorkflowService().complete(ai.getOID(), null, null, WorkflowService.FLAG_ACTIVATE_NEXT_ACTIVITY_INSTANCE);
@@ -233,8 +233,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = IllegalStateChangeException.class)
    public void testCompleteFailActivityInstanceNotActive()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       userSf.getWorkflowService().complete(ai.getOID(), null, null);
    }
@@ -260,8 +260,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = InvalidValueException.class)
    public void testCompleteFailInvalidValue()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
       
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, -1);
@@ -277,8 +277,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = AccessForbiddenException.class)
    public void testCompleteFailInsufficientGrants()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       adminSf.getWorkflowService().activate(ai.getOID());
       
       final User user = userSf.getUserService().getUser();
@@ -295,8 +295,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = AccessForbiddenException.class)
    public void testCompleteFailActivityInstanceTerminated()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
       userSf.getWorkflowService().complete(ai.getOID(), null, null);
@@ -310,8 +310,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testActivateAndComplete()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       final ActivityInstance completedAi = userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       assertThat(completedAi.getActivity().getId(), equalTo(BasicWorkflowModelConstants.MANUAL_ACTIVITY_1_ID));
@@ -330,7 +330,7 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       final String testText = "This is a test";
       
       final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, testText);
       final ActivityInstance completedAi = userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, data);
@@ -349,8 +349,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testActivateAndCompleteActivateNextActivityInstance()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       final ActivityCompletionLog aiLog = userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null, WorkflowService.FLAG_ACTIVATE_NEXT_ACTIVITY_INSTANCE);
       final ActivityInstance completedAi = aiLog.getCompletedActivity();
@@ -382,8 +382,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = InvalidValueException.class)
    public void testActivateAndCompleteFailInvalidValue()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, -1);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, data);
@@ -398,8 +398,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = AccessForbiddenException.class)
    public void testActivateAndCompleteFailInsufficientGrants()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       final User user = userSf.getUserService().getUser();
       UserHome.removeAllGrants(adminSf, user);
@@ -415,8 +415,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = AccessForbiddenException.class)
    public void testActivateAndCompleteFailActivityInstanceTerminated()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
@@ -431,8 +431,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    public void testSuspend()
    {
       final WorklistQuery wlQuery = WorklistQuery.findCompleteWorklist();
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       final ActivityInstance activatedAi = userSf.getWorkflowService().activate(ai.getOID());
       final Worklist wlBefore = userSf.getWorkflowService().getWorklist(wlQuery);
@@ -462,7 +462,7 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       final String testText = "This is a test.";
       
       final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activate(ai.getOID());
       
       final Map<String, ?> data = Collections.singletonMap(MY_STRING_DATA_ID, testText);
@@ -483,8 +483,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = AccessForbiddenException.class)
    public void testSuspendFailActivityInstanceTerminated()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
       userSf.getWorkflowService().suspend(ai.getOID(), null);
@@ -499,8 +499,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = AccessForbiddenException.class)
    public void testSuspendFailInsufficientGrants()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       adminSf.getWorkflowService().activate(ai.getOID());
       
       final User user = userSf.getUserService().getUser();
@@ -528,8 +528,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testHibernate()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       final ActivityInstance hibernatedAi = userSf.getWorkflowService().hibernate(ai.getOID());
       
       assertThat(hibernatedAi.getState(), equalTo(ActivityInstanceState.Hibernated));
@@ -544,8 +544,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = IllegalStateChangeException.class)
    public void testHibernateFailActivityInstanceTerminated()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
       userSf.getWorkflowService().hibernate(ai.getOID());
@@ -563,7 +563,118 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       userSf.getWorkflowService().hibernate(-1);
    }
    
-   // TODO write test cases for abortActivityInstance()
+   /**
+    * <p>
+    * Tests whether abortion of an activity instance works correctly for
+    * abort scope <code>AbortScope.RootHierarchy</code>.
+    * </p>
+    */
+   @Test
+   public void testAbortActivityInstanceAbortScopeRootHierarchy() throws InterruptedException
+   {
+      final ProcessInstance pi = startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
+      
+      adminSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.RootHierarchy);
+      
+      new ActivityInstanceStateBarrier(adminSf, ai.getOID(), ActivityInstanceState.Aborted).await();
+      final ActivityInstance abortedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
+      assertThat(abortedAi, notNullValue());
+      assertThat(abortedAi.getState(), equalTo(ActivityInstanceState.Aborted));
+      
+      new ProcessInstanceStateBarrier(adminSf, pi.getOID(), ProcessInstanceState.Aborted).await();
+      final ProcessInstance abortedPi = userSf.getWorkflowService().getProcessInstance(pi.getOID());      
+      assertThat(abortedPi, notNullValue());
+      assertThat(abortedPi.getState(), equalTo(ProcessInstanceState.Aborted)); 
+   }
+
+   /**
+    * <p>
+    * Tests whether abortion of an activity instance works correctly for
+    * abort scope <code>AbortScope.SubHierarchy</code>.
+    * </p>
+    */
+   @Test
+   public void testAbortActivityInstanceAbortScopeSubHierarchy() throws InterruptedException
+   {
+      final ProcessInstance pi = startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
+      
+      userSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
+      
+      new ActivityInstanceStateBarrier(adminSf, ai.getOID(), ActivityInstanceState.Aborted).await();
+      final ActivityInstance abortedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
+      assertThat(abortedAi, notNullValue());
+      assertThat(abortedAi.getState(), equalTo(ActivityInstanceState.Aborted));
+      
+      final ProcessInstance abortedPi = userSf.getWorkflowService().getProcessInstance(pi.getOID());      
+      assertThat(abortedPi, notNullValue());
+      assertThat(abortedPi.getState(), equalTo(ProcessInstanceState.Active));
+   }
+   
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown if the activity instance
+    * does not allow to be aborted during activity instance abortion.
+    * </p>
+    */
+   @Ignore("CRNT-20630")
+   @Test(expected = AccessForbiddenException.class)
+   public void testActivateActivityInstanceFailNotAbortable()
+   {
+      startProcess(PD_1_ID);
+      final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
+      userSf.getWorkflowService().activateAndComplete(ai1.getOID(), null, null);
+      final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_1_ID);
+      
+      assertThat(ai2.getActivity().isAbortable(), is(false));
+      adminSf.getWorkflowService().abortActivityInstance(ai2.getOID(), AbortScope.SubHierarchy);
+   }
+   
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown if the performing user
+    * is not allowed to abort the activity instance.
+    * </p>
+    */
+   @Test(expected = AccessForbiddenException.class)
+   public void testActivateActivityInstanceFailInsufficientGrants()
+   {
+      startProcess(PD_1_ID);
+      final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
+      userSf.getWorkflowService().activateAndComplete(ai1.getOID(), null, null);
+      final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_1_ID);
+      
+      userSf.getWorkflowService().abortActivityInstance(ai2.getOID(), AbortScope.SubHierarchy);
+   }
+
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown if the activity instance
+    * is already terminated during activity instance abortion.
+    * </p>
+    */
+   @Test(expected = AccessForbiddenException.class)
+   public void testActivateActivityInstanceFailActivityInstanceTerminated()
+   {
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
+      userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      
+      userSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
+   }
+
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown if the activity instance
+    * cannot be found.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testActivateActivityInstanceFailActivityInstanceNotFound()
+   {
+      userSf.getWorkflowService().abortActivityInstance(-1);
+   }
    
    // TODO write test cases for getWorklist()
    
@@ -579,8 +690,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test
    public void testGetActivityInstance()
    {
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       final ActivityInstance retrievedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       assertThat(retrievedAi, notNullValue());
@@ -608,8 +719,8 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    {
       final String testText = "This is a test.";
       
-      final ProcessInstance pi = startProcess(PD_1_ID);
-      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       final ActivityInstanceAttributes attributes = new ActivityInstanceAttributesImpl(ai.getOID());
       attributes.addNote(testText);
       userSf.getWorkflowService().setActivityInstanceAttributes(attributes);
@@ -650,9 +761,9 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       return userSf.getWorkflowService().startProcess(processId, null, true);
    }
    
-   private ActivityInstance findFirstActivityInstanceFor(final long piOID)
+   private ActivityInstance findFirstAliveActivityInstanceFor(final String processId)
    {
-      final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findForProcessInstance(piOID);
+      final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findAlive(processId);
       return adminSf.getQueryService().findFirstActivityInstance(aiQuery);
    }
 }

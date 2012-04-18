@@ -85,11 +85,10 @@ public abstract class BarrierTemplate
    public final void await() throws IllegalStateException, InterruptedException
    {
       int count = retryCount;
-      ConditionStatus conditionStatus;
       
       do
       {
-         conditionStatus = checkCondition();
+         final ConditionStatus conditionStatus = checkCondition();
          if (conditionStatus == ConditionStatus.MET)
          {
             return;

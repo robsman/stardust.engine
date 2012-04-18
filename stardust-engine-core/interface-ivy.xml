@@ -175,6 +175,7 @@
          <exclude org="commons-dbcp" module="commons-dbcp"/>
          <exclude org="commons-pool" module="commons-pool"/>
          <exclude org="commons-collections" module="commons-collections"/>
+         <exclude org="commons-logging" module="commons-logging"/>
          <exclude org="jencks" module="xapool-without-pool"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-jta_1.0.1B_spec"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-jms_1.1_spec"/>
@@ -190,8 +191,10 @@
          <exclude org="org.springframework" module="spring-support"/>
          <exclude org="org.springframework" module="spring-web"/>
       </dependency>
+      <!-- force correct revision in POM -->
       <dependency org="org.apache.geronimo.components" name="geronimo-transaction" rev="2.1.1" conf="jencks-provider-runtime->default"/>
       <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="jencks-provider-runtime->default"/>
+      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="jencks-provider-runtime->default"/>
 
       <!-- jcr-vfs-provider-compile -->
       <dependency org="com.sungard.infinity.bpm" name="jcr-vfs" rev="2.4.0-SNAPSHOT" conf="jcr-vfs-provider-compile->default" />
@@ -210,7 +213,10 @@
       </dependency>
       <dependency org="org.apache.xbean" name="xbean-spring" rev="3.4" conf="activemq-provider-runtime->default">
          <exclude org="commons-logging" module="commons-logging-api" />
+         <exclude org="commons-logging" module="commons-logging" />
       </dependency>
+      <!-- force correct revision in POM -->
+      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="activemq-provider-runtime->default"/>
 
       <!-- hazelcast-provider-compile -->
       <dependency org="com.hazelcast" name="hazelcast" rev="1.9" conf="hazelcast-provider-compile->default" />
@@ -261,10 +267,12 @@
       <!-- jackrabbit-provider-runtime -->
       <dependency org="commons-httpclient" name="commons-httpclient" rev="3.0" conf="jackrabbit-provider-runtime->default">
          <exclude org="commons-codec" module="commons-codec"/>
+         <exclude org="commons-logging" module="commons-logging"/>
          <exclude org="junit" module="junit"/>
       </dependency>
       <dependency org="commons-codec" name="commons-codec" rev="1.3" conf="jackrabbit-provider-runtime->default"/>
       <dependency org="commons-pool" name="commons-pool" rev="1.5.2" conf="jackrabbit-provider-runtime->default"/>
+      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="jackrabbit-provider-runtime->default"/>
       <dependency org="org.apache.jackrabbit" name="jackrabbit-jca" rev="2.2.5" conf="jackrabbit-provider-runtime->default">
          <artifact name="jackrabbit-jca" type="jar"/>
          <exclude org="org.apache.derby" module="derby"/>

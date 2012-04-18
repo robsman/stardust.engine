@@ -84,6 +84,8 @@ public interface ModelManager
 
    Iterator getAllAliveModels();
    
+   void resetLastDeployment();
+
    long getLastDeployment();
 
    boolean isAlive(IModel model);

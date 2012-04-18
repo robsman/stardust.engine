@@ -37,6 +37,6 @@ public class ModelManagerFactory
    public static void setDirty()
    {
       ItemLocatorUtils.getLocator(ITEM_NAME).markDirty();
+      getCurrent().resetLastDeployment();
    }
-
 }

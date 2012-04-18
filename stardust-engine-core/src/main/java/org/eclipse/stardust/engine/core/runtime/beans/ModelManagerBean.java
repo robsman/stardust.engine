@@ -246,6 +246,11 @@ public class ModelManagerBean implements ModelManager
       return getModelManagerPartition().getAllAliveModels();
    }
    
+   public void resetLastDeployment() 
+   {
+       getModelManagerPartition().resetLastDeployment();
+   }
+
    public long getLastDeployment() 
    {
 	   return getModelManagerPartition().getLastDeployment();
@@ -706,6 +711,9 @@ public class ModelManagerBean implements ModelManager
       private static final String NO_MODEL_WITH_OID = "No model with oid {0} found.";
       private static final String NO_ACTIVE_MODEL = "No model active.";
       private static final String NO_MODELS = "No model deployed.";
+
+      private final Object LAST_DEPLOYMENT_LOCK = new Object();
+
       private final short partitionOid;
       private final List<IModel> models;
       private final List<IModel> unorderedModels;
@@ -720,7 +728,12 @@ public class ModelManagerBean implements ModelManager
 
       private final IRuntimeOidRegistry rtOidRegistry;
       
-      private long lastDeployment;
+      // (fh) used for lazy initialization of lastDeployment and managing
+      // of dynamic resets.
+      private volatile boolean lastDeploymentSet = false;
+      
+      // (fh) both variables are volatile because they might be accessed concurrently from multiple threads
+      private volatile long lastDeployment;
 
       private class ElementByRtOidCache
       {
@@ -742,7 +755,6 @@ public class ModelManagerBean implements ModelManager
          this.unorderedModels = CollectionUtils.newList();
          this.loader = loader;
          managerPartitions.put(partitionOid, this);
-         this.lastDeployment = ModelDeploymentBean.getLastDeployment();
 
          // sort with ascending model OID
          Map<Long, IModelPersistor> loadedModels = new TreeMap();
@@ -1163,8 +1175,6 @@ public class ModelManagerBean implements ModelManager
          ModelManagerFactory.setDirty();
          SynchronizationService.flush();
 
-         this.lastDeployment = ModelDeploymentBean.getLastDeployment();
-               
          for (int i = 0; i < infos.size(); i++)
          {
             DeploymentUtils.attachDeploymentAttributes(
@@ -2059,9 +2069,29 @@ public class ModelManagerBean implements ModelManager
          return null;
       }
       
+      public void resetLastDeployment()
+      {
+         // (fh) this is called whenever a new deployment is made.
+         // we just reset here the lastDeployment flag because we do not want to fetch the
+         // last deployment in the same transaction when a ModelDeploymentBean was created.
+         lastDeploymentSet = false;
+      }
+      
       public long getLastDeployment()
       {
-    	  return lastDeployment;
+         if (!lastDeploymentSet)
+         {
+            // (fh) concurrency of deployment vs. getting of last deployment is accepted.
+            synchronized (LAST_DEPLOYMENT_LOCK)
+            {
+               if (!lastDeploymentSet)
+               {
+                  lastDeployment = ModelDeploymentBean.getLastDeployment();
+                  lastDeploymentSet = true;
+               }
+            }
+         }
+    	 return lastDeployment;
       }
    }
 

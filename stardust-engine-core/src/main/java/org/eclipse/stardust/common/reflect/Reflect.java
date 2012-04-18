@@ -1253,6 +1253,10 @@ public class Reflect
       {
          result = new Double(((Number) value).doubleValue());
       }
+      else if ((value instanceof Long) && (targetType.equals(java.util.Date.class)))
+      {
+         result = new Date((Long) value);
+      }
       else
       {
          throw new InvalidValueException(

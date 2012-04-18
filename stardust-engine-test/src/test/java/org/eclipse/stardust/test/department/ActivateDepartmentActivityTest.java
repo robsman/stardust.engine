@@ -16,11 +16,11 @@ import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import java.util.Collections;
 import java.util.Map;
 
-import org.eclipse.stardust.test.api.ClientServiceFactory;
-import org.eclipse.stardust.test.api.DepartmentHome;
-import org.eclipse.stardust.test.api.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.RuntimeConfigurer;
-import org.eclipse.stardust.test.api.UserHome;
+import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
+import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.util.DepartmentHome;
+import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

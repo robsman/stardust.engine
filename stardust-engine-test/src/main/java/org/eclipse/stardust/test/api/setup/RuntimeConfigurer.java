@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api;
+package org.eclipse.stardust.test.api.setup;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
 import org.eclipse.stardust.engine.api.runtime.Daemon;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.test.api.TestRtEnvException.TestRtEnvAction;
+import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 import org.junit.rules.ExternalResource;
 
 /**

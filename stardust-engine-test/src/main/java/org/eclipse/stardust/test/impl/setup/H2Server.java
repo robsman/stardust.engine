@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.impl;
+package org.eclipse.stardust.test.impl.setup;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -20,8 +20,8 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
-import org.eclipse.stardust.test.api.TestRtEnvException;
-import org.eclipse.stardust.test.api.TestRtEnvException.TestRtEnvAction;
+import org.eclipse.stardust.test.api.setup.TestRtEnvException;
+import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 import org.h2.Driver;
 import org.h2.tools.Server;
 
@@ -50,7 +50,7 @@ import org.h2.tools.Server;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision$
+ * @version $Revision: 54310 $
  */
 public class H2Server
 {

@@ -8,26 +8,26 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api;
+package org.eclipse.stardust.test.api.barrier;
 
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 
 /**
  * <p>
- * Allows to wait for a process instance state change.
+ * Allows to wait for an activity instance state change.
  * </p>
  * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class ProcessInstanceStateBarrier extends BarrierTemplate
+public class ActivityInstanceStateBarrier extends BarrierTemplate
 {
    private final ServiceFactory sf;
    
    private final long oid;
-   private final ProcessInstanceState state;
+   private final ActivityInstanceState state;
    
    /**
     * <p>
@@ -35,10 +35,10 @@ public class ProcessInstanceStateBarrier extends BarrierTemplate
     * </p>
     * 
     * @param sf the service factory to use; must not be <code>null</code>
-    * @param oid the oid of the process instance to wait for
+    * @param oid the oid of the activity instance to wait for
     * @param state the state to wait for; must not be <code>null</code>
     */
-   public ProcessInstanceStateBarrier(final ServiceFactory sf, final long oid, final ProcessInstanceState state)
+   public ActivityInstanceStateBarrier(final ServiceFactory sf, final long oid, final ActivityInstanceState state)
    {
       if (sf == null)
       {
@@ -62,19 +62,19 @@ public class ProcessInstanceStateBarrier extends BarrierTemplate
    @Override
    protected ConditionStatus checkCondition()
    {
-      final ProcessInstance pi = sf.getWorkflowService().getProcessInstance(oid);
-      return state.equals(pi.getState())
+      final ActivityInstance ai = sf.getWorkflowService().getActivityInstance(oid);
+      return state.equals(ai.getState())
          ? ConditionStatus.MET 
          : ConditionStatus.NOT_MET;
    }
 
    /*
     * (non-Javadoc)
-    * @see org.eclipse.stardust.test.api.BarrierTemplate#getConditionDescription()
+    * @see org.eclipse.stardust.test.api.BarrierTemplate#checkCondition()
     */
    @Override
    protected String getConditionDescription()
    {
-      return "Waiting for process instance state change to '" + state + "'.";
+      return "Waiting for activity instance state change to '" + state + "'.";
    }
 }

@@ -8,15 +8,15 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.impl;
+package org.eclipse.stardust.test.impl.setup;
 
 import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.test.api.TestRtEnvException;
-import org.eclipse.stardust.test.api.TestRtEnvException.TestRtEnvAction;
+import org.eclipse.stardust.test.api.setup.TestRtEnvException;
+import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 
 /**
  * <p>
@@ -35,7 +35,7 @@ import org.eclipse.stardust.test.api.TestRtEnvException.TestRtEnvAction;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision$
+ * @version $Revision: 54345 $
  */
 public class Workspace
 {

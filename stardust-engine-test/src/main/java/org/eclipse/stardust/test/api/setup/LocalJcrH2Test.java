@@ -8,13 +8,13 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api;
+package org.eclipse.stardust.test.api.setup;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.test.impl.H2Server;
 import org.eclipse.stardust.test.impl.Lockable;
-import org.eclipse.stardust.test.impl.SpringAppContext;
+import org.eclipse.stardust.test.impl.setup.H2Server;
+import org.eclipse.stardust.test.impl.setup.SpringAppContext;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 

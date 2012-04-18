@@ -8,13 +8,13 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.impl;
+package org.eclipse.stardust.test.impl.setup;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
-import org.eclipse.stardust.test.api.TestRtEnvException;
-import org.eclipse.stardust.test.api.TestRtEnvException.TestRtEnvAction;
+import org.eclipse.stardust.test.api.setup.TestRtEnvException;
+import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 import org.springframework.context.ConfigurableApplicationContext;
 
 
@@ -31,7 +31,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision$
+ * @version $Revision: 55261 $
  */
 public class SpringAppContext
 {

@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -90,6 +91,12 @@ public class Authorization2
                   {
                      permission.id = ExecutionPermission.Id.abortActivityInstances.name();
                      context = AuthorizationContext.create(permission);
+                     TransitionTarget target = (TransitionTarget) args[1];
+                     if (target != null) // must not throw NPEs here, let them to come from the service implementation
+                     {
+                        ExecutionPlan plan = new ExecutionPlan(target);
+                        aiOid = plan.getRootActivityInstanceOid();
+                     }
                   }
                   context.setActivityInstance(ActivityInstanceBean.findByOID(aiOid));
                }

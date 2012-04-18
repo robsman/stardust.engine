@@ -351,7 +351,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 BPMRT_COMPLETE_QA_NO_ATTRIBUTES_SET = newArgs1("BPMRT04008", BpmRuntimeErrorMessages.getString("BPMRT04008"));
    public static final Args0 BPMRT_NO_ERROR_CODE_SET = newArgs0("BPMRT04009", BpmRuntimeErrorMessages.getString("BPMRT04009"));
 
-
+   public static final Args2 BPMRT_DATA_NOT_USED_BY_PROCESS = newArgs2("BPMRT04101", "Data ''{0}'' is not used by process definition ''{1}''.");
 
    public static final Args1 BPMRT_PI_IS_CASE = newArgs1("BPMRT03831"); //$NON-NLS-1$
    public static final Args1 BPMRT_PI_IS_MEMBER = newArgs1("BPMRT03832"); //$NON-NLS-1$
@@ -391,6 +391,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 IPPWS_ENV_CREATION_FAILED_USER_NULL = newArgs0("IPPWS02001", BpmRuntimeErrorMessages.getString("IPPWS02001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 IPPWS_ENV_CREATION_FAILED_SESSION_PROPS_NULL = newArgs0("IPPWS02002", BpmRuntimeErrorMessages.getString("IPPWS02002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 IPPWS_ENV_CREATION_FAILED_ALL_NULL = newArgs0("IPPWS02003", BpmRuntimeErrorMessages.getString("IPPWS02003")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   public static final Args2 IPPWS_META_DATA_TYPE_INVALID = newArgs2("IPPWS03001", "The specified metaDataType ''{0}'' does not match the type defined for data ''{1}''."); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Login related
    public static final Args0 LOGIN_LDAP_INVALID_USER_PASSWORD = newArgs0("LOGIN01001", BpmRuntimeErrorMessages.getString("LOGIN01001")); //$NON-NLS-1$ //$NON-NLS-2$

@@ -20,7 +20,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ProcessInstanceStateBarrier extends BarrierTemplate
 {

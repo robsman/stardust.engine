@@ -18,7 +18,7 @@ package org.eclipse.stardust.test.api;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public abstract class BarrierTemplate
 {
@@ -123,7 +123,7 @@ public abstract class BarrierTemplate
     * </p>
     * 
     * @author Nicolas.Werlein
-    * @version $Revision: $
+    * @version $Revision$
     */
    protected static enum ConditionStatus { MET, NOT_MET }
 }

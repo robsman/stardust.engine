@@ -680,7 +680,76 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       userSf.getWorkflowService().abortActivityInstance(-1);
    }
    
-   // TODO write test cases for getWorklist()
+   /**
+    * <p>
+    * Tests whether the retrieval of a worklist works correctly:
+    * Requesting a private worklist.
+    * </p>
+    */
+   @Test
+   public void testGetWorklistPrivateWorklist()
+   {
+      startProcess(PD_1_ID);
+      final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
+      userSf.getWorkflowService().activate(ai1.getOID());
+      
+      startProcess(PD_3_ID);
+      final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_3_ID);
+      userSf.getWorkflowService().activate(ai2.getOID());
+      
+      final Worklist worklist = userSf.getWorkflowService().getWorklist(WorklistQuery.findPrivateWorklist());
+      assertThat(worklist.size(), is(2));
+   }
+   
+   /**
+    * <p>
+    * Tests whether the retrieval of a worklist works correctly:
+    * Requesting a private worklist with a limit.
+    * </p>
+    */
+   @Test
+   public void testGetWorklistPrivateWorklistLimit()
+   {
+      final int limit = 1;
+      
+      startProcess(PD_1_ID);
+      final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
+      userSf.getWorkflowService().activate(ai1.getOID());
+      
+      startProcess(PD_3_ID);
+      final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_3_ID);
+      userSf.getWorkflowService().activate(ai2.getOID());
+      
+      final Worklist worklist = userSf.getWorkflowService().getWorklist(WorklistQuery.findPrivateWorklist(limit));
+      assertThat(worklist.size(), is(1));
+   }
+
+   /**
+    * <p>
+    * Tests whether the retrieval of a worklist works correctly:
+    * Requesting the complete worklist.
+    * </p>
+    */
+   @Test
+   public void testGetWorklistCompleteWorklist()
+   {
+      startProcess(PD_1_ID);
+      
+      startProcess(PD_1_ID);
+      final ActivityInstance ai1 = findFirstAliveActivityInstanceFor(PD_1_ID);
+      userSf.getWorkflowService().activate(ai1.getOID());
+      
+      startProcess(PD_3_ID);
+      final ActivityInstance ai2 = findFirstAliveActivityInstanceFor(PD_3_ID);
+      userSf.getWorkflowService().activate(ai2.getOID());
+      
+      final Worklist worklist = userSf.getWorkflowService().getWorklist(WorklistQuery.findCompleteWorklist());
+      assertThat(worklist.getCumulatedSize(), is(3));
+      assertThat(worklist.size(), is(2));
+      
+      final Worklist participantWorklist = (Worklist) worklist.getSubWorklists().next();
+      assertThat(participantWorklist.size(), is(1));
+   }   
    
    // TODO write test cases for activateNextActivityInstance()
    

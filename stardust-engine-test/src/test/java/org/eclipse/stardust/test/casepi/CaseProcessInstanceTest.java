@@ -790,7 +790,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
             sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(piOid));
             return ConditionStatus.MET;
          }
-         catch (ObjectNotFoundException e)
+         catch (final ObjectNotFoundException e)
          {
             return ConditionStatus.NOT_MET;
          }

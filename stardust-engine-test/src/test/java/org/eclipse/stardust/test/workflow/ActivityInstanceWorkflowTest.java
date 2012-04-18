@@ -14,6 +14,7 @@ import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
@@ -570,8 +571,33 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    
    // TODO write test cases for activateNextActivityInstanceForProcessInstance()
    
-   // TODO write test cases for getActivityInstance()
-
+   /**
+    * <p>
+    * Tests whether the retrieval of an activity instance works correctly.
+    * </p>
+    */
+   @Test
+   public void testGetActivityInstance()
+   {
+      final ProcessInstance pi = startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstActivityInstanceFor(pi.getOID());
+      
+      final ActivityInstance retrievedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
+      assertThat(retrievedAi, notNullValue());
+      assertThat(retrievedAi, equalTo(ai));
+   }
+   
+   /**
+    * <p>
+    * Tests whether the correct exception is thrown when the activity instance cannot be found.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testGetActivityInstanceFailActivityInstanceNotFound()
+   {
+      userSf.getWorkflowService().getActivityInstance(-1);
+   }
+   
    /**
     * <p>
     * Tests whether setting of activity instance attributes works correctly.
@@ -616,7 +642,7 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
    @Test(expected = InvalidArgumentException.class)
    public void testSetActivityInstanceAttributesFailNullAttribute()
    {
-      adminSf.getWorkflowService().setActivityInstanceAttributes(null);
+      userSf.getWorkflowService().setActivityInstanceAttributes(null);
    }
    
    private ProcessInstance startProcess(final String processId)

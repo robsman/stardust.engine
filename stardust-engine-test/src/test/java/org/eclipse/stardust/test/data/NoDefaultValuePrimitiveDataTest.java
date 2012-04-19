@@ -38,7 +38,7 @@ import org.junit.rules.TestRule;
  * @version $Revision$
  */
 @Ignore("CRNT-22830")
-public class NoDefaultValueDataTest extends LocalJcrH2Test
+public class NoDefaultValuePrimitiveDataTest extends LocalJcrH2Test
 {
    private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
@@ -65,7 +65,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForCalendarData()
    {
-      testForInDataMapping(MY_CALENDAR_IN_DATA_MAPPING);
+      testInDataMapping(MY_CALENDAR_IN_DATA_MAPPING);
    }
    
    /**
@@ -78,7 +78,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForStringData()
    {
-      testForInDataMapping(MY_STRING_IN_DATA_MAPPING);
+      testInDataMapping(MY_STRING_IN_DATA_MAPPING);
    }
    
    /**
@@ -91,7 +91,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForTimestampData()
    {
-      testForInDataMapping(MY_TIMESTAMP_IN_DATA_MAPPING);
+      testInDataMapping(MY_TIMESTAMP_IN_DATA_MAPPING);
    }
    
    /**
@@ -104,7 +104,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForBooleanData()
    {
-      testForInDataMapping(MY_BOOLEAN_IN_DATA_MAPPING);
+      testInDataMapping(MY_BOOLEAN_IN_DATA_MAPPING);
    }
    
    /**
@@ -117,7 +117,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForByteData()
    {
-      testForInDataMapping(MY_BYTE_IN_DATA_MAPPING);
+      testInDataMapping(MY_BYTE_IN_DATA_MAPPING);
    }   
 
    /**
@@ -130,7 +130,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForCharData()
    {
-      testForInDataMapping(MY_CHAR_IN_DATA_MAPPING);
+      testInDataMapping(MY_CHAR_IN_DATA_MAPPING);
    }
    
    /**
@@ -143,7 +143,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForDoubleData()
    {
-      testForInDataMapping(MY_DOUBLE_IN_DATA_MAPPING);
+      testInDataMapping(MY_DOUBLE_IN_DATA_MAPPING);
    }
    
    /**
@@ -156,7 +156,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForFloatData()
    {
-      testForInDataMapping(MY_FLOAT_IN_DATA_MAPPING);
+      testInDataMapping(MY_FLOAT_IN_DATA_MAPPING);
    }
    
    /**
@@ -169,7 +169,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForIntData()
    {
-      testForInDataMapping(MY_INT_IN_DATA_MAPPING);
+      testInDataMapping(MY_INT_IN_DATA_MAPPING);
    }
    
    /**
@@ -182,7 +182,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForLongData()
    {
-      testForInDataMapping(MY_LONG_IN_DATA_MAPPING);
+      testInDataMapping(MY_LONG_IN_DATA_MAPPING);
    }
    
    /**
@@ -195,7 +195,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataMappingReturnsNullForShortData()
    {
-      testForInDataMapping(MY_SHORT_IN_DATA_MAPPING);
+      testInDataMapping(MY_SHORT_IN_DATA_MAPPING);
    }
 
    
@@ -209,7 +209,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForCalendarData()
    {
-      testForInDataPath(MY_CALENDAR_IN_DATA_PATH);
+      testInDataPath(MY_CALENDAR_IN_DATA_PATH);
    }
    
    /**
@@ -222,7 +222,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForStringData()
    {
-      testForInDataPath(MY_STRING_IN_DATA_PATH);
+      testInDataPath(MY_STRING_IN_DATA_PATH);
    }
    
    /**
@@ -235,7 +235,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForTimestampData()
    {
-      testForInDataPath(MY_TIMESTAMP_IN_DATA_PATH);
+      testInDataPath(MY_TIMESTAMP_IN_DATA_PATH);
    }
    
    /**
@@ -248,7 +248,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForBooleanData()
    {
-      testForInDataPath(MY_BOOLEAN_IN_DATA_PATH);
+      testInDataPath(MY_BOOLEAN_IN_DATA_PATH);
    }
    
    /**
@@ -261,7 +261,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForByteData()
    {
-      testForInDataPath(MY_BYTE_IN_DATA_PATH);
+      testInDataPath(MY_BYTE_IN_DATA_PATH);
    }   
 
    /**
@@ -274,7 +274,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForCharData()
    {
-      testForInDataPath(MY_CHAR_IN_DATA_PATH);
+      testInDataPath(MY_CHAR_IN_DATA_PATH);
    }
    
    /**
@@ -287,7 +287,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForDoubleData()
    {
-      testForInDataPath(MY_DOUBLE_IN_DATA_PATH);
+      testInDataPath(MY_DOUBLE_IN_DATA_PATH);
    }
    
    /**
@@ -300,7 +300,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForFloatData()
    {
-      testForInDataPath(MY_FLOAT_IN_DATA_PATH);
+      testInDataPath(MY_FLOAT_IN_DATA_PATH);
    }
    
    /**
@@ -313,7 +313,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForIntData()
    {
-      testForInDataPath(MY_INT_IN_DATA_PATH);
+      testInDataPath(MY_INT_IN_DATA_PATH);
    }
    
    /**
@@ -326,7 +326,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForLongData()
    {
-      testForInDataPath(MY_LONG_IN_DATA_PATH);
+      testInDataPath(MY_LONG_IN_DATA_PATH);
    }
    
    /**
@@ -339,10 +339,10 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Test
    public void testInDataPathReturnsNullForShortData()
    {
-      testForInDataPath(MY_SHORT_IN_DATA_PATH);
+      testInDataPath(MY_SHORT_IN_DATA_PATH);
    }
    
-   private void testForInDataMapping(final String inDataMapping)
+   private void testInDataMapping(final String inDataMapping)
    {
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive());
       final Object result = sf.getWorkflowService().getInDataValue(ai.getOID(), null, inDataMapping);
@@ -350,7 +350,7 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
       assertThat("CRNT-22830", result, nullValue());
    }
 
-   private void testForInDataPath(final String inDataPath)
+   private void testInDataPath(final String inDataPath)
    {
       final Object result = sf.getWorkflowService().getInDataPath(piOid, inDataPath);
       

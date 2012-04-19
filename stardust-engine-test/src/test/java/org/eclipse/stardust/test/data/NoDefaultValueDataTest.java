@@ -21,6 +21,7 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,6 +46,14 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    @Rule
    public TestRule chain = RuleChain.outerRule(sf)
                                     .around(rtConfigurer);
+   
+   private long piOid;
+   
+   @Before
+   public void setUp()
+   {
+      piOid = startProcess();
+   }
    
    /**
     * <p>
@@ -335,7 +344,6 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
    
    private void testForInDataMapping(final String inDataMapping)
    {
-      startProcess();
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive());
       final Object result = sf.getWorkflowService().getInDataValue(ai.getOID(), null, inDataMapping);
       
@@ -344,7 +352,6 @@ public class NoDefaultValueDataTest extends LocalJcrH2Test
 
    private void testForInDataPath(final String inDataPath)
    {
-      final long piOid = startProcess();
       final Object result = sf.getWorkflowService().getInDataPath(piOid, inDataPath);
       
       assertThat("CRNT-22830", result, nullValue());

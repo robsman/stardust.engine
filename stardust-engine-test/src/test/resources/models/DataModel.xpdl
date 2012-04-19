@@ -206,8 +206,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10058" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Calendar" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -221,8 +221,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10060" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="String" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -236,8 +236,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10062" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="Timestamp" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -252,9 +252,9 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10064" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="boolean" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="carnot:engine:defaultValue" Value="false"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="boolean" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -268,8 +268,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10066" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="byte" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="byte" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -283,8 +283,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10068" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="char" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="char" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -298,8 +298,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10070" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="double" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="double" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -313,8 +313,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10072" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="float" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="float" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -328,8 +328,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10074" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="int" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -343,8 +343,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10076" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="long" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="long" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -358,8 +358,8 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:DataField Oid="10078" Type="primitive">
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:type" Value="short" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                      <carnot:Attribute Name="authorization:data.readDataValues" Value="__carnot_internal_all_permissions__"/>
+                     <carnot:Attribute Name="carnot:engine:type" Value="short" Type="ag.carnot.workflow.spi.providers.data.java.Type"/>
                   </carnot:Attributes>
                </carnot:DataField>
             </ExtendedAttribute>
@@ -482,6 +482,39 @@
                      </carnot:DataPath>
                      <carnot:DataPath Oid="10114" Id="MyDoubleInDataPath" Name="MyDoubleInDataPath" Direction="IN" IsDescriptor="false">
                         <carnot:DataRef Id="MyDouble" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10115" Id="MyCalendarOutDataPath" Name="MyCalendarOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyCalendar" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10116" Id="MyBooleanOutDataPath" Name="MyBooleanOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyBoolean" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10117" Id="MyByteOutDataPath" Name="MyByteOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyByte" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10118" Id="MyCharOutDataPath" Name="MyCharOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyChar" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10119" Id="MyDoubleOutDataPath" Name="MyDoubleOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyDouble" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10120" Id="MyFloatOutDataPath" Name="MyFloatOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyFloat" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10121" Id="MyIntOutDataPath" Name="MyIntOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyInt" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10122" Id="MyLongOutDataPath" Name="MyLongOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyLong" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10123" Id="MyShortOutDataPath" Name="MyShortOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyShort" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10124" Id="MyStringOutDataPath" Name="MyStringOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyString" Expression=""/>
+                     </carnot:DataPath>
+                     <carnot:DataPath Oid="10125" Id="MyTimestampOutDataPath" Name="MyTimestampOutDataPath" Direction="OUT" IsDescriptor="false">
+                        <carnot:DataRef Id="MyTimestamp" Expression=""/>
                      </carnot:DataPath>
                   </carnot:DataPaths>
                   <carnot:EventHandlers/>

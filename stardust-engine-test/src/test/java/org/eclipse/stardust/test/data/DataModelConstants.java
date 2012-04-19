@@ -93,6 +93,11 @@ package org.eclipse.stardust.test.data;
     * an in data path for 'My Calendar'
     */
    /* package-private */ static final String MY_CALENDAR_IN_DATA_PATH = "MyCalendarInDataPath";
+   
+   /**
+    * an out data path for 'My Calendar'
+    */
+   /* package-private */ static final String MY_CALENDAR_OUT_DATA_PATH = "MyCalendarOutDataPath";
 
    /**
     * an in data path for 'My String'
@@ -100,9 +105,19 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_STRING_IN_DATA_PATH = "MyStringInDataPath";
    
    /**
+    * an out data path for 'My String'
+    */
+   /* package-private */ static final String MY_STRING_OUT_DATA_PATH = "MyStringOutDataPath";
+   
+   /**
     * an in data path for 'My Timestamp'
     */
    /* package-private */ static final String MY_TIMESTAMP_IN_DATA_PATH = "MyTimestampInDataPath";
+   
+   /**
+    * an out data path for 'My Timestamp'
+    */
+   /* package-private */ static final String MY_TIMESTAMP_OUT_DATA_PATH = "MyTimestampOutDataPath";
    
    /**
     * an in data path for 'My Boolean'
@@ -110,9 +125,19 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_BOOLEAN_IN_DATA_PATH = "MyBooleanInDataPath";
    
    /**
+    * an out data path for 'My Boolean'
+    */
+   /* package-private */ static final String MY_BOOLEAN_OUT_DATA_PATH = "MyBooleanOutDataPath";
+   
+   /**
     * an in data path for 'My Byte'
     */
    /* package-private */ static final String MY_BYTE_IN_DATA_PATH = "MyByteInDataPath";
+   
+   /**
+    * an outdata path for 'My Byte'
+    */
+   /* package-private */ static final String MY_BYTE_OUT_DATA_PATH = "MyByteOutDataPath";
    
    /**
     * an in data path for 'My Char'
@@ -120,9 +145,19 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_CHAR_IN_DATA_PATH = "MyCharInDataPath";
    
    /**
+    * an out data path for 'My Char'
+    */
+   /* package-private */ static final String MY_CHAR_OUT_DATA_PATH = "MyCharOutDataPath";
+   
+   /**
     * an in data path for 'My Short'
     */
    /* package-private */ static final String MY_SHORT_IN_DATA_PATH = "MyShortInDataPath";
+   
+   /**
+    * an out data path for 'My Short'
+    */
+   /* package-private */ static final String MY_SHORT_OUT_DATA_PATH = "MyShortOutDataPath";
    
    /**
     * an in data path for 'My Long'
@@ -130,9 +165,19 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_LONG_IN_DATA_PATH = "MyLongInDataPath";
    
    /**
+    * an out data path for 'My Long'
+    */
+   /* package-private */ static final String MY_LONG_OUT_DATA_PATH = "MyLongOutDataPath";
+   
+   /**
     * an in data path for 'My Int'
     */
    /* package-private */ static final String MY_INT_IN_DATA_PATH = "MyIntInDataPath";
+   
+   /**
+    * an out data path for 'My Int'
+    */
+   /* package-private */ static final String MY_INT_OUT_DATA_PATH = "MyIntOutDataPath";
    
    /**
     * an in data path for 'My Float'
@@ -140,7 +185,17 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_FLOAT_IN_DATA_PATH = "MyFloatInDataPath";
    
    /**
+    * an out data path for 'My Float'
+    */
+   /* package-private */ static final String MY_FLOAT_OUT_DATA_PATH = "MyFloatOutDataPath";
+   
+   /**
     * an in data path for 'My Double'
     */
    /* package-private */ static final String MY_DOUBLE_IN_DATA_PATH = "MyDoubleInDataPath";
+   
+   /**
+    * an out data path for 'My Double'
+    */
+   /* package-private */ static final String MY_DOUBLE_OUT_DATA_PATH = "MyDoubleOutDataPath";
 }

@@ -25,7 +25,10 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ NoDefaultValueDataTest.class })
+@SuiteClasses({ 
+               PrimitiveDataInOutDataPathsTest.class,
+               NoDefaultValueDataTest.class
+             })
 public class DataTestSuite extends LocalJcrH2TestSuite
 {
    /* test suite */

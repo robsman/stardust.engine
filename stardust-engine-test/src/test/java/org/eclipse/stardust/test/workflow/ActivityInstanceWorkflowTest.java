@@ -15,6 +15,7 @@ import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.*;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Collections;
@@ -751,9 +752,96 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       assertThat(participantWorklist.size(), is(1));
    }   
    
-   // TODO write test cases for activateNextActivityInstance()
+   /**
+    * <p>
+    * Tests whether the activation of the next activity instance
+    * by an empty worklist query works correctly: does not activate anything
+    * and returns <code>null</code>.
+    * </p>
+    */
+   @Test
+   public void testActivateNextActivityInstanceByEmptyWorklistQuery()
+   {
+      final ActivityInstance nextAi = userSf.getWorkflowService().activateNextActivityInstance(WorklistQuery.findPrivateWorklist());
+      assertThat(nextAi, nullValue());
+   }
+
+   /**
+    * <p>
+    * Tests whether the activation of the next activity instance
+    * by an non-empty worklist query works correctly: activates and
+    * returns the next activity instance.
+    * </p>
+    */
+   @Test
+   public void testActivateNextActivityInstanceByNonEmptyWorklistQuery()
+   {
+      startProcess(PD_1_ID);
+      
+      final ActivityInstance nextAi = userSf.getWorkflowService().activateNextActivityInstance(WorklistQuery.findCompleteWorklist());
+      assertThat(nextAi, notNullValue());
+      assertThat(nextAi.getActivity().getId(), equalTo(MANUAL_ACTIVITY_1_ID));
+      assertThat(nextAi.getState(), equalTo(ActivityInstanceState.Application));
+   }
    
-   // TODO write test cases for activateNextActivityInstanceForProcessInstance()
+   /**
+    * <p>
+    * Tests whether the activation of the next activity instance
+    * by activity instance oid works correctly.
+    * </p>
+    */
+   @Test
+   public void testActivateNextActivityInstanceByAiOid()
+   {
+      startProcess(PD_1_ID);
+      final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
+      userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      
+      final ActivityInstance nextAi = userSf.getWorkflowService().activateNextActivityInstance(ai.getOID());
+      assertThat(nextAi, notNullValue());
+      assertThat(nextAi.getActivity().getId(), equalTo(MANUAL_ACTIVITY_2_ID));
+      assertThat(nextAi.getState(), equalTo(ActivityInstanceState.Application));
+   }
+
+   /**
+    * <p>
+    * Tests whether the correct exeception is thrown if the activity instance
+    * cannot be found during activity instance activation.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testActivateNextActivityInstanceByAiOidFailActivityInstanceNotFound()
+   {
+      userSf.getWorkflowService().activateNextActivityInstance(-1);
+   }
+   
+   /**
+    * <p>
+    * Tests whether the activation of the next activity instance
+    * by process instance oid works correctly.
+    * </p>
+    */
+   @Test
+   public void testActivateNextActivityInstanceByPiOid()
+   {
+      final ProcessInstance pi = startProcess(PD_1_ID);
+      final ActivityInstance nextAi = userSf.getWorkflowService().activateNextActivityInstanceForProcessInstance(pi.getOID());
+      assertThat(nextAi, notNullValue());
+      assertThat(nextAi.getActivity().getId(), equalTo(MANUAL_ACTIVITY_1_ID));
+      assertThat(nextAi.getState(), equalTo(ActivityInstanceState.Application));
+   }
+
+   /**
+    * <p>
+    * Tests whether the correct exeception is thrown if the process instance
+    * cannot be found during activity instance activation.
+    * </p>
+    */
+   @Test(expected = ObjectNotFoundException.class)
+   public void testActivateNextActivityInstanceByPiOidFailActivityInstanceNotFound()
+   {
+      userSf.getWorkflowService().activateNextActivityInstanceForProcessInstance(-1);
+   }
    
    /**
     * <p>

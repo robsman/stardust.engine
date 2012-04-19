@@ -167,7 +167,9 @@
 
       <!-- jencks-provider-runtime -->
       <dependency org="org.tranql" name="tranql-connector" rev="1.4" conf="jencks-provider-runtime->default" />
-      <dependency org="org.apache.geronimo.components" name="geronimo-connector" rev="2.1.1" conf="jencks-provider-runtime->default"/>
+      <dependency org="org.apache.geronimo.components" name="geronimo-connector" rev="2.2.1" conf="jencks-provider-runtime->default">
+         <exclude org="org.slf4j" module="slf4j-api"/>
+      </dependency>
       <dependency org="org.jencks" name="jencks" rev="2.2" conf="jencks-provider-runtime->default">
          <artifact name="jencks" type="jar" m:classifier="all"/>
          <exclude org="aopalliance" module="aopalliance"/>
@@ -310,7 +312,7 @@
       <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
       <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
       <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.1.1" />
-      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.1.1" />
+      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.2.1" />
 
       <override org="org.objenesis" module="objenesis" rev="1.2" />
 

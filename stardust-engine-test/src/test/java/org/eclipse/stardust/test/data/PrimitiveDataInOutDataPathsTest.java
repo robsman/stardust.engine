@@ -38,7 +38,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class PrimitiveDataInOutDataPathsTest extends LocalJcrH2Test
 {

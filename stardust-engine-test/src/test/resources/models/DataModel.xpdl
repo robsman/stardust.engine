@@ -430,6 +430,50 @@
                               <carnot:DataRef Id="MyShort"/>
                               <carnot:AccessPointRef/>
                            </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10126" Id="MyCalendar" Name="MyCalendar" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyCalendar"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10127" Id="MyString" Name="MyString" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyString"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10128" Id="MyTimestamp" Name="MyTimestamp" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyTimestamp"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10129" Id="MyBoolean" Name="MyBoolean" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyBoolean"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10130" Id="MyByte" Name="MyByte" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyByte"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10131" Id="MyChar" Name="MyChar" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyChar"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10132" Id="MyDouble" Name="MyDouble" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyDouble"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10133" Id="MyFloat" Name="MyFloat" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyFloat"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10134" Id="MyInt" Name="MyInt" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyInt"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10135" Id="MyLong" Name="MyLong" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyLong"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
+                           <carnot:DataFlow Oid="10136" Id="MyShort" Name="MyShort" Direction="OUT" Context="default">
+                              <carnot:DataRef Id="MyShort"/>
+                              <carnot:AccessPointRef/>
+                           </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:pwh:includeTime" Value="true" Type="boolean"/>

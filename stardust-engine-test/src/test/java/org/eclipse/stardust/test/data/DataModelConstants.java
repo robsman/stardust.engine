@@ -39,9 +39,19 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_CALENDAR_IN_DATA_MAPPING = "MyCalendar";
    
    /**
+    * an out data mapping for 'My Calendar'
+    */
+   /* package-private */ static final String MY_CALENDAR_OUT_DATA_MAPPING = "MyCalendar";
+   
+   /**
     * an in data mapping for 'My String'
     */
    /* package-private */ static final String MY_STRING_IN_DATA_MAPPING = "MyString";
+
+   /**
+    * an out data mapping for 'My String'
+    */
+   /* package-private */ static final String MY_STRING_OUT_DATA_MAPPING = "MyString";
    
    /**
     * an in data mapping for 'My Timestamp'
@@ -49,9 +59,19 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_TIMESTAMP_IN_DATA_MAPPING = "MyTimestamp";
    
    /**
+    * an out data mapping for 'My Timestamp'
+    */
+   /* package-private */ static final String MY_TIMESTAMP_OUT_DATA_MAPPING = "MyTimestamp";
+   
+   /**
     * an in data mapping for 'My Boolean'
     */
    /* package-private */ static final String MY_BOOLEAN_IN_DATA_MAPPING = "MyBoolean";
+   
+   /**
+    * an outdata mapping for 'My Boolean'
+    */
+   /* package-private */ static final String MY_BOOLEAN_OUT_DATA_MAPPING = "MyBoolean";
    
    /**
     * an in data mapping for 'My Byte'
@@ -59,9 +79,19 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_BYTE_IN_DATA_MAPPING = "MyByte";
    
    /**
+    * an out data mapping for 'My Byte'
+    */
+   /* package-private */ static final String MY_BYTE_OUT_DATA_MAPPING = "MyByte";
+   
+   /**
     * an in data mapping for 'My Char'
     */
    /* package-private */ static final String MY_CHAR_IN_DATA_MAPPING = "MyChar";
+   
+   /**
+    * an out data mapping for 'My Char'
+    */
+   /* package-private */ static final String MY_CHAR_OUT_DATA_MAPPING = "MyChar";
    
    /**
     * an in data mapping for 'My Short'
@@ -69,9 +99,19 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_SHORT_IN_DATA_MAPPING = "MyShort";
    
    /**
+    * an out data mapping for 'My Short'
+    */
+   /* package-private */ static final String MY_SHORT_OUT_DATA_MAPPING = "MyShort";
+   
+   /**
     * an in data mapping for 'My Long'
     */
    /* package-private */ static final String MY_LONG_IN_DATA_MAPPING = "MyLong";
+   
+   /**
+    * an out data mapping for 'My Long'
+    */
+   /* package-private */ static final String MY_LONG_OUT_DATA_MAPPING = "MyLong";
    
    /**
     * an in data mapping for 'My Int'
@@ -79,14 +119,29 @@ package org.eclipse.stardust.test.data;
    /* package-private */ static final String MY_INT_IN_DATA_MAPPING = "MyInt";
    
    /**
+    * an out data mapping for 'My Int'
+    */
+   /* package-private */ static final String MY_INT_OUT_DATA_MAPPING = "MyInt";
+   
+   /**
     * an in data mapping for 'My Float'
     */
    /* package-private */ static final String MY_FLOAT_IN_DATA_MAPPING = "MyFloat";
    
    /**
+    * an out data mapping for 'My Float'
+    */
+   /* package-private */ static final String MY_FLOAT_OUT_DATA_MAPPING = "MyFloat";
+   
+   /**
     * an in data mapping for 'My Double'
     */
    /* package-private */ static final String MY_DOUBLE_IN_DATA_MAPPING = "MyDouble";
+   
+   /**
+    * an out data mapping for 'My Double'
+    */
+   /* package-private */ static final String MY_DOUBLE_OUT_DATA_MAPPING = "MyDouble";
    
    
    /**

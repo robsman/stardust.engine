@@ -19,8 +19,12 @@ import static org.junit.Assert.assertThat;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Collections;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.model.ContextData;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
@@ -34,13 +38,13 @@ import org.junit.rules.TestRule;
 /**
  * <p>
  * Tests whether setting and retrieving primitive process data
- * via in and out data paths works correctly.
+ * via in and out data mappings works correctly.
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision$
+ * @version $Revision: $
  */
-public class PrimitiveDataInOutDataPathsTest extends LocalJcrH2Test
+public class PrimitiveDataInOutDataMappingsTest extends LocalJcrH2Test
 {
    private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
@@ -49,168 +53,171 @@ public class PrimitiveDataInOutDataPathsTest extends LocalJcrH2Test
    public TestRule chain = RuleChain.outerRule(sf)
                                     .around(rtConfigurer);
    
-   private long piOid;
+   private long aiOid;
    
    @Before
    public void setUp()
    {
-      piOid = startProcess();
+      startProcess();
+      aiOid = findFirstAliveActivityInstanceFor();
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>Calendar</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForCalendar()
    {
-      testFor(Calendar.getInstance(), MY_CALENDAR_IN_DATA_PATH, MY_CALENDAR_OUT_DATA_PATH);
+      testFor(Calendar.getInstance(), MY_CALENDAR_IN_DATA_MAPPING, MY_CALENDAR_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>String</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForString()
    {
-      testFor("This is a test.", MY_STRING_IN_DATA_PATH, MY_STRING_OUT_DATA_PATH);
+      testFor("This is a test.", MY_STRING_IN_DATA_MAPPING, MY_STRING_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>Timestamp</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForTimestamp()
    {
-      testFor(new Timestamp(System.currentTimeMillis()), MY_TIMESTAMP_IN_DATA_PATH, MY_TIMESTAMP_OUT_DATA_PATH);
+      testFor(new Timestamp(System.currentTimeMillis()), MY_TIMESTAMP_IN_DATA_MAPPING, MY_TIMESTAMP_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>boolean</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForBoolean()
    {
-      testFor(Boolean.TRUE, MY_BOOLEAN_IN_DATA_PATH, MY_BOOLEAN_OUT_DATA_PATH);
+      testFor(Boolean.TRUE, MY_BOOLEAN_IN_DATA_MAPPING, MY_BOOLEAN_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>byte</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForByte()
    {
       final byte b = 8;
-      testFor(Byte.valueOf(b), MY_BYTE_IN_DATA_PATH, MY_BYTE_OUT_DATA_PATH);
+      testFor(Byte.valueOf(b), MY_BYTE_IN_DATA_MAPPING, MY_BYTE_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>char</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForChar()
    {
-      testFor(Character.valueOf('x'), MY_CHAR_IN_DATA_PATH, MY_CHAR_OUT_DATA_PATH);
+      testFor(Character.valueOf('x'), MY_CHAR_IN_DATA_MAPPING, MY_CHAR_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>double</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForDouble()
    {
-      testFor(Double.valueOf(81.18), MY_DOUBLE_IN_DATA_PATH, MY_DOUBLE_OUT_DATA_PATH);
+      testFor(Double.valueOf(81.18), MY_DOUBLE_IN_DATA_MAPPING, MY_DOUBLE_OUT_DATA_MAPPING);
    }
-   
+
    /**
     * <p>
     * Tests whether setting and retrieving a <i>float</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForFloat()
    {
-      testFor(Float.valueOf(18.81F), MY_FLOAT_IN_DATA_PATH, MY_FLOAT_OUT_DATA_PATH);
+      testFor(Float.valueOf(18.81F), MY_FLOAT_IN_DATA_MAPPING, MY_FLOAT_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>int</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForInt()
    {
-      testFor(81, MY_INT_IN_DATA_PATH, MY_INT_OUT_DATA_PATH);
+      testFor(81, MY_INT_IN_DATA_MAPPING, MY_INT_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>long</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForLong()
    {
-      testFor(Long.valueOf(818L), MY_LONG_IN_DATA_PATH, MY_LONG_OUT_DATA_PATH);
+      testFor(Long.valueOf(818), MY_LONG_IN_DATA_MAPPING, MY_LONG_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
     * Tests whether setting and retrieving a <i>short</i> process data
-    * via an in and out data path works correctly.
+    * via an in and out data mapping works correctly.
     * </p>
     */
    @Test
    public void testInOutDataPathForShort()
    {
       final short s = 18;
-      testFor(Short.valueOf(s), MY_SHORT_IN_DATA_PATH, MY_SHORT_OUT_DATA_PATH);
+      testFor(Short.valueOf(s), MY_SHORT_IN_DATA_MAPPING, MY_SHORT_OUT_DATA_MAPPING);
    }
    
    /**
     * <p>
-    * Tests whether the correct exception is thrown when the in data path does not exist.
+    * Tests whether the correct exception is thrown when the in data mapping does not exist.
     * </p>
     */
    @Test(expected = ObjectNotFoundException.class)
-   public void testInDataPathFailDataPathNotFound()
+   public void testInDataMappingFailDataPathNotFound()
    {
-      sf.getWorkflowService().getInDataPath(piOid, "N/A");
+      sf.getWorkflowService().getInDataValue(aiOid, null, "N/A");
    }
    
    /**
     * <p>
-    * Tests whether the correct exception is thrown when the out data path does not exist.
+    * Tests whether the correct exception is thrown when the out data mapping does not exist.
     * </p>
     */
    @Test(expected = ObjectNotFoundException.class)
-   public void testOutDataPathFailDataPathNotFound()
+   public void testOutDataMappingFailDataPathNotFound()
    {
-      sf.getWorkflowService().setOutDataPath(piOid, "N/A", "<Value>");
+      sf.getWorkflowService().activate(aiOid);
+      final ContextData data = new ContextData(null, Collections.singletonMap("N/A", "<Value>"));
+      sf.getWorkflowService().suspend(aiOid, data);
    }
    
    private long startProcess()
@@ -219,11 +226,20 @@ public class PrimitiveDataInOutDataPathsTest extends LocalJcrH2Test
       return pi.getOID();
    }
    
-   private <T extends Serializable> void testFor(final T value, final String inDataPath, final String outDataPath)
+   private long findFirstAliveActivityInstanceFor()
    {
-      sf.getWorkflowService().setOutDataPath(piOid, outDataPath, value);
+      final ActivityInstanceQuery aiQuery = ActivityInstanceQuery.findAlive(PROCESS_ID_1);
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(aiQuery);
+      return ai.getOID();
+   }
+   
+   private <T extends Serializable> void testFor(final T value, final String inDataMapping, final String outDataMapping)
+   {
+      sf.getWorkflowService().activate(aiOid);
+      final ContextData data = new ContextData(null, Collections.singletonMap(outDataMapping, value));
+      sf.getWorkflowService().suspend(aiOid, data);
       @SuppressWarnings("unchecked")
-      final T retrievedValue = (T) sf.getWorkflowService().getInDataPath(piOid, inDataPath);
+      final T retrievedValue = (T) sf.getWorkflowService().getInDataValue(aiOid, null, inDataMapping);
       
       assertThat(retrievedValue, notNullValue());
       assertThat(retrievedValue, equalTo(value));

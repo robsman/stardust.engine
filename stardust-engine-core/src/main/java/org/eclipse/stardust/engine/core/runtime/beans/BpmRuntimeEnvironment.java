@@ -95,6 +95,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private IActivityInstance currentActivityInstance;
    
    private ExecutionPlan executionPlan;
+   
+   private boolean deploymentBeanCreated = false;
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
@@ -589,4 +591,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    {
       currentActivityInstance = activityInstance;
    }
+
+	public boolean isDeploymentBeanCreated() 
+	{
+		return deploymentBeanCreated;
+	}
+
+	public void setDeploymentBeanCreatedt(boolean deploymentBeanCreated) 
+	{
+		this.deploymentBeanCreated = deploymentBeanCreated;
+	}
+   
+      
 }

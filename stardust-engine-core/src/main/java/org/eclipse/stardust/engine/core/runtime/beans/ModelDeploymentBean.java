@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
@@ -128,6 +129,10 @@ public class ModelDeploymentBean extends IdentifiablePersistentBean implements S
       {
          trace.debug(this);
       }
+      
+      BpmRuntimeEnvironment rte = PropertyLayerProviderInterceptor.getCurrent();
+      rte.setDeploymentBeanCreatedt(true);
+      
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }
    

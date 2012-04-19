@@ -2074,7 +2074,8 @@ public class ModelManagerBean implements ModelManager
          // (fh) this is called whenever a new deployment is made.
          // we just reset here the lastDeployment flag because we do not want to fetch the
          // last deployment in the same transaction when a ModelDeploymentBean was created.
-         lastDeploymentSet = false;
+    	  lastDeployment = ModelDeploymentBean.getLastDeployment();
+    	  lastDeploymentSet = true;
       }
       
       public long getLastDeployment()

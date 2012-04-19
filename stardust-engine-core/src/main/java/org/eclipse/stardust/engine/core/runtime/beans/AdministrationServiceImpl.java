@@ -483,7 +483,7 @@ public class AdministrationServiceImpl
       String comment = options == null ? null : options.getComment();
       ModelDeploymentBean deployment = new ModelDeploymentBean(comment);
       ModelRefBean.setPrimaryImplementation(interfaceProcess, implementationModelId, deployment.getOID());
-      manager.resetLastDeployment();
+
       trace.info("Primary implementation for process '{" + interfaceModel.getId() + "}" + processId
             + " [modelOid: " + interfaceOid + "] set to '" + implementationModelId + "'.");
       return new DeploymentInfoDetails(

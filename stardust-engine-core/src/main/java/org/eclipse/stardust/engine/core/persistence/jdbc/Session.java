@@ -1995,6 +1995,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             BulkDeleteStatement bulkDeleteStatement = (BulkDeleteStatement) i.next();
             executeDelete(bulkDeleteStatement.getStatementString(), bulkDeleteStatement.getBindValueList(), bulkDeleteStatement.getType());
          }
+         
+         ModelManagerFactory.getCurrent().resetLastDeployment();
+         
       }
       catch (SQLException x)
       {

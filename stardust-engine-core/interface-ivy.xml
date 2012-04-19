@@ -168,8 +168,7 @@
       <!-- jencks-provider-runtime -->
       <dependency org="org.tranql" name="tranql-connector" rev="1.4" conf="jencks-provider-runtime->default" />
       <dependency org="org.apache.geronimo.components" name="geronimo-connector" rev="2.1.1" conf="jencks-provider-runtime->default"/>
-      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" conf="jencks-provider-runtime->default"/>
-      <dependency org="org.jencks" name="jencks" rev="2.1" conf="jencks-provider-runtime->default">
+      <dependency org="org.jencks" name="jencks" rev="2.2" conf="jencks-provider-runtime->default">
          <artifact name="jencks" type="jar" m:classifier="all"/>
          <exclude org="aopalliance" module="aopalliance"/>
          <exclude org="commons-dbcp" module="commons-dbcp"/>
@@ -177,9 +176,7 @@
          <exclude org="commons-collections" module="commons-collections"/>
          <exclude org="commons-logging" module="commons-logging"/>
          <exclude org="jencks" module="xapool-without-pool"/>
-         <exclude org="org.apache.geronimo.specs" module="geronimo-jta_1.0.1B_spec"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-jms_1.1_spec"/>
-         <exclude org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec"/>
          <exclude org="org.apache.geronimo.components" module="geronimo-transaction"/>
          <exclude org="org.springframework" module="spring-jms"/>
          <exclude org="org.springframework" module="spring-aop"/>

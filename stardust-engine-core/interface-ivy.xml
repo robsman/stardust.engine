@@ -166,7 +166,7 @@
       <dependency org="jgoodies" name="forms" rev="1.0.2" conf="swing-client-provider-compile->default" />
 
       <!-- jencks-provider-runtime -->
-      <dependency org="org.tranql" name="tranql-connector" rev="1.4" conf="jencks-provider-runtime->default" />
+      <dependency org="org.tranql" name="tranql-connector" rev="1.7" conf="jencks-provider-runtime->default" />
       <dependency org="org.apache.geronimo.components" name="geronimo-connector" rev="2.2.1" conf="jencks-provider-runtime->default">
          <exclude org="org.slf4j" module="slf4j-api"/>
       </dependency>

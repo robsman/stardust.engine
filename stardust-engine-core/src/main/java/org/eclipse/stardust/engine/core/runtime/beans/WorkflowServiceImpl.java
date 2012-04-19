@@ -2259,9 +2259,22 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             || interactive && state == ActivityInstanceState.Application
             || !interactive && state == ActivityInstanceState.Interrupted)
       {
-         if (state == ActivityInstanceState.Hibernated)
+         if (state == ActivityInstanceState.Hibernated
+               || state == ActivityInstanceState.Interrupted)
          {
             activityInstance.activate(false);
+            if (state == ActivityInstanceState.Interrupted)
+            {
+               ProcessInstanceBean processInstance = (ProcessInstanceBean)
+                     activityInstance.getProcessInstance();
+               ProcessInstanceState piState = processInstance.getState();
+               if (piState == ProcessInstanceState.Interrupted)
+               {
+                  processInstance.setState(ProcessInstanceState.ACTIVE);
+                  EventUtils.recoverEvent(processInstance);
+               }
+               EventUtils.recoverEvent(activityInstance);
+            }
          }
          RelocationUtils.performTransition(activityInstance, transitionTarget, complete);
       }

@@ -1996,7 +1996,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             executeDelete(bulkDeleteStatement.getStatementString(), bulkDeleteStatement.getBindValueList(), bulkDeleteStatement.getType());
          }
          
-         ModelManagerFactory.getCurrent().resetLastDeployment();
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         if (rtEnv != null && rtEnv.isDeploymentBeanCreated()) 
+         {
+            ModelManagerFactory.getCurrent().resetLastDeployment();
+         }
+
          
       }
       catch (SQLException x)

@@ -28,7 +28,7 @@ import org.eclipse.stardust.test.impl.barrier.ProcessInstanceStateBarrier;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class Barriers
 {

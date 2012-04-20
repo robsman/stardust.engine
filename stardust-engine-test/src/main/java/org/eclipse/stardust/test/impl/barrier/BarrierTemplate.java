@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api.barrier;
+package org.eclipse.stardust.test.impl.barrier;
 
 /**
  * <p>

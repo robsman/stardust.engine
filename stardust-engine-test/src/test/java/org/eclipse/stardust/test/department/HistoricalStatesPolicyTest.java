@@ -26,16 +26,16 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceFilter;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.barrier.BarrierTemplate;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.util.Barriers;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Assert;
@@ -84,8 +84,8 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
    public void setUp() throws InterruptedException
    {
       createUser();
-      startProcess();
-      new AiAliveBarrier().await();
+      final long piOid = startProcess();
+      Barriers.awaitActivityInstanceCreation(adminSf, piOid);
       ai = adminSf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive());
    }
 
@@ -170,11 +170,12 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       UserHome.create(adminSf, USER_NAME, orgDe, orgEn);
    }
 
-   private void startProcess()
+   private long startProcess()
    {
       /* start process in scope (DE) */
       final Map<String, String> ccData = Collections.singletonMap(COUNTRY_CODE_DATA_NAME, DEPT_ID_DE);
-      userSf.getWorkflowService().startProcess(PROCESS_ID_1, ccData, true);
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PROCESS_ID_1, ccData, true);
+      return pi.getOID();
    }
 
    /**
@@ -222,21 +223,5 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final DepartmentInfo deptInfo = ((ModelParticipantInfo) participant).getDepartment();
       assertNotNull("Department must not be null.", deptInfo);
       return deptInfo.getOID();
-   }
-   
-   private final class AiAliveBarrier extends BarrierTemplate
-   {
-      @Override
-      public ConditionStatus checkCondition()
-      {
-         final ActivityInstances ais = adminSf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findAlive());
-         return ais.isEmpty() ? ConditionStatus.NOT_MET : ConditionStatus.MET;
-      }
-      
-      @Override
-      public String getConditionDescription()
-      {
-         return "Waiting for activity instance to get alive.";
-      }
    }
 }

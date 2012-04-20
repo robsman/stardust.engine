@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api.barrier;
+package org.eclipse.stardust.test.impl.barrier;
 
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
@@ -26,7 +26,7 @@ public class ActivityInstanceStateBarrier extends BarrierTemplate
 {
    private final ServiceFactory sf;
    
-   private final long oid;
+   private final long aiOid;
    private final ActivityInstanceState state;
    
    /**
@@ -35,10 +35,10 @@ public class ActivityInstanceStateBarrier extends BarrierTemplate
     * </p>
     * 
     * @param sf the service factory to use; must not be <code>null</code>
-    * @param oid the oid of the activity instance to wait for
-    * @param state the state to wait for; must not be <code>null</code>
+    * @param aiOid the oid of the activity instance to wait for
+    * @param state the activity instance state to wait for; must not be <code>null</code>
     */
-   public ActivityInstanceStateBarrier(final ServiceFactory sf, final long oid, final ActivityInstanceState state)
+   public ActivityInstanceStateBarrier(final ServiceFactory sf, final long aiOid, final ActivityInstanceState state)
    {
       if (sf == null)
       {
@@ -51,7 +51,7 @@ public class ActivityInstanceStateBarrier extends BarrierTemplate
       }
       
       this.sf = sf;
-      this.oid = oid;
+      this.aiOid = aiOid;
       this.state = state;
    }
    
@@ -62,7 +62,7 @@ public class ActivityInstanceStateBarrier extends BarrierTemplate
    @Override
    protected ConditionStatus checkCondition()
    {
-      final ActivityInstance ai = sf.getWorkflowService().getActivityInstance(oid);
+      final ActivityInstance ai = sf.getWorkflowService().getActivityInstance(aiOid);
       return state.equals(ai.getState())
          ? ConditionStatus.MET 
          : ConditionStatus.NOT_MET;

@@ -34,11 +34,10 @@ import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
-import org.eclipse.stardust.test.api.barrier.ActivityInstanceStateBarrier;
-import org.eclipse.stardust.test.api.barrier.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.util.Barriers;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -582,12 +581,12 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       
       adminSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.RootHierarchy);
       
-      new ActivityInstanceStateBarrier(adminSf, ai.getOID(), ActivityInstanceState.Aborted).await();
+      Barriers.awaitActivityInstanceState(adminSf, ai.getOID(), ActivityInstanceState.Aborted);
       final ActivityInstance abortedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       assertThat(abortedAi, notNullValue());
       assertThat(abortedAi.getState(), equalTo(ActivityInstanceState.Aborted));
       
-      new ProcessInstanceStateBarrier(adminSf, pi.getOID(), ProcessInstanceState.Aborted).await();
+      Barriers.awaitProcessInstanceState(adminSf, pi.getOID(), ProcessInstanceState.Aborted);
       final ProcessInstance abortedPi = userSf.getWorkflowService().getProcessInstance(pi.getOID());      
       assertThat(abortedPi, notNullValue());
       assertThat(abortedPi.getState(), equalTo(ProcessInstanceState.Aborted)); 
@@ -607,7 +606,7 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
       
       userSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
       
-      new ActivityInstanceStateBarrier(adminSf, ai.getOID(), ActivityInstanceState.Aborted).await();
+      Barriers.awaitActivityInstanceState(adminSf, ai.getOID(), ActivityInstanceState.Aborted);
       final ActivityInstance abortedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       assertThat(abortedAi, notNullValue());
       assertThat(abortedAi.getState(), equalTo(ActivityInstanceState.Aborted));

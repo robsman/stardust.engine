@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api.barrier;
+package org.eclipse.stardust.test.impl.barrier;
 
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
@@ -26,7 +26,7 @@ public class ProcessInstanceStateBarrier extends BarrierTemplate
 {
    private final ServiceFactory sf;
    
-   private final long oid;
+   private final long piOid;
    private final ProcessInstanceState state;
    
    /**
@@ -35,10 +35,10 @@ public class ProcessInstanceStateBarrier extends BarrierTemplate
     * </p>
     * 
     * @param sf the service factory to use; must not be <code>null</code>
-    * @param oid the oid of the process instance to wait for
-    * @param state the state to wait for; must not be <code>null</code>
+    * @param piOid the oid of the process instance to wait for
+    * @param state the process instance state to wait for; must not be <code>null</code>
     */
-   public ProcessInstanceStateBarrier(final ServiceFactory sf, final long oid, final ProcessInstanceState state)
+   public ProcessInstanceStateBarrier(final ServiceFactory sf, final long piOid, final ProcessInstanceState state)
    {
       if (sf == null)
       {
@@ -51,7 +51,7 @@ public class ProcessInstanceStateBarrier extends BarrierTemplate
       }
       
       this.sf = sf;
-      this.oid = oid;
+      this.piOid = piOid;
       this.state = state;
    }
    
@@ -62,7 +62,7 @@ public class ProcessInstanceStateBarrier extends BarrierTemplate
    @Override
    protected ConditionStatus checkCondition()
    {
-      final ProcessInstance pi = sf.getWorkflowService().getProcessInstance(oid);
+      final ProcessInstance pi = sf.getWorkflowService().getProcessInstance(piOid);
       return state.equals(pi.getState())
          ? ConditionStatus.MET 
          : ConditionStatus.NOT_MET;

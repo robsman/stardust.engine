@@ -26,7 +26,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class ActivityInstanceCreatedBarrier extends BarrierTemplate
 {

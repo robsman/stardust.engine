@@ -621,6 +621,10 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
     * Tests whether the correct exception is thrown if the activity instance
     * does not allow to be aborted during activity instance abortion.
     * </p>
+    * 
+    * <p>
+    * TODO CRNT-20630
+    * </p>
     */
    @Ignore("CRNT-20630")
    @Test(expected = AccessForbiddenException.class)

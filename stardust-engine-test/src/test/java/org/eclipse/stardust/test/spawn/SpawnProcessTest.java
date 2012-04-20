@@ -338,6 +338,11 @@ public class SpawnProcessTest extends LocalJcrH2Test
             spawnAi);
    }
 
+   /**
+    * <p>
+    * TODO CRNT-20987
+    * </p>
+    */
    @Ignore("CRNT-20987")
    @Test
    public void testShowDocumentData()

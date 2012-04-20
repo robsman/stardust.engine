@@ -340,7 +340,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
 
    @Ignore("CRNT-20987")
    @Test
-   public void testShowDocumentData() throws InterruptedException
+   public void testShowDocumentData()
    {
       WorkflowService wfs = sf.getWorkflowService();
 

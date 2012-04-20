@@ -623,7 +623,7 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
     * </p>
     * 
     * <p>
-    * TODO CRNT-20630
+    * TODO remove <code>@Ignore</code> after CRNT-20630 has been resolved
     * </p>
     */
    @Ignore("CRNT-20630")

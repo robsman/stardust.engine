@@ -340,7 +340,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
 
    /**
     * <p>
-    * TODO CRNT-20987
+    * TODO remove <code>@Ignore</code> after CRNT-20987 has been resolved
     * </p>
     */
    @Ignore("CRNT-20987")

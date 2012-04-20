@@ -35,7 +35,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * <p>
- * TODO CRNT-22830
+ * TODO remove <code>@Ignore</code> after CRNT-22830 has been resolved
  * </p>
  * 
  * @author Nicolas.Werlein

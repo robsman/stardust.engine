@@ -165,7 +165,7 @@
       <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="1.0.1" />
       <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
       <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
-      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.1.1" />
+      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.2.1" />
       <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.2.1" />
 
       <override org="org.objenesis" module="objenesis" rev="1.2" />

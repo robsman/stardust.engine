@@ -29,7 +29,7 @@ import org.junit.runners.Suite.SuiteClasses;
                DefaultValuePrimitiveDataTest.class,
                PrimitiveDataInOutDataMappingsTest.class,
                PrimitiveDataInOutDataPathsTest.class,
-               NoDefaultValuePrimitiveDataTest.class
+               InitialValuePrimitiveDataTest.class
              })
 public class DataTestSuite extends LocalJcrH2TestSuite
 {

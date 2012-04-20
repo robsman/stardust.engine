@@ -48,7 +48,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Roland.Stamm
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SpawnProcessTest extends LocalJcrH2Test
 {

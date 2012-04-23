@@ -25,4 +25,6 @@ public interface IProcessExecutionMonitor
    
    void processAborted(IProcessInstance process);
    
+   void processInterrupted(IProcessInstance process);
+   
 }

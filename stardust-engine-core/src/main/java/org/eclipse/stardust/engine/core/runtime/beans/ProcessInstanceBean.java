@@ -1054,6 +1054,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       AuditTrailLogger.getInstance(LogCode.ENGINE, this).info(
             "Process instance interrupted.");
+      
+      MonitoringUtils.processExecutionMonitors().processInterrupted(this);
    }
 
    public void resetInterrupted()

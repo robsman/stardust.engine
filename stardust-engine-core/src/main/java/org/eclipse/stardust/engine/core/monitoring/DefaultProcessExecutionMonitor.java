@@ -31,4 +31,8 @@ public class DefaultProcessExecutionMonitor implements IProcessExecutionMonitor
    {
       ProcessInstanceUtils.checkGroupTermination(process);
    }
+   
+   public void processInterrupted(IProcessInstance process)
+   {
+   }
 }

@@ -81,4 +81,19 @@ public class ProcessExecutionMonitorMediator implements IProcessExecutionMonitor
       }
    }
 
+   public void processInterrupted(IProcessInstance process)
+   {
+      for (int i = 0; i < monitors.size(); ++i)
+      {
+         IProcessExecutionMonitor monitor = monitors.get(i);
+         try
+         {
+            monitor.processInterrupted(process);
+         }
+         catch (Exception e)
+         {
+            trace.warn("Failed broadcasting process execution monitor event.", e);
+         }
+      }
+   }
 }

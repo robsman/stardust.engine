@@ -80,9 +80,6 @@
       <!-- main idea of this config is to include only carnot-engine.jar as a dependency -->
       <conf name="carnot-engine-jar" visibility="private"/>
       
-      <conf name="carnot-dms-compile" extends="carnot-engine-jar" visibility="public" />
-      <conf name="carnot-dms-runtime" extends="carnot-dms-compile" visibility="public" />
-      
       <conf name="carnot-emf-xsd-integration-compile" extends="carnot-engine-jar" visibility="public" />
       <conf name="carnot-emf-xsd-integration-runtime" extends="carnot-emf-xsd-integration-compile, carnot-engine-jar" visibility="public" />
       
@@ -97,13 +94,11 @@
       <artifact name="carnot-client" type="jar" conf="carnot-client-compile, carnot-client-runtime" ext="jar" />
       <artifact name="carnot-engine" type="jar" ext="jar"
          conf="carnot-engine-compile, carnot-engine-runtime, carnot-engine-compile-optional, carnot-engine-runtime-optional, carnot-engine-provided, carnot-engine-jar" />
-      <artifact name="carnot-dms" type="jar" conf="carnot-dms-compile, carnot-dms-runtime" ext="jar" />
       <artifact name="carnot-emf-xsd-integration" type="jar" conf="carnot-emf-xsd-integration-compile, carnot-emf-xsd-integration-runtime" ext="jar" />
 
       <artifact name="carnot-base" type="pom" conf="pom" ext="pom" />
       <artifact name="carnot-client" type="pom" conf="pom" ext="pom" />
       <artifact name="carnot-engine" type="pom" conf="pom" ext="pom" />
-      <artifact name="carnot-dms" type="pom" conf="pom" ext="pom" />
       <artifact name="carnot-emf-xsd-integration" type="pom" conf="pom" ext="pom" />
    </publications>
 

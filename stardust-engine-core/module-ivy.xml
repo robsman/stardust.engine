@@ -77,9 +77,6 @@
       <conf name="ejb30-module-compile" extends="ejb30-interface-compile" description="IPP Engine - EJB 3.0 Module - Compile Scope" />
       <conf name="ejb30-module-runtime" extends="ejb30-module-compile" description="IPP Engine - EJB 3.0 Module - Runtime Scope" />
 
-      <conf name="carnot-dms-module-compile" extends="engine-module-compile" description="IPP Engine - Carnot DMS Module - Compile Scope" />
-      <conf name="carnot-dms-module-runtime" extends="carnot-dms-module-compile" description="IPP Engine - Carnot DMS Module - Runtime Scope" />
-
       <conf name="carnot-emf-xsd-module-compile" extends="engine-module-compile" description="IPP Engine - Carnot EMF XSD Module - Compile Scope" />
       <conf name="carnot-emf-xsd-module-runtime" extends="carnot-emf-xsd-module-compile" description="IPP Engine - Carnot EMF XSD Module - Runtime Scope" />
 
@@ -116,7 +113,6 @@
       <artifact name="2nd-level-cache-hazelcast-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="ejb21-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="ejb30-module" type="pom" conf="module-pom" ext="pom" />
-      <artifact name="carnot-dms-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="carnot-emf-xsd-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="ant-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="xerces-module" type="pom" conf="module-pom" ext="pom" />
@@ -130,8 +126,6 @@
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-runtime->carnot-client-runtime"/>
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-compile->carnot-engine-compile"/>
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-runtime->carnot-engine-runtime"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-dms-module-compile->carnot-dms-compile"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-dms-module-runtime->carnot-dms-runtime"/>
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-compile->carnot-emf-xsd-integration-compile"/>
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-runtime->carnot-emf-xsd-integration-runtime"/>
       

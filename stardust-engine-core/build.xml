@@ -100,8 +100,7 @@
          <fileset dir="${project.res}">
             <include name="about.html" />
             <include name="about_files/*" />
-            <include name="com/infinity/bpm/rt/impl/**/*.xml" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/*.xsd" />
+            <include name="org/eclipse/stardust/engine/extensions/dms/data/*.xsd" />
          </fileset>
       </ipp:jarjar>
 
@@ -147,17 +146,10 @@
          <fileset dir="${project.res}">
             <include name="about.html" />
             <include name="about_files/*" />
-            <include name="com/infinity/bpm/rt/impl/**/*.xml" />
-            <include name="com/infinity/bpm/rt/integration/data/dms/*.xsd" />
+            <include name="org/eclipse/stardust/engine/extensions/dms/data/*.xsd" />
          </fileset>
       </ipp:jarjar>
 
-      <ipp:jar jarfile="${carnot.dms.jar}" implementationTitle="Infinity Process Engine - DMS Integration">
-         <fileset dir="${build.classes}" id="fileset.carnot.dms.jar">
-            <include name="ag/carnot/bpm/integration/dms/**/*.class" />
-            <include name="ag/carnot/bpm/rt/integration/dms/**/*.class" />
-         </fileset>
-      </ipp:jar>
       <copy todir="${build.lib}" file="${carnot.engine.jar}" />
    </target>
 
@@ -209,16 +201,6 @@
          </fileset>
          <fileset dir="${build.src.static}" excludes="*.jar, org/eclipse/stardust/common/config/CurrentVersion.java">
             <include name="ag/carnot/bpm/rt/data/structured/emfxsd/**/*.*" />
-         </fileset>
-      </ipp:jar>
-      <ipp:jar jarfile="${carnot.dms.src-jar}" implementationTitle="Infinity Process Engine - DMS Integration Sources">
-         <fileset dir="${build.src.generated}" excludes="*.jar">
-            <include name="ag/carnot/bpm/integration/dms/**/*.*" />
-            <include name="ag/carnot/bpm/rt/integration/dms/**/*.*" />
-         </fileset>
-         <fileset dir="${build.src.static}" excludes="*.jar, org/eclipse/stardust/common/config/CurrentVersion.java">
-            <include name="ag/carnot/bpm/integration/dms/**/*.*" />
-            <include name="ag/carnot/bpm/rt/integration/dms/**/*.*" />
          </fileset>
       </ipp:jar>
    </target>
@@ -410,10 +392,6 @@
       <property name="carnot.emf.xsd.integration.src-jarfile" value="carnot-emf-xsd-integration-src.jar" />
       <property name="carnot.emf.xsd.integration.src-jar" location="${build.src}/${carnot.emf.xsd.integration.src-jarfile}" />
 
-      <property name="carnot.dms.jarfile" value="carnot-dms.jar" />
-      <property name="carnot.dms.jar" location="${build.lib}/${carnot.dms.jarfile}" />
-      <property name="carnot.dms.src-jarfile" value="carnot-dms-src.jar" />
-      <property name="carnot.dms.src-jar" location="${build.src}/${carnot.dms.src-jarfile}" />
    </target>
 
    <import file="build-dependencies-${dependencies.mode}.xml" />
@@ -741,12 +719,6 @@
       </exec>
       <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
          <arg value="install:install-file"/>
-         <arg value="-Dfile=${carnot.dms.jar}"/>
-         <arg value="-DpomFile=${build.lib}/carnot-dms.pom"/>
-         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
-      </exec>
-      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
-         <arg value="install:install-file"/>
          <arg value="-Dfile=${carnot.emf.xsd.integration.jar}"/>
          <arg value="-DpomFile=${build.lib}/carnot-emf-xsd-integration.pom"/>
          <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
@@ -765,6 +737,5 @@
       <copy file="${carnot.engine.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.emf.xsd.integration.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.emf.xsd.integration.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
-      <copy file="${carnot.dms.jar}" todir="${moonglow.dir}/../stardust/ide/modeling/org.eclipse.stardust.modeling.integration.dms/lib" />
    </target>
 </project>

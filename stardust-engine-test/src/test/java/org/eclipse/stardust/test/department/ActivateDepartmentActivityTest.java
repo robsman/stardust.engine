@@ -16,8 +16,8 @@ import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import java.util.Collections;
 import java.util.Map;
 
+import org.eclipse.stardust.test.api.junit.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;

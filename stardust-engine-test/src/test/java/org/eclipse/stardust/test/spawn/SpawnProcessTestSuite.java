@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.spawn;
 
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuite;
+import org.eclipse.stardust.test.api.junit.LocalJcrH2TestSuite;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;

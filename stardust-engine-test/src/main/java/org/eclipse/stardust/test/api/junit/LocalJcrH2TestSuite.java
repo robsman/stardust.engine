@@ -8,8 +8,9 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api.setup;
+package org.eclipse.stardust.test.api.junit;
 
+import org.eclipse.stardust.test.api.setup.TestRtEnvException;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 

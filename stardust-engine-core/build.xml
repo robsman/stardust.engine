@@ -662,6 +662,49 @@
 
       <delete dir="${build.dir}/temp" />
    </target>
+   
+   <target name="initCodegen" depends="init, dependencies:init" xmlns:ivy="antlib:org.apache.ivy.ant">
+      <property name="codegen.build.dir" value="${build.dir}/codegen" />
+      <property name="codegen.build.classes" value="${codegen.build.dir}/classes" />
+      <property name="codegen.build.dir.src" value="${codegen.build.dir}/src" />
+
+      <mkdir dir="${codegen.build.dir}" />
+      <mkdir dir="${codegen.build.classes}" />
+      <mkdir dir="${codegen.build.dir.src}" />
+      
+      <ivy:cachepath pathid="qdox.deps" conf="qdox-module-compile" inline="true" organisation="com.infinity.bpm"
+         module="infinity-process-engine-module" revision="${ipp.version.full}"/>
+      <ivy:cachepath pathid="stardust-engine-core.deps" conf="engine-module-compile" inline="true" organisation="com.infinity.bpm"
+         module="infinity-process-engine-module" revision="${ipp.version.full}"/>
+   </target>
+
+   <target name="codegen" depends="initCodegen, compileEjbFacadeGenerator">
+      <java classname="org.eclipse.stardust.engine.api.ejb2.tools.CodeGen" fork="yes">
+         <classpath>
+            <pathelement path="${codegen.build.classes}" />
+            <path refid="stardust-engine-core.deps" />
+            <path refid="qdox.deps" />
+         </classpath>
+         <arg line="${project.src}" />
+      </java>
+   </target>
+
+   <target name="compileEjbFacadeGenerator" depends="copyEjbFacadeGeneratorSourceFiles" description="compiles the carnot codegen classes">
+      <javac srcdir="${codegen.build.dir.src}" destdir="${codegen.build.classes}" debug="true" deprecation="no" includes="**/ejb2/**/*.java">
+         <classpath>
+            <path refid="stardust-engine-core.deps" />
+            <path refid="qdox.deps" />
+         </classpath>
+      </javac>
+   </target>
+               
+   <target name="copyEjbFacadeGeneratorSourceFiles" depends="initCodegen">
+      <copy todir="${codegen.build.dir.src}/org/eclipse/stardust">
+         <fileset dir="${project.src}/org/eclipse/stardust">
+            <include name="engine/api/ejb2/tools/CodeGen.java" />
+         </fileset>
+      </copy>
+   </target>
 
    <!--
    #

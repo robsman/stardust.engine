@@ -48,6 +48,8 @@
 
       <conf name="2nd-level-cache-interface-compile" visibility="private" />
 
+      <conf name="j2ee-mgmt-interface-provided" visibility="private" />
+      
       <conf name="ejb21-interface-provided" visibility="private" />
 
       <conf name="ejb30-interface-compile" visibility="private" />
@@ -113,6 +115,9 @@
       <!-- jms-interface-runtime -->
       <dependency org="org.apache.geronimo.specs" name="geronimo-jms_1.1_spec" rev="1.1.1" conf="jms-interface-runtime->default" />
 
+      <!-- j2ee-mgmt-interface-provided -->
+      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.1_spec" rev="1.0" conf="j2ee-mgmt-interface-provided->default" />
+      
       <!-- ejb21-interface-provided -->
       <dependency org="org.apache.geronimo.specs" name="geronimo-ejb_2.1_spec" transitive="false" rev="1.1" conf="ejb21-interface-provided->default" />
       <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" conf="ejb21-interface-provided->default" />

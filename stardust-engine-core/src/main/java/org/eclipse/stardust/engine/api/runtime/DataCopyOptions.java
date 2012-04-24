@@ -28,26 +28,9 @@ public class DataCopyOptions implements Serializable
     */
    public static final DataCopyOptions DEFAULT = new DataCopyOptions(true, null, null, true);
 
-   /**
-    * If true, the engine will attempt to copy all compatible data.
-    */
    private boolean copyAllData;
-   
-   /**
-    * Map that specifies renamed data objects. The key is the data id of the new process instance,
-    * the value is the data id in the originating process.
-    */
    private Map<String, String> dataTranslationTable;
-   
-   /**
-    * Map that specifies new values for specific data objects.
-    */
    private Map<String, ? extends Serializable> replacementTable;
-   
-   /**
-    * If true and copyAllData is true, it will attempt to copy those data that are used in data paths and data mappings
-    * of directly contained activities.
-    */
    private boolean useHeuristics;
 
    /**
@@ -75,9 +58,7 @@ public class DataCopyOptions implements Serializable
    }
 
    /**
-    * Gets if the engine should attempt to copy all compatible data.
-    * 
-    * @return true if the engine should attempt to copy all compatible data.
+    * Checks if the engine should attempt to copy all compatible data.
     */
    public boolean copyAllData()
    {
@@ -107,9 +88,7 @@ public class DataCopyOptions implements Serializable
    }
 
    /**
-    * Gets if heuristics should be applied to determine which data should be copied.
-    * 
-    * @return true if the engine should auto determine which data should be copied between the process instances.
+    * Checks if heuristics should be applied to determine which data should be copied.
     */
    public boolean useHeuristics()
    {

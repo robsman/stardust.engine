@@ -95,7 +95,9 @@ public final class TransitionOptions implements Serializable
    }
 
    /**
-    * Checks if loops should be allowed. 
+    * Checks if loops should be allowed while traversing AND joins/splits. If true, then
+    * loops detected inside AND blocks are silently ignored, otherwise the traversal of
+    * AND blocks is immediately stopped.
     */
    public boolean areLoopsAllowed()
    {

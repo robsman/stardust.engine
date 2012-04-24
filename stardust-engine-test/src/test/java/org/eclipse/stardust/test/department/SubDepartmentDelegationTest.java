@@ -225,11 +225,11 @@ public class SubDepartmentDelegationTest extends LocalJcrH2Test
 
    private void createAllDepartments()
    {
-      deDept = DepartmentHome.create(DEPT_ID_DE, ORG1_ID, null, adminSf);
-      enDept = DepartmentHome.create(DEPT_ID_EN, ORG1_ID, null, adminSf);
+      deDept = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG1_ID, null);
+      enDept = DepartmentHome.create(adminSf, DEPT_ID_EN, ORG1_ID, null);
 
-      deNorthDept = DepartmentHome.create(SUB_DEPT_ID_NORTH, ORG3_ID, deDept, adminSf);
-      deSouthDept = DepartmentHome.create(SUB_DEPT_ID_SOUTH, ORG3_ID, deDept, adminSf);
+      deNorthDept = DepartmentHome.create(adminSf, SUB_DEPT_ID_NORTH, ORG3_ID, deDept);
+      deSouthDept = DepartmentHome.create(adminSf, SUB_DEPT_ID_SOUTH, ORG3_ID, deDept);
    }
 
    private void createScopedParticipants()

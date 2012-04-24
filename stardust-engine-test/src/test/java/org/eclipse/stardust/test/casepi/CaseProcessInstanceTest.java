@@ -82,7 +82,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       UserHome.create(sf, U1, "Org1");
       
       final Organization scopedOrg1 = getTestModel().getOrganization("ScopedOrg1");
-      final Department dept = DepartmentHome.create(D1, "ScopedOrg1", null, sf);
+      final Department dept = DepartmentHome.create(sf, D1, "ScopedOrg1", null);
       UserHome.create(sf, U2, dept.getScopedParticipant(scopedOrg1));
    }
 

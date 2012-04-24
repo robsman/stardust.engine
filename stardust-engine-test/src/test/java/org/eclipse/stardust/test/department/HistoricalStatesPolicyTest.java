@@ -161,8 +161,8 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
       final Model model = adminSf.getQueryService().getActiveModel();
 
       org = model.getOrganization(ORG_ID_1);
-      deptDe = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
-      deptEn = DepartmentHome.create(DEPT_ID_EN, ORG_ID_1, null, adminSf);
+      deptDe = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG_ID_1, null);
+      deptEn = DepartmentHome.create(adminSf, DEPT_ID_EN, ORG_ID_1, null);
 
       orgDe = deptDe.getScopedParticipant(org);
       orgEn = deptEn.getScopedParticipant(org);

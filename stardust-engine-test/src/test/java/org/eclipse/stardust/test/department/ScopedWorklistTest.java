@@ -87,7 +87,7 @@ public class ScopedWorklistTest extends LocalJcrH2Test
    @Test
    public void testCreatingScopedWorklistItem()
    {
-      final Department dept = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
+      final Department dept = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG_ID_1, null);
       final ModelParticipant org1 = (ModelParticipant) adminSf.getQueryService().getParticipant(ORG_ID_1);
       final ModelParticipantInfo mpi = dept.getScopedParticipant(org1);
       
@@ -108,7 +108,7 @@ public class ScopedWorklistTest extends LocalJcrH2Test
    @Test
    public void testActivityInstanceAssignedToDepartment()
    {
-      final Department originalDept = DepartmentHome.create(DEPT_ID_DE, ORG1_ID, null, adminSf);
+      final Department originalDept = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG1_ID, null);
       
       startProcess(PROCESS_ID_3, X_SCOPE);
       
@@ -152,7 +152,7 @@ public class ScopedWorklistTest extends LocalJcrH2Test
    @Test
    public void testWorklistAssignedToDepartment()
    {
-      final Department dept = DepartmentHome.create(DEPT_ID_DE, ORG1_ID, null, adminSf);
+      final Department dept = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG1_ID, null);
       final Organization org = dept.getOrganization();
       
       startProcess(PROCESS_ID_3, X_SCOPE);

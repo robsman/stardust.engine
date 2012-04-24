@@ -178,8 +178,8 @@ public class WorkitemsAssignmentCreationTest extends LocalJcrH2Test
    
    private void createDepts()
    {
-      deptDe = DepartmentHome.create(DEPT_ID_DE, ORG1_ID, null, adminSf);
-      deptDeNorth = DepartmentHome.create(SUB_DEPT_ID_NORTH, ORG3_ID, deptDe, adminSf);
+      deptDe = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG1_ID, null);
+      deptDeNorth = DepartmentHome.create(adminSf, SUB_DEPT_ID_NORTH, ORG3_ID, deptDe);
    }
    
    private void createScopedParticipants()

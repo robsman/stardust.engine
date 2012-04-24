@@ -629,13 +629,13 @@ public class DeclarativeSecurityDelegationTest extends LocalJcrH2Test
 
    private void createAllDepartments()
    {
-      uDept = DepartmentHome.create(DEPT_ID_U, ORG1_ID, null, adminSf);
-      vDept = DepartmentHome.create(DEPT_ID_V, ORG1_ID, null, adminSf);
+      uDept = DepartmentHome.create(adminSf, DEPT_ID_U, ORG1_ID, null);
+      vDept = DepartmentHome.create(adminSf, DEPT_ID_V, ORG1_ID, null);
       
-      uiDept = DepartmentHome.create(SUB_DEPT_ID_I, ORG3_ID, uDept, adminSf);      
-      ujDept = DepartmentHome.create(SUB_DEPT_ID_J, ORG3_ID, uDept, adminSf);
+      uiDept = DepartmentHome.create(adminSf, SUB_DEPT_ID_I, ORG3_ID, uDept);      
+      ujDept = DepartmentHome.create(adminSf, SUB_DEPT_ID_J, ORG3_ID, uDept);
       
-      vkDept = DepartmentHome.create(SUB_DEPT_ID_K, ORG3_ID, vDept, adminSf);
+      vkDept = DepartmentHome.create(adminSf, SUB_DEPT_ID_K, ORG3_ID, vDept);
    }
 
    private void createScopedParticipants()

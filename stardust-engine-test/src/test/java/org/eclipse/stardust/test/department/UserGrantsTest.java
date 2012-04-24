@@ -91,8 +91,8 @@ public class UserGrantsTest extends LocalJcrH2Test
    public void testAddGrants()
    {
       final Organization[] orgs = getOrgs();
-      final Department dep1 = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
-      final Department dep2 = DepartmentHome.create(DEPT_ID_EN, ORG_ID_2, null, adminSf);
+      final Department dep1 = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG_ID_1, null);
+      final Department dep2 = DepartmentHome.create(adminSf, DEPT_ID_EN, ORG_ID_2, null);
       final ModelParticipantInfo mpi1 = dep1.getScopedParticipant(orgs[0]);
       final ModelParticipantInfo mpi2 = dep2.getScopedParticipant(orgs[1]);
       
@@ -113,8 +113,8 @@ public class UserGrantsTest extends LocalJcrH2Test
    public void testRemoveGrants()
    {
       final Organization[] orgs = getOrgs();
-      final Department dep1 = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, adminSf);
-      final Department dep2 = DepartmentHome.create(DEPT_ID_EN, ORG_ID_2, null, adminSf);
+      final Department dep1 = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG_ID_1, null);
+      final Department dep2 = DepartmentHome.create(adminSf, DEPT_ID_EN, ORG_ID_2, null);
       final ModelParticipantInfo mpi1 = dep1.getScopedParticipant(orgs[0]);
       final ModelParticipantInfo mpi2 = dep2.getScopedParticipant(orgs[1]);
       

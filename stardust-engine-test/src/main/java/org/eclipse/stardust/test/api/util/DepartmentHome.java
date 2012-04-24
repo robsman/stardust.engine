@@ -31,13 +31,13 @@ public class DepartmentHome
     * Creates a new department for the specified organization with the given department ID and parent.
     * </p>
     * 
+    * @param sf a service factory needed for creating the user
     * @param deptId the ID the department's <i>id</i>, <i>name</i>, and <i>description</i> will be initialized with
     * @param orgId the ID of the organization the department should be created for
     * @param parent the parent department, if any
-    * @param sf a service factory needed for creating the user
     * @return the created department
     */
-   public static Department create(final String deptId, final String orgId, final DepartmentInfo parent, final ServiceFactory sf)
+   public static Department create(final ServiceFactory sf, final String deptId, final String orgId, final DepartmentInfo parent)
    {
       if (deptId == null)
       {

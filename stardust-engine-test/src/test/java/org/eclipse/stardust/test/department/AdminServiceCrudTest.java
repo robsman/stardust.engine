@@ -102,7 +102,7 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test
    public void testCreateDepartmentParentNullTld()
    {
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
    }
    
    /**
@@ -114,7 +114,7 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test(expected = InvalidArgumentException.class)
    public void testCreateDepartmentParentNullNotTld()
    {
-      DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, null, sf);
+      DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, null);
       fail("The parent must not be null for a department that is not a top level one.");
    }
    
@@ -127,7 +127,7 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    public void testCreateDepartmentParentDoesNotExist()
    {
       final DepartmentInfo dept = new DepartmentInfoDetails(-1, "N/A", "N/A", -1);
-      DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, dept, sf);
+      DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, dept);
       fail("The parent must resolve to an exisiting department.");
    }
    
@@ -140,8 +140,8 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test
    public void testCreateDepartmentParentIsDirectParent()
    {
-      final Department parent = DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
-      DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, parent, sf);
+      final Department parent = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
+      DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, parent);
    }
 
    /**
@@ -153,8 +153,8 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test(expected = InvalidArgumentException.class)
    public void testCreateDepartmentParentIsIndirectParent()
    {
-      final Department parent = DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
-      DepartmentHome.create(SUB_SUB_DEP_ID_HH, SUB_SUB_ORG_ID_2, parent, sf);
+      final Department parent = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
+      DepartmentHome.create(sf, SUB_SUB_DEP_ID_HH, SUB_SUB_ORG_ID_2, parent);
    }
    
    /**
@@ -166,8 +166,8 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test(expected = InvalidArgumentException.class)
    public void testCreateDepartmentParentIsNotParent()
    {
-      final Department parent = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
-      DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, parent, sf);
+      final Department parent = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
+      DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, parent);
       fail("The department's parent must be a direct parent organization " +
       		"of the organization the department is created for.");
    }
@@ -206,7 +206,7 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test
    public void testGetDepartment()
    {
-      final Department createdDep = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      final Department createdDep = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       final Department retrievedDep = adminService.getDepartment(createdDep.getOID());
       assertEquals(createdDep, retrievedDep);
    }
@@ -231,7 +231,7 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test
    public void testModifyDepartmentDescription()
    {
-      final Department createdDep = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      final Department createdDep = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       final String newDesc = "the new description";
       adminService.modifyDepartment(createdDep.getOID(), createdDep.getName(), newDesc);
       
@@ -259,7 +259,7 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test(expected = ObjectNotFoundException.class)
    public void testRemoveDepartment()
    {
-      final Department dept = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      final Department dept = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       adminService.removeDepartment(dept.getOID());
       
       adminService.getDepartment(dept.getOID());
@@ -287,9 +287,9 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test(expected = DepartmentExistsException.class)
    public void testCreateDuplicateDepartmentIdForOneOrg()
    {
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       fail("Duplicate department entries for the same organization should be rejected.");
    }
    
@@ -302,11 +302,11 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test
    public void testCreateDuplicateDepartmentIdForTwoOrgs()
    {
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       
       try 
       {
-         DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
+         DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
       }
       catch (final DepartmentExistsException e)
       {
@@ -322,7 +322,7 @@ public class AdminServiceCrudTest extends LocalJcrH2Test
    @Test(expected = InvalidArgumentException.class)
    public void testCreatingDepartmentForUnscopedOrg()
    {
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_3, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_3, null);
       fail("Creating a department for an unscoped organization should be refused.");
    }
 }

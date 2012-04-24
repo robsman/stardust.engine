@@ -56,7 +56,7 @@ public class DepartmentCleanupTest extends LocalJcrH2Test
    @Test
    public void testCleanupRuntimeKeepUsers()
    {
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       sf.getAdministrationService().cleanupRuntime(true);
       ensureDepartmentExists();
    }
@@ -70,7 +70,7 @@ public class DepartmentCleanupTest extends LocalJcrH2Test
    @Test
    public void testCleanupRuntimeDoNotKeepUsers() throws InterruptedException
    {
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       sf.getAdministrationService().cleanupRuntime(false);
       ensureDepartmentCleanup();
    }
@@ -84,7 +84,7 @@ public class DepartmentCleanupTest extends LocalJcrH2Test
    @Test
    public void testCleanupRuntimeAndModels()
    {
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       sf.getAdministrationService().cleanupRuntimeAndModels();
       ModelDeployer.deploy(sf.getAdministrationService(), MODEL_NAME);
       ensureDepartmentCleanup();

@@ -64,8 +64,8 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    {
       boolean firstFound = false, secondFound = false;
       
-      DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
-      DepartmentHome.create(DEPT_ID_EN, ORG_ID_1, null, sf);
+      DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
+      DepartmentHome.create(sf, DEPT_ID_EN, ORG_ID_1, null);
       
       final Organization org = sf.getQueryService().getActiveModel().getOrganization(ORG_ID_1);
       
@@ -93,7 +93,7 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test
    public void testFindDepartmentById()
    {
-      final Department createdDept = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      final Department createdDept = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       final Department retrievedDept = sf.getQueryService().findDepartment(null, DEPT_ID_DE, new OrganizationInfoDetails(ORG_ID_1));
       assertEquals(createdDept.getOID(), retrievedDept.getOID());
    }
@@ -107,9 +107,9 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test
    public void testFindAllDepartmentsParentNullOrgNull()
    {
-      final Department deptEn = DepartmentHome.create(DEPT_ID_EN, ORG_ID_1, null, sf);
-      final Department deptDe = DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
-      final Department deptNorth = DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe, sf);
+      final Department deptEn = DepartmentHome.create(sf, DEPT_ID_EN, ORG_ID_1, null);
+      final Department deptDe = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
+      final Department deptNorth = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe);
       
       final List<Department> tldDepts = sf.getQueryService().findAllDepartments(null, null);
       
@@ -128,9 +128,9 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test
    public void testFindAllDepartmentsParentNotNullOrgNull()
    {
-      final Department deptDe = DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
-      final Department deptNorth = DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe, sf);
-      final Department deptHh = DepartmentHome.create(SUB_SUB_DEP_ID_HH, SUB_SUB_ORG_ID_2, deptNorth, sf);
+      final Department deptDe = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
+      final Department deptNorth = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe);
+      final Department deptHh = DepartmentHome.create(sf, SUB_SUB_DEP_ID_HH, SUB_SUB_ORG_ID_2, deptNorth);
       
       final List<Department> depts = sf.getQueryService().findAllDepartments(deptDe, null);
       
@@ -149,11 +149,11 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test
    public void testFindAllDepartmentsParentNullOrgNotNull()
    {
-      final Department deptDe = DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
-      final Department deptEn = DepartmentHome.create(DEPT_ID_EN, ORG_ID_2, null, sf);
+      final Department deptDe = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
+      final Department deptEn = DepartmentHome.create(sf, DEPT_ID_EN, ORG_ID_2, null);
       
-      final Department deptDeNorth = DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe, sf);
-      final Department deptEnSouth = DepartmentHome.create(SUB_DEPT_ID_SOUTH, SUB_ORG_ID_2, deptEn, sf);
+      final Department deptDeNorth = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe);
+      final Department deptEnSouth = DepartmentHome.create(sf, SUB_DEPT_ID_SOUTH, SUB_ORG_ID_2, deptEn);
       
       final Organization subOrg2 = sf.getQueryService().getActiveModel().getOrganization(SUB_ORG_ID_2);
       
@@ -175,15 +175,15 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test
    public void testFindAllDepartmentsParentNotNullOrgNotNull()
    {
-      final Department deptDe = DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
-      final Department deptEn = DepartmentHome.create(DEPT_ID_EN, ORG_ID_2, null, sf);
+      final Department deptDe = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
+      final Department deptEn = DepartmentHome.create(sf, DEPT_ID_EN, ORG_ID_2, null);
       
-      final Department deptDeNorth = DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe, sf);
-      final Department deptDeSouth = DepartmentHome.create(SUB_DEPT_ID_SOUTH, SUB_ORG_ID_2, deptDe, sf);
-      final Department deptDeHh = DepartmentHome.create(SUB_SUB_DEP_ID_HH, SUB_SUB_ORG_ID_2, deptDeNorth, sf);
+      final Department deptDeNorth = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe);
+      final Department deptDeSouth = DepartmentHome.create(sf, SUB_DEPT_ID_SOUTH, SUB_ORG_ID_2, deptDe);
+      final Department deptDeHh = DepartmentHome.create(sf, SUB_SUB_DEP_ID_HH, SUB_SUB_ORG_ID_2, deptDeNorth);
       
-      final Department deptEnNorth = DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptEn, sf);
-      final Department deptEnSouth = DepartmentHome.create(SUB_DEPT_ID_SOUTH, SUB_ORG_ID_2, deptEn, sf);
+      final Department deptEnNorth = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptEn);
+      final Department deptEnSouth = DepartmentHome.create(sf, SUB_DEPT_ID_SOUTH, SUB_ORG_ID_2, deptEn);
       
       final Organization subOrg2 = sf.getQueryService().getActiveModel().getOrganization(SUB_ORG_ID_2);
       
@@ -234,7 +234,7 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test(expected = ObjectNotFoundException.class)
    public void testFindAllDepartmentsOrgNotResolvable()
    {
-      final Department parent = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      final Department parent = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       final OrganizationInfo org = new OrganizationInfoDetails("N/A");
       
       sf.getQueryService().findAllDepartments(parent, org);
@@ -249,7 +249,7 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test(expected = ObjectNotFoundException.class)
    public void testFindDepartmentParentCouldNotBeResolved()
    {
-      final Department dept = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      final Department dept = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       final DepartmentInfo parent = new DepartmentInfoDetails(-1, "N/A", "N/A", -1);
       
       sf.getQueryService().findDepartment(parent, dept.getId(), new OrganizationInfoDetails(ORG_ID_1));
@@ -300,7 +300,7 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test
    public void testFindDepartmentTld()
    {
-      final Department dept = DepartmentHome.create(DEPT_ID_DE, ORG_ID_1, null, sf);
+      final Department dept = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       final Department retrievedDep = sf.getQueryService().findDepartment(null, DEPT_ID_DE, new OrganizationInfoDetails(ORG_ID_1));
       assertEquals(dept, retrievedDep);
    }
@@ -314,8 +314,8 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test(expected = ObjectNotFoundException.class)
    public void testFindDepartmentNotTldWithoutParent()
    {
-      final Department parent = DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
-      final Department dept = DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, parent, sf);
+      final Department parent = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
+      final Department dept = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, parent);
       
       sf.getQueryService().findDepartment(null, dept.getId(), new OrganizationInfoDetails(SUB_ORG_ID_2));
       fail("The department must not be found.");
@@ -330,8 +330,8 @@ public class DepartmentQueryTest extends LocalJcrH2Test
    @Test
    public void testFindDepartmentNotTldWithParent()
    {
-      final Department parent = DepartmentHome.create(DEPT_ID_DE, ORG_ID_2, null, sf);
-      final Department dept = DepartmentHome.create(SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, parent, sf);
+      final Department parent = DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_2, null);
+      final Department dept = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, parent);
       final Department retrievedDep = sf.getQueryService().findDepartment(parent, dept.getId(), new OrganizationInfoDetails(SUB_ORG_ID_2));
       assertEquals(dept, retrievedDep);
    }

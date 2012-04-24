@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 55253 
+ * Generated from  Revision: 55779 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 55253
+ * @version 55779
  */
 public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingLocalService
 {
@@ -2304,8 +2304,9 @@ public interface TunnelingLocalWorkflowService extends javax.ejb.EJBLocalObject,
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException TODO
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
+     * @throws org.eclipse.stardust.common.error.AccessForbiddenException if the current user is not
+     *     allowed to perform the ad-hoc transition.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity

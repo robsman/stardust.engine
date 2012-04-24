@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 54785 
+ * Generated from Revision: 55779 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 54785
+ * @version 55779
  */
 public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IWorkflowService
 {
@@ -797,7 +797,8 @@ public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.
          org.eclipse.stardust.engine.api.runtime.TransitionTarget target, boolean
          complete)
          throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException,
-         org.eclipse.stardust.common.error.ObjectNotFoundException
+         org.eclipse.stardust.common.error.ObjectNotFoundException,
+         org.eclipse.stardust.common.error.AccessForbiddenException
    {
       return ((org.eclipse.stardust.engine.api.runtime.WorkflowService)
             serviceProxy).performAdHocTransition(activityInstanceOid, target, complete);

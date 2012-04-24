@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 54785 
+ * Generated from  Revision: 55253 
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 54785
+ * @version 55253
  */
 public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {
@@ -122,15 +122,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument is a non empty map.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a 
      *     quality assurance instance and no {@link
@@ -293,15 +284,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a 
      *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument is a non empty map.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the current user is the one who worked on the previous workflow instance
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
@@ -383,15 +365,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *             statically typed data.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidValueException} will
      *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument is a non empty map.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a 
      *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
@@ -568,15 +541,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument contains a non empty data map.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -680,15 +644,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument is a non empty map.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -792,15 +747,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument is a non empty map.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -912,13 +858,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws IllegalOperationExceptionn if the specified activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument is a non empty map.
-     *     <em>Instances of {@link IllegalOperationExceptionn} will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a 
@@ -1036,15 +975,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument is a non empty map.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -1102,15 +1032,6 @@ public class RemoteWorkflowServiceImpl extends org.eclipse.stardust.engine.api.e
      *     <em>Instances of {@link org.eclipse.stardust.common.error.AccessForbiddenException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
-     *     activity instance is a 
-     *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
-     *     which is not marked as pass with correction {@link
-     *      {@link ResultState#PASS_WITH_CORRECTION}
-     *             and the passed <code>outData</code> argument contains a non empty data map
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
      *     activity instance is a 
      *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 

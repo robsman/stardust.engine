@@ -38,8 +38,9 @@ import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
-import org.eclipse.stardust.test.api.util.Barriers;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Before;
 import org.junit.Rule;
@@ -124,7 +125,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
     * @throws InterruptedException
     */
    @Test
-   public void testRemove() throws InterruptedException
+   public void testRemove() throws Exception
    {
       ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
             true);
@@ -150,7 +151,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       assertSameProcessInstance(casePi, rootCaseProcess1);
       assertSameProcessInstance(rootCaseProcess1, rootCaseProcess2);
 
-      Barriers.awaitProcessInstanceState(sf, casePi.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Aborted);
       
       ProcessInstance processInstance = wfService.getProcessInstance(casePi.getOID());
       assertEquals(ProcessInstanceState.Aborted, processInstance.getState());
@@ -162,7 +163,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
     * @throws InterruptedException
     */
    @Test
-   public void testTermination() throws InterruptedException
+   public void testTermination() throws Exception
    {
       ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
             true);
@@ -180,7 +181,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       ActivityInstance ai = wfService.activateNextActivityInstanceForProcessInstance(caseProcess2.getOID());
       wfService.complete(ai.getOID(), null, null);
 
-      Barriers.awaitProcessInstanceState(sf, casePi.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Completed);
 
       ProcessInstance processInstance = wfService.getProcessInstance(casePi.getOID());
       assertEquals(ProcessInstanceState.Completed, processInstance.getState());
@@ -332,7 +333,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testProcessInstanceJoin() throws InterruptedException
+   public void testProcessInstanceJoin() throws Exception
    {
       ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
             true);
@@ -355,7 +356,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       ProcessInstance joinProcessInstance = wfService.joinProcessInstance(caseProcess1.getOID(), caseProcess4.getOID(), "joined by test case");
       assertEquals(joinProcessInstance.getOID(), caseProcess4.getOID());
       
-      Barriers.awaitProcessInstanceState(sf, caseProcess1.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(caseProcess1.getOID(), ProcessInstanceState.Aborted);
       
       assertEquals(ProcessInstanceState.Aborted, getPiWithHierarchy(caseProcess1.getOID(), sf.getQueryService()).getState());
       assertEquals(ProcessInstanceState.Active, getPiWithHierarchy(casePi.getOID(), sf.getQueryService()).getState());
@@ -474,7 +475,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testSpawnedProcessInstanceLeave() throws InterruptedException
+   public void testSpawnedProcessInstanceLeave() throws Exception
    {
       ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null, true);
 
@@ -483,11 +484,11 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
 
       ProcessInstance spawnedPi = wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2", true, null);
       /* make sure that spawning is completed before moving on */
-      Barriers.awaitActivityInstanceCreation(sf, spawnedPi.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnedPi.getOID());
       
       wfService.leaveCase(casePi.getOID(), new long[]{caseProcess1.getOID()});
 
-      Barriers.awaitProcessInstanceState(sf, casePi.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Aborted);
       ProcessInstance processInstance = wfService.getProcessInstance(casePi.getOID());
       assertEquals(ProcessInstanceState.Aborted, processInstance.getState());
    }
@@ -532,7 +533,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testCaseInclusionQuery()
+   public void testCaseInclusionQuery() throws Exception
    {
       QueryService queryService = sf.getQueryService();
 
@@ -541,6 +542,8 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
       assertNotNull(rootCaseProcess);
       wfService.abortProcessInstance(caseProcess.getOID(), AbortScope.SubHierarchy);
+      
+      ProcessInstanceStateBarrier.instance().await(caseProcess.getOID(), ProcessInstanceState.Aborted);
       
       ProcessInstanceQuery queryRoot0 = ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted);
       queryRoot0.setPolicy(CasePolicy.INCLUDE_CASES);
@@ -557,7 +560,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testCaseInclusionQueryCount() throws InterruptedException
+   public void testCaseInclusionQueryCount() throws Exception
    {
       QueryService queryService = sf.getQueryService();
 
@@ -566,7 +569,7 @@ public class CaseProcessInstanceTest extends LocalJcrH2Test
       ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
       assertNotNull(rootCaseProcess);
       wfService.abortProcessInstance(caseProcess.getOID(), AbortScope.SubHierarchy);
-      Barriers.awaitProcessInstanceState(sf, caseProcess.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(caseProcess.getOID(), ProcessInstanceState.Aborted);
       
       ProcessInstanceQuery queryRoot0 = ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted);
       queryRoot0.setPolicy(CasePolicy.INCLUDE_CASES);

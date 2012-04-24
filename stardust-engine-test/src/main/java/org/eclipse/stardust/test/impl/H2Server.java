@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.impl.setup;
+package org.eclipse.stardust.test.impl;
 
 import java.io.OutputStream;
 import java.io.PrintStream;

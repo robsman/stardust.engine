@@ -37,7 +37,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
-import org.eclipse.stardust.test.api.util.Barriers;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -574,19 +575,19 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
     * </p>
     */
    @Test
-   public void testAbortActivityInstanceAbortScopeRootHierarchy() throws InterruptedException
+   public void testAbortActivityInstanceAbortScopeRootHierarchy() throws Exception
    {
       final ProcessInstance pi = startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       adminSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.RootHierarchy);
       
-      Barriers.awaitActivityInstanceState(adminSf, ai.getOID(), ActivityInstanceState.Aborted);
+      ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Aborted);
       final ActivityInstance abortedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       assertThat(abortedAi, notNullValue());
       assertThat(abortedAi.getState(), equalTo(ActivityInstanceState.Aborted));
       
-      Barriers.awaitProcessInstanceState(adminSf, pi.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
       final ProcessInstance abortedPi = userSf.getWorkflowService().getProcessInstance(pi.getOID());      
       assertThat(abortedPi, notNullValue());
       assertThat(abortedPi.getState(), equalTo(ProcessInstanceState.Aborted)); 
@@ -599,14 +600,14 @@ public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
     * </p>
     */
    @Test
-   public void testAbortActivityInstanceAbortScopeSubHierarchy() throws InterruptedException
+   public void testAbortActivityInstanceAbortScopeSubHierarchy() throws Exception
    {
       final ProcessInstance pi = startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       
       userSf.getWorkflowService().abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
       
-      Barriers.awaitActivityInstanceState(adminSf, ai.getOID(), ActivityInstanceState.Aborted);
+      ActivityInstanceStateBarrier.instance().await(ai.getOID(), ActivityInstanceState.Aborted);
       final ActivityInstance abortedAi = userSf.getWorkflowService().getActivityInstance(ai.getOID());
       assertThat(abortedAi, notNullValue());
       assertThat(abortedAi.getState(), equalTo(ActivityInstanceState.Aborted));

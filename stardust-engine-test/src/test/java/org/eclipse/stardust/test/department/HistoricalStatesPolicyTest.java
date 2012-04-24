@@ -35,7 +35,7 @@ import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
-import org.eclipse.stardust.test.api.util.Barriers;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Assert;
@@ -81,11 +81,11 @@ public class HistoricalStatesPolicyTest extends LocalJcrH2Test
                                     .around(userSf);
    
    @Before
-   public void setUp() throws InterruptedException
+   public void setUp() throws Exception
    {
       createUser();
       final long piOid = startProcess();
-      Barriers.awaitActivityInstanceCreation(adminSf, piOid);
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(piOid);
       ai = adminSf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive());
    }
 

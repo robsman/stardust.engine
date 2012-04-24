@@ -35,7 +35,8 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
-import org.eclipse.stardust.test.api.util.Barriers;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -66,7 +67,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    // ************************************
 
    @Test
-   public void testCompleteSpawnProcessFromSyncSubprocess() throws InterruptedException
+   public void testCompleteSpawnProcessFromSyncSubprocess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -99,7 +100,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -113,7 +114,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
       wfs.activateAndComplete(spawnAi.getOID(), null, null);
       wfs.activateAndComplete(ai.getOID(), null, null);
 
-      Barriers.awaitProcessInstanceState(sf, pi.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
 
       ProcessInstances allProcessInstances = qs.getAllProcessInstances(ProcessInstanceQuery.findCompleted());
       Assert.assertEquals("All three processes should be completed", 3,
@@ -121,7 +122,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testAbortSpawnProcessFromSyncSubprocess() throws InterruptedException
+   public void testAbortSpawnProcessFromSyncSubprocess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -154,7 +155,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -168,7 +169,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
       wfs.abortActivityInstance(spawnAi.getOID(), AbortScope.SubHierarchy);
       wfs.abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
 
-      Barriers.awaitProcessInstanceState(sf, pi.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
 
       ProcessInstances allProcessInstances = qs.getAllProcessInstances(ProcessInstanceQuery.findCompleted());
       Assert.assertEquals("All three processes should be completed", 3,
@@ -176,7 +177,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testFullAbortSpawnProcessFromSyncSubprocess() throws InterruptedException
+   public void testFullAbortSpawnProcessFromSyncSubprocess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -209,7 +210,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -222,7 +223,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
 
       wfs.abortActivityInstance(spawnAi.getOID(), AbortScope.RootHierarchy);
 
-      Barriers.awaitProcessInstanceState(sf, pi.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
 
       ProcessInstances allProcessInstances = qs.getAllProcessInstances(ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted));
       Assert.assertEquals("All three processes should be aborted", 3,
@@ -230,7 +231,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testDataMapOverDataCopyFromSyncSubprocess() throws InterruptedException
+   public void testDataMapOverDataCopyFromSyncSubprocess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -266,7 +267,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
 
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -284,7 +285,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
       wfs.activateAndComplete(spawnAi.getOID(), null, null);
       wfs.activateAndComplete(ai.getOID(), null, null);
 
-      Barriers.awaitProcessInstanceState(sf, pi.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
 
       ProcessInstances allProcessInstances = qs.getAllProcessInstances(ProcessInstanceQuery.findCompleted());
       Assert.assertEquals("All three processes should be completed", 3,
@@ -292,7 +293,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testInterruptSpawnedProcess() throws InterruptedException
+   public void testInterruptSpawnedProcess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -321,11 +322,11 @@ public class SpawnProcessTest extends LocalJcrH2Test
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      Barriers.awaitProcessInstanceState(sf, spawnSubprocessInstance.getOID(), ProcessInstanceState.Interrupted);
+      ProcessInstanceStateBarrier.instance().await(spawnSubprocessInstance.getOID(), ProcessInstanceState.Interrupted);
       Assert.assertEquals("SpawnPi should be in state Interrupted.", ProcessInstanceState.INTERRUPTED, getPiWithHierarchy(spawnSubprocessInstance, qs).getState().getValue());
       Assert.assertEquals("RootPi should be in state Active.", ProcessInstanceState.ACTIVE, getPiWithHierarchy(pi, qs).getState().getValue());
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -368,7 +369,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    // ************************************
 
    @Test
-   public void testCompleteSpawnProcessFromAsyncSubprocess() throws InterruptedException
+   public void testCompleteSpawnProcessFromAsyncSubprocess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -414,7 +415,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -428,7 +429,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
       wfs.activateAndComplete(spawnAi.getOID(), null, null);
       wfs.activateAndComplete(ai.getOID(), null, null);
 
-      Barriers.awaitProcessInstanceState(sf, pi.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
 
       ProcessInstances allProcessInstances = qs.getAllProcessInstances(ProcessInstanceQuery.findCompleted());
       Assert.assertEquals("All three processes should be completed", 3,
@@ -436,7 +437,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testAbortSpawnProcessFromAsyncSubprocess() throws InterruptedException
+   public void testAbortSpawnProcessFromAsyncSubprocess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -482,7 +483,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -494,9 +495,12 @@ public class SpawnProcessTest extends LocalJcrH2Test
             spawnAi);
 
       wfs.abortActivityInstance(spawnAi.getOID(), AbortScope.SubHierarchy);
+      ActivityInstanceStateBarrier.instance().await(spawnAi.getOID(), ActivityInstanceState.Aborted);
       wfs.abortActivityInstance(ai.getOID(), AbortScope.SubHierarchy);
 
-      Barriers.awaitProcessInstanceState(sf, pi.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(subprocessInstance.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(spawnSubprocessInstance.getOID(), ProcessInstanceState.Completed);
 
       ProcessInstances allProcessInstances = qs.getAllProcessInstances(ProcessInstanceQuery.findCompleted());
       Assert.assertEquals("All three processes should be completed", 3,
@@ -504,7 +508,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testFullAbortSpawnProcessFromAsyncSubprocess() throws InterruptedException
+   public void testFullAbortSpawnProcessFromAsyncSubprocess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -550,7 +554,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -563,7 +567,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
 
       wfs.abortActivityInstance(spawnAi.getOID(), AbortScope.RootHierarchy);
 
-      Barriers.awaitProcessInstanceState(sf, subprocessInstance.getOID(), ProcessInstanceState.Aborted);
+      ProcessInstanceStateBarrier.instance().await(subprocessInstance.getOID(), ProcessInstanceState.Aborted);
 
       ProcessInstances allProcessInstances = qs.getAllProcessInstances(ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted));
       Assert.assertEquals("Two processes should be aborted", 2,
@@ -575,7 +579,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
    }
 
    @Test
-   public void testProcessAttachmentCopyFromAsyncSubprocess() throws InterruptedException
+   public void testProcessAttachmentCopyFromAsyncSubprocess() throws Exception
    {
       WorkflowService wfs = sf.getWorkflowService();
       QueryService qs = sf.getQueryService();
@@ -609,7 +613,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
       ProcessInstance spawnSubprocessInstance = wfs.spawnSubprocessInstance(
             ai.getProcessInstanceOID(), "InputData2", true, null);
 
-      Barriers.awaitActivityInstanceCreation(sf, spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);

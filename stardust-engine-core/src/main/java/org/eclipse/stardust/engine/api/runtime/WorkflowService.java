@@ -1529,7 +1529,7 @@ public interface WorkflowService extends Service
     * @throws IllegalOperationException if the transition could not be performed because the specified TransitionTarget
     *         did not originate from the specified activity instance, or the activity instance was already terminated
     *         or the process instance containing the activity instance has more than one active activity instance.  
-    * @throws ObjectNotFoundException TODO
+    * @throws AccessForbiddenException if the current user is not allowed to perform the ad-hoc transition.
     * @throws ObjectNotFoundException if there is no activity instance with the specified oid.
     */
    @ExecutionPermission(
@@ -1537,7 +1537,7 @@ public interface WorkflowService extends Service
          scope=ExecutionPermission.Scope.activity,
          defaults={ExecutionPermission.Default.OWNER})
    ActivityInstance performAdHocTransition(long activityInstanceOid, TransitionTarget target, boolean complete)
-         throws IllegalOperationException, ObjectNotFoundException;
+         throws IllegalOperationException, ObjectNotFoundException, AccessForbiddenException;
 
    /**
     * Retrieves the list of process definitions that can be started by the current user.

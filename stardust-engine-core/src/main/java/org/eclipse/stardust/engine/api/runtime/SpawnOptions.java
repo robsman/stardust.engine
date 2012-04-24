@@ -13,7 +13,8 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.io.Serializable;
 
 /**
- * TODO
+ * Container class for options that controls how the spawning operation has to be performed.
+ * 
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -21,26 +22,23 @@ public class SpawnOptions implements Serializable
 {
    private static final long serialVersionUID = 1L;
 
+   /**
+    * The default spawn options used when no options are specified. 
+    */
    public static final SpawnOptions DEFAULT = new SpawnOptions("");
 
    /**
-    * Specifies if the spawned process instance should be instantiated based on the latest version of the process definition or
-    * on the version existing at the time when the source process instance was created.
-    */
-   //private boolean spawnLatestVersion;
-   
-   /**
-    * The spawned process instance should be started at the specified activity.
+    * The starting activity id or null.
     */
    private String startActivity;
    
    /**
-    * Specifies if the source process instance should be aborted or completed.
+    * The processing behavior of the originating process instance. Must be <b><code>true</code></b>.
     */
    private boolean abortProcessInstance;
    
    /**
-    * Spawn comment.
+    * The operation comment.
     */
    private String comment;
 
@@ -62,11 +60,16 @@ public class SpawnOptions implements Serializable
    }
    
    /**
-    * TODO
-    * @param startActivity
-    * @param abortProcessInstance
-    * @param comment
-    * @param dataCopyOptions
+    * Creates a new SpawnOptions that allows to specify the starting activity and detailed data copy options. 
+    * 
+    * @param startActivity the activity from which the spawned process instance should start.
+    *        If null, the spawned process instance will start from the default start activity.
+    * @param abortProcessInstance true to abort the originating process instance. Currently only
+    *        a value of true is accepted for processing.
+    * @param comment a comment describing the operation. May be null.
+    * @param dataCopyOptions instructions on how the data should be transferred from the
+    *        originating process instance to the spawned process instance. If null, then
+    *        {@link DataCopyOptions.DEFAULT} is used.
     */
    public SpawnOptions(String startActivity, boolean abortProcessInstance, String comment,
          DataCopyOptions dataCopyOptions)
@@ -88,16 +91,32 @@ public class SpawnOptions implements Serializable
       return startActivity;
    }
 
+   /**
+    * Retrieves the processing behavior of the originating process instance.
+    * 
+    * @return true, if the originating process instance should be aborted, false if it should be completed.
+    */
    public boolean isAbortProcessInstance()
    {
       return abortProcessInstance;
    }
 
+   /**
+    * Retrieves the comment associated with the spawning operation.
+    * 
+    * @return the comment or null.
+    */
    public String getComment()
    {
       return comment;
    }
 
+   /**
+    * Retrieves the options that controls how the data is copied between the originating and
+    * the spawned process instance.
+    * 
+    * @return a DataCopyOptions or null if the default options are to be used.
+    */
    public DataCopyOptions getDataCopyOptions()
    {
       return dataCopyOptions;

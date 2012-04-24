@@ -23,7 +23,10 @@ public class DataCopyOptions implements Serializable
 {
    private static final long serialVersionUID = 1L;
 
-   public static final DataCopyOptions DEFAULT = new DataCopyOptions();
+   /**
+    * The default data copy options used when no options are specified. 
+    */
+   public static final DataCopyOptions DEFAULT = new DataCopyOptions(true, null, null, true);
 
    /**
     * If true, the engine will attempt to copy all compatible data.
@@ -47,17 +50,20 @@ public class DataCopyOptions implements Serializable
     */
    private boolean useHeuristics;
 
-   private DataCopyOptions()
-   {
-      this(true, null, null, true);
-   }
-
    /**
-    * TODO
-    * @param copyAllData
-    * @param dataTranslationTable
-    * @param replacementTable
-    * @param useHeuristics
+    * Creates a new DataCopyOptions object with the specified parameters.
+    * 
+    * @param copyAllData if true, it will attempt to copy all data
+    *                    from the source process instance to the target process instance.
+    * @param dataTranslationTable a Map that indicates that the values for the specified
+    *                    data should be taken from another data object. The keys are the
+    *                    IDs of the target data and the values are the IDs of the source
+    *                    data objects.
+    * @param replacementTable a Map that specifies concrete values for target data. The
+    *                    keys are the IDs of the target data. 
+    * @param useHeuristics if true then the engine will attempt to auto determine which
+    *                    data must be copied by investigating the data mappings and data
+    *                    paths of the target process instance.
     */
    public DataCopyOptions(boolean copyAllData, Map<String, String> dataTranslationTable,
          Map<String, ? extends Serializable> replacementTable, boolean useHeuristics)
@@ -69,8 +75,9 @@ public class DataCopyOptions implements Serializable
    }
 
    /**
-    * TODO
-    * @return
+    * Gets if the engine should attempt to copy all compatible data.
+    * 
+    * @return true if the engine should attempt to copy all compatible data.
     */
    public boolean copyAllData()
    {
@@ -78,8 +85,11 @@ public class DataCopyOptions implements Serializable
    }
 
    /**
-    * TODO
-    * @return
+    * Gets the Map that specifies from where the data values should be retrieved.
+    * 
+    * @return a Map with data IDs. The keys are representing the IDs of the data in the
+    *         target process instance while the values are representing the IDs of the
+    *         data in the source process instance.
     */
    public Map<String, String> getDataTranslationTable()
    {
@@ -87,8 +97,9 @@ public class DataCopyOptions implements Serializable
    }
 
    /**
-    * TODO
-    * @return
+    * Gets the Map with concrete data values.
+    * 
+    * @return a Map with ID/value pairs.
     */
    public Map<String, ? extends Serializable> getReplacementTable()
    {
@@ -96,8 +107,9 @@ public class DataCopyOptions implements Serializable
    }
 
    /**
-    * TODO
-    * @return
+    * Gets if heuristics should be applied to determine which data should be copied.
+    * 
+    * @return true if the engine should auto determine which data should be copied between the process instances.
     */
    public boolean useHeuristics()
    {

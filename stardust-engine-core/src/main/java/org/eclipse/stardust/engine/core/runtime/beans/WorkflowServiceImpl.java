@@ -2230,7 +2230,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    }
 
    public ActivityInstance performAdHocTransition(long activityInstanceOid, TransitionTarget transitionTarget, boolean complete)
-         throws IllegalOperationException, ObjectNotFoundException
+         throws IllegalOperationException, ObjectNotFoundException, AccessForbiddenException
    {
       if (transitionTarget.getActivityInstanceOid() != activityInstanceOid)
       {

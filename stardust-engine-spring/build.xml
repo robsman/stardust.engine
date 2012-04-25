@@ -125,9 +125,8 @@
    </target>
 
    <target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
-      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="carnot-spring-compile" publishIvy="true" />
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.src}" conf="carnot-spring-compile,carnot-spring-sources" publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
-      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.src}" conf="carnot-spring-sources" publishIvy="false" publishPom="false" />
 
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="spring-module" />
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="client-spring-module" />

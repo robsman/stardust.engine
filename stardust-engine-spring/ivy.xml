@@ -34,7 +34,7 @@
 
    <publications>
       <artifact name="carnot-spring" type="jar" conf="carnot-spring-compile, carnot-spring-provided, carnot-spring-compile-optional, carnot-spring-runtime" ext="jar" />
-      <artifact name="carnot-spring" type="jar" conf="carnot-spring-sources" m:classifier="sources" />
+      <artifact name="carnot-spring" type="source" ext="jar" conf="carnot-spring-sources" m:classifier="sources" />
 
       <artifact name="carnot-spring" type="pom" conf="pom" ext="pom" />
    </publications>

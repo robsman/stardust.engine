@@ -98,7 +98,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    //Model Dep Table
 
    private static final String MODEL_DEP_TABLE_NAME = "model_dep";
-
+      
    private static final String MODEL_DEP_FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
 
    private static final String MODEL_DEP_FIELD__DEPLOYER = "deployer";
@@ -114,8 +114,8 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String MODEL_DEP_IDX2 = "model_dep_idx2";
 
    private static final String MODEL_DEP_IDX3 = "model_dep_idx3";
-
-   // User Participant Table
+   
+   //User Participant Table
 
    private static final String UP_MODEL = "model";
 
@@ -269,6 +269,37 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          public String getSequenceName()
          {
             return ModelDeploymentBean.PK_SEQUENCE;
+         }
+
+      }, this);
+      
+      //Create MODEL_DEP_LCK table
+
+      DatabaseHelper.createTable(item, new CreateTableInfo(ModelDeploymentBean.LOCK_TABLE_NAME)
+      {
+         private final FieldInfo OID = new FieldInfo(MODEL_DEP_FIELD__OID, Long.TYPE,
+               0, true);
+
+         private final IndexInfo IDX1 = new IndexInfo(ModelDeploymentBean.LOCK_INDEX_NAME, true, new FieldInfo[] {OID});
+ 
+         @Override
+         public FieldInfo[] getFields()
+         {
+            return new FieldInfo[] {
+                  OID
+            };
+         }
+
+         @Override
+         public IndexInfo[] getIndexes()
+         {
+            return new IndexInfo[] {IDX1};
+         }
+
+         @Override
+         public String getSequenceName()
+         {
+            return null;
          }
 
       }, this);

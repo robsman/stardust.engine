@@ -388,6 +388,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
          ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess("InputData1");
          subprocessInstance = qs.findFirstProcessInstance(query);
 
+         ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(subprocessInstance.getOID());
          ActivityInstanceQuery query2 = ActivityInstanceQuery.findForProcessInstance(subprocessInstance.getOID());
          query2.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
          ai = qs.findFirstActivityInstance(query2);
@@ -456,6 +457,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
          ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess("InputData1");
          subprocessInstance = qs.findFirstProcessInstance(query);
 
+         ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(subprocessInstance.getOID());
          ActivityInstanceQuery query2 = ActivityInstanceQuery.findForProcessInstance(subprocessInstance.getOID());
          query2.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
          ai = qs.findFirstActivityInstance(query2);
@@ -527,6 +529,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
          ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess("InputData1");
          subprocessInstance = qs.findFirstProcessInstance(query);
 
+         ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(subprocessInstance.getOID());
          ActivityInstanceQuery query2 = ActivityInstanceQuery.findForProcessInstance(subprocessInstance.getOID());
          query2.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
          ai = qs.findFirstActivityInstance(query2);
@@ -598,6 +601,7 @@ public class SpawnProcessTest extends LocalJcrH2Test
          ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess("InputData1");
          subprocessInstance = qs.findFirstProcessInstance(query);
 
+         ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(subprocessInstance.getOID());
          ActivityInstanceQuery query2 = ActivityInstanceQuery.findForProcessInstance(subprocessInstance.getOID());
          query2.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
          ai = qs.findFirstActivityInstance(query2);

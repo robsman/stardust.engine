@@ -41,7 +41,7 @@ import org.h2.tools.Server;
  * but can also be accessed via TCP in order to inspect the DB's content
  * during debugging, for example. Furthermore, the DBMS is running in H2's
  * Oracle compatibility mode, which supports the most features of the Oracle
- * dialect.
+ * dialect, and using Multi-Version Concurrency Control (MVCC).
  * </p>
  * 
  * <p>
@@ -57,6 +57,7 @@ public class H2Server
    private static final Log LOG = LogFactory.getLog(H2Server.class);
 
    private static final String ORACLE_MODE_URL_SUFFIX = ";MODE=ORACLE";
+   private static final String MVCC_MODE_URL_SUFFIX = ";MVCC=TRUE";
    
    private static final String DBMS_URL;
    private static final String DB_USER;
@@ -97,7 +98,8 @@ public class H2Server
       {
          server.start();
          Class.forName(Driver.class.getName());
-         initialConnection = DriverManager.getConnection(DBMS_URL + ORACLE_MODE_URL_SUFFIX, DB_USER, DB_PASSWORD);
+         final String completeDbmsUrl = DBMS_URL + ORACLE_MODE_URL_SUFFIX + MVCC_MODE_URL_SUFFIX;
+         initialConnection = DriverManager.getConnection(completeDbmsUrl, DB_USER, DB_PASSWORD);
       }
       catch (final Exception e)
       {

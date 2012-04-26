@@ -10,7 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.spawn;
 
-import org.eclipse.stardust.test.api.junit.LocalJcrH2TestSuite;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuite;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -27,7 +28,10 @@ import org.junit.runners.Suite.SuiteClasses;
  */
 @RunWith(Suite.class)
 @SuiteClasses({ SpawnProcessTest.class })
-public class SpawnProcessTestSuite extends LocalJcrH2TestSuite
+public class SpawnProcessTestSuite
 {
    /* test suite */
+   
+   @ClassRule
+   public static LocalJcrH2TestSuite testSetup = new LocalJcrH2TestSuite();
 }

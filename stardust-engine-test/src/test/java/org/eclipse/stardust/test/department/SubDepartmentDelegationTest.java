@@ -27,12 +27,13 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.junit.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -47,7 +48,7 @@ import org.junit.rules.TestRule;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class SubDepartmentDelegationTest extends LocalJcrH2Test
+public class SubDepartmentDelegationTest
 {
    private static final String USER_ID = "User";
    
@@ -69,6 +70,9 @@ public class SubDepartmentDelegationTest extends LocalJcrH2Test
    private final ClientServiceFactory adminSf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(adminSf, MODEL_NAME);
    private final ClientServiceFactory userSf = new ClientServiceFactory(USER_ID, USER_ID);
+   
+   @ClassRule
+   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
    
    @Rule
    public TestRule chain = RuleChain.outerRule(adminSf)

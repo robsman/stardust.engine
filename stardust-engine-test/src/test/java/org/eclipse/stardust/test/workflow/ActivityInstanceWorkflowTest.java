@@ -34,13 +34,14 @@ import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
-import org.eclipse.stardust.test.api.junit.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -55,13 +56,16 @@ import org.junit.rules.TestRule;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class ActivityInstanceWorkflowTest extends LocalJcrH2Test
+public class ActivityInstanceWorkflowTest
 {
    private static final String DEFAULT_ROLE_USER_ID = "u1";
    
    private final ClientServiceFactory adminSf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(adminSf, MODEL_NAME);
    private final ClientServiceFactory userSf = new ClientServiceFactory(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID);
+   
+   @ClassRule
+   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
    
    @Rule
    public TestRule chain = RuleChain.outerRule(adminSf)

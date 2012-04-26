@@ -28,9 +28,10 @@ import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.test.api.junit.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -44,7 +45,7 @@ import org.junit.rules.TestRule;
  * @author Roland.Stamm
  * @version $Revision$
  */
-public class JoinProcessTest extends LocalJcrH2Test
+public class JoinProcessTest
 {
    private static final String MODEL_NAME = "JoinProcessModel";
    
@@ -52,6 +53,9 @@ public class JoinProcessTest extends LocalJcrH2Test
    
    private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
+   
+   @ClassRule
+   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
    
    @Rule
    public TestRule chain = RuleChain.outerRule(sf)

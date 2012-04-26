@@ -10,7 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.data;
 
-import org.eclipse.stardust.test.api.junit.LocalJcrH2TestSuite;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuite;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -31,7 +32,10 @@ import org.junit.runners.Suite.SuiteClasses;
                PrimitiveDataInOutDataPathsTest.class,
                InitialValuePrimitiveDataTest.class
              })
-public class DataTestSuite extends LocalJcrH2TestSuite
+public class DataTestSuite
 {
    /* test suite */
+   
+   @ClassRule
+   public static LocalJcrH2TestSuite testSetup = new LocalJcrH2TestSuite();
 }

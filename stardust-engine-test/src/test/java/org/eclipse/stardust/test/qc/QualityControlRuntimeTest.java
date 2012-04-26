@@ -31,12 +31,13 @@ import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
-import org.eclipse.stardust.test.api.junit.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -50,7 +51,7 @@ import org.junit.rules.TestRule;
  * @author Holger.Prause
  * @version $Revision$
  */
-public class QualityControlRuntimeTest extends LocalJcrH2Test
+public class QualityControlRuntimeTest
 {
    private static final String MODEL_NAME = "QCModel";
    
@@ -90,6 +91,9 @@ public class QualityControlRuntimeTest extends LocalJcrH2Test
 
    private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
+   
+   @ClassRule
+   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
    
    @Rule
    public TestRule chain = RuleChain.outerRule(sf)

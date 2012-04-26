@@ -10,7 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import org.eclipse.stardust.test.api.junit.LocalJcrH2TestSuite;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuite;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -42,7 +43,10 @@ import org.junit.runners.Suite.SuiteClasses;
                UserGrantsTest.class,
                WorkitemsAssignmentCreationTest.class
              })
-public class DepartmentTestSuite extends LocalJcrH2TestSuite
+public class DepartmentTestSuite
 {
    /* test suite */
+   
+   @ClassRule
+   public static LocalJcrH2TestSuite testSetup = new LocalJcrH2TestSuite();
 }

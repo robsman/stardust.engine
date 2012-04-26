@@ -8,17 +8,19 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api.junit;
+package org.eclipse.stardust.test.api.setup;
 
-import org.eclipse.stardust.test.api.setup.TestRtEnvException;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.rules.ExternalResource;
 
 /**
  * <p>
- * This class is to be subclassed by a test suite that wants to execute tests in
- * a local Spring environment, using an H2 DB and needing JCR support. By doing so
- * the needed setup and teardown will be done automatically.
+ * A JUnit test suite needs to
+ * <ul>
+ *   <li>declared a field of this class and</li>
+ *   <li>annotate this field with {@linkplain org.junit.ClassRule}</li>
+ * </ul>
+ * in order to be able to execute tests in a local Spring environment, using an H2 DB and having
+ * JCR support. By doing so the needed setup and teardown will be done automatically.
  * </p>
  * 
  * <p>
@@ -30,37 +32,39 @@ import org.junit.BeforeClass;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class LocalJcrH2TestSuite
+public class LocalJcrH2TestSuite extends ExternalResource
 {
+   private final LocalJcrH2Test testSetup = new LocalJcrH2Test();
+   
    /**
     * <p>
-    * Sets up the test environment (see {@link LocalJcrH2Test#setUpTestEnv()}) and locks
+    * Sets up the test environment (see {@link LocalJcrH2Test#before()}) and locks
     * the test environment afterwards to prevent the individual test classes from setting
     * up the test environment themselves. 
     * </p>
     * 
     * @throws TestRtEnvException if an exception occurs during test environment setup
     */
-   @BeforeClass
-   public static void setUpTestEnv() throws TestRtEnvException
+   @Override
+   protected void before() throws TestRtEnvException
    {
-      LocalJcrH2Test.setUpTestEnv();
+      testSetup.before();
       LocalJcrH2Test.lockTestEnv();
    }
    
    /**
     * <p>
-    * Tears down the test environment (see {@link LocalJcrH2Test#tearDownTestEnv()}). It will
+    * Tears down the test environment (see {@link LocalJcrH2Test#after()}). It will
     * remove the test environment lock first which prevented the individual test classes from
     * tearing down the test environment themselves. 
     * </p>
     * 
     * @throws TestRtEnvException if an exceptions occurs during test environment teardown
     */
-   @AfterClass
-   public static void tearDownTestEnv() throws TestRtEnvException
+   @Override
+   protected void after() throws TestRtEnvException
    {
       LocalJcrH2Test.unlockTestEnv();
-      LocalJcrH2Test.tearDownTestEnv();
+      testSetup.after();
    }
 }

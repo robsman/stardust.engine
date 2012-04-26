@@ -8,22 +8,23 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.test.api.junit;
+package org.eclipse.stardust.test.api.setup;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.test.api.setup.TestRtEnvException;
 import org.eclipse.stardust.test.impl.H2Server;
-import org.eclipse.stardust.test.impl.Lockable;
 import org.eclipse.stardust.test.impl.SpringAppContext;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.rules.ExternalResource;
 
 /**
  * <p>
- * This class is to be subclassed by a test class that wants to execute tests in
- * a local Spring environment, using an H2 DB and needing JCR support. By doing so
- * the needed setup and teardown will be done automatically.
+ * A JUnit test class needs to
+ * <ul>
+ *   <li>declared a field of this class and</li>
+ *   <li>annotate this field with {@linkplain org.junit.ClassRule}</li>
+ * </ul>
+ * in order to be able to execute tests in a local Spring environment, using an H2 DB and having 
+ * JCR support. By doing so the needed setup and teardown will be done automatically.
  * </p>
  * 
  * <p>
@@ -35,12 +36,14 @@ import org.junit.BeforeClass;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class LocalJcrH2Test extends Lockable
+public class LocalJcrH2Test extends ExternalResource
 {
    private static final Log LOGGER = LogFactory.getLog(LocalJcrH2Test.class);
    
    private static final H2Server DBMS = new H2Server();
    private static final SpringAppContext SPRING_APP_CTX = new SpringAppContext();
+
+   private static boolean locked;
 
    /**
     * <p>
@@ -58,10 +61,10 @@ public class LocalJcrH2Test extends Lockable
     * 
     * @throws TestRtEnvException if an exception occurs during test environment setup
     */
-   @BeforeClass
-   public static void setUpTestEnv() throws TestRtEnvException
+   @Override
+   protected void before() throws TestRtEnvException
    {
-      if (testEnvLocked())
+      if (locked)
       {
          return;
       }
@@ -90,10 +93,10 @@ public class LocalJcrH2Test extends Lockable
     * 
     * @throws TestRtEnvException if an exception occurs during test environment teardown
     */
-   @AfterClass
-   public static void tearDownTestEnv() throws TestRtEnvException
+   @Override
+   protected void after() throws TestRtEnvException
    {
-      if (testEnvLocked())
+      if (locked)
       {
          return;
       }
@@ -104,5 +107,23 @@ public class LocalJcrH2Test extends Lockable
       DBMS.stop();
       
       LOGGER.info("<--- ... teardown of test environment done.");
+   }
+   
+   /**
+    * Locks the test environment, i.e. the test environment can neither be
+    * set up nor teared down.
+    */
+   public static void lockTestEnv()
+   {
+      locked = true;
+   }
+   
+   /**
+    * Unlocks the test environment, i.e. the test environment can either be
+    * set up or teared down.
+    */
+   public static void unlockTestEnv()
+   {
+      locked = false;
    }
 }

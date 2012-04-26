@@ -24,11 +24,12 @@ import org.eclipse.stardust.engine.api.query.UserQuery;
 import org.eclipse.stardust.engine.api.query.Users;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.junit.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -44,7 +45,7 @@ import org.junit.rules.TestRule;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class ParticipantAssociationFilterTest extends LocalJcrH2Test
+public class ParticipantAssociationFilterTest
 {
    private static final String ORG1_USERNAME_1 = "org1_1";
    private static final String ORG1_USERNAME_2 = "org1_2";
@@ -65,6 +66,9 @@ public class ParticipantAssociationFilterTest extends LocalJcrH2Test
 
    private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
+   
+   @ClassRule
+   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
    
    @Rule
    public TestRule chain = RuleChain.outerRule(sf)

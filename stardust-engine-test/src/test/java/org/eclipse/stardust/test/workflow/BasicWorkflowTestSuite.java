@@ -10,7 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.workflow;
 
-import org.eclipse.stardust.test.api.junit.LocalJcrH2TestSuite;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuite;
+import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -29,7 +30,10 @@ import org.junit.runners.Suite.SuiteClasses;
                ActivityInstanceWorkflowTest.class,
                ProcessInstanceWorkflowTest.class
              })
-public class BasicWorkflowTestSuite extends LocalJcrH2TestSuite
+public class BasicWorkflowTestSuite
 {
    /* test suite */
+   
+   @ClassRule
+   public static LocalJcrH2TestSuite testSetup = new LocalJcrH2TestSuite();
 }

@@ -19,9 +19,10 @@ import static org.junit.Assert.assertThat;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
-import org.eclipse.stardust.test.api.junit.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -37,12 +38,15 @@ import org.junit.rules.TestRule;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class MyWorkflowServiceTest extends LocalJcrH2Test
+public class MyWorkflowServiceTest
 {
    private static final String PROCESS_DEF_ID = "ProcessDefinition_1";
    
    private final ClientServiceFactory serviceFactory = new ClientServiceFactory(MOTU, MOTU);
    private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(serviceFactory, MODEL_NAME);
+   
+   @ClassRule
+   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
    
    @Rule
    public TestRule chain = RuleChain.outerRule(serviceFactory)

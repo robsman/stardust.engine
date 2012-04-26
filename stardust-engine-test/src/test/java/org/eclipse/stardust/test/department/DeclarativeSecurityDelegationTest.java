@@ -27,12 +27,13 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.test.api.junit.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
 import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -47,7 +48,7 @@ import org.junit.rules.TestRule;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class DeclarativeSecurityDelegationTest extends LocalJcrH2Test
+public class DeclarativeSecurityDelegationTest
 {
    private static final String USER_ID = "User";
    
@@ -93,6 +94,9 @@ public class DeclarativeSecurityDelegationTest extends LocalJcrH2Test
    private final ClientServiceFactory noneSf = new ClientServiceFactory(NONE_USERNAME, NONE_USERNAME);
    private final ClientServiceFactory dtoSf = new ClientServiceFactory(DTO_USERNAME, DTO_USERNAME);
    private final ClientServiceFactory dtdSf = new ClientServiceFactory(DTD_USERNAME, DTD_USERNAME);
+   
+   @ClassRule
+   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
    
    @Rule
    public TestRule chain = RuleChain.outerRule(adminSf)

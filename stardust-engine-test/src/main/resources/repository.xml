@@ -33,9 +33,7 @@
    <!-- where the repository stores global state -->
    <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
 
-   <!-- Data Store -->
-   <!-- no means to store it in memory -->
-   <DataStore class="org.apache.jackrabbit.core.data.FileDataStore" />
+   <!-- No Data Store -->
 
    <!-- Security -->
    <Security appName="Jackrabbit">

@@ -27,12 +27,14 @@ public class QualityAssuranceCodeBean implements IQualityAssuranceCode, Serializ
    
    private String code;
    private String description;
+   private String name;
    
-   public QualityAssuranceCodeBean(String code, String description)
+   public QualityAssuranceCodeBean(String code, String description, String name)
    {
       super();
       this.code = code;
       this.description = description;
+      this.name = name;
    }
 
    public String getCode()
@@ -43,5 +45,10 @@ public class QualityAssuranceCodeBean implements IQualityAssuranceCode, Serializ
    public String getDescription()
    {
       return description;
+   }
+
+   public String getName()
+   {
+      return name;
    }
 }

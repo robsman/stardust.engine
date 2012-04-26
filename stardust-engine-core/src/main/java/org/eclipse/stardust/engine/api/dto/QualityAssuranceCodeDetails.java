@@ -27,11 +27,13 @@ public class QualityAssuranceCodeDetails implements QualityAssuranceCode
    private static final long serialVersionUID = 445700648025238776L;
    private String code;
    private String description;
+   private String name;   
 
    public QualityAssuranceCodeDetails(IQualityAssuranceCode code)
    {
       this.code = code.getCode();
       description = code.getDescription();   
+      name = code.getName();
    }
 
    /**
@@ -50,5 +52,14 @@ public class QualityAssuranceCodeDetails implements QualityAssuranceCode
    public String getDescription()
    {
       return description;
+   }
+
+   /**
+    * {@inheritDoc}
+    */   
+   @Override
+   public String getName()
+   {
+      return name;
    }
 }

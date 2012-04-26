@@ -35,9 +35,9 @@ public class QualityAssuranceBean implements IQualityAssurance, Serializable
    /**
     * {@inheritDoc}
     */
-   public IQualityAssuranceCode createQualityAssuranceCode(String code, String value)
+   public IQualityAssuranceCode createQualityAssuranceCode(String code, String value, String name)
    {
-      IQualityAssuranceCode codeBean = new QualityAssuranceCodeBean(code, value);      
+      IQualityAssuranceCode codeBean = new QualityAssuranceCodeBean(code, value, name);      
       codes.put(code, codeBean);
       
       return codeBean;

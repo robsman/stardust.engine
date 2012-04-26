@@ -45,5 +45,5 @@ public interface IQualityAssurance extends Serializable
     * @param description - the description
     * @return the {@link IQualityAssuranceCode} object created
     */
-   IQualityAssuranceCode createQualityAssuranceCode(String code, String description);
+   IQualityAssuranceCode createQualityAssuranceCode(String code, String description, String name);
 }

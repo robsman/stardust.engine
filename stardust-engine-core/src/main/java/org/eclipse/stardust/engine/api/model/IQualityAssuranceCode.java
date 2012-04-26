@@ -31,4 +31,10 @@ public interface IQualityAssuranceCode extends Serializable
     * @return the description set in the modeler
     */
    String getDescription();
+
+   /**
+    * Gets the name
+    * @return the description set in the modeler
+    */
+   String getName();   
 }

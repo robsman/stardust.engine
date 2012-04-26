@@ -1270,8 +1270,9 @@ public class ElementFactoryImpl implements ElementFactory
    {
       String code = reader.getAttribute("code");
       String value = reader.getAttribute("value");
+      String name = reader.getAttribute("name");
       
-      return qualityAssurance.createQualityAssuranceCode(code, value);
+      return qualityAssurance.createQualityAssuranceCode(code, value, name);
    }
 
    public IQualityAssuranceCode createQualityAssuranceCode(Node node, IActivity activity, IModel model)

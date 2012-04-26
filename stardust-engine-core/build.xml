@@ -374,22 +374,22 @@
 
       <property name="carnot.base.jarfile" value="carnot-base.jar" />
       <property name="carnot.base.jar" location="${build.lib}/${carnot.base.jarfile}" />
-      <property name="carnot.base.src-jarfile" value="carnot-base-src.jar" />
+      <property name="carnot.base.src-jarfile" value="carnot-base-sources.jar" />
       <property name="carnot.base.src-jar" location="${build.src}/${carnot.base.src-jarfile}" />
 
       <property name="carnot.client.jarfile" value="carnot-client.jar" />
       <property name="carnot.client.jar" location="${build.lib}/${carnot.client.jarfile}" />
-      <property name="carnot.client.src-jarfile" value="carnot-client-src.jar" />
+      <property name="carnot.client.src-jarfile" value="carnot-client-sources.jar" />
       <property name="carnot.client.src-jar" location="${build.src}/${carnot.client.src-jarfile}" />
 
       <property name="carnot.engine.jarfile" value="carnot-engine.jar" />
       <property name="carnot.engine.jar" location="${build.deploy}/${carnot.engine.jarfile}" />
-      <property name="carnot.engine.src-jarfile" value="carnot-engine-src.jar" />
+      <property name="carnot.engine.src-jarfile" value="carnot-engine-sources.jar" />
       <property name="carnot.engine.src-jar" location="${build.src}/${carnot.engine.src-jarfile}" />
 
       <property name="carnot.emf.xsd.integration.jarfile" value="carnot-emf-xsd-integration.jar" />
       <property name="carnot.emf.xsd.integration.jar" location="${build.deploy}/${carnot.emf.xsd.integration.jarfile}" />
-      <property name="carnot.emf.xsd.integration.src-jarfile" value="carnot-emf-xsd-integration-src.jar" />
+      <property name="carnot.emf.xsd.integration.src-jarfile" value="carnot-emf-xsd-integration-sources.jar" />
       <property name="carnot.emf.xsd.integration.src-jar" location="${build.src}/${carnot.emf.xsd.integration.src-jarfile}" />
 
    </target>
@@ -690,7 +690,7 @@
    #
    -->
 
-   <target name="build" depends="copyDatFiles, jar, copyJars"
+   <target name="build" depends="copyDatFiles, jar, jar.src, copyJars"
       description="make a usable version of the kernel" />
 
    <target name="deploy" depends="build, deploy.src, deploy.classes"

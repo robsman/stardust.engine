@@ -23,7 +23,7 @@ import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class DmsAwareRuntimeConfigurer extends RuntimeConfigurer
 {

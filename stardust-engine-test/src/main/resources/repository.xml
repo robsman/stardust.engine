@@ -23,6 +23,7 @@
    * changed persistence manager configuration to use 'org.apache.jackrabbit.core.persistence.mem.InMemPersistenceManager'
    * changed file system configuration to use 'org.apache.jackrabbit.core.fs.mem.MemoryFileSystem'
    * changed search index configuration to use 'org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager'
+   * removed data store configuration, i.e. no data store is used
    * comment cleanup and adjustment as well as formatting changes
  -->
 <!DOCTYPE Repository
@@ -33,7 +34,7 @@
    <!-- where the repository stores global state -->
    <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
 
-   <!-- No Data Store -->
+   <!-- Do NOT use a Data Store -->
 
    <!-- Security -->
    <Security appName="Jackrabbit">

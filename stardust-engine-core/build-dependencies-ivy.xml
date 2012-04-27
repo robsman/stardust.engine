@@ -85,6 +85,8 @@
       
       <ivy:cachepath pathid="ant.build.deps" conf="ant-build-runtime" />
 
+      <ivy:cachepath pathid="qdox.deps" conf="qdox-provider-compile" />
+
       <ivy:retrieve pattern="${build.lib}/integration-jars/[artifact].[ext]"
                conf="integration-jars"/>
       

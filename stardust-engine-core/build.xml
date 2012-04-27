@@ -229,7 +229,6 @@
          <patternset refid="kernel.sources.exclude" />
 
          <classpath id="compile.classpath">
-            <path path="${private.classpath}" />
             <path refid="carnot.classpath" />
             <path refid="secret.classpath" />
          </classpath>
@@ -520,7 +519,7 @@
       <java classname="org.eclipse.stardust.engine.api.ejb2.tools.CodeGen" fork="yes">
          <classpath>
             <pathelement path="${build.classes}" />
-            <pathelement location="${qdox.jar}" />
+            <path refid="qdox.deps" />
          </classpath>
          <arg line="${project.src} ${build.dir}/temp" />
       </java>

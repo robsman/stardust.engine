@@ -311,7 +311,7 @@ public class DmsDocumentSearch
    }
 
    @Test
-   public void testFindContentLike() throws Exception
+   public void testFindContentLike()
    {
       DocumentQuery query = DocumentQuery.findAll();
       query.where(DocumentQuery.CONTENT.like("this is a test content"));

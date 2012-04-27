@@ -47,7 +47,7 @@ public class RuntimeConfigurer extends ExternalResource
     * Sets up a runtime configurer with the specified model using the given service factory.
     * </p>
     * 
-    * @param sf the service factory to use for model deployment and runtime cleanup
+    * @param sf the service factory to use for model deployment and runtime cleanup; must not be null
     * @param modelNames the names of the models to deploy
     */
    public RuntimeConfigurer(final ServiceFactory sf, final String ... modelNames)
@@ -67,6 +67,18 @@ public class RuntimeConfigurer extends ExternalResource
       
       this.modelNames = modelNames;
       this.sf = sf;
+   }
+   
+   /**
+    * <p>
+    * Returns the service factory this object has been initialized with.
+    * </p>
+    * 
+    * @return the service factory this object has been initialized with
+    */
+   protected ServiceFactory serviceFactory()
+   {
+      return sf;
    }
    
    /* (non-Javadoc)

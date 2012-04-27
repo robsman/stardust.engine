@@ -48,17 +48,13 @@ public class RuntimeConfigurer extends ExternalResource
     * </p>
     * 
     * @param sf the service factory to use for model deployment and runtime cleanup; must not be null
-    * @param modelNames the names of the models to deploy; must not be null
+    * @param modelNames the names of the models to deploy; may be null or empty
     */
    public RuntimeConfigurer(final ServiceFactory sf, final String ... modelNames)
    {
-      if (modelNames == null)
+      if (modelNames == null || modelNames.length == 0)
       {
-         throw new NullPointerException("Model Names must not be null.");
-      }
-      if (modelNames.length == 0)
-      {
-         throw new IllegalArgumentException("Model Names must not be empty.");
+         LOG.debug("No model to deploy specified.");
       }
       if (sf == null)
       {
@@ -87,8 +83,11 @@ public class RuntimeConfigurer extends ExternalResource
    @Override
    protected void before()
    {
-      LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
-      ModelDeployer.deploy(sf.getAdministrationService(), modelNames);
+      if (modelNames != null && modelNames.length > 0)
+      {
+         LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
+         ModelDeployer.deploy(sf.getAdministrationService(), modelNames);
+      }
    }
    
    /* (non-Javadoc)

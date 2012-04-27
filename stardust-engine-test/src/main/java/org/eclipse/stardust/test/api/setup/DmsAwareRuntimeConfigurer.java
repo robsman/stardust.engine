@@ -37,7 +37,7 @@ public class DmsAwareRuntimeConfigurer extends RuntimeConfigurer
     * </p>
     * 
     * @param sf the service factory to use for model deployment and runtime cleanup; must not be null
-    * @param modelNames the names of the models to deploy
+    * @param modelNames the names of the models to deploy; must not be null
     */
    public DmsAwareRuntimeConfigurer(final ServiceFactory sf, final String ... modelNames)
    {

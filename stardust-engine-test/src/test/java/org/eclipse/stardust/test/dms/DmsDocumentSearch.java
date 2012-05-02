@@ -28,7 +28,7 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
-import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -95,7 +95,7 @@ public class DmsDocumentSearch
    
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
-   private final ClientServiceFactory sf = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
+   private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final DmsAwareTestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR);
 
    @ClassRule

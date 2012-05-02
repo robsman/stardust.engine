@@ -34,7 +34,7 @@ import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
-import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
@@ -64,8 +64,8 @@ public class ActivityInstanceWorkflowTest
    private static final String DEFAULT_ROLE_USER_ID = "u1";
    
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
-   private final ClientServiceFactory adminSf = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
-   private final ClientServiceFactory userSf = new ClientServiceFactory(new UsernamePasswordPair(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID));
+   private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
+   private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID));
    
    @ClassRule
    public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);

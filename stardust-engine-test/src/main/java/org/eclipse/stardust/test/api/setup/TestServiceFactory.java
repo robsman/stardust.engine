@@ -32,9 +32,9 @@ import org.junit.rules.ExternalResource;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class ClientServiceFactory extends ExternalResource implements ServiceFactory
+public class TestServiceFactory extends ExternalResource implements ServiceFactory
 {
-   private static final Log LOG = LogFactory.getLog(ClientServiceFactory.class);
+   private static final Log LOG = LogFactory.getLog(TestServiceFactory.class);
    
    private final UsernamePasswordPair userPwdPair;
    
@@ -44,12 +44,12 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
     * <p>
     * Sets up a client service factory with the given username and password.
     * The actual creation of the service factory will be done in
-    * {@link ClientServiceFactory#before()}.
+    * {@link TestServiceFactory#before()}.
     * </p>
     * 
     * @param username the username password pair to use
     */
-   public ClientServiceFactory(final UsernamePasswordPair userPwdPair)
+   public TestServiceFactory(final UsernamePasswordPair userPwdPair)
    {
       if (userPwdPair == null)
       {
@@ -59,8 +59,10 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
       this.userPwdPair = userPwdPair;
    }
    
-   /* (non-Javadoc)
-    * @see org.junit.rules.ExternalResource#before()
+   /**
+    * <p>
+    * Creates a newly initialized service factory.
+    * </p>
     */
    @Override
    protected void before()
@@ -69,14 +71,17 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
       sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
    }
    
-   /* (non-Javadoc)
-    * @see org.junit.rules.ExternalResource#after()
+   /**
+    * <p>
+    * Releases the current service factory.
+    * </p>
     */
    @Override
    protected void after()
    {
       LOG.debug("Releasing service factory.");
       close();
+      sf = null;
    }
    
    /* (non-Javadoc)
@@ -85,6 +90,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public void close()
    {
+      ensureServiceFactoryIsInitialized();
       sf.close();
    }
    
@@ -94,6 +100,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public AdministrationService getAdministrationService() throws ServiceNotAvailableException, LoginFailedException
    {
+      ensureServiceFactoryIsInitialized();
       return sf.getAdministrationService();
    }
    
@@ -103,6 +110,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public DocumentManagementService getDocumentManagementService() throws ServiceNotAvailableException, LoginFailedException
    {
+      ensureServiceFactoryIsInitialized();
       return sf.getDocumentManagementService();
    }
    
@@ -112,6 +120,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public QueryService getQueryService() throws ServiceNotAvailableException, LoginFailedException
    {
+      ensureServiceFactoryIsInitialized();
       return sf.getQueryService();
    }
    
@@ -121,6 +130,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public Object getService(@SuppressWarnings("rawtypes") final Class type) throws ServiceNotAvailableException, LoginFailedException
    {
+      ensureServiceFactoryIsInitialized();
       return sf.getService(type);
    }
    
@@ -130,6 +140,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public String getSessionId()
    {
+      ensureServiceFactoryIsInitialized();
       return sf.getSessionId();
    }
    
@@ -137,9 +148,9 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getUserService()
     */
    @Override
-   public UserService getUserService() throws ServiceNotAvailableException,
-         LoginFailedException
+   public UserService getUserService() throws ServiceNotAvailableException, LoginFailedException
    {
+      ensureServiceFactoryIsInitialized();
       return sf.getUserService();
    }
    
@@ -147,9 +158,9 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getWorkflowService()
     */
    @Override
-   public WorkflowService getWorkflowService() throws ServiceNotAvailableException,
-         LoginFailedException
+   public WorkflowService getWorkflowService() throws ServiceNotAvailableException, LoginFailedException
    {
+      ensureServiceFactoryIsInitialized();
       return sf.getWorkflowService();
    }
    
@@ -159,6 +170,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public void release(final Service service)
    {
+      ensureServiceFactoryIsInitialized();
       sf.release(service);
    }
    
@@ -168,6 +180,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public void setCredentials(@SuppressWarnings("rawtypes") final Map credentials)
    {
+      ensureServiceFactoryIsInitialized();
       sf.setCredentials(credentials);
    }
    
@@ -177,6 +190,15 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    public void setProperties(@SuppressWarnings("rawtypes") final Map properties)
    {
+      ensureServiceFactoryIsInitialized();
       sf.setProperties(properties);
+   }
+   
+   private void ensureServiceFactoryIsInitialized()
+   {
+      if (sf == null)
+      {
+         throw new IllegalStateException("Service factory is not properly initialized.");
+      }
    }
 }

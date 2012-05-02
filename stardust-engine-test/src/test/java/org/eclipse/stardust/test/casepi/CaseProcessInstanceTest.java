@@ -35,7 +35,7 @@ import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
-import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
@@ -70,7 +70,7 @@ public class CaseProcessInstanceTest
    private static final UsernamePasswordPair USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(USER_PWD_PAIR);
-   private final ClientServiceFactory sf = new ClientServiceFactory(USER_PWD_PAIR);
+   private final TestServiceFactory sf = new TestServiceFactory(USER_PWD_PAIR);
    
    @ClassRule
    public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(USER_PWD_PAIR, MODEL_NAME);

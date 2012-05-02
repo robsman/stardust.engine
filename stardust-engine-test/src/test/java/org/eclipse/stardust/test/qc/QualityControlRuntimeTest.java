@@ -31,7 +31,7 @@ import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
-import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.util.UserHome;
@@ -93,7 +93,7 @@ public class QualityControlRuntimeTest
    private ServiceFactory monitoredUserServiceFactory;
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
-   private final ClientServiceFactory sf = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
+   private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
    public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);

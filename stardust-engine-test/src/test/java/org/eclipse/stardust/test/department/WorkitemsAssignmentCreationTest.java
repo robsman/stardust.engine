@@ -33,7 +33,7 @@ import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
@@ -66,8 +66,8 @@ public class WorkitemsAssignmentCreationTest
    private static final String USER_ID = "User";
    
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
-   private final ClientServiceFactory adminSf = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
-   private final ClientServiceFactory userSf = new ClientServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
+   private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
+   private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
    
    @ClassRule
    public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);

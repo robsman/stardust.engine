@@ -16,7 +16,7 @@ package org.eclipse.stardust.test.api.util;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class UsernamePasswordPair
 {

@@ -47,7 +47,7 @@ import org.eclipse.stardust.engine.extensions.dms.data.*;
 import org.eclipse.stardust.vfs.*;
 import org.eclipse.stardust.vfs.impl.jcr.*;
 import org.eclipse.stardust.vfs.jcr.ISessionFactory;
-import org.eclipse.stardust.vfs.jcr.spring.JcrSessionFactory;
+import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
 
 
 /**
@@ -1181,9 +1181,9 @@ public class DocumentManagementServiceImpl
          if (documentRepositoryService instanceof JcrDocumentRepositoryService)
          {
             ISessionFactory sf = ((JcrDocumentRepositoryService) documentRepositoryService).getSessionFactory();
-            if (sf instanceof JcrSessionFactory)
+            if (sf instanceof JcrSpringSessionFactory)
             {
-               Repository repository = ((JcrSessionFactory) sf).getRepository();
+               Repository repository = ((JcrSpringSessionFactory) sf).getRepository();
                session = repository.login(createAdminCredentials());
             }
             else if (sf instanceof EjbDocumentRepositoryService)

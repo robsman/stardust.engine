@@ -27,12 +27,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
 import org.eclipse.stardust.engine.core.runtime.beans.UserUserGroupLink;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsPrincipal;
-
-
 import org.eclipse.stardust.vfs.impl.jcr.AuthorizableOrganizationDetails;
-import org.eclipse.stardust.vfs.jcr.spring.JcrSessionFactory;
+import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
 
-public class IppJcrSessionFactory extends JcrSessionFactory
+public class IppJcrSessionFactory extends JcrSpringSessionFactory
 {
 
    public Session createSession() throws RepositoryException

@@ -22,7 +22,7 @@ import org.eclipse.stardust.engine.api.dto.OrganizationInfoDetails;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.RuntimeHome;
+import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -93,7 +93,7 @@ public class DepartmentCleanupTest
    {
       DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       sf.getAdministrationService().cleanupRuntimeAndModels();
-      RuntimeHome.deploy(sf.getAdministrationService(), MODEL_NAME);
+      RtEnvHome.deploy(sf.getAdministrationService(), MODEL_NAME);
       ensureDepartmentCleanup();
    }
    

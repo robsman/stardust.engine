@@ -79,7 +79,7 @@ public class TestMethodSetup extends ExternalResource
    @Override
    protected void after()
    {
-      RuntimeHome.cleanUpRuntime(sf.getAdministrationService());
+      RtEnvHome.cleanUpRuntime(sf.getAdministrationService());
       
       sf.close();
       sf = null;

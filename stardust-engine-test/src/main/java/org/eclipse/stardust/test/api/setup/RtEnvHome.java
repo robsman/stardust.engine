@@ -49,9 +49,9 @@ import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class RuntimeHome
+public class RtEnvHome
 {
-   private static final Log LOG = LogFactory.getLog(RuntimeHome.class);
+   private static final Log LOG = LogFactory.getLog(RtEnvHome.class);
    
    private static final String MODEL_FOLDER = "models";
    
@@ -108,18 +108,18 @@ public class RuntimeHome
    
    /**
     * <p>
-    * Cleans up the runtime and all models.
+    * Cleans up the Audit Trail runtime and all deployed models.
     * </p>
     * 
     * @param adminService an administration service of a user authorized to clean up the runtime
-    * @throws TestRtEnvException if an exception occures during runtime and model cleanup
+    * @throws TestRtEnvException if an exception occures during runtime cleanup
     */
    public static void cleanUpRuntimeAndModels(final AdministrationService adminService) throws TestRtEnvException
    {
       stopAllDaemons(adminService);
       
-      LOG.debug("Trying to clean up the runtime and all models.");
-      new RuntimeCleanerTemplate()
+      LOG.debug("Trying to clean up the Audit Trail runtime and all deployed models.");
+      new RuntimeCleanupTemplate()
       {
          @Override
          protected void doCleanup()
@@ -135,14 +135,14 @@ public class RuntimeHome
     * </p>
     * 
     * @param adminService an administration service of a user authorized to clean up the runtime
-    * @throws TestRtEnvException if an exception occures during runtime and model cleanup
+    * @throws TestRtEnvException if an exception occures during runtime cleanup
     */
    public static void cleanUpRuntime(final AdministrationService adminService) throws TestRtEnvException
    {
       stopAllDaemons(adminService);
       
-      LOG.debug("Trying to clean up the runtime.");
-      new RuntimeCleanerTemplate()
+      LOG.debug("Trying to clean up the Audit Trail runtime.");
+      new RuntimeCleanupTemplate()
       {
          @Override
          protected void doCleanup()
@@ -157,6 +157,7 @@ public class RuntimeHome
     * Cleans up the DMS repository.
     * </p>
     * 
+    * @param docMgmtService an document management service of a user authorized to clean up the DMS repository
     * @throws TestRtEnvException if the DMS repository could not be cleaned up
     */
    public static void cleanUpDmsRepository(final DocumentManagementService docMgmtService) throws TestRtEnvException
@@ -206,7 +207,7 @@ public class RuntimeHome
    private static DeploymentElement createNewDeploymentElement(final String modelName) throws IOException
    {
       final String fqModelName = MODEL_FOLDER + "/" + modelName + "." + XpdlUtils.EXT_XPDL;
-      final InputStream is = RuntimeHome.class.getClassLoader().getResourceAsStream(fqModelName);
+      final InputStream is = RtEnvHome.class.getClassLoader().getResourceAsStream(fqModelName);
       final Reader reader = new InputStreamReader(is);
       final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
       int character;
@@ -257,7 +258,7 @@ public class RuntimeHome
       }
    }
    
-   private static abstract class RuntimeCleanerTemplate
+   private static abstract class RuntimeCleanupTemplate
    {
       public void cleanUp()
       {
@@ -289,7 +290,7 @@ public class RuntimeHome
       protected abstract void doCleanup();
    }
    
-   private RuntimeHome()
+   private RtEnvHome()
    {
       /* utility class; do not allow the creation of an instance */
    }

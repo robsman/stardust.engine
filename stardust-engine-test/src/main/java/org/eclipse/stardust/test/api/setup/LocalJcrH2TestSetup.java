@@ -118,7 +118,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
       if (modelNames.length > 0)
       {
          LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
-         RuntimeHome.deploy(sf.getAdministrationService(), modelNames);
+         RtEnvHome.deploy(sf.getAdministrationService(), modelNames);
       }
       
       LOG.info("<--- ... setup of test environment done.");
@@ -150,7 +150,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
       
       LOG.info("---> Tearing down the test environment ...");
 
-      RuntimeHome.cleanUpRuntimeAndModels(sf.getAdministrationService());
+      RtEnvHome.cleanUpRuntimeAndModels(sf.getAdministrationService());
       sf.close();
       
       SPRING_APP_CTX.close();

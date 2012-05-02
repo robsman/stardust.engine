@@ -45,6 +45,6 @@ public class DmsAwareTestMethodSetup extends TestMethodSetup
    {
       super.after();
       
-      RuntimeHome.cleanUpDmsRepository(serviceFactory().getDocumentManagementService());
+      RtEnvHome.cleanUpDmsRepository(serviceFactory().getDocumentManagementService());
    }
 }

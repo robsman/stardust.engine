@@ -36,15 +36,16 @@ public class DmsAwareTestMethodSetup extends TestMethodSetup
       super(userPwdPair);
    }
    
-   /*
-    * (non-Javadoc)
-    * @see org.eclipse.stardust.test.api.setup.RuntimeConfigurer#after()
+   /**
+    * <p>
+    * Cleans up the DMS repository and delegates to the corresponding superclass method afterwards.
+    * </p>
     */
    @Override
    protected void after()
    {
-      super.after();
-      
       RtEnvHome.cleanUpDmsRepository(serviceFactory().getDocumentManagementService());
+      
+      super.after();
    }
 }

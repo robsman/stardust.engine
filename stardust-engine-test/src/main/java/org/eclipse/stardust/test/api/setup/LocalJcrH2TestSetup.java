@@ -152,6 +152,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
 
       RtEnvHome.cleanUpRuntimeAndModels(sf.getAdministrationService());
       sf.close();
+      sf = null;
       
       SPRING_APP_CTX.close();
       DBMS.stop();

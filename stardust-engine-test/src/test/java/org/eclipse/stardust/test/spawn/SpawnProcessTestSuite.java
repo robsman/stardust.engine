@@ -10,7 +10,11 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.spawn;
 
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuite;
+import static org.eclipse.stardust.test.spawn.SpawnProcessTest.MODEL_NAME;
+import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -33,5 +37,5 @@ public class SpawnProcessTestSuite
    /* test suite */
    
    @ClassRule
-   public static LocalJcrH2TestSuite testSetup = new LocalJcrH2TestSuite();
+   public static LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), MODEL_NAME);
 }

@@ -11,6 +11,7 @@
 package org.eclipse.stardust.test.examples;
 
 import static org.eclipse.stardust.test.examples.MyConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.examples.MyConstants.PROCESS_DEF_ID_1;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNotNull;
@@ -20,8 +21,9 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,23 +42,23 @@ import org.junit.rules.TestRule;
  */
 public class MyWorkflowServiceTest
 {
-   private static final String PROCESS_DEF_ID = "ProcessDefinition_1";
+   private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
-   private final ClientServiceFactory serviceFactory = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(serviceFactory, MODEL_NAME);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final ClientServiceFactory serviceFactory = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
-   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
+   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(serviceFactory)
-                                    .around(rtConfigurer);
+   public TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                    .around(serviceFactory);
    
    @Test
    public void testStartProcess()
    {
       final WorkflowService wfService = serviceFactory.getWorkflowService();
-      final ProcessInstance pi = wfService.startProcess(PROCESS_DEF_ID, null, true);
+      final ProcessInstance pi = wfService.startProcess(PROCESS_DEF_ID_1, null, true);
       
       assertNotNull(pi);
       assertThat(pi.getState(), is(ProcessInstanceState.Completed));

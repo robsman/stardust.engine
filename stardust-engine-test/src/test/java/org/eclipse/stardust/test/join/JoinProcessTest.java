@@ -29,8 +29,9 @@ import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,19 +48,21 @@ import org.junit.rules.TestRule;
  */
 public class JoinProcessTest
 {
-   private static final String MODEL_NAME = "JoinProcessModel";
+   /* package-private */ static final String MODEL_NAME = "JoinProcessModel";
+
+   private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
    private static final String PROCESS_ATTACHMENTS = "PROCESS_ATTACHMENTS";
    
-   private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final ClientServiceFactory sf = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
-   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
+   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(sf)
-                                    .around(rtConfigurer);
+   public TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                    .around(sf);
    
    /**
     * Data doc1 is copied to target process because outDataPath exists and it is not initialized.

@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.setup;
 
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.rules.ExternalResource;
 
 /**
@@ -29,16 +30,34 @@ import org.junit.rules.ExternalResource;
  * setup and teardown after every single test class.
  * </p>
  * 
+ * <p>
+ * This class is responsible for the test suite setup whereas {@link LocalJcrH2TestSetup}
+ * deals with test class setup and {@link TestMethodSetup} deals with test method setup.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class LocalJcrH2TestSuite extends ExternalResource
+public class LocalJcrH2TestSuiteSetup extends ExternalResource
 {
-   private final LocalJcrH2Test testSetup = new LocalJcrH2Test();
+   private final LocalJcrH2TestSetup testClassSetup;
    
    /**
     * <p>
-    * Sets up the test environment (see {@link LocalJcrH2Test#before()}) and locks
+    * Initializes the object with the given username password pair and the models to deploy.
+    * </p>
+    * 
+    * @param userPwdPair the credentials of the user to use for runtime setup; must not be null
+    * @param modelNames the names of the models to deploy; may be null or empty
+    */
+   public LocalJcrH2TestSuiteSetup(final UsernamePasswordPair userPwdPair, final String ... modelNames)
+   {
+      testClassSetup = new LocalJcrH2TestSetup(userPwdPair, modelNames);
+   }
+   
+   /**
+    * <p>
+    * Sets up the test environment (see {@link LocalJcrH2TestSetup#before()}) and locks
     * the test environment afterwards to prevent the individual test classes from setting
     * up the test environment themselves. 
     * </p>
@@ -48,13 +67,13 @@ public class LocalJcrH2TestSuite extends ExternalResource
    @Override
    protected void before() throws TestRtEnvException
    {
-      testSetup.before();
-      LocalJcrH2Test.lockTestEnv();
+      testClassSetup.before();
+      LocalJcrH2TestSetup.lockTestEnv();
    }
    
    /**
     * <p>
-    * Tears down the test environment (see {@link LocalJcrH2Test#after()}). It will
+    * Tears down the test environment (see {@link LocalJcrH2TestSetup#after()}). It will
     * remove the test environment lock first which prevented the individual test classes from
     * tearing down the test environment themselves. 
     * </p>
@@ -64,7 +83,7 @@ public class LocalJcrH2TestSuite extends ExternalResource
    @Override
    protected void after() throws TestRtEnvException
    {
-      LocalJcrH2Test.unlockTestEnv();
-      testSetup.after();
+      LocalJcrH2TestSetup.unlockTestEnv();
+      testClassSetup.after();
    }
 }

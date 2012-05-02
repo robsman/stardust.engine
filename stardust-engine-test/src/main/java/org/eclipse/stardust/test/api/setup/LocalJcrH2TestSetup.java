@@ -10,8 +10,13 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.setup;
 
+import java.util.Arrays;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.impl.H2Server;
 import org.eclipse.stardust.test.impl.SpringAppContext;
 import org.junit.rules.ExternalResource;
@@ -33,25 +38,59 @@ import org.junit.rules.ExternalResource;
  * of test environment setup and teardown after every single test class.
  * </p>
  * 
+ * <p>
+ * This class is responsible for the test class setup whereas {@link LocalJcrH2TestSuiteSetup}
+ * deals with test suite setup and {@link TestMethodSetup} deals with test method setup.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class LocalJcrH2Test extends ExternalResource
+public class LocalJcrH2TestSetup extends ExternalResource
 {
-   private static final Log LOGGER = LogFactory.getLog(LocalJcrH2Test.class);
+   private static final Log LOG = LogFactory.getLog(LocalJcrH2TestSetup.class);
    
    private static final H2Server DBMS = new H2Server();
    private static final SpringAppContext SPRING_APP_CTX = new SpringAppContext();
 
    private static boolean locked;
 
+   private final String[] modelNames;
+   private final UsernamePasswordPair userPwdPair;
+   
+   private ServiceFactory sf;
+   
+   /**
+    * <p>
+    * Initializes the object with the username password pair and the models to deploy.
+    * </p>
+    * 
+    * @param userPwdPair the credentials of the user in whose context the setup will be done; must not be null
+    * @param modelNames the names of the models to deploy; may be null or empty
+    */
+   public LocalJcrH2TestSetup(final UsernamePasswordPair userPwdPair, final String ... modelNames)
+   {
+      if (userPwdPair == null)
+      {
+         throw new NullPointerException("User password pair must not be null.");
+      }
+      if (modelNames == null || modelNames.length == 0)
+      {
+         LOG.debug("No model to deploy specified.");
+      }
+
+      this.userPwdPair = userPwdPair;
+      this.modelNames = (modelNames != null) ? modelNames : new String[0];
+   }
+   
    /**
     * <p>
     * Sets up the local Spring test environment with an H2 DB and JCR support, i.e.
     * <ul>
     *    <li>starts the DBMS,</li>
-    *    <li>creates the Audit Trail DB schema, and</li>
-    *    <li>bootstraps the Spring Application Context.</li>
+    *    <li>creates the Audit Trail DB schema,</li>
+    *    <li>bootstraps the Spring Application Context, and</li>
+    *    <li>deploys the given models.</li>
     * </ul>
     * </p>
     * 
@@ -69,19 +108,27 @@ public class LocalJcrH2Test extends ExternalResource
          return;
       }
       
-      LOGGER.info("---> Setting up the test environment ...");
+      LOG.info("---> Setting up the test environment ...");
 
       DBMS.start();
       DBMS.createSchema();
       SPRING_APP_CTX.bootstrap();
       
-      LOGGER.info("<--- ... setup of test environment done.");
+      sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
+      if (modelNames.length > 0)
+      {
+         LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
+         RuntimeHome.deploy(sf.getAdministrationService(), modelNames);
+      }
+      
+      LOG.info("<--- ... setup of test environment done.");
    }
    
    /**
     * <p>
     * Tears down the local Spring test environment with an H2 DB and JCR support, i.e.
     * <ul>
+    *    <li>cleans up the runtime (including all models),</li>
     *    <li>closes the Spring Application Context, and</li>
     *    <li>stops the DBMS.</li>
     * </ul>
@@ -101,12 +148,15 @@ public class LocalJcrH2Test extends ExternalResource
          return;
       }
       
-      LOGGER.info("---> Tearing down the test environment ...");
+      LOG.info("---> Tearing down the test environment ...");
 
+      RuntimeHome.cleanUpRuntimeAndModels(sf.getAdministrationService());
+      sf.close();
+      
       SPRING_APP_CTX.close();
       DBMS.stop();
       
-      LOGGER.info("<--- ... teardown of test environment done.");
+      LOG.info("<--- ... teardown of test environment done.");
    }
    
    /**

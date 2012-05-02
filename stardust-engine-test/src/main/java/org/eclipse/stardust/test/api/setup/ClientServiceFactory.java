@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.common.security.authentication.LoginFailedException;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.rules.ExternalResource;
 
 /**
@@ -35,8 +36,7 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
 {
    private static final Log LOG = LogFactory.getLog(ClientServiceFactory.class);
    
-   private final String username;
-   private final String password;
+   private final UsernamePasswordPair userPwdPair;
    
    private ServiceFactory sf;
    
@@ -47,30 +47,16 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
     * {@link ClientServiceFactory#before()}.
     * </p>
     * 
-    * @param username the username to use
-    * @param password the password to use
+    * @param username the username password pair to use
     */
-   public ClientServiceFactory(final String username, final String password)
+   public ClientServiceFactory(final UsernamePasswordPair userPwdPair)
    {
-      if (username == null)
+      if (userPwdPair == null)
       {
-         throw new NullPointerException("Username must not be null.");
+         throw new NullPointerException("Username password pair must not be null.");
       }
-      if (username.isEmpty())
-      {
-         throw new IllegalArgumentException("Username must not be empty.");
-      }
-      if (password == null)
-      {
-         throw new NullPointerException("Password must not be null.");
-      }
-      if (password.isEmpty())
-      {
-         throw new IllegalArgumentException("Password must not be empty.");
-      }
-      
-      this.username = username;
-      this.password = password;
+
+      this.userPwdPair = userPwdPair;
    }
    
    /* (non-Javadoc)
@@ -79,8 +65,8 @@ public class ClientServiceFactory extends ExternalResource implements ServiceFac
    @Override
    protected void before()
    {
-      LOG.debug("Retrieving service factory for '" + username + ":" + password + "'.");      
-      sf = ServiceFactoryLocator.get(username, password);
+      LOG.debug("Retrieving service factory for '" + userPwdPair.username() + ":" + userPwdPair.password() + "'.");      
+      sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
    }
    
    /* (non-Javadoc)

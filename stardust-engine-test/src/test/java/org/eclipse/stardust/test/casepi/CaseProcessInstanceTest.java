@@ -36,12 +36,13 @@ import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -59,22 +60,24 @@ import org.junit.rules.TestRule;
  */
 public class CaseProcessInstanceTest
 {
+   /* package-private */ static final String MODEL_NAME = "CaseModel";
+
    private static final String U1 = "u1";
    private static final String U2 = "u2";
 
    private static final String D1 = "d1";
-
-   private static final String MODEL_NAME = "CaseModel";
    
-   private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
+   private static final UsernamePasswordPair USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
+   
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(USER_PWD_PAIR);
+   private final ClientServiceFactory sf = new ClientServiceFactory(USER_PWD_PAIR);
    
    @ClassRule
-   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
+   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(USER_PWD_PAIR, MODEL_NAME);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(sf)
-                                    .around(rtConfigurer);
+   public TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                    .around(sf);
    
    private WorkflowService wfService;
    

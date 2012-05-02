@@ -32,9 +32,10 @@ import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.util.UserHome;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -53,7 +54,7 @@ import org.junit.rules.TestRule;
  */
 public class QualityControlRuntimeTest
 {
-   private static final String MODEL_NAME = "QCModel";
+   /* package-private */ static final String MODEL_NAME = "QCModel";
    
    private static final String QC_MANAGER_ID = "QCManager";
    private static final String MONITORED_USER_ID = "MonitoredUser";
@@ -76,6 +77,8 @@ public class QualityControlRuntimeTest
    
    private static final String DATA_ID = "PrimitiveData1";
    
+   private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
+   
    private QueryService qs;
    
    private ActivityInstance currentActivityInstance;
@@ -89,15 +92,15 @@ public class QualityControlRuntimeTest
    private ServiceFactory qcManagerServiceFactory;
    private ServiceFactory monitoredUserServiceFactory;
 
-   private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(sf, MODEL_NAME);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final ClientServiceFactory sf = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
-   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
+   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(sf)
-                                    .around(rtConfigurer);
+   public TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                    .around(sf);
    
    @Before
    public void setUp()

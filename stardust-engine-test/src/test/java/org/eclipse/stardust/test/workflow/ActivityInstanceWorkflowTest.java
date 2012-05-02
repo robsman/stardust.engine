@@ -35,11 +35,12 @@ import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
-import org.eclipse.stardust.test.api.setup.RuntimeConfigurer;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
@@ -58,18 +59,20 @@ import org.junit.rules.TestRule;
  */
 public class ActivityInstanceWorkflowTest
 {
+   private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
+   
    private static final String DEFAULT_ROLE_USER_ID = "u1";
    
-   private final ClientServiceFactory adminSf = new ClientServiceFactory(MOTU, MOTU);
-   private final RuntimeConfigurer rtConfigurer = new RuntimeConfigurer(adminSf, MODEL_NAME);
-   private final ClientServiceFactory userSf = new ClientServiceFactory(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final ClientServiceFactory adminSf = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
+   private final ClientServiceFactory userSf = new ClientServiceFactory(new UsernamePasswordPair(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID));
    
    @ClassRule
-   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
+   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(adminSf)
-                                    .around(rtConfigurer)
+   public TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                    .around(adminSf)
                                     .around(userSf);
    
    @Before

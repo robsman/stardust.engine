@@ -25,4 +25,9 @@ package org.eclipse.stardust.test.examples;
     * the name of the model
     */
    /* package-private */ static final String MODEL_NAME = "MyExampleModel";
+   
+   /**
+    * the name of the process definition #1
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_1 = "ProcessDefinition_1";
 }

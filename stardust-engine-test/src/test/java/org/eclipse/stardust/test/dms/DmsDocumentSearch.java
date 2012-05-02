@@ -29,8 +29,9 @@ import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.ClientServiceFactory;
-import org.eclipse.stardust.test.api.setup.DmsAwareRuntimeConfigurer;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2Test;
+import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -92,15 +93,17 @@ public class DmsDocumentSearch
    // temporary documents
    private static final String DOC_NAME_TEMP = "test.tmp";
    
-   @ClassRule
-   public static LocalJcrH2Test testSetup = new LocalJcrH2Test();
+   private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
-   private final ClientServiceFactory sf = new ClientServiceFactory(MOTU, MOTU);
-   private final DmsAwareRuntimeConfigurer rtConfigurer = new DmsAwareRuntimeConfigurer(sf);
+   private final ClientServiceFactory sf = new ClientServiceFactory(ADMIN_USER_PWD_PAIR);
+   private final DmsAwareTestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR);
+
+   @ClassRule
+   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(sf)
-                                    .around(rtConfigurer);
+   public TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                    .around(sf);
 
    @Before
    public void setUp()

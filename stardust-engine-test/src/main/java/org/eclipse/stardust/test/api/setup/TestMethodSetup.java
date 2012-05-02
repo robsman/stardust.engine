@@ -37,10 +37,10 @@ public class TestMethodSetup extends ExternalResource
    
    /**
     * <p>
-    * Sets up a runtime configurer with the username password pair to use for runtime configuration.
+    * Sets up a runtime configurer with the username password pair to use for test method setup.
     * </p>
     * 
-    * @param userPwdPair the credentials of the user used for runtime configuration; must not be null
+    * @param userPwdPair the credentials of the user used for test method setup; must not be null
     */
    public TestMethodSetup(final UsernamePasswordPair userPwdPair)
    {
@@ -53,10 +53,6 @@ public class TestMethodSetup extends ExternalResource
    }
    
    /**
-    * <p>
-    * Returns the service factory this object has been initialized with.
-    * </p>
-    * 
     * @return the service factory this object has been initialized with
     */
    protected ServiceFactory serviceFactory()
@@ -64,8 +60,10 @@ public class TestMethodSetup extends ExternalResource
       return sf;
    }
    
-   /* (non-Javadoc)
-    * @see org.junit.rules.ExternalResource#before()
+   /**
+    * <p>
+    * Does internal initialization.
+    * </p>
     */
    @Override
    protected void before()
@@ -73,12 +71,17 @@ public class TestMethodSetup extends ExternalResource
       sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
    }
    
-   /* (non-Javadoc)
-    * @see org.junit.rules.ExternalResource#after()
+   /**
+    * <p>
+    * Cleans up the runtime (including user removal) without deleting the deployed models.
+    * </p>
     */
    @Override
    protected void after()
    {
       RuntimeHome.cleanUpRuntime(sf.getAdministrationService());
+      
+      sf.close();
+      sf = null;
    }
 }

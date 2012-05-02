@@ -65,12 +65,12 @@ public class ProcessInstanceWorkflowTest
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID));
    
    @ClassRule
-   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(testMethodSetup)
-                                    .around(adminSf)
-                                    .around(userSf);
+   public final TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                          .around(adminSf)
+                                          .around(userSf);
    
    @Before
    public void setUp()

@@ -51,11 +51,11 @@ public class MyDmsTest
    private final TestServiceFactory serviceFactory = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
-   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(testMethodSetup)
-                                    .around(serviceFactory);
+   public final TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                          .around(serviceFactory);
    
    @Test
    public void testCreateAndRetrieveDocument()

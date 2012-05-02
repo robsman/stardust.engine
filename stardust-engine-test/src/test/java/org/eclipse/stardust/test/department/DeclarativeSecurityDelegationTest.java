@@ -99,15 +99,15 @@ public class DeclarativeSecurityDelegationTest
    private final TestServiceFactory dtdSf = new TestServiceFactory(new UsernamePasswordPair(DTD_USERNAME, DTD_USERNAME));
    
    @ClassRule
-   public static LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
    
    @Rule
-   public TestRule chain = RuleChain.outerRule(testMethodSetup)
-                                    .around(adminSf)
-                                    .around(userSf)
-                                    .around(noneSf)
-                                    .around(dtoSf)
-                                    .around(dtdSf);
+   public final TestRule chain = RuleChain.outerRule(testMethodSetup)
+                                          .around(adminSf)
+                                          .around(userSf)
+                                          .around(noneSf)
+                                          .around(dtoSf)
+                                          .around(dtdSf);
    
    @Before
    public void setUp()

@@ -36,5 +36,5 @@ public class MyTestSuite
    /* test suite */
    
    @ClassRule
-   public static LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), MODEL_NAME);
+   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), MODEL_NAME);
 }

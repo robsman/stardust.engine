@@ -131,7 +131,10 @@ public class ModelDeploymentBean extends IdentifiablePersistentBean implements S
       }
       
       BpmRuntimeEnvironment rte = PropertyLayerProviderInterceptor.getCurrent();
-      rte.setDeploymentBeanCreatedt(true);
+      if (rte != null)
+      {
+         rte.setDeploymentBeanCreatedt(true);
+      }
       
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }

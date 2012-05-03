@@ -13,9 +13,18 @@ package org.eclipse.stardust.engine.core.upgrade.jobs;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.sql.DataSource;
 
@@ -32,13 +41,29 @@ import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesPr
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.preferences.XmlPreferenceWriter;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelDeploymentBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
+import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
-import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
+import org.eclipse.stardust.engine.core.upgrade.framework.DropTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
 
 
 
@@ -275,34 +300,38 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       
       //Create MODEL_DEP_LCK table
 
-      DatabaseHelper.createTable(item, new CreateTableInfo(ModelDeploymentBean.LOCK_TABLE_NAME)
+      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      if (session.getDBDescriptor().getUseLockTablesDefault())
       {
-         private final FieldInfo OID = new FieldInfo(MODEL_DEP_FIELD__OID, Long.TYPE,
-               0, true);
-
-         private final IndexInfo IDX1 = new IndexInfo(ModelDeploymentBean.LOCK_INDEX_NAME, true, new FieldInfo[] {OID});
- 
-         @Override
-         public FieldInfo[] getFields()
+         DatabaseHelper.createTable(item, new CreateTableInfo(
+               ModelDeploymentBean.LOCK_TABLE_NAME)
          {
-            return new FieldInfo[] {
-                  OID
-            };
-         }
+            private final FieldInfo OID = new FieldInfo(MODEL_DEP_FIELD__OID, Long.TYPE,
+                  0, true);
 
-         @Override
-         public IndexInfo[] getIndexes()
-         {
-            return new IndexInfo[] {IDX1};
-         }
+            private final IndexInfo IDX1 = new IndexInfo(
+                  ModelDeploymentBean.LOCK_INDEX_NAME, true, new FieldInfo[] {OID});
 
-         @Override
-         public String getSequenceName()
-         {
-            return null;
-         }
+            @Override
+            public FieldInfo[] getFields()
+            {
+               return new FieldInfo[] {OID};
+            }
 
-      }, this);
+            @Override
+            public IndexInfo[] getIndexes()
+            {
+               return new IndexInfo[] {IDX1};
+            }
+
+            @Override
+            public String getSequenceName()
+            {
+               return null;
+            }
+
+         }, this);
+      }
 
       //Alter Process Instance Table
 

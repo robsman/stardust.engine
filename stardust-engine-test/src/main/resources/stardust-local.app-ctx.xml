@@ -63,7 +63,7 @@
    <bean id="dmsProvider" class="org.eclipse.stardust.vfs.jcr.JcrDocumentRepositoryServiceBean">
       <property name="sessionFactoryName" value="jcrSessionFactory" />
    </bean>
-   <bean id="jcrSessionFactory" class="org.eclipse.stardust.vfs.jcr.spring.JcrSessionFactory" lazy-init="true">
+   <bean id="jcrSessionFactory" class="org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory" lazy-init="true">
       <property name="repository" ref="xaJcrConnectionFactory" />
       <property name="credentials">
          <bean id="creds" class="javax.jcr.SimpleCredentials">

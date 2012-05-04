@@ -11,6 +11,7 @@
  -->
 <ivy-module version="2.0"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns:m="http://ant.apache.org/ivy/maven"
             xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
    <!-- Info -->
@@ -24,13 +25,17 @@
    <!-- Configurations -->
    <configurations>
       <conf name="default" visibility="public" description="Stardust Engine Test" extends="compile" />
+      <conf name="sources" visibility="public" description="Stardust Engine Test - Sources" />
    
       <conf name="compile" visibility="private" description="Compile Configuration" />
       <conf name="test" visibility="private" description="Test Configuration" extends="compile" />
    </configurations>
    
    <!-- Publications -->
-   <publications />
+   <publications>
+      <artifact name="stardust-engine-test" type="jar" ext="jar" conf="default" />
+      <artifact name="stardust-engine-test" type="source" ext="jar" conf="sources" m:classifier="sources" />
+   </publications>
    
    <!-- Dependencies -->
    <dependencies>

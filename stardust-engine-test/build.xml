@@ -16,17 +16,22 @@
     (e.g. antit.bat -Djava.home=C:/Programme/Java15) or create a private.properties file
     in the etc folder of the project and put the property in there)
 -->
-<project name="stardust-engine-test" default="test" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="stardust-engine-test" default="deploy" basedir="." xmlns:stardust="com.infinity.bpm.ant.macros" xmlns:ivy="antlib:org.apache.ivy.ant">
    
-   <property name="src.main.java.dir" value="${basedir}/src/main/java" />
-   <property name="src.main.resources.dir" value="${basedir}/src/main/resources" />
-   <property name="src.test.java.dir" value="${basedir}/src/test/java" />
-   <property name="src.test.resources.dir" value="${basedir}/src/test/resources" />
+   <property name="src.dir" value="${basedir}/src" />
+   <property name="src.main.java.dir" value="${src.dir}/main/java" />
+   <property name="src.main.resources.dir" value="${src.dir}/main/resources" />
+   <property name="src.test.java.dir" value="${src.dir}/test/java" />
+   <property name="src.test.resources.dir" value="${src.dir}/test/resources" />
    
    <property name="build.dir" value="${basedir}/build" />
    <property name="build.classes.dir" value="${build.dir}/classes" />
    <property name="build.dep-report.dir" value="${build.dir}/dependency-report" />
    <property name="build.test-report.dir" value="${build.dir}/test-report" />
+   
+   <property name="artifactId" value="stardust-engine-test" />
+   <property name="artifact.jar" value="${artifactId}.jar" />
+   <property name="source.artifact.jar" value="${artifactId}-sources.jar" />
    
    <property file="${basedir}/etc/private.properties" />
    
@@ -37,8 +42,11 @@
       <delete dir="${build.dir}" />
    </target>
    
+   <!-- deploy -->
+   <target name="deploy" description="Builds the whole project, runs all tests and publishes the project's artifacts." depends="build, test, jar, publish" />
+   
    <!-- test -->
-   <target name="test" description="Runs the functional tests." depends="build-main, build-test">
+   <target name="test" description="Runs the functional tests." depends="build">
       <!-- Runtime Classpath for JUnit tests -->
       <path id="junit.rt.classpath">
          <path refid="test" />
@@ -62,14 +70,40 @@
       <ivy:report todir="${build.dep-report.dir}" />
    </target>
    
+   <!-- publish -->
+   <target name="publish" depends="jar">
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.dir}" publishPom="false" />
+   </target>
+   
+   <!-- jar -->
+   <target name="jar" depends="build">
+      <delete file="${build.dir}/${artifact.jar}" />
+      <delete file="${build.dir}/${source.artifact.jar}" />
+      
+      <stardust:jar jarfile="${build.dir}/${artifact.jar}" implementationTitle="Stardust Engine Test">
+         <fileset dir="${build.classes.dir}">
+            <include name="**/*.*" />
+         </fileset>
+      </stardust:jar>
+      
+      <stardust:jar jarfile="${build.dir}/${source.artifact.jar}" implementationTitle="Stardust Engine Test - Sources">
+         <fileset dir="${src.dir}">
+            <include name="**/*.*" />
+         </fileset>
+      </stardust:jar>
+   </target>
+   
+   <!-- build -->
+   <target name="build" depends="build-main, build-test" />
+   
    <!-- build-main -->
    <target name="build-main" depends="init, compile-main, copy-resources-main" />
    
    <!-- compile-main -->
    <target name="compile-main" depends="init">
-      <ipp:javac-java6 srcdir="${src.main.java.dir}" destdir="${build.classes.dir}">
+      <stardust:javac-java6 srcdir="${src.main.java.dir}" destdir="${build.classes.dir}">
          <classpath refid="compile.deps" />
-      </ipp:javac-java6>
+      </stardust:javac-java6>
    </target>
    
    <!-- copy-resources-main -->
@@ -84,12 +118,12 @@
    
    <!-- compile-test -->
    <target name="compile-test" depends="init">
-      <ipp:javac-java6 srcdir="${src.test.java.dir}" destdir="${build.classes.dir}">
+      <stardust:javac-java6 srcdir="${src.test.java.dir}" destdir="${build.classes.dir}">
          <classpath>
             <path refid="test" />
             <pathelement location="${build.classes.dir}" />
          </classpath>
-      </ipp:javac-java6>
+      </stardust:javac-java6>
    </target>
    
    <!-- copy-resources-test -->

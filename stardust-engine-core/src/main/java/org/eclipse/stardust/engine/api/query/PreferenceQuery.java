@@ -53,7 +53,7 @@ public class PreferenceQuery extends Query
                      BinaryOperatorFilter.class, //
                      TernaryOperatorFilter.class, //
                      CurrentPartitionFilter.class}), //
-         DocumentQuery.class);
+         PreferenceQuery.class);
 
    /**
     * Creates a query for finding all preferences existing.
@@ -242,7 +242,7 @@ public class PreferenceQuery extends Query
 
       private Attribute(String name)
       {
-         super(DocumentQuery.class, name);
+         super(PreferenceQuery.class, name);
       }
    }
 

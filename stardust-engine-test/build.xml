@@ -43,7 +43,7 @@
    </target>
    
    <!-- deploy -->
-   <target name="deploy" description="Builds the whole project, runs all tests and publishes the project's artifacts." depends="build, test, jar, publish" />
+   <target name="deploy" description="Builds the whole project, runs all tests, builds the project's artifacts and publishes them." depends="build, test, jar, publish" />
    
    <!-- test -->
    <target name="test" description="Runs the functional tests." depends="build">

@@ -89,7 +89,7 @@ public class Authorization2
                {
                   if (method.getName().equals("performAdHocTransition") && !(Boolean) args[2])
                   {
-                     permission.id = ExecutionPermission.Id.abortActivityInstances.name();
+                     permission = permission.clone(ExecutionPermission.Id.abortActivityInstances.name());
                      context = AuthorizationContext.create(permission);
                      TransitionTarget target = (TransitionTarget) args[1];
                      if (target != null) // must not throw NPEs here, let them to come from the service implementation

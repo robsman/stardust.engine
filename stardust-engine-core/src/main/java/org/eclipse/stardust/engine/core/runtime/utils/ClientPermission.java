@@ -14,7 +14,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Defaul
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Id;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Scope;
 
-public class ClientPermission
+public class ClientPermission implements Cloneable
 {
    static final ClientPermission NULL = new ClientPermission();
    
@@ -26,6 +26,20 @@ public class ClientPermission
    private boolean administratorOverride = true;
    private boolean defer = false;
    private String[] implied = {};
+   
+   public ClientPermission clone(String newId)
+   {
+      try
+      {
+         ClientPermission clone = (ClientPermission) super.clone();
+         clone.id = newId;
+         return clone;
+      }
+      catch (CloneNotSupportedException e)
+      {
+         return null; // (fh) should never happen.
+      }
+   }
    
    private ClientPermission()
    {

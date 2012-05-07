@@ -88,7 +88,6 @@
          <fileset dir="${build.classes}" id="fileset.carnot.client.jar">
 
             <include name="META-INF/resources/models/**" />
-            <include name="META-INF/resources/i18n/**" />
             <include name="META-INF/services/org.eclipse.stardust.*" />
             <include name="META-INF/services/com.*" />
             <include name="META-INF/services/ag.*" />
@@ -96,11 +95,13 @@
             <include name="org/eclipse/stardust/**" />
             <include name="ag/**" />
             <include name="com/infinity/**" />
+            <include name="**/*_de.properties" />
+            <include name="**/*_en.properties" />
+            <include name="**/*_zh_CN.properties" />
          </fileset>
          <fileset dir="${project.res}">
             <include name="about.html" />
             <include name="about_files/*" />
-            <include name="org/eclipse/stardust/engine/extensions/dms/data/*.xsd" />
          </fileset>
       </ipp:jarjar>
 
@@ -134,7 +135,6 @@
          <fileset dir="${build.classes}" id="fileset.carnot.engine.jar">
 
             <include name="META-INF/resources/models/**" />
-            <include name="META-INF/resources/i18n/**" />
             <include name="META-INF/services/org.eclipse.stardust.*" />
             <include name="META-INF/services/com.*" />
             <include name="META-INF/services/ag.*" />
@@ -142,11 +142,13 @@
             <include name="org/eclipse/stardust/**" />
             <include name="ag/**" />
             <include name="com/infinity/**" />
+            <include name="**/*_de.properties" />
+            <include name="**/*_en.properties" />
+            <include name="**/*_zh_CN.properties" />
          </fileset>
          <fileset dir="${project.res}">
             <include name="about.html" />
             <include name="about_files/*" />
-            <include name="org/eclipse/stardust/engine/extensions/dms/data/*.xsd" />
          </fileset>
       </ipp:jarjar>
 
@@ -319,9 +321,11 @@
       <copy todir="${build.classes}/META-INF/resources/models">
          <fileset dir="${project.res}/META-INF/resources/models" includes="*" />
       </copy>
-      <mkdir dir="${build.classes}/META-INF/resources/i18n" />
-      <copy todir="${build.classes}/META-INF/resources/i18n">
-         <fileset dir="${project.res}/META-INF/resources/i18n" includes="*" />
+      
+      <copy todir="${build.classes}">
+         <fileset dir="${project.res}" includes="**/*_de.properties" />
+         <fileset dir="${project.res}" includes="**/*_en.properties" />
+         <fileset dir="${project.res}" includes="**/*_zh_CN.properties" />
       </copy>
       
       <mkdir dir="${build.classes}/META-INF/services" />
@@ -736,5 +740,18 @@
       <copy file="${carnot.engine.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.emf.xsd.integration.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.emf.xsd.integration.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
+   </target>
+   
+   <!-- target is invoked by stardust-engine-nls project -->
+   <target name="copy-nls-resources" 
+      description="copies the resources into a given folder">
+      <copy todir="${build.nls.dir}">
+         <fileset dir="${project.res}">
+            <include name="**/*_de.properties"/>
+            <include name="**/*_en.properties"/>
+            <include name="**/*_zh_CN.properties"/>
+            <exclude name="**/compatibility/gui/**"/>
+         </fileset>
+      </copy>
    </target>
 </project>

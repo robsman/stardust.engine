@@ -261,7 +261,13 @@ public class ActivityThread implements Runnable
                {
                   if (RETRIES > 0)
                   {
-                     trace.warn("No free tokens found in " + (System.currentTimeMillis() - start) + " ms, giving up.");
+							trace.warn("No free tokens found for Activity Instance <"
+									+ this.activityInstance.getOID()
+									+ "> in Porcess Instance <"
+									+ this.processInstance.getOID()
+									+ "> in "
+									+ (System.currentTimeMillis() - start)
+									+ " ms, giving up.");
                   }
                   return;
                }

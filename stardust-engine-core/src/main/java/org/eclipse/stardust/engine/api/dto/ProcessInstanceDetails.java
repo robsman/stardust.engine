@@ -520,7 +520,10 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL,
                   ProcessInstanceDetailsLevel.Core);
             props.put(HistoricalEventPolicy.PRP_PROPVIDE_EVENT_TYPES, 0);
-            props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false);
+            if (!parameters.getBoolean(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false))
+            {
+               props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false);
+            }
             props.put(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES,
                   HistoricalStatesPolicy.NO_HIST_STATES);
             layer = ParametersFacade.pushLayer(props);

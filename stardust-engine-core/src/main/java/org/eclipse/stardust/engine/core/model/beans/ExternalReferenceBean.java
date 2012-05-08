@@ -167,6 +167,7 @@ public class ExternalReferenceBean implements IExternalReference
                }
             }
          }
+         StructuredTypeRtUtils.patchAnnotations(schema, getExternalAnnotations());
       }
       return schema;
    }

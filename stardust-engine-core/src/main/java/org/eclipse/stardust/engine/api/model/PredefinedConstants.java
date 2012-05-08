@@ -597,7 +597,7 @@ public final class PredefinedConstants
    public static final String WFXML_EPR_PARAMETER = "parameter";
    public static final String WFXML_EPR_PROPERTY = "property";
 
-   public static final String XML_ENCODING = ENGINE_SCOPE + "xml:encoding";
+   public static final String XML_ENCODING = "carnot.engine.xml.encoding";
 
    private static final String[] META_DATA_IDS_ARRAY = {STARTING_USER, ROOT_PROCESS_ID, CURRENT_USER,
       LAST_ACTIVITY_PERFORMER, CURRENT_DATE, PROCESS_ID, PROCESS_PRIORITY, CURRENT_LOCALE, CURRENT_MODEL};

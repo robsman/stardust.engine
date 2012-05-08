@@ -228,7 +228,8 @@ public class StructuredTypeRtUtils
          IExternalReference externalReference = (IExternalReference)xpdlType;
          
          XSDSchema xsdSchema = externalReference.getSchema(model);
-         patchAnnotations(xsdSchema, externalReference.getExternalAnnotations());
+         // (fh) moved below call to synchronized method ExternalReferenceBean.getExternalSchema
+         // patchAnnotations(xsdSchema, externalReference.getExternalAnnotations());
          return XPathFinder.findAllXPaths(xsdSchema, externalReference.getXref(), false);
       } 
       else if (xpdlType instanceof ISchemaType)
@@ -254,7 +255,8 @@ public class StructuredTypeRtUtils
          IExternalReference externalReference = (IExternalReference)xpdlType;
          
          XSDSchema xsdSchema = externalReference.getSchema(model);
-         patchAnnotations(xsdSchema, externalReference.getExternalAnnotations());
+         // (fh) moved below call to synchronized method ExternalReferenceBean.getExternalSchema
+         // patchAnnotations(xsdSchema, externalReference.getExternalAnnotations());
          return xsdSchema;
       } 
       else if (xpdlType instanceof ISchemaType)
@@ -270,7 +272,7 @@ public class StructuredTypeRtUtils
       }
    }
    
-   private static void patchAnnotations(XSDSchema xsdSchema, Element externalAnnotations)
+   public static void patchAnnotations(XSDSchema xsdSchema, Element externalAnnotations)
    {
       if (externalAnnotations == null)
       {

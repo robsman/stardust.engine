@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
@@ -124,9 +125,9 @@ public class DataValueBean extends IdentifiablePersistentBean
       return string_value_COLUMN_LENGTH;
    }
 
-   public static List<IDataValue> findAllForProcessInstance(long processInstanceOID, IModel model, List<IData> data)
+   public static List<IDataValue> findAllForProcessInstance(long processInstanceOID, IModel model, Set<IData> data)
    {
-      List<IDataValue> result = CollectionUtils.newList();
+      List<IDataValue> result = CollectionUtils.newList(data.size());
       ProcessInstanceBean pi = null;
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       if (session.existsInCache(ProcessInstanceBean.class, new Long(processInstanceOID)))
@@ -403,6 +404,16 @@ public class DataValueBean extends IdentifiablePersistentBean
       this.model = data.getModel().getModelOID();
       this.data = ModelManagerFactory.getCurrent().getRuntimeOid(data);
 
+      if (this.data == 0)
+      {
+    	  throw new InternalException(
+					MessageFormat
+							.format(
+									"DataValueBean for process instance {0} and data {1} cannot be created as the data reference cannot be resolved.",
+									new Object[] { processInstance.getOID(),
+											data.getId() }));
+      }            
+      
       if (trace.isDebugEnabled())
       {
          trace.debug("Data value created for '" + data + "' and '" + processInstance

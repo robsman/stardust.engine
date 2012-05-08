@@ -11,28 +11,65 @@
 package org.eclipse.stardust.engine.core.runtime.utils;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
-import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.runtime.*;
+
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.ActivityScope;
+import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.ModelScope;
+import org.eclipse.stardust.engine.api.runtime.Permission;
+import org.eclipse.stardust.engine.api.runtime.ProcessScope;
+import org.eclipse.stardust.engine.api.runtime.Scope;
+import org.eclipse.stardust.engine.api.runtime.Service;
+import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
+import org.eclipse.stardust.engine.api.runtime.TransitionTarget;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserService;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
-import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
+import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
+import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -533,6 +570,7 @@ public class Authorization2
       {
          List<IData> data = CollectionUtils.newList(restrictions.size());
          List<String> dataPaths = CollectionUtils.newList(restrictions.size());
+         Set<IData> dataSet = CollectionUtils.newSet();
          for (IOrganization restrictedParticipant : restrictions)
          {
             String dataId = restrictedParticipant.getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
@@ -543,32 +581,28 @@ public class Authorization2
                      + "' available for department retrieval.");
             }
             data.add(dataObject);
+            dataSet.add(dataObject);
             dataPaths.add(restrictedParticipant.getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT));
             departmentIds.add(null);
          }
 
-         List<IDataValue> values = DataValueBean.findAllForProcessInstance(context.getScopeProcessOid(), model, data);
-         if (data.size() != values.size())
+         List<IDataValue> values = DataValueBean.findAllForProcessInstance(context.getScopeProcessOid(), model, dataSet);
+         if (dataSet.size() != values.size())
          {
             throw new InternalException("Could not fetch all data values required for department retrieval.");
          }
-         for (int i = 0; i < values.size(); i++)
+         Map<IData, Object> mappedValues = CollectionUtils.newMap();
+         for (IDataValue dataValue : values)
          {
-            IDataValue dataValue = values.get(i);
-            IData dataObject = dataValue.getData();
-            Object value = dataValue.getValue();
-            ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject.getType());
-            SymbolTable symbolTable = SymbolTableFactory.create(dataObject.getId(), value, dataObject);
+            mappedValues.put(dataValue.getData(), dataValue.getValue());
+         }
+         for (int i = 0; i < data.size(); i++)
+         {
+            IData dataObject = data.get(i);
             String dataPath = dataPaths.get(i);
-            AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, context.getScopeProcessOid());
-            Object evaluate = evaluator.evaluate(dataObject, value, dataPath, evaluationContext);
-            for (int j = 0; j < data.size(); j++)
-            {
-               if (dataObject.equals(data.get(j)) && CompareHelper.areEqual(dataPath, dataPaths.get(j)))
-               {
-                  departmentIds.set(j, evaluate == null ? null : evaluate.toString());
-               }
-            }
+            Object value = mappedValues.get(dataObject);
+            Object evaluate = evaluateDataPath(context, dataObject, dataPath, value);
+            departmentIds.set(i, evaluate == null ? null : evaluate.toString());
          }
       }
 
@@ -607,6 +641,34 @@ public class Authorization2
       return restrictions;
    }
 
+   private static Object evaluateDataPath(AuthorizationContext context,
+	         final IData dataObject, String dataPath, final Object dataValue)
+	   {
+	      ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject.getType());
+	      SymbolTable symbolTable = new SymbolTable()
+	      {
+	         public Object lookupSymbol(String name)
+	         {
+	            if (name.equals(dataObject.getId()))
+	            {
+	               return dataValue;
+	            }
+	            return null;
+	         }
+	    
+	         public AccessPoint lookupSymbolType(String name)
+	         {
+	            if (name.equals(dataObject.getId()))
+	            {
+	               return dataObject;
+	            }
+	            return null;
+	         }
+	      };
+	      AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, context.getScopeProcessOid());
+	      return evaluator.evaluate(dataObject, dataValue, dataPath, evaluationContext);
+	   }   
+   
    private static void findRestricted(List<IOrganization> restrictions, IModelParticipant participant)
    {
       if (participant instanceof IOrganization

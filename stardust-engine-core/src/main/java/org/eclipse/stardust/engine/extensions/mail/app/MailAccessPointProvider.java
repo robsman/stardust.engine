@@ -102,12 +102,12 @@ public class MailAccessPointProvider implements AccessPointProvider
                   JavaAccessPointType.PARAMETER.getId(),
                   JavaAccessPointType.class.getName()}));
 
-      result.put(SUBJECT, JavaDataTypeUtils.createIntrinsicAccessPoint(
-            PredefinedConstants.ATTACHMENTS, PredefinedConstants.ATTACHMENTS + ": "
-                  + java.util.List.class.getName(), java.util.List.class.getName(),
-            Direction.IN, false, new String[] {
-                  JavaAccessPointType.PARAMETER.getId(),
-                  JavaAccessPointType.class.getName()}));
+      result.put(PredefinedConstants.ATTACHMENTS, JavaDataTypeUtils.createIntrinsicAccessPoint(
+              PredefinedConstants.ATTACHMENTS, PredefinedConstants.ATTACHMENTS + ": "
+                    + java.util.List.class.getName(), java.util.List.class.getName(),
+              Direction.IN, false, new String[] {
+                    JavaAccessPointType.PARAMETER.getId(),
+                    JavaAccessPointType.class.getName()}));
 
       int count = getTemplateVariablesCount(context);
 

@@ -2061,10 +2061,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                   && Authorization2.hasPermission(context)
                   && QualityAssuranceUtils.isActivationAllowed(ai))
             {
-               activate(ai);
-               nextForUser = (ActivityInstance) DetailsFactory.create(ai,
-                     IActivityInstance.class, ActivityInstanceDetails.class);
-               break;
+                try
+                {
+                   activate(ai);
+                   nextForUser = (ActivityInstance) DetailsFactory.create(ai,
+                         IActivityInstance.class, ActivityInstanceDetails.class);
+                }
+                catch (AccessForbiddenException e)
+                {                  
+                   String errorId = e.getError().getId();
+                   if(!errorId.equals("BPMRT03112"))
+                   {
+                      throw e;
+                   }
+                }
             }
          }
       }

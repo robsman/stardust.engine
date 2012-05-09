@@ -136,7 +136,7 @@ public class StructuredTypeRtUtils
    {
       if (declaredTypeId != null && declaredTypeId.startsWith("typeDeclaration:{"))
       {
-         QName qname = QName.valueOf(declaredTypeId.substring(17));
+         QName qname = QName.valueOf(declaredTypeId.substring(16));
          IExternalPackage pkg = model.findExternalPackage(qname.getNamespaceURI());
          if (pkg != null)
          {

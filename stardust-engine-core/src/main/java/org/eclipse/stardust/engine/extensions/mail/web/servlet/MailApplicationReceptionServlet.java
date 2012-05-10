@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,63 +25,72 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.extensions.mail.MailConstants;
+import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtils;
 
 
 public class MailApplicationReceptionServlet extends HttpServlet
 {
-	public static final String PROCESS_INSTANCE_OID = "processInstanceOID";
-	public static final String ACTIVITY_INSTANCE_OID = "activityInstanceOID";
-	public static final String OUTPUT_VALUE = "outputValue";
-	public static final String HASH_CODE = "hashCode";
-	public static final String INVESTIGATE = "investigate";
+   /**
+    * 
+    */
+   private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+   public void doGet(HttpServletRequest request, HttpServletResponse response)
+         throws IOException, ServletException
+   {
+      ServiceFactory serviceFactory;
 
-	public void doGet(HttpServletRequest request, HttpServletResponse response)
-				throws IOException, ServletException
-	{
-		ServiceFactory serviceFactory;
+      // Parse request
 
-		// Parse request
+      String processInstanceOIDString = request.getParameter(MailConstants.PROCESS_INSTANCE_OID);
+      String activityInstanceOIDString = request.getParameter(MailConstants.ACTIVITY_INSTANCE_OID);
+      String outputValue = request.getParameter(MailConstants.OUTPUT_VALUE);
+      String investigateString = request.getParameter(MailConstants.INVESTIGATE);
+      String requestHashCodeString = request.getParameter(MailConstants.HASH_CODE);
+      
+      long processInstanceOID = Long.parseLong(processInstanceOIDString);
+      long activityInstanceOID = Long.parseLong(activityInstanceOIDString);
+      boolean investigate = Boolean.parseBoolean(investigateString);
+      
+      // compare hashCode retrieved from request with own computed hashCode and handle error if not equal
+      int computedHashCode = MailValidationUtils.getQueryParametersHashCode(processInstanceOID,
+            activityInstanceOID, investigate, outputValue);
+      if ( !Integer.toString(computedHashCode).equals(requestHashCodeString))
+      {
+         error(request, response, new Exception("provided hashCode not valid: "
+               + requestHashCodeString), null, null, null);
 
-		String processInstanceOIDString = request
-					.getParameter(PROCESS_INSTANCE_OID);
-		String activityInstanceOIDString = request
-		.getParameter(ACTIVITY_INSTANCE_OID);
-		String outputValue = request.getParameter(OUTPUT_VALUE);
-//		String hashCode = request.getParameter(HASH_CODE);
-		String investigate = request.getParameter(INVESTIGATE);
-		long processInstanceOID = Long.parseLong(processInstanceOIDString);
-		long activityInstanceOID = Long.parseLong(activityInstanceOIDString);
-
-		// Complete activity
+         return;
+      }         
+      
+      // Complete activity
 
       try
       {
          String user = getInitParameter("user");
          String password = getInitParameter("password");
-         
+
          serviceFactory = ServiceFactoryLocator.get(user, password);
       }
-		catch (Exception e)
-		{
-			error(request, response, e, null, null, null);
+      catch (Exception e)
+      {
+         error(request, response, e, null, null, null);
 
-			return;
-		}
+         return;
+      }
 
-		if (investigate != null && investigate.compareToIgnoreCase("true") == 0)
-		{
-			investigate(request, response, serviceFactory, processInstanceOID, activityInstanceOID);
-		}
-		else
-		{
-			process(request, response, serviceFactory, processInstanceOID, activityInstanceOID, outputValue);
-		}
-	}
+      if (investigate == true)
+      {
+         investigate(request, response, serviceFactory, processInstanceOID,
+               activityInstanceOID);
+      }
+      else
+      {
+         process(request, response, serviceFactory, processInstanceOID,
+               activityInstanceOID, outputValue);
+      }
+   }
 	
 	private void process(HttpServletRequest request,
 				HttpServletResponse response, ServiceFactory serviceFactory, 
@@ -267,9 +276,10 @@ public class MailApplicationReceptionServlet extends HttpServlet
          out.println("<img src='images/logo.jpg'/>");
          out.println("<h1>Error</h1>");
          out.println("<p>You may have answered the request already.</p>");
-         /*out.println("<div id='small'><p>");
-         e.printStackTrace(out);
-         out.println("</p><div>");*/
+         if (StringUtils.isNotEmpty(e.getMessage()))
+         {
+            out.println("<p>Error text: " + e.getMessage() + "</p>");
+         }
          out.println("</body>");
          out.println("</html>");
       }

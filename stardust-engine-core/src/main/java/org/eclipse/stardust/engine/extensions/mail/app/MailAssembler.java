@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,8 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
+import org.eclipse.stardust.engine.extensions.mail.MailConstants;
+import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtils;
 
 
 public class MailAssembler
@@ -343,10 +345,9 @@ public class MailAssembler
 
       if (createProcessHistoryLink)
       {
-         buffer.append(MailMessages.getString("linkForStatusRequest") + ": " + rootURL + "?"
-               + "processInstanceOID=" + processInstanceOID
-               + "&activityInstanceOID=" + activityInstanceOID
-               + "&investigate=true\n");
+         buffer.append(MailMessages.getString("linkForStatusRequest") + ": " + rootURL)
+               .append(getHtmlQuery(true, null))
+               .append("\n");
       }
 
       for (Iterator iterator = outputValueSetMap.keySet().iterator(); iterator
@@ -355,9 +356,9 @@ public class MailAssembler
          String outputValue = (String) iterator.next();
 
          buffer.append(MailMessages.getString("linkFor") + " " + outputValueSetMap.get(outputValue) + ": "
-               + rootURL + "?" + "processInstanceOID=" + processInstanceOID
-               + "&activityInstanceOID=" + activityInstanceOID
-               + "&outputValue=" + outputValue + "\n");
+               + rootURL) 
+               .append(getHtmlQuery(false, outputValue))
+               .append("\n");
       }
 
       return buffer.toString();
@@ -374,10 +375,9 @@ public class MailAssembler
 
       if (createProcessHistoryLink)
       {
-         buffer.append(MailMessages.getString("linkForStatusRequest") + ": " + rootURL + "?"
-               + "processInstanceOID=" + processInstanceOID
-               + "&activityInstanceOID=" + activityInstanceOID
-               + "&investigate=true\n");
+         buffer.append(MailMessages.getString("linkForStatusRequest") + ": " + rootURL)
+               .append(getHtmlQuery(true, null))
+               .append("\n");
       }
 
       return buffer.toString();
@@ -391,29 +391,23 @@ public class MailAssembler
 
       if (createProcessHistoryLink)
       {
-         buffer
-         .append("<a href=\""
-               + rootURL
-               + "?"
-               + "processInstanceOID="
-               + processInstanceOID
-               + "&activityInstanceOID="
-               + activityInstanceOID
-               + "&investigate=true\" target=\"_blank\">" 
-               + MailMessages.getString("statusRequest")
-               + "</a><br><br>");
+         buffer.append("<a href=\"" + rootURL)
+               .append(getHtmlQuery(true, null))
+               .append("\" target=\"_blank\">")
+               .append(MailMessages.getString("statusRequest"))
+               .append("</a><br><br>");
       }
 
       for (Iterator iterator = outputValueSetMap.keySet().iterator(); iterator
       .hasNext();)
       {
-         String outputValue = (String) iterator.next();
-
-         buffer.append(MailMessages.getString("linkFor") + ": <a href=\"" + rootURL + "?" + "processInstanceOID="
-               + processInstanceOID + "&activityInstanceOID="
-               + activityInstanceOID + "&outputValue=" + outputValue
-               + "\" target=\"_blank\">"
-               + outputValueSetMap.get(outputValue) + "</a><br>");
+         final String outputValue = (String) iterator.next();
+         
+         buffer.append(MailMessages.getString("linkFor") + ": <a href=\"" + rootURL) 
+               .append(getHtmlQuery(false, outputValue))
+               .append("\" target=\"_blank\">")
+               .append(outputValueSetMap.get(outputValue))
+               .append("</a><br>");
       }
 
       return buffer.toString();
@@ -427,23 +421,54 @@ public class MailAssembler
 
       if (createProcessHistoryLink)
       {
-         buffer
-         .append("<a href=\""
-               + rootURL
-               + "?"
-               + "processInstanceOID="
-               + processInstanceOID
-               + "&activityInstanceOID="
-               + activityInstanceOID
-               + "&investigate=true\" target=\"_blank\">" 
-               + MailMessages.getString("statusRequst")
-               + "</a><br><br>");
+         buffer.append("<a href=\"" + rootURL)
+               .append(getHtmlQuery(true, null))
+               .append("\" target=\"_blank\">")
+               .append(MailMessages.getString("statusRequst"))
+               .append("</a><br><br>");
       }
 
       buffer
       .append("<p>" + MailMessages.getString("replyMessage") + ".</p>");
 
       return buffer.toString();
+   }
+   
+   /**
+    * This will return HTML query parameters. Always fields for process instance OID and activity instance OID
+    * will be added. If argument <code>investigate</code> is set to <code>true</code> then
+    * it will be added, <code>outputValue</code> will be ignored. 
+    * Otherwise if argument <code>investigate</code> is set to <code>false</code> then
+    * it will be ignored, but <code>outputValue</code> will be added.
+    * At the end field hashCode will be added which encodes all previous fields.   
+    *    
+    * @param investigate
+    * @param outputValue
+    * 
+    * @return StringBufffer containing valid HTML query string
+    */
+   private StringBuffer getHtmlQuery(final boolean investigate, final String outputValue)
+   {
+      StringBuffer buffer = new StringBuffer(200);
+
+      final int hashCode = MailValidationUtils.getQueryParametersHashCode(processInstanceOID,
+            activityInstanceOID, investigate, outputValue);
+      
+      buffer.append("?").append(MailConstants.PROCESS_INSTANCE_OID).append("=").append(processInstanceOID)
+            .append("&").append(MailConstants.ACTIVITY_INSTANCE_OID).append("=").append(activityInstanceOID);
+      
+      if (investigate)
+      {
+         buffer.append("&").append(MailConstants.INVESTIGATE).append("=").append(investigate);
+      }
+      else
+      {
+         buffer.append("&").append(MailConstants.OUTPUT_VALUE).append("=").append(outputValue);
+      }
+      
+      buffer.append("&").append(MailConstants.HASH_CODE).append("=").append(hashCode);
+
+      return buffer;
    }
 
    private String evaluateMailPriority (String priority)

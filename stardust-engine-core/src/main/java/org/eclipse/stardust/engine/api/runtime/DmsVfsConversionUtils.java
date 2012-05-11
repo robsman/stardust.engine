@@ -14,13 +14,18 @@ import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
 import java.util.*;
 
+import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentToIFileAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.FolderToIFolderAdapter;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.extensions.dms.data.*;
 
 import org.eclipse.stardust.vfs.*;
@@ -296,6 +301,70 @@ public class DmsVfsConversionUtils
 
    public static enum AccessMode {
       Read, Write
+   }
+
+   public static IFolder ensureFolderHierarchyExists(final IDocumentRepositoryService vfs,
+         String folderPath)
+   {
+      if (StringUtils.isEmpty(folderPath))
+      {
+         return null;
+      }
+      else
+      {
+         IFolder folder = vfs.getFolder(folderPath, IFolder.LOD_NO_MEMBERS);
+
+         if (null == folder)
+         {
+            // folder does not exist yet, create it
+            String parentPath = folderPath.substring(0, folderPath.lastIndexOf('/'));
+            String childName = folderPath.substring(folderPath.lastIndexOf('/') + 1);
+
+            IFolder parentFolder = ensureFolderHierarchyExists(vfs, parentPath);
+            final String parentFolderId;
+            final String folderName = childName;
+            if (null == parentFolder)
+            {
+               parentFolderId = VfsUtils.REPOSITORY_ROOT;
+            }
+            else
+            {
+               parentFolderId = parentFolder.getId();
+            }
+            return runIsolateAction(new Action<IFolder>()
+            {
+               public IFolder execute()
+               {
+                  return vfs.createFolder(parentFolderId,
+                        VfsUtils.createFolderInfo(folderName));
+            }
+            });
+         }
+         else
+         {
+            return folder;
+         }
+      }
+   }
+
+   private static <T extends Object> T runIsolateAction(Action<T> action)
+   {
+      ForkingServiceFactory factory = null;
+      ForkingService service = null;
+      try
+      {
+         factory = (ForkingServiceFactory) Parameters.instance().get(
+               EngineProperties.FORKING_SERVICE_HOME);
+         service = factory.get();
+         return (T) service.isolate(action);
+      }
+      finally
+      {
+         if (null != factory)
+         {
+            factory.release(service);
+         }
+      }
    }
 
 }

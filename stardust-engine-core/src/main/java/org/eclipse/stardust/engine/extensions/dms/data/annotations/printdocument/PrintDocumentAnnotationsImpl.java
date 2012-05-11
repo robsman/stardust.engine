@@ -13,20 +13,12 @@ package org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocumen
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-
-
 
 public class PrintDocumentAnnotationsImpl
       implements PrintDocumentAnnotations, Serializable
@@ -54,6 +46,11 @@ public class PrintDocumentAnnotationsImpl
    private List<Integer> pageSequence = CollectionUtils.newArrayList();
 
    private transient PageBookmark cachedDefaultBookmark;
+
+   private String templateType;
+
+   // CorrespondenceCapable (needs to be impl for map conversion)
+   private CorrespondenceCapableImpl correspondenceCapable = new CorrespondenceCapableImpl();
 
    public void addBookmark(PageBookmark bookmark)
    {
@@ -517,10 +514,10 @@ public class PrintDocumentAnnotationsImpl
                      BpmRuntimeError.DMS_ANNOTATIONS_ID_PRESENT.raise(toAdd.getId()));
             }
          }
-         if (!uniqueIds.add(toAdd.getId()))
+         if ( !uniqueIds.add(toAdd.getId()))
          {
-               throw new InvalidArgumentException(
-                     BpmRuntimeError.DMS_ANNOTATIONS_ID_PRESENT.raise(toAdd.getId()));
+            throw new InvalidArgumentException(
+                  BpmRuntimeError.DMS_ANNOTATIONS_ID_PRESENT.raise(toAdd.getId()));
          }
       }
       return false;
@@ -578,6 +575,121 @@ public class PrintDocumentAnnotationsImpl
          return 0;
       }
 
+   }
+
+   public String getAttachments()
+   {
+      return correspondenceCapable.getAttachments();
+   }
+
+   public void setAttachments(String attachments)
+   {
+      correspondenceCapable.setAttachments(attachments);
+   }
+
+   public String getBlindCarbonCopyRecipients()
+   {
+      return correspondenceCapable.getBlindCarbonCopyRecipients();
+   }
+
+   public void setBlindCarbonCopyRecipients(String bccRecipients)
+   {
+      correspondenceCapable.setBlindCarbonCopyRecipients(bccRecipients);
+   }
+
+   public String getCarbonCopyRecipients()
+   {
+      return correspondenceCapable.getCarbonCopyRecipients();
+   }
+
+   public void setCarbonCopyRecipients(String ccRecipients)
+   {
+      correspondenceCapable.setCarbonCopyRecipients(ccRecipients);
+   }
+
+   public String getFaxNumber()
+   {
+      return correspondenceCapable.getFaxNumber();
+   }
+
+   public void setFaxNumber(String faxNumber)
+   {
+      correspondenceCapable.setFaxNumber(faxNumber);
+   }
+
+   public String getRecipients()
+   {
+      return correspondenceCapable.getRecipients();
+   }
+
+   public void setRecipients(String recipients)
+   {
+      correspondenceCapable.setRecipients(recipients);
+   }
+
+   public Date getSendDate()
+   {
+      return correspondenceCapable.getSendDate();
+   }
+
+   public void setSendDate(Date sendDate)
+   {
+      correspondenceCapable.setSendDate(sendDate);
+   }
+
+   public String getSender()
+   {
+      return correspondenceCapable.getSender();
+   }
+
+   public void setSender(String sender)
+   {
+      correspondenceCapable.setSender(sender);
+   }
+
+   public String getSubject()
+   {
+      return correspondenceCapable.getSubject();
+   }
+
+   public void setSubject(String subject)
+   {
+      correspondenceCapable.setSubject(subject);
+   }
+
+   public boolean isEmailEnabled()
+   {
+      return correspondenceCapable.isEmailEnabled();
+   }
+
+   public void setEmailEnabled(boolean emailEnabled)
+   {
+      correspondenceCapable.setEmailEnabled(emailEnabled);
+   }
+
+   public boolean isFaxEnabled()
+   {
+      return correspondenceCapable.isFaxEnabled();
+   }
+
+   public void setFaxEnabled(boolean faxEnabled)
+   {
+      correspondenceCapable.setFaxEnabled(faxEnabled);
+   }
+
+   public String getTemplateType()
+   {
+      return templateType;
+   }
+
+   public void setTemplateType(String templateType)
+   {
+      this.templateType = templateType;
+   }
+
+   public boolean isTemplate()
+   {
+      return (templateType != null && !templateType.isEmpty());
    }
 
 }

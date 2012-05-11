@@ -74,25 +74,40 @@ public class MigrateRepositoryCommand extends ConsoleCommand
          RepositoryMigrationReport report = dms.migrateRepository(0, false);
          int currentRepositoryVersion = report.getCurrentRepositoryVersion();
          int targetRepositoryVersion = report.getTargetRepositoryVersion();
+         int currentRepositoryStructureVersion = report.getCurrentRepositoryStructureVersion();
+         int targetRepositoryStructureVersion = report.getTargetRepositoryStructureVersion();
 
-         if (currentRepositoryVersion >= targetRepositoryVersion)
+         if (currentRepositoryVersion >= targetRepositoryVersion
+               && currentRepositoryStructureVersion >= targetRepositoryStructureVersion)
          {
             print("No migration required. Current version: " + currentRepositoryVersion
-                  + " Target version: " + targetRepositoryVersion + ".");
+                  + " Target version: " + targetRepositoryVersion
+                  + ". Current structure version: " + currentRepositoryStructureVersion
+                  + " Target structure version: " + targetRepositoryStructureVersion
+                  + ".");
             return 0;
          }
 
-         print("Repository requires miration from version: " + currentRepositoryVersion
-               + " to " + targetRepositoryVersion + ".");
+         if (currentRepositoryVersion < targetRepositoryVersion)
+         {
+            print("Repository requires miration from version: "
+                  + currentRepositoryVersion + " to " + targetRepositoryVersion + ".");
+         }
+         if (currentRepositoryStructureVersion < targetRepositoryStructureVersion)
+         {
+            print("Repository requires miration from structure version: "
+                  + currentRepositoryStructureVersion + " to " + targetRepositoryStructureVersion + ".");
+         }
+
          boolean cancel = false;
-         while (batchSize > 0 && currentRepositoryVersion < targetRepositoryVersion && !cancel)
+         while (batchSize > 0 && !cancel)
          {
             report = dms.migrateRepository(0, true);
 
             RepositoryMigrationJobInfo currentMigrationJob = report.getCurrentMigrationJob();
             long totalCount = report.getTotalCount();
 
-            print("The next migrarion job is: " + currentMigrationJob.getName()
+            print("The next migration job is: " + currentMigrationJob.getName()
                   + "( from version " + currentMigrationJob.getFromVersion()
                   + ", to version " + currentMigrationJob.getToVersion() + ").");
             print("In this migration step " + totalCount
@@ -110,11 +125,18 @@ public class MigrateRepositoryCommand extends ConsoleCommand
                {
                   stepComplete = true;
                   print("Migration step complete. New repository version is "
-                        + report.getCurrentRepositoryVersion());
+                        + report.getCurrentRepositoryVersion() + ".");
                   currentRepositoryVersion = report.getCurrentRepositoryVersion();
                }
+               else if (report.getCurrentRepositoryStructureVersion() > currentRepositoryStructureVersion)
+               {
+                  stepComplete = true;
+                  print("Migration step complete. New repository structure version is "
+                        + report.getCurrentRepositoryStructureVersion() + ".");
+                  currentRepositoryStructureVersion = report.getCurrentRepositoryStructureVersion();
+               }
                long runtime = System.currentTimeMillis() - starttime;
-               if (runtime > timeLimit * 1000 * 60)
+               if (timeLimit > 0 && runtime > timeLimit * 1000 * 60)
                {
                   cancel = true;
                   print("Time limit exceded! The migration was stopped after " + runtime / 1000 / 60

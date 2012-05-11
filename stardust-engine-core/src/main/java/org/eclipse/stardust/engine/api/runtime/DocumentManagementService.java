@@ -220,11 +220,24 @@ public interface DocumentManagementService extends Service
     * Creates a new version of the document.
     *
     * @param documentId ID or path of the document to be versioned
-    * @param versionLabel label for the new revision
+    * @param versionLabel label for the new revision. The label must be unique per document.
+    * @return document describing the new document version
+    * @throws DocumentManagementServiceException on DMS specific errors
+    * @deprecated since 7.0 use {@link #versionDocument(String, String, String)}
+    */
+   @Deprecated
+   Document versionDocument(String documentId, String versionLabel) throws DocumentManagementServiceException;
+
+   /**
+    * Creates a new version of the document.
+    *
+    * @param documentId ID or path of the document to be versioned
+    * @param versionComment comment for the new revision
+    * @param versionLabel label for the new revision. The label must be unique per document.
     * @return document describing the new document version
     * @throws DocumentManagementServiceException on DMS specific errors
     */
-   Document versionDocument(String documentId, String versionLabel) throws DocumentManagementServiceException;
+   Document versionDocument(String documentId, String versionComment, String versionLabel) throws DocumentManagementServiceException;
 
    /**
     * Removes a version of a document. At least one version has to remain.<br>
@@ -273,12 +286,28 @@ public interface DocumentManagementService extends Service
     *
     * @param document document to update.
     * @param createNewRevision if true, new revision of the document will be created
-    * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label
+    * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
+    * @param keepLocked if true, the document will be kept locked after update.
+    * @return the updated document
+    * @throws DocumentManagementServiceException on DMS specific errors
+    * @deprecated since 7.0 use {@link #updateDocument(Document, boolean, String, String, boolean)}
+    */
+   @Deprecated
+   Document updateDocument(Document document, boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
+
+   /**
+    * Updates document (except document content).
+    *
+    * @param document document to update.
+    * @param createNewRevision if true, new revision of the document will be created
+    * @param versionComment can be specified to comment the version operation.
+    * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
     * @param keepLocked if true, the document will be kept locked after update.
     * @return the updated document
     * @throws DocumentManagementServiceException on DMS specific errors
     */
-   Document updateDocument(Document document, boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
+   Document updateDocument(Document document, boolean createNewRevision, String versionComment, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
+
 
    /**
     * Updates document.
@@ -293,7 +322,33 @@ public interface DocumentManagementService extends Service
     * @param content new document content.
     * @param encoding encoding of the new document content.
     * @param createNewRevision if true, new revision of the document will be created
-    * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label
+    * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
+    * @param keepLocked if true, the document will be kept locked after update.
+    * @return the updated document
+    * @throws DocumentManagementServiceException on DMS specific errors
+    *
+    * @see #requestDocumentContentUpload(String)
+    * @deprecated since 7.0 use {@link #updateDocument(Document, byte[], String, boolean, String, String, boolean)}
+    */
+   @Deprecated
+   Document updateDocument(Document document, byte[] content, String encoding,
+         boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
+
+   /**
+    * Updates document.
+    *
+    * <p>
+    * Warning: this method should only be used for documents of reasonable size as the
+    * full content will be materialized in memory both on the server as well as on the
+    * client. It is recommended to us the facilities provided by
+    * {@link DmsContentServlet} for memory efficient content access.
+
+    * @param document document to update.
+    * @param content new document content.
+    * @param encoding encoding of the new document content.
+    * @param createNewRevision if true, new revision of the document will be created
+    * @param versionComment can be specified to comment the version operation.
+    * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
     * @param keepLocked if true, the document will be kept locked after update.
     * @return the updated document
     * @throws DocumentManagementServiceException on DMS specific errors
@@ -301,7 +356,8 @@ public interface DocumentManagementService extends Service
     * @see #requestDocumentContentUpload(String)
     */
    Document updateDocument(Document document, byte[] content, String encoding,
-         boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
+         boolean createNewRevision, String versionComment, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
+
 
    /**
     * Initiates document content upload via {@link DmsContentServlet}. The
@@ -429,8 +485,7 @@ public interface DocumentManagementService extends Service
     * further resources if there are resources for migration available. After all
     * resources for the migration from one version to the next are processed subsequent
     * calls will start the migration to the next higher repository structure version.<br> The
-    * migration is complete if the current version of the repository reaches the target version
-    * defined by the repository.
+    * migration is complete when the two current version (vfs internal and engine structure) reach the respective target version.
     * <p>
     * <b>Important Note</b>
     * Please ensure there is no other write access on the repository to avoid race conditions!
@@ -438,6 +493,11 @@ public interface DocumentManagementService extends Service
     * <p>
     * The MigrationReport returned by each call contains information about: Total resources that need migration to the next version,
     * resources already migrated, current version, next version and target version of the repository structure.
+    * <p>There are two different versions, internal versions are migrated first.
+    * <br>The vfs internal version called <code>repositoryVersion</code>.
+    * {@link RepositoryMigrationReport#getTargetRepositoryVersion()}
+    * <br>The engine's structure version called <code>repositoryStructureVersion</code>.
+    * {@link RepositoryMigrationReport#getTargetRepositoryStructureVersion()}
     *
     * @param batchSize
     *           count of resources to be migrated in this call. A value of 0 will return a

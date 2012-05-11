@@ -15,6 +15,7 @@ import java.io.Serializable;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationJobInfo;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 
+import org.eclipse.stardust.vfs.IMigrationJobInfo;
 import org.eclipse.stardust.vfs.IMigrationReport;
 
 
@@ -23,7 +24,7 @@ public class DmsMigrationReportBean implements RepositoryMigrationReport, Serial
 
    private static final long serialVersionUID = 1L;
 
-   private final RepositoryMigrationJobInfo currentMigrationJob;
+   private RepositoryMigrationJobInfo currentMigrationJob;
 
    private int currentRepositoryVersion;
 
@@ -33,14 +34,29 @@ public class DmsMigrationReportBean implements RepositoryMigrationReport, Serial
 
    private long totalCount;
 
-   public DmsMigrationReportBean(IMigrationReport migrationReport)
+   private int currentStructureVersion;
+
+   private int targetStructureVersion;
+
+   public DmsMigrationReportBean(IMigrationReport migrationReport, int currentStructureVersion, int targetStructureVersion, Long totalCount, Long resourcesDone, RepositoryMigrationJobInfo migrationJobInfo)
    {
+      this.currentStructureVersion = currentStructureVersion;
+      this.targetStructureVersion = targetStructureVersion;
       this.currentRepositoryVersion = migrationReport.getCurrentRepositoryVersion();
       this.targetRepositoryVersion = migrationReport.getTargetRepositoryVersion();
-      this.resourcesDone = migrationReport.getResourcesDone();
-      this.totalCount = migrationReport.getTotalCount();
-      this.currentMigrationJob = new DmsMigrationJobInfoBean(
-            migrationReport.getCurrentMigrationJobInfo());
+      this.resourcesDone = resourcesDone == null ? migrationReport.getResourcesDone() : resourcesDone;
+      this.totalCount = totalCount == null ? migrationReport.getTotalCount() : totalCount;
+
+      IMigrationJobInfo currentMigrationJobInfo = migrationReport.getCurrentMigrationJobInfo();
+      if (migrationJobInfo != null)
+      {
+         this.currentMigrationJob = migrationJobInfo;
+      }
+      else if (currentMigrationJobInfo != null)
+      {
+         this.currentMigrationJob = new DmsMigrationJobInfoBean(currentMigrationJobInfo);
+      }
+
    }
 
    public RepositoryMigrationJobInfo getCurrentMigrationJob()
@@ -66,6 +82,16 @@ public class DmsMigrationReportBean implements RepositoryMigrationReport, Serial
    public long getTotalCount()
    {
       return totalCount;
+   }
+
+   public int getCurrentRepositoryStructureVersion()
+   {
+      return currentStructureVersion;
+   }
+
+   public int getTargetRepositoryStructureVersion()
+   {
+      return targetStructureVersion;
    }
 
 }

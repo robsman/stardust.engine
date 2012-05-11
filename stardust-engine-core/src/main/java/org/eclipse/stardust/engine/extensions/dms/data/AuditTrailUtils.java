@@ -66,6 +66,8 @@ public class AuditTrailUtils
 
    public static final String FILE_REVISION_NAME = "revisionName";
 
+   public static final String FILE_REVISION_COMMENT = "revisionComment";
+
    public static final String FILE_VERSION_LABELS = "versionLabels";
 
    public static final String PRP_NAME = "name";
@@ -149,6 +151,7 @@ public class AuditTrailUtils
 
       modified |= updateEntry(auditTrailDoc, FILE_REVISION_ID, vfsDoc.getRevisionId());
       modified |= updateEntry(auditTrailDoc, FILE_REVISION_NAME, vfsDoc.getRevisionName());
+      modified |= updateEntry(auditTrailDoc, FILE_REVISION_COMMENT, vfsDoc.getRevisionComment());
       modified |= updateEntry(auditTrailDoc, FILE_VERSION_LABELS, new ArrayList(
             vfsDoc.getVersionLabels()));
 

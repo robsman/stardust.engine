@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.runtime;
 
-
 /**
  * Reports information about the last migration batch and the migration jobs in general.
- * 
+ *
  * @author Roland.Stamm
  *
  */
@@ -24,25 +23,35 @@ public interface RepositoryMigrationReport
     * @return Total count of resources to be migrated.
     */
    long getTotalCount();
-   
+
    /**
     * @return Fraction of resources that are finished for this migration step.
     */
    long getResourcesDone();
-   
-   /**
-    * @return The target version which is the highest version the repository supports.
-    */
-   int getTargetRepositoryVersion();
-   
+
    /**
     * @return The version of the repository structure currently used.
     */
    int getCurrentRepositoryVersion();
-   
+
+   /**
+    * @return The target version which is the highest version the repository supports.
+    */
+   int getTargetRepositoryVersion();
+
+   /**
+    * @return The current tenant structure of the repository.
+    */
+   int getCurrentRepositoryStructureVersion();
+
+   /**
+    * @return The target tenant structure of the repository.
+    */
+   int getTargetRepositoryStructureVersion();
+
    /**
     * @return information about the current migration job.
     */
    RepositoryMigrationJobInfo getCurrentMigrationJob();
-   
+
 }

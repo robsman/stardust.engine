@@ -52,6 +52,11 @@ public class DocumentToIFileAdapter extends ResourceToIResourceAdapter implement
       return document.getRevisionName();
    }
 
+   public String getRevisionComment()
+   {
+      return document.getRevisionComment();
+   }
+
    public List getVersionLabels()
    {
       return document.getVersionLabels();

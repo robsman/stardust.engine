@@ -706,7 +706,7 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
      * Creates a new version of the document.
      *
      * @param documentId ID or path of the document to be versioned
-     * @param versionLabel label for the new revision
+     * @param versionLabel label for the new revision. The label must be unique per document.
      *
      * @return document describing the new document version
      *
@@ -715,6 +715,9 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
      *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *
+     * @deprecated since 7.0 use {@link #versionDocument(String, String, String)}
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -734,6 +737,56 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
          return
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             service).versionDocument(documentId, versionLabel);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+    /**
+     * Creates a new version of the document.
+     *
+     * @param documentId ID or path of the document to be versioned
+     * @param versionComment comment for the new revision
+     * @param versionLabel label for the new revision. The label must be unique per document.
+     *
+     * @return document describing the new document version
+     *
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#versionDocument(
+     *     java.lang.String documentId, java.lang.String versionComment, java.lang.String
+     *     versionLabel)
+     */
+    public org.eclipse.stardust.engine.api.runtime.Document
+         versionDocument(
+         java.lang.String documentId, java.lang.String versionComment, java.lang.String
+         versionLabel, org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext
+         __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            service).versionDocument(documentId, versionComment, versionLabel);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
@@ -851,7 +904,7 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
      * @param document document to update.
      * @param createNewRevision if true, new revision of the document will be created
      * @param versionLabel if createNewRevision is true, the new revision will be labeled with this
-     *     label
+     *     label. The label must be unique per document.
      * @param keepLocked if true, the document will be kept locked after update.
      *
      * @return the updated document
@@ -861,6 +914,9 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
      *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *
+     * @deprecated since 7.0 use {@link #updateDocument(Document, boolean, String, String, boolean)}
+     *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -898,6 +954,61 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
     }
 
     /**
+     * Updates document (except document content).
+     *
+     * @param document document to update.
+     * @param createNewRevision if true, new revision of the document will be created
+     * @param versionComment can be specified to comment the version operation.
+     * @param versionLabel if createNewRevision is true, the new revision will be labeled with this
+     *     label. The label must be unique per document.
+     * @param keepLocked if true, the document will be kept locked after update.
+     *
+     * @return the updated document
+     *
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(
+     *     org.eclipse.stardust.engine.api.runtime.Document document, boolean createNewRevision,
+     *     java.lang.String versionComment, java.lang.String versionLabel, boolean keepLocked)
+     */
+    public org.eclipse.stardust.engine.api.runtime.Document
+         updateDocument(
+         org.eclipse.stardust.engine.api.runtime.Document document, boolean
+         createNewRevision, java.lang.String versionComment, java.lang.String
+         versionLabel, boolean keepLocked,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            service).updateDocument(
+            document, createNewRevision, versionComment, versionLabel, keepLocked);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+    /**
      * Updates document.
      * 
      * <p>
@@ -911,7 +1022,7 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
      * @param encoding encoding of the new document content.
      * @param createNewRevision if true, new revision of the document will be created
      * @param versionLabel if createNewRevision is true, the new revision will be labeled with this
-     *     label
+     *     label. The label must be unique per document.
      * @param keepLocked if true, the document will be kept locked after update.
      *
      * @return the updated document
@@ -925,6 +1036,10 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see #requestDocumentContentUpload(String)
+     *
+     * @deprecated since 7.0 use {@link #updateDocument(
+     *     Document, byte[], String, boolean, String, String, boolean)}
+     *
      * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(
      *     org.eclipse.stardust.engine.api.runtime.Document document, byte[] content,
      *     java.lang.String encoding, boolean createNewRevision, java.lang.String versionLabel,
@@ -946,6 +1061,72 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             service).updateDocument(
             document, content, encoding, createNewRevision, versionLabel, keepLocked);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+    /**
+     * Updates document.
+     * 
+     * <p>
+     * Warning: this method should only be used for documents of reasonable size as the
+     * full content will be materialized in memory both on the server as well as on the
+     * client. It is recommended to us the facilities provided by
+     * {@link DmsContentServlet} for memory efficient content access.
+     *
+     * @param document document to update.
+     * @param content new document content.
+     * @param encoding encoding of the new document content.
+     * @param createNewRevision if true, new revision of the document will be created
+     * @param versionComment can be specified to comment the version operation.
+     * @param versionLabel if createNewRevision is true, the new revision will be labeled with this
+     *     label. The label must be unique per document.
+     * @param keepLocked if true, the document will be kept locked after update.
+     *
+     * @return the updated document
+     *
+     * @throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException on DMS
+     *     specific errors
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException} will be
+     *     wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see #requestDocumentContentUpload(String)
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(
+     *     org.eclipse.stardust.engine.api.runtime.Document document, byte[] content,
+     *     java.lang.String encoding, boolean createNewRevision, java.lang.String versionComment,
+     *     java.lang.String versionLabel, boolean keepLocked)
+     */
+    public org.eclipse.stardust.engine.api.runtime.Document
+         updateDocument(
+         org.eclipse.stardust.engine.api.runtime.Document document, byte[] content,
+         java.lang.String encoding, boolean createNewRevision, java.lang.String
+         versionComment, java.lang.String versionLabel, boolean keepLocked,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            service).updateDocument(
+            document, content, encoding, createNewRevision, versionComment, versionLabel,
+            keepLocked);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {
@@ -1427,9 +1608,8 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
      * resources for the migration from one version to the next are processed subsequent
      * calls will start the migration to the next higher repository structure version.<br>
      * The
-     * migration is complete if the current version of the repository reaches the target
-     * version
-     * defined by the repository.
+     * migration is complete when the two current version (
+     * vfs internal and engine structure) reach the respective target version.
      * <p>
      * <b>Important Note</b>
      * Please ensure there is no other write access on the repository to avoid race
@@ -1441,6 +1621,11 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
      * that need migration to the next version,
      * resources already migrated, current version, next version and target version of the
      * repository structure.
+     * <p>There are two different versions, internal versions are migrated first.
+     * <br>The vfs internal version called <code>repositoryVersion</code>.
+     * {@link RepositoryMigrationReport#getTargetRepositoryVersion()}
+     * <br>The engine's structure version called <code>repositoryStructureVersion</code>.
+     * {@link RepositoryMigrationReport#getTargetRepositoryStructureVersion()}
      *
      * @param batchSize
      *               count of resources to be migrated in this call. A value of 0 will return a

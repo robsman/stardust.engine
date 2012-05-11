@@ -43,6 +43,13 @@ public interface Document extends DocumentInfo, Resource
    String getRevisionName();
 
    /**
+    * Gets the version comment of the revision represented by this <code>Document</code> object.
+    *
+    * @return the version comment of the revision represented by this <code>Document</code> object.
+    */
+   String getRevisionComment();
+
+   /**
     * Gets all labels assigned to the revision represented by this <code>Document</code> object.
     *
     * @return all labels assigned to the revision represented by this <code>Document</code> object.

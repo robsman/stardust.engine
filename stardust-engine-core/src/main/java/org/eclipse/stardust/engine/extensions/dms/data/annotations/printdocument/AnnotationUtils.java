@@ -57,11 +57,11 @@ public class AnnotationUtils
       }
       catch (IllegalArgumentException e)
       {
-         System.out.println(e);
+         throw new UnsupportedOperationException(e);
       }
       catch (IllegalAccessException e)
       {
-         System.out.println(e);
+         throw new UnsupportedOperationException(e);
       }
       return null;
    }
@@ -96,11 +96,11 @@ public class AnnotationUtils
             }
             catch (IllegalArgumentException e)
             {
-               // TODO trace.
+               throw new UnsupportedOperationException(e);
             }
             catch (IllegalAccessException e)
             {
-               // TODO trace.
+               throw new UnsupportedOperationException(e);
             }
             String name = field.getName();
 
@@ -175,6 +175,10 @@ public class AnnotationUtils
                      map.put(name, (Serializable) arrayList);
                   }
                }
+            }
+            else if (value instanceof Map)
+            {
+               map.put(name, value);
             }
             else if (value.getClass().isArray())
             {
@@ -319,6 +323,10 @@ public class AnnotationUtils
                {
                   field.set(targetObject, value);
                }
+            }
+            else if (Map.class.isAssignableFrom(fieldClass))
+            {
+               field.set(targetObject, value);
             }
             else if (fieldClass.isArray())
             {

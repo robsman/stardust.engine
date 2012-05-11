@@ -42,6 +42,10 @@ public class DocumentRepositoryFolderNames
 
    public static final String SPECIFIC_DOCUMENTS_SUBFOLDER = "specific-documents";
 
+   public static final String DOCUMENTS_FOLDER = "documents";
+
+   public static final String CONFIGURATION_FOLDER = "configuration";
+
    public static String getRepositoryRootFolder()
    {
       // TODO must this be configurable?

@@ -439,6 +439,12 @@ public class DocumentManagementServiceImpl
    public Document versionDocument(final String docId, final String versionLabel)
          throws DocumentManagementServiceException
    {
+      return versionDocument(docId, null, versionLabel);
+   }
+
+   public Document versionDocument(final String docId, final String versionComment, final String versionLabel)
+         throws DocumentManagementServiceException
+   {
       return (Document) adaptVfsCall(new IVfsOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
@@ -452,7 +458,7 @@ public class DocumentManagementServiceImpl
                   || hasValidPartitionPrefix(file.getPath(), getPartitionPrefix(),
                         AccessMode.Write))
             {
-               return fromVfs(vfs.createFileVersion(documentIdWithPrefix, versionLabel,
+               return fromVfs(vfs.createFileVersion(documentIdWithPrefix, versionComment, versionLabel,
                      false), getPartitionPrefix());
             }
             else
@@ -606,6 +612,13 @@ public class DocumentManagementServiceImpl
          final boolean createNewRevision, final String versionLabel,
          final boolean keepLocked) throws DocumentManagementServiceException
    {
+      return updateDocument(document, createNewRevision, null, versionLabel, keepLocked);
+   }
+
+   public Document updateDocument(final Document document,
+         final boolean createNewRevision, final String versionComment, final String versionLabel,
+         final boolean keepLocked) throws DocumentManagementServiceException
+   {
       return (Document) adaptVfsCall(new IVfsOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
@@ -620,7 +633,7 @@ public class DocumentManagementServiceImpl
                         AccessMode.Write))
             {
                IFile doc = toVfs(document, getPartitionPrefix());
-               IFile vfsFile = vfs.updateFile(doc, createNewRevision, versionLabel, keepLocked);
+               IFile vfsFile = vfs.updateFile(doc, createNewRevision, versionComment, versionLabel, keepLocked);
                return fromVfs(vfsFile, getPartitionPrefix());
             }
             else
@@ -635,6 +648,14 @@ public class DocumentManagementServiceImpl
    public Document updateDocument(final Document document, final byte[] content,
          final String encoding, final boolean createNewRevision,
          final String versionLabel, final boolean keepLocked)
+         throws DocumentManagementServiceException
+   {
+      return updateDocument(document, content, encoding, createNewRevision, null, versionLabel, keepLocked);
+   }
+
+   public Document updateDocument(final Document document, final byte[] content,
+         final String encoding, final boolean createNewRevision,
+         final String versionComment, final String versionLabel, final boolean keepLocked)
          throws DocumentManagementServiceException
    {
       return (Document) adaptVfsCall(new IVfsOperationCallback()
@@ -652,7 +673,7 @@ public class DocumentManagementServiceImpl
             {
                IFile doc = toVfs(document, getPartitionPrefix());
                IFile vfsFile = vfs.updateFile(doc, content, encoding, createNewRevision,
-                     versionLabel, keepLocked);
+                     versionComment, versionLabel, keepLocked);
                return fromVfs(vfsFile, getPartitionPrefix());
             }
             else
@@ -1037,9 +1058,14 @@ public class DocumentManagementServiceImpl
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
          {
-            return new DmsMigrationReportBean(vfs.migrateRepository(batchSize,
-                  evaluateTotalCount));
+            IMigrationReport migrationReport = vfs.migrateRepository(batchSize,
+                  evaluateTotalCount);
+
+            RepositoryMigrationReport migrationReportDetails = handleEngineMigration(batchSize, evaluateTotalCount, migrationReport, vfs);
+
+            return migrationReportDetails;
          }
+
       });
    }
 
@@ -1128,6 +1154,12 @@ public class DocumentManagementServiceImpl
             + SecurityProperties.getPartition().getId();
    }
 
+   protected RepositoryMigrationReport handleEngineMigration(int batchSize, boolean evaluateTotalCount, IMigrationReport migrationReport,
+         IDocumentRepositoryService vfs)
+   {
+      return EngineRepositoryMigrationManager.handleEngineMigration(batchSize, evaluateTotalCount, migrationReport, vfs, getPartitionPrefix());
+   }
+
    private List<String> addPrefixes(List<String> list)
    {
       List<String> ret = new ArrayList<String>();
@@ -1209,6 +1241,8 @@ public class DocumentManagementServiceImpl
 
    private Credentials createAdminCredentials()
    {
+      // JCR user name does not matter.
+      // Administration privileges are granted by the predefined group "administrators"
       String jcrUser = "admin";
 
       SimpleCredentials credentials = new SimpleCredentials(jcrUser,
@@ -1397,7 +1431,7 @@ public class DocumentManagementServiceImpl
          String userId = SecurityProperties.getUser().getId();
 
          // TODO externalize to e.g. DocumentRepositoryFolderNames
-         final String documentsFolder = "/documents";
+         final String documentsFolder = "/" + DocumentRepositoryFolderNames.DOCUMENTS_FOLDER;
 
          // '/ipp-repository/partitions/<partitionId>'
          String partitionFolder = getPartitionPrefix();
@@ -1543,7 +1577,7 @@ public class DocumentManagementServiceImpl
 
                            IDocumentRepositoryService adminVfs = getAdminVfs();
 
-                           ensureFolderHierarchyExists(adminVfs, innerFolderPath);
+                           DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, innerFolderPath);
 
                            ensureFolderPermissions(adminVfs, innerFolderPath);
                            return null;
@@ -1557,7 +1591,7 @@ public class DocumentManagementServiceImpl
                         public Object withVfs(IDocumentRepositoryService vfs)
                               throws RepositoryOperationFailedException
                         {
-                           ensureFolderHierarchyExists(vfs, innerFolderPath);
+                           DmsVfsConversionUtils.ensureFolderHierarchyExists(vfs, innerFolderPath);
                            return null;
                         }
                      });
@@ -1723,50 +1757,6 @@ public class DocumentManagementServiceImpl
             }
          }
          return ret;
-      }
-
-      private IFolder ensureFolderHierarchyExists(final IDocumentRepositoryService vfs,
-            String folderPath)
-      {
-         if (StringUtils.isEmpty(folderPath))
-         {
-            return null;
-         }
-         else
-         {
-            IFolder folder = vfs.getFolder(folderPath, IFolder.LOD_NO_MEMBERS);
-
-            if (null == folder)
-            {
-               // folder does not exist yet, create it
-               String parentPath = folderPath.substring(0, folderPath.lastIndexOf('/'));
-               String childName = folderPath.substring(folderPath.lastIndexOf('/') + 1);
-
-               IFolder parentFolder = ensureFolderHierarchyExists(vfs, parentPath);
-               final String parentFolderId;
-               final String folderName = childName;
-               if (null == parentFolder)
-               {
-                  parentFolderId = VfsUtils.REPOSITORY_ROOT;
-               }
-               else
-               {
-                  parentFolderId = parentFolder.getId();
-               }
-               return runIsolateAction(new Action<IFolder>()
-               {
-                  public IFolder execute()
-                  {
-                     return vfs.createFolder(parentFolderId,
-                           VfsUtils.createFolderInfo(folderName));
-               }
-               });
-            }
-            else
-            {
-               return folder;
-            }
-         }
       }
 
       private Folder createVirtualFolder(String folderId, String virtualId)

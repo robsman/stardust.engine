@@ -281,6 +281,11 @@ public class DocumentStorageBean
 
    }
 
+   public String getRevisionComment()
+   {
+      // TODO Auto-generated method stub
+      return null;
+   };
 
 
 }

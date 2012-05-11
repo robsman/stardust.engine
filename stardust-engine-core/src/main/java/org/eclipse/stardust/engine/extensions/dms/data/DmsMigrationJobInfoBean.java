@@ -37,6 +37,18 @@ public class DmsMigrationJobInfoBean implements RepositoryMigrationJobInfo, Seri
       this.name = currentMigrationJobInfo.getName();
    }
 
+   public DmsMigrationJobInfoBean(String name, String description, int fromVersion,
+         int toVersion)
+   {
+      super();
+      this.name = name;
+      this.description = description;
+      this.fromVersion = fromVersion;
+      this.toVersion = toVersion;
+   }
+
+
+
    public String getDescription()
    {
       return description;

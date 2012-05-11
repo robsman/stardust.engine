@@ -80,6 +80,11 @@ public class DmsDocumentBean extends DmsResourceBean
       return (String) vfsResource().get(AuditTrailUtils.FILE_REVISION_NAME);
    }
 
+   public String getRevisionComment()
+   {
+      return (String) vfsResource().get(AuditTrailUtils.FILE_REVISION_COMMENT);
+   }
+
    public List getVersionLabels()
    {
       return (List) vfsResource().get(AuditTrailUtils.FILE_VERSION_LABELS);

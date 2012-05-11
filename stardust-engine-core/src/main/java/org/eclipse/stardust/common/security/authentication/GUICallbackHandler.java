@@ -14,6 +14,7 @@ import java.io.IOException;
 
 import javax.security.auth.callback.*;
 
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 

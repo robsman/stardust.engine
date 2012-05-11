@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
@@ -40,7 +41,7 @@ public class SimpleSpringForkingService extends AbstractSpringForkingServiceBean
 
    private DeferredActionsManager deferredActionsManager;
 
-   public void fork(ActionCarrier order, boolean transacted)
+   public void fork(IActionCarrier order, boolean transacted)
    {
       final ForkingServiceFactory serviceFactory = (ForkingServiceFactory) Parameters.instance()
             .get(EngineProperties.FORKING_SERVICE_HOME);

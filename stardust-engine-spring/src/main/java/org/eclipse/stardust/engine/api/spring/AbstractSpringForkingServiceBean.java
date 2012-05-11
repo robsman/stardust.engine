@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
@@ -152,7 +153,7 @@ public abstract class AbstractSpringForkingServiceBean extends AbstractSpringSer
       });
    }
 
-   public abstract void fork(ActionCarrier action, boolean transacted);
+   public abstract void fork(IActionCarrier action, boolean transacted);
 
    public void startTimer(DaemonCarrier carrier)
    {
@@ -244,7 +245,7 @@ public abstract class AbstractSpringForkingServiceBean extends AbstractSpringSer
          return action.execute();
       }
 
-      public void fork(ActionCarrier action, boolean transacted)
+      public void fork(IActionCarrier action, boolean transacted)
       {
          throw new IllegalOperationException("This method must never be called directly.");
       }

@@ -142,6 +142,7 @@
 
       <!-- delete duplicated archives; archives which are directly stored in lib remains -->
       <delete>
+         <fileset dir="${build.lib}/spring" includes="carnot-base*.jar" />
          <fileset dir="${build.lib}/spring" includes="carnot-engine*.jar" />
          <fileset dir="${build.lib}/spring" includes="carnot-spring*.jar" />
          <fileset dir="${build.lib}/spring">

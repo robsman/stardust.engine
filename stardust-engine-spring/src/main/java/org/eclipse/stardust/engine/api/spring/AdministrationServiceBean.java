@@ -23,7 +23,7 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
 {
 
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(org.eclipse.stardust.common.security.PasswordRules rules)
     */
    public void
          setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)

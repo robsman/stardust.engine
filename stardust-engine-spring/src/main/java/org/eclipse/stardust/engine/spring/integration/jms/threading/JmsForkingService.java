@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.spring.integration.jms.threading;
 import javax.jms.*;
 
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.engine.api.spring.AbstractSpringForkingServiceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
@@ -32,7 +33,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 public class JmsForkingService extends AbstractSpringForkingServiceBean
 {
    
-   public void fork(final ActionCarrier action, boolean transacted)
+   public void fork(final IActionCarrier action, boolean transacted)
    {
       if ( !transacted)
       {

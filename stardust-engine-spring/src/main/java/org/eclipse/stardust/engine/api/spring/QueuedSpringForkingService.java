@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.common.utils.ejb.J2eeContainerType;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionRunner;
@@ -51,7 +52,7 @@ public class QueuedSpringForkingService extends AbstractSpringForkingServiceBean
       this.jobManager = jobManager;
    }
 
-   public void fork(ActionCarrier order, boolean transacted)
+   public void fork(IActionCarrier order, boolean transacted)
    {
       ForkingServiceFactory serviceFactory = Parameters.instance().getObject(EngineProperties.FORKING_SERVICE_HOME);
       if (serviceFactory == null)

@@ -199,6 +199,20 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    }
 
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#versionDocument(java.lang.String documentId, java.lang.String versionComment, java.lang.String versionLabel)
+    */
+   public org.eclipse.stardust.engine.api.runtime.Document
+         versionDocument(
+         java.lang.String documentId, java.lang.String versionComment, java.lang.String
+         versionLabel)
+         throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).versionDocument(documentId, versionComment, versionLabel);
+   }
+
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#removeDocumentVersion(java.lang.String documentId, java.lang.String documentRevisionId)
     */
    public void removeDocumentVersion(
@@ -237,6 +251,22 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    }
 
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(org.eclipse.stardust.engine.api.runtime.Document document, boolean createNewRevision, java.lang.String versionComment, java.lang.String versionLabel, boolean keepLocked)
+    */
+   public org.eclipse.stardust.engine.api.runtime.Document
+         updateDocument(
+         org.eclipse.stardust.engine.api.runtime.Document document, boolean
+         createNewRevision, java.lang.String versionComment, java.lang.String
+         versionLabel, boolean keepLocked)
+         throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).updateDocument(
+            document, createNewRevision, versionComment, versionLabel, keepLocked);
+   }
+
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(org.eclipse.stardust.engine.api.runtime.Document document, byte[] content, java.lang.String encoding, boolean createNewRevision, java.lang.String versionLabel, boolean keepLocked)
     */
    public org.eclipse.stardust.engine.api.runtime.Document
@@ -250,6 +280,23 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             serviceProxy).updateDocument(
             document, content, encoding, createNewRevision, versionLabel, keepLocked);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#updateDocument(org.eclipse.stardust.engine.api.runtime.Document document, byte[] content, java.lang.String encoding, boolean createNewRevision, java.lang.String versionComment, java.lang.String versionLabel, boolean keepLocked)
+    */
+   public org.eclipse.stardust.engine.api.runtime.Document
+         updateDocument(
+         org.eclipse.stardust.engine.api.runtime.Document document, byte[] content,
+         java.lang.String encoding, boolean createNewRevision, java.lang.String
+         versionComment, java.lang.String versionLabel, boolean keepLocked)
+         throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).updateDocument(
+            document, content, encoding, createNewRevision, versionComment, versionLabel,
+            keepLocked);
    }
 
    /**

@@ -134,6 +134,7 @@ public class PortalMetaDataPropertiesMigrationJob
                      printDocumentAnnotations.setSendDate((Date) faxEMailMessageInfo.get("sendDate"));
                      printDocumentAnnotations.setSender((String) faxEMailMessageInfo.get("sender"));
                      printDocumentAnnotations.setSubject((String) faxEMailMessageInfo.get("subject"));
+                     printDocumentAnnotations.setFaxNumber((String) faxEMailMessageInfo.get("faxNumber"));
                   }
                   iFile.setAnnotations(AnnotationUtils.toMap(printDocumentAnnotations));
 

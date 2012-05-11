@@ -18,7 +18,6 @@
 
 <project name="carnot-engine" default="deploy" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
 
-
    <property name="project.dir" location="${basedir}" />
    <property name="project.etc" value="${project.dir}/etc" />
    <property name="project.src" location="${project.dir}/src/main/java" />
@@ -32,39 +31,13 @@
 
    <property name="build.dir" value="build" />
 
-   <property name="service.dir" location="${project.src}/ag/carnot/workflow/ejb" />
-   <property name="serviceTemp.dir" location="${build.dir}/temp/ag/carnot/workflow/ejb" />
+   <property name="service.dir" location="${project.src}/org/eclipse/stardust/engine/api/ejb2" />
+   <property name="serviceTemp.dir" location="${build.dir}/temp/org/eclipse/stardust/engine/api/ejb2" />
 
    <property name="moonglow.dir" location="../../../moonglow" />
    <available property="moonglow.dir.present" file="${moonglow.dir}" type="dir" />
 
    <target name="jar" depends="compile, checkCodeGen, init.jarjar">
-      <ipp:jar jarfile="${carnot.base.jar}" implementationTitle="Infinity Process Engine - Base">
-
-         <fileset dir="${build.classes}" id="fileset.carnot.base.jar">
-
-            <include name="META-INF/services/org.eclipse.stardust.common.config.*" />
-
-            <include name="ag/carnot/autolist/**/*.class" />
-            <include name="org/eclipse/stardust/common/**/*.class" />
-            <include name="org/eclipse/stardust/common/config/**/*.class" />
-            <include name="org/eclipse/stardust/common/error/**/*.class" />
-            <include name="org/eclipse/stardust/common/reflect/**/*.class" />
-            <include name="org/eclipse/stardust/common/security/**/*.class" />
-            <include name="org/eclipse/stardust/common/utils/console/**/*.class" />
-            <include name="org/eclipse/stardust/common/utils/ejb/*.class" />
-            <include name="org/eclipse/stardust/common/utils/rt/*.class" />
-            <include name="org/eclipse/stardust/common/utils/xml/**/*.class" />
-            <!-- excluding due to questionable dependencies -->
-            <exclude name="org/eclipse/stardust/common/security/authentication/GUICallbackHandler*.class" />
-            <exclude name="org/eclipse/stardust/common/security/authentication/LoginDialog*.class" />
-         </fileset>
-         <fileset dir="${project.res}">
-            <include name="about.html" />
-            <include name="about_files/*" />
-         </fileset>
-      </ipp:jar>
-
       <ipp:jarjar jarfile="${carnot.client.jar}" implementationTitle="Infinity Process Engine - Client">
 
          <rule pattern="org.eclipse.emf.**" result="com.infinity.bpm.thirdparty.emf.@1" />
@@ -156,52 +129,19 @@
    </target>
 
    <target name="jar.src" depends="compile">
-      <ipp:jar jarfile="${carnot.base.src-jar}" excludes="*.jar" duplicate="preserve" implementationTitle="Infinity Process Engine - Base Sources">
-         <fileset dir="${build.src.generated}">
-            <include name="ag/carnot/autolist/**/*.java" />
-            <include name="org/eclipse/stardust/common/**/*.java" />
-            <include name="org/eclipse/stardust/common/config/**/*.java" />
-            <include name="org/eclipse/stardust/common/error/**/*.java" />
-            <include name="org/eclipse/stardust/common/reflect/**/*.java" />
-            <include name="org/eclipse/stardust/common/security/**/*.java" />
-            <include name="org/eclipse/stardust/common/utils/console/**/*.java" />
-            <include name="org/eclipse/stardust/common/utils/ejb/*.java" />
-            <include name="org/eclipse/stardust/common/utils/rt/*.java" />
-            <include name="org/eclipse/stardust/common/utils/xml/**/*.java" />
-            <!-- excluding due to questionable dependencies -->
-            <exclude name="org/eclipse/stardust/common/security/authentication/GUICallbackHandler*.java" />
-            <exclude name="org/eclipse/stardust/common/security/authentication/LoginDialog*.java" />
-         </fileset>
-         <fileset dir="${build.src.static}">
-            <include name="ag/carnot/autolist/**/*.java" />
-            <include name="org/eclipse/stardust/common/**/*.java" />
-            <include name="org/eclipse/stardust/common/config/**/*.java" />
-            <exclude name="org/eclipse/stardust/common/config/CurrentVersion.java" />
-            <include name="org/eclipse/stardust/common/error/**/*.java" />
-            <include name="org/eclipse/stardust/common/reflect/**/*.java" />
-            <include name="org/eclipse/stardust/common/security/**/*.java" />
-            <include name="org/eclipse/stardust/common/utils/console/**/*.java" />
-            <include name="org/eclipse/stardust/common/utils/ejb/*.java" />
-            <include name="org/eclipse/stardust/common/utils/rt/*.java" />
-            <include name="org/eclipse/stardust/common/utils/xml/**/*.java" />
-            <!-- excluding due to questionable dependencies -->
-            <exclude name="org/eclipse/stardust/common/security/authentication/GUICallbackHandler*.java" />
-            <exclude name="org/eclipse/stardust/common/security/authentication/LoginDialog*.java" />
-         </fileset>
-      </ipp:jar>
       <ipp:jar jarfile="${carnot.client.src-jar}" excludes="*.jar" duplicate="preserve" implementationTitle="Infinity Process Engine - Client Sources">
          <fileset dir="${build.src.generated}" excludes="*.jar" />
-         <fileset dir="${build.src.static}" excludes="*.jar, org/eclipse/stardust/common/config/CurrentVersion.java" />
+         <fileset dir="${build.src.static}" excludes="*.jar" />
       </ipp:jar>
       <ipp:jar jarfile="${carnot.engine.src-jar}" excludes="*.jar" duplicate="preserve" implementationTitle="Infinity Process Engine - Runtime Sources">
          <fileset dir="${build.src.generated}" excludes="*.jar" />
-         <fileset dir="${build.src.static}" excludes="*.jar, org/eclipse/stardust/common/config/CurrentVersion.java" />
+         <fileset dir="${build.src.static}" excludes="*.jar" />
       </ipp:jar>
       <ipp:jar jarfile="${carnot.emf.xsd.integration.src-jar}" excludes="*.jar" duplicate="preserve" implementationTitle="Infinity Process Engine - EMF XSD Integration Sources">
          <fileset dir="${build.src.generated}" excludes="*.jar">
             <include name="ag/carnot/bpm/rt/data/structured/emfxsd/**/*.*" />
          </fileset>
-         <fileset dir="${build.src.static}" excludes="*.jar, org/eclipse/stardust/common/config/CurrentVersion.java">
+         <fileset dir="${build.src.static}" excludes="*.jar">
             <include name="ag/carnot/bpm/rt/data/structured/emfxsd/**/*.*" />
          </fileset>
       </ipp:jar>
@@ -240,8 +180,6 @@
          srcdir="${build.src.static}" sourcepath="${build.src.generated}:${build.src.static}"
          destdir="${build.classes}">
 
-         <exclude name="**/CurrentVersion.java" />
-
          <patternset refid="kernel.sources.exclude" />
          <classpath refid="compile.classpath" />
 
@@ -270,11 +208,6 @@
 
       <property name="build.src.static" value="${project.src}" />
       <property name="build.src.generated" value="${build.src}" />
-
-      <antcall target="copyVersionSourceFile">
-         <param name="source" value="${project.src}" />
-         <param name="destination" value="${build.src.generated}" />
-      </antcall>
    </target>
 
    <target name="prepareSourcesForSafeBuild" depends="initKernelBuildDirectories" unless="build.fast">
@@ -291,27 +224,7 @@
             <include name="**/*.java" />
             <include name="**/package.html" />
             <patternset refid="kernel.sources.exclude" />
-            <exclude name="org/eclipse/stardust/common/config/CurrentVersion.java" />
          </fileset>
-      </copy>
-
-      <antcall target="copyVersionSourceFile">
-         <param name="source" value="${project.src}" />
-         <param name="destination" value="${build.src.generated}" />
-      </antcall>
-   </target>
-
-   <target name="copyVersionSourceFile">
-      <copy todir="${destination}">
-         <fileset dir="${source}">
-            <include name="org/eclipse/stardust/common/config/CurrentVersion.java" />
-         </fileset>
-         <filterset>
-            <filter token="major" value="${ipp.version.major}" />
-            <filter token="minor" value="${ipp.version.minor}" />
-            <filter token="micro" value="${ipp.version.micro}" />
-            <filter token="build" value="${ipp.version.build}" />
-         </filterset>
       </copy>
    </target>
 
@@ -374,11 +287,6 @@
       <property name="build.lib" location="${build.dir}/lib" />
       <property name="build.src" location="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
-
-      <property name="carnot.base.jarfile" value="carnot-base.jar" />
-      <property name="carnot.base.jar" location="${build.lib}/${carnot.base.jarfile}" />
-      <property name="carnot.base.src-jarfile" value="carnot-base-sources.jar" />
-      <property name="carnot.base.src-jar" location="${build.src}/${carnot.base.src-jarfile}" />
 
       <property name="carnot.client.jarfile" value="carnot-client.jar" />
       <property name="carnot.client.jar" location="${build.lib}/${carnot.client.jarfile}" />
@@ -513,8 +421,8 @@
    </target>
 
    <target name="initCodeGenTest">
-      <mkdir dir="${build.dir}/temp/ag/carnot/workflow/ejb/beans/" />
-      <mkdir dir="${build.dir}/temp/ag/carnot/workflow/ejb/tunneling/beans/" />
+      <mkdir dir="${build.dir}/temp/org/eclipse/stardust/engine/api/ejb2/beans/" />
+      <mkdir dir="${build.dir}/temp/org/eclipse/stardust/engine/api/ejb2/tunneling/beans/" />
       <property name="buildtest.dir" value="${build.dir}/temp" />
    </target>
 
@@ -523,6 +431,7 @@
       <java classname="org.eclipse.stardust.engine.api.ejb2.tools.CodeGen" fork="yes">
          <classpath>
             <pathelement path="${build.classes}" />
+            <path refid="carnot-engine.compile" />
             <path refid="qdox.deps" />
          </classpath>
          <arg line="${project.src} ${build.dir}/temp" />
@@ -704,12 +613,6 @@
       <ipp:init-mvn />
       <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
          <arg value="install:install-file"/>
-         <arg value="-Dfile=${carnot.base.jar}"/>
-         <arg value="-DpomFile=${build.lib}/carnot-base.pom"/>
-         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
-      </exec>
-      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
-         <arg value="install:install-file"/>
          <arg value="-Dfile=${carnot.engine.jar}"/>
          <arg value="-DpomFile=${build.lib}/carnot-engine.pom"/>
          <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
@@ -734,10 +637,9 @@
    </target>
 
    <target name="dist" depends="build, jar.src" if="moonglow.dir.present">
-      <copy file="${carnot.base.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.base/lib" />
-      <copy file="${carnot.base.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.base/lib" />
       <copy file="${carnot.engine.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.engine.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
+      
       <copy file="${carnot.emf.xsd.integration.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.emf.xsd.integration.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
    </target>

@@ -64,9 +64,6 @@
       <!-- ************** -->
       <!--    Internal    -->
       <!-- ************** -->
-      <conf name="carnot-base-compile" extends="base-provider-compile" visibility="public" />
-      <conf name="carnot-base-runtime" extends="carnot-base-compile,base-provider-runtime" visibility="public" />
-      
       <conf name="carnot-engine-compile" extends="base-provider-compile" visibility="public" />
       <conf name="carnot-engine-compile-optional" extends="qdox-provider-compile, jcr-interface-compile, jcr-vfs-provider-compile,
          ejb21-interface-provided, jta-interface-compile, ejb30-interface-compile, logging-log4j-provider-compile" visibility="public" />
@@ -84,7 +81,6 @@
       <conf name="carnot-emf-xsd-integration-compile" extends="carnot-engine-jar" visibility="public" />
       <conf name="carnot-emf-xsd-integration-runtime" extends="carnot-emf-xsd-integration-compile, carnot-engine-jar" visibility="public" />
       
-      <conf name="carnot-base-sources" />
       <conf name="carnot-client-sources" />
       <conf name="carnot-emf-xsd-integration-sources" />
       <conf name="carnot-engine-sources" />
@@ -96,8 +92,6 @@
    </configurations>
 
    <publications>
-      <artifact name="carnot-base" type="jar" conf="carnot-base-compile, carnot-base-runtime" ext="jar" />
-      <artifact name="carnot-base" type="source" ext="jar" conf="carnot-base-sources" m:classifier="sources" />
       <artifact name="carnot-client" type="jar" conf="carnot-client-compile, carnot-client-runtime" ext="jar" />
       <artifact name="carnot-client" type="source" ext="jar" conf="carnot-client-sources" m:classifier="sources" />
       <artifact name="carnot-engine" type="jar" ext="jar"
@@ -106,13 +100,16 @@
       <artifact name="carnot-emf-xsd-integration" type="jar" conf="carnot-emf-xsd-integration-compile, carnot-emf-xsd-integration-runtime" ext="jar" />
       <artifact name="carnot-emf-xsd-integration" type="source" ext="jar" conf="carnot-emf-xsd-integration-sources" m:classifier="sources" />
 
-      <artifact name="carnot-base" type="pom" conf="pom" ext="pom" />
       <artifact name="carnot-client" type="pom" conf="pom" ext="pom" />
       <artifact name="carnot-engine" type="pom" conf="pom" ext="pom" />
       <artifact name="carnot-emf-xsd-integration" type="pom" conf="pom" ext="pom" />
    </publications>
 
    <dependencies>
+      <dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" 
+                  conf="carnot-engine-compile->base-module-compile" />
+      <dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" 
+                  conf="carnot-client-compile->base-module-compile" />
 
       <!-- ********** -->
       <!--    Test    -->
@@ -139,6 +136,7 @@
       <!--    Internal    -->
       <!-- ************** -->
       <!-- build-lib -->
+
       <dependency org="dom4j" name="dom4j" rev="1.6.1" conf="build-lib->default">
          <exclude org="xml-apis" module="xml-apis" />
       </dependency>

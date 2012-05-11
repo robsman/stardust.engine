@@ -20,9 +20,6 @@
    </info>
    
    <configurations>
-      <conf name="base-module-compile" description="IPP Engine - Base Module - Compile Scope" />
-      <conf name="base-module-runtime" extends="base-module-compile" description="IPP Engine - Base Module - Runtime Scope" />
-
       <conf name="client-module-compile" description="IPP Engine - Client Module - Compile Scope" />
       <conf name="client-module-runtime" extends="client-module-compile" description="IPP Engine - Client Module - Runtime Scope" />
 
@@ -95,7 +92,6 @@
    </configurations>
    
    <publications>
-      <artifact name="base-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="client-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="engine-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="web-client-module" type="pom" conf="module-pom" ext="pom" />
@@ -120,8 +116,6 @@
    </publications>
    
    <dependencies>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="base-module-compile->carnot-base-compile"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="base-module-runtime->carnot-base-runtime"/>
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-compile->carnot-client-compile"/>
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-runtime->carnot-client-runtime"/>
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-compile->carnot-engine-compile"/>

@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -549,16 +551,20 @@ public class Authorization2
          for (IOrganization restrictedParticipant : restrictions)
          {
             String dataId = restrictedParticipant.getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
+        	         
             IData dataObject = model.findData(dataId);
             if (dataObject == null)
             {
                throw new InternalException("No data '" + dataId
                      + "' available for department retrieval.");
             }
+            
+            QName qualifiedId = new QName(model.getId(),dataId);
+            
             String dataPath = restrictedParticipant.getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
-            if (context.hasValue(dataId, dataPath))
+            if (context.hasValue(qualifiedId.toString(), dataPath))
             {
-               departmentIds.add(context.getValue(dataId, dataPath));
+               departmentIds.add(context.getValue(qualifiedId.toString(), dataPath));
             }
             else
             {

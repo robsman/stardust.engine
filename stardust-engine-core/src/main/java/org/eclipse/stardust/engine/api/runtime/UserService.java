@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ConcurrencyException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.security.InvalidPasswordException;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
@@ -355,11 +356,11 @@ public interface UserService extends Service
     * Creates a new user group.
     * 
     * @param id
-    *           the user group ID.
+    *           the user group ID. Must not be null or empty and must be unique.
     * @param name
-    *           the user group name.
+    *           the user group name. Must not be null or empty.
     * @param description
-    *           short description.
+    *           short description. Must not be null.
     * @param validFrom
     *           validity start time or null if unlimited.
     * @param validTo
@@ -369,12 +370,17 @@ public interface UserService extends Service
     * 
     * @throws UserGroupExistsException 
     *           if another user group with the specified ID already exists.
+    * @throws InvalidArgumentException
+    *           if ID is empty
+    *           if name is empty
+    *           if description is empty
     * @throws IllegalOperationException 
     *           if operation is not allowed in this context.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.modifyUserData)
    UserGroup createUserGroup(String id, String name, String description, Date validFrom,
-         Date validTo) throws UserGroupExistsException, IllegalOperationException, InvalidPasswordException;
+         Date validTo) throws UserGroupExistsException, IllegalOperationException,
+         InvalidPasswordException, InvalidArgumentException;
 
    /**
     * Retrieves the user group associated with the given ID.

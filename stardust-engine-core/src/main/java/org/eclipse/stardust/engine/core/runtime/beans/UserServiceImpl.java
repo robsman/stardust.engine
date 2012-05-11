@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ConcurrencyException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -617,8 +618,21 @@ public class UserServiceImpl implements UserService, Serializable
 
    public UserGroup createUserGroup(String id, String name, String description,
          Date validFrom, Date validTo) throws UserGroupExistsException,
-         IllegalOperationException
+         IllegalOperationException, InvalidArgumentException
    {
+      if (StringUtils.isEmpty(id))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("id","empty"));
+      }
+      if (StringUtils.isEmpty(name))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("name","empty"));
+      }
+      if (description == null)
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise("description","null"));
+      }
+			
       try
       {
          UserGroupBean.findById(id, SecurityProperties.getPartitionOid());

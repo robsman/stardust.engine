@@ -182,8 +182,8 @@
 
    <target name="dist" depends="build, jar.src">
       <property name="stardust.dir" value="../.." />
-      <copy file="${carnot-base.jarfile}" todir="${stardust.dir}/ide/engine/org.eclipse.stardust.ide.engine.base/lib" />
-      <copy file="${carnot-base.src-jarfile}" todir="${stardust.dir}/ide/engine/org.eclipse.stardust.ide.engine.base/lib" />
+      <copy file="${carnot-base.jar}" todir="${stardust.dir}/ide/engine/org.eclipse.stardust.ide.engine.base/lib" />
+      <copy file="${carnot-base.src-jar}" todir="${stardust.dir}/ide/engine/org.eclipse.stardust.ide.engine.base/lib" />
    </target>
 
    <target name="deploy" depends="build" />

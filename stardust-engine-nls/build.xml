@@ -31,6 +31,9 @@
    <!-- target is invoked by stardust-product-nls -->
    <target name="copy-nls-resources" 
       description="copies the resources into a given folder">
+      <ant target="copy-nls-resources" dir="${project.dir}/../stardust-engine-base" inheritall="false">
+         <property name="build.nls.dir" value="${build.nls.dir}" />
+      </ant>
       <ant target="copy-nls-resources" dir="${project.dir}/../stardust-engine-core" inheritall="false">
          <property name="build.nls.dir" value="${build.nls.dir}" />
       </ant>

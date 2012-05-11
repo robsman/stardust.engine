@@ -14,7 +14,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.common.security.authentication.LoginFailedException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.rules.ExternalResource;

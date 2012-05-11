@@ -61,5 +61,6 @@
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-reflect/1.4.9/powermock-reflect-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-reflect/1.4.9/powermock-reflect-1.4.9-sources.jar"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-module-junit4/1.4.9/powermock-module-junit4-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-module-junit4/1.4.9/powermock-module-junit4-1.4.9-sources.jar"/>
 	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/powermock/powermock-module-junit4-common/1.4.9/powermock-module-junit4-common-1.4.9.jar" sourcepath="/Q-ARCHIVE/thirdparty/powermock/powermock-module-junit4-common/1.4.9/powermock-module-junit4-common-1.4.9-sources.jar"/>
+	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/stardust-engine-base"/>
 	<classpathentry kind="output" path=".eclipse/bin"/>
 </classpath>

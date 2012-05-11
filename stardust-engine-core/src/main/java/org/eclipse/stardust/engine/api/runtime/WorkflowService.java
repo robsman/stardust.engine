@@ -452,7 +452,7 @@ public interface WorkflowService extends Service
     * @throws AccessForbiddenException if the delegation target is not granted to execute
     *         the activity instance or if the activity instance is already terminated.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
-    * @throws InvalidArgumentException if the specified activity instance is a 
+    * @throws IllegalOperationException if the specified activity instance is a 
     *         quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
     *         and the specified user is the one who worked on the previous workflow instance  
     *         

@@ -31,7 +31,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(
-     *     org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
+     *     org.eclipse.stardust.common.security.PasswordRules rules)
      */
     public void
          setPasswordRules(

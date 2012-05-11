@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.common.rt.IJobManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -96,7 +97,7 @@ public class Utils
             {
                return new ForkingService()
                {
-                  public void fork(ActionCarrier action, boolean transacted)
+                  public void fork(IActionCarrier action, boolean transacted)
                   {
 
                   }

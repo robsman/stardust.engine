@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.common.utils.ejb.J2eeContainerType;
 import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.ContainerConfigurationInterceptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -51,7 +52,7 @@ public class POJOForkingService implements ForkingService
       return isolator.execute(action);
    }
 
-   public void fork(ActionCarrier order, boolean transacted)
+   public void fork(IActionCarrier order, boolean transacted)
    {
       if (transacted)
       {

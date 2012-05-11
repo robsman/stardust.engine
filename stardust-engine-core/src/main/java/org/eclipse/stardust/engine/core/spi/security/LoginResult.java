@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.core.spi.security;
 
 import java.io.Serializable;
 
-import org.eclipse.stardust.common.security.authentication.LoginFailedException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 
 
 /**

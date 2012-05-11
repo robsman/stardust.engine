@@ -17,7 +17,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.security.authentication.ConsolePrompt;
 import org.eclipse.stardust.common.security.authentication.LoginDialog;
-import org.eclipse.stardust.common.security.authentication.LoginFailedException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 

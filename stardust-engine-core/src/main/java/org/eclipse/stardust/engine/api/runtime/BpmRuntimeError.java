@@ -12,7 +12,9 @@ package org.eclipse.stardust.engine.api.runtime;
 
 import java.text.MessageFormat;
 
+import org.eclipse.stardust.common.error.BaseErrorCaseMessages;
 import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.BaseErrorCase.Args0;
 
 
 /**
@@ -199,10 +201,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 AUTHx_USER_TEMPORARILY_INVALIDATED = newArgs1("AUTHx00125", BpmRuntimeErrorMessages.getString("AUTHx00125")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_DISABLED_BY_PW_RULES = newArgs1("AUTHx00126", BpmRuntimeErrorMessages.getString("AUTHx00126")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_CHANGE_PASSWORD_OLD_PW_VERIFICATION_FAILED = newArgs0("AUTHx00127", BpmRuntimeErrorMessages.getString("AUTHx00127")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED = newArgs0("AUTHx00128", BpmRuntimeErrorMessages.getString("AUTHx00128")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED = newArgs0("AUTHx00128", BaseErrorCaseMessages.getString("AUTHx00128")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_MISSING = newArgs0("AUTHx00129", BpmRuntimeErrorMessages.getString("AUTHx00129")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_ID_PASSWORD_EXPIRED = newArgs1("AUTHx00130", BpmRuntimeErrorMessages.getString("AUTHx00130")); //$NON-NLS-1$ //$NON-NLS-2$
-
    public static final Args1 AUTHx_OPERATION_FAILED_USER_OID_NOT_FULLY_INITIALIZED = newArgs1("AUTHx00301", BpmRuntimeErrorMessages.getString("AUTHx00301")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_OPERATION_FAILED_USER_GROUP_OID_NOT_FULLY_INITIALIZED = newArgs1("AUTHx00302", BpmRuntimeErrorMessages.getString("AUTHx00302")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_OPERATION_FAILED_REQUIRES_INTERNAL_AUTH = newArgs0("AUTHx00303", BpmRuntimeErrorMessages.getString("AUTHx00303")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -341,7 +342,6 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args3 BPMRT_ILLEGAL_AI_STATE_CHANGE_FOR_AI = newArgs3("BPMRT03902", BpmRuntimeErrorMessages.getString("BPMRT03902")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args4 BPMRT_ILLEGAL_AI_STATE_CHANGE_FOR_AI_WITH_PI_STATE = newArgs4("BPMRT03903", BpmRuntimeErrorMessages.getString("BPMRT03903")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_GENERAL_INCOMPATIBLE_TYPE = newArgs2("BPMRT04001", BpmRuntimeErrorMessages.getString("BPMRT04001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 BPMRT_INCOMPATIBLE_TYPE_FOR_DATA = newArgs1("BPMRT04002", BpmRuntimeErrorMessages.getString("BPMRT04002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 BPMRT_INCOMPATIBLE_TYPE_FOR_DATA_WITH_PATH = newArgs2("BPMRT04003", BpmRuntimeErrorMessages.getString("BPMRT04003")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 BPMRT_INVALID_PROBABILIY = newArgs1("BPMRT04004", BpmRuntimeErrorMessages.getString("BPMRT04004"));

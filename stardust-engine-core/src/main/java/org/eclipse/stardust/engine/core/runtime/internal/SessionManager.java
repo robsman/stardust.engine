@@ -21,9 +21,9 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.Parameters.IDisposable;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.common.rt.IJobDescriptor;
 import org.eclipse.stardust.common.rt.IJobManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
@@ -172,7 +172,7 @@ public class SessionManager implements IDisposable
                // immediately start writing asynchronously to disk
                jobManager.startAsynchronousJob(new IJobDescriptor()
                {
-                  public ActionCarrier getCarrier()
+                  public IActionCarrier getCarrier()
                   {
                      return new SynchUserSessionsToDiskCarrier(
                            CollectionUtils.copyMap(lastModificationTimes));

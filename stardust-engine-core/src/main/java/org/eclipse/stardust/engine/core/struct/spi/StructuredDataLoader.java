@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.RuntimeAttributeHolder;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.error.InternalException;
@@ -26,7 +27,6 @@ import org.eclipse.stardust.engine.api.model.IReference;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.beans.AccessPointBean;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
-import org.eclipse.stardust.engine.core.model.utils.RuntimeAttributeHolder;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;

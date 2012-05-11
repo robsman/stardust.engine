@@ -19,6 +19,7 @@ import javax.jms.Message;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
@@ -27,7 +28,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
  * @author ubirkemeyer
  * @version $Revision$
  */
-public abstract class ActionCarrier implements Serializable, Cloneable
+public abstract class ActionCarrier<T> implements Serializable, Cloneable, IActionCarrier<T>
 {
    public static final int SYSTEM_MESSAGE_TYPE_ID = 1;
    public static final int DAEMON_MESSAGE_TYPE_ID = 2;

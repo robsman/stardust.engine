@@ -25,7 +25,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.security.authentication.ConsoleCallbackHandler;
 import org.eclipse.stardust.common.security.authentication.DefaultCallbackHandler;
 import org.eclipse.stardust.common.security.authentication.GUICallbackHandler;
-import org.eclipse.stardust.common.security.authentication.LoginFailedException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 

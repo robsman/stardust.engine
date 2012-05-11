@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.FilteringIterator;
 import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.RuntimeAttributeHolder;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.engine.api.model.IActivity;
@@ -36,7 +37,6 @@ import org.eclipse.stardust.engine.api.runtime.Permission;
 import org.eclipse.stardust.engine.api.runtime.ProcessScope;
 import org.eclipse.stardust.engine.api.runtime.Scope;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.RuntimeAttributeHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;

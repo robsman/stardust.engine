@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.api.runtime;
 
 import java.util.Map;
 
-import org.eclipse.stardust.common.security.authentication.LoginFailedException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 
 
 /**

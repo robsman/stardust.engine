@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.model.utils;
 import java.io.Serializable;
 
 import org.eclipse.stardust.common.AttributeHolder;
+import org.eclipse.stardust.common.RuntimeAttributeHolder;
 
 
 /**

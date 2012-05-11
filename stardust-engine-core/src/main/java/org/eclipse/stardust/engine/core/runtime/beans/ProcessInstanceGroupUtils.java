@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.BaseErrorCase;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.*;
@@ -181,7 +182,7 @@ public class ProcessInstanceGroupUtils
       else
       {
          throw new InvalidValueException(
-               BpmRuntimeError.BPMRT_GENERAL_INCOMPATIBLE_TYPE.raise(value.getClass(),
+               BaseErrorCase.BPMRT_GENERAL_INCOMPATIBLE_TYPE.raise(value.getClass(),
                      String.class));
       }
 

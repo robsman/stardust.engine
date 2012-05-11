@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.cli.console;
 
 import java.util.Map;
 
+import org.eclipse.stardust.common.security.Encrypter;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
 

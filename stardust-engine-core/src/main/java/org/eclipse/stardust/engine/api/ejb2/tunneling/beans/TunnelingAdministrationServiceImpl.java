@@ -31,11 +31,11 @@ public class TunnelingAdministrationServiceImpl extends org.eclipse.stardust.eng
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(
-     *     org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
+     *     org.eclipse.stardust.common.security.PasswordRules rules)
      */
     public void
          setPasswordRules(
-         org.eclipse.stardust.engine.api.runtime.PasswordRules rules,
+               org.eclipse.stardust.engine.api.runtime.PasswordRules rules,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
     {

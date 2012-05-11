@@ -11,13 +11,12 @@
 package org.eclipse.stardust.engine.core.pojo.app;
 
 import java.lang.reflect.Constructor;
-
-
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.stardust.common.constants.PlainJavaConstants;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;

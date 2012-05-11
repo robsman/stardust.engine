@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 
 
 /**
@@ -38,6 +39,6 @@ public interface ForkingService
     *    transaction is successfull. If false, a new transaction will be started
     *    regardless of the current transaction state.
     */
-   void fork(ActionCarrier action, boolean transacted);
+   void fork(IActionCarrier action, boolean transacted);
 
 }

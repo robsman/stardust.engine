@@ -14,7 +14,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-import org.eclipse.stardust.common.security.authentication.LoginFailedException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 
 
 /**

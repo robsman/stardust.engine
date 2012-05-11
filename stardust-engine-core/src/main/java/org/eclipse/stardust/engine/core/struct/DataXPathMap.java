@@ -16,13 +16,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import org.eclipse.stardust.common.RuntimeAttributeHolder;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.core.model.utils.RuntimeAttributeHolder;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
 

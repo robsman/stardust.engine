@@ -16,10 +16,8 @@ import java.util.ResourceBundle;
 public class BpmRuntimeErrorMessages
 {
    private static final String BUNDLE_NAME = "org.eclipse.stardust.engine.api.runtime.ipp-bpm-runtime-errors"; //$NON-NLS-1$
-
-   private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
-         .getBundle(BUNDLE_NAME);
-
+   private static ResourceBundle resourceBundle;
+   
    private BpmRuntimeErrorMessages()
    {
    }
@@ -28,11 +26,20 @@ public class BpmRuntimeErrorMessages
    {
       try
       {
-         return RESOURCE_BUNDLE.getString(key);
+         if(resourceBundle == null)
+         {
+            resourceBundle = ResourceBundle.getBundle(BUNDLE_NAME);
+         }
+         
+         return resourceBundle.getString(key);
       }
       catch (MissingResourceException e)
       {
          return '!' + key + '!';
       }
    }
+   
+   
+   
+   
 }

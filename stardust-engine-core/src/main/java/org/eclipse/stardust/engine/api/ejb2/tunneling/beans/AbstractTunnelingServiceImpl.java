@@ -20,7 +20,7 @@ import javax.ejb.SessionContext;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.security.authentication.LoginFailedException;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
 import org.eclipse.stardust.engine.api.ejb2.beans.AbstractEjbServiceImpl;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;

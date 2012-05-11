@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -92,7 +93,7 @@ public class EJBForkingService implements ForkingService
       }
    }
 
-   public void fork(ActionCarrier action, boolean transacted)
+   public void fork(IActionCarrier action, boolean transacted)
    {
       SendAction sender = new SendAction(action);
       if (transacted)
@@ -136,9 +137,9 @@ public class EJBForkingService implements ForkingService
 
    private class SendAction implements Action
    {
-      private ActionCarrier action;
+      private IActionCarrier action;
 
-      public SendAction(ActionCarrier action)
+      public SendAction(IActionCarrier action)
       {
          this.action = action;
       }

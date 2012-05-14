@@ -32,7 +32,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
-import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
 /**
@@ -253,12 +252,10 @@ public class DataValueBean extends IdentifiablePersistentBean
                OrTerm orTerm = new OrTerm();
                if (Operator.IS_EQUAL.equals(operator))
                {
-                  orTerm.add(new ComparisonTerm(dvTable
-                        .fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY),
+                  orTerm.add(new ComparisonTerm(dvTable.fieldRef(FIELD__TYPE_KEY),
                         Operator.IS_NULL));
                }
-               orTerm.add(new ComparisonTerm(dvTable
-                     .fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY),
+               orTerm.add(new ComparisonTerm(dvTable.fieldRef(FIELD__TYPE_KEY),
                      (Operator.Binary) operator, new Integer(BigData.NULL)));
                resultTerm.add(orTerm);
             }

@@ -708,24 +708,18 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
       {
          Context context = (Context) rawContext;
 
-         // if this is an AND term, add directly contained data filters to list of
-         // cluster slot candidates
-
-         if (FilterTerm.AND.equals(filter.getKind()))
+         context = new Context(context.clusterCandidates,
+               new HashSet<DataAttributeKey>(context.slotCandidates),
+               context.modelManager);
+         for (Iterator<?> i = filter.getParts().iterator(); i.hasNext();)
          {
-            context = new Context(context.clusterCandidates,
-                  new HashSet<DataAttributeKey>(context.slotCandidates),
-                  context.modelManager);
-            for (Iterator<?> i = filter.getParts().iterator(); i.hasNext();)
+            FilterCriterion part = (FilterCriterion) i.next();
+            if (part instanceof AbstractDataFilter)
             {
-               FilterCriterion part = (FilterCriterion) i.next();
-               if (part instanceof AbstractDataFilter)
-               {
-                  final AbstractDataFilter dataFilter = (AbstractDataFilter) part;
-                  IData data = ClusterAwareInlinedDataFilterSqlBuilder.findCorrespondingData(dataFilter.getDataID(), context.modelManager);
-                  DataAttributeKey slotCandidate = new DataAttributeKey(data, dataFilter.getAttributeName());
-                  context.slotCandidates.add(slotCandidate);
-               }
+               final AbstractDataFilter dataFilter = (AbstractDataFilter) part;
+               IData data = ClusterAwareInlinedDataFilterSqlBuilder.findCorrespondingData(dataFilter.getDataID(), context.modelManager);
+               DataAttributeKey slotCandidate = new DataAttributeKey(data, dataFilter.getAttributeName());
+               context.slotCandidates.add(slotCandidate);
             }
          }
 

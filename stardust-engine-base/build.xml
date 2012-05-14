@@ -184,7 +184,7 @@
    	   overwrite="true" haltonmissing="true" />
       
       <ivy:retrieve file="ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]" 
-         conf="stardust-engine-base-compile" module="stardust-engine-base" />
+         conf="stardust-engine-base-compile, logging-log4j-provider-compile" module="stardust-engine-base" />
    </target>
 
    <target name="dist" depends="build, jar.src">

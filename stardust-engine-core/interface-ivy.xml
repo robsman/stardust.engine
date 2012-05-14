@@ -60,8 +60,6 @@
       <conf name="base-provider-compile" visibility="private" />
       <conf name="base-provider-runtime" visibility="private" />
 
-      <conf name="logging-log4j-provider-compile" visibility="private" />
-
       <conf name="logging-slf4j-log4j-provider-compile" visibility="private" />
 
       <conf name="web-client-provider-runtime" visibility="private" />
@@ -139,13 +137,6 @@
       <dependency org="javax.mail" name="mail" rev="1.4" conf="base-provider-runtime->default"/>
       <dependency org="org.codehaus.woodstox" name="wstx-asl" rev="3.2.1" conf="base-provider-runtime->default">
          <exclude org="stax" module="stax-api"/>
-      </dependency>
-
-      <!-- logging-log4j-provider-compile -->
-      <dependency org="log4j" name="log4j" rev="1.2.15" conf="logging-log4j-provider-compile->default">
-         <exclude org="com.sun.jmx" module="jmxri"/>
-         <exclude org="com.sun.jdmk" module="jmxtools"/>
-         <exclude org="javax.jms" module="jms"/>
       </dependency>
 
       <!-- logging-slf4j-log4j-provider-compile -->

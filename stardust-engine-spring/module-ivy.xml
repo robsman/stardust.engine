@@ -57,8 +57,9 @@
       <dependency org="org.springframework" name="spring-webmvc" rev="3.0.5.RELEASE" conf="spring-module-runtime->default" />
       
       <!-- client-spring-module-runtime -->
-      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->client-module-runtime,logging-log4j-module-runtime">
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->client-module-runtime">
          <exclude org="rhino" module="js" />
       </dependency>
+      <dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->logging-log4j-module-runtime"/>
    </dependencies>
 </ivy-module>

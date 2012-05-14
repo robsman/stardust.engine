@@ -161,7 +161,7 @@
       
       <!-- retrieve dependencies for resolved Ivy: ivy.xml -->
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]"
-         conf="base-provider-compile,base-provider-runtime,swing-client-provider-compile,logging-log4j-provider-compile,
+         conf="base-provider-compile,base-provider-runtime,swing-client-provider-compile,
             2nd-level-cache-interface-compile,
             build-lib,jcr-interface-compile,jcr-vfs-provider-compile,web-client-interface-provided,
             web-client-provider-runtime,ant-provider-runtime,logging-slf4j-log4j-provider-compile" />

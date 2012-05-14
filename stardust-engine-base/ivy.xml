@@ -15,11 +15,14 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
    <info organisation="com.infinity.bpm" module="stardust-engine-base"
-      revision="${ipp.version.full}" />
+      revision="${ipp.version.full}">
+      <extends organisation="com.infinity.bpm" module="base-artifacts" revision="latest.integration"
+         extendType="all" location="base-interface-ivy.xml"/>
+   </info>
 
    <configurations>
       <conf name="stardust-engine-base-compile" description="IPP Base - Compile Scope" />
-      <conf name="stardust-engine-base-compile-optional" description="IPP Base - (Optional) Compile Scope" />
+      <conf name="stardust-engine-base-compile-optional" extends="logging-log4j-provider-compile" description="IPP Base - (Optional) Compile Scope" />
       <conf name="stardust-engine-base-provided" description="IPP Base - Provided Scope" />
       <conf name="stardust-engine-base-runtime" description="IPP Base - Runtime Scope" />
       <conf name="stardust-engine-base-sources" description="IPP Base - Sources" />
@@ -43,7 +46,7 @@
       <artifact name="carnot-base" type="pom" conf="pom" ext="pom" />
    </publications>
 
-   <dependencies>
+   <dependencies>      
       <!-- stardust-engine-base-compile -->
       <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="stardust-engine-base-compile->default"/>
       <dependency org="org.apache.geronimo.specs" name="geronimo-jms_1.1_spec" rev="1.1.1" conf="stardust-engine-base-compile-optional->default"/>   

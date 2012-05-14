@@ -164,11 +164,18 @@
    </target>
 
    <target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
+      <ivy:publish srcivypattern="${project.dir}/base-interface-ivy.xml" conf="*" resolver="buildenv" merge="false"
+         organisation="com.infinity.bpm" module="base-artifacts" overwrite="true" haltonmissing="true"/>
+      
+      <ivy:resolve file="${project.dir}/ivy.xml" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.src}" 
-         conf="stardust-engine-base-compile, stardust-engine-base-compile-optional, stardust-engine-base-sources" publishIvy="true" />
+         conf="stardust-engine-base-compile, stardust-engine-base-compile-optional, stardust-engine-base-sources, logging-log4j-provider-compile" 
+         publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
 
+      <ivy:resolve file="${project.dir}/module-ivy.xml" />
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="base-module" />
+      <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="logging-log4j-module" />
       
    	<ivy:publish resolver="buildenv"
    	   conf="module-pom" publishivy="true"

@@ -14,12 +14,18 @@
    xmlns:m="http://ant.apache.org/ivy/maven"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-      <info organisation="com.infinity.bpm" module="stardust-engine-base-module"
-      revision="${ipp.version.full}" />
+   <info organisation="com.infinity.bpm" module="stardust-engine-base-module"
+      revision="${ipp.version.full}">
+      <extends organisation="com.infinity.bpm" module="base-artifacts" revision="latest.integration"
+         extendType="all" location="base-interface-ivy.xml"/>
+   </info>
 
    <configurations>
+      <conf name="logging-log4j-module-compile" extends="logging-log4j-provider-compile" description="IPP Base - log4j Module - Compile Scope" />
+      <conf name="logging-log4j-module-runtime" extends="logging-log4j-module-compile" description="IPP Base - log4j Module - Runtime Scope" />
+      
       <conf name="base-module-compile" description="IPP Base Module - Compile Scope" />
-      <conf name="base-module-compile-optional" description="IPP Base Module - (Optional) Compile Scope" />
+      <conf name="base-module-compile-optional" extends="logging-log4j-module-compile" description="IPP Base Module - (Optional) Compile Scope" />
       <conf name="base-module-runtime" description="IPP Base Module - Runtime Scope" extends="base-module-compile"/>
       <conf name="base-module-sources" description="IPP Base Module - Sources" />
       
@@ -28,11 +34,12 @@
 
    <publications>
       <artifact name="base-module" type="pom" conf="module-pom" ext="pom" />
+      <artifact name="logging-log4j-module" type="pom" conf="module-pom" ext="pom" />
    </publications>
 
    <dependencies>
-      <dependency org="com.infinity.bpm" name="stardust-engine-base" rev="${ipp.version.full}" conf="base-module-compile->stardust-engine-base-compile"/>      
       <!-- base-module-compile -->
+      <dependency org="com.infinity.bpm" name="stardust-engine-base" rev="${ipp.version.full}" conf="base-module-compile->stardust-engine-base-compile"/>      
       <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="base-module-compile->default"/>
       <dependency org="org.apache.geronimo.specs" name="geronimo-jms_1.1_spec" rev="1.1.1" conf="base-module-compile-optional->default"/>   
       <dependency org="commons-jxpath" name="commons-jxpath" rev="1.3" conf="base-module-compile->default">
@@ -44,6 +51,6 @@
          <exclude org="commons-beanutils" module="commons-beanutils"/>
          <exclude org="junit" module="junit"/>
          <exclude org="com.mockrunner" module="mockrunner-jdk1.3-j2ee1.3"/>
-      </dependency>       
+      </dependency>
    </dependencies>
 </ivy-module>

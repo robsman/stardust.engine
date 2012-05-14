@@ -33,9 +33,6 @@
       <conf name="swing-client-module-compile" extends="engine-module-compile, swing-client-provider-compile" description="IPP Engine - Swing Client Module - Compile Scope" />
       <conf name="swing-client-module-runtime" extends="swing-client-module-compile, engine-module-runtime" description="IPP Engine - Swing Client Module - Runtime Scope" />
 
-      <conf name="logging-log4j-module-compile" extends="logging-log4j-provider-compile" description="IPP Engine - log4j Module - Compile Scope" />
-      <conf name="logging-log4j-module-runtime" extends="logging-log4j-module-compile" description="IPP Engine - log4j Module - Runtime Scope" />
-
       <conf name="logging-slf4j-log4j-module-compile" extends="logging-slf4j-log4j-provider-compile" description="IPP Engine - slf4j-log4j Module - Compile Scope" />
       <conf name="logging-slf4j-log4j-module-runtime" extends="logging-slf4j-log4j-module-compile" description="IPP Engine - slf4j-log4j Module - Runtime Scope" />
 
@@ -96,7 +93,6 @@
       <artifact name="engine-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="web-client-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="swing-client-module" type="pom" conf="module-pom" ext="pom" />
-      <artifact name="logging-log4j-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="logging-slf4j-log4j-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="jta-jencks-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="jta-api-module" type="pom" conf="module-pom" ext="pom" />

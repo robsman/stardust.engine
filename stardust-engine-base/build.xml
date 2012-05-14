@@ -169,7 +169,7 @@
       
       <ivy:resolve file="${project.dir}/ivy.xml" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.src}" 
-         conf="stardust-engine-base-compile, stardust-engine-base-compile-optional, stardust-engine-base-sources, logging-log4j-provider-compile" 
+         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional, stardust-engine-base-sources, logging-log4j-provider-compile" 
          publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
 

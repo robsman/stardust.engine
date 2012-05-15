@@ -114,7 +114,7 @@
       <dependency org="org.apache.geronimo.specs" name="geronimo-jms_1.1_spec" rev="1.1.1" conf="jms-interface-runtime->default" />
 
       <!-- j2ee-mgmt-interface-provided -->
-      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.1_spec" rev="1.0" conf="j2ee-mgmt-interface-provided->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="1.0" conf="j2ee-mgmt-interface-provided->default" />
       
       <!-- ejb21-interface-provided -->
       <dependency org="org.apache.geronimo.specs" name="geronimo-ejb_2.1_spec" transitive="false" rev="1.1" conf="ejb21-interface-provided->default" />

@@ -54,6 +54,7 @@ import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
 import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -73,6 +74,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.ParticipantInfoUtil;
 
 
 /**
@@ -657,10 +659,22 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    private static boolean isDelegationCandidate(HistoricalState prevHistState,
          HistoricalState histState)
    {
-      return ActivityInstanceState.Suspended == histState.getState()
-            && histState.getParticipant() != null
-            && !histState.getParticipant().equals(prevHistState.getParticipant());
+      if (histState.getState() == ActivityInstanceState.Suspended
+            && histState.getParticipant() != null)
+      {
+         
+         if ( !(histState.getParticipant()).equals(prevHistState.getParticipant())
+               || !((ModelParticipantInfo) histState.getParticipant()).getDepartment()
+                     .equals(
+                           ((ModelParticipantInfo) prevHistState.getParticipant()).getDepartment()))
+         {
+            return true;
+         }
+      }
+      return false;
    }
+   
+   
 
    public PermissionState getPermission(String permissionId)
    {

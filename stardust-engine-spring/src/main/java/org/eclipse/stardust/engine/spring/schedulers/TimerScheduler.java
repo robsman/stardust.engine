@@ -11,15 +11,14 @@
 package org.eclipse.stardust.engine.spring.schedulers;
 
 import java.util.Map;
-import java.util.Timer;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonCarrier;
-import org.springframework.scheduling.timer.ScheduledTimerTask;
-import org.springframework.scheduling.timer.TimerFactoryBean;
-
+import org.springframework.scheduling.concurrent.ScheduledExecutorTask;
 
 /**
  * 
@@ -30,19 +29,19 @@ public class TimerScheduler implements DaemonScheduler
 {
    private static final Logger trace = LogManager.getLogger(TimerScheduler.class);
 
-   private TimerFactoryBean factory;
+   private ScheduledExecutorService service;
 
-   private static final Map<DaemonCarrier, ScheduledTimerTask> tasks = CollectionUtils.newMap(); 
+   private static final Map<DaemonCarrier, ScheduledFuture> tasks = CollectionUtils.newMap(); 
 
-   public TimerFactoryBean getFactory()
+   public ScheduledExecutorService getService()
    {
-      return factory;
+      return service;
    }
 
-   public void setFactory(TimerFactoryBean factory)
+   public void setService(ScheduledExecutorService service)
    {
-      this.factory = factory;
-   }
+      this.service = service;
+   }   
 
    public void start(DaemonCarrier carrier, long period, Runnable runnable)
    {
@@ -50,10 +49,9 @@ public class TimerScheduler implements DaemonScheduler
       {
          if (!tasks.containsKey(carrier))
          {
-            ScheduledTimerTask task = new ScheduledTimerTask(runnable, 0, period, true);
-            tasks.put(carrier, task);
-            Timer timer = (Timer) factory.getObject();
-            timer.scheduleAtFixedRate(task.getTimerTask(), task.getDelay(), task.getPeriod());
+            ScheduledExecutorTask task = new ScheduledExecutorTask(runnable, 0, period, true);
+            ScheduledFuture< ? > scheduleAtFixedRate = service.scheduleAtFixedRate(task.getRunnable(), task.getDelay(), task.getPeriod(), task.getTimeUnit());
+            tasks.put(carrier, scheduleAtFixedRate);
             trace.info("Task '" + carrier.getType() + "' was scheduled.");
          }
       }
@@ -63,10 +61,10 @@ public class TimerScheduler implements DaemonScheduler
    {
       synchronized (tasks)
       {
-         ScheduledTimerTask task = tasks.get(carrier);
-         if (task != null)
+         ScheduledFuture scheduledFuture = tasks.get(carrier);
+         if (scheduledFuture != null)
          {
-            task.getTimerTask().cancel();
+            scheduledFuture.cancel(true);
             tasks.remove(carrier);
             trace.info("Task '" + carrier.getType() + "' was cancelled.");
          }

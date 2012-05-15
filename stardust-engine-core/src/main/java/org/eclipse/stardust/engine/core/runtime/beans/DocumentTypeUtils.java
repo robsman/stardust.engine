@@ -35,19 +35,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.xml.XmlUtils;
-import org.eclipse.stardust.engine.api.model.Data;
-import org.eclipse.stardust.engine.api.model.ExternalReference;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IExternalReference;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IReference;
-import org.eclipse.stardust.engine.api.model.ISchemaType;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.IXpdlType;
-import org.eclipse.stardust.engine.api.model.Model;
-import org.eclipse.stardust.engine.api.model.SchemaType;
-import org.eclipse.stardust.engine.api.model.TypeDeclaration;
-import org.eclipse.stardust.engine.api.model.XpdlType;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory.EmbeddedInvocationManager;
@@ -680,7 +668,21 @@ public final class DocumentTypeUtils
             String metaDataTypeDeclarationId = getMetaDataTypeDeclarationId(data);
             if (!isEmpty(metaDataTypeDeclarationId))
             {
-               Pair<Integer, String> typeDeclarationIdByModel = new Pair<Integer, String> (data.getModelOID(), metaDataTypeDeclarationId);
+               int modelOid = -1;
+               String resolvedMetaDataTypeDeclarationId = null;
+               Reference reference = data.getReference();
+               if (reference != null)
+               {
+                  modelOid = reference.getModelOid();
+                  resolvedMetaDataTypeDeclarationId = reference.getId();
+               }
+               else
+               {
+                  modelOid = data.getModelOID();
+                  resolvedMetaDataTypeDeclarationId = metaDataTypeDeclarationId;
+               }
+
+               Pair<Integer, String> typeDeclarationIdByModel = new Pair<Integer, String> (modelOid, resolvedMetaDataTypeDeclarationId);
                typeDeclarationIdsByModel.add(typeDeclarationIdByModel);
             }
          }

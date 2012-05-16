@@ -71,8 +71,8 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 MDL_UNKNOWN_PARTICIPANT_RUNTIME_OID = newArgs1("MDL01161", BpmRuntimeErrorMessages.getString("MDL01161")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_UNKNOWN_PARTICIPANT_ID = newArgs1("MDL01162", BpmRuntimeErrorMessages.getString("MDL01162")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 MDL_UNKNOWN_PARTICIPANT_ID_FOR_MODEL = new Args2("MDL01163", BpmRuntimeErrorMessages.getString("MDL01163")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+   public static final Args2 MDL_UNKNOWN_PARTICIPANT_ID_FOR_MODEL = newArgs2("MDL01163", BpmRuntimeErrorMessages.getString("MDL01163")); //$NON-NLS-1$ //$NON-NLS-2$
+
    public static final Args1 MDL_UNKNOWN_EVENT_HANDLER_ID = newArgs1("MDL01172", BpmRuntimeErrorMessages.getString("MDL01172")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 MDL_UNKNOWN_TYPE_DECLARATION_ID = newArgs1("MDL01182", BpmRuntimeErrorMessages.getString("MDL01182")); //$NON-NLS-1$ //$NON-NLS-2$

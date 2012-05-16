@@ -21,12 +21,13 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.Activity;
 import org.eclipse.stardust.engine.api.model.Application;
+import org.eclipse.stardust.engine.api.model.Modules;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
-
 import org.eclipse.stardust.vfs.VfsUtils;
 
 
@@ -52,6 +53,8 @@ public class VfsOperationApplicationInstance
 
    public void bootstrap(ActivityInstance activityInstance)
    {
+      ExtensionService.initializeModuleExtensions(Modules.DMS);
+
       Activity activity = (Activity) activityInstance.getActivity();
 
       IProcessInstance processInstance = ProcessInstanceBean.findByOID(activityInstance.getProcessInstanceOID());
@@ -411,14 +414,14 @@ public class VfsOperationApplicationInstance
          }
          else if (DmsOperation.OP_LOCK_FOLDER == operation)
          {
-            String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_FOLDER_ID);
             throw new RuntimeException("lockFolder is not implemented yet");
+            // String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_FOLDER_ID);
             // vfs.lockFolder(id);
          }
          else if (DmsOperation.OP_UNLOCK_FOLDER == operation)
          {
-            String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_FOLDER_ID);
             throw new RuntimeException("unlockFolder is not implemented yet");
+            // String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_FOLDER_ID);
             // vfs.unlockFolder(id);
          }
          else if (DmsOperation.OP_VERSION_DOCUMENT == operation)

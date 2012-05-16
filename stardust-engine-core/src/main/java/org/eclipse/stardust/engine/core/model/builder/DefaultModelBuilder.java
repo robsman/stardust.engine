@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.runtime.Mail;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.compatibility.el.DataTypeResolver;
 import org.eclipse.stardust.engine.core.compatibility.el.JsConverter;
+import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.extensions.actions.delegate.TargetWorklist;
 import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.gui.AccessPointTemplate;
@@ -155,6 +156,8 @@ public class DefaultModelBuilder implements ModelBuilder
          xml.setAttribute(PredefinedConstants.ICON_ATT,
                PredefinedConstants.PLAINXML_ICON_LOCATION);
       }
+
+      ExtensionService.createExtendedDataTypes(model);
    }
 
    public static void createPredefinedApplicationContextTypes(IModel model)
@@ -258,20 +261,7 @@ public class DefaultModelBuilder implements ModelBuilder
                PredefinedConstants.JMS_APPLICATION_ICON_LOCATION);
       }
 
-      if (null == model.findApplicationType(PredefinedConstants.WS_APPLICATION))
-      {
-         IApplicationType wsType = model.createApplicationType(
-               PredefinedConstants.WS_APPLICATION, "Web Service Application", true, true,
-               0);
-         wsType.setAttribute(PredefinedConstants.VALIDATOR_CLASS_ATT,
-               PredefinedConstants.WS_APPLICATION_VALIDATOR_CLASS);
-         wsType.setAttribute(PredefinedConstants.PANEL_CLASS_ATT,
-               PredefinedConstants.WS_APPLICATION_PANEL_CLASS);
-         wsType.setAttribute(PredefinedConstants.APPLICATION_INSTANCE_CLASS_ATT,
-               PredefinedConstants.WS_APPLICATION_INSTANCE_CLASS);
-         wsType.setAttribute(PredefinedConstants.ICON_ATT,
-               PredefinedConstants.WS_APPLICATION_ICON_LOCATION);
-      }
+      ExtensionService.createExtendedApplicationTypes(model);
    }
 
    public static void createPredefinedTriggerTypes(IModel model)
@@ -426,35 +416,7 @@ public class DefaultModelBuilder implements ModelBuilder
                PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION_ICON_LOCATION);
       }
 
-/*      
-      if (null == model.findEventConditionType(PredefinedConstants.EXPRESSION_CONDITION))
-      {
-         IEventConditionType expressionCondition = model.createEventConditionType(
-         PredefinedConstants.EXPRESSION_CONDITION, "On Data Change", true,
-         EventType.Engine, true, true, 0);
-         expressionCondition.setAttribute(PredefinedConstants.PANEL_CLASS_ATT,
-         PredefinedConstants.EXPRESSION_CONDITION_PANEL_CLASS);
-         expressionCondition.setAttribute(PredefinedConstants.CONDITION_CONDITION_CLASS_ATT,
-         PredefinedConstants.EXPRESSION_CONDITION_CLASS);
-         expressionCondition.setAttribute(PredefinedConstants.VALIDATOR_CLASS_ATT,
-         PredefinedConstants.EXPRESSION_CONDITION_VALIDATOR_CLASS);
-         expressionCondition.setAttribute(PredefinedConstants.ICON_ATT,
-         PredefinedConstants.EXPRESSION_CONDITION_ICON_LOCATION);
-      }
-*/
-
-/*
-      if (null == model.findEventConditionType(PredefinedConstants.EXTERNAL_EVENT_CONDITION))
-      {
-         IEventConditionType externalCondition = model.createEventConditionType(
-               PredefinedConstants.EXTERNAL_EVENT_CONDITION, "External Event", true,
-               EventType.Push, true, true, 0);
-         externalCondition.setAttribute(PredefinedConstants.ICON_ATT,
-               PredefinedConstants.EXTERNAL_CONDITION_CLASS);
-         externalCondition.setAttribute(PredefinedConstants.ICON_ATT,
-               PredefinedConstants.EXTERNAL_CONDITION_ICON_LOCATION);
-      }
-*/
+      ExtensionService.createExtendedEventConditionTypes(model);
    }
 
    public static void createPredefinedEventActionTypes(IModel model)
@@ -612,6 +574,8 @@ public class DefaultModelBuilder implements ModelBuilder
                PredefinedConstants.SET_DATA_ACTION_ICON_LOCATION);
          supportAllConditionTypes(model, setdataActionType);
       }
+      
+      ExtensionService.createExtendedEventActionTypes(model);
    }
 
    public static void createPredefinedData(IModel model)

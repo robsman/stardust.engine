@@ -37,6 +37,7 @@ import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
@@ -469,6 +470,8 @@ public class UserServiceImpl implements UserService, Serializable
          Date validFrom, Date validTo)
    {
       checkInternalAuthentified();
+      
+      ExtensionService.initializeRealmExtensions();
 
       IAuditTrailPartition partition = SecurityProperties.getPartition();
 

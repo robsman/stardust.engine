@@ -25,7 +25,6 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 
-
 /**
  * Supports URLs with scheme "classpath:/". Searches for resources in CLASSPATH
  */
@@ -34,27 +33,6 @@ public class ClasspathUriConverter implements URIConverter
    private static final Logger trace = LogManager.getLogger(ClasspathUriConverter.class);
 
    public static final String CLASSPATH_SCHEME = "classpath";
-
-   public InputStream createInputStream(URI uri) throws IOException
-   {
-      URL resourceUrl = ClasspathUriConverter.class.getClassLoader().getResource(uri.path());
-      
-      if (resourceUrl == null)
-      {
-         resourceUrl = ClasspathUriConverter.class.getResource(uri.path());
-         
-         if (resourceUrl == null)
-         {
-            throw new PublicException("Could not find XSD '"+uri.path()+"' in CLASSPATH");
-         }
-      }
-      
-      if (trace.isDebugEnabled())
-      {
-         trace.debug("Resolved '" + uri + "' to '" + resourceUrl + "'.");
-      }
-      return resourceUrl.openStream();
-   }
 
    public OutputStream createOutputStream(URI uri) throws IOException
    {
@@ -72,68 +50,75 @@ public class ClasspathUriConverter implements URIConverter
       return uri;
    }
 
-public Map<String, ?> contentDescription(URI arg0, Map<?, ?> arg1)
-		throws IOException {
-	// TODO Auto-generated method stub
-	return null;
-}
+   public Map<String, ? > contentDescription(URI arg0, Map< ? , ? > arg1) throws IOException
+   {
+      return null;
+   }
 
-public InputStream createInputStream(URI uri, Map<?, ?> arg1)
-		throws IOException {
-    URL resourceUrl = ClasspathUriConverter.class.getClassLoader().getResource(uri.path());
-    
-    if (resourceUrl == null)
-    {
-       resourceUrl = ClasspathUriConverter.class.getResource(uri.path());
-       
-       if (resourceUrl == null)
-       {
-          throw new PublicException("Could not find XSD '"+uri.path()+"' in CLASSPATH");
-       }
-    }
-    
-    if (trace.isDebugEnabled())
-    {
-       trace.debug("Resolved '" + uri + "' to '" + resourceUrl + "'.");
-    }
-    return resourceUrl.openStream();
-}
+   public InputStream createInputStream(URI uri) throws IOException
+   {
+      return createInputStream(uri, null);
+   }
 
-public OutputStream createOutputStream(URI arg0, Map<?, ?> arg1)
-		throws IOException {	
-	throw new RuntimeException("Not supported.");
-}
+   public InputStream createInputStream(URI uri, Map< ? , ? > arg1) throws IOException
+   {
+      URL resourceUrl = Thread.currentThread().getContextClassLoader().getResource(uri.path());
+      if (resourceUrl == null)
+      {
+         resourceUrl = ClasspathUriConverter.class.getClassLoader().getResource(uri.path());
+         if (resourceUrl == null)
+         {
+            resourceUrl = ClasspathUriConverter.class.getResource(uri.path());
+            if (resourceUrl == null)
+            {
+               throw new PublicException("Could not find XSD '" + uri.path() + "' in CLASSPATH");
+            }
+         }
+      }
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Resolved '" + uri + "' to '" + resourceUrl + "'.");
+      }
+      return resourceUrl.openStream();
+   }
 
-public void delete(URI arg0, Map<?, ?> arg1) throws IOException {
-	throw new RuntimeException("Not supported.");
-	
-}
+   public OutputStream createOutputStream(URI arg0, Map< ? , ? > arg1) throws IOException
+   {
+      throw new RuntimeException("Not supported.");
+   }
 
-public boolean exists(URI arg0, Map<?, ?> arg1) {
-	// TODO Auto-generated method stub
-	throw new RuntimeException("Not supported.");
-}
+   public void delete(URI arg0, Map< ? , ? > arg1) throws IOException
+   {
+      throw new RuntimeException("Not supported.");
+   }
 
-public Map<String, ?> getAttributes(URI arg0, Map<?, ?> arg1) {	
-	throw new RuntimeException("Not supported.");
-}
+   public boolean exists(URI arg0, Map< ? , ? > arg1)
+   {
+      throw new RuntimeException("Not supported.");
+   }
 
-public EList<ContentHandler> getContentHandlers() {
-	throw new RuntimeException("Not supported.");
-}
+   public Map<String, ? > getAttributes(URI arg0, Map< ? , ? > arg1)
+   {
+      throw new RuntimeException("Not supported.");
+   }
 
-public URIHandler getURIHandler(URI arg0) {
-	throw new RuntimeException("Not supported.");
-}
+   public EList<ContentHandler> getContentHandlers()
+   {
+      throw new RuntimeException("Not supported.");
+   }
 
-public EList<URIHandler> getURIHandlers() {
-	throw new RuntimeException("Not supported.");
-}
+   public URIHandler getURIHandler(URI arg0)
+   {
+      throw new RuntimeException("Not supported.");
+   }
 
-public void setAttributes(URI arg0, Map<String, ?> arg1, Map<?, ?> arg2)
-		throws IOException {
-	throw new RuntimeException("Not supported.");
-	
-}
+   public EList<URIHandler> getURIHandlers()
+   {
+      throw new RuntimeException("Not supported.");
+   }
 
+   public void setAttributes(URI arg0, Map<String, ? > arg1, Map< ? , ? > arg2) throws IOException
+   {
+      throw new RuntimeException("Not supported.");
+   }
 }

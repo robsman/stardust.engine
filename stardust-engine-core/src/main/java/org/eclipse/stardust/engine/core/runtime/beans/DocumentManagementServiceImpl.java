@@ -33,17 +33,18 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.Modules;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.AccessMode;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
+import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
 import org.eclipse.stardust.engine.extensions.dms.data.*;
-
 import org.eclipse.stardust.vfs.*;
 import org.eclipse.stardust.vfs.impl.jcr.*;
 import org.eclipse.stardust.vfs.jcr.ISessionFactory;
@@ -1095,6 +1096,8 @@ public class DocumentManagementServiceImpl
    {
       try
       {
+         ExtensionService.initializeModuleExtensions(Modules.DMS);
+
          // TODO support multiple repositories
          IDocumentRepositoryService vfs = getVfs();
 

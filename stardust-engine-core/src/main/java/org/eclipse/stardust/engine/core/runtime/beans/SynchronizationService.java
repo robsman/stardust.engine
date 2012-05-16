@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
+import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -435,6 +436,8 @@ public abstract class SynchronizationService
          throw new ObjectNotFoundException(
                BpmRuntimeError.AUTHx_SYNC_MISSING_SYNCHRONIZATION_PROVIDER.raise());
       }
+      
+      ExtensionService.initializeRealmExtensions();
 
       String realmId = LoginUtils.getUserRealmId(properties);
 
@@ -445,9 +448,6 @@ public abstract class SynchronizationService
          throw new ObjectNotFoundException(
                BpmRuntimeError.AUTHx_SYNC_UNKNOWN_USER.raise(account), account);
       }
-
-      // verify restrictions on maximum number of concurrent users
-      prepareSynchronization(account);
 
       IUser user = null;
 
@@ -829,8 +829,8 @@ public abstract class SynchronizationService
    {
       if (!user.isValid())
       {
-         // on transition from invalid->valid check maximum number of concurrent users
-         prepareSynchronization(user.getAccount());
+         // user is revalidated
+         ExtensionService.initializeRealmExtensions();
 
          user.setValidFrom(new Date());
       }
@@ -1453,17 +1453,6 @@ public abstract class SynchronizationService
       }
 
       return strategy;
-   }
-
-   /**
-    * Verifies that the maximum number of active users is not exceeded.
-    * <p/>
-    * The method name is obfuscated to raise barriers for understanding decompiled code.
-    */
-   private static void prepareSynchronization(String account)
-         throws ObjectNotFoundException
-   {
-      // removed check as of Stardust submission
    }
 
    protected Map getProperties()

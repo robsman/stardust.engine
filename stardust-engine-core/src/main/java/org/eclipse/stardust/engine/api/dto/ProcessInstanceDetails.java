@@ -175,8 +175,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             Map<String, Object> props = new HashMap<String, Object>();
             props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
             layer = ParametersFacade.pushLayer(props);
-            startingUserDetails = (UserDetails) DetailsFactory.create(startingUser,
-                  IUser.class, UserDetails.class);
+            startingUserDetails = DetailsFactory.createUser(startingUser);
          }
          finally
          {

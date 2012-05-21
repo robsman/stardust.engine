@@ -355,7 +355,7 @@ public abstract class Converter
 
       try
       {
-         domBuilder = org.eclipse.stardust.common.utils.xml.XmlUtils.newDomBuilder();
+         domBuilder = org.eclipse.stardust.engine.core.runtime.utils.XmlUtils.newDomBuilder();
          document = domBuilder.parse(new InputSource(inputStream));
       }
       catch (Exception e)

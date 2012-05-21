@@ -16,12 +16,12 @@ import org.eclipse.stardust.common.Attribute;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.UserDetails.AddedGrant;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 
 public final class UserUtils

@@ -20,10 +20,10 @@ import java.util.Set;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
 

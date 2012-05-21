@@ -12,13 +12,13 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.Iterator;
 
-import org.eclipse.stardust.common.config.TimestampProviderUtils;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**

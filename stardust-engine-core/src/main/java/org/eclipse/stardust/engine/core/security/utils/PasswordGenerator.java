@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.common.security.utils;
+package org.eclipse.stardust.engine.core.security.utils;
 
 import java.util.Iterator;
 import java.util.List;

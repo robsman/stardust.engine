@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.TimestampProviderUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -45,6 +44,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstan
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.UnrecoverableExecutionException;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**

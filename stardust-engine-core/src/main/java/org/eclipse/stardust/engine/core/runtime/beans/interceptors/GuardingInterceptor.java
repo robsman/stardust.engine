@@ -11,13 +11,13 @@
 package org.eclipse.stardust.engine.core.runtime.beans.interceptors;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.common.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
+import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 
 /**

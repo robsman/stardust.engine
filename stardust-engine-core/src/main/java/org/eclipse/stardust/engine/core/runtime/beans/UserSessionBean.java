@@ -12,13 +12,13 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.Date;
 
-import org.eclipse.stardust.common.config.TimestampProviderUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 

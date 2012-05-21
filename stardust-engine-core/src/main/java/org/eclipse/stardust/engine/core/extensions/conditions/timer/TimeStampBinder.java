@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.Period;
 import org.eclipse.stardust.common.Unknown;
-import org.eclipse.stardust.common.config.TimestampProviderUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -32,6 +31,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DefaultEventBinder;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**

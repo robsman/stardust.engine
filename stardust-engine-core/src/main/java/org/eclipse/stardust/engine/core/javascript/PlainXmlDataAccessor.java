@@ -18,7 +18,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.utils.xml.XPathUtils;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.mozilla.javascript.Delegator;
 import org.mozilla.javascript.Scriptable;
 import org.w3c.dom.Document;

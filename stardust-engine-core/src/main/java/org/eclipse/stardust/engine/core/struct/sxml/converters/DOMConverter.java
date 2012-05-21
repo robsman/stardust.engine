@@ -15,7 +15,7 @@ import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.sxml.Attribute;
 import org.eclipse.stardust.engine.core.struct.sxml.Document;
 import org.eclipse.stardust.engine.core.struct.sxml.Element;

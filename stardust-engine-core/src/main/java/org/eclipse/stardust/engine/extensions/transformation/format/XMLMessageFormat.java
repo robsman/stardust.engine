@@ -15,7 +15,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
 
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 

@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
@@ -30,6 +29,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessIns
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonLog;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;

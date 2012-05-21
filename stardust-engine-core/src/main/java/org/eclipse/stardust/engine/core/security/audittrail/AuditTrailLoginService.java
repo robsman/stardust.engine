@@ -24,13 +24,13 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.error.LoginFailedException;
-import org.eclipse.stardust.common.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.SynchronizationService;
 import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.core.spi.security.ExternalLoginProvider;
 import org.eclipse.stardust.engine.core.spi.security.ExternalLoginResult;
 

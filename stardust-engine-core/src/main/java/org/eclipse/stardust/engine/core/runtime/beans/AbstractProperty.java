@@ -15,10 +15,10 @@ import java.util.Date;
 import org.eclipse.stardust.common.Attribute;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Unknown;
-import org.eclipse.stardust.common.config.TimestampProviderUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**

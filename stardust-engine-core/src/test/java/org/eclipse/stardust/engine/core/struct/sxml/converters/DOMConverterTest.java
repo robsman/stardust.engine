@@ -23,7 +23,7 @@ import java.net.URL;
 import java.util.List;
 
 import org.eclipse.stardust.common.utils.io.CloseableUtil;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
 import org.eclipse.stardust.engine.core.struct.sxml.converters.DOMConverter;
 import org.junit.Test;

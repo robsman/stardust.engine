@@ -31,7 +31,7 @@ import org.apache.commons.jxpath.JXPathContext;
 import org.eclipse.stardust.common.utils.io.CloseableUtil;
 import org.eclipse.stardust.common.utils.xml.StaticNamespaceContext;
 import org.eclipse.stardust.common.utils.xml.XPathUtils;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.sxml.Document;
 import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
 import org.eclipse.stardust.engine.core.struct.sxml.Element;

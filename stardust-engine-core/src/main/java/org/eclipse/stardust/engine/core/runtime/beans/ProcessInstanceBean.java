@@ -18,7 +18,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.config.TimestampProviderUtils;
 import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -58,6 +57,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluat
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 

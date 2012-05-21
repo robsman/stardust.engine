@@ -17,7 +17,7 @@ import org.eclipse.stardust.common.log.ClientLogManager;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.DefaultConsoleProcessor;
 import org.eclipse.stardust.common.utils.console.Options;
-import org.eclipse.stardust.common.utils.console.VersionCommand;
+import org.eclipse.stardust.engine.cli.common.VersionCommand;
 
 
 /**

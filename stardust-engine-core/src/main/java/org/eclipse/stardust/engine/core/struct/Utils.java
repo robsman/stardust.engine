@@ -14,8 +14,8 @@ import java.util.Date;
 
 import org.eclipse.stardust.common.Period;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

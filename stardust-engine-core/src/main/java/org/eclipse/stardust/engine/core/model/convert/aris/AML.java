@@ -244,7 +244,7 @@ public class AML
       {
          FileInputStream stream = new FileInputStream(fileName);
          is = new BufferedInputStream(stream);
-         DocumentBuilder domBuilder = org.eclipse.stardust.common.utils.xml.XmlUtils.newDomBuilder();
+         DocumentBuilder domBuilder = org.eclipse.stardust.engine.core.runtime.utils.XmlUtils.newDomBuilder();
          InputSource source = new InputSource(is);
          document = domBuilder.parse(source);
       }

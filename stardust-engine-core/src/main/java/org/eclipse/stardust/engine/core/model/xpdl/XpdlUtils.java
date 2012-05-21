@@ -25,10 +25,10 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.model.beans.*;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
@@ -628,7 +628,7 @@ public class XpdlUtils
    }
 
    private static class CarnotEntityResolver extends
-         org.eclipse.stardust.common.utils.xml.XmlUtils.CarnotEntityResolver
+         org.eclipse.stardust.engine.core.runtime.utils.XmlUtils.CarnotEntityResolver
    {
       public InputSource resolveEntity(String publicId, String systemId)
             throws SAXException

@@ -23,8 +23,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.upgrade.framework.ModelItem;
 import org.eclipse.stardust.engine.core.upgrade.framework.ModelUpgradeJob;
 import org.eclipse.stardust.engine.core.upgrade.framework.UpgradableItem;

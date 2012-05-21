@@ -21,7 +21,6 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.PasswordRules;
@@ -37,6 +36,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserProperty;
 import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonProperties;
+import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.core.spi.runtime.ISystemAction;
 
 

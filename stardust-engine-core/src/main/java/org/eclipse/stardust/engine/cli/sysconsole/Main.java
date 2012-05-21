@@ -16,7 +16,7 @@ import java.util.TreeMap;
 import org.eclipse.stardust.common.log.ClientLogManager;
 import org.eclipse.stardust.common.utils.console.DefaultConsoleProcessor;
 import org.eclipse.stardust.common.utils.console.Options;
-import org.eclipse.stardust.common.utils.console.VersionCommand;
+import org.eclipse.stardust.engine.cli.common.VersionCommand;
 import org.eclipse.stardust.engine.cli.console.EncryptCommand;
 
 

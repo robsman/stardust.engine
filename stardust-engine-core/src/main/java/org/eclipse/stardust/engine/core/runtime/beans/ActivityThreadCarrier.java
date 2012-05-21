@@ -19,7 +19,6 @@ import javax.jms.Message;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.config.TimestampProviderUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IActivity;
@@ -27,6 +26,7 @@ import org.eclipse.stardust.engine.api.runtime.TimeoutException;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.extensions.jms.app.RecordedTimestampProvider;
+import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
 
 /**

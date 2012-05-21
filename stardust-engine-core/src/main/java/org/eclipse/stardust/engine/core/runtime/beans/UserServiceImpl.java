@@ -26,9 +26,6 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.security.InvalidPasswordException;
-import org.eclipse.stardust.common.security.utils.PasswordGenerator;
-import org.eclipse.stardust.common.security.utils.PasswordValidation;
-import org.eclipse.stardust.common.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.UserGroupDetailsLevel;
@@ -47,6 +44,9 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.security.utils.PasswordGenerator;
+import org.eclipse.stardust.engine.core.security.utils.PasswordValidation;
+import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 /**
  * @author ubirkemeyer

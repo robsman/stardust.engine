@@ -37,7 +37,6 @@ import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.IllegalUsageException;
 import org.eclipse.stardust.common.utils.console.Options;
-import org.eclipse.stardust.common.utils.xml.XmlUtils;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -59,6 +58,7 @@ import org.eclipse.stardust.engine.core.model.beans.IConfigurationVariablesProvi
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 
 
 /**

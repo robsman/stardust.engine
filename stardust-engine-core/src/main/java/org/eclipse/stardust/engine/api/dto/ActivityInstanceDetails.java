@@ -431,7 +431,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    public String getParticipantPerformerID()
    {
-      return performer == null ? null : performer.getId();
+      return performer == null || performer instanceof UserInfo ? null : performer.getId();
    }
 
    public String getUserPerformerName()

@@ -108,7 +108,7 @@
 
       <mkdir dir="${build.src.generated}/org/eclipse/stardust" />
 
-      <copy todir="${build.src.generated}">
+      <copy todir="${build.src.generated}" overwrite="true">
          <fileset dir="${project.src}">
             <include name="**/*.java" />
             <exclude name="org/eclipse/stardust/common/config/CurrentVersion.java" />
@@ -122,7 +122,7 @@
    </target>
    
    <target name="copyVersionSourceFile">
-      <copy todir="${destination}">
+      <copy todir="${destination}" overwrite="true">
          <fileset dir="${source}">
             <include name="org/eclipse/stardust/common/config/CurrentVersion.java" />
          </fileset>
@@ -136,12 +136,21 @@
    </target>
 
    <target name="compile" depends="prepareSources, initClasspath, init" description="Compiles the project's Java classes">
-      <ipp:javac-java6 srcdir="${build.src.generated}" destdir="${build.classes}">
+      <!-- if build.fast property is set - only CurrentVersion class is compiled here. Otherwise all classes are compiled -->
+      <ipp:javac-java6 destdir="${build.classes}"
+         srcdir="${build.src.generated}" sourcepath="${build.src.generated}:${build.src.static}">
          <include name="**/*.java" />
          <classpath id="compile6.classpath">
             <path path="${build.classes}" />
             <path refid="carnot-base.classpath" />
          </classpath>
+      </ipp:javac-java6>
+
+      <!-- compile all other classes if it is not done by the previous step -->
+      <ipp:javac-java6 destdir="${build.classes}"
+         srcdir="${build.src.static}" sourcepath="${build.src.generated}:${build.src.static}">
+         <exclude name="**/CurrentVersion.java" />
+         <classpath refid="compile6.classpath" />
       </ipp:javac-java6>
    </target>
 

@@ -105,6 +105,7 @@
 			<element name='dateLastModified' type='dateTime' />
 			<element name='revisionId' type='string' />
 			<element name='revisionName' type='string' />
+			<element name='revisionComment' type='string' />
 			<element name='versionLabels' type='string'
 				maxOccurs='unbounded' />
 			<!-- CRNT-8785 (parentId and parentPath in jcr-vfs throw exception) -->

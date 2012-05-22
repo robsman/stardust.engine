@@ -711,18 +711,14 @@ public class QualityControlRuntimeTest
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null,
             null);
      
-      currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
-      
-      String partiticpantId = currentActivityInstance.getParticipantPerformerID();
-      assertEquals("Activity should be delagated", MONITORED_USER_ID, partiticpantId);
-   
-      //the instance should be in the worklist of the user again
-      Worklist wl = monitoredUserWorkflowService.getWorklist(WorklistQuery.findPrivateWorklist());
-      assertEquals(1, wl.getTotalCount());
-      
-      ActivityInstance workflowInstance = (ActivityInstance) wl.get(0);
-      assertEquals(QualityAssuranceState.IS_REVISED, 
-            workflowInstance.getQualityAssuranceState()); 
+      //the next activitity instance should be assigned back to the modeled participant
+      //of the activity (the default participant)
+      ActivityInstances ais 
+         = qs.getAllActivityInstances(ActivityInstanceQuery.findInState(PROCESS_DEFINITION_ID, QA_ENABLED_ACTIVITY_ID, ActivityInstanceState.Suspended));
+      assertEquals(1, ais.getTotalCount());
+     
+      ActivityInstance ai = ais.get(0);
+      assertEquals(MONITORED_USER_ID, ai.getParticipantPerformerID());
    }
 
    @Test

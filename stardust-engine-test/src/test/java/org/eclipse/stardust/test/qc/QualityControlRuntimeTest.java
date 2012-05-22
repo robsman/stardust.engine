@@ -655,6 +655,16 @@ public class QualityControlRuntimeTest
       currentActivityInstance = qcManagerWorkflowService.complete(currentActivityInstance.getOID(), null,
             null);
      
+      //the next activitity instance should be assigned back touser who performed on the last regular
+      //activity instance
+      ActivityInstances ais 
+         = qs.getAllActivityInstances(ActivityInstanceQuery.findInState(PROCESS_DEFINITION_ID, QA_ENABLED_ACTIVITY_ID, ActivityInstanceState.Suspended));
+      assertEquals(1, ais.getTotalCount());
+     
+      ActivityInstance ai = ais.get(0);
+      assertEquals(null, ai.getParticipantPerformerID());
+      assertEquals(MONITORED_USER_ID, ai.getUserPerformer().getAccount());
+      
       currentActivityInstance = monitoredUserWorkflowService.activateNextActivityInstanceForProcessInstance(currentProcessInstance.getOID());
       long userPerformer = currentActivityInstance.getUserPerformerOID();
       

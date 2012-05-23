@@ -111,7 +111,7 @@ public class DaemonAction extends SecurityContextAwareAction
          AuditTrailLogAction logAction = new AuditTrailLogAction("Execution for " + type
                + " daemon failed. It will be stopped now.", x);
          Object result = service.isolate(logAction);
-         if(result.equals(INVALID_ACTION))
+         if(result != null && result.equals(INVALID_ACTION))
          {
             return null;
          }

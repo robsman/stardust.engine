@@ -229,6 +229,7 @@ public class EventUtils
          IProcessInstance processInstance = getProcessInstance(event);
          if (processInstance.isAborted())
          {
+            detachAll(context); // (fh) Normally should not happen            
             AuditTrailLogger.getInstance(LogCode.EVENT, getEventSourceInstance(event))
                   .warn("Skipping event handling for aborted " + processInstance);
             return;

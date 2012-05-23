@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.struct.spi;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -61,7 +60,6 @@ import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
-
 
 public class StructuredDataFilterExtension implements DataFilterExtension, Stateless
 {
@@ -164,7 +162,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
       return context;
    }
-      
+   
    private void validateXPath(String dataId, String xPath, boolean canReturnLists)
    {
       if (StringUtils.isEmpty(xPath))
@@ -174,8 +172,9 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                      .raise(dataId, xPath));
       }
       
+      boolean isValid = false;
       
-      Collection<IData> allData = this.findAllDataRtOids(dataId, ModelManagerFactory.getCurrent()).values();
+      Collection<IData> allData = this.findAllDatas(dataId, ModelManagerFactory.getCurrent());
       for (Iterator<IData> i = allData.iterator(); i.hasNext(); )
       {
          IData data = (IData) i.next();
@@ -186,6 +185,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          try
          {
             typedXPath = xPathMap.getXPath(xPath);
+            isValid = true;            
          }
          catch (IllegalOperationException e)
          {
@@ -194,13 +194,9 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             {
                throw new IllegalOperationException(BpmRuntimeError.BPMRT_INVALID_INDEXED_XPATH.raise());               
             }
-            else
-            {
-               throw e;
-            }
          }
          
-         if (typedXPath.getType() == BigData.NULL)
+         if (typedXPath != null && typedXPath.getType() == BigData.NULL)
          {
             // complex types or lists of complex types are not allowed as query attributes
             throw new IllegalOperationException(
@@ -208,7 +204,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                         .raise(dataId, xPath));
          }
          
-         if ( !canReturnLists)
+         if (typedXPath != null && !canReturnLists)
          {
             if (StructuredDataXPathUtils.canReturnList(typedXPath.getXPath(), xPathMap))
             {
@@ -218,11 +214,18 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             }
          }
       }
+
+      if(!isValid)
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.MDL_UNKNOWN_XPATH
+                     .raise(xPath));
+      }      
    }
 
    private boolean dataFiltersDoesNotContainListXPaths(String dataId, List<AbstractDataFilter> filtersForData)
    {
-      Collection<IData> allData = this.findAllDataRtOids(dataId, ModelManagerFactory.getCurrent()).values();
+      Set<IData> allData = this.findAllDatas(dataId, ModelManagerFactory.getCurrent());
       
       for (Iterator<IData> i = allData.iterator(); i.hasNext(); )
       {
@@ -232,7 +235,16 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          for (Iterator<AbstractDataFilter> f = filtersForData.iterator(); f.hasNext(); )
          {
             AbstractDataFilter df = f.next();
-            TypedXPath typedXPath = xPathMap.getXPath(df.getAttributeName());
+            TypedXPath typedXPath = null;
+            
+            try
+            {
+               typedXPath = xPathMap.getXPath(df.getAttributeName());
+            }
+            catch (Exception e)
+            {
+            }
+            
             if (typedXPath != null)
             {
                if (StructuredDataXPathUtils.canReturnList(typedXPath.getXPath(), xPathMap))
@@ -245,16 +257,17 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       return true;
    }
    
-   private Map<Long,IData> findAllDataRtOids(String dataID, ModelManager modelManager)
+   private Set<IData> findAllDatas(String dataID, ModelManager modelManager)
    {
-      Map <Long,IData> dataMap = new HashMap<Long, IData>();
+      Set datas = new HashSet<IData>();      
+      
       String namespace = null;
       if (dataID.startsWith("{"))
       {
          QName qname = QName.valueOf(dataID);
          namespace = qname.getNamespaceURI();
          dataID = qname.getLocalPart();
-      }               
+      }                     
 
       Iterator modelItr = null;
       if (namespace != null)
@@ -272,11 +285,12 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          IData data = model.findData(dataID);
          if (null != data)
          {
-            dataMap.put(Long.valueOf(modelManager.getRuntimeOid(data)), data);
+            datas.add(data);
          }
       }
-      return dataMap;
-   }
+      
+      return datas;
+   }   
 
    public PredicateTerm createPredicateTerm(Join dvJoin,
          AbstractDataFilter dataFilter, Map<Long,IData> dataMap, DataFilterExtensionContext dataFilterExtensionContext)
@@ -578,9 +592,12 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       }
       */
       
-      andTerm.add(Predicates.inList(
-            dvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH),
-            xPathOids.iterator()));
+      if(!xPathOids.isEmpty())
+      {      
+         andTerm.add(Predicates.inList(
+               dvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH),
+               xPathOids.iterator()));
+      }
    }
    
    /*private boolean inflateXPathTerm(List<PredicateTerm> parts, FieldRef xPathField, Set<Long> xPathOids)

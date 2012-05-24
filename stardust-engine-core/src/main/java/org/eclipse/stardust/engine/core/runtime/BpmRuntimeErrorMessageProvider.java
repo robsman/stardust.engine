@@ -70,6 +70,12 @@ public class BpmRuntimeErrorMessageProvider implements IErrorMessageProvider
             // fall back to default message
             msg = rtErrorCode.getDefaultMessage();
          }
+         
+         if ( !StringUtils.isEmpty(msg) && (null != rtErrorCode.getMessageArgs())
+               && (0 < rtErrorCode.getMessageArgs().length))
+         {
+            msg = MessageFormat.format(msg, rtErrorCode.getMessageArgs());
+         }
       }
 
       return msg;

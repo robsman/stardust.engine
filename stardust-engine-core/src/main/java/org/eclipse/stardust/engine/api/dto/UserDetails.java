@@ -244,8 +244,14 @@ public class UserDetails implements User
          Map<String, Serializable> preferences = viewsCommonPreferences.getPreferences();
          if (preferences != null)
          {
-            this.setProperty(PICTURE_TYPE, preferences.get(PICTURE_TYPE));
-            this.setProperty(PICTURE_URL, preferences.get(PICTURE_URL));
+            if (preferences.get(PICTURE_TYPE) != null)
+            {
+               this.setProperty(PICTURE_TYPE, preferences.get(PICTURE_TYPE));
+            }
+            if (preferences.get(PICTURE_URL) != null)
+            {
+               this.setProperty(PICTURE_URL, preferences.get(PICTURE_URL));
+            }
          }
       }
 
@@ -259,8 +265,11 @@ public class UserDetails implements User
          Map<String, Serializable> preferences = adminPreferences.getPreferences();
          if (preferences != null)
          {
-            this.setProperty(USER_NAME_DISPLAY_FORMAT,
-                  preferences.get(USER_NAME_DISPLAY_FORMAT));
+            if (preferences.get(USER_NAME_DISPLAY_FORMAT) != null)
+            {
+               this.setProperty(USER_NAME_DISPLAY_FORMAT,
+                     preferences.get(USER_NAME_DISPLAY_FORMAT));
+            }
          }
       }
    }

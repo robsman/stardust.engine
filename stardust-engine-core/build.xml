@@ -636,7 +636,7 @@
       <delete dir="${build.dir}" />
    </target>
 
-   <target name="dist" depends="build, jar.src" if="moonglow.dir.present">
+   <target name="dist" depends="deploy" if="moonglow.dir.present">
       <copy file="${carnot.engine.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       <copy file="${carnot.engine.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
       

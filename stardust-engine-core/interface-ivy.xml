@@ -225,7 +225,7 @@
       </dependency>
       
       <!-- jackrabbit-core-with-full-text-search -->
-      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5" conf="jackrabbit-core-with-full-text-search->default">
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5-infinity01" conf="jackrabbit-core-with-full-text-search->default">
          <exclude org="org.apache.derby" module="derby"/>
          <exclude org="log4j" module="log4j"/>
          <!-- the following entries prevents version conflicts -->
@@ -239,7 +239,7 @@
       <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="jackrabbit-core-with-full-text-search->default"/>
       
       <!-- jackrabbit-core-without-full-text-search -->
-      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5" conf="jackrabbit-core-without-full-text-search->default">
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5-infinity01" conf="jackrabbit-core-without-full-text-search->default">
          <exclude org="org.apache.derby" module="derby"/>
          <exclude org="log4j" module="log4j"/>
          <exclude org="edu.ucar" module="netcdf"/>
@@ -265,6 +265,7 @@
       <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="jackrabbit-provider-runtime->default"/>
       <dependency org="org.apache.jackrabbit" name="jackrabbit-jca" rev="2.2.5" conf="jackrabbit-provider-runtime->default">
          <artifact name="jackrabbit-jca" type="jar"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-core"/>
          <exclude org="org.apache.derby" module="derby"/>
          <exclude org="log4j" module="log4j"/>
          <exclude org="com.sun.jmx" module="jmxri"/>

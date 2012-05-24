@@ -26,9 +26,9 @@
    <configurations>
       <conf name="default" visibility="public" description="Stardust Engine Test" extends="compile" />
       <conf name="sources" visibility="public" description="Stardust Engine Test - Sources" />
+      <conf name="test" visibility="public" description="Test Configuration" extends="compile" />
    
       <conf name="compile" visibility="private" description="Compile Configuration" />
-      <conf name="test" visibility="private" description="Test Configuration" extends="compile" />
    </configurations>
    
    <!-- Publications -->

@@ -129,6 +129,7 @@ public abstract class AbstractDialog extends JDialog
             catch (ValidationException e)
             {
                close = ValidationExceptionDialog.showDialog(this, e);
+               setAlwaysOnTop(true);
             }
             if (close)
             {

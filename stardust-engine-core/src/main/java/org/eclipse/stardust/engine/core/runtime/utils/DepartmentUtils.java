@@ -87,13 +87,44 @@ public final class DepartmentUtils
    }
    
    public static IParticipant getScopedParticipant(ParticipantInfo participant,
-         ModelManager modelManager)
+         ModelManager modelManager, long modelOid)
    {
       IParticipant result;
       if (participant instanceof ModelParticipantInfo)
       {
          ModelParticipantInfo mpInfo = (ModelParticipantInfo) participant;
-         IModelParticipant modelParticipant = modelManager.findModelParticipant(mpInfo);
+
+         IModelParticipant modelParticipant = null;
+         if (modelOid > 0)
+         {
+            Iterator<IModelParticipant> participants = modelManager.getParticipantsForID(participant.getId());
+            
+            // iterating through all participants with the given id to find the one
+            // belonging to the model
+            while (participants.hasNext())
+            {
+               IModelParticipant ptcp = participants.next();
+               if (ptcp.getModel().getModelOID() == modelOid)
+               {
+                  long runtimeOid = modelManager.getRuntimeOid(ptcp);
+                  modelParticipant = modelManager.findModelParticipant(modelOid,
+                        runtimeOid);
+                  break;
+               }
+            } 
+           
+            if (modelParticipant == null)
+            {
+               throw new ObjectNotFoundException(
+                     BpmRuntimeError.MDL_UNKNOWN_PARTICIPANT_ID_FOR_MODEL.raise(
+                           participant.getId(), modelOid));
+            }
+            
+         }
+         else 
+         {
+            modelParticipant = modelManager.findModelParticipant(mpInfo);
+         }
 
          IDepartment department = getDepartment(mpInfo.getDepartment());
          result = new ScopedModelParticipant(modelParticipant, department);

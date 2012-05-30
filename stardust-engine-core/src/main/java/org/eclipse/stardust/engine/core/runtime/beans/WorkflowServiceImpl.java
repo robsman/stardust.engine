@@ -1,5 +1,4 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1062,8 +1061,8 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       else if (participant instanceof ModelParticipantInfo)
       {
-         ScopedModelParticipant scopedParticipant = (ScopedModelParticipant)
-               DepartmentUtils.getScopedParticipant(participant, ModelManagerFactory.getCurrent());
+         ScopedModelParticipant scopedParticipant = (ScopedModelParticipant) DepartmentUtils.getScopedParticipant(
+               participant, ModelManagerFactory.getCurrent(),activityInstance.getActivity().getModel().getModelOID());
          IModelParticipant modelParticipant = scopedParticipant.getModelParticipant();
          if (!(activityInstance instanceof ActivityInstanceBean)
                || !((ActivityInstanceBean) activityInstance).isDefaultCaseActivityInstance())

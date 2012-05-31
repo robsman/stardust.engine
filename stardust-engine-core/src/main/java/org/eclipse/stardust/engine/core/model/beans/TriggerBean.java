@@ -291,7 +291,7 @@ public class TriggerBean extends IdentifiableElementBean
             else if (!BridgeObject.isValidMapping(Direction.OUT, accessPoint,
                   pm.getParameterPath(), pm.getData(), pm.getDataPath(), null))
             {
-               msg = "Parameter Mapping contains an invalid type conversion.";
+               msg = "Parameter Mapping '" + pm.getParameterId() + "' contains an invalid type conversion.";
             }
 
          }

@@ -11,10 +11,7 @@
 package org.eclipse.stardust.engine.extensions.dms.data.emfxsd;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
@@ -25,33 +22,16 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IExternalReference;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.ISchemaType;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.IXpdlType;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.emfxsd.ClasspathUriConverter;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentAccessPoint;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentListAccessPoint;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderAccessPoint;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderListAccessPoint;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsVersioningAccessPoint;
-import org.eclipse.xsd.XSDComplexTypeDefinition;
-import org.eclipse.xsd.XSDElementDeclaration;
-import org.eclipse.xsd.XSDModelGroup;
-import org.eclipse.xsd.XSDNamedComponent;
-import org.eclipse.xsd.XSDParticle;
-import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.XSDTypeDefinition;
+import org.eclipse.xsd.*;
 import org.eclipse.xsd.util.XSDResourceFactoryImpl;
-
-
 
 /**
  * @author rsauer
@@ -116,30 +96,26 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
          parameters.put(PARAMETER_METADATA_TYPE, metadataXsdComponent);
          return getSchemaType(data.getType().getId(), parameters);
       }
-      else if (accessPoint instanceof DmsDocumentAccessPoint)
-      {
-         return declareDocumentSchema(null);
-      }
-      else if (accessPoint instanceof DmsDocumentListAccessPoint)
-      {
-         return declareDocumentListSchema(null);
-      }
-      else if (accessPoint instanceof DmsFolderAccessPoint)
-      {
-         return declareFolderSchema(null);
-      }
-      else if (accessPoint instanceof DmsFolderListAccessPoint)
-      {
-         return declareFolderListSchema(null);
-      }
-      else if (accessPoint instanceof DmsVersioningAccessPoint)
-      {
-         return declareVersioningSchema();
-      }
       else
       {
-         throw new InternalException("Unsupported accessPoint: '"+((accessPoint==null)?"null":accessPoint.getClass().getName())+"'");
+         PluggableType type = accessPoint.getType();
+         if (type != null)
+         {
+            String id = type.getId();
+            if (id != null)
+            {
+               if (StructuredDataConstants.STRUCTURED_DATA.equals(id))
+               {
+                  return declareVersioningSchema();
+               }
+               else
+               {
+                  return getSchemaType(id, Collections.emptyMap());
+               }
+            }
+         }
       }
+      throw new InternalException("Unsupported accessPoint: '"+((accessPoint==null)?"null":accessPoint.getClass().getName())+"'");
    }
    
    public static class Factory implements ISchemaTypeProvider.Factory
@@ -172,13 +148,22 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
       
       public ISchemaTypeProvider getSchemaTypeProvider(AccessPoint accessPoint)
       {
-         if (accessPoint instanceof DmsFolderAccessPoint ||
-               accessPoint instanceof DmsDocumentAccessPoint || 
-               accessPoint instanceof DmsFolderListAccessPoint ||
-               accessPoint instanceof DmsDocumentListAccessPoint || 
-               accessPoint instanceof DmsVersioningAccessPoint)
+         PluggableType type = accessPoint.getType();
+         if (type != null)
          {
-            return INSTANCE;
+            String id = type.getId();
+            if (id != null)
+            {
+               ISchemaTypeProvider provider = getSchemaTypeProvider(id);
+               if (provider == null && StructuredDataConstants.STRUCTURED_DATA.equals(id))
+               {
+                  return INSTANCE;
+               }
+               else
+               {
+                  return provider;
+               }
+            }
          }
          
          return null;

@@ -16,6 +16,7 @@ import javax.jcr.AccessDeniedException;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.Logger;
@@ -24,6 +25,8 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
@@ -48,43 +51,60 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
             DmsResourceSyncManager.IS_INTERNAL_DOCUMENT_SYNC_CALL, false);
       if ( !isInternalDocumentSyncCall && document != null && document.getId() != null)
       {
-         DocumentManagementService dms = null;
          try
          {
-            ServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
-            dms = sf.getDocumentManagementService();
-         }
-         catch (Throwable t)
-         {
-            trace.warn("Document data to repository synchronization failed.", t);
-         }
+            ParametersFacade.pushLayer(null);
 
-         if (dms != null)
-         {
+            IUser user = SecurityProperties.getUser();      
+            
+            if (user == null)
+            {
+               Parameters.instance().set(SecurityProperties.CURRENT_USER, TransientUser.getInstance());
+            }
+            
+            DocumentManagementService dms = null;
             try
             {
-               dms.updateDocument(document, false, null, null, false);
+               ServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
+               dms = sf.getDocumentManagementService();
             }
-            catch (Exception e)
+            catch (Throwable t)
             {
-               trace.error("Synchronization of document data to repository failed." , e);
-               Throwable cause = e.getCause();
-               for (int i = 0; i < 5; i++ )
-               {
-                  if (cause != null)
-                  {
-                     if (cause instanceof AccessDeniedException)
-                     {
-                        throw new AccessForbiddenException(
-                              BpmRuntimeError.BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED.raise(document.getId()));
-                     }
-                     cause = cause.getCause();
-                  }
-
-               }
-               throw new PublicException(
-                     BpmRuntimeError.BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED.raise(document.getId()));           
+               trace.warn("Document data to repository synchronization failed.", t);
             }
+
+            if (dms != null)
+            {
+               try
+               {
+
+                  dms.updateDocument(document, false, null, null, false);
+               }
+               catch (Exception e)
+               {
+                  trace.error("Synchronization of document data to repository failed.", e);
+                  Throwable cause = e.getCause();
+                  for (int i = 0; i < 5; i++ )
+                  {
+                     if (cause != null)
+                     {
+                        if (cause instanceof AccessDeniedException)
+                        {
+                           throw new AccessForbiddenException(
+                                 BpmRuntimeError.BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED.raise(document.getId()));
+                        }
+                        cause = cause.getCause();
+                     }
+
+                  }
+                  throw new PublicException(
+                        BpmRuntimeError.BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED.raise(document.getId()));
+               }
+            }
+         }
+         finally
+         {
+            ParametersFacade.popLayer();
          }
       }
    }

@@ -28,6 +28,7 @@ import javax.jcr.*;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -43,6 +44,7 @@ import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
 import org.eclipse.stardust.engine.extensions.dms.data.*;
 import org.eclipse.stardust.vfs.*;
@@ -66,6 +68,8 @@ public class DocumentManagementServiceImpl
    private transient VirtualFolderHandler virtualFolderHandler;
 
    private transient IDocumentRepositoryService adminVfs;
+   
+   private transient List<IDmsResourceSyncListener> resourceSyncListeners;
 
    public DocumentManagementServiceImpl()
    {
@@ -635,7 +639,12 @@ public class DocumentManagementServiceImpl
             {
                IFile doc = toVfs(document, getPartitionPrefix());
                IFile vfsFile = vfs.updateFile(doc, createNewRevision, versionComment, versionLabel, keepLocked);
-               return fromVfs(vfsFile, getPartitionPrefix());
+              
+               Document updatedDocument = fromVfs(vfsFile, getPartitionPrefix());
+               Document oldDocument = fromVfs(oldDoc, getPartitionPrefix());
+               notifyDocumentUpdated(oldDocument, updatedDocument);
+               
+               return updatedDocument;
             }
             else
             {
@@ -675,7 +684,12 @@ public class DocumentManagementServiceImpl
                IFile doc = toVfs(document, getPartitionPrefix());
                IFile vfsFile = vfs.updateFile(doc, content, encoding, createNewRevision,
                      versionComment, versionLabel, keepLocked);
-               return fromVfs(vfsFile, getPartitionPrefix());
+               
+               Document updatedDocument = fromVfs(vfsFile, getPartitionPrefix());
+               Document oldDocument = fromVfs(oldDoc, getPartitionPrefix());
+               notifyDocumentUpdated(oldDocument, updatedDocument);
+               
+               return updatedDocument;
             }
             else
             {
@@ -739,6 +753,12 @@ public class DocumentManagementServiceImpl
                         AccessMode.Write))
             {
                vfs.removeFile(docIdWithPrefix);
+               
+               if (file != null)
+               {
+                  Document oldDocument = fromVfs(file, getPartitionPrefix());
+                  notifyDocumentUpdated(oldDocument, null);
+               }
             }
             return null;
          }
@@ -1195,7 +1215,52 @@ public class DocumentManagementServiceImpl
       }
       return virtualFolderHandler;
    }
+   
+   private List<IDmsResourceSyncListener> getResourceSyncListeners()
+   {
+      if (resourceSyncListeners == null)
+      {
+         resourceSyncListeners = CollectionUtils.newArrayList();
+   
+         List factories = ExtensionProviderUtils.getExtensionProviders(IDmsResourceSyncListener.Factory.class);
+         for (int i = 0; i < factories.size(); ++i)
+         {
+            IDmsResourceSyncListener.Factory factory = (IDmsResourceSyncListener.Factory) factories.get(i);
+   
+            IDmsResourceSyncListener resourceSyncListener = factory.getListener();
+            if (null != resourceSyncListener)
+            {
+               resourceSyncListeners.add(resourceSyncListener);
+            }
+         }
+      }
+      return resourceSyncListeners;
+   }
 
+   private void notifyDocumentUpdated(Document oldDocument, Document newDocument)
+   {
+      List<IDmsResourceSyncListener> listeners = getResourceSyncListeners();
+      if (listeners != null)
+      {
+         for (IDmsResourceSyncListener iResourceSyncListener : listeners)
+         {
+            iResourceSyncListener.documentChanged(oldDocument, newDocument);
+         }
+      }
+   }
+   
+   private void notifyFolderUpdated(Folder oldFolder, Folder newFolder)
+   {
+      List<IDmsResourceSyncListener> listeners = getResourceSyncListeners();
+      if (listeners != null)
+      {
+         for (IDmsResourceSyncListener iResourceSyncListener : listeners)
+         {
+            iResourceSyncListener.folderChanged(oldFolder, newFolder);
+         }
+      }
+   }
+   
    private IDocumentRepositoryService getAdminVfs()
    {
       if (adminVfs == null)

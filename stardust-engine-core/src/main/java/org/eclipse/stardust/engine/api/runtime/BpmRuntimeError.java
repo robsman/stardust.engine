@@ -14,7 +14,6 @@ import java.text.MessageFormat;
 
 import org.eclipse.stardust.common.error.BaseErrorCaseMessages;
 import org.eclipse.stardust.common.error.ErrorCase;
-import org.eclipse.stardust.common.error.BaseErrorCase.Args0;
 
 
 /**
@@ -361,6 +360,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 BPMRT_PI_NOT_MEMBER = newArgs2("BPMRT03835"); //$NON-NLS-1$
 
    public static final Args1 BPMRT_NO_CHANGES_TO_MODEL = newArgs1("BPMRT03850"); //$NON-NLS-1$
+   
+   public static final Args1 BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED = newArgs1("BPMRT05001", BpmRuntimeErrorMessages.getString("BPMRT05001")); //$NON-NLS-1$
 
    //// JMS related
 

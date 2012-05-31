@@ -109,7 +109,7 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
             }
 
             // infer document type.
-            List<Map> toSyncDocuments = CollectionUtils.newLinkedList();
+            List<Document> toSyncDocuments = CollectionUtils.newLinkedList();
             if (accessPointDefinition instanceof IData)
             {
                List<Document> documentList = (List<Document>) value;
@@ -117,7 +117,12 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
 
                for (Document document : documentList)
                {
-                  DocumentTypeUtils.inferDocumentTypeAndStoreDocument(data, document);
+                  DocumentType documentType = DocumentTypeUtils.inferDocumentType(data);
+                  if (documentType != null)
+                  {
+                     document.setDocumentType(documentType);
+                  }
+                  toSyncDocuments.add(document);
                }
             }
 
@@ -133,10 +138,9 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
                      accessPointInstance2, null, accessPathEvaluationContext2,
                      newAuditTrailDocList, XPATH_PREFIX);
                // sync documents having document type changed to repository
-               for (Map legoDocument : toSyncDocuments)
+               for (Document document : toSyncDocuments)
                {
-                  new VfsMediator().writeDocumentToVfs(legoDocument,
-                        false, null, false);
+                  syncToRepository(document, trace);
                }
 
             }

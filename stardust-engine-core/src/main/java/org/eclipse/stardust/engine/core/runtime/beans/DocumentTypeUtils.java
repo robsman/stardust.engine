@@ -304,10 +304,9 @@ public final class DocumentTypeUtils
     * For internal use only.
     *
     * @param data
-    * @param value
     * @return
     */
-   public static DocumentType inferDocumentType(IData data, Document value)
+   public static DocumentType inferDocumentType(IData data)
    {
       DocumentType documentType = null;
 
@@ -337,8 +336,7 @@ public final class DocumentTypeUtils
     */
    public static DocumentType inferDocumentTypeAndStoreDocument(IData data, Document document)
    {
-      DocumentType inferredDocumentType = DocumentTypeUtils.inferDocumentType(
-            data, document);
+      DocumentType inferredDocumentType = DocumentTypeUtils.inferDocumentType(data);
       if (inferredDocumentType != null)
       {
          Map newAuditTrailDocument = ((DmsDocumentBean) document).vfsResource();

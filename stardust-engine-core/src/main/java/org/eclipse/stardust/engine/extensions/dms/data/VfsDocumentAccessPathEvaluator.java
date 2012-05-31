@@ -88,16 +88,24 @@ public class VfsDocumentAccessPathEvaluator
             }
 
             // update audit trail, only if needed
-            Map newAuditTrailDocument = ((DmsDocumentBean) value).vfsResource();
+            Document document = (Document) value;
             // infer document type.
             if (accessPointDefinition instanceof IData)
             {
-               Document document = (Document) value;
                IData data = (IData) accessPointDefinition;
-               DocumentTypeUtils.inferDocumentTypeAndStoreDocument(data, document);
+               DocumentType documentType = DocumentTypeUtils.inferDocumentType(data);
+               if (documentType != null)
+               {
+                  document.setDocumentType(documentType);                  
+               }
             }
+            
+            syncToRepository(document, trace);
+
+            Map newAuditTrailDocument = ((DmsDocumentBean) value).vfsResource();
             if ( !auditTrailDoc.equals(newAuditTrailDocument))
             {
+               
                accessPointInstance = writeToAuditTrail(accessPointDefinition,
                      null, null, accessPathEvaluationContext,
                      newAuditTrailDocument);
@@ -113,26 +121,16 @@ public class VfsDocumentAccessPathEvaluator
       else
       {
          // partially updating the document
-
+         
          // write value into audit trail
          accessPointInstance = writeToAuditTrail(accessPointDefinition,
                accessPointInstance, inPath, accessPathEvaluationContext, value);
-         /*
-          * // read updated value Map auditTrailDoc = (Map)
-          * structEvaluator.evaluate(accessPointDefinition, accessPointInstance, null,
-          * accessPathEvaluationContext);
-          *
-          * // write document into VFS, yields a snapshot of the updated state final
-          * String docId = (String) auditTrailDoc.get(AuditTrailUtils.RES_ID);
-          *
-          * if ( !StringUtils.isEmpty(docId)) { // update file in vfs, retrieve snapshot
-          * of new state boolean snaphsotContainsUpdates =
-          * vfsMediator.writeDocumentToVfs(auditTrailDoc, metadataComplexTypeName); if
-          * (snaphsotContainsUpdates) { // update audit trail with VFS snapshot
-          *
-          * accessPointInstance = structEvaluator.evaluate(accessPointDefinition,
-          * accessPointInstance, null, accessPathEvaluationContext, auditTrailDoc); } }
-          */
+
+         // read and sync full document including updated value
+         Map auditTrailDoc = (Map) readFromAuditTrail(accessPointDefinition,
+               accessPointInstance, null, accessPathEvaluationContext);
+         syncToRepository(new DmsDocumentBean(auditTrailDoc), trace);
+         
       }
 
       return accessPointInstance;
@@ -179,7 +177,7 @@ public class VfsDocumentAccessPathEvaluator
             final Map auditTrailDoc = (Map) readFromAuditTrail(accessPointDefinition,
                   accessPointInstance, outPath, accessPathEvaluationContext);
 
-            if (auditTrailDoc == null)
+            if (auditTrailDoc == null || auditTrailDoc.isEmpty())
             {
                return null;
             }

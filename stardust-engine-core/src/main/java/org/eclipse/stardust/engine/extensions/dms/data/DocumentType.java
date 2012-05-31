@@ -12,6 +12,18 @@ package org.eclipse.stardust.engine.extensions.dms.data;
 
 import java.io.Serializable;
 
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
+
+/**
+ * Describes the meta data structure of a document which can be set by using
+ * {@link Document#setProperties(java.util.Map) and retrieved by using
+ * {@link Document#getProperties()}<br>
+ * The prefered way of retrieving DocumentTypes should be by usage of
+ * {@link DocumentTypeUtils}
+ * 
+ */
 public class DocumentType implements Serializable
 {
 
@@ -31,21 +43,41 @@ public class DocumentType implements Serializable
       this.schemaLocation = schemaLocation;
    }
 
+   /**
+    * 
+    * @return String - the qualified Id of a particular document type in the repository
+    */
    public String getDocumentTypeId()
    {
       return documentTypeId;
    }
 
+   /**
+    * sets the unique qualified Id of particular document type within the repository
+    * 
+    * @param documentTypeId
+    */
    public void setDocumentTypeId(String documentTypeId)
    {
       this.documentTypeId = documentTypeId;
    }
 
+   /**
+    * 
+    * @return String - the identifier for the schema location in the repository
+    * @see DocumentManagementService#getSchemaDefinition(String)
+    */
    public String getSchemaLocation()
    {
       return schemaLocation;
    }
 
+   /**
+    * Sets the identifier for exactly one XSD schema location in the repository
+    * 
+    * @param schemaLocation
+    * @see DocumentManagementService#getSchemaDefinition(String)
+    */
    public void setSchemaLocation(String schemaLocation)
    {
       this.schemaLocation = schemaLocation;
@@ -62,11 +94,13 @@ public class DocumentType implements Serializable
          String docTypeId = docType.getDocumentTypeId();
          String schemaLoc = docType.getSchemaLocation();
 
-         if (docTypeId != null && documentTypeId == null || docTypeId == null && documentTypeId != null)
+         if (docTypeId != null && documentTypeId == null || docTypeId == null
+               && documentTypeId != null)
          {
             equal = false;
          }
-         if (schemaLoc != null && schemaLocation == null || schemaLoc == null && schemaLocation != null)
+         if (schemaLoc != null && schemaLocation == null || schemaLoc == null
+               && schemaLocation != null)
          {
             equal = false;
          }
@@ -80,7 +114,6 @@ public class DocumentType implements Serializable
          }
          return equal;
       }
-
 
       return super.equals(obj);
    }

@@ -711,6 +711,8 @@ public interface WorkflowService extends Service
     * @throws InvalidArgumentException
     *            if <code>abortProcessInstance</code> is false (currently not
     *            implemented).
+    * @throws ConcurrencyException
+    *            if a lock on process instances cannot be obtained.
     */
 //   @ExecutionPermission(
 //         id=ExecutionPermission.Id.abortProcessInstances,
@@ -723,7 +725,7 @@ public interface WorkflowService extends Service
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? extends Serializable> data,
          boolean abortProcessInstance, String comment) throws IllegalOperationException,
-         ObjectNotFoundException, InvalidArgumentException;
+         ObjectNotFoundException, InvalidArgumentException, ConcurrencyException;
 
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
@@ -731,7 +733,7 @@ public interface WorkflowService extends Service
          defaults={ExecutionPermission.Default.ALL})
    public ProcessInstance spawnPeerProcessInstance(long processInstanceOid,
          String spawnProcessID, SpawnOptions options) throws IllegalOperationException,
-         ObjectNotFoundException, InvalidArgumentException;
+         ObjectNotFoundException, InvalidArgumentException, ConcurrencyException;
 
    /**
     * Creates a case process instance which groups the specified members as subprocesses.

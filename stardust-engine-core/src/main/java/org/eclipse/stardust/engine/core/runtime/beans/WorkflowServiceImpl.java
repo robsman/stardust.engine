@@ -1061,9 +1061,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       else if (participant instanceof ModelParticipantInfo)
       {
+
+         long modelOid = 0;
+         
+         if (!activityInstance.isDefaultCaseActivityInstance())
+         {
+            // if no default Case Activity Instance use the modelOid to define the allowed
+            // range of delegation
+            modelOid = activityInstance.getActivity().getModel().getModelOID();
+         }
+         
          ScopedModelParticipant scopedParticipant = (ScopedModelParticipant) DepartmentUtils.getScopedParticipant(
-               participant, ModelManagerFactory.getCurrent(),activityInstance.getActivity().getModel().getModelOID());
+               participant, ModelManagerFactory.getCurrent(), modelOid);
          IModelParticipant modelParticipant = scopedParticipant.getModelParticipant();
+         
          if (!(activityInstance instanceof ActivityInstanceBean)
                || !((ActivityInstanceBean) activityInstance).isDefaultCaseActivityInstance())
          {

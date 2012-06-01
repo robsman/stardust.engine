@@ -28,13 +28,12 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.runtime.beans.DataQueryEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
-import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -98,7 +97,7 @@ public class DmsResourceSyncManager
                {
                   final IDataValue iDataValue = piBean.getDataValue(iData);
 
-                  Object value = getEvaluatedDataValue(processInstance, iData, iDataValue);
+                  Object value = getEvaluatedDataValue(piBean, iData, iDataValue);
 
                   if (value instanceof Document)
                   {
@@ -123,7 +122,7 @@ public class DmsResourceSyncManager
                {
                   IDataValue iDataValue = piBean.getDataValue(iData);
 
-                  Object value = getEvaluatedDataValue(processInstance, iData, iDataValue);
+                  Object value = getEvaluatedDataValue(piBean, iData, iDataValue);
 
                   if (value instanceof List)
                   {
@@ -188,33 +187,12 @@ public class DmsResourceSyncManager
       // TODO to be implemented in later version
    }
 
-   private Object getEvaluatedDataValue(ProcessInstance processInstance,
+   private Object getEvaluatedDataValue(IProcessInstance piBean,
          final IData iData, final IDataValue iDataValue)
    {
-      SymbolTable symbolTable = new SymbolTable()
-      {
-         public Object lookupSymbol(String name)
-         {
-            if (name.equals(iData.getId()))
-            {
-               return iDataValue;
-            }
-            return null;
-         }
-   
-         public AccessPoint lookupSymbolType(String name)
-         {
-            if (name.equals(iData.getId()))
-            {
-               return iData;
-            }
-            return null;
-         }
-      };
-   
       ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(iData.getType());
       AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
-            symbolTable, processInstance.getScopeProcessInstanceOID());
+            piBean, piBean.getScopeProcessInstanceOID());
       Object value = evaluator.evaluate(iData, iDataValue.getValue(), null,
             evaluationContext);
       return value;

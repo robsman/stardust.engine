@@ -109,12 +109,7 @@ public final class DepartmentUtils
                   long runtimeOid = modelManager.getRuntimeOid(ptcp);
                   modelParticipant = modelManager.findModelParticipant(modelOid,
                         runtimeOid);
-                  if (modelParticipant == null)
-                  {
-                     throw new ObjectNotFoundException(
-                           BpmRuntimeError.MDL_UNKNOWN_PARTICIPANT_ID_FOR_MODEL.raise(
-                                 participant.getId(), modelOid));
-                  }
+
                   break;
                }
             } 
@@ -124,7 +119,12 @@ public final class DepartmentUtils
          {
             modelParticipant = modelManager.findModelParticipant(mpInfo);
          }
-
+         if (modelParticipant == null)
+         {
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_UNKNOWN_PARTICIPANT_ID_FOR_MODEL.raise(
+                        participant.getId(), modelOid));
+         }
 
          IDepartment department = getDepartment(mpInfo.getDepartment());
          result = new ScopedModelParticipant(modelParticipant, department);

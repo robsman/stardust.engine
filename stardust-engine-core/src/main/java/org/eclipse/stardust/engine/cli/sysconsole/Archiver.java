@@ -230,19 +230,25 @@ public class Archiver
                         }
                      }), ", ") + ".");
 
+         Set<Long> terminatedDeadModels = new TreeSet<Long>();
          for (Iterator i = deadModels.iterator(); i.hasNext();)
          {
             ModelHelper model = (ModelHelper) i.next();
             final long nonterminatedInstances = getAliveProcessInstancesCount(model.getOid());
             if (0 == nonterminatedInstances)
             {
-               archiveDeadModel(model.getOid(), interval);
+               terminatedDeadModels.add(model.getOid());
             }
             else
             {
                trace.info("Ignoring dead model with OID " + model.getOid() + " as of "
                      + nonterminatedInstances + " nonterminated process instances.");
             }
+         }
+
+         for (Long modelOid : terminatedDeadModels)
+         {
+            archiveDeadModel(modelOid, interval, terminatedDeadModels);
          }
       }
       else
@@ -252,6 +258,11 @@ public class Archiver
    }
 
    public void archiveDeadModel(long modelOid, long interval)
+   {
+      archiveDeadModel(modelOid, interval, Collections.singleton(modelOid));
+   }
+   
+   public void archiveDeadModel(long modelOid, long interval, Set<Long> terminatedDeadModels)
    {
       // check for nonterminated process instances
       final long nAliveProcesses = getAliveProcessInstancesCount(modelOid);
@@ -275,8 +286,8 @@ public class Archiver
          }
       }
 
-      archiveProcesses(new Long(modelOid), null, interval);
-      if (canDeleteModel(modelOid))
+      archiveProcesses(modelOid, null, interval);
+      if (canDeleteModel(modelOid, terminatedDeadModels))
       {
          deleteModel(modelOid);
       }
@@ -3663,7 +3674,12 @@ public class Archiver
       return values;
    }
 
-   private boolean canDeleteModel(long modelOid)
+   /**
+    * @param modelOid
+    * @param terminatedDeadModels modelOids of models having no alive process instances and are taking part in the archiving or delete operation.
+    * @return
+    */
+   private boolean canDeleteModel(long modelOid, Set<Long> terminatedDeadModels)
    {
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel model = modelManager.findModel(modelOid);
@@ -3673,9 +3689,32 @@ public class Archiver
          return false;
       }
 
-      if(!ModelRefBean.getProcessInterfaces(model).isEmpty())
+      for (Iterator<IModel> i = modelManager.getAllModels(); i.hasNext();)
       {
-         return false;
+         IModel usingModel = i.next();
+         List<IModel> usedModels = ModelRefBean.getUsedModels(usingModel);
+         for (Iterator<IModel> j = usedModels.iterator(); j.hasNext();)
+         {
+            IModel usedModel = j.next();
+            if (model.getOID() != usingModel.getOID())
+            {
+               if (model.getOID() == usedModel.getOID())
+               {
+                  // refering model
+                  if (!terminatedDeadModels.contains(Integer.valueOf(usingModel.getModelOID()).longValue()))
+                  {
+                     return false;
+                  }
+
+                  // precondition: no circular references (cycles avoided by design)
+                  boolean canDeleteUsedModel = canDeleteModel(usingModel.getModelOID(), terminatedDeadModels);
+                  if (!canDeleteUsedModel)
+                  {
+                     return false;
+                  }
+               }
+            }
+         }
       }
 
       return true;

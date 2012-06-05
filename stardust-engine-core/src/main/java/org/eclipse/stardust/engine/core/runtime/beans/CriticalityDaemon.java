@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.internal.SyncCriticalitiesToDiskAction;
@@ -168,6 +169,10 @@ public class CriticalityDaemon implements IDaemon
       {
          throw new PublicException(
                "Could not retrieve activity instance for criticality update.");
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(rs);
       }
 
       return updateList;

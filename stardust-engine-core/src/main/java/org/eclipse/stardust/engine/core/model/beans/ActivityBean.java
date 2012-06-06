@@ -257,27 +257,35 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             IProcessDefinition referenceProcess = externalModel.findProcessDefinition(externalReference.getId());
             if (referenceProcess != null)
             {
-               if (hasRuntimeBinding())
-               {
-                  String dataId = getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
-                  IData dataObject = ((IModel) getModel()).findData(dataId);
-                  if (dataObject == null)
-                  {
-                     throw new InternalException("No data '" + dataId
-                           + "' available for process implementation retrieval.");
-                  }
-                  String dataPath = getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
-                  return ModelRefBean.getPrimaryImplementation(referenceProcess, dataObject, dataPath);
-               }
-               else
-               {
-                  return ModelRefBean.getPrimaryImplementation(referenceProcess, null, null);
-               }
+               return getImplementation(referenceProcess);
             }
          }
       }
 
+      if (implementationProcessDefinition != null && implementationProcessDefinition.getDeclaresInterface())
+      {
+         return getImplementation(implementationProcessDefinition);
+      }
+      
       return implementationProcessDefinition;
+   }
+
+   private IProcessDefinition getImplementation(IProcessDefinition referenceProcess)
+   {
+      IData dataObject = null;
+      String dataPath = null;
+      if (hasRuntimeBinding())
+      {
+         String dataId = getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
+         dataObject = ((IModel) getModel()).findData(dataId);
+         if (dataObject == null)
+         {
+            throw new InternalException("No data '" + dataId
+                  + "' available for process implementation retrieval.");
+         }
+         dataPath = getStringAttribute(PredefinedConstants.BINDING_DATA_PATH_ATT);
+      }
+      return ModelRefBean.getPrimaryImplementation(referenceProcess, dataObject, dataPath);
    }
 
    private boolean hasRuntimeBinding()

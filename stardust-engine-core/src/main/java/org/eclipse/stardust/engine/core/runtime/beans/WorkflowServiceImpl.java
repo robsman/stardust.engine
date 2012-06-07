@@ -901,7 +901,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       if (data != null)
       {
-         ActivityInstanceUtils.setOutDataValues(data.getContext(), data.getData(), activityInstance);
+         ActivityInstanceUtils.setOutDataValues(data.getContext(), data.getData(), activityInstance, true);
       }
 
       IParticipant participant = null;
@@ -972,7 +972,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       if (data != null)
       {
-         ActivityInstanceUtils.setOutDataValues(data.getContext(), data.getData(), activityInstance);
+         ActivityInstanceUtils.setOutDataValues(data.getContext(), data.getData(), activityInstance, true);
       }
       activityInstance.suspend();
       return delegateToParticipant(activityInstance.getOID(), participant);

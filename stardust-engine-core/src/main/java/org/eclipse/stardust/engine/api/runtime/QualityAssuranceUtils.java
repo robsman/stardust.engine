@@ -406,27 +406,30 @@ public class QualityAssuranceUtils
       }
    }
    
-   public static boolean canDataMappingsBePerformed(IActivityInstance activityInstance,  Map<String, ?> outData)
+   public static boolean canDataMappingsBePerformed(IActivityInstance activityInstance,  Map<String, ?> outData, boolean ignoreMappingIfQaInstance)
    {
-      boolean performDataMappings = true;
       if(QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
+         if(ignoreMappingIfQaInstance)
+         {
+            return false;
+         }
+         
          // on complete the activity instance attributes must be set before
          ActivityInstanceAttributes attributes = getActivityInstanceAttributes(activityInstance);
-         
          // modifying entered data on qc instances is only allowed if in correction mode
          if (outData != null && !outData.isEmpty())
          {
             QualityAssuranceResult.ResultState resultState = attributes
-                  .getQualityAssuranceResult().getQualityAssuranceState();
+               .getQualityAssuranceResult().getQualityAssuranceState();
             if (QualityAssuranceResult.ResultState.PASS_WITH_CORRECTION != resultState)
             {
-               performDataMappings = false;
+               return false;
             }
          }
       }
       
-      return performDataMappings;
+      return true;
    }
    
    public static void assertDelegationIsAllowed(IActivityInstance activityInstance, IUser delegate)

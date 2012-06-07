@@ -291,9 +291,28 @@ public class ActivityInstanceUtils
       }
    }
 
+   
    public static void setOutDataValues(String context, Map<String, ?> values,
-         IActivityInstance activityInstance) throws ObjectNotFoundException, InvalidValueException
+         IActivityInstance activityInstance, boolean ignoreMappingIfQaInstance) throws ObjectNotFoundException, InvalidValueException
    {
+      boolean performDataMapping = true;
+      if (QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
+      {
+         performDataMapping = QualityAssuranceUtils.canDataMappingsBePerformed(
+               activityInstance, values, ignoreMappingIfQaInstance);
+         if (!performDataMapping)
+         {
+            StringBuffer errorMessage = new StringBuffer();
+            errorMessage.append("Datamapping will not be executed for qa instance with oid");
+            errorMessage.append("'");
+            errorMessage.append(activityInstance.getOID());
+            errorMessage.append("'");
+            trace.warn(errorMessage);
+            
+            return;
+         }
+      }
+      
       if (null == context)
       {
          context = PredefinedConstants.DEFAULT_CONTEXT;
@@ -315,32 +334,22 @@ public class ActivityInstanceUtils
          }
       }
    }
+   
+   public static void setOutDataValues(String context, Map<String, ?> values,
+         IActivityInstance activityInstance) throws ObjectNotFoundException, InvalidValueException
+   {
+      setOutDataValues(context, values, activityInstance, false);
+   }
 
    public static void complete(IActivityInstance activityInstance, String context,
          Map<String, ? > outData, boolean synchronously)
    {
-      boolean performDataMapping = true;
       if (QualityAssuranceUtils.isQualityAssuranceInstance(activityInstance))
       {
          QualityAssuranceUtils.assertCompletingIsAllowed(activityInstance, outData);
-         performDataMapping = QualityAssuranceUtils.canDataMappingsBePerformed(
-               activityInstance, outData);
-         if (!performDataMapping)
-         {
-            StringBuffer errorMessage = new StringBuffer();
-            errorMessage.append("Datamapping will not be executed for qa instance with oid");
-            errorMessage.append("'");
-            errorMessage.append(activityInstance.getOID());
-            errorMessage.append("'");
-            trace.warn(errorMessage);
-         }
       }
       
-      if (performDataMapping)
-      {
-         setOutDataValues(context, outData, activityInstance);
-      }
-
+      setOutDataValues(context, outData, activityInstance);
       ActivityThread.schedule(null, null, activityInstance, synchronously, null,
             Collections.EMPTY_MAP, false);
    }

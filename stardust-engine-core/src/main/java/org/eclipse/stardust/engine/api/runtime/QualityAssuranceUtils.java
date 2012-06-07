@@ -188,10 +188,10 @@ public class QualityAssuranceUtils
          Map<String, Serializable> preferenceValues = preferences.getPreferences();
          if(preferenceValues != null)
          {
-            Integer userDefaultProbability = (Integer) preferenceValues.get(QUALITY_ASSURANCE_USER_DEFAULT_PROBABILITY);
-            if(userDefaultProbability != null)
+            Serializable value = preferenceValues.get(QUALITY_ASSURANCE_USER_DEFAULT_PROBABILITY);
+            if(value instanceof Integer)
             {
-               return userDefaultProbability;
+               return (Integer) value;
             }
          } 
       }
@@ -209,10 +209,10 @@ public class QualityAssuranceUtils
          Map<String, Serializable> preferenceValues = preferences.getPreferences();
          if(preferenceValues != null)
          {
-            Integer participantProbability = (Integer) preferenceValues.get(participantProbabilityKey);
-            if(participantProbability != null)
+            Serializable value = preferenceValues.get(participantProbabilityKey);
+            if(value instanceof Integer)
             {
-               return participantProbability;
+               return (Integer) value;
             }
          } 
       }

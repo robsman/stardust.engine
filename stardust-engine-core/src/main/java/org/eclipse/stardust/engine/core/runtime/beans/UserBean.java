@@ -1214,7 +1214,11 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       fetch();      
       if((extendedState & EXTENDED_STATE_QUALITY_CODE_SIZE) == EXTENDED_STATE_QUALITY_CODE_SIZE)
       {
-         qualityAssurancePropability = (Integer) getPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);
+         Serializable value = getPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);
+         if(value instanceof Integer)
+         {
+            qualityAssurancePropability = (Integer) value;
+         }
       }
       
       return qualityAssurancePropability;

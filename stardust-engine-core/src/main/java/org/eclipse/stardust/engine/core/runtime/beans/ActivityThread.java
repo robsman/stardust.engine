@@ -985,7 +985,8 @@ public class ActivityThread implements Runnable
             IActivityInstance oldInstance = activityInstance;
             IActivityInstance newInstance = null;
             
-            //decide if new instance should go back to participant (default) or the last user
+            //decide if new instance should go back to the last user who performed on it
+            //or to the modeled participant
             if(result.isAssignFailedInstanceToLastPerformer())
             {
                //we need to know which user worked before this qa instance

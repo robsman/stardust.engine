@@ -436,7 +436,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
          
          if ( !isSync)
          {
-            String syncFlag = Parameters.instance().getString(Modules.ENGINE + "."
+            String syncFlag = Parameters.instance().getString(Modules.ENGINE.getId() + "."
                   + triggerDetails.getId() + "."
                   + org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties.THREAD_MODE,
                   "");

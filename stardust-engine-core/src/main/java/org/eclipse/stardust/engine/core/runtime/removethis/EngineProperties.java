@@ -24,8 +24,8 @@ public class EngineProperties
    public static final String THREAD_MODE_ASYNCHRONOUS = "asynchronous";
    public static final String THREAD_MODE_SYNCHRONOUS = "synchronous";
    
-   public static final String PROCESS_TERMINATION_THREAD_MODE = Modules.ENGINE + ".ProcessTermination." + THREAD_MODE;
-   public static final String NOTIFICATION_THREAD_MODE = Modules.ENGINE + ".Notification." + THREAD_MODE;
+   public static final String PROCESS_TERMINATION_THREAD_MODE = Modules.ENGINE.getId() + ".ProcessTermination." + THREAD_MODE;
+   public static final String NOTIFICATION_THREAD_MODE = Modules.ENGINE.getId() + ".Notification." + THREAD_MODE;
    public static final String ACTIVITY_THREAD_CONTEXT = "ActivityThread.Context";
    public static final String FORK_LIST = "Engine.ForkList";
    public static final String MAIL_SENDER = "Mail.Sender";

@@ -168,7 +168,10 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          else if (QUALITY_ASSURANCE_CODES.equals(childNode.getNodeName()))
          {
             IQualityAssuranceCode code = elementFactory.createQualityAssuranceCode(childNode, activity, model);
-            qualityAssuranceCodes.add(code);
+            if(code != null)
+            {
+               qualityAssuranceCodes.add(code);
+            }
          }         
          else if (ATTRIBUTE.equals(childNode.getNodeName()))
          {

@@ -73,21 +73,14 @@ public class DeployedModelDescriptionDetails extends ModelElementDetails
       // Retrieving Consumer Models
       consumerModels = new ArrayList<Long>();
       List<IModel> usingModels = new ArrayList<IModel>();
-      for (Iterator<IModel> i = modelManager.getAllModels(); i.hasNext();)
+      List<IModel> models = ModelRefBean.getUsingModels(model);
+      for (Iterator<IModel> j = models.iterator(); j.hasNext();)
       {
-         IModel usingModel = i.next();
-         List<IModel> usedModels = ModelRefBean.getUsedModels(usingModel);
-         for (Iterator<IModel> j = usedModels.iterator(); j.hasNext();)
-         {
-            IModel usedModel = j.next();
-            if (model.getModelOID() != usingModel.getModelOID())
-            {
-               if (model.getModelOID() == usedModel.getModelOID())
-               {
-                  consumerModels.add(new Integer(usingModel.getModelOID()).longValue());
-                  usingModels.add(usingModel);
-               }
-            }
+         IModel usingModel = j.next();
+         if (model.getModelOID() != usingModel.getModelOID())
+         {         
+            consumerModels.add(new Integer(usingModel.getModelOID()).longValue());
+            usingModels.add(usingModel);
          }
       }
 

@@ -249,6 +249,40 @@ public class ModelRefBean extends PersistentBean implements Serializable
          QueryUtils.closeResultSet(resultSet);
       }
    }
+   
+   public static List<IModel> getUsingModels(IModel model)
+   {
+      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      ComparisonTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.USES.ordinal());
+      ComparisonTerm modelPredicate = Predicates.isEqual(FR__REF_OID, model.getModelOID());
+      QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
+            .select(FIELD__MODEL_OID)
+            .where(Predicates.andTerm(typePredicate, modelPredicate));
+      ResultSet resultSet = session.executeQuery(query);
+      try
+      {
+         ModelManager manager = ModelManagerFactory.getCurrent();
+         List<IModel> result = CollectionUtils.newList();
+         while (resultSet.next())
+         {
+            IModel using = manager.findModel(resultSet.getLong(1));
+            if (using != null)
+            {
+               result.add(using);
+            }
+         }
+         return result;
+      }
+      catch (SQLException e)
+      {
+         trace.warn("Failed executing query.", e);
+         throw new PublicException(e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(resultSet);
+      }
+   }
 
    public static IModel resolveModel(IExternalPackage reference) throws UnresolvedExternalReference
    {

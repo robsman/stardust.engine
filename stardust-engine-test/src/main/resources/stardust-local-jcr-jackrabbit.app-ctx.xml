@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!-- Application context for a JCR Jackrabbit extension of a local spring configuration of the Stardust Engine. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+   
+   <bean id="dmsProvider" class="org.eclipse.stardust.vfs.jcr.JcrDocumentRepositoryServiceBean">
+      <property name="sessionFactoryName" value="jcrSessionFactory" />
+   </bean>
+   
+   <bean id="jcrSessionFactory" class="org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory" lazy-init="true">
+      <property name="repository" ref="xaJcrConnectionFactory" />
+      <property name="credentials">
+         <bean id="creds" class="javax.jcr.SimpleCredentials">
+            <constructor-arg index="0" value="jcr-user" />
+            <constructor-arg index="1">
+               <bean factory-bean="jcrPassword" factory-method="toCharArray" />
+            </constructor-arg>
+         </bean>
+      </property>
+   </bean>
+   
+   <bean id="jcrPassword" class="java.lang.String">
+      <constructor-arg index="0" value="jcr-password" />
+   </bean>
+   
+   <bean id="xaJcrConnectionFactory" class="org.springframework.jca.support.LocalConnectionFactoryBean" lazy-init="true">
+      <property name="managedConnectionFactory">
+         <bean id="jackrabbitRepo" class="org.eclipse.stardust.vfs.jcr.jca.JackrabbitRepositoryMCF">
+            <property name="repository" ref="carnotJackrabbitRepository" />
+            <property name="bindSessionToTransaction" value="true" />
+         </bean>
+      </property>
+      <property name="connectionManager">
+         <bean id="connectionManagerFactory" class="org.jencks.factory.ConnectionManagerFactoryBean">
+            <property name="transactionManager" ref="xaTransactionManager" />
+            <property name="transaction" value="xa" />
+         </bean>
+      </property>
+   </bean>
+   
+   <bean id="carnotJackrabbitRepository" class="org.apache.jackrabbit.core.TransientRepository" lazy-init="true" depends-on="jcrRepoConfigFile, jcrWorkspace">
+      <constructor-arg index="0">
+         <bean factory-bean="jcrRepoConfigFile" factory-method="getFile" />
+      </constructor-arg>
+      <constructor-arg index="1">
+         <bean factory-bean="jcrWorkspace" factory-method="file" />
+      </constructor-arg>
+   </bean>
+   
+   <bean id="jcrRepoConfigFile" class="org.springframework.core.io.ClassPathResource">
+      <constructor-arg index="0" value="repository.xml" />
+   </bean>
+   
+   <bean id="jcrWorkspace" class="org.eclipse.stardust.test.impl.Workspace" init-method="create" destroy-method="remove">
+      <constructor-arg index="0" value="jcr" />
+   </bean>
+   
+</beans>

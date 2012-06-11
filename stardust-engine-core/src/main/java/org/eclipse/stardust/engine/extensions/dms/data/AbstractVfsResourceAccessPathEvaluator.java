@@ -78,8 +78,11 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
             {
                try
                {
-
-                  dms.updateDocument(document, false, null, null, false);
+                  Document existingDocument = dms.getDocument(document.getId());
+                  if (existingDocument != null && !existingDocument.equals(document));
+                  {
+                     dms.updateDocument(document, false, null, null, false);                     
+                  }
                }
                catch (Exception e)
                {

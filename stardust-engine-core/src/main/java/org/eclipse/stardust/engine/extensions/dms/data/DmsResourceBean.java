@@ -153,5 +153,17 @@ public abstract class DmsResourceBean implements Resource, ResourceInfo, Seriali
       }
       propertiesMap.put(propertyName, propertyValue);
    }
+   
+   public boolean equals(Object obj)
+   {
+      if (obj instanceof DmsResourceBean)
+      {
+         return vfsResource().equals(((DmsResourceBean) obj).vfsResource());
+      }
+      else
+      {
+         return super.equals(obj);
+      }
+   }
 
 }

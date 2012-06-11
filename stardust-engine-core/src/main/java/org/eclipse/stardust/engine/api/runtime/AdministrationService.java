@@ -178,10 +178,11 @@ public interface AdministrationService extends Service
     * @return Deployment information, including possible errors or warnings, one DeploymentInfo per DeploymentElement.
     * @throws DeploymentException if the deployment operation could not be performed.
     * @throws InvalidArgumentException if the deploymentElements argument is null.
+    * @throws ConcurrencyException if the multiple transactions trying to deploy models at the same time.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.deployProcessModel)
    List<DeploymentInfo> deployModel(List<DeploymentElement> deploymentElements, DeploymentOptions options)
-         throws DeploymentException;
+         throws DeploymentException, ConcurrencyException;
 
    /**
     * Specifies which implementation alternative (identified by <i>implementationModelId</i>) will be considered

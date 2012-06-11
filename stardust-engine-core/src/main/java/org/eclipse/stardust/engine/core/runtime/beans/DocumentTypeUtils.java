@@ -611,7 +611,7 @@ public final class DocumentTypeUtils
       return result;
    }
 
-   private static boolean isDmsDocumentData(String dataTypeId)
+   public static boolean isDmsDocumentData(String dataTypeId)
    {
       return DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId)
             || DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId);

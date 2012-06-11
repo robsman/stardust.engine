@@ -24,7 +24,6 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
-import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
@@ -45,8 +44,6 @@ import org.eclipse.xsd.util.XSDConstants;
 import org.eclipse.xsd.util.XSDResourceFactoryImpl;
 import org.w3c.dom.*;
 
-
-
 public class StructuredTypeRtUtils
 {
    private static final Logger trace = LogManager.getLogger(StructuredTypeRtUtils.class);
@@ -58,23 +55,40 @@ public class StructuredTypeRtUtils
 
    public static IXPathMap getXPathMap(IData data)
    {
-      if (!StructuredDataConstants.STRUCTURED_DATA.equals(data.getType().getId()))
+      String typeId = data.getType().getId();
+      if (StructuredDataConstants.STRUCTURED_DATA.equals(typeId))
       {
-         return null;
+         IReference ref = data.getExternalReference();
+         if (ref != null)
+         {
+            return new ClientXPathMap(getAllXPaths(ref));
+         }
+         String typeDeclarationId = data.getStringAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+         
+         IModel model = (IModel) data.getModel();
+         ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
+         if (typeDeclaration == null)
+         {
+            return null;
+         }
+         return new ClientXPathMap(getAllXPaths(model, typeDeclaration));
       }
-      IReference ref = data.getExternalReference();
-      if (ref != null)
+      else
       {
-         return new ClientXPathMap(getAllXPaths(ref));
+         // build-in schema
+         String metadataComplexTypeName = (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
+         IModel model = (IModel) data.getModel();
+         ITypeDeclaration metadataTypeDeclaration = model.findTypeDeclaration(metadataComplexTypeName);
+         
+         XSDNamedComponent metadataXsdComponent = null;
+         if (metadataTypeDeclaration != null)
+         {
+            XSDSchema metadataSchema = StructuredTypeRtUtils.getXSDSchema(model, metadataTypeDeclaration);
+            metadataXsdComponent = StructuredTypeRtUtils.findElementOrTypeDeclaration(metadataSchema, metadataTypeDeclaration.getId(), true);
+         }
+
+         return getBuiltInXPathMap(typeId, metadataXsdComponent);
       }
-      
-      IModel model = (IModel) data.getModel();
-      ITypeDeclaration typeDeclaration = model.findTypeDeclaration(data.getStringAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT));
-      if (typeDeclaration == null)
-      {
-         return null;
-      }
-      return new ClientXPathMap(getAllXPaths(model, typeDeclaration));
    }
 
    /**
@@ -110,26 +124,31 @@ public class StructuredTypeRtUtils
             metadataXsdComponent = StructuredTypeRtUtils.findElementOrTypeDeclaration(metadataSchema, metadataTypeDeclaration.getId(), true);
          }
 
-         Map parameters = CollectionUtils.newMap();
-         parameters.put(DmsSchemaProvider.PARAMETER_METADATA_TYPE, metadataXsdComponent);
+         return getBuiltInXPathMap(dataTypeId, metadataXsdComponent);
+      }
+   }
 
-         List<ISchemaTypeProvider.Factory> extensionProviders = ExtensionProviderUtils.getExtensionProviders(
-               ISchemaTypeProvider.Factory.class);
-         for (ISchemaTypeProvider.Factory stpFactory : extensionProviders)
+   private static IXPathMap getBuiltInXPathMap(String dataTypeId,
+         XSDNamedComponent metadataXsdComponent)
+   {
+      Map parameters = metadataXsdComponent == null
+            ? Collections.emptyMap()
+            : Collections.singletonMap(DmsSchemaProvider.PARAMETER_METADATA_TYPE, metadataXsdComponent);
+
+      for (ISchemaTypeProvider.Factory stpFactory : ExtensionProviderUtils.getExtensionProviders(ISchemaTypeProvider.Factory.class))
+      {
+         ISchemaTypeProvider provider = stpFactory.getSchemaTypeProvider(dataTypeId);
+         if (null != provider)
          {
-            ISchemaTypeProvider provider = stpFactory.getSchemaTypeProvider(dataTypeId);
-            if (null != provider)
+            Set result = provider.getSchemaType(dataTypeId, parameters);
+            if (null != result)
             {
-               Set result = provider.getSchemaType(dataTypeId, parameters);
-               if (null != result)
-               {
-                  return new ClientXPathMap(result);
-               }
+               return new ClientXPathMap(result);
             }
          }
-         throw new InternalException("Could not find predefined XPaths for data type '"
-               + dataTypeId + "'. Check if schema providers are configured correctly.");
       }
+      throw new InternalException("Could not find predefined XPaths for data type '"
+            + dataTypeId + "'. Check if schema providers are configured correctly.");
    }
    
    public static Set<TypedXPath> getAllXPaths(IModel model, String declaredTypeId)

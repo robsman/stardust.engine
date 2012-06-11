@@ -14,6 +14,7 @@ import java.util.Map;
 
 import javax.jcr.AccessDeniedException;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
@@ -140,6 +141,9 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
             // do not convert properties of the document to a list form, since custom metadata is used 
             excludeXPath = xPathPrefix+AuditTrailUtils.RES_PROPERTIES;
          }
+         // (fh) we make a copy of the map since the property formatter is modifying the original map.
+         // this is required for pojo scenarios where the value is the actual client object.
+         value = CollectionUtils.copyMap((Map) value);
          DmsPropertyFormatter propertyFormatter = new DmsPropertyFormatter(DmsPropertyFormatter.AS_LIST, excludeXPath);
          propertyFormatter.visit((Map)value, "");
       }

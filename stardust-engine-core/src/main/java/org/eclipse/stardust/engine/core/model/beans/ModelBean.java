@@ -59,6 +59,7 @@ import org.eclipse.stardust.engine.api.model.IXpdlType;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.Scripting;
+import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
 import org.eclipse.stardust.engine.api.query.UserQuery;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
@@ -80,7 +81,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-
 
 /**
  *
@@ -225,7 +225,35 @@ public class ModelBean extends RootElementBean
       super.checkConsistency(inconsistencies);
 
       try
-      {
+      {         
+         IQualityAssurance qualityAssurance = getQualityAssurance();
+         if(qualityAssurance != null)
+         {
+            Map<String, IQualityAssuranceCode> allCodes = qualityAssurance.getAllCodes();
+            for(IQualityAssuranceCode code : allCodes.values())
+            {
+               boolean isValid = true;
+               if(StringUtils.isEmpty(code.getCode()))
+               {
+                  isValid = false;
+               }
+               else if(StringUtils.isValidIdentifier(code.getCode()))
+               {
+                  isValid = false;
+               }
+               else if(validateIsDuplicateQualityAssuranceCode(code, allCodes))
+               {
+                  isValid = false;
+               }
+               
+               if(!isValid)
+               {
+                  inconsistencies.add(new Inconsistency(code.toString() + " has an invalid ID.",
+                        this, Inconsistency.ERROR));                  
+               }
+            }
+         }
+         
          for (Iterator i = getAllData();i.hasNext();)
          {
             ((IData) i.next()).checkConsistency(inconsistencies);
@@ -373,6 +401,22 @@ public class ModelBean extends RootElementBean
       }
    }
 
+   private boolean validateIsDuplicateQualityAssuranceCode(IQualityAssuranceCode validateCode, Map<String, IQualityAssuranceCode> allCodes)
+   {
+      for(IQualityAssuranceCode code : allCodes.values())
+      {
+         if(!code.equals(validateCode))
+         {
+            if(!StringUtils.isEmpty(code.getCode()) && code.getCode().equals(validateCode.getCode()))
+            {
+               return false;
+            }            
+         }
+         
+      }      
+      return false;
+   }
+   
    private boolean validateReferences(List<Inconsistency> inconsistencies)
    {
       for (IExternalPackage externalPackage : externalPackages)

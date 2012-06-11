@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<!-- Application context for a JMS ActiveMQ extension of a local Spring configuration of the Stardust Engine. -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:amq="http://activemq.apache.org/schema/core"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                       http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
+   
+   <!-- JMS Forking Service -->
+   <bean name="carnotForkingService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.spring.integration.jms.threading.JmsForkingService" />
+   
+   <!-- JMS Resource Adapter -->
+   <bean id="jmsResourceAdapter" class="org.apache.activemq.ra.ActiveMQResourceAdapter" depends-on="broker">
+      <property name="serverUrl" value="vm://localhost" />
+   </bean>
+
+   <!-- ActiveMQ Broker -->
+   <amq:broker id="broker" useJmx="false" persistent="false" useShutdownHook="false">
+      <!-- TODO inject data source to be able to persist? -->
+      <amq:transportConnectors>
+         <amq:transportConnector uri="vm://localhost" />
+      </amq:transportConnectors>
+   </amq:broker>
+
+   <!-- JMS Connection Factory -->
+   <bean name="jmsConnectionFactory" class="org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy">
+      <property name="targetConnectionFactory">
+         <bean class="org.springframework.jca.support.LocalConnectionFactoryBean">
+            <property name="managedConnectionFactory">
+               <bean class="org.apache.activemq.ra.ActiveMQManagedConnectionFactory">
+                  <property name="resourceAdapter" ref="jmsResourceAdapter" />
+               </bean>
+            </property>
+            <property name="connectionManager" ref="jmsConnectionManager" />
+         </bean>
+      </property>
+   </bean>
+   
+   <!-- JMS Connection Manager -->
+   <bean id="jmsConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
+      <property name="transactionManager" ref="xaTransactionManager" />
+      <property name="transaction" value="xa" />
+      <property name="pooling" value="true" />
+      <property name="poolMinSize" value="10" />
+      <property name="poolMaxSize" value="50" />
+   </bean>
+   
+   <!-- JMS Resource Reference Binding -->
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceRefBinding">
+      <property name="name" value="jms/CarnotXAConnectionFactory" />
+      <property name="resourceRef" ref="jmsConnectionFactory" />
+   </bean>
+   
+   <!-- Queue Listeners -->
+   <bean name="systemQueueListenerContainer" parent="AbstractCarnotMessageListenerContainer">
+      <property name="destination" ref="jmsSystemQueue" />
+      <property name="messageListener">
+         <bean class="org.eclipse.stardust.engine.spring.integration.jms.threading.SystemQueueMessageHandler">
+            <property name="forkingService" ref="carnotForkingService" />
+         </bean>
+      </property>
+      <property name="concurrentConsumers" value="5" />
+   </bean>
+   <bean name="daemonQueueListenerContainer" parent="AbstractCarnotMessageListenerContainer">
+      <property name="destination" ref="jmsDaemonQueue" />
+      <property name="messageListener">
+         <bean class="org.eclipse.stardust.engine.spring.integration.jms.threading.DaemonQueueMessageHandler">
+            <property name="forkingService" ref="carnotForkingService" />
+         </bean>
+      </property>
+      <property name="concurrentConsumers" value="5" />
+   </bean>
+   <bean name="applicationQueueListenerContainer" parent="AbstractCarnotMessageListenerContainer">
+      <property name="destination" ref="jmsApplicationQueue" />
+      <property name="messageListener">
+         <bean class="org.eclipse.stardust.engine.spring.integration.jms.threading.ApplicationQueueMessageHandler">
+            <property name="forkingService" ref="carnotForkingService" />
+         </bean>
+      </property>
+      <property name="concurrentConsumers" value="5" />
+   </bean>
+   <bean abstract="true" name="AbstractCarnotMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+      <property name="autoStartup" value="true" />
+      <property name="transactionManager" ref="jtaTxManager" />
+      <property name="connectionFactory" ref="jmsConnectionFactory" />
+      <property name="receiveTimeout" value="3000" />
+      <property name="sessionTransacted" value="true" />
+   </bean>
+   
+   <!-- Queue Resource Bindings -->
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
+      <property name="name" value="jms/CarnotSystemQueue" />
+      <property name="resource" ref="jmsSystemQueue" />
+   </bean>
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
+      <property name="name" value="jms/CarnotDaemonQueue" />
+      <property name="resource" ref="jmsDaemonQueue" />
+   </bean>
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
+      <property name="name" value="jms/CarnotApplicationQueue" />
+      <property name="resource" ref="jmsApplicationQueue" />
+   </bean>
+   
+   <!-- Queues -->
+   <amq:queue id="jmsSystemQueue" physicalName="CarnotSystemQueue" />
+   <amq:queue id="jmsDaemonQueue" physicalName="CarnotDaemonQueue?consumer.prefetchSize=0" />
+   <amq:queue id="jmsApplicationQueue" physicalName="CarnotApplicationQueue" />
+   
+</beans>

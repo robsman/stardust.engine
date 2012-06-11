@@ -54,5 +54,7 @@
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jcr-jackrabbit-module-runtime" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->logging-slf4j-log4j-module-runtime" />
       <dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="test->logging-log4j-module-runtime" />
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jms-activemq-module-runtime" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="1.0" conf="test->default" />
    </dependencies>
 </ivy-module>

@@ -57,22 +57,29 @@ public class LocalJcrH2TestSetup extends ExternalResource
 
    private final String[] modelNames;
    private final UsernamePasswordPair userPwdPair;
+   private final ForkingServiceMode forkingServiceMode;
    
    private ServiceFactory sf;
    
    /**
     * <p>
-    * Initializes the object with the username password pair and the models to deploy.
+    * Initializes the object with the username password pair and the models to deploy. Furthermore, it specifies which forking service
+    * mode to use.
     * </p>
     * 
     * @param userPwdPair the credentials of the user in whose context the setup will be done; must not be null
+    * @param forkingServiceMode the forking service's mode (JMS or non-JMS)
     * @param modelNames the names of the models to deploy; may be null or empty
     */
-   public LocalJcrH2TestSetup(final UsernamePasswordPair userPwdPair, final String ... modelNames)
+   public LocalJcrH2TestSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, final String ... modelNames)
    {
       if (userPwdPair == null)
       {
          throw new NullPointerException("User password pair must not be null.");
+      }
+      if (forkingServiceMode == null)
+      {
+         throw new NullPointerException("Forking service mode must not be null.");
       }
       if (modelNames == null || modelNames.length == 0)
       {
@@ -80,6 +87,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
       }
 
       this.userPwdPair = userPwdPair;
+      this.forkingServiceMode = forkingServiceMode;
       this.modelNames = (modelNames != null) ? modelNames : new String[0];
    }
    
@@ -112,7 +120,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
 
       DBMS.start();
       DBMS.createSchema();
-      SPRING_APP_CTX.bootstrap();
+      SPRING_APP_CTX.bootstrap(forkingServiceMode);
       
       sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
       if (modelNames.length > 0)
@@ -177,4 +185,6 @@ public class LocalJcrH2TestSetup extends ExternalResource
    {
       locked = false;
    }
+   
+   public static enum ForkingServiceMode { JMS, NON_JMS }
 }

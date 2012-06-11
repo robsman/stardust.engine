@@ -30,6 +30,7 @@ import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -99,7 +100,7 @@ public class DeclarativeSecurityDelegationTest
    private final TestServiceFactory dtdSf = new TestServiceFactory(new UsernamePasswordPair(DTD_USERNAME, DTD_USERNAME));
    
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NON_JMS, MODEL_NAME);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)

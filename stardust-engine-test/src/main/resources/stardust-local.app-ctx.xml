@@ -16,7 +16,10 @@
    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
    <!-- DMS Support -->
-   <import resource="classpath:stardust-local-jcr-jackrabbit.app-ctx.xml" />
+   <import resource="classpath:stardust-local-dms-jcr-jackrabbit.app-ctx.xml" />
+
+   <!-- Forking Service Mode -->
+   <import resource="classpath:stardust-local-forking-${forking.service.mode}.app-ctx.xml" />
 
    <!-- Stardust Engine Services -->   
    <bean id="abstractCarnotService" abstract="true" class="org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean">
@@ -58,18 +61,9 @@
       <property name="transaction" value="xa" />
       <property name="pooling" value="false" />
    </bean>
-
+   
    <!-- JMS Resource Resolver -->
    <bean id="jmsResourceResolver" class="org.eclipse.stardust.engine.spring.integration.jms.DefaultJmsResourceResolver" />
-
-   <!-- Forking Service -->
-   <bean id="carnotForkingService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.QueuedSpringForkingService">
-      <property name="jobManager" ref="carnotAsyncJobManager" />
-   </bean>
-   <bean id="carnotAsyncJobManager" class="org.eclipse.stardust.engine.spring.threading.FiFoJobManager" scope="singleton">
-      <property name="maxParallelJobs" value="10" />
-      <property name="useShutdownHook" value="true" />
-   </bean>
    
    <!-- Property resolver for properties from 'carnot.properties' -->
    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">

@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.setup;
 
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.rules.ExternalResource;
 
@@ -44,15 +45,17 @@ public class LocalJcrH2TestSuiteSetup extends ExternalResource
    
    /**
     * <p>
-    * Initializes the object with the given username password pair and the models to deploy.
+    * Initializes the object with the given username password pair and the models to deploy. Furthermore, it specifies which forking service
+    * mode to use.
     * </p>
     * 
     * @param userPwdPair the credentials of the user to use for runtime setup; must not be null
+    * @param forkingServiceMode the forking service's mode (JMS or non-JMS)
     * @param modelNames the names of the models to deploy; may be null or empty
     */
-   public LocalJcrH2TestSuiteSetup(final UsernamePasswordPair userPwdPair, final String ... modelNames)
+   public LocalJcrH2TestSuiteSetup(final UsernamePasswordPair userPwdPair, final ForkingServiceMode forkingServiceMode, final String ... modelNames)
    {
-      testClassSetup = new LocalJcrH2TestSetup(userPwdPair, modelNames);
+      testClassSetup = new LocalJcrH2TestSetup(userPwdPair, forkingServiceMode, modelNames);
    }
    
    /**

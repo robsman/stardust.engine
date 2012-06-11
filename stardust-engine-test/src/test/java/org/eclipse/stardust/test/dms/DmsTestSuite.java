@@ -13,6 +13,7 @@ package org.eclipse.stardust.test.dms;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -36,5 +37,5 @@ public class DmsTestSuite
    /* test suite */
    
    @ClassRule
-   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU));
+   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NON_JMS);
 }

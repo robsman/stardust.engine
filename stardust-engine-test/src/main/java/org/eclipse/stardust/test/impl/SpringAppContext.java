@@ -13,6 +13,7 @@ package org.eclipse.stardust.test.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -37,12 +38,24 @@ public class SpringAppContext
 {
    private static final Log LOG = LogFactory.getLog(SpringAppContext.class);
    
-   public void bootstrap() throws TestRtEnvException
+   private static final String FORKING_SERVICE_MODE_PROPERTY_KEY = "forking.service.mode";
+   
+   private static final String FORKING_SERVICE_MODE_PROPERTY_VALUE_JMS = "jms-activemq";
+   private static final String FORKING_SERVICE_MODE_PROPERTY_VALUE_NON_JMS = "non-jms";
+   
+   public void bootstrap(final ForkingServiceMode forkingServiceMode) throws TestRtEnvException
    {
       try
       {
+         final String forkingServiceModeValue = (forkingServiceMode == ForkingServiceMode.JMS) 
+                                                   ? FORKING_SERVICE_MODE_PROPERTY_VALUE_JMS
+                                                   : FORKING_SERVICE_MODE_PROPERTY_VALUE_NON_JMS;
+         System.setProperty(FORKING_SERVICE_MODE_PROPERTY_KEY, forkingServiceModeValue);
+         
          /* causes the Spring Application Context to be initialized */
          ((ConfigurableApplicationContext) SpringUtils.getApplicationContext()).refresh();
+         
+         System.clearProperty(FORKING_SERVICE_MODE_PROPERTY_KEY);
       }
       catch (final Exception e)
       {

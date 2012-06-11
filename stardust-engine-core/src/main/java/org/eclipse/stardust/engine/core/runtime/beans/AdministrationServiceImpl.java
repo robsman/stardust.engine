@@ -62,8 +62,6 @@ import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
-
-
 /**
  * This class implements <code>java.io.Serializable</code>, because it might be desirable
  * to achieve manual activation/passivation in local usage.
@@ -347,8 +345,18 @@ public class AdministrationServiceImpl
    }
 
    public List<DeploymentInfo> deployModel(List<DeploymentElement> deploymentElements,
-         DeploymentOptions options) throws DeploymentException
+         DeploymentOptions options) throws DeploymentException, ConcurrencyException
    {
+      IAuditTrailPartition partition = SecurityProperties.getPartition();
+      if(partition != null)
+      {
+         AuditTrailPartitionBean foundByOID = AuditTrailPartitionBean.findByOID(partition.getOID());
+         if(foundByOID != null)
+         {
+            foundByOID.lock();
+         }
+      }
+      
       if(deploymentElements == null)
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("deploymentElements"));
@@ -394,6 +402,9 @@ public class AdministrationServiceImpl
             elements.add(parsedUnit);
             overrides.put(modelId, parsedUnit.getModel());
          }
+         
+         
+         
          // deploy the models
          return doDeployModel(elements, options);
       }

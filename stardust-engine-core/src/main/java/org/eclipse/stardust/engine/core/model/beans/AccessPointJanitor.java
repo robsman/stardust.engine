@@ -15,7 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.AttributeHolder;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.SplicingIterator;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.reflect.MethodDescriptor;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.AccessPointOwner;
@@ -87,8 +93,6 @@ public class AccessPointJanitor
                   ((AttributeHolder) owner).getAllAttributes(), typeProps); i.hasNext();)
             {
                AccessPoint ap = (AccessPoint) i.next();
-               String id = ap.getId();
-               
                aps.add(ap);
             }
          }
@@ -142,11 +146,7 @@ public class AccessPointJanitor
       final List transientAps = (List) transientPoints.get();
       for (int i = 0; i < transientAps.size(); ++i)
       {
-         AccessPoint point = (AccessPoint) transientAps.get(i);
-         
-         String pointId = point.getId();
-         System.out.println("point id: "+pointId);
-         
+         AccessPoint point = (AccessPoint) transientAps.get(i);         
          if (point.getId().equals(simpleId)
                && (direction == null || 
                    point.getDirection().equals(Direction.IN_OUT) || 

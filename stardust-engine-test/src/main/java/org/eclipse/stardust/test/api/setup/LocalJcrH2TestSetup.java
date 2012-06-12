@@ -190,8 +190,8 @@ public class LocalJcrH2TestSetup extends ExternalResource
     * <p>
     * Represents the means the engine uses to implement forking
     * <ul>
-    *    <li><i>JMS</i> -- use <i>JMS</i> for forking new processes</li>
-    *    <li><i>Native Threading</i> -- use native threading for forking new processes</li>
+    *    <li><i>JMS</i> &ndash; use <i>JMS</i> for forking new processes</li>
+    *    <li><i>Native Threading</i> &ndash; use native threading for forking new processes</li>
     * </ul>
     * </p>
     * 

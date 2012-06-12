@@ -41,7 +41,7 @@ public class SpringAppContext
    private static final String FORKING_SERVICE_MODE_PROPERTY_KEY = "forking.service.mode";
    
    private static final String FORKING_SERVICE_MODE_PROPERTY_VALUE_JMS = "jms-activemq";
-   private static final String FORKING_SERVICE_MODE_PROPERTY_VALUE_NON_JMS = "non-jms";
+   private static final String FORKING_SERVICE_MODE_PROPERTY_VALUE_NATIVE_THREADING = "native-threading";
    
    public void bootstrap(final ForkingServiceMode forkingServiceMode) throws TestRtEnvException
    {
@@ -49,7 +49,7 @@ public class SpringAppContext
       {
          final String forkingServiceModeValue = (forkingServiceMode == ForkingServiceMode.JMS) 
                                                    ? FORKING_SERVICE_MODE_PROPERTY_VALUE_JMS
-                                                   : FORKING_SERVICE_MODE_PROPERTY_VALUE_NON_JMS;
+                                                   : FORKING_SERVICE_MODE_PROPERTY_VALUE_NATIVE_THREADING;
          System.setProperty(FORKING_SERVICE_MODE_PROPERTY_KEY, forkingServiceModeValue);
          
          /* causes the Spring Application Context to be initialized */

@@ -26,7 +26,7 @@ public class PublicException extends ApplicationException
     */
    public PublicException(ErrorCase errorCase)
    {
-      super(errorCase, null);
+      super(errorCase, errorCase.toString());
    }
    
    /**

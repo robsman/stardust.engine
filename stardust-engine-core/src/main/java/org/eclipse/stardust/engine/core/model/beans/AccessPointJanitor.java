@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.reflect.MethodDescriptor;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.AccessPointOwner;
 import org.eclipse.stardust.engine.api.model.IModel;
@@ -85,7 +86,10 @@ public class AccessPointJanitor
             for (Iterator i = provider.createIntrinsicAccessPoints(
                   ((AttributeHolder) owner).getAllAttributes(), typeProps); i.hasNext();)
             {
-               aps.add(i.next());
+               AccessPoint ap = (AccessPoint) i.next();
+               String id = ap.getId();
+               
+               aps.add(ap);
             }
          }
          
@@ -108,14 +112,25 @@ public class AccessPointJanitor
       });
    }
 
-   public AccessPoint findAccessPoint(String id, Direction direction)
+   public AccessPoint findAccessPoint(String accesspointId, Direction direction)
    {
+      final String simpleId;
+      MethodDescriptor descriptor = Reflect.describeEncodedMethod(accesspointId);
+      if(descriptor != null)
+      {
+         simpleId = descriptor.toString();
+      }
+      else
+      {
+         simpleId = accesspointId;
+      }
+
       recalculateAccessPoints();
 
       for (int i=0; i<persistentPoints.size(); i++)
       {
          AccessPoint point = (AccessPoint) persistentPoints.get(i);
-         if (point.getId().equals(id) 
+         if (point.getId().equals(simpleId) 
                && (direction == null || 
                      point.getDirection().equals(Direction.IN_OUT) || 
                      point.getDirection().equals(direction)))
@@ -128,7 +143,11 @@ public class AccessPointJanitor
       for (int i = 0; i < transientAps.size(); ++i)
       {
          AccessPoint point = (AccessPoint) transientAps.get(i);
-         if (point.getId().equals(id)
+         
+         String pointId = point.getId();
+         System.out.println("point id: "+pointId);
+         
+         if (point.getId().equals(simpleId)
                && (direction == null || 
                    point.getDirection().equals(Direction.IN_OUT) || 
                    point.getDirection().equals(direction)))
@@ -155,7 +174,7 @@ public class AccessPointJanitor
    }
 
    public synchronized void addIntrinsicAccessPoint(AccessPoint ap)
-   {
+   {      
       List aps = (List) transientPoints.get();
       if (null == aps)
       {

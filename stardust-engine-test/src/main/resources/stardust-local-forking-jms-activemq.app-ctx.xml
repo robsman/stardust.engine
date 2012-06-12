@@ -10,7 +10,7 @@
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
 
-<!-- Application context for a JMS ActiveMQ extension of a local Spring configuration of the Stardust Engine. -->
+<!-- Application context for a JMS ActiveMQ forking service of a local Spring configuration of the Stardust Engine. -->
 <beans xmlns="http://www.springframework.org/schema/beans"
    xmlns:amq="http://activemq.apache.org/schema/core"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

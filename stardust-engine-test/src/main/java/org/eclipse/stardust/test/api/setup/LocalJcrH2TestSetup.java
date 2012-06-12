@@ -186,5 +186,22 @@ public class LocalJcrH2TestSetup extends ExternalResource
       locked = false;
    }
    
-   public static enum ForkingServiceMode { JMS, NON_JMS }
+   /**
+    * <p>
+    * Represents the means the engine uses to implement forking
+    * <ul>
+    *    <li><i>JMS</i> -- use <i>JMS</i> for forking new processes</li>
+    *    <li><i>Native Threading</i> -- use native threading for forking new processes</li>
+    * </ul>
+    * </p>
+    * 
+    * <p>
+    * <i>Native Threading</i> does increase the test performance much, but does not allow for <i>JMS</i>
+    * support, of course. 
+    * </p>
+    * 
+    * @author Nicolas.Werlein
+    * @version $Revision$
+    */
+   public static enum ForkingServiceMode { JMS, NATIVE_THREADING }
 }

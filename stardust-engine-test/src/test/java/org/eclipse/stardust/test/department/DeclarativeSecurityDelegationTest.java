@@ -100,7 +100,7 @@ public class DeclarativeSecurityDelegationTest
    private final TestServiceFactory dtdSf = new TestServiceFactory(new UsernamePasswordPair(DTD_USERNAME, DTD_USERNAME));
    
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NON_JMS, MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)

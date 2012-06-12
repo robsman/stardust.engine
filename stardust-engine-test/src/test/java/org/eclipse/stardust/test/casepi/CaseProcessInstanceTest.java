@@ -74,7 +74,7 @@ public class CaseProcessInstanceTest
    private final TestServiceFactory sf = new TestServiceFactory(USER_PWD_PAIR);
    
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(USER_PWD_PAIR, ForkingServiceMode.NON_JMS, MODEL_NAME);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)

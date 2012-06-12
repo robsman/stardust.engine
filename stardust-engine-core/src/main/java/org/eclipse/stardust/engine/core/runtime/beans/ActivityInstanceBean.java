@@ -1870,9 +1870,38 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                      .raise(getOID()));
       }
 
-
       if (performer.isAuthorized(user))
       {
+         if (DepartmentUtils.getFirstScopedOrganization(performer) != null)
+         {
+            AccessForbiddenException exception = null;
+            Iterator<UserParticipantLink> links = user.getAllParticipantLinks();
+            while (links.hasNext())
+            {
+               UserParticipantLink link = links.next();
+               IModelParticipant participant = link.getParticipant();
+               if (DepartmentUtils.getFirstScopedOrganization(participant) != null)
+               {
+                  try
+                  {
+                     checkDepartmentChange(participant, link.getDepartment(), null);
+                     exception = null;
+                     break;
+                  }
+                  catch (AccessForbiddenException ex)
+                  {
+                     if (exception == null)
+                     {
+                        exception = ex;
+                     }
+                  }
+               }
+            }
+            if (exception != null)
+            {
+               throw exception;
+            }
+         }
          putToUserWorklist(user);
       }
       else
@@ -1937,62 +1966,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       if (performer.isAuthorized(participant))
       {
-         if (newDepartment != null && newDepartment != IDepartment.NULL)
-         {
-            IOrganization refOrg = DepartmentUtils.getOrganization(newDepartment);
-            if (!refOrg.equals(participant) && !DepartmentUtils.isChild(participant, refOrg))
-            {
-               throw new AccessForbiddenException(
-                     BpmRuntimeError.BPMRT_MODEL_PARTICIPANT_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
-                           participant.getId(), Long.valueOf(getOID())));
-            }
-         }
-
-         IDepartment oldDepartment = getCurrentDepartment();
-         if (oldDepartment == null)
-         {
-            if (lastDepartment == null)
-            {
-               Iterator<ActivityInstanceHistoryBean> history = ActivityInstanceHistoryBean.getAllForActivityInstance(this, false);
-               while (history.hasNext())
-               {
-                  ActivityInstanceHistoryBean aih = history.next();
-                  if (ActivityInstanceState.Application == aih.getState())
-                  {
-                     continue;
-                  }
-                  if (ActivityInstanceState.Suspended == aih.getState())
-                  {
-                     lastDepartment = aih.getDepartment();
-                     if (lastDepartment == null)
-                     {
-                        lastDepartment = IDepartment.NULL;
-                     }
-                  }
-                  break;
-               }
-            }
-            if (lastDepartment != null)
-            {
-               oldDepartment = lastDepartment;
-            }
-         }
-
-         IDepartment targetDepartment = getTargetDepartment(participant, newDepartment);
-         if (!isCompatible(participant, targetDepartment, oldDepartment))
-         {
-            Method method;
-            try
-            {
-               method = ActivityInstanceBean.class.getMethod("delegateToParticipant", IModelParticipant.class, IDepartment.class, IDepartment.class);
-            }
-            catch (Exception e)
-            {
-               throw new InternalException(e);
-            }
-            Authorization2.checkPermission(method, new Long[] {getOID()});
-         }
-
+         IDepartment targetDepartment = checkDepartmentChange(participant, newDepartment, lastDepartment);
          putToParticipantWorklist(participant, targetDepartment == null ? 0 : targetDepartment.getOID());
       }
       else
@@ -2001,6 +1975,67 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             BpmRuntimeError.BPMRT_MODEL_PARTICIPANT_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
                   participant.getId(), Long.valueOf(getOID())));
       }
+   }
+
+   private IDepartment checkDepartmentChange(IModelParticipant participant,
+         IDepartment newDepartment, IDepartment lastDepartment)
+   {
+      if (newDepartment != null && newDepartment != IDepartment.NULL)
+      {
+         IOrganization refOrg = DepartmentUtils.getOrganization(newDepartment);
+         if (!refOrg.equals(participant) && !DepartmentUtils.isChild(participant, refOrg))
+         {
+            throw new AccessForbiddenException(
+                  BpmRuntimeError.BPMRT_MODEL_PARTICIPANT_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
+                        participant.getId(), Long.valueOf(getOID())));
+         }
+      }
+
+      IDepartment oldDepartment = getCurrentDepartment();
+      if (oldDepartment == null)
+      {
+         if (lastDepartment == null)
+         {
+            Iterator<ActivityInstanceHistoryBean> history = ActivityInstanceHistoryBean.getAllForActivityInstance(this, false);
+            while (history.hasNext())
+            {
+               ActivityInstanceHistoryBean aih = history.next();
+               if (ActivityInstanceState.Application == aih.getState())
+               {
+                  continue;
+               }
+               if (ActivityInstanceState.Suspended == aih.getState())
+               {
+                  lastDepartment = aih.getDepartment();
+                  if (lastDepartment == null)
+                  {
+                     lastDepartment = IDepartment.NULL;
+                  }
+               }
+               break;
+            }
+         }
+         if (lastDepartment != null)
+         {
+            oldDepartment = lastDepartment;
+         }
+      }
+
+      IDepartment targetDepartment = getTargetDepartment(participant, newDepartment);
+      if (!isCompatible(participant, targetDepartment, oldDepartment))
+      {
+         Method method;
+         try
+         {
+            method = ActivityInstanceBean.class.getMethod("delegateToParticipant", IModelParticipant.class, IDepartment.class, IDepartment.class);
+         }
+         catch (Exception e)
+         {
+            throw new InternalException(e);
+         }
+         Authorization2.checkPermission(method, new Long[] {getOID()});
+      }
+      return targetDepartment;
    }
 
    private boolean isCompatible(IModelParticipant newParticipant, IDepartment newDepartment, IDepartment oldDepartment)

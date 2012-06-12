@@ -15,7 +15,7 @@ package org.eclipse.stardust.test.util;
  * This class contains constants common to all functional tests.
  * </p>
  * 
- * @author nicolas.werlein
+ * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class TestConstants

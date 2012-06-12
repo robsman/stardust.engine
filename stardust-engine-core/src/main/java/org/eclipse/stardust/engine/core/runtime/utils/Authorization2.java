@@ -118,10 +118,13 @@ public class Authorization2
                      (args.length == 1 || AbortScope.RootHierarchy.equals(args[1])))
                {
                   // change context to process instance if you want to abort the complete process hierarchy
+                  permission = new ClientPermission(Permissions.PROCESS_DEFINITION_ABORT_PROCESS_INSTANCES);
+                  
                   IActivityInstance activityInstance = ActivityInstanceBean.findByOID(aiOid);
                   IProcessInstance processInstance = activityInstance.getProcessInstance();
                   IProcessInstance rootPi = processInstance.getRootProcessInstance();
-                  context = AuthorizationContext.create(AdministrationService.class, "abortProcessInstance", long.class);
+                  
+                  context = AuthorizationContext.create(permission);
                   context.setProcessInstance(rootPi);
                }
                else

@@ -11,47 +11,36 @@
 package org.eclipse.stardust.common.error;
 
 /**
- *
+ * Base exception class for all exceptions that should be viewable by the client
+ * 
+ * @author mgille
+ * @version $Revision$
  */
 public class PublicException extends ApplicationException
 {
    private static final long serialVersionUID = 3236696384405573222L;
    
-   // stands for silent, abbreviated for obfuscation reasons
-   private boolean s;
-
    /**
-    *
+    * Constructs the Exception
+    * @param errorCase - the {@link ErrorCase} for this message
     */
    public PublicException(ErrorCase errorCase)
    {
-      this(errorCase, errorCase.toString(), false);
+      super(errorCase, null);
    }
-
+   
+   /**
+    * Constructs the Exception
+    * @param message - the error message for this exception
+    */
    public PublicException(String message)
    {
-      this(null, message, false);
-   }
-
-   public PublicException(ErrorCase errorCase, boolean s)
-   {
-      this(errorCase, errorCase.toString(), s);
-   }
-
-   public PublicException(String message, boolean s)
-   {
-      this(null, message, s);
-   }
-
-   public PublicException(ErrorCase errorCase, String message, boolean s)
-   {
-      super(errorCase, message);
-
-      this.s = s;
+      super(message);
    }
 
    /**
-    * This constructor is used for exception conversion.
+    * Constructs the Exception
+    * @param e - the root cause for this exception 
     */
    public PublicException(Throwable e)
    {
@@ -59,7 +48,9 @@ public class PublicException extends ApplicationException
    }
 
    /**
-    * This constructor is used for exception conversion.
+    * Constructs the Exception
+    * @param message - the error message for this exception
+    * @param e - the root cause for this exception
     */
    public PublicException(String message, Throwable e)
    {
@@ -67,7 +58,9 @@ public class PublicException extends ApplicationException
    }
 
    /**
-    * This constructor is used for exception conversion.
+    * Constructs the Exception
+    * @param errorCase - the {@link ErrorCase} for this message
+    * @param e - the root cause for this exception
     */
    public PublicException(ErrorCase errorCase, Throwable e)
    {
@@ -75,16 +68,14 @@ public class PublicException extends ApplicationException
    }
    
    /**
-    * This constructor is used for exception conversion.
+    * Constructs the Exception
+    * @param errorCase - the {@link ErrorCase} for this message
+    * @param message - the error message for this exception, will be ignored if
+    *                  the <b>errorCase</b> argument is not null
+    * @param e  - the root cause for this exception
     */
    public PublicException(ErrorCase errorCase, String message, Throwable e)
    {
       super(errorCase, message, e);
-   }
-
-   //todo: remove from API:
-   public boolean isS()
-   {
-      return s;
    }
 }

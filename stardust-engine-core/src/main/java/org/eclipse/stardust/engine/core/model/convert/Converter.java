@@ -22,6 +22,7 @@ import javax.xml.parsers.DocumentBuilder;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.ApplicationException;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
@@ -360,7 +361,7 @@ public abstract class Converter
       }
       catch (Exception e)
       {
-         throw new ApplicationException("Could not create document from InputStrema", e);
+         throw new InternalException("Could not create document from InputStrema", e);
       }
 
       return document;

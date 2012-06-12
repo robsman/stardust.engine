@@ -18,6 +18,7 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 import org.eclipse.stardust.common.error.ApplicationException;
+import org.eclipse.stardust.common.error.InternalException;
 
 
 /**
@@ -257,7 +258,7 @@ public class Money extends Number implements Cloneable
          }
          catch (ParseException e)
          {
-            throw new ApplicationException(e);
+            throw new InternalException(e);
          }
       }
    }

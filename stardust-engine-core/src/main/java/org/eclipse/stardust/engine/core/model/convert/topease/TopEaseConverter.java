@@ -21,6 +21,7 @@ import java.util.*;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ApplicationException;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -507,7 +508,7 @@ public class TopEaseConverter extends org.eclipse.stardust.engine.core.model.con
                String message = "Couldn't find class " + op.getSystem().getFullName() +
                      " for operation " + op.getName() + ".";
                trace.warn(message, e);
-               throw new ApplicationException(message, e);
+               throw new InternalException(message, e);
             }
 
             // @todo (france, ub): broken; ap should be automatically created?
@@ -631,7 +632,7 @@ public class TopEaseConverter extends org.eclipse.stardust.engine.core.model.con
          String message = "Couldn't create method for operation " + op.getName()
                + " from system " + op.getSystem().getFullName() + ".";
          trace.warn(message, e);
-         throw new ApplicationException(message, e);
+         throw new InternalException(message, e);
       }
 
       return completionMethod;

@@ -25,9 +25,11 @@ import org.eclipse.stardust.common.log.Logger;
 
 
 /**
+ * Generic base exception.
+ * 
  * @author mgille
  */
-public class ApplicationException extends RuntimeException
+public abstract class ApplicationException extends RuntimeException
 {
    private static final Logger trace = LogManager.getLogger(ApplicationException.class);
 
@@ -42,11 +44,21 @@ public class ApplicationException extends RuntimeException
    private Map<String, String> messageLocalizationMap 
       = new HashMap<String, String>();
    
+   /**
+    * Constructs the Exception
+    * @param message - the error message for this exception
+    */
    public ApplicationException(String message)
    {
       this(null, message);
    }
 
+   /**
+    * Constructs the Exception
+    * @param message - the error message for this exception, will be ignored if
+    *                  the <b>error</b> argument is not null
+    * @param error - the {@link ErrorCase} for this message
+    */
    public ApplicationException(ErrorCase error, String message)
    {
       super(message);
@@ -55,7 +67,8 @@ public class ApplicationException extends RuntimeException
    }
 
    /**
-    * This constructor is used for exception conversion.
+    * Constructs the Exception
+    * @param e - the root cause for this exception
     */
    public ApplicationException(Throwable e)
    {
@@ -63,7 +76,9 @@ public class ApplicationException extends RuntimeException
    }
 
    /**
-    * This constructor is used for exception conversion.
+    * Constructs the Exception
+    * @param message - the error message for this exception
+    * @param e - the root cause for this exception
     */
    public ApplicationException(String message, Throwable e)
    {
@@ -71,7 +86,11 @@ public class ApplicationException extends RuntimeException
    }
 
    /**
-    * This constructor is used for exception conversion.
+    * Constructs the Exception
+    * @param error - the {@link ErrorCase} for this message
+    * @param message - the error message for this exception, will be ignored if
+    *                  the <b>error</b> argument is not null
+    * @param e  - the root cause for this exception
     */
    public ApplicationException(ErrorCase error, String message, Throwable e)
    {
@@ -110,11 +129,21 @@ public class ApplicationException extends RuntimeException
       }
    }
 
+   /**
+    * Gets the {@link ErrorCase} for this exception
+    * @return the {@link ErrorCase} set for this exception
+    */
    public ErrorCase getError()
    {
       return error;
    }
 
+   /**
+    * Gets the stack trace for the root exception or an empty list if no root cause exception was supplied in the
+    * constructor
+    * @return the stack trace for the root exception or an empty list 
+    * if no root cause exception was supplied in the constructor
+    */
    public List getInner()
    {
       return Collections.unmodifiableList(inner);
@@ -130,11 +159,20 @@ public class ApplicationException extends RuntimeException
       return description;
    }
 
+   /**
+    * Returns if this exception was already logged
+    * @return true if this exception was already logged, false otherwise
+    */
    public boolean isLogged()
    {
       return isLogged;
    }
 
+   /**
+    * Set if this exception was already logged,
+    * If set to true, the logging framework will not log this exception anymore
+    * @param logged - if this exception was already logged
+    */
    public void setLogged(boolean logged)
    {
       isLogged = logged;
@@ -164,6 +202,9 @@ public class ApplicationException extends RuntimeException
    }
 
    @Override
+   /**
+    * {@inheritDoc}
+    */
    public String getLocalizedMessage()
    {
       String localizedMessage = null;

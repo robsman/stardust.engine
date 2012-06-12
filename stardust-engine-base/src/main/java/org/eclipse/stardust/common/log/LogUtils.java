@@ -148,21 +148,20 @@ public final class LogUtils
       }
       else if (e instanceof ApplicationException)
       {
-         if (!((ApplicationException) e).isLogged())
+         ApplicationException applicationException 
+            = (ApplicationException) e;
+         if (!applicationException.isLogged())
          {
-            if (e instanceof PublicException)
+            if (applicationException instanceof PublicException)
             {
                trace.warn(e.getMessage());
-               if (!((PublicException)e).isS())
-               {
-                  trace.debug("", e);
-               }
+               trace.debug("", e);
             }
             else
             {
                trace.warn("", e);
             }
-            ((ApplicationException) e).setLogged(true);
+            applicationException.setLogged(true);
          }
          if (rethrowCanonicalized)
          {

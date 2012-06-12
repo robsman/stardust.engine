@@ -115,9 +115,9 @@ public class ObjectNotFoundException extends PublicException
    public ObjectNotFoundException(boolean s, ErrorCase errorCase, String message,
          Serializable identifier)
    {
-      super(errorCase, identifier == null ? message : message + ": " + identifier, s);
-
+      super(errorCase, identifier == null ? message : message + ": " + identifier, null);
       this.identifier = identifier;
+      this.setLogged(s);
    }
 
    /**

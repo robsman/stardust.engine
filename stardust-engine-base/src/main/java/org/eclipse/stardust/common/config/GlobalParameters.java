@@ -394,7 +394,7 @@ public class GlobalParameters
       }
       catch (MissingResourceException e)
       {
-         throw new ApplicationException("Cannot load '" + fileName
+         throw new InternalException("Cannot load '" + fileName
                + ".properties' for locale '" + Locale.getDefault().toString()
                + "'. Current classloader = " + classLoader, e);
       }

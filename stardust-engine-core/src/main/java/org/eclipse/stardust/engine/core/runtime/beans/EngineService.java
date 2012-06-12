@@ -60,7 +60,9 @@ public class EngineService
          }
          catch (ApplicationException e)
          {
-            throw new PublicException(e.getError(), e.getMessage(), true);
+            PublicException pe = new PublicException(e.getError(), e.getMessage(), null);
+            pe.setLogged(true);
+            throw pe;
          }
       }
    }

@@ -114,10 +114,23 @@ public class QualityAssuranceAdminServiceFacade
          Serializable value = preferencesValues.get(probabilityKey);
          if(value != null)
          {
-            if(value instanceof String
-                  && StringUtils.isEmpty((String) value))
+            if(value instanceof String)
             {
-               return probabilityValue;               
+               if(StringUtils.isEmpty((String) value))
+               {
+                  return probabilityValue;               
+               }
+               else
+               {
+                  try
+                  {
+                     return Integer.parseInt((String) value);
+                  }
+                  catch (NumberFormatException e)
+                  {
+                     return probabilityValue;                                    
+                  } 
+               }
             }
             
             probabilityValue = (Integer) value;            

@@ -98,6 +98,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    
    private boolean deploymentBeanCreated = false;
 
+   private EventBindingRecords eventBindingRecords;
+
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
       super(predecessor);
@@ -601,6 +603,13 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 	{
 		this.deploymentBeanCreated = deploymentBeanCreated;
 	}
-   
-      
+
+   public EventBindingRecords getEventBindingRecords()
+   {
+      if (eventBindingRecords == null)
+      {
+         eventBindingRecords = new EventBindingRecords();
+      }
+      return eventBindingRecords;
+   }
 }

@@ -17,8 +17,10 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
 import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
@@ -61,13 +63,17 @@ public class DefaultEventBinder implements EventBinder
    
    public void unbind(int objectType, long oid, IEventHandler handler)
    {
-      EventBindingBean binding = EventBindingBean.find(objectType, oid, handler,
-            SecurityProperties.getPartitionOid());
+      final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      short partitionOid = SecurityProperties.getPartitionOid();
+      EventBindingBean binding = EventBindingBean.find(objectType, oid, handler, partitionOid);
       if (binding != null)
       {
          binding.delete();
+         // marks the binding as successfully deleted
+         rtEnv.getEventBindingRecords().markDeleted(objectType, oid, handler, partitionOid);
       }
-      else
+      // only logs if the binding was not already deleted in this transaction
+      else if (!rtEnv.getEventBindingRecords().isDeleted(objectType, oid, handler, partitionOid))
       {
          trace.info("Cannot unbind handler with object oid " + oid + ", type '"
                + objectType + "' for handler with oid " + handler + ".");

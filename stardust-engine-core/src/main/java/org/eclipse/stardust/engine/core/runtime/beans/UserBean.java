@@ -663,6 +663,18 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    public Iterator<UserParticipantLink> getAllParticipantLinks()
    {
       fetchVector(LINK__PARTICIPANT_LINKS);
+      
+      for (Iterator<UserParticipantLink> i = participantLinks.scan(); i.hasNext();)
+      {
+         UserParticipantLink participantLink = i.next();
+         IModelParticipant participant = participantLink.getParticipant();
+         if(participant == null)
+         {
+            participantLinks.remove(participantLink);
+            trace.warn("ParticipantLink without Participant will be removed: " + participantLink.toString());
+         }
+      }
+         
       return participantLinks.scan();
    }
 

@@ -22,7 +22,6 @@ import org.eclipse.stardust.common.FilteringIterator;
 import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.reflect.MethodDescriptor;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.AccessPointOwner;
 import org.eclipse.stardust.engine.api.model.IModel;
@@ -116,25 +115,14 @@ public class AccessPointJanitor
       });
    }
 
-   public AccessPoint findAccessPoint(String accesspointId, Direction direction)
+   public AccessPoint findAccessPoint(String id, Direction direction)
    {
-      final String simpleId;
-      MethodDescriptor descriptor = Reflect.describeEncodedMethod(accesspointId);
-      if(descriptor != null)
-      {
-         simpleId = descriptor.toString();
-      }
-      else
-      {
-         simpleId = accesspointId;
-      }
-
       recalculateAccessPoints();
 
       for (int i=0; i<persistentPoints.size(); i++)
       {
          AccessPoint point = (AccessPoint) persistentPoints.get(i);
-         if (point.getId().equals(simpleId) 
+         if (point.getId().equals(id) 
                && (direction == null || 
                      point.getDirection().equals(Direction.IN_OUT) || 
                      point.getDirection().equals(direction)))
@@ -147,7 +135,7 @@ public class AccessPointJanitor
       for (int i = 0; i < transientAps.size(); ++i)
       {
          AccessPoint point = (AccessPoint) transientAps.get(i);         
-         if (point.getId().equals(simpleId)
+         if (point.getId().equals(id)
                && (direction == null || 
                    point.getDirection().equals(Direction.IN_OUT) || 
                    point.getDirection().equals(direction)))

@@ -17,9 +17,20 @@ import java.util.List;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.common.reflect.MethodDescriptor;
+import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.model.IAccessPoint;
+import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IApplicationContext;
+import org.eclipse.stardust.engine.api.model.IApplicationType;
+import org.eclipse.stardust.engine.api.model.IDataType;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.PluggableType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
+import org.eclipse.stardust.engine.core.pojo.app.PlainJavaApplicationInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationContextValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
@@ -170,6 +181,19 @@ public class ApplicationBean extends IdentifiableElementBean
 
    public AccessPoint findAccessPoint(String id, Direction direction)
    {
+      //strip down the full(generic) method name to a simple one, so later checks will find
+      //the access point
+      Object applicationInstanceClassName 
+         = applicationType.getAttribute(PredefinedConstants.APPLICATION_INSTANCE_CLASS_ATT); 
+      if(PlainJavaApplicationInstance.class.getName().equals(applicationInstanceClassName))
+      {
+         MethodDescriptor md = Reflect.describeEncodedMethod(id);
+         if(md != null)
+         {
+            id = md.toString();
+         }
+      }
+       
       return getAccessPointLink().findAccessPoint(id, direction);
    }
 

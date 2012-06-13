@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@ import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
@@ -139,7 +138,7 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
    public Object execute(boolean forceSynchronous)
    {
       boolean performed = false;
-      IProcessInstance pi = ProcessInstanceBean.findByOID(processInstanceOID);
+      ProcessInstanceBean pi = ProcessInstanceBean.findByOID(processInstanceOID);
 
       if (!pi.isTerminated() && !pi.isAborting())
       {
@@ -156,6 +155,18 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
 
                if (!pi.isTerminated() && !pi.isAborting())
                {
+                  // (fh) restore original state
+                  if (!state.equals(pi.getState()))
+                  {
+                     if (trace.isDebugEnabled())
+                     {
+                        trace.debug("Restoring state for Process Instance = "
+                              + processInstanceOID + ": " + state + "<--"
+                              + pi.getState());
+                     }
+                     pi.restoreState(state);
+                  }
+                  
                   if (!forceSynchronous && synchronous
                         && Parameters.instance().getBoolean(
                               KernelTweakingProperties.ASYNC_PROCESS_COMPLETION, false))
@@ -166,26 +177,6 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
                   }
                   else
                   {
-                     if (!state.equals(pi.getState()))
-                     {
-                        if (trace.isDebugEnabled())
-                        {
-                           trace.debug("Restoring state for Process Instance = "
-                                 + processInstanceOID + ": " + state + "<--"
-                                 + pi.getState());
-                        }
-                        try
-                        {
-                           Reflect.getField(ProcessInstanceBean.class, ProcessInstanceBean.FIELD__STATE)
-                                 .setInt(pi, state.getValue());
-                        }
-                        catch (Exception e)
-                        {
-                           // should never happen
-                           throw new InternalException(e);
-                        }
-                     }
-
                      if (count <= 0)
                      {
                         int timeout = Parameters.instance().getInteger(

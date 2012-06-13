@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -341,11 +341,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       processInstance.setState(ProcessInstanceState.ACTIVE);
-      if (Parameters.instance().getBoolean(
-            KernelTweakingProperties.ASYNC_PROCESS_COMPLETION, false))
-      {
-         processInstance.markModified(FIELD__STATE);
-      }
 
       processInstance.doBindAutomaticlyBoundEvents();
 
@@ -459,6 +454,17 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
          this.state = state;
       }
+   }
+   
+   /**
+    * This method is intended to restore the state after a reloadAttribute(FIELD__STATE).
+    * Most not be used in any other way and not be made public.
+    * 
+    * @param state the original state.
+    */
+   void restoreState(ProcessInstanceState state)
+   {
+      this.state = state.getValue();
    }
 
    public void bind(IEventHandler handler, EventHandlerBinding aspect)

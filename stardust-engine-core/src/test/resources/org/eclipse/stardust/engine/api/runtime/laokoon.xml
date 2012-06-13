@@ -1,14 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1"?><!--
-    Copyright (c) 2011 SunGard CSA LLC and others.
-    All rights reserved. This program and the accompanying materials
-    are made available under the terms of the Eclipse Public License v1.0
-    which accompanies this distribution, and is available at
-    http://www.eclipse.org/legal/epl-v10.html
-   
-    Contributors:
-       SunGard CSA LLC - initial API and implementation and/or initial documentation
- -->
-
+<?xml version="1.0" encoding="ISO-8859-1"?><!--    Copyright (c) 2011, 2012 SunGard CSA LLC and others.    All rights reserved. This program and the accompanying materials    are made available under the terms of the Eclipse Public License v1.0    which accompanies this distribution, and is available at    http://www.eclipse.org/legal/epl-v10.html       Contributors:       SunGard CSA LLC - initial API and implementation and/or initial documentation -->
 <!DOCTYPE MODEL SYSTEM "WorkflowModel.dtd">
 <MODEL author="ubirkemeyer" carnot_xml_version="@major@.@minor@.@micro@" created="Tue Mar 25 12:50:33 CET 2003" id="laokoon" is_root="true" model_version="1.0" name="laokoon" oid="55834574848" status="open" valid_from_time_stamp="1048065813114" vendor="CARNOT AG, CARNOT @major@.@minor@.@micro@">
 <DATA id="LAST_ACTIVITY_PERFORMER" name="Last Activity Performer" oid="55834584849" type="ag.carnot.workflow.EntityBeanDataType">

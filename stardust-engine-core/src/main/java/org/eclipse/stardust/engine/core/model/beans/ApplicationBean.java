@@ -182,10 +182,10 @@ public class ApplicationBean extends IdentifiableElementBean
    public AccessPoint findAccessPoint(String id, Direction direction)
    {
       //strip down the full(generic) method name to a simple one, so later checks will find
-      //the access point
-      Object applicationInstanceClassName 
-         = applicationType.getAttribute(PredefinedConstants.APPLICATION_INSTANCE_CLASS_ATT); 
-      if(PlainJavaApplicationInstance.class.getName().equals(applicationInstanceClassName))
+      //the access point      
+      String applicationTypeId = applicationType.getId();
+      if(PredefinedConstants.PLAINJAVA_APPLICATION.equals(applicationTypeId)
+            || PredefinedConstants.SPRINGBEAN_APPLICATION.equals(applicationTypeId))
       {
          MethodDescriptor md = Reflect.describeEncodedMethod(id);
          if(md != null)

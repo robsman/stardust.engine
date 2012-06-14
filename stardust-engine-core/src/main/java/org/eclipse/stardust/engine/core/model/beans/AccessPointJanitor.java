@@ -22,12 +22,15 @@ import org.eclipse.stardust.common.FilteringIterator;
 import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.reflect.MethodDescriptor;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.AccessPointOwner;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.Typeable;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
+import org.eclipse.stardust.engine.core.pojo.utils.JavaAccessPointType;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPointProvider;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ModelAware;
@@ -119,31 +122,14 @@ public class AccessPointJanitor
    {
       recalculateAccessPoints();
 
-      for (int i=0; i<persistentPoints.size(); i++)
+      AccessPoint ap = findAccessPoint(id, direction, persistentPoints);
+      if(ap == null)
       {
-         AccessPoint point = (AccessPoint) persistentPoints.get(i);
-         if (point.getId().equals(id) 
-               && (direction == null || 
-                     point.getDirection().equals(Direction.IN_OUT) || 
-                     point.getDirection().equals(direction)))
-         {
-            return point;
-         }
+         final List transientAps = (List) transientPoints.get();
+         ap = findAccessPoint(id, direction, transientAps);
       }
-        
-      final List transientAps = (List) transientPoints.get();
-      for (int i = 0; i < transientAps.size(); ++i)
-      {
-         AccessPoint point = (AccessPoint) transientAps.get(i);         
-         if (point.getId().equals(id)
-               && (direction == null || 
-                   point.getDirection().equals(Direction.IN_OUT) || 
-                   point.getDirection().equals(direction)))
-         {
-            return point;
-         }
-      }
-      return null;
+      
+      return ap;
    }
 
    public Iterator getAllOutAccessPoints()
@@ -186,5 +172,54 @@ public class AccessPointJanitor
    public void setDirty()
    {
       transientPoints.set(null);
+   }
+   
+   private AccessPoint findAccessPoint(String id, Direction direction, Iterable accessPoints)
+   {
+      Iterator i = accessPoints.iterator(); 
+      while(i.hasNext())
+      {
+         String tmpId = id;
+         AccessPoint point = (AccessPoint) i.next();
+           
+         //if the access point is an access point for a method,
+         //expect a non generic method name
+         if(isMethodAccessPoint(point))
+         {
+            tmpId = getSimpleMethodName(tmpId);
+         }
+         
+         if (point.getId().equals(tmpId)
+               && (direction == null || 
+                   point.getDirection().equals(Direction.IN_OUT) || 
+                   point.getDirection().equals(direction)))
+         {
+            return point;
+         }
+      }
+      
+      return null;
+   }
+   
+   private boolean isMethodAccessPoint(AccessPoint point)
+   {
+      Object characteristics = point.getAttribute(PredefinedConstants.FLAVOR_ATT);
+      if(JavaAccessPointType.METHOD.equals(characteristics))
+      {
+         return true;
+      }
+      
+      return false;
+   }
+   
+   private String getSimpleMethodName(String methodName)
+   {
+      MethodDescriptor md = Reflect.describeEncodedMethod(methodName);
+      if(md != null)
+      {
+         return md.toString();
+      }
+      
+      return methodName;
    }
 }

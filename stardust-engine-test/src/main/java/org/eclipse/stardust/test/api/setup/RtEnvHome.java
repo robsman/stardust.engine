@@ -13,11 +13,7 @@ package org.eclipse.stardust.test.api.setup;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +48,8 @@ import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 public class RtEnvHome
 {
    private static final Log LOG = LogFactory.getLog(RtEnvHome.class);
+   
+   private static final String MODEL_FILE_ENCODING = XpdlUtils.UTF8_ENCODING;
    
    private static final String MODEL_FOLDER = "models";
    
@@ -207,23 +205,29 @@ public class RtEnvHome
    private static DeploymentElement createNewDeploymentElement(final String modelName) throws IOException
    {
       final String fqModelName = MODEL_FOLDER + "/" + modelName + "." + XpdlUtils.EXT_XPDL;
+
       final InputStream is = RtEnvHome.class.getClassLoader().getResourceAsStream(fqModelName);
-      final Reader reader = new InputStreamReader(is);
-      final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-      int character;
+      final Reader reader = new InputStreamReader(is, MODEL_FILE_ENCODING);
       
+      final ByteArrayOutputStream os = new ByteArrayOutputStream();
+      final OutputStreamWriter writer = new OutputStreamWriter(os, MODEL_FILE_ENCODING);
+      
+      int character;
       final byte[] model;
       try
       {
          while ((character = reader.read()) != -1)
          {
-            outStream.write(character);
+            writer.write(character);
          }
-         model = outStream.toByteArray();
+         
+         writer.flush();
+         model = os.toByteArray();
       }
       finally
       {
-         outStream.close();
+         reader.close();
+         writer.close();
       }
       
       final DeploymentElement result = new DeploymentElement(model);

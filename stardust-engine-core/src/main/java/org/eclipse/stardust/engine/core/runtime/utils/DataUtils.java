@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.runtime.utils;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import javax.xml.namespace.QName;
@@ -33,12 +32,12 @@ public class DataUtils
     * TransitionConditions, Triggers, EventHandler, EventActions, ConditionalPerformers, DepartmentRuntimeBinding.
     *
     * @param model
-    * @param processId
+    * @param unqualifiedProcessId
     * @return
     */
-   public static Set<String> getDataForProcess(String processId, IModel model)
+   public static Set<String> getDataForProcess(String unqualifiedProcessId, IModel model)
    {
-      IProcessDefinition pd = model.findProcessDefinition(getUnqualifiedProcessId(processId));
+      IProcessDefinition pd = model.findProcessDefinition(unqualifiedProcessId);
 
       if (pd != null)
       {
@@ -63,37 +62,34 @@ public class DataUtils
    private static Set<String> getDataUsedInProcess(IProcessDefinition pd, IModel model)
    {
       Set<String> dataIdsUsed = new HashSet<String>();
+      
+      // collect all data ids
       Set<String> allDataIds = new HashSet<String>();
-      Iterator allData = model.getAllData();
-      while (allData.hasNext())
+      for (IData iData : model.getData())
       {
-         IData iData = (IData) allData.next();
          allDataIds.add(iData.getId());
       }
 
       // FormalParameters
-      List<IFormalParameter> formalParameters = pd.getFormalParameters();
-      for (IFormalParameter iFormalParameter : formalParameters)
+      for (IFormalParameter iFormalParameter : pd.getFormalParameters())
       {
          dataIdsUsed.add(iFormalParameter.getData().getId());
       }
 
       // DataPaths
-      ModelElementList<IDataPath> dataPaths = pd.getDataPaths();
-      for (IDataPath iDataPath : dataPaths)
+      for (IDataPath iDataPath : pd.getDataPaths())
       {
          dataIdsUsed.add(iDataPath.getData().getId());
       }
 
-      ModelElementList<IActivity> activities = pd.getActivities();
-      for (IActivity iActivity : activities)
+      for (IActivity iActivity : pd.getActivities())
       {
          // DataMappings
-         ModelElementList<IDataMapping> dataMappings = iActivity.getDataMappings();
-         for (IDataMapping iDataMapping : dataMappings)
+         for (IDataMapping iDataMapping : iActivity.getDataMappings())
          {
             dataIdsUsed.add(iDataMapping.getData().getId());
          }
+
          // Event Actions
          ModelElementList<IEventHandler> eventHandlers = iActivity.getEventHandlers();
          for (IEventHandler iEventHandler : eventHandlers)
@@ -102,7 +98,7 @@ public class DataUtils
             if (Boolean.TRUE.equals(timerDataUsed))
             {
                String timerDataId = (String) iEventHandler.getAttribute(PredefinedConstants.TIMER_CONDITION_DATA_ATT);
-               if ( !StringUtils.isEmpty(timerDataId))
+               if (!StringUtils.isEmpty(timerDataId))
                {
                   dataIdsUsed.add(timerDataId);
                }
@@ -114,6 +110,7 @@ public class DataUtils
                IAction iEventAction = (IAction) allEventActions.next();
                addUsedDataId(iEventAction, dataIdsUsed);
             }
+            
             Iterator<IEventAction> allBindActions = iEventHandler.getAllBindActions();
             while (allBindActions.hasNext())
             {
@@ -121,6 +118,7 @@ public class DataUtils
                addUsedDataId(iBindEventAction, dataIdsUsed);
 
             }
+            
             Iterator<IEventAction> allUnbindActions = iEventHandler.getAllUnbindActions();
             while (allUnbindActions.hasNext())
             {
@@ -131,12 +129,14 @@ public class DataUtils
       }
 
       // Transitions
-      ModelElementList<ITransition> transitions = pd.getTransitions();
-      for (ITransition iTransition : transitions)
+      for (ITransition iTransition : pd.getTransitions())
       {
          for (String dataId : allDataIds)
          {
             String condition = iTransition.getCondition();
+            // (fh) this is incorrect, for example
+            // if dataId is "e" and condition is "true" it does not mean
+            // that the data "e" is used by this transition condition.
             if (condition != null && condition.contains(dataId))
             {
                dataIdsUsed.add(dataId);
@@ -145,8 +145,7 @@ public class DataUtils
       }
 
       // Triggers
-      ModelElementList<ITrigger> triggers = pd.getTriggers();
-      for (ITrigger iTrigger : triggers)
+      for (ITrigger iTrigger : pd.getTriggers())
       {
          if (PredefinedConstants.SCAN_TRIGGER.equals(iTrigger.getType().getId()))
          {
@@ -160,6 +159,7 @@ public class DataUtils
                }
             }
          }
+         
          ModelElementList<IParameterMapping> allParameterMappings = iTrigger.getParameterMappings();
          for (IParameterMapping parameterMapping : allParameterMappings)
          {

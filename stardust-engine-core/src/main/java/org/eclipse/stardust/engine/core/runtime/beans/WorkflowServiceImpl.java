@@ -2284,7 +2284,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          if (state == ActivityInstanceState.Hibernated
                || state == ActivityInstanceState.Interrupted)
          {
-            activityInstance.activate(false);
+            activityInstance.activate();
             if (state == ActivityInstanceState.Interrupted)
             {
                ProcessInstanceBean processInstance = (ProcessInstanceBean)

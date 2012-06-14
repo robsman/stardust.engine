@@ -998,147 +998,159 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else
       {
-         ImplementationType type = activity.getImplementationType();
+         invoke(activity);
+      }
+   }
 
-         if (type == ImplementationType.Application)
+   private void invoke(IActivity activity)
+   {
+      ImplementationType type = activity.getImplementationType();
+
+      if (type == ImplementationType.Application)
+      {
+         invokeApplication(activity);
+      }
+      else if (type == ImplementationType.SubProcess)
+      {
+         invokeSubprocess(activity);
+      }
+      else if (type == ImplementationType.Route)
+      {
+         invokeRoute(activity);
+      }
+   }
+
+   private void invokeRoute(IActivity activity)
+   {
+      setState(ActivityInstanceState.APPLICATION);
+      try
+      {
+         try
          {
-            invokeApplication(activity);
-            return;
-         }
-         else if (type == ImplementationType.SubProcess)
-         {
-            final SubProcessModeKey subProcessMode = activity.getSubProcessMode();
-            final boolean synchronous = !SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode);
-            BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-            ExecutionPlan plan = rtEnv.getExecutionPlan();
-            if (plan != null && !synchronous)
-            {
-               throw new IllegalOperationException(BpmRuntimeError.BPMRT_ADHOC_ASYNC_START_ACTIVITY_THREAD.raise());
-            }
-            
-            setState(ActivityInstanceState.SUSPENDED);
-
-            final boolean copyAllData = ActivityBean.getCopyAllDataAttribute(activity);
-            final boolean separateData = SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode)
-                  || SubProcessModeKey.SYNC_SEPARATE.equals(subProcessMode);
-
-            IProcessInstance subProcess;
+            Map apValues;
             try
             {
-               if (synchronous)
+               apValues = processRouteInDataMappings(activity);
+            }
+            catch (PublicException e)
+            {
+               throw new InvocationTargetException(e, "Failed processing IN data mappings.");
+            }
+
+            try
+            {
+               processRouteOutDataMappings(activity, apValues);
+            }
+            catch (PublicException e)
+            {
+               throw new InvocationTargetException(e, "Failed processing OUT data mappings.");
+            }
+         }
+         catch (InvocationTargetException e)
+         {
+            processException(e.getTargetException());
+         }
+      }
+      catch (Throwable e)
+      {
+         LogUtils.traceException(e, false);
+         AuditTrailLogger.getInstance(LogCode.ENGINE, this).warn(e);
+
+         throw new NonInteractiveApplicationException(
+               "Exception occured for route activity " + getOID()
+               + ". Message was: " + e.getMessage(), e);
+      }
+   }
+
+   private void invokeSubprocess(IActivity activity)
+   {
+      final SubProcessModeKey subProcessMode = activity.getSubProcessMode();
+      final boolean synchronous = !SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode);
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      ExecutionPlan plan = rtEnv.getExecutionPlan();
+      if (plan != null && !synchronous)
+      {
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_ADHOC_ASYNC_START_ACTIVITY_THREAD.raise());
+      }
+      
+      setState(ActivityInstanceState.SUSPENDED);
+
+      final boolean copyAllData = ActivityBean.getCopyAllDataAttribute(activity);
+      final boolean separateData = SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode)
+            || SubProcessModeKey.SYNC_SEPARATE.equals(subProcessMode);
+
+      IProcessInstance subProcess;
+      try
+      {
+         if (synchronous)
+         {
+            subProcess = doWithRetry(10, 500, new Callable<IProcessInstance>()
+            {
+               public IProcessInstance call() throws Exception
                {
-                  subProcess = doWithRetry(10, 500, new Callable<IProcessInstance>()
-                  {
-                     public IProcessInstance call() throws Exception
-                     {
-                        return ProcessInstanceBean.createInstance(
-                              getActivity().getImplementationProcessDefinition(),
-                              ActivityInstanceBean.this, SecurityProperties.getUser(),
-                              Collections.EMPTY_MAP);
-                     }
-                  });
-               }
-               else
-               {
-                  subProcess = ProcessInstanceBean.createInstance(
+                  return ProcessInstanceBean.createInstance(
                         getActivity().getImplementationProcessDefinition(),
-                        SecurityProperties.getUser(), Collections.EMPTY_MAP);
+                        ActivityInstanceBean.this, SecurityProperties.getUser(),
+                        Collections.EMPTY_MAP);
                }
+            });
+         }
+         else
+         {
+            subProcess = ProcessInstanceBean.createInstance(
+                  getActivity().getImplementationProcessDefinition(),
+                  SecurityProperties.getUser(), Collections.EMPTY_MAP);
+         }
 
-               if (separateData && copyAllData)
+         if (separateData && copyAllData)
+         {
+            for (Iterator iterator = getProcessInstance().getAllDataValues();
+                     iterator.hasNext();)
+            {
+               IDataValue srcValue = (IDataValue) iterator.next();
+
+               if (trace.isDebugEnabled())
                {
-                  for (Iterator iterator = getProcessInstance().getAllDataValues();
-                           iterator.hasNext();)
-                  {
-                     IDataValue srcValue = (IDataValue) iterator.next();
-
-                     if (trace.isDebugEnabled())
-                     {
-                           trace.debug("Data value '" + srcValue.getData().getId() + "' retrieved.");
-                     }
+                     trace.debug("Data value '" + srcValue.getData().getId() + "' retrieved.");
+               }
 
 //                        DataValueBean.copyDataValue(subProcess, srcValue);
-                     
-                     if (srcValue.getData().getModel().getOID() == subProcess.getProcessDefinition().getModel().getOID())
-                     {
-                        subProcess.setOutDataValue(srcValue.getData(), "", srcValue.getSerializedValue());
-                     }
-                  }
-               }
-               processSubProcessInDataMappings(activity, subProcess);
-            }
-            catch (RuntimeException e)
-            {
-               // probably no process created, enable recovery
-               setState(ActivityInstanceState.INTERRUPTED);
-               throw e;
-            }
-
-            if (plan != null && plan.hasNextActivity())
-            {
-               if (plan.nextStep())
+               
+               if (srcValue.getData().getModel().getOID() == subProcess.getProcessDefinition().getModel().getOID())
                {
-                  ActivityThread.schedule(subProcess, plan.getCurrentStep(), null, true, null, Collections.EMPTY_MAP, false);
-               }
-               else
-               {
-                  ActivityThread.schedule(subProcess, plan.getTargetActivity(), null, true, null, Collections.EMPTY_MAP, false);
+                  subProcess.setOutDataValue(srcValue.getData(), "", srcValue.getSerializedValue());
                }
             }
-            else
-            {
-               ActivityThread.schedule(subProcess,
-                  subProcess.getProcessDefinition().getRootActivity(),
-                  null, synchronous, null, Collections.EMPTY_MAP, synchronous);
-            }
-            if (!synchronous || subProcess.isCompleted())
-            {
-               setState(ActivityInstanceState.APPLICATION);
-            }
-            return;
          }
-         else if (type == ImplementationType.Route)
+         processSubProcessInDataMappings(activity, subProcess);
+      }
+      catch (RuntimeException e)
+      {
+         // probably no process created, enable recovery
+         setState(ActivityInstanceState.INTERRUPTED);
+         throw e;
+      }
+
+      if (plan != null && plan.hasNextActivity())
+      {
+         if (plan.nextStep())
          {
-            setState(ActivityInstanceState.APPLICATION);
-            try
-            {
-               try
-               {
-                  Map apValues;
-                  try
-                  {
-                     apValues = processRouteInDataMappings(activity);
-                  }
-                  catch (PublicException e)
-                  {
-                     throw new InvocationTargetException(e, "Failed processing IN data mappings.");
-                  }
-
-                  try
-                  {
-                     processRouteOutDataMappings(activity, apValues);
-                  }
-                  catch (PublicException e)
-                  {
-                     throw new InvocationTargetException(e, "Failed processing OUT data mappings.");
-                  }
-               }
-               catch (InvocationTargetException e)
-               {
-                  processException(e.getTargetException());
-               }
-            }
-            catch (Throwable e)
-            {
-               LogUtils.traceException(e, false);
-               AuditTrailLogger.getInstance(LogCode.ENGINE, this).warn(e);
-
-               throw new NonInteractiveApplicationException(
-                     "Exception occured for route activity " + getOID()
-                     + ". Message was: " + e.getMessage(), e);
-            }
-            return;
+            ActivityThread.schedule(subProcess, plan.getCurrentStep(), null, true, null, Collections.EMPTY_MAP, false);
          }
+         else
+         {
+            ActivityThread.schedule(subProcess, plan.getTargetActivity(), null, true, null, Collections.EMPTY_MAP, false);
+         }
+      }
+      else
+      {
+         ActivityThread.schedule(subProcess,
+            subProcess.getProcessDefinition().getRootActivity(),
+            null, synchronous, null, Collections.EMPTY_MAP, synchronous);
+      }
+      if (!synchronous || subProcess.isCompleted())
+      {
+         setState(ActivityInstanceState.APPLICATION);
       }
    }
 
@@ -1814,21 +1826,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void activate() throws IllegalStateChangeException, IllegalOperationException
    {
-      activate(true);
-   }
-
-   public void activate(boolean executeNonInteractive) throws IllegalStateChangeException, IllegalOperationException
-   {
       QualityAssuranceUtils.assertActivationIsAllowed(this);
       IActivity activity = getActivity();
       if (activity.isHibernateOnCreation() && getState().equals(ActivityInstanceState.Hibernated))
       {
-         setState(ActivityInstanceState.APPLICATION);
-         if (executeNonInteractive
-               && activity.getImplementationType() == ImplementationType.Application)
-         {
-            invokeApplication(activity);
-         }
+         invoke(activity);
       }
       else
       {

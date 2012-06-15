@@ -85,6 +85,6 @@ public class SpringAppContext
    
    public ConfigurableApplicationContext appCtx()
    {
-      return ((ConfigurableApplicationContext) SpringUtils.getApplicationContext());
+      return (ConfigurableApplicationContext) SpringUtils.getApplicationContext();
    }
 }

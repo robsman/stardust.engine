@@ -70,8 +70,7 @@ public class PublicException extends ApplicationException
    /**
     * Constructs the Exception
     * @param errorCase - the {@link ErrorCase} for this message
-    * @param message - the error message for this exception, will be ignored if
-    *                  the <b>errorCase</b> argument is not null
+    * @param message - the error message for this exception 
     * @param e  - the root cause for this exception
     */
    public PublicException(ErrorCase errorCase, String message, Throwable e)

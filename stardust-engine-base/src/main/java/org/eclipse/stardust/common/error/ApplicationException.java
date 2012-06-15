@@ -55,8 +55,7 @@ public abstract class ApplicationException extends RuntimeException
 
    /**
     * Constructs the Exception
-    * @param message - the error message for this exception, will be ignored if
-    *                  the <b>error</b> argument is not null
+    * @param message - the error message for this exception
     * @param error - the {@link ErrorCase} for this message
     */
    public ApplicationException(ErrorCase error, String message)
@@ -88,8 +87,7 @@ public abstract class ApplicationException extends RuntimeException
    /**
     * Constructs the Exception
     * @param error - the {@link ErrorCase} for this message
-    * @param message - the error message for this exception, will be ignored if
-    *                  the <b>error</b> argument is not null
+    * @param message - the error message for this exception,
     * @param e  - the root cause for this exception
     */
    public ApplicationException(ErrorCase error, String message, Throwable e)

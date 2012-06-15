@@ -94,8 +94,8 @@ public abstract class ApplicationException extends RuntimeException
     */
    public ApplicationException(ErrorCase error, String message, Throwable e)
    {
-      super(message + ": " + describeInner(e), e);
-      
+      super(e == null ? message : message + ": " + describeInner(e), e);
+            
       this.error = error;
       
       if (null != e)

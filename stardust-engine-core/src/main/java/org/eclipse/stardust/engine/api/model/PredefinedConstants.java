@@ -65,6 +65,7 @@ public final class PredefinedConstants
    public static final String JSF_CONTEXT = "jsf";
    public static final String APPLICATION_CONTEXT = "application";
    public static final String PROCESSINTERFACE_CONTEXT = "processInterface";
+   public static final String EXTERNALWEBAPP_CONTEXT = "externalWebApp";
 
    // predefined action type Ids
    public static final String MAIL_ACTION = "mail";

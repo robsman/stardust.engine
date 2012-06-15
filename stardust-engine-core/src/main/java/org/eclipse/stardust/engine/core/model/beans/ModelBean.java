@@ -237,11 +237,11 @@ public class ModelBean extends RootElementBean
                {
                   isValid = false;
                }
-               else if(StringUtils.isValidIdentifier(code.getCode()))
+               else if(!StringUtils.isValidIdentifier(code.getCode()))
                {
                   isValid = false;
                }
-               else if(validateIsDuplicateQualityAssuranceCode(code, allCodes))
+               else if(isQaCodeDuplicated(code, allCodes))
                {
                   isValid = false;
                }
@@ -401,7 +401,7 @@ public class ModelBean extends RootElementBean
       }
    }
 
-   private boolean validateIsDuplicateQualityAssuranceCode(IQualityAssuranceCode validateCode, Map<String, IQualityAssuranceCode> allCodes)
+   private boolean isQaCodeDuplicated(IQualityAssuranceCode validateCode, Map<String, IQualityAssuranceCode> allCodes)
    {
       for(IQualityAssuranceCode code : allCodes.values())
       {
@@ -409,7 +409,7 @@ public class ModelBean extends RootElementBean
          {
             if(!StringUtils.isEmpty(code.getCode()) && code.getCode().equals(validateCode.getCode()))
             {
-               return false;
+               return true;
             }            
          }
          

@@ -12,6 +12,8 @@ package org.eclipse.stardust.test.api.setup;
 
 import java.util.Arrays;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -50,6 +52,8 @@ public class LocalJcrH2TestSetup extends ExternalResource
 {
    private static final Log LOG = LogFactory.getLog(LocalJcrH2TestSetup.class);
    
+   private static final String DATA_SOURCE_FACTORY_BEAN_ID = "xaAuditTrailConnectionFactory";
+   
    private static final H2Server DBMS = new H2Server();
    private static final SpringAppContext SPRING_APP_CTX = new SpringAppContext();
 
@@ -60,6 +64,8 @@ public class LocalJcrH2TestSetup extends ExternalResource
    private final ForkingServiceMode forkingServiceMode;
    
    private ServiceFactory sf;
+   
+   private DataSource ds;
    
    /**
     * <p>
@@ -169,8 +175,10 @@ public class LocalJcrH2TestSetup extends ExternalResource
    }
    
    /**
+    * <p>
     * Locks the test environment, i.e. the test environment can neither be
     * set up nor teared down.
+    * </p>
     */
    public static void lockTestEnv()
    {
@@ -178,12 +186,37 @@ public class LocalJcrH2TestSetup extends ExternalResource
    }
    
    /**
+    * <p>
     * Unlocks the test environment, i.e. the test environment can either be
     * set up or teared down.
+    * </p>
     */
    public static void unlockTestEnv()
    {
       locked = false;
+   }
+   
+   /**
+    * <p>
+    * Allows for retrieving the data source of the database backing this test setup
+    * in order to directly execute SQL statements.
+    * </p>
+    * 
+    * @return the data source of the database backing this test setup
+    */
+   public DataSource dataSource()
+   {
+      if (ds == null)
+      {
+         ds = SPRING_APP_CTX.appCtx().getBean(DATA_SOURCE_FACTORY_BEAN_ID, DataSource.class);
+         
+         if (ds == null)
+         {
+            throw new IllegalStateException("Data Source cannot be obtained from Spring Application Context.");
+         }
+      }
+      
+      return ds;
    }
    
    /**

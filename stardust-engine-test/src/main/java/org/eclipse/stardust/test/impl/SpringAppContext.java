@@ -31,6 +31,10 @@ import org.springframework.context.ConfigurableApplicationContext;
  * the same.
  * </p>
  * 
+ * <p>
+ * Furthermore, it allows for retrieving the same.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision: 55261 $
  */
@@ -53,7 +57,7 @@ public class SpringAppContext
          System.setProperty(FORKING_SERVICE_MODE_PROPERTY_KEY, forkingServiceModeValue);
          
          /* causes the Spring Application Context to be initialized */
-         ((ConfigurableApplicationContext) SpringUtils.getApplicationContext()).refresh();
+         appCtx().refresh();
          
          System.clearProperty(FORKING_SERVICE_MODE_PROPERTY_KEY);
       }
@@ -69,7 +73,7 @@ public class SpringAppContext
    {
       try
       {
-         ((ConfigurableApplicationContext) SpringUtils.getApplicationContext()).close();
+         appCtx().close();
       }
       catch (final Exception e)
       {
@@ -77,5 +81,10 @@ public class SpringAppContext
          LOG.error(errorMsg, e);
          throw new TestRtEnvException(errorMsg, e, TestRtEnvAction.APP_CTX_TEARDOWN);         
       }
+   }
+   
+   public ConfigurableApplicationContext appCtx()
+   {
+      return ((ConfigurableApplicationContext) SpringUtils.getApplicationContext());
    }
 }

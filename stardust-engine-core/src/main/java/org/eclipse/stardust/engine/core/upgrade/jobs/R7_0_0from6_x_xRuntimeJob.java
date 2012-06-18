@@ -45,11 +45,7 @@ import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
@@ -138,6 +134,11 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final Version VERSION = new Version(7, 0, 0);
 
+   private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";   
+   private static final String P_LCK_TABLE_NAME = "partition_lck";      
+   private static final String P_LCK_FIELD__OID = "oid";
+   
+   
    R7_0_0from6_x_xRuntimeJob()
    {
       super(new DBMSKey[] {
@@ -319,6 +320,36 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       catch (SQLException e)
       {
          reportExeption(e, "could not update data cluster setup");
+      }
+      
+      
+      // Lock table will only be created if any other lock table already exists, e.g. the one for AIBean
+      if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))      
+      {
+         DatabaseHelper.createTable(item, new CreateTableInfo(P_LCK_TABLE_NAME)
+         {
+            private static final String INDEX_NAME = "partition_lck_idx";
+   
+            private final FieldInfo OID = new FieldInfo(P_LCK_FIELD__OID, Long.TYPE, 0, true);
+            
+            private final IndexInfo IDX = new IndexInfo(INDEX_NAME, true,
+                  new FieldInfo[] { OID });
+   
+            public FieldInfo[] getFields()
+            {
+               return new FieldInfo[] { OID };
+            }
+   
+            public IndexInfo[] getIndexes()
+            {
+               return new IndexInfo[] { IDX };
+            }
+   
+            public String getSequenceName()
+            {
+               return null;
+            }
+         }, this);
       }
    }
 
@@ -876,4 +907,20 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return result;
    }
 
+   private boolean containsTable(String tableName)
+   {
+      boolean result = false;
+      DDLManager ddlManager = new DDLManager(item.getDbDescriptor());
+      try 
+      {
+         result = ddlManager.containsTable(DatabaseHelper.getSchemaName(),
+               tableName, item.getConnection());
+      } 
+      catch (SQLException e) 
+      {
+         error("", e);
+      }
+      
+      return result;
+   }
 }

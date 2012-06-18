@@ -146,7 +146,10 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
          }
          // (fh) we make a copy of the map since the property formatter is modifying the original map.
          // this is required for pojo scenarios where the value is the actual client object.
-         value = CollectionUtils.copyMap((Map) value);
+         if (value != null)
+         {
+            value = CollectionUtils.copyMap((Map) value);
+         }
          DmsPropertyFormatter propertyFormatter = new DmsPropertyFormatter(DmsPropertyFormatter.AS_LIST, excludeXPath);
          propertyFormatter.visit((Map)value, "");
       }

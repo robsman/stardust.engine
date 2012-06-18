@@ -347,12 +347,6 @@ public class SpawnProcessTest
             spawnAi);
    }
 
-   /**
-    * <p>
-    * TODO remove <code>@Ignore</code> after CRNT-20987 has been resolved
-    * </p>
-    */
-   @Ignore("CRNT-20987")
    @Test
    public void testShowDocumentData()
    {
@@ -723,8 +717,7 @@ public class SpawnProcessTest
          docInfo.setName("spawnTest.txt");
          docInfo.setContentType("text/plain");
          Map<String, String> map = newHashMap();
-         map.put("comments", "initial version");
-         map.put("description", "initial descr");
+         map.put("myString", "myMetaDataString");
          docInfo.setProperties(map);
          document = dms.createDocument(s, docInfo);
       }

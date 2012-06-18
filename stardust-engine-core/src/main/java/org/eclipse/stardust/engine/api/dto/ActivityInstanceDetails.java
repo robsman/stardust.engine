@@ -70,6 +70,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
@@ -589,12 +590,15 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                && activityInstance.isTerminated())
          {
             UserDetails performedByDetails = null;
-            final IUser performedBy = activityInstance.getPerformedBy();
-            if (null != performedBy)
+            IUser performedBy = activityInstance.getPerformedBy();
+            if (null == performedBy)
             {
-               performedByDetails = (UserDetails) DetailsFactory.create(performedBy,
-                     IUser.class, UserDetails.class);
+               performedBy = SecurityProperties.getUser();
             }
+            
+            performedByDetails = (UserDetails) DetailsFactory.create(performedBy,
+                  IUser.class, UserDetails.class);
+            
             historicalEvents.add(new HistoricalEventDetails( //
                   HistoricalEventType.StateChange, //
                   activityInstance.getLastModificationTime(), //

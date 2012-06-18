@@ -58,6 +58,8 @@ public class AuditTrailPartitionBean extends PersistentBean implements
 
    public static final String TABLE_NAME = "partition";
    public static final String DEFAULT_ALIAS = "prt";
+   public static final String LOCK_TABLE_NAME = "partition_lck";
+   public static final String LOCK_INDEX_NAME = "partition_lck_idx";   
    public static final String PK_FIELD = FIELD__OID;
    protected static final String PK_SEQUENCE = "partition_seq";
    public static final String[] partition_idx1_UNIQUE_INDEX = new String[] {FIELD__OID};

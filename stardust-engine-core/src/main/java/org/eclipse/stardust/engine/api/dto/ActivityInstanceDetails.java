@@ -589,15 +589,22 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                && prevHistState.getState() != state
                && activityInstance.isTerminated())
          {
+            
+            boolean isInteractive 
+               = activityInstance.getActivity().isInteractive();
+            
             UserDetails performedByDetails = null;
             IUser performedBy = activityInstance.getPerformedBy();
-            if (null == performedBy)
+            if (null == performedBy && isInteractive)
             {
                performedBy = SecurityProperties.getUser();
             }
             
-            performedByDetails = (UserDetails) DetailsFactory.create(performedBy,
-                  IUser.class, UserDetails.class);
+            if(performedBy != null)
+            {
+               performedByDetails = (UserDetails) DetailsFactory.create(performedBy,
+                     IUser.class, UserDetails.class);
+            }
             
             historicalEvents.add(new HistoricalEventDetails( //
                   HistoricalEventType.StateChange, //

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,6 @@ import java.util.List;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.CaseDescriptorRef;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
 import org.eclipse.stardust.engine.core.persistence.*;
@@ -32,7 +31,8 @@ import org.eclipse.stardust.engine.core.persistence.OrderCriterion;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
@@ -239,9 +239,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
 
          final long totalCount = countImplicitly
                ? result.getTotalCount()
-               : SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(type,
-                     queryExtension,
-                     fetchPredicate, QueryUtils.getTimeOut(query));
+               : getExplicitTotalCount(queryExtension, fetchPredicate, casePolicy != null);
 
          return new TotalCountDecorator(totalCount, result);
       }
@@ -255,6 +253,20 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
                queryExtension, subset.getSkippedEntries(),
                subset.getMaxSize(), fetchPredicate, countAll,
                QueryUtils.getTimeOut(query));
+      }
+   }
+
+   private long getExplicitTotalCount(QueryExtension queryExtension,
+         FetchPredicate fetchPredicate, boolean useCasePolicy)
+   {
+      if (useCasePolicy)
+      {
+         return Integer.MAX_VALUE;
+      }
+      else
+      {
+         return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(type,
+               queryExtension, fetchPredicate, QueryUtils.getTimeOut(query));
       }
    }
 

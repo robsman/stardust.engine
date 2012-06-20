@@ -71,7 +71,6 @@ import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
 
@@ -683,7 +682,7 @@ public class DmlManager
       }
    }
 
-   private StringBuffer buildValueExpression(FieldRef lhsField, Object value, List<Pair<Class<?>, ?>> bindValueList,
+   private StringBuffer buildValueExpression(Operator op, FieldRef lhsField, Object value, List<Pair<Class<?>, ?>> bindValueList,
          boolean useLiteralsWhereAppropriate)
    {
       StringBuffer buffer = new StringBuffer(DEFAULT_STMT_BUFFER_SIZE);
@@ -698,6 +697,21 @@ public class DmlManager
       else
       {
          boolean useBindValues = null != bindValueList;
+         
+         //performance optimization for mixed mode: if comparison value starts with '%' 
+         //then value will not be bound as prepared statement parameter but set as literal in SQL
+         if(useLiteralsWhereAppropriate)
+         {
+            if(op.equals(Operator.LIKE) && value instanceof String)
+            {
+               String stringValue = (String) value;
+               if(stringValue.startsWith("%"))
+               {  
+                  useBindValues = false;
+               }
+            }
+         }
+               
          if (value instanceof FieldRef)
          {
             sqlUtils.appendFieldRef(buffer, (FieldRef) value);
@@ -873,7 +887,7 @@ public class DmlManager
 
       if (op.isBinary())
       {
-         buffer.append(" ").append(buildValueExpression(lhsField, valueExpr, bindValues,
+         buffer.append(" ").append(buildValueExpression(op, lhsField, valueExpr, bindValues,
                useLiteralsWhereAppropriate));
       }
       else if (op.isTernary())
@@ -881,10 +895,10 @@ public class DmlManager
          String secondOp = ((Operator.Ternary) op).getSecondOperator();
          Pair pair = (Pair) valueExpr;
 
-         buffer.append(" ").append(buildValueExpression(lhsField, pair.getFirst(), bindValues,
+         buffer.append(" ").append(buildValueExpression(op, lhsField, pair.getFirst(), bindValues,
                useLiteralsWhereAppropriate));
          buffer.append(" ").append(secondOp);
-         buffer.append(" ").append(buildValueExpression(lhsField, pair.getSecond(), bindValues,
+         buffer.append(" ").append(buildValueExpression(op, lhsField, pair.getSecond(), bindValues,
                useLiteralsWhereAppropriate));
       }
 

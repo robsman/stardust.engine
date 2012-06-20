@@ -261,7 +261,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
    {
       if (useCasePolicy)
       {
-         return Integer.MAX_VALUE;
+         return Long.MAX_VALUE;
       }
       else
       {

@@ -256,13 +256,14 @@ public final class DocumentTypeUtils
          return true;
       }
 
-      ForkingDmsFacade dmsFacade = ForkingDmsFacadeFactory.getInstance();
-
       if ( !isEmpty(documentType.getDocumentTypeId()))
       {
          if ( !isEmpty(documentType.getSchemaLocation()))
          {
-            Document document = dmsFacade.getDocument(getXsdDocumentPath(documentType.getSchemaLocation()));
+            EmbeddedServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
+            Document document = sf.getDocumentManagementService().getDocument(getXsdDocumentPath(documentType.getSchemaLocation()));
+            sf.close();
+
             if (document != null)
             {
                return true;

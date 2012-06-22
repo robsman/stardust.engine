@@ -40,7 +40,7 @@ public interface ModelManager
     * Returns all appearances of the participant with the ID <tt>id</tt> in
     * all loaded model versions.
     */
-   Iterator getParticipantsForID(String id);
+   Iterator<IModelParticipant> getParticipantsForID(String id);
 
    /**
     * Retrieves model with most recent valid from timestamp deployed in the audit trail. You could use

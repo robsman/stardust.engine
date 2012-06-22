@@ -138,8 +138,7 @@ public abstract class SynchronizationService
       IUser user;
 
       if (SecurityProperties.isInternalAuthentication()
-            || Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL,
-                  false))
+            || Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
       {
          String realmId = LoginUtils.getUserRealmId(mergedProperties);
          UserRealmBean realm = UserRealmBean.findById(realmId,
@@ -339,7 +338,7 @@ public abstract class SynchronizationService
          final IModelParticipant scopedParticipant = DepartmentUtils.getFirstScopedOrganization(participant);
          if (scopedParticipant != null)
          {
-            final String scopedParticipantId = scopedParticipant.getId();
+            final String scopedParticipantId = scopedParticipant.getQualifiedId();
             final DynamicParticipantSynchronizationProvider provider = initializeProvider();
             if (  provider != null &&
                   provider.provideDepartmentConfiguration(scopedParticipantId, departmentKeys, properties) != null)
@@ -392,6 +391,7 @@ public abstract class SynchronizationService
       return user;
    }
 
+   @SuppressWarnings("deprecation")
    private boolean isAdmin(final ExternalUserConfiguration adminConf)
    {
       boolean isAdmin;
@@ -981,7 +981,7 @@ public abstract class SynchronizationService
          final GrantInfo grant,
          final IModelParticipant participant)
    {
-      final Pair<IDepartment, Boolean> departmentPair = synchronizeDepartment(grant.getParticipantId(), grant.getDepartmentKey());
+      final Pair<IDepartment, Boolean> departmentPair = synchronizeDepartment(participant.getQualifiedId(), grant.getDepartmentKey());
       final boolean isValid = departmentPair.getSecond() != null && departmentPair.getSecond();
 
       if (isValid)
@@ -1029,6 +1029,7 @@ public abstract class SynchronizationService
 
       if (CollectionUtils.isEmpty(grants))
       {
+         @SuppressWarnings("deprecation")
          final Collection<String> grantCollection = extUserConf.getGrantedModelParticipants();
          if (CollectionUtils.isNotEmpty(grantCollection))
          {
@@ -1042,6 +1043,7 @@ public abstract class SynchronizationService
       }
       else
       {
+         @SuppressWarnings("deprecation")
          final Collection<String> grantCollection = extUserConf.getGrantedModelParticipants();
          if (CollectionUtils.isNotEmpty(grantCollection))
          {
@@ -1320,7 +1322,9 @@ public abstract class SynchronizationService
    public static IModelParticipant findModelParticipantFor(final String participantId,
          final ModelManager modelManager)
    {
-      final IModelParticipant[] participantBucket = new IModelParticipant[1];
+      Iterator<IModelParticipant> participants = modelManager.getParticipantsForID(participantId);
+      return participants.hasNext() ? participants.next() : null;
+      /*final IModelParticipant[] participantBucket = new IModelParticipant[1];
       modelManager.findModel(new Predicate()
       {
          public boolean accept(Object o)
@@ -1331,7 +1335,7 @@ public abstract class SynchronizationService
          }
       });
 
-      return participantBucket[0];
+      return participantBucket[0];*/
    }
 
    private static void createDepartmentKeys(final IDepartment department,
@@ -1614,7 +1618,10 @@ public abstract class SynchronizationService
       {
          final AuditTrailPartitionBean partition = (AuditTrailPartitionBean)
             SecurityProperties.getPartition(false);
-         final OrganizationInfo orgInfo = new OrganizationInfoDetails(org.getId());
+         final ModelManager modelManager = ModelManagerFactory.getCurrent();
+         final OrganizationInfo orgInfo = new OrganizationInfoDetails(
+               modelManager.getRuntimeOid(org),
+               org.getQualifiedId(), null, true, true, null);
          final DepartmentBean department = new DepartmentBean(id, id, partition,
                (DepartmentBean) parentDepartment, null, orgInfo);
 

@@ -690,7 +690,7 @@ public class QueryServiceImpl implements QueryService, Serializable
          {
             if ( !StringUtils.isEmpty(organization.getQualifiedId()))
             {
-               Iterator participants = modelManager.getParticipantsForID(organization.getQualifiedId());
+               Iterator<IModelParticipant> participants = modelManager.getParticipantsForID(organization.getQualifiedId());
                if (participants.hasNext())
                {
                   participant = (IModelParticipant) participants.next();
@@ -765,7 +765,7 @@ public class QueryServiceImpl implements QueryService, Serializable
          else
          {
             org = (IOrganization) SynchronizationService.findModelParticipantFor(participantId, manager);
-      }
+         }
       }
 
       IDepartment department = null;
@@ -783,13 +783,13 @@ public class QueryServiceImpl implements QueryService, Serializable
          SynchronizationService.getDepartmentPairFor(id, participantId, parent);
          final Pair<IDepartment, Boolean> departmentPair =
             SynchronizationService.synchronizeDepartment(departmentIdsPair.getFirst(), departmentIdsPair.getSecond());
-      IDepartment foundDepartment = departmentPair.getFirst();
+         IDepartment foundDepartment = departmentPair.getFirst();
          if (foundDepartment != null && departmentPair.getSecond() != null
                && departmentPair.getSecond()
             && matchesParent(parent, foundDepartment.getParentDepartment()))
-      {
+         {
             department = foundDepartment;
-      }
+         }
       }
 
       if (department == null)

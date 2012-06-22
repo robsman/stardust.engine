@@ -67,7 +67,7 @@ public class ModelManagerBean implements ModelManager
     * Returns all appearances of the participants with the ID <tt>id</tt> in all loaded
     * model versions.
     */
-   public Iterator getParticipantsForID(final String id)
+   public Iterator<IModelParticipant> getParticipantsForID(final String id)
    {
       return getModelManagerPartition().getParticipantsForID(id);
    }
@@ -1600,7 +1600,7 @@ public class ModelManagerBean implements ModelManager
          return models.size();
       }
 
-      public Iterator getParticipantsForID(String id)
+      public Iterator<IModelParticipant> getParticipantsForID(String id)
       {
          QName qname = QName.valueOf(id);
          final String modelId = qname.getNamespaceURI();

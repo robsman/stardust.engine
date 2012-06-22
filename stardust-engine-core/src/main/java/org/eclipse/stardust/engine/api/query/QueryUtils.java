@@ -489,11 +489,11 @@ public class QueryUtils
          
          // get roles referred by participant 
          Set<IRole> allRoles = new HashSet();
-         Iterator participantIter = modelManager.getParticipantsForID(
+         Iterator<IModelParticipant> participantIter = modelManager.getParticipantsForID(
                participant.getQualifiedId());
          while (participantIter.hasNext())
          {
-            Object rawParticipant = participantIter.next();
+            IModelParticipant rawParticipant = participantIter.next();
             if (rawParticipant instanceof IRole)
             {
                allRoles.add((IRole) rawParticipant);
@@ -619,10 +619,10 @@ public class QueryUtils
    {
       QualifiedModelParticipantInfo qualifiedModelParticipant = (QualifiedModelParticipantInfo) participant;
       IDepartment department = DepartmentUtils.getDepartment(participant);
-      for (Iterator i = context.getModelManager().getParticipantsForID(
+      for (Iterator<IModelParticipant> i = context.getModelManager().getParticipantsForID(
             qualifiedModelParticipant.getQualifiedId()); i.hasNext();)
       {
-         IModelParticipant modelParticipant = (IModelParticipant) i.next();
+         IModelParticipant modelParticipant = i.next();
          
          if(isPredefinedParticipant(modelParticipant.getId()))
          {

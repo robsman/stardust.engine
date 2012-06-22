@@ -184,7 +184,7 @@
       <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="jencks-provider-runtime->default"/>
 
       <!-- jcr-vfs-provider-compile -->
-      <dependency org="com.sungard.infinity.bpm" name="jcr-vfs" rev="2.4.0-SNAPSHOT" conf="jcr-vfs-provider-compile->default">
+      <dependency org="com.sungard.infinity.bpm" name="jcr-vfs" rev="2.4.0" conf="jcr-vfs-provider-compile->default">
          <exclude org="commons-codec" module="commons-codec"/>
          <exclude org="aopalliance" module="aopalliance" />
       </dependency>

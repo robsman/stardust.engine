@@ -3684,9 +3684,16 @@ public class Archiver
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel model = modelManager.findModel(modelOid);
 
-      if (model != null && PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
+      if (model != null)
       {
-         return false;
+         if (modelManager.isActive(model))
+         {
+            return false;
+         }
+         else if (PredefinedConstants.PREDEFINED_MODEL_ID.equals(model.getId()))
+         {
+            return false;
+         }
       }
 
       for (Iterator<IModel> i = modelManager.getAllModels(); i.hasNext();)

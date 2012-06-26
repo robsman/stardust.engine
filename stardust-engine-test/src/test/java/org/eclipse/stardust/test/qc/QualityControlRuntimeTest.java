@@ -62,9 +62,9 @@ public class QualityControlRuntimeTest
    private static final String ORGANIZATION_ID= "SungardCorp";
    private static final String DUMMY_USER_ID = "Dummy";
    
-   private final String ERROR_CODE_FOR_FAIL = "100";
-   private final String ERROR_CODE_FOR_PASS_WITH_CORRECTION = "101";
-   private final String ERROR_CODE_FOR_PASS_WITHOUT_CORRECTION = "102";
+   private final String ERROR_CODE_FOR_FAIL = "_100";
+   private final String ERROR_CODE_FOR_PASS_WITH_CORRECTION = "_101";
+   private final String ERROR_CODE_FOR_PASS_WITHOUT_CORRECTION = "_102";
    
    private static final String QA_DATA_VALUE = "do_perform_qa";
    

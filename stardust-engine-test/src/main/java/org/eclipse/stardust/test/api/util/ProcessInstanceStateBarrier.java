@@ -76,15 +76,13 @@ public class ProcessInstanceStateBarrier
       {
          throw new UnsupportedOperationException("Waiting for process instance state '" + piState + "' is not supported.");
       }
-      if (condition != null)
-      {
-         throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
-      }
       
       if (isProcessInstanceStateConditionMet(piOid, piState))
       {
          return;
       }
+      
+      initCondition(piOid, piState);
       
       try
       {
@@ -111,8 +109,17 @@ public class ProcessInstanceStateBarrier
          return true;
       }
       
-      condition = new ProcessInstanceStateCondition(piOid, piState);      
       return false;
+   }
+   
+   private synchronized void initCondition(final long piOid, final ProcessInstanceState piState)
+   {
+      if (condition != null)
+      {
+         throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
+      }
+      
+      condition = new ProcessInstanceStateCondition(piOid, piState);
    }
    
    /**

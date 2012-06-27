@@ -75,15 +75,13 @@ public class ActivityInstanceStateBarrier
       {
          throw new NullPointerException("Activity instance state must not be null.");
       }
-      if (aiStateCondition != null)
-      {
-         throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
-      }
       
       if (isActivityInstanceStateConditionMet(aiOid, aiState))
       {
          return;
       }
+      
+      initAiStateCondition(aiOid, aiState);
       
       try
       {
@@ -113,15 +111,12 @@ public class ActivityInstanceStateBarrier
     */
    public void awaitAliveActivityInstance(final long piOid) throws IllegalStateException, TimeoutException, InterruptedException
    {
-      if (aiAliveCondition != null)
-      {
-         throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
-      }
-      
       if (isActivityInstanceAliveConditionMet(piOid))
       {
          return;
       }
+      
+      initAiAliveCondition(piOid);
       
       try
       {
@@ -148,10 +143,19 @@ public class ActivityInstanceStateBarrier
          return true;
       }
       
-      aiStateCondition = new ActivityInstanceStateCondition(aiOid, aiState);
       return false;
    }
 
+   private synchronized void initAiStateCondition(final long aiOid, final ActivityInstanceState aiState)
+   {
+      if (aiStateCondition != null)
+      {
+         throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
+      }
+      
+      aiStateCondition = new ActivityInstanceStateCondition(aiOid, aiState);
+   }
+   
    /**
     * needs to be synchronized since it reads the field {@link ActivityInstanceStateBarrier#aiStates},
     * which is accessed concurrently
@@ -166,10 +170,19 @@ public class ActivityInstanceStateBarrier
          }
       }
       
-      aiAliveCondition = new ActivityInstanceAliveCondition(piOid);
       return false;
    }
 
+   private synchronized void initAiAliveCondition(final long piOid)
+   {
+      if (aiAliveCondition != null)
+      {
+         throw new IllegalStateException("It's not allowed to wait for more than one condition at a time.");
+      }
+      
+      aiAliveCondition = new ActivityInstanceAliveCondition(piOid);
+   }
+   
    /**
     * needs to be synchronized since it modifies the field {@link ActivityInstanceStateBarrier#aiStates},
     * which is accessed concurrently

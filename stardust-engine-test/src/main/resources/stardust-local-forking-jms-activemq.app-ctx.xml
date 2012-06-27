@@ -110,10 +110,35 @@
       <property name="name" value="jms/CarnotApplicationQueue" />
       <property name="resource" ref="jmsApplicationQueue" />
    </bean>
+   <bean class="org.eclipse.stardust.engine.spring.integration.jms.JmsResourceBinding">
+      <property name="name" value="jms/CarnotAuditTrailQueue" />
+      <property name="resource" ref="jmsAuditTrailQueue" />
+   </bean>
    
    <!-- Queues -->
    <amq:queue id="jmsSystemQueue" physicalName="CarnotSystemQueue" />
    <amq:queue id="jmsDaemonQueue" physicalName="CarnotDaemonQueue?consumer.prefetchSize=0" />
    <amq:queue id="jmsApplicationQueue" physicalName="CarnotApplicationQueue" />
+   <amq:queue id="jmsAuditTrailQueue" physicalName="CarnotAuditTrailQueue" />
+   
+   <!-- Carnot Properties -->
+   <bean id="customCarnotProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+      <property name="properties">
+         <map>
+            <entry>
+               <key>
+                  <value>jms/CarnotXAConnectionFactory</value>
+               </key>
+               <ref bean="jmsConnectionFactory" />
+            </entry>
+            <entry>
+               <key>
+                  <value>jms/CarnotAuditTrailQueue</value>
+               </key>
+               <ref bean="jmsAuditTrailQueue" />
+            </entry>
+         </map>
+      </property>
+   </bean>
    
 </beans>

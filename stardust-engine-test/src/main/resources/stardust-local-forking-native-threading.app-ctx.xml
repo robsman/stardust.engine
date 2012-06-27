@@ -24,4 +24,7 @@
       <property name="useShutdownHook" value="true" />
    </bean>
    
+   <!-- Carnot Properties -->
+   <bean id="customCarnotProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean" />
+   
 </beans>

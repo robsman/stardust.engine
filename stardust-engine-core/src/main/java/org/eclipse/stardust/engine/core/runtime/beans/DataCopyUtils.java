@@ -14,7 +14,6 @@ import java.io.Serializable;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -23,13 +22,10 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.DataCopyOptions;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
-import org.eclipse.stardust.engine.api.runtime.ResourceInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.vfs.VfsUtils;
 
 public class DataCopyUtils
@@ -736,7 +732,7 @@ public class DataCopyUtils
       return false;
    }
 
-   public static Map<String, ? extends Serializable> copyData(IProcessInstance pi, IModel target, DataCopyOptions dco)
+   public static DataCopyResult copyData(IProcessInstance pi, IModel target, DataCopyOptions dco)
    {
       DataCopyResult dcr = new DataCopyResult(target);
       addExplicitValues(dcr, dco.getReplacementTable());
@@ -745,7 +741,7 @@ public class DataCopyUtils
       {
          addExistingValues(dcr, pi, translated);
       }
-      return dcr.result;
+      return dcr;
    }
 
    private static void addExplicitValues(DataCopyResult dcr, Map<String, ? extends Serializable> values)
@@ -809,221 +805,6 @@ public class DataCopyUtils
                dcr.addValue(data, dataId, (Serializable) value);
             }
          }
-      }
-   }
-
-   private static class DataCopyResult
-   {
-      private Map<String, Serializable> result = CollectionUtils.newMap();
-      
-      private final IModel target;
-
-      private DataCopyResult(IModel target)
-      {
-         this.target = target;
-      }
-
-      private void addValue(IData source, String dataId, Serializable value)
-      {
-         IData data = target.findData(dataId);
-         if (data != null)
-         {
-            if (source != null)
-            {
-               String typeId = data.getType().getId();
-               String sourceTypeId = source.getType().getId();
-               if (!CompareHelper.areEqual(sourceTypeId, typeId))
-               {
-                  // we accept conversion from struct to dms types
-                  if (!isStruct(typeId) || !isStruct(sourceTypeId))
-                  {
-                     // data type changed.
-                     return;
-                  }
-               }
-               
-               boolean isPrimitive = isPrimitive(typeId);
-               boolean isStruct = isStruct(typeId);
-
-               // accepted conversions from struct to dms and within primitive types (i.e. int to long)
-               if (!isPrimitive && !isStruct &&
-                   !filter(data.getAllAttributes()).equals(filter(source.getAllAttributes())))
-               {
-                  // data definition changed.
-                  return;
-               }
-               if (isStruct)
-               {
-                  if (!typeId.equals(sourceTypeId))
-                  {
-                     if (DocumentTypeUtils.isDmsDocumentData(sourceTypeId) && value instanceof ResourceInfo)
-                     {
-                        value = (Serializable) ((ResourceInfo) value).getProperties();
-                     }
-                  }
-                  // traverse and fix
-                  IXPathMap srcMap = StructuredTypeRtUtils.getXPathMap(source);
-                  TypedXPath srcPath = !typeId.equals(sourceTypeId) && StructuredTypeRtUtils.isDmsType(sourceTypeId)
-                        ? srcMap.getXPath("properties") : srcMap.getRootXPath();
-                  IXPathMap tgtMap = StructuredTypeRtUtils.getXPathMap(data);
-                  TypedXPath tgtPath = !typeId.equals(sourceTypeId) && StructuredTypeRtUtils.isDmsType(typeId)
-                        ? tgtMap.getXPath("properties") : tgtMap.getRootXPath();
-                  Map<String, Serializable> map = CollectionUtils.newMap();
-                  map.put(srcPath.getId(), value);
-                  repair(tgtPath, srcPath, map);
-                  value = map.get(srcPath.getId());
-                  if (value == null)
-                  {
-                     // incompatible.
-                     return;
-                  }
-                  if (!typeId.equals(sourceTypeId) && DocumentTypeUtils.isDmsDocumentData(typeId) && value instanceof Map)
-                  {
-                     DmsDocumentBean document = new DmsDocumentBean();
-                     document.setProperties((Map) value);
-                     if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(typeId))
-                     {
-                        value = document;
-                     }
-                     else
-                     {
-                        value = (Serializable) Collections.singletonList(document);
-                     }
-                  }
-               }
-            }
-            result.put(dataId, value);
-         }
-      }
-
-      private boolean isPrimitive(String typeId)
-      {
-         return PredefinedConstants.PRIMITIVE_DATA.equals(typeId);
-      }
-
-      private boolean isStruct(String typeId)
-      {
-         return StructuredTypeRtUtils.isStructuredType(typeId) || DocumentTypeUtils.isDmsDocumentData(typeId);
-      }
-
-      private Map<String, Object> filter(Map<String, Object> allAttributes)
-      {
-         Map<String, Object> filtered = CollectionUtils.newMap();
-         if (allAttributes != null)
-         {
-            for (Map.Entry<String, Object> entry : allAttributes.entrySet())
-            {
-               String key = entry.getKey();
-               if (key.startsWith(PredefinedConstants.ENGINE_SCOPE)
-                     && !key.equals(PredefinedConstants.MODELELEMENT_VISIBILITY))
-               {
-                  filtered.put(key, entry.getValue());
-               }
-            }
-         }
-         return filtered;
-      }
-
-      /**
-       * Transformations:
-       * <ul>
-       * <li>from attribute to element or from element to attribute</li>
-       * <li>from list to single item or from single item to list</li>
-       * <li>empty collections are removed</li>
-       * <li>namespace change is accepted</li>
-       * <li>values for removed attributes or elements are dropped</li>
-       * <li>values for attributes or elements with a different type are dropped (no type conversion)</li>
-       * </ul>
-       */
-      private void repair(TypedXPath tgtPath, TypedXPath srcPath, Map<String, Serializable> map)
-      {
-         if (compatible(tgtPath, srcPath))
-         {
-            Serializable o = map.get(srcPath.getId());
-            if (tgtPath.isList())
-            {
-               if (!srcPath.isList())
-               {
-                  ArrayList<Serializable> list = new ArrayList<Serializable>();
-                  list.add(o);
-                  o = list;
-                  map.put(tgtPath.getId(), o);
-               }
-            }
-            else if (srcPath.isList())
-            {
-               if (((List) o).isEmpty())
-               {
-                  map.remove(srcPath.getId());
-                  return;
-               }
-               else
-               {
-                  o = ((List<Serializable>) o).get(0);
-                  map.put(tgtPath.getId(), o);
-               }
-            }
-            if (tgtPath.getType() == -1)
-            {
-               if (tgtPath.isList())
-               {
-                  for (Serializable item : (List<Serializable>) o)
-                  {
-                     repairChildren(tgtPath, srcPath, item);
-                  }
-               }
-               else
-               {
-                  repairChildren(tgtPath, srcPath, o);
-               }
-            }
-            if (o instanceof Collection)
-            {
-               if (((Collection) o).isEmpty())
-               {
-                  map.remove(srcPath.getId());
-               }
-            }
-         }
-         else
-         {
-            map.remove(srcPath.getId());
-         }
-      }
-
-      private void repairChildren(TypedXPath tgtPath, TypedXPath srcPath, Serializable o)
-      {
-         if (o instanceof Map)
-         {
-            Map<String, Serializable> m = (Map) o;
-            Set<String> keys = CollectionUtils.newSet(); 
-            keys.addAll(m.keySet());
-            for (String key : keys)
-            {
-               TypedXPath tgtChild = tgtPath.getChildXPath(key);
-               if (tgtChild == null)
-               {
-                  m.remove(key);
-               }
-               else
-               {
-                  TypedXPath srcChild = srcPath.getChildXPath(key);
-                  repair(tgtChild, srcChild, m);
-               }
-            }
-         }
-      }
-
-      private boolean compatible(TypedXPath tgtPath, TypedXPath srcPath)
-      {
-         // accepted assignment of child xpath to root xpath if they have the same type.
-         if (srcPath.getParentXPath() != null &&
-             tgtPath.getParentXPath() != null &&
-             !CompareHelper.areEqual(tgtPath.getId(), srcPath.getId()))
-         {
-            return false;
-         }
-         return tgtPath.getType() == srcPath.getType();
       }
    }
 }

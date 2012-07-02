@@ -625,15 +625,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          dco = DataCopyOptions.DEFAULT;
       }
-      Map<String, ? extends Serializable> data = DataCopyUtils.copyData(originatingProcessInstance, model, dco);
+      DataCopyResult data = DataCopyUtils.copyData(originatingProcessInstance, model, dco);
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(processDefinition,
-            (IProcessInstance) null, SecurityProperties.getUser(), data);
+            (IProcessInstance) null, SecurityProperties.getUser(), data.result);
       processInstance.setPriority(originatingProcessInstance.getPriority());
 
       if (dco.copyAllData() && dco.useHeuristics())
       {
          DataCopyUtils.copyDataUsingDocumentCopyHeuristics(originatingProcessInstance, processInstance,
-               data == null ? Collections.EMPTY_SET: data.keySet());
+               data == null ? Collections.EMPTY_SET: data.ignoreDataIds);
       }
 
       IProcessInstanceLinkType link = ProcessInstanceLinkTypeBean.findById(linkType);

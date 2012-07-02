@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+ <!--
+    To execute this build script, you have to configure your environment such that
+    the environment variable M2_HOME points to your local Maven installation.
+ -->
+<project name="jcr-vfs" default="deploy" basedir="." xmlns:stardust="com.infinity.bpm.ant.macros" xmlns:ivy="antlib:org.apache.ivy.ant">
+   
+   <property environment="env"/>
+   
+   <import file="../build.tools/commons-build.xml" />
+   
+   <target name="init">
+      <!-- this initializes the property 'buildenv.m2.localRepository' -->
+      <init-ivy/>
+      
+      <property name="distrib.repo.releases.url" value="file://${buildenv.m2.localRepository}" />
+      <property name="distrib.repo.snapshots.url" value="file://${buildenv.m2.localRepository}" />
+      <property name="mvn.options" value="-Ddistrib.repo.releases.url=${distrib.repo.releases.url} -Ddistrib.repo.snapshots.url=${distrib.repo.snapshots.url}" />
+   </target>
+   
+   <target name="deploy" description="Builds and deploys JCR-VFS into the local build environment repository." depends="init">
+      <mvn basedir="../components/jcr-vfs" goal="deploy" options="${mvn.options}" />
+   </target>
+   
+   <macrodef name="mvn">
+      <attribute name="basedir" />
+      <attribute name="goal" />
+      <attribute name="options" default="" />
+      <attribute name="resultproperty" default="maven.result" />
+    
+      <sequential>
+         <java classname="org.codehaus.classworlds.Launcher" fork="true" dir="@{basedir}" resultproperty="@{resultproperty}">
+            <jvmarg value="-Xmx512m"/>
+
+            <sysproperty key="classworlds.conf" value="${env.M2_HOME}/bin/m2.conf" />
+            <sysproperty key="maven.home" value="${env.M2_HOME}" />
+            
+            <classpath>
+               <fileset dir="${env.M2_HOME}/boot">
+                  <include name="*.jar" />
+               </fileset>
+               <fileset dir="${env.M2_HOME}/lib">
+                  <include name="*.jar" />
+               </fileset>
+            </classpath>
+            
+            <arg line="--batch-mode @{options} @{goal}" />
+         </java>
+      </sequential>
+  </macrodef>
+   
+</project>

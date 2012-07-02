@@ -75,6 +75,7 @@ public class DefaultEventBinder implements EventBinder
       // only logs if the binding was not already deleted in this transaction
       else if (!rtEnv.getEventBindingRecords().isDeleted(objectType, oid, handler, partitionOid))
       {
+         rtEnv.getEventBindingRecords().markDeleted(objectType, oid, handler, partitionOid);
          trace.info("Cannot unbind handler with object oid " + oid + ", type '"
                + objectType + "' for handler with oid " + handler + ".");
       }

@@ -475,28 +475,14 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          PropertyLayer layer = null;
          try
          {
-            Map<String, Object> props = CollectionUtils.newHashMap();
+            Map<String, Object> props = ScopeProcessInstanceDetailsOptions.getOptions(
+                  // notes shall be retrieved for scopePI if requested
+                  requestedNotes(parameters),
+                  parameters.getBoolean(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false));
 
-            // notes shall be retrieved for scopePI if requested
-            props.put(
-                  PRP_PI_DETAILS_OPTIONS,
-                  requestedNotes(parameters)
-                     ? EnumSet.of(ProcessInstanceDetailsOptions.WITH_NOTES)
-                     : EnumSet.noneOf(ProcessInstanceDetailsOptions.class));
-            // but the rest shall be initialized with Core level
-            props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL,
-                  ProcessInstanceDetailsLevel.Core);
-            props.put(HistoricalEventPolicy.PRP_PROPVIDE_EVENT_TYPES, 0);
-            if (!parameters.getBoolean(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false))
-            {
-               props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false);
-            }
-            props.put(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES,
-                  HistoricalStatesPolicy.NO_HIST_STATES);
             layer = ParametersFacade.pushLayer(props);
 
-            this.scopeprocessInstance = DetailsFactory.create(processInstance
-                  .getScopeProcessInstance());
+            this.scopeprocessInstance = DetailsFactory.create(processInstance.getScopeProcessInstance());
          }
          finally
          {
@@ -595,5 +581,36 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    {
       PermissionState ps = (PermissionState) permissions.get(permissionId);
       return ps == null ? PermissionState.Unknown : ps;
+   }
+   
+   private static enum ScopeProcessInstanceDetailsOptions
+   {
+      DEFAULT(false, false),
+      WITH_NOTES(true, false),
+      WITH_DESCRIPTORS(false, true),
+      WITH_NOTES_AND_DESCRIPTORS(true, true);
+      
+      private final Map<String, Object> props;
+      
+      private ScopeProcessInstanceDetailsOptions(boolean withNotes, boolean withDescriptors)
+      {
+         Map<String, Object> props = CollectionUtils.newHashMap();
+         props.put(PRP_PI_DETAILS_OPTIONS, withNotes
+                  ? EnumSet.of(ProcessInstanceDetailsOptions.WITH_NOTES)
+                  : EnumSet.noneOf(ProcessInstanceDetailsOptions.class));
+         props.put(ProcessInstanceDetailsLevel.PRP_PI_DETAILS_LEVEL, ProcessInstanceDetailsLevel.Core);
+         props.put(HistoricalEventPolicy.PRP_PROPVIDE_EVENT_TYPES, 0);
+         props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, withDescriptors);
+         props.put(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES, HistoricalStatesPolicy.NO_HIST_STATES);
+         this.props = Collections.unmodifiableMap(props);
+      }
+      
+      private static Map<String, Object> getOptions(boolean withNotes, boolean withDescriptors)
+      {
+         ScopeProcessInstanceDetailsOptions options = withNotes
+               ? withDescriptors ? WITH_NOTES_AND_DESCRIPTORS : WITH_NOTES
+               : withDescriptors ? WITH_DESCRIPTORS : DEFAULT;
+         return options.props;
+      }
    }
 }

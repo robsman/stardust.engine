@@ -143,11 +143,10 @@ public class QueryServiceImpl implements QueryService, Serializable
    public LogEntries getAllLogEntries(LogEntryQuery query)
    {
       /*
-       * Without <LogEntry,LogntryDetails> antit would result in an incompatible types
-       * error The strange thing is that it is compiling in eclipse without any explicit
-       * declerations
+       * Without <LogEntry, LogEntryDetails> ant would result in an incompatible types error.
+       * The strange thing is that it is compiling in eclipse without any explicit declarations.
        */
-      RawQueryResult<LogEntry> result = GenericQueryEvaluator.<LogEntry, LogEntryDetails> evaluate(
+      RawQueryResult<LogEntry> result = GenericQueryEvaluator.<LogEntry, LogEntryDetails>evaluate(
             query, LogEntryBean.class, ILogEntry.class, LogEntryDetails.class,
             getDefaultEvaluationContext());
 
@@ -156,22 +155,34 @@ public class QueryServiceImpl implements QueryService, Serializable
 
    public ProcessInstances getAllProcessInstances(ProcessInstanceQuery query)
    {
-      if (query instanceof CustomProcessInstanceQuery)
-      {
-         // evaluating custom query
-         return CustomQueryUtils.evaluateCustomQuery((CustomProcessInstanceQuery) query);
-      }
-
-      ResultIterator rawResult = new ProcessInstanceQueryEvaluator(query,
-            getDefaultEvaluationContext()).executeFetch();
+      BpmRuntimeEnvironment rte = PropertyLayerProviderInterceptor.getCurrent();
+      RtDetailsFactory detailsFactory = rte.getDetailsFactory();
+      boolean usingCaches = detailsFactory.isUsingCaches();
       try
       {
-         return ProcessQueryPostprocessor.findMatchingProcessInstancesDetails(query,
-               rawResult, ProcessInstanceDetails.class);
+         detailsFactory.setUsingCaches(true);
+
+         if (query instanceof CustomProcessInstanceQuery)
+         {
+            // evaluating custom query
+            return CustomQueryUtils.evaluateCustomQuery((CustomProcessInstanceQuery) query);
+         }
+   
+         ResultIterator rawResult = new ProcessInstanceQueryEvaluator(query,
+               getDefaultEvaluationContext()).executeFetch();
+         try
+         {
+            return ProcessQueryPostprocessor.findMatchingProcessInstancesDetails(query,
+                  rawResult, ProcessInstanceDetails.class);
+         }
+         finally
+         {
+            rawResult.close();
+         }
       }
       finally
       {
-         rawResult.close();
+         detailsFactory.setUsingCaches(usingCaches);
       }
    }
 

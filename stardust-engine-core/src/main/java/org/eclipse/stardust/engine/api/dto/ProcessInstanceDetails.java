@@ -11,15 +11,7 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -31,41 +23,18 @@ import org.eclipse.stardust.engine.api.model.DataPath;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataPath;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEvent;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
-import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.LogType;
-import org.eclipse.stardust.engine.api.runtime.PermissionState;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ILogEntry;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstanceLink;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceGroupUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
-
 
 /**
  * <p/>
@@ -171,7 +140,6 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       {
          try
          {
-
             Map<String, Object> props = new HashMap<String, Object>();
             props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
             layer = ParametersFacade.pushLayer(props);
@@ -439,7 +407,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
                            processInstance.getInDataValue(dataPath.getData(),
                                  dataPath.getAccessPath()));
 
-                     descriptorDefinitions.add(new DataPathDetails(dataPath));
+                     descriptorDefinitions.add(DetailsFactory.create(dataPath));
                }
             }
             catch (Exception x)

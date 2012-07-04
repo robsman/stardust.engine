@@ -27,6 +27,8 @@ import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
  */
 public class RtDetailsFactory
 {
+   private static final String DATA_PATH_KEY = DataPathDetails.class.getName();
+   
    private Map<Object, Object> cache = CollectionUtils.newMap();
    private boolean usingCaches = false;
    
@@ -42,11 +44,11 @@ public class RtDetailsFactory
 
    public DataPath createDetails(IDataPath dp)
    {
-      DataPath details = null;
-      if (!usingCaches || (details = (DataPath) cache.get(dp)) == null)
+      DataPath details = dp.getRuntimeAttribute(DATA_PATH_KEY);
+      if (details == null)
       {
          details = new DataPathDetails(dp);
-         cache.put(dp, details);
+         dp.setRuntimeAttribute(DATA_PATH_KEY, details);
       }
       return details;
    }

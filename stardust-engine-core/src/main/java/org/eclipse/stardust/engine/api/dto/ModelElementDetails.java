@@ -51,8 +51,8 @@ public class ModelElementDetails implements org.eclipse.stardust.engine.api.mode
       this.modelOID = modelOID;
       this.elementOID = elementOID;
       this.qualifiedId = '{' + namespace + '}' + id;
-      this.namespace = qualifiedId.substring(1, namespace.length() + 1);
-      this.id = qualifiedId.substring(namespace.length() + 2);
+      this.namespace = namespace;
+      this.id = id;
       this.name = name;
       this.description = description;
 

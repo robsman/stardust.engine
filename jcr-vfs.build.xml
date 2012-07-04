@@ -23,9 +23,8 @@
       <!-- this initializes the property 'buildenv.m2.localRepository' -->
       <init-ivy/>
       
-      <property name="distrib.repo.releases.url" value="file://${buildenv.m2.localRepository}" />
-      <property name="distrib.repo.snapshots.url" value="file://${buildenv.m2.localRepository}" />
-      <property name="mvn.options" value="-Ddistrib.repo.releases.url=${distrib.repo.releases.url} -Ddistrib.repo.snapshots.url=${distrib.repo.snapshots.url}" />
+      <property name="local.repo.url" value="file://${buildenv.m2.localRepository}" />
+      <property name="mvn.options" value="-DaltDeploymentRepository=ipp-releases::default::${local.repo.url} -DaltDeploymentRepository=ipp-snapshots::default::${local.repo.url}" />
    </target>
    
    <target name="deploy" description="Builds and deploys JCR-VFS into the local build environment repository." depends="init">

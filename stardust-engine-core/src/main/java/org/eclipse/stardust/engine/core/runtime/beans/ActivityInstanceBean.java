@@ -1109,16 +1109,19 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             {
                IDataValue srcValue = (IDataValue) iterator.next();
 
+               IData srcData = srcValue.getData();
                if (trace.isDebugEnabled())
                {
-                     trace.debug("Data value '" + srcValue.getData().getId() + "' retrieved.");
+                  trace.debug("Data value '" + srcData.getId() + "' retrieved.");
                }
 
 //                        DataValueBean.copyDataValue(subProcess, srcValue);
                
-               if (srcValue.getData().getModel().getOID() == subProcess.getProcessDefinition().getModel().getOID())
+               IModel targetModel = (IModel) subProcess.getProcessDefinition().getModel();
+               // we copy only data that exists in the target model
+               if (srcData == targetModel.findData(srcData.getId()))
                {
-                  subProcess.setOutDataValue(srcValue.getData(), "", srcValue.getSerializedValue());
+                  subProcess.setOutDataValue(srcData, "", srcValue.getSerializedValue());
                }
             }
          }

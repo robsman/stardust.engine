@@ -1181,11 +1181,14 @@ public abstract class SynchronizationService
    private Pair<IDepartment, Boolean> importDepartmentHierarchy(final String participantId,
          final List<String> departmentKeys)
    {
+      //the department hierarchy is changed during import for computing reasons so create a copy 
+      List<String> departmentHierachy = new ArrayList<String>(departmentKeys);
+      
       IDepartment department;
       boolean validDepartment;
       try
       {
-         department = importDepartmentHierarchyInternal(participantId, departmentKeys);
+         department = importDepartmentHierarchyInternal(participantId, departmentHierachy);
          validDepartment = true;
       }
       catch (DepartmentSynchronizationException e)

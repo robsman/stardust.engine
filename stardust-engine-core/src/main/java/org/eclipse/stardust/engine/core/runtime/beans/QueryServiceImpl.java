@@ -789,7 +789,7 @@ public class QueryServiceImpl implements QueryService, Serializable
       }
       else
       {
-         String participantId = org == null ? null : org.getId();
+         String participantId = org == null ? null : org.getQualifiedId();
          final Pair<String, List<String>> departmentIdsPair =
          SynchronizationService.getDepartmentPairFor(id, participantId, parent);
          final Pair<IDepartment, Boolean> departmentPair =

@@ -204,7 +204,7 @@ public abstract class SynchronizationService
    public static Pair<String, List<String>> getDepartmentPairFor(final IDepartment department)
    {
       final IOrganization participant = DepartmentUtils.getOrganization(department);
-      final String participantId = participant.getId();
+      final String participantId = participant.getQualifiedId();
 
       final List<String> departmentKeys = newArrayList();
       createDepartmentKeys(department, departmentKeys);

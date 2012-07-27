@@ -144,10 +144,12 @@
       </dependency>
       
       <dependency org="org.eclipse.emf" name="emf-runtime" rev="2.6.1" transitive="false" conf="integration-jars->default">
-         <artifact type="zip" name="emf-runtime"/>
+         <artifact name="org.eclipse.emf.common" type="jar"/>
+         <artifact name="org.eclipse.emf.ecore" type="jar"/>
+         <artifact name="org.eclipse.emf.ecore.xmi" type="jar"/>
       </dependency>
       <dependency org="org.eclipse.xsd" name="xsd-runtime" rev="2.6.1" transitive="false" conf="integration-jars->default">
-         <artifact type="zip" name="xsd-runtime"/>
+         <artifact name="org.eclipse.xsd" type="jar"/>
       </dependency>
       
       <dependency org="com.infinity.bpm.3rdparty" name="emf-xsd-schema-cache" rev="1.0" transitive="false" conf="integration-jars->default"/>
@@ -171,7 +173,6 @@
       <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
       <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
       <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.2.1" />
-      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.2.1" />
 
       <override org="org.objenesis" module="objenesis" rev="1.2" />
 
@@ -179,7 +180,6 @@
       <!--    Conflicts    -->
       <!-- *************** -->
       <conflict org="org.apache.geronimo.components" module="geronimo-transaction" manager="strict" />
-      <conflict org="org.apache.geronimo.components" module="geronimo-connector" manager="strict" />
       <conflict org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" manager="strict" />
    </dependencies>
 </ivy-module>

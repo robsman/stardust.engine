@@ -65,18 +65,18 @@
       <property name="build.dir" value="${build.home}" />
       <property name="build.classes" value="${build.dir}/classes" />
       <property name="build.lib" value="${build.dir}/lib" />
-      <property name="build.src" value="${build.dir}/src" />
+      <property name="build.lib.src" value="${build.dir}/src" />
 
       <property name="carnot-spring.jarfile" value="carnot-spring.jar" />
       <property name="carnot-spring.jar" value="${build.lib}/${carnot-spring.jarfile}" />
       <property name="carnot-spring.src-jarfile" value="carnot-spring-sources.jar" />
-      <property name="carnot-spring.src-jar" value="${build.src}/${carnot-spring.src-jarfile}" />
+      <property name="carnot-spring.src-jar" value="${build.lib.src}/${carnot-spring.src-jarfile}" />
    </target>
 
    <target name="initBuildDirectories" depends="initBuild">
       <mkdir dir="${build.classes}" />
       <mkdir dir="${build.lib}" />
-      <mkdir dir="${build.src}" />
+      <mkdir dir="${build.lib.src}" />
    </target>
 
 	<target name="initIvy">
@@ -125,7 +125,7 @@
    </target>
 
    <target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
-      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.src}" conf="carnot-spring-compile,carnot-spring-sources" publishIvy="true" />
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}" conf="carnot-spring-compile,carnot-spring-sources" publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
 
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="spring-module" />
@@ -136,7 +136,7 @@
    	   artifactspattern="${build.lib}/[artifact](-[classifier]).[ext]"
    	   srcivypattern="module-ivy.xml"
    	   overwrite="true" haltonmissing="true" />
-   	
+
    	<ivy:retrieve file="module-ivy.xml" pattern="${build.lib}/spring/[artifact]-[revision].[ext]" 
    		conf="spring-module-runtime, spring-module-provided" module="carnot-spring-module"/>
 

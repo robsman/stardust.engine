@@ -165,6 +165,7 @@
          <exclude org="jencks" module="xapool-without-pool"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-jms_1.1_spec"/>
          <exclude org="org.apache.geronimo.components" module="geronimo-transaction"/>
+         <exclude org="org.apache.geronimo.components" module="geronimo-connector"/>
          <exclude org="org.springframework" module="spring-jms"/>
          <exclude org="org.springframework" module="spring-aop"/>
          <exclude org="org.springframework" module="spring-beans"/>
@@ -308,7 +309,6 @@
       <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
       <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
       <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.2.1" />
-      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.2.1" />
 
       <override org="org.objenesis" module="objenesis" rev="1.2" />
 

@@ -283,25 +283,25 @@
 
    <target name="initKernelBuild" depends="init">
       <property name="build.classes" location="${build.dir}/classes" />
-      <property name="build.deploy" location="${build.dir}/lib" />
       <property name="build.lib" location="${build.dir}/lib" />
+      <property name="build.lib.src" location="${build.dir}/src" />
       <property name="build.src" location="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
 
       <property name="carnot.client.jarfile" value="carnot-client.jar" />
       <property name="carnot.client.jar" location="${build.lib}/${carnot.client.jarfile}" />
       <property name="carnot.client.src-jarfile" value="carnot-client-sources.jar" />
-      <property name="carnot.client.src-jar" location="${build.src}/${carnot.client.src-jarfile}" />
+      <property name="carnot.client.src-jar" location="${build.lib.src}/${carnot.client.src-jarfile}" />
 
       <property name="carnot.engine.jarfile" value="carnot-engine.jar" />
-      <property name="carnot.engine.jar" location="${build.deploy}/${carnot.engine.jarfile}" />
+      <property name="carnot.engine.jar" location="${build.lib}/${carnot.engine.jarfile}" />
       <property name="carnot.engine.src-jarfile" value="carnot-engine-sources.jar" />
-      <property name="carnot.engine.src-jar" location="${build.src}/${carnot.engine.src-jarfile}" />
+      <property name="carnot.engine.src-jar" location="${build.lib.src}/${carnot.engine.src-jarfile}" />
 
       <property name="carnot.emf.xsd.integration.jarfile" value="carnot-emf-xsd-integration.jar" />
-      <property name="carnot.emf.xsd.integration.jar" location="${build.deploy}/${carnot.emf.xsd.integration.jarfile}" />
+      <property name="carnot.emf.xsd.integration.jar" location="${build.lib}/${carnot.emf.xsd.integration.jarfile}" />
       <property name="carnot.emf.xsd.integration.src-jarfile" value="carnot-emf-xsd-integration-sources.jar" />
-      <property name="carnot.emf.xsd.integration.src-jar" location="${build.src}/${carnot.emf.xsd.integration.src-jarfile}" />
+      <property name="carnot.emf.xsd.integration.src-jar" location="${build.lib.src}/${carnot.emf.xsd.integration.src-jarfile}" />
 
    </target>
 
@@ -313,7 +313,6 @@
 
    <target name="initKernelBuildDirectories" depends="initKernelBuild">
       <mkdir dir="${build.classes}" />
-      <mkdir dir="${build.deploy}" />
       <mkdir dir="${build.lib}" />
       <mkdir dir="${build.src}" />
       <mkdir dir="${build.src.none}" />

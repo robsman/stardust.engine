@@ -4,24 +4,7 @@
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/servlet/2.4/servlet-2.4.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/carnot/jcr-vfs/2.4.0/jcr-vfs-2.4.0-SNAPSHOT.jar" sourcepath="/Q-ARCHIVE/carnot/jcr-vfs/2.4.0/jcr-vfs-2.4.0-SNAPSHOT-sources.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/javax/jcr/2.0/jcr-2.0.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/codehaus.org/qdox/1.10/qdox-1.10.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/geronimo/jms/1.1/geronimo-jms_1.1_spec-1.1.1.jar">
-		<attributes>
-			<attribute name="javadoc_location" value="http://java.sun.com/javaee/5/docs/api/"/>
-		</attributes>
-	</classpathentry>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/junit/4.10/junit-4.10.jar" sourcepath="/Q-ARCHIVE/thirdparty/junit/4.10/junit-4.10-sources.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/spring/framework/3.0.5.RELEASE/spring-tx-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/spring/framework/3.0.5.RELEASE/spring-beans-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/spring/framework/3.0.5.RELEASE/spring-context-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/spring/framework/3.0.5.RELEASE/spring-web-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/spring/framework/3.0.5.RELEASE/spring-jdbc-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/spring/framework/3.0.5.RELEASE/spring-jms-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/spring/framework/3.0.5.RELEASE/spring-context-support-3.0.5.RELEASE.jar"/>
-	<classpathentry kind="var" path="Q-ARCHIVE/thirdparty/spring/framework/3.0.5.RELEASE/spring-core-3.0.5.RELEASE.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/stardust-engine-core"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=stardust-engine-spring&amp;ivyXmlPath=ivy.xml&amp;confs=compile%2Ctest"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=stardust-engine-spring&amp;ivyXmlPath=module-ivy.xml&amp;confs=*"/>
 	<classpathentry kind="output" path=".eclipse/bin"/>
 </classpath>

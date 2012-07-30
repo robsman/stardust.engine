@@ -57,19 +57,21 @@
       <property name="build.dir" value="${build.home}" />
       <property name="build.classes" value="${build.dir}/classes" />
       <property name="build.lib" value="${build.dir}/lib" />
+      <property name="build.lib.src" value="${build.dir}/src" />
       <property name="build.src" value="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
 
       <property name="carnot-base.jarfile" value="carnot-base.jar" />
       <property name="carnot-base.jar" value="${build.lib}/${carnot-base.jarfile}" />
       <property name="carnot-base.src-jarfile" value="carnot-base-sources.jar" />
-      <property name="carnot-base.src-jar" value="${build.src}/${carnot-base.src-jarfile}" />
+      <property name="carnot-base.src-jar" value="${build.lib.src}/${carnot-base.src-jarfile}" />
    </target>
 
    <target name="initBuildDirectories" depends="initBuild">
       <mkdir dir="${build.classes}" />
       <mkdir dir="${build.lib}" />
       <mkdir dir="${build.src}" />
+      <mkdir dir="${build.lib.src}" />
       <mkdir dir="${build.src.none}" />
    </target>
 
@@ -177,7 +179,7 @@
          organisation="com.infinity.bpm" module="base-artifacts" overwrite="true" haltonmissing="true"/>
       
       <ivy:resolve file="${project.dir}/ivy.xml" />
-      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.src}" 
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}" 
          conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional, stardust-engine-base-sources, logging-log4j-provider-compile" 
          publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />

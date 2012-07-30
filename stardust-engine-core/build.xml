@@ -314,6 +314,7 @@
    <target name="initKernelBuildDirectories" depends="initKernelBuild">
       <mkdir dir="${build.classes}" />
       <mkdir dir="${build.lib}" />
+      <mkdir dir="${build.lib.src}" />
       <mkdir dir="${build.src}" />
       <mkdir dir="${build.src.none}" />
    </target>

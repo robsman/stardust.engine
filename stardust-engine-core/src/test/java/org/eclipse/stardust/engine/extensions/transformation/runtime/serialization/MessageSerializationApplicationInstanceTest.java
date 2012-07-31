@@ -23,6 +23,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,16 +43,16 @@ import org.eclipse.stardust.engine.extensions.transformation.Constants;
 import org.eclipse.stardust.engine.extensions.transformation.MessagingUtils;
 import org.eclipse.stardust.engine.extensions.transformation.format.IMessageFormat;
 import org.eclipse.stardust.engine.extensions.transformation.format.RuntimeFormatManager;
-import org.eclipse.stardust.engine.extensions.transformation.runtime.serialization.MessageSerializationApplicationInstance;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.agent.PowerMockAgent;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
@@ -66,7 +67,6 @@ import org.w3c.dom.Document;
  * @author nicolas.werlein
  * @version $Revision$ 
  */
-@RunWith(PowerMockRunner.class)
 @PrepareForTest( { ModelManagerFactory.class, DataXPathMap.class, MessagingUtils.class, RuntimeFormatManager.class, DOMConverter.class } )
 public class MessageSerializationApplicationInstanceTest
 {
@@ -76,6 +76,14 @@ public class MessageSerializationApplicationInstanceTest
    private ActivityInstance ai;
    
    private MessageSerializationApplicationInstance out;
+   
+   @Rule
+   public final PowerMockRule rule = new PowerMockRule();
+   
+   static
+   {
+      PowerMockAgent.initializeIfNeeded();
+   }
    
    @Before
    public void setUp()
@@ -248,7 +256,7 @@ public class MessageSerializationApplicationInstanceTest
       assertNull(actualValue);
    }
 
-   @Test(expected = RuntimeException.class)
+   @Test(expected = InvocationTargetException.class)
    public void testInvokeInputMessageIsEmpty() throws Exception
    {
       /* stubbing */
@@ -268,7 +276,7 @@ public class MessageSerializationApplicationInstanceTest
       /* nothing to do */
    }
    
-   @Test(expected = RuntimeException.class)
+   @Test(expected = InvocationTargetException.class)
    public void testInvokeInputMessageIsNull() throws Exception
    {
       /* stubbing */

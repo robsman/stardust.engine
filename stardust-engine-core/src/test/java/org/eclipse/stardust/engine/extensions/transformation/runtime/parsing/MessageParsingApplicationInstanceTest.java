@@ -45,15 +45,16 @@ import org.eclipse.stardust.engine.extensions.transformation.MessagingUtils;
 import org.eclipse.stardust.engine.extensions.transformation.format.IMessageFormat;
 import org.eclipse.stardust.engine.extensions.transformation.format.XMLMessageFormat;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.agent.PowerMockAgent;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.w3c.dom.Document;
 
 
@@ -67,7 +68,6 @@ import org.w3c.dom.Document;
  * @author nicolas.werlein
  * @version $Revision$ 
  */
-@RunWith(PowerMockRunner.class)
 @PrepareForTest({ ModelManagerFactory.class, MessagingUtils.class, DOMConverter.class, DataXPathMap.class, MessageParsingApplicationInstance.class, org.eclipse.stardust.engine.core.struct.sxml.Document.class })
 public class MessageParsingApplicationInstanceTest
 {
@@ -81,6 +81,14 @@ public class MessageParsingApplicationInstanceTest
    private DataMapping dataMapping;
    
    private MessageParsingApplicationInstance out;
+   
+   @Rule
+   public final PowerMockRule rule = new PowerMockRule();
+   
+   static
+   {
+      PowerMockAgent.initializeIfNeeded();
+   }
    
    @Before
    public void setUp()

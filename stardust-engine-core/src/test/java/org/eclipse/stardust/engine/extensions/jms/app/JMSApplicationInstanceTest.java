@@ -40,18 +40,15 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ApplicationInvocationContext;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
-import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageProvider;
-import org.eclipse.stardust.engine.extensions.jms.app.JMSApplicationInstance;
-import org.eclipse.stardust.engine.extensions.jms.app.JMSDirection;
-import org.eclipse.stardust.engine.extensions.jms.app.MessageProvider;
 import org.eclipse.stardust.engine.extensions.jms.app.JMSApplicationInstance.JmsInvocationContext;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.agent.PowerMockAgent;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 
 
 
@@ -70,7 +67,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * @author nicolas.werlein
  * @version $Revision$ 
  */
-@RunWith(PowerMockRunner.class)
 @PrepareForTest({ ModelManagerFactory.class, PropertyLayerProviderInterceptor.class })
 public class JMSApplicationInstanceTest
 {
@@ -78,6 +74,14 @@ public class JMSApplicationInstanceTest
    
    @Mock
    private ActivityInstance ai;
+   
+   @Rule
+   public final PowerMockRule rule = new PowerMockRule();
+
+   static
+   {
+      PowerMockAgent.initializeIfNeeded();
+   }
    
    @Before
    public void setUp()
@@ -386,7 +390,7 @@ public class JMSApplicationInstanceTest
       /* nothing to do */
    }
    
-   private static final class TestMessageProvider extends DefaultMessageProvider {}
+   public static final class TestMessageProvider extends DefaultMessageProvider {}
    
    private static interface AdditionalStubbing
    {

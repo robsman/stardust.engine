@@ -35,17 +35,15 @@ import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.extensions.mail.app.MailApplicationInstance;
-import org.eclipse.stardust.engine.extensions.mail.app.MailAssembler;
-import org.eclipse.stardust.engine.extensions.mail.app.MailConstants;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.powermock.modules.agent.PowerMockAgent;
+import org.powermock.modules.junit4.rule.PowerMockRule;
 
 
 /**
@@ -57,7 +55,6 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * @author nicolas.werlein
  * @version $Revision$ 
  */
-@RunWith(PowerMockRunner.class)
 @PrepareForTest( { MailAssembler.class, MailApplicationInstance.class } )
 public class MailApplicationInstanceTest
 {
@@ -93,6 +90,14 @@ public class MailApplicationInstanceTest
    
    @Mock
    private Application app;
+   
+   @Rule
+   public final PowerMockRule rule = new PowerMockRule();
+   
+   static
+   {
+      PowerMockAgent.initializeIfNeeded();
+   }
    
    @Before
    public void setUp()

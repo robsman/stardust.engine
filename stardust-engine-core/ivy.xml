@@ -130,9 +130,8 @@
       <dependency org="org.powermock" name="powermock-api-mockito" rev="1.4.9" conf="test->default">
          <exclude org="org.mockito" module="mockito-all" />
       </dependency>
-      <dependency org="org.powermock" name="powermock-module-junit4" rev="1.4.9" conf="test->default">
-         <exclude org="junit" module="junit" />
-      </dependency>
+      <dependency org="org.powermock" name="powermock-module-junit4-rule-agent" rev="1.4.9" conf="test->default" />
+      <dependency org="org.powermock" name="powermock-module-javaagent" rev="1.4.9" conf="test->default" />
 
       <!-- ************** -->
       <!--    Internal    -->

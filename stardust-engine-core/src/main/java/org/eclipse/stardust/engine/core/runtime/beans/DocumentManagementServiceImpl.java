@@ -377,7 +377,7 @@ public class DocumentManagementServiceImpl
    public Document createDocument(final String folderId, final DocumentInfo document)
          throws DocumentManagementServiceException
    {
-      return (Document) adaptVfsCall(new IVfsOperationCallback()
+      return (Document) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -390,8 +390,8 @@ public class DocumentManagementServiceImpl
    public Document createDocument(final String folderId, final DocumentInfo document,
          final byte[] content, final String encoding)
          throws DocumentManagementServiceException
-   {
-      return (Document) adaptVfsCall(new IVfsOperationCallback()
+   {      
+      return (Document) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(final IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -449,8 +449,8 @@ public class DocumentManagementServiceImpl
 
    public Document versionDocument(final String docId, final String versionComment, final String versionLabel)
          throws DocumentManagementServiceException
-   {
-      return (Document) adaptVfsCall(new IVfsOperationCallback()
+   {      
+      return (Document) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -476,8 +476,8 @@ public class DocumentManagementServiceImpl
 
    public Document moveDocument(final String documentId, final String targetPath)
          throws DocumentManagementServiceException
-   {
-      return (Document) adaptVfsCall(new IVfsOperationCallback()
+   {      
+      return (Document) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -516,7 +516,7 @@ public class DocumentManagementServiceImpl
    public void removeDocumentVersion(final String documentId,
          final String documentRevisionId) throws DocumentManagementServiceException
    {
-      adaptVfsCall(new IVfsOperationCallback()
+      adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -563,7 +563,7 @@ public class DocumentManagementServiceImpl
    public Document lockDocument(final String docId)
          throws DocumentManagementServiceException
    {
-      return (Document) adaptVfsCall(new IVfsOperationCallback()
+      return (Document) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -589,7 +589,7 @@ public class DocumentManagementServiceImpl
    public Document unlockDocument(final String docId)
          throws DocumentManagementServiceException
    {
-      return (Document) adaptVfsCall(new IVfsOperationCallback()
+      return (Document) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -624,7 +624,7 @@ public class DocumentManagementServiceImpl
          final boolean createNewRevision, final String versionComment, final String versionLabel,
          final boolean keepLocked) throws DocumentManagementServiceException
    {
-      return (Document) adaptVfsCall(new IVfsOperationCallback()
+      return (Document) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -668,7 +668,7 @@ public class DocumentManagementServiceImpl
          final String versionComment, final String versionLabel, final boolean keepLocked)
          throws DocumentManagementServiceException
    {
-      return (Document) adaptVfsCall(new IVfsOperationCallback()
+      return (Document) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -703,7 +703,7 @@ public class DocumentManagementServiceImpl
    public String requestDocumentContentUpload(final String docId)
          throws DocumentManagementServiceException
    {
-      return (String) adaptVfsCall(new IVfsOperationCallback()
+      return (String) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -740,7 +740,7 @@ public class DocumentManagementServiceImpl
    public void removeDocument(final String docId)
          throws DocumentManagementServiceException
    {
-      adaptVfsCall(new IVfsOperationCallback()
+      adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -772,7 +772,7 @@ public class DocumentManagementServiceImpl
    public Folder createFolder(final String parentFolderId, final FolderInfo folder)
          throws DocumentManagementServiceException
    {
-      return (Folder) adaptVfsCall(new IVfsOperationCallback()
+      return (Folder) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(final IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -826,7 +826,7 @@ public class DocumentManagementServiceImpl
    public Folder updateFolder(final Folder folder)
          throws DocumentManagementServiceException
    {
-      return (Folder) adaptVfsCall(new IVfsOperationCallback()
+      return (Folder) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -850,7 +850,7 @@ public class DocumentManagementServiceImpl
    public void removeFolder(final String folderId, final boolean recursively)
          throws DocumentManagementServiceException
    {
-      adaptVfsCall(new IVfsOperationCallback()
+      adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -1035,7 +1035,7 @@ public class DocumentManagementServiceImpl
    public void setPolicy(final String resourceId, final AccessControlPolicy policy)
          throws DocumentManagementServiceException
    {
-      adaptVfsCall(new IVfsOperationCallback()
+      adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(final IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -1074,7 +1074,7 @@ public class DocumentManagementServiceImpl
                BpmRuntimeError.DMS_SECURITY_ERROR_ADMIN_REQUIRED.raise());
       }
 
-      return (RepositoryMigrationReport) adaptVfsCall(new IVfsOperationCallback()
+      return (RepositoryMigrationReport) adaptVfsCall(new IVfsWriteOperationCallback()
       {
          public Object withVfs(IDocumentRepositoryService vfs)
                throws RepositoryOperationFailedException
@@ -1114,6 +1114,18 @@ public class DocumentManagementServiceImpl
 
    private Object adaptVfsCall(IVfsOperationCallback vfsOperation)
    {
+      
+      if (vfsOperation instanceof IVfsWriteOperationCallback)
+      {
+         // prevent write in archive mode
+         if (Parameters.instance().getBoolean(
+               Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
+         {
+            throw new DocumentManagementServiceException(
+                  BpmRuntimeError.DMS_SECURITY_ERROR_WRITE_IN_ARCHIVE_MODE.raise());
+         }
+      }
+      
       try
       {
          ExtensionService.initializeModuleExtensions(Modules.DMS);
@@ -1168,6 +1180,15 @@ public class DocumentManagementServiceImpl
    {
       Object withVfs(IDocumentRepositoryService vfs)
             throws RepositoryOperationFailedException;
+   }
+   
+   /**
+    * Should be used to identify write operations.
+    */
+   public interface IVfsWriteOperationCallback extends IVfsOperationCallback
+   {
+      Object withVfs(IDocumentRepositoryService vfs)
+      throws RepositoryOperationFailedException;
    }
 
    protected static String getPartitionPrefix()

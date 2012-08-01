@@ -526,7 +526,7 @@ public interface AdministrationService extends Service
    void flushCaches();
 
    /**
-    * Retrieves all permissions the current user has on this service.
+    * Retrieves all permissions the current user has on this service plus the global permissions.
     *
     * @return a list of permission ids.
     */

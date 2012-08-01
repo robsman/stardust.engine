@@ -10,6 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.preferences.permissions;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Set;
+
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 
 /**
@@ -129,4 +136,28 @@ public class GlobalPermissionConstants extends RuntimePermissionConstants
     * permission to spawn a sub process instance
     */
    public static final String GLOBAL_SPAWN_SUB_PROCESS_INSTANCE = ExecutionPermission.Id.spawnSubProcessInstance.name();
+   
+   public static final Set<String> globalPermissionIds = CollectionUtils.newSet();
+   
+   static
+   {
+      Field[] fields = GlobalPermissionConstants.class.getFields();
+      for (Field field : fields)
+      {
+         // consider only static fields which name begins with GLOBAL and where the type is String
+         if(field.getName().startsWith("GLOBAL") && String.class.equals(field.getType()) &&
+               Modifier.isStatic(field.getModifiers()))
+         {
+            try
+            {
+               globalPermissionIds.add((String)field.get(null));
+            }
+            catch (Exception e)
+            {
+               Logger trace = LogManager.getLogger(GlobalPermissionConstants.class);
+               trace.error("unknown field in GlobalPermissionConstants", e);
+            }
+         }
+      }
+   }
 }

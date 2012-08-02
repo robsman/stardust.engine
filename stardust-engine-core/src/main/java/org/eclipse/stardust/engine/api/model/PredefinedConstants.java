@@ -56,7 +56,13 @@ public final class PredefinedConstants
    public static final String PLAIN_XML_DATA = "plainXML";
    public static final String HIBERNATE_DATA = "hibernate";
    public static final String STRUCTURED_DATA = "struct";
-
+   // DMS
+   public static final String DMS_DOCUMENT_DATA = "dms-document"; //$NON-NLS-1$
+   public static final String DMS_DOCUMENT_SET_DATA = "dms-document-set"; //$NON-NLS-1$
+   public static final String DOCUMENT_DATA = "dmsDocument"; //$NON-NLS-1$
+   public static final String DOCUMENT_LIST_DATA = "dmsDocumentList"; //$NON-NLS-1$
+   public static final String FOLDER_DATA = "dmsFolder";    //$NON-NLS-1$
+   
    // predefined context type IDs
    public static final String DEFAULT_CONTEXT = "default";
    public static final String ENGINE_CONTEXT = "engine";

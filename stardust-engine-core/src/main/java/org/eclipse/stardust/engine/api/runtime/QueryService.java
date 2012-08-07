@@ -446,6 +446,8 @@ public interface QueryService extends Service
     * @return the active model.
     *
     * @throws ObjectNotFoundException if there is no active model.
+    * @deprecated This method returns the active model with the highest priority.
+    *   Use {@link Models getModels(DeployedModelQuery.findActive())} to retrieve all active models.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readModelData,

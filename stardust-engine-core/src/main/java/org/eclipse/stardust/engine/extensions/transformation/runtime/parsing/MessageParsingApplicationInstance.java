@@ -192,7 +192,7 @@ public class MessageParsingApplicationInstance implements
          
          IData data = model.findData(oudDataMapping.getDataId());
 
-         org.w3c.dom.Document schemaDocument = MessagingUtils.getStructuredAccessPointSchema(data);
+         org.w3c.dom.Document schemaDocument = getSchemaDocument(data);
          String inputMessageString = null;
 
          for (Pair entry : inAccessPointValues)
@@ -206,14 +206,14 @@ public class MessageParsingApplicationInstance implements
          }
 
          org.w3c.dom.Document parsedDocument = messageFormat.parse(new StringReader(inputMessageString), schemaDocument);
-         Document document = DOMConverter.convert(parsedDocument);					
+         Document document = fromW3CDocument(parsedDocument);					
 
          // Read the output data
 
          outputValues.clear();
 
-         IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
-         StructuredDataConverter structuredDataConverter = new StructuredDataConverter(xPathMap);
+         IXPathMap xPathMap = getXPathMap(data);
+         StructuredDataConverter structuredDataConverter = newStructuredDataConverter(xPathMap);
          
          Map<String, Object> outputMessage = (Map<String, Object>) structuredDataConverter.toCollection(
                document.getRootElement(), "", true);
@@ -232,5 +232,25 @@ public class MessageParsingApplicationInstance implements
       }
 
       return doGetOutAccessPointValues(outDataTypes);
+   }
+   
+   /* package-private */ org.w3c.dom.Document getSchemaDocument(final IData data)
+   {
+      return MessagingUtils.getStructuredAccessPointSchema(data);
+   }
+   
+   /* package-private */ Document fromW3CDocument(final org.w3c.dom.Document document)
+   {
+      return DOMConverter.convert(document);
+   }
+   
+   /* package-private */ IXPathMap getXPathMap(final IData data)
+   {
+      return DataXPathMap.getXPathMap(data);
+   }
+   
+   /* package-private */ StructuredDataConverter newStructuredDataConverter(final IXPathMap xPathMap)
+   {
+      return new StructuredDataConverter(xPathMap);
    }
 }

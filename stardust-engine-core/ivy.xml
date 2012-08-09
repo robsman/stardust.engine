@@ -126,13 +126,6 @@
       <!-- Mockito -->
       <dependency org="org.mockito" name="mockito-core" rev="1.8.5" conf="test->default" />
 
-      <!-- PowerMock -->
-      <dependency org="org.powermock" name="powermock-api-mockito" rev="1.4.9" conf="test->default">
-         <exclude org="org.mockito" module="mockito-all" />
-      </dependency>
-      <dependency org="org.powermock" name="powermock-module-junit4-rule-agent" rev="1.4.9" conf="test->default" />
-      <dependency org="org.powermock" name="powermock-module-javaagent" rev="1.4.9" conf="test->default" />
-
       <!-- ************** -->
       <!--    Internal    -->
       <!-- ************** -->
@@ -173,7 +166,7 @@
       <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
       <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.2.1" />
 
-      <override org="org.objenesis" module="objenesis" rev="1.2" />
+      <override org="org.objenesis" module="objenesis" rev="1.0-stardust01" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

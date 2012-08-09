@@ -83,14 +83,14 @@ public class MessageSerializationApplicationInstance implements
       }
       DataMapping dataMapping = (DataMapping) allInDataMappings.iterator().next();
       IData data = model.findData(dataMapping.getDataId());		
-      xPathMap = DataXPathMap.getXPathMap(data);
-      structuredDataConverter = new StructuredDataConverter(xPathMap);
+      xPathMap = getXPathMap(data);
+      structuredDataConverter = newStructuredDataConverter(xPathMap);
 
       // Retrieve OUT mappings
 
       String messageFormatId = (String) application.getAttribute(Constants.MESSAGE_FORMAT);
 
-      this.schemaDocument = MessagingUtils.getStructuredAccessPointSchema(data);
+      this.schemaDocument = getSchemaDocument(data);
 
       try
       {
@@ -116,6 +116,21 @@ public class MessageSerializationApplicationInstance implements
       domImpl = getDOMImplementation();
    }
 
+   /* package-private */ IXPathMap getXPathMap(final IData data)
+   {
+      return DataXPathMap.getXPathMap(data);
+   }
+   
+   /* package-private */ StructuredDataConverter newStructuredDataConverter(final IXPathMap xPathMap)
+   {
+      return new StructuredDataConverter(xPathMap);
+   }
+   
+   /* package-private */ Document getSchemaDocument(final IData data)
+   {
+      return MessagingUtils.getStructuredAccessPointSchema(data);
+   }
+   
    /**
     * 
     */
@@ -235,7 +250,7 @@ public class MessageSerializationApplicationInstance implements
          }
 
          org.eclipse.stardust.engine.core.struct.sxml.Document domDocument = new org.eclipse.stardust.engine.core.struct.sxml.Document((Element)nodes[0]);
-         org.w3c.dom.Document w3cDocument = DOMConverter.convert(domDocument, domImpl);			
+         org.w3c.dom.Document w3cDocument = toW3CDocument(domDocument);
 
          // Create output string
 
@@ -263,6 +278,11 @@ public class MessageSerializationApplicationInstance implements
       return doGetOutAccessPointValues(outDataTypes);
    }
 
+   /* package-private */ org.w3c.dom.Document toW3CDocument(final org.eclipse.stardust.engine.core.struct.sxml.Document domDocument)
+   {
+      return DOMConverter.convert(domDocument, domImpl);
+   }
+   
    private org.w3c.dom.DOMImplementation getDOMImplementation()
    {
       if (domImpl == null)

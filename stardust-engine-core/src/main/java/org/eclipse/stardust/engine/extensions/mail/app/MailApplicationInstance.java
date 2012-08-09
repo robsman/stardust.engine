@@ -320,12 +320,10 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
                + activityInstanceOID + "] " + actualSubject + "(Activity " + activityName
                + ")" : actualSubject;
          
-         MailAssembler assembler = new MailAssembler(actualMailServer, actualFromAddress,
-               actualToAddress, actualCC, actualBCC, actualPriority, actualSubject,
-               plainTextTemplate, useHTML, htmlHeader, htmlTemplate, htmlFooter,
-               createProcessHistoryLink, mailResponse, inValues, outValueSetMap,
-               urlPrefix + "/mail-confirmation", processInstanceOID, activityInstanceOID,
-               attList);
+         MailAssembler assembler = newMailAssembler(actualMailServer, actualFromAddress,
+                                                    actualToAddress, actualCC, actualBCC,
+                                                    actualPriority, actualSubject, inValues,
+                                                    attList);
 
          assembler.sendMail();
 
@@ -342,6 +340,24 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
       }
    }
 
+   /* package-private */ MailAssembler newMailAssembler(final String actualMailServer,
+                                          final String actualFromAddress,
+                                          final String actualToAddress,
+                                          final String actualCC,
+                                          final String actualBCC,
+                                          final String actualPriority,
+                                          final String actualSubject,
+                                          final Object[] inValues,
+                                          final List<?> attList)
+   {
+      return new MailAssembler(actualMailServer, actualFromAddress,
+            actualToAddress, actualCC, actualBCC, actualPriority, actualSubject,
+            plainTextTemplate, useHTML, htmlHeader, htmlTemplate, htmlFooter,
+            createProcessHistoryLink, mailResponse, inValues, outValueSetMap,
+            urlPrefix + "/mail-confirmation", processInstanceOID, activityInstanceOID,
+            attList);
+   }
+   
    public Map receive(Map data, Iterator outDataTypes)
    {
       // receiving is currently handled at servlet

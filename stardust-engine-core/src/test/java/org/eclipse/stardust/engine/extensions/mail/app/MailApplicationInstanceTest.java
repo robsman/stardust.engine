@@ -16,10 +16,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,14 +32,9 @@ import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.agent.PowerMockAgent;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 
 
 /**
@@ -55,7 +46,6 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
  * @author nicolas.werlein
  * @version $Revision$ 
  */
-@PrepareForTest( { MailAssembler.class, MailApplicationInstance.class } )
 public class MailApplicationInstanceTest
 {
    private static final long PI_OID = 18;
@@ -90,14 +80,6 @@ public class MailApplicationInstanceTest
    
    @Mock
    private Application app;
-   
-   @Rule
-   public final PowerMockRule rule = new PowerMockRule();
-   
-   static
-   {
-      PowerMockAgent.initializeIfNeeded();
-   }
    
    @Before
    public void setUp()
@@ -310,22 +292,16 @@ public class MailApplicationInstanceTest
       final String newToAddress = "<New To Address>";
       final String newBccAddress = "<New BCC Address>";
       final String newPriority = "Lowest";
-      final String actualSubject = "[" + PI_OID + "#" + AI_OID + "] " + SUBJECT + "(Activity " + ACTIVITY_NAME + ")";
       final Map<String, String> outputValues = newHashMap();
       final String templateOne = "<Template #1>";
       final String templateTwo = "<Template #2>";
-      final Object[] inValues = { templateOne, templateTwo, null };
       final List<String> attachmentList = Collections.singletonList("PROCESS_ATTACHMENT");
       outputValues.put(FIRST_OUTPUT_VALUE, FIRST_OUTPUT_VALUE_NAME);
       outputValues.put(SECOND_OUTPUT_VALUE, SECOND_OUTPUT_VALUE_NAME);
       
       /* stubbing */
-      final MailAssembler assembler = PowerMockito.mock(MailAssembler.class);
-      PowerMockito.whenNew(MailAssembler.class).withArguments( any(), any(), any(), any(), any(),
-                                                               any(), any(), any(), anyBoolean(), any(),
-                                                               any(), any(), anyBoolean(), anyBoolean(), any(),
-                                                               any(), any(), anyLong(), anyLong(), any())
-                                                               .thenReturn(assembler);
+      final MailAssembler assembler = mock(MailAssembler.class);
+      out = newTestAdjustedInstance(assembler);
       defineBootstrapMocks();
       
       /* invoking the method under test */
@@ -340,13 +316,20 @@ public class MailApplicationInstanceTest
       out.send();
       
       /* verifying */
-      PowerMockito.verifyNew(MailAssembler.class).withArguments(eq(newMailServer), eq(FROM_ADDRESS), eq(newToAddress), eq(CC_ADDRESS),
-                                                                  eq(newBccAddress), eq(newPriority), eq(actualSubject), eq(PLAIN_TEXT_TEMPLATE),
-                                                                  eq(USE_HTML), eq(HTML_HEADER), eq(HTML_TEMPLATE), eq(HTML_FOOTER),
-                                                                  eq(CREATE_PROCESS_HISTORY_LINK), eq(MAIL_RESPONSE), eq(inValues),
-                                                                  eq(outputValues), eq(URL_PREFIX + "/mail-confirmation"), eq(PI_OID), eq(AI_OID),
-                                                                  eq(attachmentList));
       verify(assembler).sendMail();
+   }
+   
+   private MailApplicationInstance newTestAdjustedInstance(final MailAssembler assembler)
+   {
+      return new MailApplicationInstance()
+      {
+         /* package-private */ MailAssembler newMailAssembler(final String actualMailServer, final String actualFromAddress, final String actualToAddress, 
+                                                              final String actualCC, final String actualBCC, final String actualPriority, final String actualSubject,
+                                                              final Object[] inValues, final List<?> attList)
+         {
+            return assembler;
+         };
+      };
    }
    
    @Test

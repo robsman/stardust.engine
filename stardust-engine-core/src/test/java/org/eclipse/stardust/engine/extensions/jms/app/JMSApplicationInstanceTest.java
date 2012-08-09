@@ -19,7 +19,6 @@ import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,21 +35,15 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactoryUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ApplicationInvocationContext;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.extensions.jms.app.JMSApplicationInstance.JmsInvocationContext;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.agent.PowerMockAgent;
-import org.powermock.modules.junit4.rule.PowerMockRule;
-
-
 
 /**
  * <p>
@@ -67,21 +60,12 @@ import org.powermock.modules.junit4.rule.PowerMockRule;
  * @author nicolas.werlein
  * @version $Revision$ 
  */
-@PrepareForTest({ ModelManagerFactory.class, PropertyLayerProviderInterceptor.class })
 public class JMSApplicationInstanceTest
 {
    private JMSApplicationInstance out;   
    
    @Mock
    private ActivityInstance ai;
-   
-   @Rule
-   public final PowerMockRule rule = new PowerMockRule();
-
-   static
-   {
-      PowerMockAgent.initializeIfNeeded();
-   }
    
    @Before
    public void setUp()
@@ -94,7 +78,8 @@ public class JMSApplicationInstanceTest
    public void testBootstrapFailForNull()
    {
       /* stubbing */
-      mockStatic(ModelManagerFactory.class);
+      final ModelManager modelManager = mock(ModelManager.class);
+      ModelManagerFactoryUtils.initRtEnvWithModelManager(modelManager);
       
       /* invoking the method under test */
       out.bootstrap(null);
@@ -110,8 +95,8 @@ public class JMSApplicationInstanceTest
       final String cachedMsgProviderString = (String) Reflect.getStaticFieldValue(JMSApplicationInstance.class, "CACHED_MSG_PROVIDER");
       
       /* stubbing */
-      mockStatic(ModelManagerFactory.class);
       final ModelManager modelManager = mock(ModelManager.class);
+      ModelManagerFactoryUtils.initRtEnvWithModelManager(modelManager);
 
       final Activity activity = mock(Activity.class);
       final IActivity iActivity = mock(IActivity.class);
@@ -119,7 +104,6 @@ public class JMSApplicationInstanceTest
       
       when(ai.getActivity()).thenReturn(activity);
       
-      when(ModelManagerFactory.getCurrent()).thenReturn(modelManager);
       when(modelManager.findActivity(anyLong(), anyLong())).thenReturn(iActivity);
       
       when(iActivity.getApplication()).thenReturn(iApp);
@@ -140,8 +124,6 @@ public class JMSApplicationInstanceTest
    public void testBootstrapMessageProviderProperty()
    {
       /* stubbing */
-      mockStatic(ModelManagerFactory.class);
-      
       final Activity activity = mock(Activity.class);
       final Application app = mock(Application.class);
       
@@ -208,7 +190,6 @@ public class JMSApplicationInstanceTest
       final ApplicationInvocationContext ctx = new JmsInvocationContext(ai);
       
       /* stubbing */
-      mockStatic(PropertyLayerProviderInterceptor.class);
       final BpmRuntimeEnvironment rtEnv = mock(BpmRuntimeEnvironment.class);
       final QueueConnection connection = mock(QueueConnection.class);
       final QueueSession session = mock(QueueSession.class);
@@ -218,7 +199,7 @@ public class JMSApplicationInstanceTest
       
       delegate.stub(ctx, rtEnv);
 
-      when(PropertyLayerProviderInterceptor.getCurrent()).thenReturn(rtEnv);
+      PropertyLayerProviderInterceptor.setCurrent(rtEnv);
       when(rtEnv.retrieveQueueConnection(any(QueueConnectionFactory.class))).thenReturn(connection);
       when(rtEnv.retrieveQueueSession(connection)).thenReturn(session);
       when(rtEnv.retrieveUnidentifiedQueueSender(session)).thenReturn(sender);
@@ -390,7 +371,7 @@ public class JMSApplicationInstanceTest
       /* nothing to do */
    }
    
-   public static final class TestMessageProvider extends DefaultMessageProvider {}
+   private static final class TestMessageProvider extends DefaultMessageProvider {}
    
    private static interface AdditionalStubbing
    {

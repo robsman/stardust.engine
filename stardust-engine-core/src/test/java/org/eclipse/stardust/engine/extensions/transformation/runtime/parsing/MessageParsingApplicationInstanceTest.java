@@ -20,7 +20,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.io.Reader;
 import java.util.Collections;
@@ -34,30 +33,20 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactoryUtils;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConverter;
 import org.eclipse.stardust.engine.core.struct.sxml.Element;
-import org.eclipse.stardust.engine.core.struct.sxml.converters.DOMConverter;
 import org.eclipse.stardust.engine.extensions.transformation.Constants;
-import org.eclipse.stardust.engine.extensions.transformation.MessagingUtils;
 import org.eclipse.stardust.engine.extensions.transformation.format.IMessageFormat;
 import org.eclipse.stardust.engine.extensions.transformation.format.XMLMessageFormat;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.agent.PowerMockAgent;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.w3c.dom.Document;
-
-
 
 /**
  * <p>
@@ -68,7 +57,6 @@ import org.w3c.dom.Document;
  * @author nicolas.werlein
  * @version $Revision$ 
  */
-@PrepareForTest({ ModelManagerFactory.class, MessagingUtils.class, DOMConverter.class, DataXPathMap.class, MessageParsingApplicationInstance.class, org.eclipse.stardust.engine.core.struct.sxml.Document.class })
 public class MessageParsingApplicationInstanceTest
 {
    @Mock
@@ -82,14 +70,6 @@ public class MessageParsingApplicationInstanceTest
    
    private MessageParsingApplicationInstance out;
    
-   @Rule
-   public final PowerMockRule rule = new PowerMockRule();
-   
-   static
-   {
-      PowerMockAgent.initializeIfNeeded();
-   }
-   
    @Before
    public void setUp()
    {
@@ -102,7 +82,8 @@ public class MessageParsingApplicationInstanceTest
    public void testBootstrapFailForNull()
    {
       /* stubbing */
-      mockStatic(ModelManagerFactory.class);
+      final ModelManager modelManager = mock(ModelManager.class);
+      ModelManagerFactoryUtils.initRtEnvWithModelManager(modelManager);
       
       /* invoking the method under test */
       out.bootstrap(null);
@@ -195,25 +176,22 @@ public class MessageParsingApplicationInstanceTest
    @Test
    public void testInvoke() throws Exception
    {
+      /* stubbing */
+      final StructuredDataConverter converter = mock(StructuredDataConverter.class);
+      final org.eclipse.stardust.engine.core.struct.sxml.Document doc = mock(org.eclipse.stardust.engine.core.struct.sxml.Document.class);
+      out = newTestAdjustedInstance(doc, converter);
+      
       injectInAccessPointValuesIntoOUT();
       final String outAccessPoint = "<Out Data Type>";
       injectOutAccessPointsIntoOUT(outAccessPoint);
       Reflect.setFieldValue(out, "outputValues", CollectionUtils.newHashMap());
       final Map<String, Object> outputValue = createOutputValue();
       
-      /* stubbing */
       final IModel model = mock(IModel.class);
       Reflect.setFieldValue(out, "model", model);
-      mockStatic(MessagingUtils.class);
       final IMessageFormat messageFormat = mock(IMessageFormat.class);
       Reflect.setFieldValue(out, "messageFormat", messageFormat);
-      mockStatic(DOMConverter.class);
-      final org.eclipse.stardust.engine.core.struct.sxml.Document doc = PowerMockito.mock(org.eclipse.stardust.engine.core.struct.sxml.Document.class);
-      mockStatic(DataXPathMap.class);
-      final StructuredDataConverter converter = mock(StructuredDataConverter.class);
-      PowerMockito.whenNew(StructuredDataConverter.class).withArguments(any(IXPathMap.class)).thenReturn(converter);
       
-      when(DOMConverter.convert(any(Document.class))).thenReturn(doc);
       when(converter.toCollection(any(Element.class), any(String.class), Matchers.anyBoolean())).thenReturn(outputValue);
       
       /* invoking the method under test */
@@ -225,6 +203,36 @@ public class MessageParsingApplicationInstanceTest
       assertEquals(outputValue, actualOutputValue);
    }
 
+   private MessageParsingApplicationInstance newTestAdjustedInstance(final org.eclipse.stardust.engine.core.struct.sxml.Document doc, final StructuredDataConverter converter)
+   {
+      return new MessageParsingApplicationInstance()
+      {
+         @Override
+         /* package-private */ Document getSchemaDocument(final IData ignored)
+         {
+            return null;
+         }
+         
+         @Override
+         /* package-private */ org.eclipse.stardust.engine.core.struct.sxml.Document fromW3CDocument(final Document ignored)
+         {
+            return doc;
+         }
+         
+         @Override
+         /* package-private */ IXPathMap getXPathMap(final IData ignored)
+         {
+            return null;
+         }
+         
+         @Override
+         /* package-private */ StructuredDataConverter newStructuredDataConverter(final IXPathMap ignored)
+         {
+            return converter;
+         }
+      };
+   }
+   
    @Test
    public void testCleanupDoesNotThrowException()
    {
@@ -242,15 +250,14 @@ public class MessageParsingApplicationInstanceTest
    {
       final String messageFormatId = "XML";
       
-      mockStatic(ModelManagerFactory.class);
       final ModelManager modelManager = mock(ModelManager.class);
+      ModelManagerFactoryUtils.initRtEnvWithModelManager(modelManager);
       final Activity activity = mock(Activity.class);
       final Application app = mock(Application.class);
       final ApplicationContext appCtx = mock(ApplicationContext.class);
       final List<DataMapping> outDataMappings = Collections.singletonList(dataMapping);
       final AccessPoint accessPoint = mock(AccessPoint.class);
 
-      when(ModelManagerFactory.getCurrent()).thenReturn(modelManager);
       when(modelManager.findModel(anyLong())).thenReturn(model);
       when(ai.getActivity()).thenReturn(activity);
       when(activity.getApplication()).thenReturn(app);

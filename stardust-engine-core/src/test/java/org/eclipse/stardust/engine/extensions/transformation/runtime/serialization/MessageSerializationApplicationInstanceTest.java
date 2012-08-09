@@ -17,7 +17,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -33,30 +32,20 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactoryUtils;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConverter;
 import org.eclipse.stardust.engine.core.struct.sxml.Element;
 import org.eclipse.stardust.engine.core.struct.sxml.Node;
-import org.eclipse.stardust.engine.core.struct.sxml.converters.DOMConverter;
 import org.eclipse.stardust.engine.extensions.transformation.Constants;
-import org.eclipse.stardust.engine.extensions.transformation.MessagingUtils;
 import org.eclipse.stardust.engine.extensions.transformation.format.IMessageFormat;
-import org.eclipse.stardust.engine.extensions.transformation.format.RuntimeFormatManager;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.agent.PowerMockAgent;
-import org.powermock.modules.junit4.rule.PowerMockRule;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
-
-
 
 /**
  * <p>
@@ -67,7 +56,6 @@ import org.w3c.dom.Document;
  * @author nicolas.werlein
  * @version $Revision$ 
  */
-@PrepareForTest( { ModelManagerFactory.class, DataXPathMap.class, MessagingUtils.class, RuntimeFormatManager.class, DOMConverter.class } )
 public class MessageSerializationApplicationInstanceTest
 {
    private static final String APP_ACCESS_POINT_ID = "<Application Access Point Id>";
@@ -76,14 +64,6 @@ public class MessageSerializationApplicationInstanceTest
    private ActivityInstance ai;
    
    private MessageSerializationApplicationInstance out;
-   
-   @Rule
-   public final PowerMockRule rule = new PowerMockRule();
-   
-   static
-   {
-      PowerMockAgent.initializeIfNeeded();
-   }
    
    @Before
    public void setUp()
@@ -125,22 +105,18 @@ public class MessageSerializationApplicationInstanceTest
       
       final Activity activity = mock(Activity.class);
       final Application app = mock(Application.class);
-      PowerMockito.mockStatic(ModelManagerFactory.class);
       final ModelManager modelManager = mock(ModelManager.class);
+      ModelManagerFactoryUtils.initRtEnvWithModelManager(modelManager);
       final IModel model = mock(IModel.class);
       final IData data = mock(IData.class);
       final ApplicationContext appCtx = mock(ApplicationContext.class);
       final DataMapping dataMapping = mock(DataMapping.class);
       final AccessPoint accessPoint = mock(AccessPoint.class);
-      PowerMockito.mockStatic(DataXPathMap.class);
-      PowerMockito.mockStatic(MessagingUtils.class);
+      final StructuredDataConverter converter = mock(StructuredDataConverter.class);
       final Document schemaDoc = mock(Document.class);
-      PowerMockito.mockStatic(RuntimeFormatManager.class);
-      final IMessageFormat messageFormat = mock(IMessageFormat.class);
       
       when(ai.getActivity()).thenReturn(activity);
       when(activity.getApplication()).thenReturn(app);
-      when(ModelManagerFactory.getCurrent()).thenReturn(modelManager);
       when(modelManager.findModel(anyLong())).thenReturn(model);
       when(model.findData(anyString())).thenReturn(data);
       when(activity.getApplicationContext(PredefinedConstants.APPLICATION_CONTEXT)).thenReturn(appCtx);
@@ -148,11 +124,32 @@ public class MessageSerializationApplicationInstanceTest
       when(appCtx.getAllOutDataMappings()).thenReturn(Collections.singletonList(dataMapping));
       when(dataMapping.getApplicationAccessPoint()).thenReturn(accessPoint);
       when(accessPoint.getId()).thenReturn(APP_ACCESS_POINT_ID);
-      when(MessagingUtils.getStructuredAccessPointSchema(data)).thenReturn(schemaDoc);
       when(app.getAttribute(Constants.MESSAGE_FORMAT)).thenReturn(messageFormatId);
-      when(RuntimeFormatManager.getMessageFormat(messageFormatId)).thenReturn(messageFormat);
+      
+      out = newTestAdjustedInstance(converter, schemaDoc);
    }
 
+   private MessageSerializationApplicationInstance newTestAdjustedInstance(final StructuredDataConverter converter, final Document schemaDoc)
+   {
+      return new MessageSerializationApplicationInstance()
+      {
+         /* package-private */ IXPathMap getXPathMap(final IData ignored)
+        {
+           return null;
+        };
+        
+        /* package-private */ StructuredDataConverter newStructuredDataConverter(final IXPathMap ignored)
+        {
+           return converter;
+        };
+        
+        /* package-private */ Document getSchemaDocument(final IData ignored)
+        {
+           return schemaDoc;
+        }
+      };
+   }
+   
    private void verifyStateAfterBootstrap()
    {
       final StructuredDataConverter actualDataConverter = (StructuredDataConverter) Reflect.getFieldValue(out, "structuredDataConverter");
@@ -302,6 +299,9 @@ public class MessageSerializationApplicationInstanceTest
       final String outAccessPointKey = "<Key>";
       
       /* stubbing */
+      final Document doc = mock(Document.class);
+      out = newTestAdjustedInstance(doc);
+
       final List<Pair> inAccessPointValues = newArrayList();
       Reflect.setFieldValue(out, "inAccessPointValues", inAccessPointValues);
       final Map<String, DataMapping> outAccessPoints = (Map<String, DataMapping>) Reflect.getFieldValue(out, "outAccessPoints");
@@ -314,10 +314,6 @@ public class MessageSerializationApplicationInstanceTest
       final Element element = mock(Element.class);
       when(converter.toDom(null, "", true)).thenReturn(new Node[] { element });
       
-      PowerMockito.mockStatic(DOMConverter.class);
-      final Document doc = mock(Document.class);
-      when(DOMConverter.convert(any(org.eclipse.stardust.engine.core.struct.sxml.Document.class), any(DOMImplementation.class))).thenReturn(doc);
-      
       final IMessageFormat messageFormat = mock(IMessageFormat.class);
       Reflect.setFieldValue(out, "messageFormat", messageFormat);
       
@@ -328,6 +324,18 @@ public class MessageSerializationApplicationInstanceTest
       assertTrue(actualResult.containsKey(outAccessPointKey));
       final String actualValue = actualResult.get(outAccessPointKey);
       assertEquals("", actualValue);
+   }
+   
+   private MessageSerializationApplicationInstance newTestAdjustedInstance(final Document doc)
+   {
+      return new MessageSerializationApplicationInstance()
+      {
+         @Override
+         Document toW3CDocument(final org.eclipse.stardust.engine.core.struct.sxml.Document domDocument)
+         {
+            return doc;
+         } 
+      };
    }
    
    @Test

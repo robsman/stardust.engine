@@ -18,7 +18,11 @@ import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -43,6 +47,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceContr
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -170,6 +175,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private static final String startingActivityInstance_EAGER_FETCH = Boolean.FALSE.toString();
    private static final String startingActivityInstance_MANDATORY = Boolean.FALSE.toString();
 
+   private static final String TRANSIENT_PROPERTY_KEY = "Infinity.Engine.TransientProperty";
+   
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
     */
@@ -369,10 +376,12 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       this.startTime = TimestampProviderUtils.getTimeStamp().getTime();
       this.terminationTime = 0;
       this.tokenCount = 1;
-
+      
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
       session.cluster(this);
+
+      setPropertyValue(TRANSIENT_PROPERTY_KEY, supportsTransientExecution(processDefinition));
 
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExecutionPlan plan = rtEnv.getExecutionPlan();
@@ -1465,6 +1474,16 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return new String[] { PI_NOTE, ABORTING_PI_OID };
    }
 
+   public boolean isTransient()
+   {
+      return ((Boolean) getPropertyValue(TRANSIENT_PROPERTY_KEY)).booleanValue();
+   }      
+   
+   public void resetTransientProperty()
+   {
+      setPropertyValue(TRANSIENT_PROPERTY_KEY, false);
+   }
+   
    private boolean noteExists()
    {
       Attribute property = (Attribute) getAllProperties().get(PI_NOTE);
@@ -1477,6 +1496,18 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return propertyExists(property);
    }
 
+   private boolean supportsTransientExecution(final IProcessDefinition processDef)
+   {
+      final boolean piSupportGloballyEnabled = ProcessInstanceUtils.isTransientPiSupportEnabled();
+      if ( !piSupportGloballyEnabled)
+      {
+         return false;
+      }
+      
+      final Boolean transientExecSupport = (Boolean) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_EXECUTION_SUPPORT);
+      return (transientExecSupport != null) ? transientExecSupport.booleanValue() : false;
+   }
+   
    private static boolean propertyExists(Attribute properties)
    {
       boolean result = false;

@@ -71,30 +71,14 @@ public class HazelcastCacheAdapter extends CacheAdapterBase<IMap<Object, Object>
    {
       if ("rw".equals(txMode) || ("w".equals(txMode) && !read))
       {
-         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-
-         Object hzConn = rtEnv.get(KEY_CURRENT_CONNECTION);
-         if (null == hzConn)
+         final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         try
          {
-            if (trace.isDebugEnabled())
-            {
-               trace.debug("About to enlist Hazelcast with the current TX.");
-            }
-            
-            try
-            {
-               hzConn = hzCf.getConnection();
-               rtEnv.setProperty(KEY_CURRENT_CONNECTION, hzConn);
-               
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Successfully enlisted Hazelcast with the current TX.");
-               }
-            }
-            catch (ResourceException re)
-            {
-               throw new PublicException("Failed starting Hazelcast TX.", re);
-            }
+            rtEnv.retrieveJcaConnection(hzCf);
+         }
+         catch (final ResourceException e)
+         {
+            throw new PublicException("Failed enlisting Hazelcast cache in the current transaction.", e);
          }
       }
    }

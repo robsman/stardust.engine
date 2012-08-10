@@ -31,6 +31,8 @@ public class HazelcastCacheFactory implements Cache.Factory
    public static final String PRP_HAZELCAST_TX_MODE = "Infinity.Engine.Caching.Hazelcast.TxMode";
    
    public static final String PRP_HAZELCAST_CF_JNDI_NAME = "Infinity.Engine.Caching.Hazelcast.ConnectionFactoryJndiName";
+   
+   public static final String HAZELCAST_CF_DEFAULT_JNDI_NAME = "HazelcastCF";
 
    @SuppressWarnings("rawtypes")
    public Cache createCache(Map env) throws CacheException
@@ -51,7 +53,7 @@ public class HazelcastCacheFactory implements Cache.Factory
          {
             InitialContext ic = new InitialContext();
             hzCf = (ConnectionFactory) ic.lookup(params.getString(
-                  PRP_HAZELCAST_CF_JNDI_NAME, "HazelcastCF"));
+                  PRP_HAZELCAST_CF_JNDI_NAME, HAZELCAST_CF_DEFAULT_JNDI_NAME));
          }
          return new HazelcastCacheAdapter(txMode, hzCf, env);
       }

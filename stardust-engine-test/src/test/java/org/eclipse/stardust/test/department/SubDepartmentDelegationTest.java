@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.stardust.engine.api.dto.ModelParticipantInfoDetails;
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -27,10 +26,10 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -226,9 +225,8 @@ public class SubDepartmentDelegationTest
 
    private void initAllOrgsAndRoles()
    {
-      final Model model = adminSf.getQueryService().getActiveModel();
-      org1 = model.getOrganization(ORG1_ID);
-      org3 = model.getOrganization(ORG3_ID);
+      org1 = (Organization) adminSf.getQueryService().getParticipant(ORG1_ID);
+      org3 = (Organization) adminSf.getQueryService().getParticipant(ORG3_ID);
    }
 
    private void createAllDepartments()

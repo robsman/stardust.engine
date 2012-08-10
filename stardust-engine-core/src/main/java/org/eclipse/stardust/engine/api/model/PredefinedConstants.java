@@ -624,6 +624,9 @@ public final class PredefinedConstants
    public static final String QUALIFIED_CASE_DATA_ID = '{' + PREDEFINED_MODEL_ID + '}' + CASE_DATA_ID;
    public static final String CASE_DESCRIPTOR_VALUE_XPATH = CASE_DESCRIPTORS_ELEMENT + '/' + "value";
 
+   // transient process
+   public static final String TRANSIENT_PROCESS_EXECUTION_SUPPORT = ENGINE_SCOPE + "transientProcessExecutionSupport";
+   
    private PredefinedConstants() {
       //disallow instance creation
    }

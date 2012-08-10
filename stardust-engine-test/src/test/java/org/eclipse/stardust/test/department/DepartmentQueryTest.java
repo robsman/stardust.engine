@@ -27,10 +27,10 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.OrganizationInfo;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
@@ -75,7 +75,7 @@ public class DepartmentQueryTest
       DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       DepartmentHome.create(sf, DEPT_ID_EN, ORG_ID_1, null);
       
-      final Organization org = sf.getQueryService().getActiveModel().getOrganization(ORG_ID_1);
+      final Organization org = (Organization) sf.getQueryService().getParticipant(ORG_ID_1);
       
       final List<Department> depts = sf.getQueryService().findAllDepartments(null, org);
       for (final Department dept : depts)
@@ -163,7 +163,7 @@ public class DepartmentQueryTest
       final Department deptDeNorth = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptDe);
       final Department deptEnSouth = DepartmentHome.create(sf, SUB_DEPT_ID_SOUTH, SUB_ORG_ID_2, deptEn);
       
-      final Organization subOrg2 = sf.getQueryService().getActiveModel().getOrganization(SUB_ORG_ID_2);
+      final Organization subOrg2 = (Organization) sf.getQueryService().getParticipant(SUB_ORG_ID_2);
       
       final List<Department> depts = sf.getQueryService().findAllDepartments(null, subOrg2);
       
@@ -193,7 +193,7 @@ public class DepartmentQueryTest
       final Department deptEnNorth = DepartmentHome.create(sf, SUB_DEPT_ID_NORTH, SUB_ORG_ID_2, deptEn);
       final Department deptEnSouth = DepartmentHome.create(sf, SUB_DEPT_ID_SOUTH, SUB_ORG_ID_2, deptEn);
       
-      final Organization subOrg2 = sf.getQueryService().getActiveModel().getOrganization(SUB_ORG_ID_2);
+      final Organization subOrg2 = (Organization) sf.getQueryService().getParticipant(SUB_ORG_ID_2);
       
       final List<Department> depts = sf.getQueryService().findAllDepartments(deptDe, subOrg2);
       
@@ -228,7 +228,7 @@ public class DepartmentQueryTest
    public void testFindAllDepartmentsParentNotResolvable()
    {
       final DepartmentInfo parent = new DepartmentInfoDetails(-1, "N/A", "N/A", -1);
-      final Organization org = sf.getQueryService().getActiveModel().getOrganization(ORG_ID_1);
+      final Organization org = (Organization) sf.getQueryService().getParticipant(ORG_ID_1);
       
       sf.getQueryService().findAllDepartments(parent, org);
       fail("The parent department does not exist.");

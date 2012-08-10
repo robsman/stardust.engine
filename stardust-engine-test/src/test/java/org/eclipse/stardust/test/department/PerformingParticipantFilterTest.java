@@ -19,7 +19,6 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.Role;
@@ -27,10 +26,10 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.FilterCriterion;
 import org.eclipse.stardust.engine.api.query.PerformingParticipantFilter;
 import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
@@ -309,11 +308,10 @@ public class PerformingParticipantFilterTest
    
    private void createAllOrgsAndRoles()
    {
-      final Model model = adminSf.getQueryService().getActiveModel();
-      org1 = model.getOrganization(ORG1_ID);
-      org2 = model.getOrganization(ORG2_ID);
-      org3 = model.getOrganization(ORG3_ID);
-      role1 = model.getRole(ROLE1_ID);
+      org1 = (Organization) adminSf.getQueryService().getParticipant(ORG1_ID);
+      org2 = (Organization) adminSf.getQueryService().getParticipant(ORG2_ID);
+      org3 = (Organization) adminSf.getQueryService().getParticipant(ORG3_ID);
+      role1 = (Role) adminSf.getQueryService().getParticipant(ROLE1_ID);
    }
    
    private void createAllDepartments()

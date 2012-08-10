@@ -54,6 +54,7 @@ public class LogEntryBean extends IdentifiablePersistentBean implements ILogEntr
    public static final String DEFAULT_ALIAS = "le";
    private static final String PK_FIELD = FIELD__OID;
    private static final String PK_SEQUENCE = "log_entry_seq";
+   public static final boolean TRY_DEFERRED_INSERT = true;
    public static final String[] log_entry_idx1_UNIQUE_INDEX = new String[] {FIELD__OID};
    public static final String[] log_entry_idx2_INDEX = new String[] {FIELD__ACTIVITY_INSTANCE};
    public static final String[] log_entry_idx3_INDEX = new String[] {FIELD__PROCESS_INSTANCE};

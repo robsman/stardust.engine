@@ -336,8 +336,7 @@ public class QualityControlRuntimeTest
    @Test
    public void testParticipantProbability()
    {
-      DeployedModel model = qs.getActiveModel();
-      ProcessDefinition pDef = model.getProcessDefinition(PROCESS_DEFINITION_ID);
+      ProcessDefinition pDef = sf.getQueryService().getProcessDefinition(PROCESS_DEFINITION_ID);
       Activity qaEnabledActivity = pDef.getActivity(QA_ENABLED_ACTIVITY_ID);
       
       //set probability to 0 for the monitored user
@@ -410,8 +409,7 @@ public class QualityControlRuntimeTest
       errorCodesDefinedForAI = new HashSet<QualityAssuranceCode>();
       Map<String, String> outData = new HashMap<String, String>();
 
-      DeployedModel model = qs.getActiveModel();
-      ProcessDefinition pDef = model.getProcessDefinition(PROCESS_DEFINITION_ID);
+      ProcessDefinition pDef = sf.getQueryService().getProcessDefinition(PROCESS_DEFINITION_ID);
       Activity qaEnabledActivity = pDef.getActivity(QA_ENABLED_ACTIVITY_ID);
       
       //set probability to 100 for the monitored user - for easier test expectations

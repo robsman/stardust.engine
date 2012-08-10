@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.engine.api.dto.HistoricalState;
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
@@ -32,10 +31,10 @@ import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
@@ -166,9 +165,7 @@ public class HistoricalStatesPolicyTest
    
    private void createUser()
    {
-      final Model model = adminSf.getQueryService().getActiveModel();
-
-      org = model.getOrganization(ORG_ID_1);
+      org = (Organization) adminSf.getQueryService().getParticipant(ORG_ID_1);
       deptDe = DepartmentHome.create(adminSf, DEPT_ID_DE, ORG_ID_1, null);
       deptEn = DepartmentHome.create(adminSf, DEPT_ID_EN, ORG_ID_1, null);
 

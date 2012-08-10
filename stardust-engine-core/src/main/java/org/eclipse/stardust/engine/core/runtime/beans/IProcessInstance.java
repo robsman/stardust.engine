@@ -217,4 +217,8 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    List/**/ getAbortingPiOids();
 
    public long getReferenceDeployment();
+   
+   public boolean isTransient();
+   
+   public void resetTransientProperty();
 }

@@ -23,16 +23,15 @@ import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import java.util.List;
 
 import org.eclipse.stardust.common.error.InvalidArgumentException;
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.Grant;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -140,9 +139,8 @@ public class UserGrantsTest
    
    private Organization[] getOrgs()
    {
-      final Model model = adminSf.getQueryService().getActiveModel();
-      final Organization org1 = model.getOrganization(ORG_ID_1);
-      final Organization org2 = model.getOrganization(ORG_ID_2);
+      final Organization org1 = (Organization) adminSf.getQueryService().getParticipant(ORG_ID_1);
+      final Organization org2 = (Organization) adminSf.getQueryService().getParticipant(ORG_ID_2);
       return new Organization[] { org1, org2 };
    }
    

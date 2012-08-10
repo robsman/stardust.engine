@@ -16,7 +16,6 @@ import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODE
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG1_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.query.ParticipantAssociationFilter;
@@ -24,10 +23,10 @@ import org.eclipse.stardust.engine.api.query.UserQuery;
 import org.eclipse.stardust.engine.api.query.Users;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
@@ -181,8 +180,7 @@ public class ParticipantAssociationFilterTest
 
    private void initOrg1()
    {
-      final Model model = sf.getQueryService().getActiveModel();
-      org1 = model.getOrganization(ORG1_ID);
+      org1 = (Organization) sf.getQueryService().getParticipant(ORG1_ID);
    }
    
    private void createOrg1Users()

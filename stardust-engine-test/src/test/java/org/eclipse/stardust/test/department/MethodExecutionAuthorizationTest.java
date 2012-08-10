@@ -19,7 +19,6 @@ import java.util.Map;
 import junit.framework.Assert;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.Role;
@@ -28,10 +27,10 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
@@ -455,13 +454,12 @@ public class MethodExecutionAuthorizationTest
    
    private void createOrgsAndDepartments()
    {
-      final Model model = adminSf.getQueryService().getActiveModel();
-      admin = model.getRole(ROLE_ADMIN_ID);
-      org1 = model.getOrganization(ORG1_ID);
-      org3 = model.getOrganization(ORG3_ID);
-      org4 = model.getOrganization(ORG4_ID);
-      org5 = model.getOrganization(ORG5_ID);
-      readerOrg = model.getOrganization(READER_ORG_ID);
+      admin = (Role) adminSf.getQueryService().getParticipant(ROLE_ADMIN_ID);
+      org1 = (Organization) adminSf.getQueryService().getParticipant(ORG1_ID);
+      org3 = (Organization) adminSf.getQueryService().getParticipant(ORG3_ID);
+      org4 = (Organization) adminSf.getQueryService().getParticipant(ORG4_ID);
+      org5 = (Organization) adminSf.getQueryService().getParticipant(ORG5_ID);
+      readerOrg = (Organization) adminSf.getQueryService().getParticipant(READER_ORG_ID);
       
       deptU = adminSf.getAdministrationService().createDepartment(DEPT_ID_U, DEPT_ID_U, null, null, org1);
       deptV = adminSf.getAdministrationService().createDepartment(DEPT_ID_V, DEPT_ID_V, null, null, org1);

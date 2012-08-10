@@ -64,6 +64,12 @@ public class ProcessBlobWriter
                   Class fkFieldType = fkJavaField.getType();
                   
                   Persistent linkedInstance = (Persistent) javaField.get(instance);
+                  if (linkedInstance == null)
+                  {
+                     /* the link hasn't been fetched yet why we have to do so first */
+                     instance.getPersistenceController().fetchLink(javaField.getName());
+                     linkedInstance = (Persistent) javaField.get(instance);
+                  }
                   writeField(blobBuilder, linkedInstance, fkJavaField, fkFieldType);
                }
             }

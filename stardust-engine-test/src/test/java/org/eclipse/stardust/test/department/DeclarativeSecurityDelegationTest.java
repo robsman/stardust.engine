@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
-import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.Role;
@@ -27,10 +26,10 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -623,16 +622,14 @@ public class DeclarativeSecurityDelegationTest
 
    private void initAllOrgsAndRoles()
    {
-      final Model model = adminSf.getQueryService().getActiveModel();
+      org1 = (Organization) adminSf.getQueryService().getParticipant(ORG1_ID);
+      org2 = (Organization) adminSf.getQueryService().getParticipant(ORG2_ID);
+      org3 = (Organization) adminSf.getQueryService().getParticipant(ORG3_ID);
       
-      org1 = model.getOrganization(ORG1_ID);
-      org2 = model.getOrganization(ORG2_ID);
-      org3 = model.getOrganization(ORG3_ID);
-      
-      role1 = model.getRole(ROLE1_ID);
-      noneRole = model.getRole(NONE_ROLE_ID);
-      dtoRole = model.getRole(DTO_ROLE_ID);
-      dtdRole = model.getRole(DTD_ROLE_ID);
+      role1 = (Role) adminSf.getQueryService().getParticipant(ROLE1_ID);
+      noneRole = (Role) adminSf.getQueryService().getParticipant(NONE_ROLE_ID);
+      dtoRole = (Role) adminSf.getQueryService().getParticipant(DTO_ROLE_ID);
+      dtdRole = (Role) adminSf.getQueryService().getParticipant(DTD_ROLE_ID);
    }
 
    private void createAllDepartments()

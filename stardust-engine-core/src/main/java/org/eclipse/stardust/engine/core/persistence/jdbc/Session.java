@@ -12,27 +12,11 @@ package org.eclipse.stardust.engine.core.persistence.jdbc;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.BatchUpdateException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.Date;
 
 import javax.sql.DataSource;
 
@@ -65,55 +49,14 @@ import org.eclipse.stardust.engine.core.cache.AbstractCache;
 import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.monitoring.PersistentListenerUtils;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.ClosableIteratorUtils;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.DefaultPersistentVector;
-import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
-import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Functions;
-import org.eclipse.stardust.engine.core.persistence.InsertDescriptor;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.Joins;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PersistenceController;
-import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.PersistentVector;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
-import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
-import org.eclipse.stardust.engine.core.persistence.jms.JmsBytesMessageBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobAuditTrailPersistor;
-import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceSupport;
+import org.eclipse.stardust.engine.core.persistence.jms.*;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
@@ -198,7 +141,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
     * objects.</li>
     * </ul>
     */
-   private Map<Class, Map> objCacheRegistry = new HashMap<Class, Map>();
+   private Map<Class<?>, Map<Object, PersistenceController>> objCacheRegistry = CollectionUtils.newHashMap();
 
    /**
     * This registry holds caches holding the persistenceControllers of <b>dead</b>
@@ -1619,12 +1562,14 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          trace.debug(this + ", flushing!");
       }
 
+      final TransientProcessInstanceSupport transientPiSupport = new TransientProcessInstanceSupport(dbDescriptor.supportsSequences());
+      
       try
       {
 
          // notify listeners in advance since they might add new objects to the cache
          // collect the keys to avoid concurrent modification exceptions
-         List<Class> types = CollectionUtils.newList(objCacheRegistry.keySet());
+         List<Class<?>> types = CollectionUtils.newList(objCacheRegistry.keySet());
          for (Class<?> type : types)
          {
             Map cache = objCacheRegistry.get(type);
@@ -1655,10 +1600,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
          // TODO make sure no non-PI related data is lost
 
-         Map pis = (Map) objCacheRegistry.get(ProcessInstanceBean.class);
-
+         Map<Object, PersistenceController> pis = objCacheRegistry.get(ProcessInstanceBean.class);
+         
          boolean supportsAsynchWrite = params.getBoolean("Carnot.Engine.Tuning.SupportAsyncAuditTrailWrite", false);
-
          supportsAsynchWrite &= supportsAsynchWrite && (null != pis) && !pis.isEmpty();
 
          if (supportsAsynchWrite)
@@ -1671,12 +1615,16 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                supportsAsynchWrite &= pcPi.isCreated() && pi.isTerminated();
             }
          }
+         else if (ProcessInstanceUtils.isTransientPiSupportEnabled())
+         {
+            final Map<Object, PersistenceController> ais = objCacheRegistry.get(ActivityInstanceBean.class);
+            transientPiSupport.init(pis, ais);
+         }
 
          BlobBuilder blobBuilder = null;
-         if (supportsAsynchWrite)
+         if (supportsAsynchWrite || transientPiSupport.persistentsNeedToBeWrittenToInMemStorage())
          {
-            if (params.getBoolean(
-                  "Carnot.Engine.Tuning.SupportAsyncAuditTrailWriteViaJms", true))
+            if (supportsAsynchWrite && params.getBoolean("Carnot.Engine.Tuning.SupportAsyncAuditTrailWriteViaJms", true))
             {
                try
                {
@@ -1778,6 +1726,23 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   throw new InternalException(
                         "Failed to asynchronously complete AuditTrail as the type "
                               + type + " unexpectedly contained modified instances.");
+               }
+            }
+            else if (transientPiSupport.arePisTransient())
+            {
+               if ( !persistentToBeUpdated.isEmpty())
+               {
+                  throw new IllegalStateException("Failed to flush transient process as the type '" + type + "' unexpectedly contained modified instances.");
+               }
+
+               transientPiSupport.storePersistentKeys(persistentToBeInserted);
+               
+               if (transientPiSupport.isCurrentSessionTransient())
+               {
+                  transientPiSupport.writeToBlobOrDiscard(persistentToBeInserted, blobBuilder, dmlManager.getTypeDescriptor());
+                  
+                  /* do not write the current entry to the database, but proceed with the next one */
+                  continue;
                }
             }
 
@@ -1950,6 +1915,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
          }
 
+         if (transientPiSupport.arePisTransient())
+         {
+            transientPiSupport.cleanUpInMemStorage();
+         }
+         
          if (null != blobBuilder)
          {
             try
@@ -1961,7 +1931,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   trace.debug("Persisted processes to BLOB.");
                }
 
-               if (blobBuilder instanceof ByteArrayBlobBuilder)
+               if (transientPiSupport.isCurrentSessionTransient())
+               {
+                  transientPiSupport.writeToInMemStorage(blobBuilder);
+               }
+               else if (blobBuilder instanceof ByteArrayBlobBuilder)
                {
                   BlobReader blobReader = new ByteArrayBlobReader(
                         ((ByteArrayBlobBuilder) blobBuilder).getBlob());
@@ -2010,7 +1984,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          throw new InternalException("Error during flush.", x);
       }
    }
-
+   
    private void remove(AbstractCache externalCache, Persistent persistent)
    {
       if (externalCache != null)
@@ -2026,7 +2000,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          externalCache.set(persistent, true);
       }
    }
-
+   
    /**
     * Converts persistent objects from "to be inserted" (contained in list persistentAlreadyExists)
     * into "to be updated". For that the already existing objects will be fetched (as these
@@ -3317,7 +3291,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          Assert.condition(false, "Invalid argument: type " + type
                + " has more than one PK field.");
       }
-
+      
       Object identityKey = typeManager.getIdentityKey(new Long(oid));
       Persistent persistent = retrieveFromCache(type, identityKey);
       if (persistent != null)
@@ -3328,6 +3302,15 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             return null;
          }
          return persistent;
+      }
+
+      if (ProcessInstanceUtils.isTransientPiSupportEnabled())
+      {
+         final Persistent transientPersistent = TransientProcessInstanceSupport.findAndReattach(oid, type, this);
+         if (transientPersistent != null)
+         {
+            return transientPersistent;
+         }
       }
 
       AbstractCache cache = CacheHelper.getCache(type);

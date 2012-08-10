@@ -10,6 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.removethis;
 
+import org.eclipse.stardust.common.annotations.ConfigurationProperty;
+import org.eclipse.stardust.common.annotations.PropertyValueType;
+import org.eclipse.stardust.common.annotations.Status;
+import org.eclipse.stardust.common.annotations.UseRestriction;
+import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
+
 /**
  * @author rsauer
  * @version $Revision$
@@ -177,4 +183,10 @@ public final class KernelTweakingProperties
    public static final String SHARED_CACHING = "Infinity.Engine.Caching.Shared";
 
    public static final String CACHE_FACTORY_OVERRIDE = "Infinity.Engine.Caching.CacheFactory";
+   
+   public static final String SUPPORT_TRANSIENT_PROCESSES = "Carnot.Engine.Tuning.SupportTransientProcesses";
+   
+   @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Public)
+   @PropertyValueType(ClusterSafeObjectProvider.class)
+   public static final String CLUSTER_SAFE_OBJ_PROVIDER = "Carnot.Engine.Tuning.SupportTransientProcesses.ClusterSafeObjectProvider";
 }

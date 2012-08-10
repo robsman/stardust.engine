@@ -38,11 +38,7 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.JoinSplitType;
 import org.eclipse.stardust.engine.api.model.LoopType;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
@@ -644,6 +640,14 @@ public class ActivityThread implements Runnable
                   }
                   else
                   {
+                     if (isSerialExecutionScenario() && isAndJoinAI())
+                     {
+                        /* do not schedule a new activity thread for every single incoming */
+                        /* thread - the serial execution ensures that the last thread is   */
+                        /* able to pass the join gateway (no contention).                  */
+                        continue;
+                     }
+                     
                      schedule(processInstance, targetActivity, null,
                            false, null, Collections.EMPTY_MAP, false);
                   }
@@ -663,6 +667,21 @@ public class ActivityThread implements Runnable
       }
    }
 
+   private boolean isSerialExecutionScenario()
+   {
+      return processInstance.isTransient();
+   }
+   
+   private boolean isAndJoinAI()
+   {
+      if (activity.getJoinType() == JoinSplitType.And)
+      {
+         return true;
+      }
+      
+      return false;
+   }
+   
    private boolean enableVertex()
    {
       List<TransitionTokenBean> freeTokens = null;

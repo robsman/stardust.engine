@@ -13,8 +13,8 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
@@ -26,6 +26,9 @@ import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
 import javax.jms.QueueSender;
 import javax.jms.QueueSession;
+import javax.resource.ResourceException;
+import javax.resource.cci.Connection;
+import javax.resource.cci.ConnectionFactory;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -47,7 +50,6 @@ import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDige
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsPrincipal;
-
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 import org.eclipse.stardust.vfs.impl.jcr.AuthorizableOrganizationDetails;
 import org.eclipse.stardust.vfs.impl.utils.SessionUtils;
@@ -78,14 +80,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
    private IJmsResourceProvider jmsResourceProvider;
 
-   private Map jmsQueueConnections = Collections.EMPTY_MAP;
+   private Map<QueueConnectionFactory, QueueConnection> jmsQueueConnections = Collections.emptyMap();
 
-   private Map jmsQueueSessions = Collections.EMPTY_MAP;
+   private Map<QueueConnection, QueueSession> jmsQueueSessions = Collections.emptyMap();
 
-   private Map jmsQueueSenders = Collections.EMPTY_MAP;
+   private Map<QueueSession, QueueSender> jmsQueueSenders = Collections.emptyMap();
 
-   private Map jcrSessions = Collections.EMPTY_MAP;
-
+   private Map<String, javax.jcr.Session> jcrSessions = Collections.emptyMap();
+   
+   private Map<ConnectionFactory, Connection> jcaConnections = Collections.emptyMap();
+   
    private Authorization2Predicate authorization2Predicate;
 
    private RtDetailsFactory detailsFactory;
@@ -214,9 +218,12 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          {
             this.jmsQueueConnections = Collections.singletonMap(factory, connection);
          }
-         else if (1 == jmsQueueConnections.size())
+         else
          {
-            this.jmsQueueConnections = CollectionUtils.copyMap(jmsQueueConnections);
+            if (1 == jmsQueueConnections.size())
+            {
+               this.jmsQueueConnections = CollectionUtils.copyMap(jmsQueueConnections);
+            }
             jmsQueueConnections.put(factory, connection);
          }
       }
@@ -254,9 +261,12 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          {
             this.jmsQueueSessions = Collections.singletonMap(connection, session);
          }
-         else if (1 == jmsQueueSessions.size())
+         else
          {
-            this.jmsQueueSessions = CollectionUtils.copyMap(jmsQueueSessions);
+            if (1 == jmsQueueSessions.size())
+            {
+               this.jmsQueueSessions = CollectionUtils.copyMap(jmsQueueSessions);
+            }
             jmsQueueSessions.put(connection, session);
          }
       }
@@ -282,9 +292,12 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          {
             this.jmsQueueSenders = Collections.singletonMap(session, sender);
          }
-         else if (1 == jmsQueueSenders.size())
+         else
          {
-            this.jmsQueueSenders = CollectionUtils.copyMap(jmsQueueSenders);
+            if (1 == jmsQueueSenders.size())
+            {
+               this.jmsQueueSenders = CollectionUtils.copyMap(jmsQueueSenders);
+            }
             jmsQueueSenders.put(session, sender);
          }
       }
@@ -437,9 +450,12 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          {
             this.jcrSessions = Collections.singletonMap(key, session);
          }
-         else if (1 == jcrSessions.size())
+         else
          {
-            this.jcrSessions = CollectionUtils.copyMap(jcrSessions);
+            if (1 == jcrSessions.size())
+            {
+               this.jcrSessions = CollectionUtils.copyMap(jcrSessions);
+            }
             jcrSessions.put(key, session);
          }
       }
@@ -447,6 +463,36 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       return session;
    }
 
+   public Connection retrieveJcaConnection(final ConnectionFactory connectionFactory) throws ResourceException
+   {
+      Connection connection = null;
+      
+      if ( !jcaConnections.isEmpty())
+      {
+         connection = jcaConnections.get(connectionFactory);
+      }
+      
+      if (null == connection)
+      {
+         connection = connectionFactory.getConnection();
+         
+         if (jcaConnections.isEmpty())
+         {
+            jcaConnections = Collections.singletonMap(connectionFactory, connection);
+         }
+         else
+         {
+            if (1 == jcaConnections.size())
+            {
+               jcaConnections = CollectionUtils.copyMap(jcaConnections);
+            }
+            jcaConnections.put(connectionFactory, connection);
+         }
+      }
+      
+      return connection;
+   }
+   
    public void close()
    {
       detailsFactory = null;
@@ -456,6 +502,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       closeQueueConnections();
 
       closeJcrSessions();
+      closeJcaConnections();
    }
 
    private void closeQueueConnections()
@@ -554,6 +601,21 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       }
    }
 
+   private void closeJcaConnections()
+   {
+      for (final Connection c : jcaConnections.values())
+      {
+         try
+         {
+            c.close();
+         }
+         catch (final ResourceException e)
+         {
+            trace.warn("Failed closing a JCA connection.", e);
+         }
+      }
+   }   
+   
    public RtDetailsFactory getDetailsFactory()
    {
       return detailsFactory;

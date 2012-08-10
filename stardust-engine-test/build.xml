@@ -147,6 +147,7 @@
          <execute-test-suite name="Join Process" class="org.eclipse.stardust.test.join.JoinProcessTestSuite" />
          <execute-test-suite name="Quality Control" class="org.eclipse.stardust.test.qc.QualityControlTestSuite" />
          <execute-test-suite name="Spawn Process" class="org.eclipse.stardust.test.spawn.SpawnProcessTestSuite" />
+         <execute-test-suite name="Transient Process Instance" class="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTestSuite" />
       </sequential>
    </macrodef>
    

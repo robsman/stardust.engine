@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
 
@@ -42,6 +41,7 @@ public class ProcessInstanceProperty extends AbstractPropertyWithUser
    public static final String TABLE_NAME = "proc_inst_property";
    public static final String PK_FIELD = FIELD__OID;
    public static final String PK_SEQUENCE = "proc_inst_property_seq";
+   public static final boolean TRY_DEFERRED_INSERT = true;
    public static final String[] proc_inst_prp_idx1_INDEX = new String[] {FIELD__OBJECT_OID};
    public static final String[] proc_inst_prp_idx2_INDEX = new String[] {
          FIELD__TYPE_KEY, FIELD__NUMBER_VALUE};

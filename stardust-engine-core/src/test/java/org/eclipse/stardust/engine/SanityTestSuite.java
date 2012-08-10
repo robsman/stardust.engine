@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.utils.xml.XmlUtilsTestSuite;
 import org.eclipse.stardust.engine.api.query.QueryTestSuite;
 import org.eclipse.stardust.engine.api.runtime.EngineSetupTestSuite;
 import org.eclipse.stardust.engine.core.compatibility.el.ElTestSuite;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceTestSuite;
 import org.eclipse.stardust.engine.core.preferences.PreferencesTestSuite;
 import org.eclipse.stardust.engine.core.struct.StructuredDataTestSuite;
 import org.eclipse.stardust.engine.core.struct.sxml.SxmlTestSuite;
@@ -39,6 +40,7 @@ import org.junit.runners.Suite.SuiteClasses;
                   MailValidationUtilsTest.class,
                   PreferencesTestSuite.class,
                   ReflectTestSuite.class,
+                  TransientProcessInstanceTestSuite.class,
                   UpgradeTestSuite.class,
                   ElTestSuite.class} )
 public class SanityTestSuite

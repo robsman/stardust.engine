@@ -780,4 +780,11 @@ public class ProcessInstanceUtils
       }
       return processInstance;
    }
+   
+   public static boolean isTransientPiSupportEnabled()
+   {
+      final Parameters params = Parameters.instance();
+      final boolean transientPiSupportEnabled = params.getBoolean(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, false);
+      return transientPiSupportEnabled;
+   }
 }

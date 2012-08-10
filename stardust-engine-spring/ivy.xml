@@ -58,6 +58,7 @@
 
       <!-- carnot-spring-provided -->      
       <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="carnot-spring-provided->default" />
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-provided->ejb21-module-compile" />
       
       <!-- test -->
       <dependency org="junit" name="junit" rev="4.10" conf="test->default" />

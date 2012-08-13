@@ -603,18 +603,23 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
    private void closeJcaConnections()
    {
-      for (final Connection c : jcaConnections.values())
+      if ( !jcaConnections.isEmpty())
       {
-         try
+         for (final Connection c : jcaConnections.values())
          {
-            c.close();
+            try
+            {
+               c.close();
+            }
+            catch (final ResourceException e)
+            {
+               trace.warn("Failed closing a JCA connection.", e);
+            }
          }
-         catch (final ResourceException e)
-         {
-            trace.warn("Failed closing a JCA connection.", e);
-         }
+         
+         this.jcaConnections = Collections.emptyMap();
       }
-   }   
+   }
    
    public RtDetailsFactory getDetailsFactory()
    {

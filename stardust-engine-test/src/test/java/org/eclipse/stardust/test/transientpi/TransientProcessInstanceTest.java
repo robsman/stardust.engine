@@ -60,7 +60,7 @@ import org.springframework.transaction.jta.JtaTransactionManager;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class TransientProcessInstanceTest
 {
@@ -498,7 +498,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * @author Nicolas.Werlein
-    * @version $Revision: $
+    * @version $Revision$
     */
    public static final class FailingApp
    {
@@ -519,7 +519,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * @author Nicolas.Werlein
-    * @version $Revision: $
+    * @version $Revision$
     */
    public static final class SucceedingApp
    {
@@ -537,7 +537,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * @author Nicolas.Werlein
-    * @version $Revision: $
+    * @version $Revision$
     */
    public static final class SettingRollbackOnlyApp
    {

@@ -17,7 +17,7 @@ package org.eclipse.stardust.test.transientpi;
  * </p>
  *
  * @author Nicolas.Werlein
- * @version $Revision: $ 
+ * @version $Revision$ 
  */
 /* package-private */ class TransientProcessInstanceModelConstants
 {

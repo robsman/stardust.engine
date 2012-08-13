@@ -109,8 +109,12 @@ public class UpgradeRuntimeCommand extends AuditTrailCommand
                   + "': " + e.getMessage());
          }
       }
+      
+      print("Upgrading Runtime.\n");      
       RuntimeUpgrader upgrader = new RuntimeUpgrader(runtime, password, ignorelock);
       upgrader.upgrade(recovery);
+      print("Runtime upgraded.");
+            
       return 0;
    }
 

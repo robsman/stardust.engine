@@ -34,7 +34,19 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Functions;
+import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Operator;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
@@ -181,9 +193,17 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
       final boolean isIsNullFilter = isIsNullFilter(filter);
       final Integer dataFilterMode = Integer.valueOf(filter.getFilterMode());
 
+      final DataAttributeKey filterKey;
       IData data = findCorrespondingData(filter.getDataID(), cntxt.getEvaluationContext().getModelManager());
-      final DataAttributeKey filterKey = new DataAttributeKey(data, filter.getAttributeName());
-
+      if(data != null)
+      {
+         filterKey = new DataAttributeKey(data, filter.getAttributeName());
+      }
+      else
+      {
+         filterKey = new DataAttributeKey(filter.getDataID(), filter.getAttributeName());
+      }
+      
       Set<DataCluster> boundClusters = cntxt.getClusterBindings().get(filterKey);
       if (null != boundClusters
             // Clusters can only be used for this data scope mode (default mode).
@@ -253,6 +273,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
          // join will eventually be reused by successive DataFilters targeting the same
          // dataID (especially needed for ORed predicate to prevent combinatorical explosion)
 
+         
          // TODO (peekaboo): refactor this code block (join generation) to reusable factory class
          Pair joinKey = new Pair(dataFilterMode, new DataAttributeKey(filterKey.getDataId(), filterKey.getAttributeName()));
          Join dvJoin = (Join) dataJoinMapping.get(joinKey);

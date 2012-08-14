@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.struct;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 import org.eclipse.stardust.common.Period;
@@ -76,9 +77,13 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
          {
             try
             {
-               df = new SimpleDateFormat(XSD_TIME_FORMAT);
+               //RPI: Workaround for CRNT-25389  
+               SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+               String dateString = sd.format(new Date()); 
+               String tempStrValue = dateString + "T" + stringValue;
+               df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
                df.setLenient(false);
-               return df.parse(stringValue);
+               return df.parse(tempStrValue);
             }
             catch (Exception e2)
             {

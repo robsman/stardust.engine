@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -30,13 +31,9 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.DataQueryEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
 /**
  * Responsible to sync existing AuditTrail document data and folder data.
@@ -50,13 +47,6 @@ public class DmsResourceSyncManager
 
    private final static Logger trace = LogManager.getLogger(DmsResourceSyncManager.class);
 
-   /**
-    * Parameter key used to prevent cyclic updates. It is checked in the workflow code
-    * which handles AuditTrail persistence of document data. If it is true, the update
-    * call synchronizing changes to the repository must not be triggered to prevent a call cycle.
-    */
-   public final static String IS_INTERNAL_DOCUMENT_SYNC_CALL = "org.eclipse.stardust.engine.extensions.dms.data.DmsResourceSyncManager.isInternalDocumentSyncCall";
-
    public IDmsResourceSyncListener getListener()
    {
       return new DmsResourceSyncManager();
@@ -66,8 +56,8 @@ public class DmsResourceSyncManager
    {
       ServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
 
-      ParametersFacade.pushLayer(Collections.singletonMap(IS_INTERNAL_DOCUMENT_SYNC_CALL,
-            true));
+      ParametersFacade.pushLayer(Collections.singletonMap(
+            AbstractVfsResourceAccessPathEvaluator.IS_INTERNAL_DOCUMENT_SYNC_CALL, true));
       try
       {
 
@@ -92,12 +82,19 @@ public class DmsResourceSyncManager
             {
                final IData iData = dataIterator.next();
 
+               AccessPoint triggeringAccessPoint = Parameters.instance()
+                     .getObject(
+                           AbstractVfsResourceAccessPathEvaluator.DMS_SYNC_CURRENT_ACCESS_POINT,
+                           null);
+
+               // The triggering accesspoint must not be synchronized, it is handled in the call which has triggered the synchronization.
+               if ( !iData.equals(triggeringAccessPoint))
+               {
+
                String dataTypeId = iData.getType().getId();
                if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
                {
-                  final IDataValue iDataValue = piBean.getDataValue(iData);
-
-                  Object value = getEvaluatedDataValue(piBean, iData, iDataValue);
+                     Object value = piBean.getInDataValue(iData, null);
 
                   if (value instanceof Document)
                   {
@@ -120,9 +117,7 @@ public class DmsResourceSyncManager
                }
                else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
                {
-                  IDataValue iDataValue = piBean.getDataValue(iData);
-
-                  Object value = getEvaluatedDataValue(piBean, iData, iDataValue);
+                     Object value = piBean.getInDataValue(iData, null);
 
                   if (value instanceof List)
                   {
@@ -142,13 +137,13 @@ public class DmsResourceSyncManager
                            documentList.add(existingDocument);
                         }
                      }
-                     
+
                      if (documentList.isEmpty())
                      {
                         // don't set empty list of no documents are contained.
                         documentList = null;
                      }
-                     
+
                      if ( !existingDocumentList.equals(documentList))
                      {
                         piBean.setOutDataValue(iData, "", documentList);
@@ -172,6 +167,7 @@ public class DmsResourceSyncManager
                   // TODO to be implemented in later version
                }
             }
+            }
 
          }
       }
@@ -185,17 +181,6 @@ public class DmsResourceSyncManager
    public void folderChanged(Folder oldFolder, Folder newFolder)
    {
       // TODO to be implemented in later version
-   }
-
-   private Object getEvaluatedDataValue(IProcessInstance piBean,
-         final IData iData, final IDataValue iDataValue)
-   {
-      ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(iData.getType());
-      AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
-            piBean, piBean.getScopeProcessInstanceOID());
-      Object value = evaluator.evaluate(iData, iDataValue.getValue(), null,
-            evaluationContext);
-      return value;
    }
 
 }

@@ -147,8 +147,11 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          }
          finally
          {
-
+            if(layer != null)
+            {
+               ParametersFacade.popLayer();
          }
+      }
       }
       else
       {

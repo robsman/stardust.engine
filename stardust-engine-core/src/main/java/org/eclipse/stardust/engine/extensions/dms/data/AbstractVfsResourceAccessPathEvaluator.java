@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.Logger;
@@ -37,7 +38,21 @@ import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
  * Handles common tasks of property format for DmsResource
  */
 public abstract class AbstractVfsResourceAccessPathEvaluator
-{
+{ 
+   
+   /**
+    * Parameter key used to prevent cyclic updates. It is checked in the workflow code
+    * which handles AuditTrail persistence of document data. If it is true, the update
+    * call synchronizing changes to the repository must not be triggered to prevent a call cycle.
+    */
+   public final static String IS_INTERNAL_DOCUMENT_SYNC_CALL = "org.eclipse.stardust.engine.extensions.dms.data.AbstractVfsResourceAccessPathEvaluator.isInternalDocumentSyncCall";
+
+   /**
+    * Holds the current accesspoint which triggered the update call if the sync was triggered via an access point.
+    * This accesspoint has to be ignored while synchronizing because it is updated by the call itself and the data value bean is not be created yet.
+    */
+   public final static String DMS_SYNC_CURRENT_ACCESS_POINT = "org.eclipse.stardust.engine.extensions.dms.data.AbstractVfsResourceAccessPathEvaluator.currentAccessPoint";
+   
 
    private final StructuredDataXPathEvaluator structEvaluator = new StructuredDataXPathEvaluator();
 
@@ -46,15 +61,17 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
       super();
    }
    
-   protected void syncToRepository(Document document, Logger trace)
+   protected void syncToRepository(Document document, Logger trace, AccessPoint accessPointDefinition)
    {
       boolean isInternalDocumentSyncCall = Parameters.instance().getBoolean(
-            DmsResourceSyncManager.IS_INTERNAL_DOCUMENT_SYNC_CALL, false);
+            IS_INTERNAL_DOCUMENT_SYNC_CALL, false);
       if ( !isInternalDocumentSyncCall && document != null && document.getId() != null)
       {
+         Map<String, Object> props = CollectionUtils.newHashMap();
+         props.put(DMS_SYNC_CURRENT_ACCESS_POINT, accessPointDefinition);
+         PropertyLayer layer = ParametersFacade.pushLayer(props);
          try
          {
-            ParametersFacade.pushLayer(null);
 
             IUser user = SecurityProperties.getUser();      
             
@@ -108,9 +125,12 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
          }
          finally
          {
+            if (layer != null)
+            {
             ParametersFacade.popLayer();
          }
       }
+   }
    }
 
    protected Object readFromAuditTrail(AccessPoint accessPointDefinition, Object accessPointInstance, String inPath, AccessPathEvaluationContext accessPathEvaluationContext)

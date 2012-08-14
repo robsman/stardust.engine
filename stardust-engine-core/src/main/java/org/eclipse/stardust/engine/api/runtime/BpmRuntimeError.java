@@ -85,6 +85,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_XSD_VALIDATION_FAILED = newArgs1("MDL03002", BpmRuntimeErrorMessages.getString("MDL03002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_INVALID_DOCUMENT_ROOT_TYPE = newArgs1("MDL03003", BpmRuntimeErrorMessages.getString("MDL03003")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 MDL_INVALID_QA_CODE_ID = newArgs1("MDL03004", BpmRuntimeErrorMessages.getString("MDL03004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 MDL_DUPLICATE_QA_CODE = newArgs2("MDL03005", BpmRuntimeErrorMessages.getString("MDL03005")); //$NON-NLS-1$ //$NON-NLS-2$ 
+   
    //// Audittrail related
 
    public static final Args0 ATDB_AUDIT_TRAIL_UNAVAILABLE = newArgs0("ATDB00001", BpmRuntimeErrorMessages.getString("ATDB00001")); //$NON-NLS-1$ //$NON-NLS-2$

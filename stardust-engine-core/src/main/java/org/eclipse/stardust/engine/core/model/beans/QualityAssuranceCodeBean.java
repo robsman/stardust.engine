@@ -51,4 +51,12 @@ public class QualityAssuranceCodeBean implements IQualityAssuranceCode, Serializ
    {
       return name;
    }
+
+   @Override
+   public String toString()
+   {
+      return code + "(" + description + ")";
+   }
+   
+   
 }

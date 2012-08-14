@@ -100,7 +100,7 @@ public class VfsDocumentAccessPathEvaluator
                }
             }
             
-            syncToRepository(document, trace);
+            syncToRepository(document, trace, accessPointDefinition);
 
             Map newAuditTrailDocument = ((DmsDocumentBean) value).vfsResource();
             if ( !auditTrailDoc.equals(newAuditTrailDocument))
@@ -129,7 +129,7 @@ public class VfsDocumentAccessPathEvaluator
          // read and sync full document including updated value
          Map auditTrailDoc = (Map) readFromAuditTrail(accessPointDefinition,
                accessPointInstance, null, accessPathEvaluationContext);
-         syncToRepository(new DmsDocumentBean(auditTrailDoc), trace);
+         syncToRepository(new DmsDocumentBean(auditTrailDoc), trace, accessPointDefinition);
          
       }
 

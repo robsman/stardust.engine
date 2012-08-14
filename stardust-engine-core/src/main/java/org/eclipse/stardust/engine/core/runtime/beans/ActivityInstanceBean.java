@@ -116,6 +116,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          new String[]{FIELD__STATE};
    public static final String[] activity_inst_idx8_INDEX = new String[] {
          FIELD__ACTIVITY, FIELD__PROCESS_INSTANCE };
+   public static final String[] activity_inst_idx9_INDEX = new String[] {
+      FIELD__CRITICALITY, FIELD__PROCESS_INSTANCE };
 
    static final boolean state_USE_LITERALS = true;
    static final boolean currentUserPerformer_USE_LITERALS = true;

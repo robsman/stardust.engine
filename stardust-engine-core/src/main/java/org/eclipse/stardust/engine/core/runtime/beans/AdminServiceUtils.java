@@ -132,20 +132,24 @@ public class AdminServiceUtils
                   Predicates.isEqual(TransitionTokenBean.FR__TRANSITION, transitionOid)),
                   false);
          }
+         
+         PredicateTerm processDefPredicate = Predicates.andTerm(
+               Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, pdOid),
+               Predicates.isEqual(ProcessInstanceBean.FR__MODEL, modelOid));
+         
          // starting trans_inst
          session.delete(TransitionInstanceBean.class, null, //
                new Join(ProcessInstanceBean.class) //
                      .on(TransitionInstanceBean.FR__PROCESS_INSTANCE,
                            ProcessInstanceBean.FIELD__OID)//
-                     .where(Predicates.isEqual( //
-                           ProcessInstanceBean.FR__PROCESS_DEFINITION, pdOid)), false);
+                     .where(processDefPredicate), false);
+
          // starting trans_token
          session.delete(TransitionTokenBean.class, null, //
                new Join(ProcessInstanceBean.class) //
                      .on(TransitionTokenBean.FR__PROCESS_INSTANCE,
                            ProcessInstanceBean.FIELD__OID)//
-                     .where(Predicates.isEqual( //
-                           ProcessInstanceBean.FR__PROCESS_DEFINITION, pdOid)), false);
+                     .where(processDefPredicate), false);
          
          // triggers
          for (Iterator j = accessor.getAllTriggers(pd); j.hasNext();)

@@ -223,10 +223,9 @@ public class DataCopyUtils
          Map<String, DataCopyMappingRule> mappingRules)
    {
       // copy all data
-      for (Iterator iterator = sourceProcessInstance.getAllDataValues(); iterator.hasNext();)
+      List<IDataValue> allDataValues = CollectionUtils.newArrayListFromIterator(sourceProcessInstance.getAllDataValues());
+      for (IDataValue srcValue: allDataValues)
       {
-         IDataValue srcValue = (IDataValue) iterator.next();
-
          if (trace.isDebugEnabled())
          {
             trace.debug("Data value '" + srcValue.getData().getId() + "' retrieved.");

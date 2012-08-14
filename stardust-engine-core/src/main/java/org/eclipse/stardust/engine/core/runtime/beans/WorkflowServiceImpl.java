@@ -31,6 +31,7 @@ import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
@@ -1150,9 +1151,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             ActivityInstance ai = (ActivityInstance) i.next();
             try
             {
-               ActivityInstanceState state = ai.getState();
-               IActivityInstance activityInstance = ActivityInstanceUtils.lock(ai.getOID());
-               if(!state.equals(activityInstance.getState()))
+               long lastModTimeFromQuery = ai.getLastModificationTime().getTime();
+
+               ActivityInstanceBean activityInstance = ActivityInstanceBean.findByOID(ai
+                     .getOID());
+
+               // compare if AI was changed in the meantime - no lock
+               if (isAiModified(lastModTimeFromQuery, activityInstance))
+               {
+                  continue;
+               }
+
+               // AI still unchanged - now lock and check again
+               activityInstance.lock();
+               if (isAiModified(lastModTimeFromQuery, activityInstance))
                {
                   continue;
                }
@@ -1161,6 +1173,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
                result = (ActivityInstance) DetailsFactory.create(activityInstance,
                      IActivityInstance.class, ActivityInstanceDetails.class);
+
                break;
             }
             catch (AccessForbiddenException ae)
@@ -1171,6 +1184,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             {
                continue;
             }
+            catch (PhantomException e)
+            {
+               continue;
+         }
          }
 
          if(result != null)
@@ -1181,6 +1198,22 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
 
       return result;
+   }
+
+   /**
+    * This reloads the attribute "lastModificationTime" and compares it with given timestamp.
+    * 
+    * @param lastModTimeFromQuery the modification timestamp to compare with
+    * @param activityInstance the activity instance to be compared on modification based on timestamps
+    * @return <code>true</code> if modified, otherwise <code>false</code>
+    * @throws PhantomException thrown if activity instance is no longer available 
+    */
+   private boolean isAiModified(long lastModTimeFromQuery,
+         ActivityInstanceBean activityInstance) throws PhantomException
+   {
+      activityInstance
+            .reloadAttribute(ActivityInstanceBean.FIELD__LAST_MODIFICATION_TIME);
+      return lastModTimeFromQuery != activityInstance.getLastModificationTime().getTime();
    }
 
    public Serializable getInDataValue(long activityInstanceOID, String context, String id)

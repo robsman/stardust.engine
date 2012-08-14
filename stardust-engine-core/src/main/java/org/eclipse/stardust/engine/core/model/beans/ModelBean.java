@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.model.beans;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +51,7 @@ import org.eclipse.stardust.engine.api.model.IModeler;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.IQualityAssurance;
+import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
 import org.eclipse.stardust.engine.api.model.IReference;
 import org.eclipse.stardust.engine.api.model.IRole;
 import org.eclipse.stardust.engine.api.model.ITriggerType;
@@ -59,9 +61,9 @@ import org.eclipse.stardust.engine.api.model.IXpdlType;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.Scripting;
-import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
 import org.eclipse.stardust.engine.api.query.UserQuery;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.api.runtime.User;
@@ -72,7 +74,13 @@ import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
-import org.eclipse.stardust.engine.core.model.utils.*;
+import org.eclipse.stardust.engine.core.model.utils.Link;
+import org.eclipse.stardust.engine.core.model.utils.ModelElement;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelListener;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
+import org.eclipse.stardust.engine.core.model.utils.RootElementBean;
+import org.eclipse.stardust.engine.core.model.utils.SearchableList;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.IConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -227,29 +235,45 @@ public class ModelBean extends RootElementBean
       try
       {         
          IQualityAssurance qualityAssurance = getQualityAssurance();
-         if(qualityAssurance != null)
+         if (qualityAssurance != null)
          {
-            Map<String, IQualityAssuranceCode> allCodes = qualityAssurance.getAllCodes();
-            for(IQualityAssuranceCode code : allCodes.values())
+            List<IQualityAssuranceCode> allCodes = qualityAssurance.getAllCodes();
+
+            // validate id
+            for (IQualityAssuranceCode code : allCodes)
             {
-               boolean isValid = true;
-               if(StringUtils.isEmpty(code.getCode()))
+               boolean isValidId = true;
+               if (StringUtils.isEmpty(code.getCode()))
                {
-                  isValid = false;
+                  isValidId = false;
                }
-               else if(!StringUtils.isValidIdentifier(code.getCode()))
+               else if (!StringUtils.isValidIdentifier(code.getCode()))
                {
-                  isValid = false;
+                  isValidId = false;
                }
-               else if(isQaCodeDuplicated(code, allCodes))
+
+               if (!isValidId)
                {
-                  isValid = false;
+                  BpmRuntimeError error = BpmRuntimeError.MDL_INVALID_QA_CODE_ID
+                        .raise(code.getCode());
+                  inconsistencies.add(new Inconsistency(error.toString(), this,
+                        Inconsistency.ERROR));
                }
-               
-               if(!isValid)
+            }
+
+            // validate duplicates
+            Map<IQualityAssuranceCode, Integer> duplicatesInfo = validateQaCodeDuplicates(allCodes);
+            if (!duplicatesInfo.isEmpty())
                {
-                  inconsistencies.add(new Inconsistency(code.toString() + " has an invalid ID.",
-                        this, Inconsistency.ERROR));                  
+               for (IQualityAssuranceCode qaCode : duplicatesInfo.keySet())
+               {               
+                  Integer duplicatesCount = duplicatesInfo.get(qaCode);
+                  String code = qaCode.getCode();
+
+                  BpmRuntimeError error = BpmRuntimeError.MDL_DUPLICATE_QA_CODE.raise(
+                        code, duplicatesCount);
+                  inconsistencies.add(new Inconsistency(error.toString(), this,
+                        Inconsistency.ERROR));
                }
             }
          }
@@ -401,20 +425,50 @@ public class ModelBean extends RootElementBean
       }
    }
 
-   private boolean isQaCodeDuplicated(IQualityAssuranceCode validateCode, Map<String, IQualityAssuranceCode> allCodes)
+   private Map<IQualityAssuranceCode, Integer> validateQaCodeDuplicates(
+         List<IQualityAssuranceCode> allCodes)
    {
-      for(IQualityAssuranceCode code : allCodes.values())
+
+      Map<IQualityAssuranceCode, Integer> duplicatesInfo = new HashMap<IQualityAssuranceCode, Integer>();
+      Map<IQualityAssuranceCode, IQualityAssuranceCode> detectedDuplicates = new HashMap<IQualityAssuranceCode, IQualityAssuranceCode>();
+
+      for (IQualityAssuranceCode outerCode : allCodes)
       {
-         if(!code.equals(validateCode))
+         if (!detectedDuplicates.containsKey(outerCode))
          {
-            if(!StringUtils.isEmpty(code.getCode()) && code.getCode().equals(validateCode.getCode()))
+            for (IQualityAssuranceCode innerCode : allCodes)
             {
-               return true;
-            }            
+               if (outerCode != innerCode)
+               {
+                  // duplicate detected
+                  if (!StringUtils.isEmpty(outerCode.getCode())
+                        && outerCode.getCode().equals(innerCode.getCode()))
+                  {
+                     Integer duplicateCount = null;
+                     // remember the duplicates
+                     if (duplicatesInfo.containsKey(outerCode))
+                     {
+                        duplicateCount = duplicatesInfo.get(outerCode);
+                        duplicateCount++;
          }
-         
-      }      
-      return false;
+                     else
+                     {
+                        duplicateCount = 1;
+
+   }
+
+                     // update duplicate counter
+                     duplicatesInfo.put(outerCode, duplicateCount);
+                     // make sure the detected & counted duplicate wont be considered
+                     // again
+                     detectedDuplicates.put(innerCode, innerCode);
+                  }
+               }
+            }
+         }
+      }
+
+      return duplicatesInfo;
    }
    
    private boolean validateReferences(List<Inconsistency> inconsistencies)

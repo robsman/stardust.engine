@@ -11,7 +11,7 @@
 package org.eclipse.stardust.engine.core.model.beans;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.IQualityAssurance;
@@ -29,8 +29,8 @@ public class QualityAssuranceBean implements IQualityAssurance, Serializable
    /**
     * 
     */
-   private static final long serialVersionUID = 7464972021936769626L;
-   private Map<String, IQualityAssuranceCode> codes = CollectionUtils.newHashMap();
+   private static final long serialVersionUID = 7464972021936769626L; 
+   private List<IQualityAssuranceCode> codes = CollectionUtils.newArrayList();
 
    /**
     * {@inheritDoc}
@@ -38,7 +38,7 @@ public class QualityAssuranceBean implements IQualityAssurance, Serializable
    public IQualityAssuranceCode createQualityAssuranceCode(String code, String value, String name)
    {
       IQualityAssuranceCode codeBean = new QualityAssuranceCodeBean(code, value, name);      
-      codes.put(code, codeBean);
+      codes.add(codeBean);
       
       return codeBean;
    }
@@ -48,13 +48,21 @@ public class QualityAssuranceBean implements IQualityAssurance, Serializable
     */
    public IQualityAssuranceCode findQualityAssuranceCode(String code)
    {      
-      return codes.get(code);
+      for(IQualityAssuranceCode tmpCode: codes)
+      {
+         if(tmpCode != null && tmpCode.getCode().equals(code))
+         {
+            return tmpCode;
+         } 
+   }
+   
+      return null;
    }
    
    /**
     * {@inheritDoc}
     */
-   public Map<String, IQualityAssuranceCode> getAllCodes()
+   public List<IQualityAssuranceCode> getAllCodes()
    {
       return codes;
    }

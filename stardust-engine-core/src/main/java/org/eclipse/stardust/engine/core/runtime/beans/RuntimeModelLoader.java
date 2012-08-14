@@ -82,8 +82,13 @@ public class RuntimeModelLoader implements ModelLoader
       registerOids(rtOidRegistry, cache, AuditTrailEventHandlerBean.findAll(partitionOid),
             IRuntimeOidRegistry.EVENT_HANDLER, false);
    }
+   
+   public short getPartitionOid()
+   {
+      return partitionOid;
+   }
 
-   private void registerOids(IRuntimeOidRegistry rtOidRegistry,
+   protected void registerOids(IRuntimeOidRegistry rtOidRegistry,
          RuntimeOidUtils.IdCache cache, Iterator<PersistentModelElement> itr,
          ElementType type, boolean register)
    {

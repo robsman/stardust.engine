@@ -11,7 +11,7 @@
 package org.eclipse.stardust.engine.api.model;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.List;
 
 /**
  * Base interface for creating and storing {@link IQualityAssuranceCode}
@@ -35,7 +35,7 @@ public interface IQualityAssurance extends Serializable
     * 
     * @return the codes created by {@link IQualityAssurance#createQualityAssuranceCode(String, String)}
     */
-   Map<String, IQualityAssuranceCode> getAllCodes();
+   List<IQualityAssuranceCode> getAllCodes();
 
    /**
     * Creates a {@link IQualityAssuranceCode} object based on the code and 

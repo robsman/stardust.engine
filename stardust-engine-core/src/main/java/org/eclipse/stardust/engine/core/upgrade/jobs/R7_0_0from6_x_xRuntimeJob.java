@@ -40,24 +40,10 @@ import org.eclipse.stardust.engine.api.runtime.IModelPersistor;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.cli.sysconsole.Utils;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeModelLoader;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidRegistry;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataLoader;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
@@ -66,14 +52,10 @@ import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
-import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
 /**
- * 
+ *
  * @author Florin.Herinean
  * @version $Revision: $
  */
@@ -88,6 +70,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String ACTIVITY_INSTANCE_FIELD_CRITICALITY = "criticality";
 
    private static final String ACTIVITY_INSTANCE_FIELD_PROPERTIES = "propertiesAvailable";
+
+   private static final String ACTIVITY_INSTANCE_FIELD_PI = "processInstance";
+
+   private static final String ACTIVITY_INSTANCE_IDX9 = "activity_inst_idx9";
 
    private static final String AUDIT_TRAIL_PARTITION_TABLE_NAME = "partition";
 
@@ -134,11 +120,11 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final Version VERSION = new Version(7, 0, 0);
 
-   private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";   
-   private static final String P_LCK_TABLE_NAME = "partition_lck";      
+   private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";
+   private static final String P_LCK_TABLE_NAME = "partition_lck";
    private static final String P_LCK_FIELD__OID = "oid";
-   
-   
+
+
    R7_0_0from6_x_xRuntimeJob()
    {
       super(new DBMSKey[] {
@@ -162,10 +148,22 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          private final FieldInfo PROPERTIES_AVAILABLE = new FieldInfo(
                ACTIVITY_INSTANCE_FIELD_PROPERTIES, Integer.TYPE);
 
+         private final FieldInfo PROCESS_INSTANCE = new FieldInfo(
+               ACTIVITY_INSTANCE_FIELD_PI, Long.TYPE, 0, false);
+
          @Override
          public FieldInfo[] getAddedFields()
          {
             return new FieldInfo[] {CRITICALITY, PROPERTIES_AVAILABLE};
+         }
+
+         @Override
+         public IndexInfo[] getAddedIndexes()
+         {
+            return new IndexInfo[] {//
+                  new IndexInfo(ACTIVITY_INSTANCE_IDX9, false, new FieldInfo[] {
+                        CRITICALITY,
+                        PROCESS_INSTANCE }) };
          }
 
       }, this);
@@ -321,30 +319,30 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          reportExeption(e, "could not update data cluster setup");
       }
-      
-      
+
+
       // Lock table will only be created if any other lock table already exists, e.g. the one for AIBean
-      if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))      
+      if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))
       {
          DatabaseHelper.createTable(item, new CreateTableInfo(P_LCK_TABLE_NAME)
          {
             private static final String INDEX_NAME = "partition_lck_idx";
-   
+
             private final FieldInfo OID = new FieldInfo(P_LCK_FIELD__OID, Long.TYPE, 0, true);
-            
+
             private final IndexInfo IDX = new IndexInfo(INDEX_NAME, true,
                   new FieldInfo[] { OID });
-   
+
             public FieldInfo[] getFields()
             {
                return new FieldInfo[] { OID };
             }
-   
+
             public IndexInfo[] getIndexes()
             {
                return new IndexInfo[] { IDX };
             }
-   
+
             public String getSequenceName()
             {
                return null;
@@ -359,6 +357,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          initActivityInstanceProperties();
          upgradeDataTypes();
+         ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)).flush();
       }
       catch (SQLException e)
       {
@@ -408,7 +407,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    //To make sure that the data deploy mechanism is suitable for a 6.0 / 7.0 upgrade step this
    //mechanism had to be extracted from other code sections to here. This should prevent code changes
    //in the original model loader to break this upgrade step.
-   
+
    private void upgradeDataTypesByPartition(String partition)
    {
       Map props = CollectionUtils.newHashMap();
@@ -416,9 +415,9 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             + SessionProperties.DS_DATA_SOURCE_SUFFIX,
             new ConnectionWrapper(item.getConnection()));
       props.put(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, Boolean.TRUE);
-      
+
       Utils.initCarnotEngine(partition, props);
-      
+
       Map<Long, AuditTrailDataBean> dataDefRecords = loadModelElementDefinitions(1,
             AuditTrailDataBean.class, AuditTrailDataBean.FR__MODEL);
 
@@ -427,7 +426,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       Short partitionOid = (Short) Parameters.instance().get(
             SecurityProperties.CURRENT_PARTITION_OID);
-      
+
 
 
       HashMap registries = new HashMap(); // <partition>,<runtime registry>
@@ -466,7 +465,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                deployData(rtOidRegistry, data, rtOid, model.getModelOID(), model);
             }
          }
-      }      
+      }
 
    }
 
@@ -778,7 +777,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return registry;
    }
 
-   
+
    //The following section is copied from StructuredDataLoader. This is for fixing CRNT-24871.
    //To make sure that the data deploy mechanism is suitable for a 6.0 / 7.0 upgrade step this
    //mechanism had to be extracted from other code sections to here.
@@ -911,16 +910,16 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       boolean result = false;
       DDLManager ddlManager = new DDLManager(item.getDbDescriptor());
-      try 
+      try
       {
          result = ddlManager.containsTable(DatabaseHelper.getSchemaName(),
                tableName, item.getConnection());
-      } 
-      catch (SQLException e) 
+      }
+      catch (SQLException e)
       {
          error("", e);
       }
-      
+
       return result;
    }
 }

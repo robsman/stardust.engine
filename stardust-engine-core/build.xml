@@ -34,8 +34,8 @@
    <property name="service.dir" location="${project.src}/org/eclipse/stardust/engine/api/ejb2" />
    <property name="serviceTemp.dir" location="${build.dir}/temp/org/eclipse/stardust/engine/api/ejb2" />
 
-   <property name="moonglow.dir" location="../../../moonglow" />
-   <available property="moonglow.dir.present" file="${moonglow.dir}" type="dir" />
+   <property name="stardust.ide.engine.dir" location="../../ide/engine" />
+   <available property="stardust.ide.engine.dir.present" file="${stardust.ide.engine.dir}" type="dir" />
 
    <target name="jar" depends="compile, checkCodeGen, init.jarjar">
       <ipp:jarjar jarfile="${carnot.client.jar}" implementationTitle="Infinity Process Engine - Client">
@@ -79,7 +79,7 @@
       </ipp:jarjar>
 
       <ipp:jar jarfile="${carnot.emf.xsd.integration.jar}" implementationTitle="CARNOT EMF XSD Integration">
-         <fileset dir="${build.classes}" id="fileset.carnot.spring.jar">
+         <fileset dir="${build.classes}" id="fileset.carnot.emfxsd.jar">
             <include name="**/emfxsd/*.class" />
          </fileset>
       </ipp:jar>
@@ -304,7 +304,7 @@
       <property name="carnot.emf.xsd.integration.src-jar" location="${build.lib.src}/${carnot.emf.xsd.integration.src-jarfile}" />
 
    </target>
-
+   
    <import file="build-dependencies-${dependencies.mode}.xml" />
 
    <target name="initClasspath" depends="init, dependencies:initClasspath" />
@@ -636,12 +636,12 @@
       <delete dir="${build.dir}" />
    </target>
 
-   <target name="dist" depends="deploy" if="moonglow.dir.present">
-      <copy file="${carnot.engine.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
-      <copy file="${carnot.engine.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
+   <target name="dist" depends="deploy" if="stardust.ide.engine.dir.present">
+      <copy file="${carnot.engine.jar}" todir="${stardust.ide.engine.dir}/org.eclipse.stardust.ide.engine.core/lib" />
+      <copy file="${carnot.engine.src-jar}" todir="${stardust.ide.engine.dir}/org.eclipse.stardust.ide.engine.core/lib" />
       
-      <copy file="${carnot.emf.xsd.integration.jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
-      <copy file="${carnot.emf.xsd.integration.src-jar}" todir="${moonglow.dir}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.core/lib" />
+      <copy file="${carnot.emf.xsd.integration.jar}" todir="${stardust.ide.engine.dir}/org.eclipse.stardust.ide.engine.core/lib" />
+      <copy file="${carnot.emf.xsd.integration.src-jar}" todir="${stardust.ide.engine.dir}/org.eclipse.stardust.ide.engine.core/lib" />
    </target>
    
    <!-- target is invoked by stardust-engine-nls project -->
@@ -652,6 +652,7 @@
             <include name="**/*_de.properties"/>
             <include name="**/*_en.properties"/>
             <include name="**/*_zh_CN.properties"/>
+            <include name="**/*_zh_TW.properties"/>
             <exclude name="**/compatibility/gui/**"/>
          </fileset>
       </copy>

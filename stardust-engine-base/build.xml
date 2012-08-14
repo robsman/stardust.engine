@@ -226,6 +226,7 @@
             <include name="**/*_de.properties"/>
             <include name="**/*_en.properties"/>
             <include name="**/*_zh_CN.properties"/>
+            <include name="**/*_zh_TW.properties"/>
          </fileset>
       </copy>
    </target>

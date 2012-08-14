@@ -250,6 +250,13 @@ public class Archiver
          {
             archiveDeadModel(modelOid, interval, terminatedDeadModels);
          }
+         for (Long modelOid : terminatedDeadModels)
+         {
+            if (canDeleteModel(modelOid, terminatedDeadModels))
+            {
+               deleteModel(modelOid);
+      }
+         }
       }
       else
       {
@@ -259,7 +266,14 @@ public class Archiver
 
    public void archiveDeadModel(long modelOid, long interval)
    {
-      archiveDeadModel(modelOid, interval, Collections.singleton(modelOid));
+      Set<Long> terminatedDeadModels = Collections.singleton(modelOid);
+      
+      archiveDeadModel(modelOid, interval, terminatedDeadModels);
+      
+      if (canDeleteModel(modelOid, terminatedDeadModels))
+      {
+         deleteModel(modelOid);
+   }
    }
    
    public void archiveDeadModel(long modelOid, long interval, Set<Long> terminatedDeadModels)
@@ -287,11 +301,7 @@ public class Archiver
       }
 
       archiveProcesses(modelOid, null, interval);
-      if (canDeleteModel(modelOid, terminatedDeadModels))
-      {
-         deleteModel(modelOid);
       }
-   }
 
    public void archiveDeadProcesses(Date before, long interval)
    {

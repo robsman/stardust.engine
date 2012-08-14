@@ -2156,6 +2156,14 @@ public class DDLManager
       }
    }
 
+   private boolean isUsingLockTables()
+   {
+      boolean useLockTablesDefault = dbDescriptor.getUseLockTablesDefault();
+      return Parameters.instance().getBoolean(
+            SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USE_LOCK_TABLES_SUFFIX,
+            useLockTablesDefault);
+   }
+
    public void createAuditTrailPartition(String partitionId, Connection connection,
          String schemaName, PrintStream spoolFile, String statementDelimiter)
    {
@@ -2205,6 +2213,28 @@ public class DDLManager
                .append(" VALUES").append(valuesPart);
 
          executeOrSpoolStatement(insBuffer.toString(), connection, spoolFile);
+         
+         // insert entry into partition's lock table if required
+         if (isUsingLockTables() && typeManager.isDistinctLockTableName())
+         {
+            List columns = new ArrayList();
+            columns.add(AuditTrailPartitionBean.FIELD__OID);
+
+            columnPart = buildColumnsFragment(dbDescriptor, columns);
+            valuesPart = MessageFormat.format("{0}",
+                  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
+            
+            insBuffer = new StringBuffer(200);
+            insBuffer//
+                  .append("INSERT INTO ").append(typeManager.getLockTableName()).append(columnPart)//
+                  .append(" SELECT ").append(valuesPart)
+                  .append(" FROM ").append(partitionTableName)
+                  .append(" WHERE ")
+                  .append(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__ID))
+                  .append(" = '").append(partitionId).append("'");
+
+            executeOrSpoolStatement(insBuffer.toString(), connection, spoolFile);
+         }
 
          // insert partitions default domain
          typeManager = TypeDescriptor.get(UserDomainBean.class);

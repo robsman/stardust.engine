@@ -14,6 +14,8 @@ import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.rt.ITransactionStatus;
+import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.LogType;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -46,12 +48,25 @@ public class AuditTrailLogger implements Logger
    
    public static AuditTrailLogger getInstance(LogCode code, Object context)
    {
-      return new AuditTrailLogger(code, context);
+      final Parameters params = Parameters.instance();
+      ITransactionStatus txStatus = TransactionUtils.getCurrentTxStatus(params);
+      final LoggingBehaviour loggingBehaviour;
+      
+      if(txStatus.isRollbackOnly())
+      {
+         loggingBehaviour = LoggingBehaviour.SEPARATE_TRANSACTION_SYNCHRONOUS;
+   }
+      else
+      {
+         loggingBehaviour = LoggingBehaviour.SAME_TRANSACTION;
+      }
+      
+      return getInstance(code, context, loggingBehaviour);
    }
 
    public static AuditTrailLogger getInstance(LogCode code)
    {
-      return new AuditTrailLogger(code, null);
+      return getInstance(code, null);
    }
    
    private AuditTrailLogger(LogCode code, Object context, LoggingBehaviour loggingBehaviour)

@@ -105,7 +105,7 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
             for (Iterator i = ((List)value).iterator(); i.hasNext(); )
             {
                DmsDocumentBean dmsDocument = (DmsDocumentBean)i.next();
-               legoDocuments.add(dmsDocument.vfsResource());
+               legoDocuments.add(CollectionUtils.copyMap(dmsDocument.vfsResource()));
             }
 
             // infer document type.
@@ -140,7 +140,7 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
                // sync documents having document type changed to repository
                for (Document document : toSyncDocuments)
                {
-                  syncToRepository(document, trace);
+                  syncToRepository(document, trace, accessPointDefinition);
                }
 
             }

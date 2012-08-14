@@ -158,8 +158,8 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       IQualityAssurance qualityAssurance = model.getQualityAssurance();
       if(qualityAssurance != null)
       {
-         Map<String, IQualityAssuranceCode> allCodes = qualityAssurance.getAllCodes();
-         for(IQualityAssuranceCode code : allCodes.values())
+         List<IQualityAssuranceCode> allCodes = qualityAssurance.getAllCodes();
+         for(IQualityAssuranceCode code : allCodes)
          {
             QualityAssuranceCode qualityAssuranceCodeDetails = DetailsFactory.create(code, IQualityAssuranceCode.class, QualityAssuranceCodeDetails.class);
             qualityAssuranceCodes.add(qualityAssuranceCodeDetails);

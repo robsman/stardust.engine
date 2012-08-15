@@ -80,4 +80,25 @@ public class R4_7_0from4_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected void finalizeSchema(boolean recover) throws UpgradeException
    {
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

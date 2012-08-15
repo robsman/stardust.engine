@@ -748,4 +748,25 @@ public class R2_0_2fromPre2_0_0RuntimeJob extends OracleAwareRuntimeUpgradeJob
    {
       return version.compareTo(new Version(2, 0, 0)) < 0;
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

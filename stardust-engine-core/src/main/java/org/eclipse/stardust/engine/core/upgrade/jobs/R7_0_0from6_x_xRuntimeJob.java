@@ -351,6 +351,34 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
    }
 
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      info("The new columns 'criticality', 'propertiesAvailable', 'processInstance' and index 'activity_inst_idx9' will be created in table 'activity_instance'.");
+      info("A new column 'criticality' will be created in table 'workitem'.");
+      info("A new table 'procinst_link' with the columns "
+            + "'processInstance', 'linkedProcessInstance', 'linkType', 'createTime', 'creatingUser' and 'linkingComment' will be created.");
+      info("A new table 'link_type' with the columns 'oid', 'id', 'description', 'partition' and index 'link_type_idx1' will be created.");
+      info("Datacluster setup key will be upgraded to 'org.eclipse.stardust.engine.core.runtime.setup_definition' in column 'name' in table 'property'.");
+      if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))
+      {
+         info("A new table 'partition_lck' with column 'oid' and index 'partition_lck_idx' will be created.");
+      }
+   }
+   
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      info("Initializes the field 'propertiesAvailable' in table 'activity_instance'.");
+      info("Missing XPaths which are needed to store the revisionComment will be created for Structured Datatypes.");
+   }
+   
+   @Override
+   protected void printFinalizeSchemaInfo() 
+   {
+      info("Default link types will be added.");
+   }
+
    protected void migrateData(boolean recover) throws UpgradeException
    {
       try

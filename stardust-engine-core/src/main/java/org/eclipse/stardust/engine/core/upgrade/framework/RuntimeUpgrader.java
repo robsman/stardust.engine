@@ -34,6 +34,7 @@ public class RuntimeUpgrader extends Upgrader
 
    public static final String UPGRADE_SCHEMA = "ag.carnot.upgrade.runtime.schema";
    public static final String UPGRADE_DATA = "ag.carnot.upgrade.runtime.data";
+   public static final String UPGRADE_VERBOSE = "ag.carnot.upgrade.verbose";
 
    private String password;
    private List jobs;

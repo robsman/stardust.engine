@@ -317,4 +317,25 @@ public class R3_0_1from3_0_0RuntimeJob extends OracleDB2AwareRuntimeUpgradeJob
          QueryUtils.closeStatement(stmt);
       }
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

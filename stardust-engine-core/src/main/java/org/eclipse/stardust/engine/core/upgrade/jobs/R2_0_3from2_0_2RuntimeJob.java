@@ -165,4 +165,25 @@ public class R2_0_3from2_0_2RuntimeJob extends OracleAwareRuntimeUpgradeJob
    protected void finalizeSchema(boolean recover) throws UpgradeException
    {
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

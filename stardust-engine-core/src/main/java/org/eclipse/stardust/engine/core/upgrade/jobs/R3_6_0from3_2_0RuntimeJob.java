@@ -539,4 +539,25 @@ public class R3_6_0from3_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          QueryUtils.closeStatement(insertSuperRefStmt);
       }
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

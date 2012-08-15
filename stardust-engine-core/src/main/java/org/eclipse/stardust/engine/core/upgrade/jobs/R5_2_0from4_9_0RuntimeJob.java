@@ -346,4 +346,33 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
       error("Failed migrating runtime item tables.", sqle);
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      info("A new table 'department' with the columns " +
+      		"'oid', 'id', 'name', 'partition', 'parentDepartment', 'description', 'organization' " +
+            		"and indexes 'department_idx1' and 'department_idx2' will be created.");
+      info("A new table 'department_hierarchy' with the columns 'superDepartment', 'subDepartment' " +
+      		"and indexes 'department_hier_idx1' and 'department_hier_idx2' will be created.");
+      info("The new columns 'currentUserPerformer', 'currentPerformer' and 'currentDepartment' " +
+      		"will be created in table 'activity_instance' " +
+      		"and indexes 'activity_inst_idx2' and 'activity_inst_idx3' will be modified.");
+      info("The new columns 'performerKind', 'performer', 'department' and 'state' will be created in table 'workitem' " +
+      		"and index 'workitem_idx2' will be modified.");
+      info("The new columns 'department' and 'onBehalfOfDepartment' will be created in table 'act_inst_history'.");
+      info("The new columns 'model', 'participant' and 'department' will be created in table 'user_participant' " +
+      		"and index 'user_particip_idx2' will be modified.");
+      info("The new column 'extendedState' will be created in table 'workflowuser'.");
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+   }
 }

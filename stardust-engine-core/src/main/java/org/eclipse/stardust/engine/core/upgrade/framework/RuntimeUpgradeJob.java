@@ -60,6 +60,8 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
             RuntimeUpgrader.UPGRADE_DATA, false);
       final boolean schemaUpgrade = Parameters.instance().getBoolean(
             RuntimeUpgrader.UPGRADE_SCHEMA, false);
+      final boolean verbose = Parameters.instance().getBoolean(
+            RuntimeUpgrader.UPGRADE_VERBOSE, false);
       
       this.item = (RuntimeItem) item;
 
@@ -74,7 +76,10 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
                info("Upgrading schema...");
                
                this.item.spoolSqlComment(this.getVersion() + " schema upgrade DDL");
-               
+               if (verbose)
+               {
+                 printUpgradeSchemaInfo();
+               }
                upgradeSchema(recover);
                setUpgradeState(UPGRADE_LEVEL1);
                info("...Schema upgrade done.");
@@ -82,12 +87,20 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
             else
             {
                info("Skipping schema upgrade DDL as requested.");
+               if (verbose)
+               {
+                 printUpgradeSchemaInfo();
+               }
             }
             // falling through to level 1 
          case 1:
             if (!dryRun && !schemaUpgrade)
             {
                info("Migrating data...");
+               if (verbose)
+               {
+                 printMigrateDataInfo();
+               }
                migrateData(recover);
                setUpgradeState(UPGRADE_LEVEL2);
                info("...Data Migration done.");
@@ -95,6 +108,10 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
             else
             {
                info("Skipping data migration as requested.");
+               if (verbose)
+               {
+                 printMigrateDataInfo();
+               }
             }
             // falling through to level 2 
          case 2:
@@ -119,7 +136,10 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
                   info("Finalizing schema...");
                   
                   this.item.spoolSqlComment(this.getVersion() + " schema finalization DDL");
-                  
+                  if(verbose)
+                  {
+                     printFinalizeSchemaInfo();
+                  }
                   finalizeSchema(recover);
                   setUpgradeState(UPGRADE_LEVEL4);
                   info("...Schema finalization done.");
@@ -127,6 +147,10 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
                else
                {
                   info("Skipping schema finalization DDL as requested.");
+                  if(verbose)
+                  {
+                     printFinalizeSchemaInfo();
+                  }
                }
             }
             // falling through to level 4 
@@ -155,7 +179,22 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
    protected abstract void migrateData(boolean recover) throws UpgradeException;
    
    protected abstract void finalizeSchema(boolean recover) throws UpgradeException;
-
+   
+   /**
+    * This method prints detailed information that describes what is done by this upgrade schema task.
+    */
+   protected abstract void printUpgradeSchemaInfo();
+   
+   /**
+    * This method prints detailed information that describes what is done by this migrate data task.
+    */
+   protected abstract void printMigrateDataInfo();
+   
+   /**
+    * This method prints detailed information that describes what is done by this finalize schema task.
+    */
+   protected abstract void printFinalizeSchemaInfo();
+   
    protected void upgradeModel(boolean recover) throws UpgradeException
    {
       ModelItem model = null;
@@ -562,4 +601,5 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
          trace.info("...continueing anyway.");
       }
    }
+
 }

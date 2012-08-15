@@ -37,6 +37,7 @@ public class UpgradeRuntimeCommand extends AuditTrailCommand
    public static final String UPGRADE_KEY_DDL = "ddl";
    public static final String UPGRADE_KEY_DATA = "data";
    public static final String UPGRADE_KEY_STEP = "step";
+   public static final String UPGRADE_KEY_VERBOSE = "verbose";
 
    static
    {
@@ -56,6 +57,9 @@ public class UpgradeRuntimeCommand extends AuditTrailCommand
             false);
       argTypes.register("-" + UPGRADE_KEY_STEP, "-s", UPGRADE_KEY_STEP,
             "Performs exactly one migration step. May require multiple invocations to fully perform migrations involving temporary schema versions.",
+            false);
+      argTypes.register("-" + UPGRADE_KEY_VERBOSE, "-v", UPGRADE_KEY_VERBOSE,
+            "Each runtime upgrade job will display additional operation details during execution and also during calls of 'upgraderuntime -describe'.",
             false);
    }
 
@@ -89,6 +93,10 @@ public class UpgradeRuntimeCommand extends AuditTrailCommand
       if (options.containsKey(UPGRADE_KEY_STEP))
       {
          Parameters.instance().setBoolean(RuntimeUpgrader.UPGRADE_STEP, true);
+      }
+      if (options.containsKey(UPGRADE_KEY_VERBOSE))
+      {
+         Parameters.instance().setBoolean(RuntimeUpgrader.UPGRADE_VERBOSE, true);
       }
 
       RuntimeItem runtime = new RuntimeItem(

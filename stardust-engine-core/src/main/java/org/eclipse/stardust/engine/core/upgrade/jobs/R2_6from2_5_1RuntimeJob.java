@@ -254,4 +254,25 @@ public class R2_6from2_5_1RuntimeJob extends OracleAwareRuntimeUpgradeJob
    {
       return new Version(2, 6, 0);
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

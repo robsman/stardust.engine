@@ -1146,4 +1146,25 @@ public class R3_0_1from2_7_3RuntimeJob extends OracleDB2AwareRuntimeUpgradeJob
          this.activeTargetStateFilter = activeTargetStateFilter;
       }
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

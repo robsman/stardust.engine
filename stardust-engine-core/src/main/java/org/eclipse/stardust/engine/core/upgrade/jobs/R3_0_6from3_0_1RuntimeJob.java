@@ -161,4 +161,25 @@ public class R3_0_6from3_0_1RuntimeJob extends OracleDB2AwareRuntimeUpgradeJob
    {
       // no schema finalization needed
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

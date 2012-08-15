@@ -1972,4 +1972,25 @@ public class R3_2_0from3_0_6RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       int afterMigration(RuntimeItem item) throws SQLException;
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      // TODO Auto-generated method stub
+      
+   }
 }

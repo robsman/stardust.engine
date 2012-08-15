@@ -950,4 +950,42 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          return null;
       }
    }
+
+   @Override
+   protected void printUpgradeSchemaInfo()
+   {
+      info("A new table 'preferences' with the columns "
+            + "'ownerId', 'ownerType', 'moduleId', 'preferencesId', 'partition', 'stringValue' "
+            + "and index 'preferences_idx1' will be created.");
+      info("The table 'message_store' will be dropped.");
+      info("A new table 'model_ref' with the columns "
+            + "'code', 'modelOid', 'id', 'refOid', 'deployment' "
+            + "and indexes 'model_ref_idx1' and 'model_ref_idx2' will be created.");
+      info("A new table 'model_dep' with the columns "
+            + "'oid', 'deployer', 'deploymentTime', 'validFrom', 'deploymentComment' "
+            + "and indexes 'model_dep_idx1', 'model_dep_idx2' and 'model_dep_idx3' will be created.");
+      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      if (session.getDBDescriptor().getUseLockTablesDefault())
+      {
+         info("A new table 'model_dep_lck' with the column 'oid' and index 'model_dep_lck_idx' will be created.");
+      }
+      info("A new column 'deployment' will be created in table 'process_instance'.");
+   }
+
+   @Override
+   protected void printMigrateDataInfo()
+   {
+      info("Table 'model_ref' will be populated.");
+      info("Table 'model_dep' will be populated.");
+      info("Field 'deployment' in table 'process_instance' will be populated.");
+      info("Index 'user_particip_idx2' in table 'user_participant' will be modified.");
+      info("Permissions will be inserted into table 'preferences'.");
+      info("Model Id will be added to xml data cluster definition.");
+   }
+
+   @Override
+   protected void printFinalizeSchemaInfo()
+   {
+      
+   }
 }

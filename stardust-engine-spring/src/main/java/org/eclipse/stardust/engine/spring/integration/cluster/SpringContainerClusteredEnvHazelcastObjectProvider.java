@@ -21,7 +21,7 @@ import org.springframework.beans.BeansException;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class SpringClusteredEnvHazelcastObjectProvider extends ClusteredEnvHazelcastObjectProvider
+public class SpringContainerClusteredEnvHazelcastObjectProvider extends ClusteredEnvHazelcastObjectProvider
 {
    private static final String HZ_CF_BEAN_ID = "xaHazelcastConnectionFactory";
    

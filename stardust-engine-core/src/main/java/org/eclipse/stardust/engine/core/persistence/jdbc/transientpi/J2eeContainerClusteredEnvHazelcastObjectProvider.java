@@ -24,7 +24,7 @@ import org.eclipse.stardust.common.error.PublicException;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class EjbClusteredEnvHazelcastObjectProvider extends ClusteredEnvHazelcastObjectProvider
+public class J2eeContainerClusteredEnvHazelcastObjectProvider extends ClusteredEnvHazelcastObjectProvider
 {
    @Override
    protected ConnectionFactory connectionFactory()

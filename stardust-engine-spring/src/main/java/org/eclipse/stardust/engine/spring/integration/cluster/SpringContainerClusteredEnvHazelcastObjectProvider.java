@@ -18,12 +18,17 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusteredEn
 import org.springframework.beans.BeansException;
 
 /**
+ * <p>
+ * This class assumes that there's a bean with id <code>localHazelcastConnectionFactory</code>
+ * representing the <i>Hazelcast</i> connection factory in the <i>Spring</i> application context.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class SpringContainerClusteredEnvHazelcastObjectProvider extends ClusteredEnvHazelcastObjectProvider
 {
-   private static final String HZ_CF_BEAN_ID = "xaHazelcastConnectionFactory";
+   private static final String HZ_CF_BEAN_ID = "localHazelcastConnectionFactory";
    
    @Override
    protected ConnectionFactory connectionFactory()

@@ -1047,6 +1047,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
       ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNotActivated(activityInstance);
+      ActivityInstanceUtils.assertNotInUserWorklist(activityInstance, participant);            
       ProcessInstanceGroupUtils.assertNotCasePerformer(participant);
 
       if (participant == null)

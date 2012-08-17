@@ -285,6 +285,8 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_INTERACTIVE_AI_CAN_NOT_BE_FORCED_TO_COMPLETION = newArgs1("BPMRT03115", BpmRuntimeErrorMessages.getString("BPMRT03115")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER = newArgs1("BPMRT03116", BpmRuntimeErrorMessages.getString("BPMRT03116")); //$NON-NLS-1$ //$NON-NLS-2$   
+   
    public static final Args1 BPMRT_AI_AND_HANDLER_BINDING_FRM_DIFF_MODELS = newArgs1("BPMRT03201", BpmRuntimeErrorMessages.getString("BPMRT03201")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_PI_AND_SPAWN_PROCESS_FRM_DIFF_MODELS = newArgs1("BPMRT03251", "Process instance with OID {0} and the process to spawn are from a different model.");

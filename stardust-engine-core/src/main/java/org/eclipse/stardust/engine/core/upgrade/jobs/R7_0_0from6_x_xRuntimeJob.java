@@ -354,7 +354,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    @Override
    protected void printUpgradeSchemaInfo()
    {
-      info("The new columns 'criticality', 'propertiesAvailable', 'processInstance' and index 'activity_inst_idx9' will be created in table 'activity_instance'.");
+      info("The new columns 'criticality', 'propertiesAvailable' and index 'activity_inst_idx9' will be created in table 'activity_instance'.");
       info("A new column 'criticality' will be created in table 'workitem'.");
       info("A new table 'procinst_link' with the columns "
             + "'processInstance', 'linkedProcessInstance', 'linkType', 'createTime', 'creatingUser' and 'linkingComment' will be created.");

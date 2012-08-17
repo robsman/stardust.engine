@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade;
 
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgradeTaskExecutorTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({JobListTest.class})
+@SuiteClasses({JobListTest.class, RuntimeUpgradeTaskExecutorTest.class})
 public class UpgradeTestSuite
 {
 

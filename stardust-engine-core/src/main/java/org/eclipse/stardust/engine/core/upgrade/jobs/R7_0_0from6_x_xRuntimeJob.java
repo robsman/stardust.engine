@@ -123,6 +123,8 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";
    private static final String P_LCK_TABLE_NAME = "partition_lck";
    private static final String P_LCK_FIELD__OID = "oid";
+   
+   private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
 
 
    R7_0_0from6_x_xRuntimeJob()
@@ -130,225 +132,340 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       super(new DBMSKey[] {
             DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
             DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8});
+      initUpgradeTasks();
    }
-
+   
    public Version getVersion()
    {
       return VERSION;
    }
 
+   private void initUpgradeTasks()
+   {
+      upgradeTaskExecutor = new RuntimeUpgradeTaskExecutor("R7_0_0from6_x_xRuntimeJob", Parameters.instance()
+            .getBoolean(RuntimeUpgrader.UPGRADE_DATA, false));
+      initUpgradeSchemaTasks();
+      initMigrateDataTasks();
+      initFinalizeSchemaTasks();
+   }
+
+   private void initUpgradeSchemaTasks()
+   {
+      final R7_0_0from6_x_xRuntimeJob runtimeJob = this;
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            // Alter ActivityInstance Table
+            DatabaseHelper.alterTable(item, new AlterTableInfo(ACTIVITY_INSTANCE_TABLE_NAME)
+            {
+               private final FieldInfo CRITICALITY = new FieldInfo(
+                     ACTIVITY_INSTANCE_FIELD_CRITICALITY, Double.TYPE);
+
+               private final FieldInfo PROPERTIES_AVAILABLE = new FieldInfo(
+                     ACTIVITY_INSTANCE_FIELD_PROPERTIES, Integer.TYPE);
+
+               private final FieldInfo PROCESS_INSTANCE = new FieldInfo(
+                     ACTIVITY_INSTANCE_FIELD_PI, Long.TYPE, 0, false);
+
+               @Override
+               public FieldInfo[] getAddedFields()
+               {
+                  return new FieldInfo[] {CRITICALITY, PROPERTIES_AVAILABLE};
+               }
+
+               @Override
+               public IndexInfo[] getAddedIndexes()
+               {
+                  return new IndexInfo[] {//
+                        new IndexInfo(ACTIVITY_INSTANCE_IDX9, false, new FieldInfo[] {
+                              CRITICALITY,
+                              PROCESS_INSTANCE }) };
+               }
+
+            }, runtimeJob);
+
+            try
+            {
+               setColumnDefaultValue(item, ACTIVITY_INSTANCE_TABLE_NAME,
+                     ACTIVITY_INSTANCE_FIELD_CRITICALITY, -1);
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "Could not update new column " + ACTIVITY_INSTANCE_TABLE_NAME
+                     + "." + ACTIVITY_INSTANCE_FIELD_CRITICALITY + " to -1.");
+            }
+
+            try
+            {
+               setColumnDefaultValue(item, ACTIVITY_INSTANCE_TABLE_NAME,
+                     ACTIVITY_INSTANCE_FIELD_PROPERTIES, 0);
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "Could not update new column " + ACTIVITY_INSTANCE_TABLE_NAME
+                     + "." + ACTIVITY_INSTANCE_FIELD_PROPERTIES + " to 0.");
+            }
+         }
+      });
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            // Alter WorkItem Table
+            DatabaseHelper.alterTable(item, new AlterTableInfo(WORK_ITEM_TABLE_NAME)
+            {
+               private final FieldInfo CRITICALITY = new FieldInfo(WORK_ITEM_FIELD_CRITICALITY,
+                     Double.TYPE);
+
+               @Override
+               public FieldInfo[] getAddedFields()
+               {
+                  return new FieldInfo[] {CRITICALITY};
+               }
+
+            }, runtimeJob);
+
+            try
+            {
+               setColumnDefaultValue(item, WORK_ITEM_TABLE_NAME, WORK_ITEM_FIELD_CRITICALITY,
+                     -1);
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "Could not update new column " + WORK_ITEM_TABLE_NAME + "."
+                     + WORK_ITEM_FIELD_CRITICALITY + " to -1.");
+            }    
+         }
+      });
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            // Create ProcessInstanceLink Table
+            DatabaseHelper.createTable(item, new CreateTableInfo(
+                  PROCESS_INSTANCE_LINK_TABLE_NAME)
+            {
+               private final FieldInfo processInstance = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_FIELD_PROCESS_INSTANCE, Long.TYPE, 0, true);
+
+               private final FieldInfo linkedProcessInstance = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_FIELD_LINKED_PROCESS_INSTANCE, Long.TYPE, 0, true);
+
+               private final FieldInfo linkType = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_FIELD_LINK_TYPE, Long.TYPE, 0, true);
+
+               private final FieldInfo createTime = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_FIELD_CREATE_TIME, Long.TYPE, 0, false);
+
+               private final FieldInfo creatingUser = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_FIELD_CREATING_USER, Long.TYPE, 0, false);
+
+               private final FieldInfo linkingComment = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_FIELD_LINKING_COMMENT, String.class, 255, false);
+
+               @Override
+               public FieldInfo[] getFields()
+               {
+                  return new FieldInfo[] {
+                        processInstance, linkedProcessInstance, linkType, createTime,
+                        creatingUser, linkingComment};
+               }
+
+               @Override
+               public IndexInfo[] getIndexes()
+               {
+                  return null;
+               }
+
+               @Override
+               public String getSequenceName()
+               {
+                  return null;
+               }
+
+            }, runtimeJob);
+         }
+      });
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            // Create ProcessInstanceLinkType Table
+            DatabaseHelper.createTable(item, new CreateTableInfo(
+                  PROCESS_INSTANCE_LINK_TYPE_TABLE_NAME)
+            {
+               private final FieldInfo oid = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_TYPE_FIELD_OID, Long.TYPE, 0, true);
+
+               private final FieldInfo id = new FieldInfo(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID,
+                     String.class, 50, false);
+
+               private final FieldInfo description = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION, String.class, 255, false);
+
+               private final FieldInfo partition = new FieldInfo(
+                     PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION, Long.TYPE, 0, false);
+
+               private final IndexInfo IDX1 = new IndexInfo(PROCESS_INSTANCE_LINK_TYPE_IDX1,
+                     true, new FieldInfo[] {oid});
+
+               @Override
+               public FieldInfo[] getFields()
+               {
+                  return new FieldInfo[] {oid, id, description, partition};
+               }
+
+               @Override
+               public IndexInfo[] getIndexes()
+               {
+                  return new IndexInfo[] {IDX1};
+               }
+
+               @Override
+               public String getSequenceName()
+               {
+                  return PROCESS_INSTANCE_LINK_TYPE_PK_SEQUENCE;
+               }
+
+            }, runtimeJob);
+         }
+      });
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            // update datacluster setup key
+            StringBuffer dataClusterUpdateStatement = new StringBuffer();
+            dataClusterUpdateStatement.append("UPDATE property");
+            dataClusterUpdateStatement.append(" SET name=");
+            dataClusterUpdateStatement.append("'");
+            dataClusterUpdateStatement
+                  .append("org.eclipse.stardust.engine.core.runtime.setup_definition");
+            dataClusterUpdateStatement.append("'");
+            dataClusterUpdateStatement.append(" where name=");
+            dataClusterUpdateStatement.append("'");
+            dataClusterUpdateStatement.append("ag.carnot.workflow.runtime.setup_definition");
+            dataClusterUpdateStatement.append("'");
+
+            try
+            {
+               DatabaseHelper.executeUpdate(item, dataClusterUpdateStatement.toString());
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "could not update data cluster setup");
+            }
+         }
+      });
+      
+      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            // Lock table will only be created if any other lock table already exists, e.g. the one for AIBean
+            if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))
+            {
+               DatabaseHelper.createTable(item, new CreateTableInfo(P_LCK_TABLE_NAME)
+               {
+                  private static final String INDEX_NAME = "partition_lck_idx";
+
+                  private final FieldInfo OID = new FieldInfo(P_LCK_FIELD__OID, Long.TYPE, 0, true);
+
+                  private final IndexInfo IDX = new IndexInfo(INDEX_NAME, true,
+                        new FieldInfo[] { OID });
+
+                  public FieldInfo[] getFields()
+                  {
+                     return new FieldInfo[] { OID };
+                  }
+
+                  public IndexInfo[] getIndexes()
+                  {
+                     return new IndexInfo[] { IDX };
+                  }
+
+                  public String getSequenceName()
+                  {
+                     return null;
+                  }
+               }, runtimeJob);
+            }
+         }
+      });
+   }
+   
+   private void initMigrateDataTasks()
+   {
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            try
+            {
+               initActivityInstanceProperties();
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e,
+               "Failed init activity instance properties (nested exception).");
+            }
+         }
+      });
+      
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            try
+            {
+               upgradeDataTypes();
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e,
+               "Failed upgrade data types (nested exception).");
+            }
+         }
+      });
+   }
+
+   private void initFinalizeSchemaTasks()
+   {
+      upgradeTaskExecutor.addFinalizeSchemaTask(new UpgradeTask()
+      {
+         @Override
+         public void execute()
+         {
+            try
+            {
+               insertDefaultLinkTypes();
+            }
+            catch (SQLException sqle)
+            {
+               reportExeption(sqle,
+                     "Failed migrating runtime item tables (nested exception).");
+            }
+         }
+      });
+   }
+
    protected void upgradeSchema(boolean recover) throws UpgradeException
    {
-      // Alter ActivityInstance Table
-      DatabaseHelper.alterTable(item, new AlterTableInfo(ACTIVITY_INSTANCE_TABLE_NAME)
-      {
-         private final FieldInfo CRITICALITY = new FieldInfo(
-               ACTIVITY_INSTANCE_FIELD_CRITICALITY, Double.TYPE);
-
-         private final FieldInfo PROPERTIES_AVAILABLE = new FieldInfo(
-               ACTIVITY_INSTANCE_FIELD_PROPERTIES, Integer.TYPE);
-
-         private final FieldInfo PROCESS_INSTANCE = new FieldInfo(
-               ACTIVITY_INSTANCE_FIELD_PI, Long.TYPE, 0, false);
-
-         @Override
-         public FieldInfo[] getAddedFields()
-         {
-            return new FieldInfo[] {CRITICALITY, PROPERTIES_AVAILABLE};
-         }
-
-         @Override
-         public IndexInfo[] getAddedIndexes()
-         {
-            return new IndexInfo[] {//
-                  new IndexInfo(ACTIVITY_INSTANCE_IDX9, false, new FieldInfo[] {
-                        CRITICALITY,
-                        PROCESS_INSTANCE }) };
-         }
-
-      }, this);
-
-      try
-      {
-         setColumnDefaultValue(item, ACTIVITY_INSTANCE_TABLE_NAME,
-               ACTIVITY_INSTANCE_FIELD_CRITICALITY, -1);
-      }
-      catch (SQLException e)
-      {
-         reportExeption(e, "Could not update new column " + ACTIVITY_INSTANCE_TABLE_NAME
-               + "." + ACTIVITY_INSTANCE_FIELD_CRITICALITY + " to -1.");
-      }
-
-      try
-      {
-         setColumnDefaultValue(item, ACTIVITY_INSTANCE_TABLE_NAME,
-               ACTIVITY_INSTANCE_FIELD_PROPERTIES, 0);
-      }
-      catch (SQLException e)
-      {
-         reportExeption(e, "Could not update new column " + ACTIVITY_INSTANCE_TABLE_NAME
-               + "." + ACTIVITY_INSTANCE_FIELD_PROPERTIES + " to 0.");
-      }
-
-      // Alter WorkItem Table
-      DatabaseHelper.alterTable(item, new AlterTableInfo(WORK_ITEM_TABLE_NAME)
-      {
-         private final FieldInfo CRITICALITY = new FieldInfo(WORK_ITEM_FIELD_CRITICALITY,
-               Double.TYPE);
-
-         @Override
-         public FieldInfo[] getAddedFields()
-         {
-            return new FieldInfo[] {CRITICALITY};
-         }
-
-      }, this);
-
-      try
-      {
-         setColumnDefaultValue(item, WORK_ITEM_TABLE_NAME, WORK_ITEM_FIELD_CRITICALITY,
-               -1);
-      }
-      catch (SQLException e)
-      {
-         reportExeption(e, "Could not update new column " + WORK_ITEM_TABLE_NAME + "."
-               + WORK_ITEM_FIELD_CRITICALITY + " to -1.");
-      }
-
-      // Create ProcessInstanceLink Table
-      DatabaseHelper.createTable(item, new CreateTableInfo(
-            PROCESS_INSTANCE_LINK_TABLE_NAME)
-      {
-         private final FieldInfo processInstance = new FieldInfo(
-               PROCESS_INSTANCE_LINK_FIELD_PROCESS_INSTANCE, Long.TYPE, 0, true);
-
-         private final FieldInfo linkedProcessInstance = new FieldInfo(
-               PROCESS_INSTANCE_LINK_FIELD_LINKED_PROCESS_INSTANCE, Long.TYPE, 0, true);
-
-         private final FieldInfo linkType = new FieldInfo(
-               PROCESS_INSTANCE_LINK_FIELD_LINK_TYPE, Long.TYPE, 0, true);
-
-         private final FieldInfo createTime = new FieldInfo(
-               PROCESS_INSTANCE_LINK_FIELD_CREATE_TIME, Long.TYPE, 0, false);
-
-         private final FieldInfo creatingUser = new FieldInfo(
-               PROCESS_INSTANCE_LINK_FIELD_CREATING_USER, Long.TYPE, 0, false);
-
-         private final FieldInfo linkingComment = new FieldInfo(
-               PROCESS_INSTANCE_LINK_FIELD_LINKING_COMMENT, String.class, 255, false);
-
-         @Override
-         public FieldInfo[] getFields()
-         {
-            return new FieldInfo[] {
-                  processInstance, linkedProcessInstance, linkType, createTime,
-                  creatingUser, linkingComment};
-         }
-
-         @Override
-         public IndexInfo[] getIndexes()
-         {
-            return null;
-         }
-
-         @Override
-         public String getSequenceName()
-         {
-            return null;
-         }
-
-      }, this);
-
-      // Create ProcessInstanceLinkType Table
-      DatabaseHelper.createTable(item, new CreateTableInfo(
-            PROCESS_INSTANCE_LINK_TYPE_TABLE_NAME)
-      {
-         private final FieldInfo oid = new FieldInfo(
-               PROCESS_INSTANCE_LINK_TYPE_FIELD_OID, Long.TYPE, 0, true);
-
-         private final FieldInfo id = new FieldInfo(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID,
-               String.class, 50, false);
-
-         private final FieldInfo description = new FieldInfo(
-               PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION, String.class, 255, false);
-
-         private final FieldInfo partition = new FieldInfo(
-               PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION, Long.TYPE, 0, false);
-
-         private final IndexInfo IDX1 = new IndexInfo(PROCESS_INSTANCE_LINK_TYPE_IDX1,
-               true, new FieldInfo[] {oid});
-
-         @Override
-         public FieldInfo[] getFields()
-         {
-            return new FieldInfo[] {oid, id, description, partition};
-         }
-
-         @Override
-         public IndexInfo[] getIndexes()
-         {
-            return new IndexInfo[] {IDX1};
-         }
-
-         @Override
-         public String getSequenceName()
-         {
-            return PROCESS_INSTANCE_LINK_TYPE_PK_SEQUENCE;
-         }
-
-      }, this);
-
-      // update datacluster setup key
-      StringBuffer dataClusterUpdateStatement = new StringBuffer();
-      dataClusterUpdateStatement.append("UPDATE property");
-      dataClusterUpdateStatement.append(" SET name=");
-      dataClusterUpdateStatement.append("'");
-      dataClusterUpdateStatement
-            .append("org.eclipse.stardust.engine.core.runtime.setup_definition");
-      dataClusterUpdateStatement.append("'");
-      dataClusterUpdateStatement.append(" where name=");
-      dataClusterUpdateStatement.append("'");
-      dataClusterUpdateStatement.append("ag.carnot.workflow.runtime.setup_definition");
-      dataClusterUpdateStatement.append("'");
-
-      try
-      {
-         DatabaseHelper.executeUpdate(item, dataClusterUpdateStatement.toString());
-      }
-      catch (SQLException e)
-      {
-         reportExeption(e, "could not update data cluster setup");
-      }
-
-
-      // Lock table will only be created if any other lock table already exists, e.g. the one for AIBean
-      if (!item.isArchiveAuditTrail() && containsTable(AI_LCK_TABLE_NAME))
-      {
-         DatabaseHelper.createTable(item, new CreateTableInfo(P_LCK_TABLE_NAME)
-         {
-            private static final String INDEX_NAME = "partition_lck_idx";
-
-            private final FieldInfo OID = new FieldInfo(P_LCK_FIELD__OID, Long.TYPE, 0, true);
-
-            private final IndexInfo IDX = new IndexInfo(INDEX_NAME, true,
-                  new FieldInfo[] { OID });
-
-            public FieldInfo[] getFields()
-            {
-               return new FieldInfo[] { OID };
-            }
-
-            public IndexInfo[] getIndexes()
-            {
-               return new IndexInfo[] { IDX };
-            }
-
-            public String getSequenceName()
-            {
-               return null;
-            }
-         }, this);
-      }
+      upgradeTaskExecutor.executeUpgradeSchemaTasks();
    }
 
    @Override
@@ -381,15 +498,9 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    protected void migrateData(boolean recover) throws UpgradeException
    {
-      try
-      {
-         initActivityInstanceProperties();
-         upgradeDataTypes();
-         ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)).flush();
-      }
-      catch (SQLException e)
-      {
-      }
+      upgradeTaskExecutor.executeMigrateDataTasks();
+      ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) SessionFactory
+            .getSession(SessionFactory.AUDIT_TRAIL)).flush();
    }
 
    private void upgradeDataTypes() throws SQLException
@@ -686,14 +797,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    protected void finalizeSchema(boolean recover) throws UpgradeException
    {
-      try
-      {
-         insertDefaultLinkTypes();
-      }
-      catch (SQLException sqle)
-      {
-         reportExeption(sqle, "Failed migrating runtime item tables (nested exception).");
-      }
+      upgradeTaskExecutor.executeFinalizeSchemaTasks();
    }
 
    private void reportExeption(SQLException sqle, String message)

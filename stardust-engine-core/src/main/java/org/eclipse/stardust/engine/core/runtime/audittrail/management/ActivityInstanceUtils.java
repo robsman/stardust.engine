@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.audittrail.management;
 
 import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.stardust.common.Direction;
@@ -22,27 +23,9 @@ import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IDataMapping;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.ImplementationType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.EventUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -224,6 +207,32 @@ public class ActivityInstanceUtils
       }
    }
 
+   public static void assertNotInUserWorklist(IActivityInstance activityInstance,
+         ParticipantInfo participant) throws AccessForbiddenException
+   {      
+      IParticipant currentPerformer = activityInstance.getCurrentPerformer();
+      if(currentPerformer instanceof IUserGroup)
+      {
+         if(participant instanceof UserInfo)
+         {
+            long oid = ((UserInfo) participant).getOID();         
+            for (Iterator i = ((IUserGroup) currentPerformer).findAllUsers(); i.hasNext();)
+            {
+               IUser user = (IUser) i.next();
+               long memberOid = user.getOID();
+               if(oid == memberOid)
+               {
+                  return;
+               }
+            }
+         }
+                  
+         throw new AccessForbiddenException(
+               BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER.raise(
+                     new Long(activityInstance.getOID())));
+      }
+   }      
+   
    public static void assertNotOnOtherUserWorklist(IActivityInstance activityInstance,
          boolean allowAdmin) throws AccessForbiddenException
    {

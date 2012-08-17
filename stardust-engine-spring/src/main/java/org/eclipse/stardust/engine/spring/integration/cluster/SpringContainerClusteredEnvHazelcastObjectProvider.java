@@ -16,6 +16,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusteredEnvHazelcastObjectProvider;
 import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 
 /**
  * <p>
@@ -48,7 +49,13 @@ public class SpringContainerClusteredEnvHazelcastObjectProvider extends Clustere
       {
          try
          {
-            return SpringUtils.getApplicationContext().getBean(HZ_CF_BEAN_ID, ConnectionFactory.class);
+            ApplicationContext appCtx = SpringUtils.getWebApplicationContext();
+            if (appCtx == null)
+            {
+               /* we're not in a web environment */
+               appCtx = SpringUtils.getApplicationContext();
+            }
+            return appCtx.getBean(HZ_CF_BEAN_ID, ConnectionFactory.class);
          }
          catch (final BeansException e)
          {

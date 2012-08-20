@@ -13,11 +13,11 @@ package org.eclipse.stardust.common.utils.xml.jaxb;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.soap.SAAJResult;
+import javax.xml.soap.SOAPElement;
 import javax.xml.transform.dom.DOMResult;
 
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -25,13 +25,38 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-
 public final class Jaxb
 {
    private Jaxb() {};
    
-   private static Map<String, JAXBContext> contexts = new HashMap<String, JAXBContext>();
+   private static Map<Object, JAXBContext> contexts = new HashMap<Object, JAXBContext>();
 
+   private static DatatypeFactory datatypeFactory;
+   
+   public static DatatypeFactory getDatatypeFactory() throws DatatypeConfigurationException
+   {
+      if (datatypeFactory == null)
+      {
+         synchronized (DatatypeFactory.class)
+         {
+            if (datatypeFactory == null)
+            {
+               datatypeFactory = DatatypeFactory.newInstance();
+            }
+         }
+      }
+      return datatypeFactory;
+   }
+
+   public static <T> void marshall(SOAPElement soapElement, JAXBElement<T> jaxbObject)
+         throws JAXBException
+   {
+      JAXBContext context = getContext(jaxbObject.getDeclaredType());
+      Marshaller marshaller = context.createMarshaller();
+      SAAJResult result = new SAAJResult(soapElement);
+      marshaller.marshal(jaxbObject, result);
+   }
+   
    public static Element marshall(Object jaxbObject, JAXBContext context)
          throws JAXBException
    {
@@ -84,6 +109,17 @@ public final class Jaxb
       {
          context = JAXBContext.newInstance(packageName);
          contexts.put(packageName, context);
+      }
+      return context;
+   }
+
+   private static synchronized JAXBContext getContext(Class<?> clazz) throws JAXBException
+   {
+      JAXBContext context = contexts.get(clazz);
+      if (context == null)
+      {
+         context = JAXBContext.newInstance(clazz);
+         contexts.put(clazz, context);
       }
       return context;
    }

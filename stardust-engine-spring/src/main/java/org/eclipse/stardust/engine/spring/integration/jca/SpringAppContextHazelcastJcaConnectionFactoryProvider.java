@@ -19,6 +19,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 /**
+ * <p>
+ * This class assumes that there's a bean with id <code>localHazelcastConnectionFactory</code>
+ * representing the <i>Hazelcast</i> connection factory in the <i>Spring</i> application context.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */

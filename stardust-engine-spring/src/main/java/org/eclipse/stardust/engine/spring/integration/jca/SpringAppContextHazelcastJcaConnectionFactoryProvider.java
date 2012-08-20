@@ -20,7 +20,7 @@ import org.springframework.context.ApplicationContext;
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SpringAppContextHazelcastJcaConnectionFactoryProvider implements HazelcastJcaConnectionFactoryProvider
 {

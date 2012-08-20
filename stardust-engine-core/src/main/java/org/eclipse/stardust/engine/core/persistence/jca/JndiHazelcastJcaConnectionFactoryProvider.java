@@ -20,7 +20,7 @@ import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryPro
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaConnectionFactoryProvider
 {

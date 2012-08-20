@@ -18,9 +18,9 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
-@SPI(status = Status.Stable, useRestriction = UseRestriction.Internal)
+@SPI(status = Status.Stable, useRestriction = UseRestriction.Public)
 public interface HazelcastJcaConnectionFactoryProvider
 {
    ConnectionFactory connectionFactory();

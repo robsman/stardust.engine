@@ -18,7 +18,11 @@ import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryPro
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
-public class SpringAppCtxHazelcastJcaConnectionFactoryProvider implements HazelcastJcaConnectionFactoryProvider
+/**
+ * @author Nicolas.Werlein
+ * @version $Revision: $
+ */
+public class SpringAppContextHazelcastJcaConnectionFactoryProvider implements HazelcastJcaConnectionFactoryProvider
 {
    private static final String HZ_CF_BEAN_ID = "localHazelcastConnectionFactory";
    

@@ -144,11 +144,16 @@ public class RuntimeSetup implements XMLConstants
                               if (StringUtils.isNotEmpty(modelId)
                                     && StringUtils.isNotEmpty(dataId))
                               {
+                                 String ignorePreparedStatementsAttr 
+                                    = dsNode.getAttribute(DATA_SLOT_IGNORE_PREPARED_STATEMENTS_ATT);
+                                 boolean ignorePreparedStatements = Boolean.valueOf(ignorePreparedStatementsAttr);
+                                 
                                  slots.add(new DataSlot(modelId, dataId, attribute,
                                        dsNode.getAttribute(DATA_SLOT_OIDCOLUMN_ATT),
                                        dsNode.getAttribute(DATA_SLOT_TYPECOLUMN_ATT),
                                        dsNode.getAttribute(DATA_SLOT_NVALCOLUMN_ATT),
-                                       dsNode.getAttribute(DATA_SLOT_SVALCOLUMN_ATT)));
+                                       dsNode.getAttribute(DATA_SLOT_SVALCOLUMN_ATT),
+                                       ignorePreparedStatements));
                               }
                               else
                               {

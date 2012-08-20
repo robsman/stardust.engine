@@ -66,6 +66,11 @@ public class InsertDescriptor implements ITableDescriptor
    {
       return new FieldRef(this, fieldName);
    }
+   
+   public FieldRef fieldRef(String fieldName, boolean ignorePreparedStatements)
+   {
+      return new FieldRef(this, fieldName, ignorePreparedStatements);
+   }
 
    public Class getType()
    {

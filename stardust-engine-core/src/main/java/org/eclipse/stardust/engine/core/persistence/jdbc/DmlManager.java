@@ -684,7 +684,7 @@ public class DmlManager
 
    private StringBuffer buildValueExpression(Operator op, FieldRef lhsField, Object value, List<Pair<Class<?>, ?>> bindValueList,
          boolean useLiteralsWhereAppropriate)
-   {
+   {    
       StringBuffer buffer = new StringBuffer(DEFAULT_STMT_BUFFER_SIZE);
 
       if (value instanceof QueryDescriptor)
@@ -710,6 +710,11 @@ public class DmlManager
                   useBindValues = false;
                }
             }
+         }
+         
+         if(lhsField.isIgnorePreparedStatements())
+         {
+            useBindValues = false;
          }
                
          if (value instanceof FieldRef)

@@ -47,6 +47,7 @@ public interface XMLConstants
    String DATA_SLOT_OIDCOLUMN_ATT = "oidColumn";
    String DATA_SLOT_TYPECOLUMN_ATT = "typeColumn";
    String DATA_SLOT_NVALCOLUMN_ATT = "nValueColumn";
+   String DATA_SLOT_IGNORE_PREPARED_STATEMENTS_ATT = "ignorePreparedStatements";
    String DATA_SLOT_SVALCOLUMN_ATT = "sValueColumn";
    
    String INDEX_NAME_ATT = "indexName";

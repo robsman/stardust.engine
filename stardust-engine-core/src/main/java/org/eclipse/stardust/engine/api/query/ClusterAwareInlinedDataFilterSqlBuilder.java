@@ -222,6 +222,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
                      + filterKey.getDataId() + " and cluster " + cluster.getTableName());
             }
 
+            boolean ignorePreparedStatements = slot.isIgnorePreparedStatements();
             Pair joinKey = new Pair(dataFilterMode, cluster);
             Join clusterJoin = (Join) cntxt.clusterJoins.get(joinKey);
             if (null == clusterJoin)
@@ -252,15 +253,15 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
             {
                final List<FieldRef> selectExtension = cntxt.getSelectExtension();
 
-               selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn()));
-               selectExtension.add(clusterJoin.fieldRef(slot.getSValueColumn()));
+               selectExtension.add(clusterJoin.fieldRef(slot.getTypeColumn(), ignorePreparedStatements));
+               selectExtension.add(clusterJoin.fieldRef(slot.getSValueColumn(), ignorePreparedStatements));
 
                return NOTHING;
             }
             else
             {
                IEvaluationOptionProvider evalProvider = filter;
-               ((AndTerm) resultTerm).add(matchDataInstancesPredicate(filter
+               ((AndTerm) resultTerm).add(matchDataInstancesPredicate(ignorePreparedStatements, filter
                      .getOperator(), filter.getOperand(), clusterJoin, slot
                      .getTypeColumn(), slot.getNValueColumn(), slot.getSValueColumn(),
                      evalProvider));
@@ -515,7 +516,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
     *
     * @see #isLargeValue
     */
-   private static PredicateTerm matchDataInstancesPredicate(Operator operator, Object value,
+   private static PredicateTerm matchDataInstancesPredicate(boolean ignorePreparedStatements, Operator operator, Object value,
          ITableDescriptor clusterTable, String typeColumn, String nValueColumn,
          String sValueColumn, final IEvaluationOptionProvider evaluationOptions)
    {
@@ -549,7 +550,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
 
       if (operator.isUnary())
       {
-         resultTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn),
+         resultTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                (Operator.Unary) operator));
       }
       else
@@ -561,10 +562,10 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
                OrTerm orTerm = new OrTerm();
                if (Operator.IS_EQUAL.equals(operator))
                {
-                  orTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn),
+                  orTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                         Operator.IS_NULL));
                }
-               orTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn),
+               orTerm.add(new ComparisonTerm(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                      (Operator.Binary) operator, new Integer(BigData.NULL)));
                resultTerm.add(orTerm);
             }
@@ -576,7 +577,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
          }
          else
          {
-         FieldRef lhsOperand = clusterTable.fieldRef(valueColumn);
+         FieldRef lhsOperand = clusterTable.fieldRef(valueColumn, ignorePreparedStatements);
 
          if ( !EvaluationOptions.isCaseSensitive(evaluationOptions))
          {
@@ -591,12 +592,12 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
             if (operator.equals(Operator.LIKE)
                   && canonicalValue.getTypeKey() == BigData.STRING)
             {
-               resultTerm.add(Predicates.inList(clusterTable.fieldRef(typeColumn),
+               resultTerm.add(Predicates.inList(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                      new int[] { BigData.STRING, BigData.BIG_STRING }));
             }
             else
             {
-                  resultTerm.add(Predicates.isEqual(clusterTable.fieldRef(typeColumn),
+                  resultTerm.add(Predicates.isEqual(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                         canonicalValue.getTypeKey()));
             }
 
@@ -644,7 +645,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
                   getDataPredicateArgumentValue(pair.getFirst(), evaluationOptions),
                   getDataPredicateArgumentValue(pair.getSecond(), evaluationOptions));
 
-               resultTerm.add(Predicates.isEqual(clusterTable.fieldRef(typeColumn),
+               resultTerm.add(Predicates.isEqual(clusterTable.fieldRef(typeColumn, ignorePreparedStatements),
                      canonicalValue.getTypeKey()));
                resultTerm.add(new ComparisonTerm(lhsOperand, (Operator.Ternary) operator,
                      valuePair));

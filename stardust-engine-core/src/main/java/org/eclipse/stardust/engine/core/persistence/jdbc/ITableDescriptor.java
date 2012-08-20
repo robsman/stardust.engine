@@ -29,4 +29,5 @@ public interface ITableDescriptor
 
    public abstract FieldRef fieldRef(String fieldName);
 
+   public abstract FieldRef fieldRef(String fieldName, boolean ignorePreparedStatements);
 }

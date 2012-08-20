@@ -26,6 +26,11 @@ public abstract class TableDescriptor implements ITableDescriptor
       return new FieldRef(this, fieldName);
    }
 
+   public FieldRef fieldRef(String fieldName, boolean ignorePreparedStatements)
+   {
+      return new FieldRef(this, fieldName, ignorePreparedStatements);
+   }
+   
    public String getSchemaName()
    {
       return schemaName;

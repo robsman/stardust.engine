@@ -23,9 +23,9 @@ public class CurrentVersion
    private static final String BUILD_VERSION_NAME = "-buildVersionName";
    private static final String VERSION_NAME = "-versionName";
    public static final String COPYRIGHT_YEARS = "2000-2012";
-   public static final String MAJOR_VERSION = "@major@";
-   public static final String MINOR_VERSION = "@minor@";
-   public static final String MICRO_VERSION = "@micro@";
+   public static final String MAJOR_VERSION = "7";
+   public static final String MINOR_VERSION = "0";
+   public static final String MICRO_VERSION = "0";
    public static final String BUILD = "@build@";
 
    /**

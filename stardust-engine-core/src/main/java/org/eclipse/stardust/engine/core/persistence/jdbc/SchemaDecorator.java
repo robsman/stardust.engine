@@ -43,4 +43,9 @@ public class SchemaDecorator implements ITableDescriptor
    {
       return new FieldRef(this, fieldName);
    }
+   
+   public FieldRef fieldRef(String fieldName, boolean ignorePreparedStatements)
+   {
+      return new FieldRef(this, fieldName, ignorePreparedStatements);
+   }
 }

@@ -26,9 +26,10 @@ public class DataSlot
    private final String typeColumn;
    private final String nValueColumn;
    private final String sValueColumn;
+   private final boolean ignorePreparedStatements;
 
    public DataSlot(String modelId, String dataId, String attributeName, String oidColumn, String typeColumn,
-         String nValueColumn, String sValueColumn)
+         String nValueColumn, String sValueColumn, boolean ignorePreparedStatements)
    {
       this.fqDataId = new QName(modelId, dataId);
       this.attributeName = attributeName;
@@ -36,6 +37,7 @@ public class DataSlot
       this.typeColumn = typeColumn;
       this.nValueColumn = nValueColumn;
       this.sValueColumn = sValueColumn;
+      this.ignorePreparedStatements = ignorePreparedStatements;
    }
    
    public String getModelId()
@@ -77,5 +79,9 @@ public class DataSlot
    {
       return sValueColumn;
    }
-   
+
+   public boolean isIgnorePreparedStatements()
+   {
+      return ignorePreparedStatements;
+   }
 }

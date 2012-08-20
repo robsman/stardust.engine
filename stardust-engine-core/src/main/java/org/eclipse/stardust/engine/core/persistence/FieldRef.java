@@ -24,6 +24,7 @@ public class FieldRef implements Column
    private ITableDescriptor type;
    public String fieldName;
    private Boolean literalField;
+   private final boolean ignorePreparedStatements;
    
    public FieldRef(Class type, String fieldName)
    {
@@ -31,14 +32,22 @@ public class FieldRef implements Column
       this.type = null;
       this.fieldName = fieldName;
       this.literalField = null;
+      this.ignorePreparedStatements = false;
    }
    
    public FieldRef(ITableDescriptor type, String fieldName)
+   {
+      this(type, fieldName, false);
+   }
+   
+   
+   public FieldRef(ITableDescriptor type, String fieldName, boolean ignorePreparedStatements)
    {
       this.boundType = null;
       this.type = type;
       this.fieldName = fieldName;
       this.literalField = null;
+      this.ignorePreparedStatements = ignorePreparedStatements;
    }
    
    public ITableDescriptor getType()
@@ -95,5 +104,10 @@ public class FieldRef implements Column
          }
       }
       return literalField;
+   }
+
+   public boolean isIgnorePreparedStatements()
+   {
+      return ignorePreparedStatements;
    }
 }

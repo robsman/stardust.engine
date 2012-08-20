@@ -136,7 +136,7 @@ public class QueryDescriptor extends TableDescriptor
             .getTableName());
       if (null != resolvedTable)
       {
-         result = resolvedTable.fieldRef(field.fieldName);
+         result = resolvedTable.fieldRef(field.fieldName, field.isIgnorePreparedStatements());
       }
       else
       {

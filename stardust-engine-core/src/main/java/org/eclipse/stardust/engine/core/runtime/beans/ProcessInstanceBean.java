@@ -1476,7 +1476,12 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public boolean isTransient()
    {
-      return ((Boolean) getPropertyValue(TRANSIENT_PROPERTY_KEY)).booleanValue();
+      final Boolean transientPi = (Boolean) getPropertyValue(TRANSIENT_PROPERTY_KEY);
+      if (transientPi != null)
+      {
+         return transientPi.booleanValue();
+      }
+      return false;
    }      
    
    public void resetTransientProperty()

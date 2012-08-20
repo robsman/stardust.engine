@@ -13,14 +13,16 @@ package org.eclipse.stardust.engine.core.cache.hazelcast;
 import java.util.Arrays;
 import java.util.Map;
 
-import javax.naming.InitialContext;
 import javax.resource.cci.ConnectionFactory;
 
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.spi.cache.Cache;
 import org.eclipse.stardust.engine.core.spi.cache.CacheException;
+import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider;
 
 
 
@@ -30,10 +32,17 @@ public class HazelcastCacheFactory implements Cache.Factory
    
    public static final String PRP_HAZELCAST_TX_MODE = "Infinity.Engine.Caching.Hazelcast.TxMode";
    
-   public static final String PRP_HAZELCAST_CF_JNDI_NAME = "Infinity.Engine.Caching.Hazelcast.ConnectionFactoryJndiName";
+   private static final HazelcastJcaConnectionFactoryProvider CONNECTION_FACTORY_PROVIDER;
    
-   public static final String HAZELCAST_CF_DEFAULT_JNDI_NAME = "HazelcastCF";
-
+   static
+   {
+      CONNECTION_FACTORY_PROVIDER = ExtensionProviderUtils.getFirstExtensionProvider(HazelcastJcaConnectionFactoryProvider.class, KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER);
+      if (CONNECTION_FACTORY_PROVIDER == null)
+      {
+         throw new IllegalStateException("No Hazelcast JCA connection factory provider could be found.");
+      }
+   }
+   
    @SuppressWarnings("rawtypes")
    public Cache createCache(Map env) throws CacheException
    {
@@ -51,9 +60,7 @@ public class HazelcastCacheFactory implements Cache.Factory
          ConnectionFactory hzCf = null;
          if ( !"none".equals(txMode))
          {
-            InitialContext ic = new InitialContext();
-            hzCf = (ConnectionFactory) ic.lookup(params.getString(
-                  PRP_HAZELCAST_CF_JNDI_NAME, HAZELCAST_CF_DEFAULT_JNDI_NAME));
+            hzCf = CONNECTION_FACTORY_PROVIDER.connectionFactory();
          }
          return new HazelcastCacheAdapter(txMode, hzCf, env);
       }
@@ -64,5 +71,4 @@ public class HazelcastCacheFactory implements Cache.Factory
 
       return null;
    }
-
 }

@@ -15,6 +15,7 @@ import org.eclipse.stardust.common.annotations.PropertyValueType;
 import org.eclipse.stardust.common.annotations.Status;
 import org.eclipse.stardust.common.annotations.UseRestriction;
 import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
+import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider;
 
 /**
  * @author rsauer
@@ -189,4 +190,8 @@ public final class KernelTweakingProperties
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Public)
    @PropertyValueType(ClusterSafeObjectProvider.class)
    public static final String CLUSTER_SAFE_OBJ_PROVIDER = "Carnot.Engine.Tuning.SupportTransientProcesses.ClusterSafeObjectProvider";
+   
+   @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Public)
+   @PropertyValueType(HazelcastJcaConnectionFactoryProvider.class)
+   public static final String HZ_JCA_CONNECTION_FACTORY_PROVIDER = "Carnot.Engine.Hazelcast.JcaConnectionFactoryProvider";
 }

@@ -16,10 +16,13 @@ import java.util.concurrent.locks.Lock;
 import javax.resource.ResourceException;
 import javax.resource.cci.ConnectionFactory;
 
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
+import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider;
 
 import com.hazelcast.core.Hazelcast;
 
@@ -27,8 +30,19 @@ import com.hazelcast.core.Hazelcast;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public abstract class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectProvider
+public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectProvider
 {
+   private static final HazelcastJcaConnectionFactoryProvider CONNECTION_FACTORY_PROVIDER;
+   
+   static
+   {
+      CONNECTION_FACTORY_PROVIDER = ExtensionProviderUtils.getFirstExtensionProvider(HazelcastJcaConnectionFactoryProvider.class, KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER);
+      if (CONNECTION_FACTORY_PROVIDER == null)
+      {
+         throw new IllegalStateException("No Hazelcast JCA connection factory provider could be found.");
+      }
+   }
+   
    @Override
    public <K, V> Map<K, V> clusterSafeMap(final String mapId)
    {
@@ -45,7 +59,7 @@ public abstract class ClusteredEnvHazelcastObjectProvider implements ClusterSafe
    public void beforeAccess()
    {
       final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      final ConnectionFactory connectionFactory = connectionFactory();
+      final ConnectionFactory connectionFactory = CONNECTION_FACTORY_PROVIDER.connectionFactory();
       
       try
       {
@@ -63,6 +77,4 @@ public abstract class ClusteredEnvHazelcastObjectProvider implements ClusterSafe
    {
       /* nothing to do */
    }
-
-   protected abstract ConnectionFactory connectionFactory();
 }

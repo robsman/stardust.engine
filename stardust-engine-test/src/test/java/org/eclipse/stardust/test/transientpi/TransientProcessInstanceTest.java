@@ -36,7 +36,7 @@ import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
-import org.eclipse.stardust.engine.spring.integration.cluster.SpringContainerClusteredEnvHazelcastObjectProvider;
+import org.eclipse.stardust.engine.spring.integration.jca.SpringAppCtxHazelcastJcaConnectionFactoryProvider;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
@@ -104,7 +104,7 @@ public class TransientProcessInstanceTest
       final Parameters params = Parameters.instance();
       params.set(PROCESS_EXECUTION_STATE, ProcessExecutionState.NOT_STARTED);
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
-      params.set(KernelTweakingProperties.CLUSTER_SAFE_OBJ_PROVIDER, SpringContainerClusteredEnvHazelcastObjectProvider.class.getName());
+      params.set(KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER, SpringAppCtxHazelcastJcaConnectionFactoryProvider.class.getName());
    }
    
    /**

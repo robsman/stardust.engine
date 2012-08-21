@@ -10,77 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.CardinalityKey;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IApplication;
-import org.eclipse.stardust.engine.api.model.IApplicationContextType;
-import org.eclipse.stardust.engine.api.model.IApplicationType;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataType;
-import org.eclipse.stardust.engine.api.model.IEventActionType;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IExternalPackage;
-import org.eclipse.stardust.engine.api.model.ILinkType;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IModeler;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IQualityAssurance;
-import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
-import org.eclipse.stardust.engine.api.model.IReference;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.ITriggerType;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.IView;
-import org.eclipse.stardust.engine.api.model.IXpdlType;
-import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.Scripting;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.UserQuery;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserService;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
-import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
-import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
-import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
-import org.eclipse.stardust.engine.core.model.utils.Link;
-import org.eclipse.stardust.engine.core.model.utils.ModelElement;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.ModelListener;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.model.utils.RootElementBean;
-import org.eclipse.stardust.engine.core.model.utils.SearchableList;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.compatibility.diagram.*;
+import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.IConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -98,6 +43,11 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 public class ModelBean extends RootElementBean
       implements IModel
 {
+   private static final String REFERENCED_MODEL_NOT_IN_BUNDLE = "Model ''{0}'' is referenced but not part of this deployment.\n" +
+         		"Please make sure that all required process models have already been deployed\n" +
+         		"or deploy all interdependent artifacts in a single bundle.";
+   private static final String UNRESOLVED_MODEL_REFERENCE = "Unresolved reference to model ''{0}''.";
+   private static final String REFERENCE_IS_INVALID_UNTIL = "Reference to model ''{0}'' is invalid until {1}.";
    private static final String CIRCULAR_REFERENCES = "Circular references to model ''{0}''.";
    private static final String RESOLVED_TO_MULTIPLE_VERSIONS = "Reference for ''{0}'' is resolved to multiple model versions.";
    private static final String NOT_RESOLVED_TO_LAST_DEPLOYED = "Reference for ''{0}'' was not resolved to the last deployed model version.";
@@ -158,18 +108,11 @@ public class ModelBean extends RootElementBean
    private Set<String> configurationVariableReferences = CollectionUtils.newSet();
    private QualityAssuranceBean qualityAssuranceBean;
 
-   ModelBean()
-   {
-      addToModelListeners(new DiagramModelListener());
-   }
-
    public ModelBean(String id, String name, String description)
    {
       super(id, name);
 
       trace.debug("Creating model " + id + ".");
-
-      addToModelListeners(new DiagramModelListener());
 
       setDescription(description);
    }
@@ -479,16 +422,12 @@ public class ModelBean extends RootElementBean
          {
             if (externalPackage.getReferencedModel() == null)
             {
-               inconsistencies.add(new Inconsistency("Unresolved reference to model '" + externalPackage.getHref() + "'.",
-                     this, Inconsistency.ERROR));
-               return false;
+               return addReferenceInconsistency(inconsistencies, externalPackage);
             }
          }
          catch (Exception ex)
          {
-            inconsistencies.add(new Inconsistency("Unresolved reference to model '" + externalPackage.getHref() + "'.",
-                  this, Inconsistency.ERROR));
-            return false;
+            return addReferenceInconsistency(inconsistencies, externalPackage);
          }
       }
       
@@ -499,6 +438,15 @@ public class ModelBean extends RootElementBean
                CollectionUtils.<String, IModel>newMap(), this, inconsistencies);
       }
       return true;
+   }
+
+   private boolean addReferenceInconsistency(List<Inconsistency> inconsistencies,
+         IExternalPackage externalPackage)
+   {
+      boolean modelManagerAvailable = ModelManagerFactory.isAvailable();
+      inconsistencies.add(new Inconsistency(modelManagerAvailable ? Inconsistency.ERROR : Inconsistency.WARNING, this,
+            modelManagerAvailable ? UNRESOLVED_MODEL_REFERENCE : REFERENCED_MODEL_NOT_IN_BUNDLE, externalPackage.getHref()));
+      return false;
    }
 
    private boolean validateTransitiveConsistency(ModelManager mm, Date ref, Map<String, IModel> referencedModels,
@@ -531,7 +479,7 @@ public class ModelBean extends RootElementBean
                Date from = (Date) referencedModel.getAttribute(PredefinedConstants.VALID_FROM_ATT);
                if (from != null && from.after(ref))
                {
-                  inconsistencies.add(new Inconsistency(Inconsistency.ERROR, this, "Reference to model ''{0}'' is invalid until {1}.", id, from));
+                  inconsistencies.add(new Inconsistency(Inconsistency.ERROR, this, REFERENCE_IS_INVALID_UNTIL, id, from));
                   return false;
                }
             }
@@ -634,8 +582,6 @@ public class ModelBean extends RootElementBean
       // next available transient id will be assigned
       typeDeclaration.register(0);
 
-      fireModelElementCreated(typeDeclaration, this);
-
       return typeDeclaration;
    }
 
@@ -653,8 +599,6 @@ public class ModelBean extends RootElementBean
 
       addToApplications(application);
       application.register(elementOID);
-
-      fireModelElementCreated(application, this);
 
       return application;
    }
@@ -674,8 +618,6 @@ public class ModelBean extends RootElementBean
       addToData(date);
       date.register(elementOID);
 
-      fireModelElementCreated(date, this);
-
       return date;
    }
 
@@ -692,8 +634,6 @@ public class ModelBean extends RootElementBean
 
       addToDiagrams(diagram);
       diagram.register(elementOID);
-
-      fireModelElementCreated(diagram, this);
 
       return diagram;
    }
@@ -719,8 +659,6 @@ public class ModelBean extends RootElementBean
       addToViews(view);
 
       view.register(elementOID);
-
-      fireModelElementCreated(view, this);
 
       return view;
    }
@@ -757,8 +695,6 @@ public class ModelBean extends RootElementBean
       {
          processDefinition.createDiagram("Default");
       }
-
-      fireModelElementCreated(processDefinition, this);
 
       return processDefinition;
    }
@@ -1417,85 +1353,6 @@ public class ModelBean extends RootElementBean
    public Iterator getAllEventActionTypes()
    {
       return eventActionTypes.iterator();
-   }
-
-   // @todo (egypt): Move this outside the model
-   private class DiagramModelListener implements ModelListener
-   {
-      public void modelElementCreated(ModelElement element, ModelElement parent)
-      {
-      }
-
-      public void modelElementDeleted(ModelElement element, ModelElement parent)
-      {
-
-         if (element instanceof Symbol)
-         {
-            return;
-         }
-         for (Iterator i = getAllDiagrams();i.hasNext();)
-         {
-            ((Diagram) i.next()).userObjectDeleted(element);
-         }
-
-         for (Iterator i = getAllProcessDefinitions();i.hasNext();)
-         {
-            for (Iterator j = ((IProcessDefinition) i.next()).getAllDiagrams();j.hasNext();)
-            {
-               ((Diagram) j.next()).userObjectDeleted(element);
-            }
-         }
-      }
-
-      public void modelElementChanged(ModelElement element)
-      {
-         if (element instanceof Symbol)
-         {
-            return;
-         }
-         for (Iterator i = getAllDiagrams(); i.hasNext();)
-         {
-            ((Diagram) i.next()).userObjectChanged(element);
-         }
-
-         for (Iterator i = getAllProcessDefinitions(); i.hasNext();)
-         {
-            for (Iterator j = ((IProcessDefinition) i.next()).getAllDiagrams(); j.hasNext();)
-            {
-               ((Diagram) j.next()).userObjectChanged(element);
-            }
-         }
-      }
-
-      public void modelElementsLinked(ModelElement first, ModelElement second)
-      {
-      }
-
-      public void modelElementsUnlinked(ModelElement first, ModelElement second)
-      {
-         if (first instanceof Symbol)
-         {
-            return;
-         }
-         Iterator diagrams = getAllDiagrams();
-
-         while (diagrams.hasNext())
-         {
-            ((Diagram) diagrams.next()).userObjectsUnlinked(first, second);
-         }
-
-         Iterator _procDefWalker = getAllProcessDefinitions();
-
-         while (_procDefWalker.hasNext())
-         {
-            Iterator iterator = ((IProcessDefinition) _procDefWalker.next()).getAllDiagrams();
-
-            while (iterator.hasNext())
-            {
-               ((Diagram) iterator.next()).userObjectsUnlinked(first, second);
-            }
-         }
-      }
    }
 
    public Scripting getScripting()

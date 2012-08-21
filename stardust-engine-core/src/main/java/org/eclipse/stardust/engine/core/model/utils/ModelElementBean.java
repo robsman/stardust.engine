@@ -140,10 +140,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
     */
    public void markModified()
    {
-      if (getModel() != null)
-      {
-         getModel().fireModelElementChanged(this);
-      }
    }
 
    public void register(int oid)
@@ -220,11 +216,6 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
          Hook r = (Hook) i.next();
          r.remove(this);
       }*/
-
-      if (modelCopy != null)
-      {
-         modelCopy.fireModelElementDeleted(this, parent);
-      }
 
       parent = null;
    }

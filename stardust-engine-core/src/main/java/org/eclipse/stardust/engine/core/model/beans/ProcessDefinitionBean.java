@@ -337,8 +337,6 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       activity.register(elementOID);
       activity.setImplementationType(ImplementationType.Route);
 
-      getModel().fireModelElementCreated(activity, this);
-
       return activity;
    }
 
@@ -358,8 +356,6 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       addToDiagrams(diagram);
       diagram.register(elementOID);
 
-      getModel().fireModelElementCreated(diagram, this);
-
       return diagram;
    }
 
@@ -371,8 +367,6 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
       addToTriggers(trigger);
       trigger.register(elementOID);
-
-      getModel().fireModelElementCreated(trigger, this);
 
       return trigger;
    }
@@ -439,8 +433,6 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
       addToTransitions(transition);
       transition.register(elementOID);
-
-      getModel().fireModelElementCreated(transition, this);
 
       return transition;
    }
@@ -551,8 +543,6 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       addToDataPaths(dataPath);
       dataPath.register(elementOID);
 
-      getModel().fireModelElementCreated(dataPath, this);
-
       return dataPath;
    }
 
@@ -654,8 +644,6 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       eventHandlers.add(result);
       result.register(elementOID);
       result.setConditionType(type);
-
-      getModel().fireModelElementCreated(result, this);
 
       return result;
    }

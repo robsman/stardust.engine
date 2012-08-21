@@ -43,16 +43,6 @@ public abstract class ConnectionBean extends ModelElementBean implements Connect
       this.first = first;
    }
 
-   public void delete()
-   {
-      if (getModel() != null)
-      {
-         getModel().fireModelElementDeleted(this, getParent());
-         //         getModel().fireModelElementsUnlinked(first, second);
-      }
-      super.delete();
-   }
-
    public ModelElement getFirst()
    {
       return first;

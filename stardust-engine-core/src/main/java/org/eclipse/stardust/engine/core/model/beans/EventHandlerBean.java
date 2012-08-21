@@ -100,7 +100,6 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
       addToEventActions(result);
       result.register(elementOID);
       result.setActionType(type);
-      getModel().fireModelElementCreated(result, this);
       return result;
    }
 
@@ -112,7 +111,6 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
       addToBindActions(result);
       result.register(elementOID);
       result.setActionType(type);
-      getModel().fireModelElementCreated(result, this);
       return result;
    }
 
@@ -124,7 +122,6 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
       addToUnbindActions(result);
       result.register(elementOID);
       result.setActionType(type);
-      getModel().fireModelElementCreated(result, this);
       return result;
    }
 

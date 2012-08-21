@@ -51,7 +51,6 @@ public abstract class NamedSymbol extends AbstractWorkflowSymbol
       {
          IdentifiableElement ie = (IdentifiableElement) userObject.getElement();
          ie.setName(nameSymbol.getText());
-         ie.getModel().fireModelElementChanged(ie);
       }
    }
 

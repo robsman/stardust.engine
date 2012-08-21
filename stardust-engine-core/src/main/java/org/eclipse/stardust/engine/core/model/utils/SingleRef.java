@@ -47,10 +47,6 @@ public class SingleRef extends SingleHook implements Reference
    {
       removeOtherRole(getElement());
       super.remove(element);
-      if (getOwner().getModel() != null)
-      {
-         getOwner().getModel().fireModelElementsUnlinked(getOwner(), element);
-      }
    }
 
    private void removeOtherRole(ModelElement element)
@@ -96,12 +92,6 @@ public class SingleRef extends SingleHook implements Reference
          element.addReference(this);
          setOtherRole(element);
          getOwner().markModified();
-
-         RootElement model = getOwner().getModel();
-         if (model != null)
-         {
-            model.fireModelElementsLinked(getOwner(), element);
-         }
       }
    }
 

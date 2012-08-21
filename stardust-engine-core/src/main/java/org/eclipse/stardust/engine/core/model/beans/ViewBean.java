@@ -83,8 +83,6 @@ public class ViewBean extends ModelElementBean
 
       view.register(elementOID);
 
-      getModel().fireModelElementCreated(view, this);
-
       return view;
    }
 

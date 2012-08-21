@@ -628,8 +628,6 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
 
       try
       {
-         model.setLoading(true);
-         
          NodeList qualityAssurance = node.getElementsByTagNameNS(NS_CARNOT_XPDL_31, QUALITY_ASSURANCE);
          for (int i = 0, nQualityAssurance = qualityAssurance.getLength(); i < nQualityAssurance; i++)
          {
@@ -1138,7 +1136,6 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                theModel.setConfigurationVariableReferences(confVarProvider
                      .getConVarCandidateNames());
             }
-            model.setLoading(false);
          }
       }
       

@@ -46,12 +46,6 @@ public class MultiRef extends MultiHook implements Reference
       super.add(element);
       element.addReference(this);
       setOtherRole(element);
-      RootElement model = getOwner().getModel();
-      // @todo (egypt): there should be a parameter to control firing events
-      if (model != null)
-      {
-         model.fireModelElementsLinked(getOwner(), element);
-      }
    }
 
    public void remove(ModelElement element)
@@ -62,12 +56,6 @@ public class MultiRef extends MultiHook implements Reference
       }
       super.remove(element);
       removeOtherRole(element);
-      RootElement model = getOwner().getModel();
-      // @todo (egypt): there should be a parameter to control firing events
-      if (model != null)
-      {
-         model.fireModelElementsUnlinked(getOwner(), element);
-      }
    }
 
    private void removeOtherRole(ModelElement element)

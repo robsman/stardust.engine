@@ -392,8 +392,6 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       addToDataMappings(dataMapping);
       dataMapping.register(elementOID);
 
-      getProcessDefinition().getModel().fireModelElementCreated(dataMapping, this);
-
       return dataMapping;
    }
 
@@ -956,7 +954,6 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       eventHandlers.add(result);
       result.register(elementOID);
       result.setConditionType(type);
-      getModel().fireModelElementCreated(result, this);
       return result;
    }
 

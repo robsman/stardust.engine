@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.utils;
 
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -21,19 +20,9 @@ public interface RootElement extends IdentifiableElement
 {
    ModelElement lookupElement(int elementOID);
 
-   void fireModelElementsLinked(ModelElement first, ModelElement second);
-
-   void fireModelElementsUnlinked(ModelElement first, ModelElement second);
-
-   void fireModelElementCreated(ModelElement element, ModelElement parent);
-
-   void fireModelElementDeleted(ModelElement element, ModelElement parent);
-
    void deregister(ModelElement element);
 
    int getModelOID();
-
-   void fireModelElementChanged(ModelElement element);
 
    Set getElementOIDs();
 
@@ -41,19 +30,11 @@ public interface RootElement extends IdentifiableElement
 
    void register(ModelElement element);
 
-   void addToModelListeners(ModelListener listener);
-
-   void removeFromModelListeners(ModelListener listener);
-
-   Iterator getAllModelListeners();
-
    void setModelOID(int oid);
 
    RootElement deepCopy();
 
    void mergeDifferences(Differences diff);
-
-   void setLoading(boolean loading);
 
    int createTransientElementOID();
 }

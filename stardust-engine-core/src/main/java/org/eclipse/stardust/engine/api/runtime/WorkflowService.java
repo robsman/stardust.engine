@@ -185,8 +185,6 @@ public interface WorkflowService extends Service
     * @return the {@link ActivityInstance} that was completed.
     *
     * @throws ConcurrencyException if the same activity instance is being processed by another user.
-    * @throws IllegalStateChangeException if that state change is not permitted,
-    *         i.e. the activity is not active.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
     * @throws InvalidValueException if one of the <code>outData</code> values to
     *         be written is invalid, most probably as of a type conflict in case of
@@ -232,8 +230,6 @@ public interface WorkflowService extends Service
     * @return A log describing the result of the invocation. Depends on the flags parameter.
     *
     * @throws ConcurrencyException if the same activity instance is being processed by another user.
-    * @throws IllegalStateChangeException if that state change is not permitted,
-    *         i.e. the activity is not active.
     * @throws ObjectNotFoundException if there is no activity instance with the specified OID.
     * @throws InvalidValueException if one of the <code>outData</object> values to
     *         be written is invalid, most probably as of a type conflict in case of

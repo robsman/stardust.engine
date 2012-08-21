@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.extensions.jaxws.app;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 
 public final class WSConstants
@@ -40,14 +42,23 @@ public final class WSConstants
 
    public static final String WS_PASSWORD_TEXT = "passwordText";
    public static final String WS_PASSWORD_DIGEST = "passwordDigest";
-   public static final String WS_XWSS_CONFIGURATION = "xwssConfiguration";
 
-   public static final String PLAINXML_EVALUATOR_CLASS = PredefinedConstants.PLAINXML_EVALUATOR_CLASS;
-   
    public static final String STRUCT_POSTFIX = "_struct";
+
+   public static final String WS_SOAP_PROTOCOL_ATT = PredefinedConstants.ENGINE_SCOPE + "wsSoapProtocol";
+   public static final String WS_SOAP_ACTION_URI_ATT = PredefinedConstants.ENGINE_SCOPE + "wsSoapActionUri";
+   public static final String WS_OPERATION_INPUT_NAME_ATT = PredefinedConstants.ENGINE_SCOPE + "wsOperationInputName";
+   public static final String WS_OPERATION_OUTPUT_NAME_ATT = PredefinedConstants.ENGINE_SCOPE + "wsOperationOutputName";
+   public static final String WS_INPUT_ORDER_ATT = PredefinedConstants.ENGINE_SCOPE + "wsInputOrder";
+   public static final String WS_OUTPUT_ORDER_ATT = PredefinedConstants.ENGINE_SCOPE + "wsOutputOrder";
+   public static final String WS_UDDI_ACCESS_POINT_ATT = PredefinedConstants.ENGINE_SCOPE + "wsUddiAccessPoint";
+
+   public static final String WS_NO_RUNTIME_WSDL_ATT = PredefinedConstants.ENGINE_SCOPE + "wsNoRuntimeWsdl";
+
+   public static final int WSDL_LOAD_ERROR_CODE = 1;
    
-   public static final String RUNTIME_ATT = PredefinedConstants.ENGINE_SCOPE + "wsRuntime";
-   public static final String JAXWS_RUNTIME = "jaxws";
+   public static final QName DYNAMIC_BOUND_SERVICE_QNAME =
+      new QName("http://www.carnot.ag/ws", "Dynamically bound Service");
 
    private WSConstants() {}
 }

@@ -72,7 +72,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.IActivityExecutio
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
 
 
-
 /**
  * Serves as an adapter for EJB integration.
  */
@@ -158,6 +157,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    private String name;
 
    private final boolean isArchiveAuditTrail;
+   private final boolean isreadOnly;
 
    private DataCluster[] cachedClusterSetup;
 
@@ -208,7 +208,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       this.isArchiveAuditTrail = params.getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL,
             false);
-
+      this.isreadOnly = params.getBoolean(SessionProperties.DS_NAME_READ_ONLY, false);
+      
       this.forceImmediateInsert = params.getBoolean(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, false);
 
 /*
@@ -250,7 +251,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
    public boolean isReadOnly()
    {
-      return this.isArchiveAuditTrail;
+      return this.isArchiveAuditTrail || this.isreadOnly;
    }
 
    public TypeDescriptor getTypeDescriptor(Class type)

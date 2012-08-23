@@ -19,9 +19,12 @@ import org.eclipse.stardust.engine.api.model.OrganizationInfo;
 import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
+import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
 
 
 
@@ -38,6 +41,11 @@ import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
  * @author ubirkemeyer
  * @version $Revision$
  */
+/**
+ * to set {@link SessionProperties.DS_NAME_READ_ONLY}
+ * used in {@link DataValueBean}
+ */
+@TransientState                        
 public interface QueryService extends Service
 {
    /**

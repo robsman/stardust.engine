@@ -10,9 +10,15 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.compatibility.el;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -70,8 +76,26 @@ public interface SymbolTable
             {
                if (PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT.equals(name))
                {
-                  return ai.getIntrinsicOutAccessPointValues().get(
-                        PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
+                  PropertyLayer layer = null;
+                  Object object = null;
+                  
+                  try
+                  {         
+                     Map<String, Object> props = new HashMap<String, Object>();
+                     props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, false);
+                     layer = ParametersFacade.pushLayer(props);
+                                       
+                     object = ai.getIntrinsicOutAccessPointValues().get(
+                           PredefinedConstants.ACTIVITY_INSTANCE_ACCESSPOINT);
+                  }
+                  finally
+                  {                  
+                     if (null != layer)
+                     {
+                        ParametersFacade.popLayer();
+                     }
+                  }
+                  return object;
                }
                return getProcessInstance().lookupSymbol(name);
             }
@@ -108,4 +132,3 @@ public interface SymbolTable
       private SymbolTableFactory() {}
    }
 }
-

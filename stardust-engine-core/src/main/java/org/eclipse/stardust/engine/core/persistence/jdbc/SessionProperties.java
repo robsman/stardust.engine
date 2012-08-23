@@ -14,6 +14,7 @@ public interface SessionProperties
 {
    final String DS_NAME_AUDIT_TRAIL = "AuditTrail";
    final String DS_NAME_PWH = "PWH";
+   final String DS_NAME_READ_ONLY = "READ_ONLY";   
    
    final String DS_DATA_SOURCE_SUFFIX = ".DataSource";
    final String DS_SESSION_SUFFIX = ".Session";

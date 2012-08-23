@@ -10,17 +10,19 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.interceptors;
 
+import java.lang.reflect.Method;
 import java.util.Collections;
 
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.config.PropertyLayerFactory;
 import org.eclipse.stardust.common.config.PropertyProvider;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLogUtils;
-
+import org.eclipse.stardust.engine.core.runtime.utils.TransientState;
 
 /**
  * This interceptor creates a property layer and places a reference on itself into 
@@ -108,6 +110,19 @@ public class PropertyLayerProviderInterceptor implements MethodInterceptor
          // enable following classes to add properties to it.
          propLayer.setProperty(PROPERTY_LAYER, propLayer);
          propLayer.initDetailsFactory();
+         
+         Method method = invocation.getMethod();
+         TransientState transientStateAnnotation = method.getAnnotation(TransientState.class);
+         if(transientStateAnnotation == null)
+         {
+            transientStateAnnotation = method.getDeclaringClass().getAnnotation(TransientState.class);
+         }
+         
+         if(transientStateAnnotation != null)
+         {
+            propLayer.setProperty(SessionProperties.DS_NAME_READ_ONLY, true);
+         }
+               
          final BpmRuntimeEnvironment previous = setCurrent(propLayer);
          try
          {

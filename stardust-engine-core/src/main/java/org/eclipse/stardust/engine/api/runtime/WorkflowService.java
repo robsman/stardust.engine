@@ -364,6 +364,7 @@ public interface WorkflowService extends Service
          id=ExecutionPermission.Id.delegateToOther,
          scope=ExecutionPermission.Scope.activity,
          defaults={ExecutionPermission.Default.ALL},
+         fixed={ExecutionPermission.Default.OWNER},
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance suspend(long activityInstanceOID, ContextData outData)
          throws ObjectNotFoundException, AccessForbiddenException, InvalidArgumentException;
@@ -457,6 +458,7 @@ public interface WorkflowService extends Service
          id=ExecutionPermission.Id.delegateToOther,
          scope=ExecutionPermission.Scope.activity,
          defaults={ExecutionPermission.Default.ALL},
+         fixed={ExecutionPermission.Default.OWNER},
          implied={ExecutionPermission.Id.delegateToDepartment})
    ActivityInstance suspendToUser(long activityInstanceOID)
          throws ObjectNotFoundException, ConcurrencyException, AccessForbiddenException;

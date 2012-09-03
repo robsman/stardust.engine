@@ -43,8 +43,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Id;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission.Scope;
 
-
-
 public class AuthorizationContext
 {
    private static final String[] ALL_PERMISSIONS = {Authorization2.ALL};
@@ -61,6 +59,7 @@ public class AuthorizationContext
    private ModelElement modelElement;
    private IProcessInstance processInstance;
    private IActivityInstance activityInstance;
+   private static Method calledMethod;
 
    private long scopeProcessInstanceOid;
    private long currentPerformer;
@@ -393,12 +392,24 @@ public class AuthorizationContext
    {
       // add the scope to the permission cache attribute
       // TODO: Currently this is done for scope "workitem" only. Should the scope be added in general?
-      String scopePostfix = "";
+      String scopePostfix = ""; //$NON-NLS-1$
       if (permission != null && ExecutionPermission.Scope.workitem == permission.scope())
       {
-         scopePostfix = ":" + ExecutionPermission.Scope.workitem.toString();
+         scopePostfix = ":" + ExecutionPermission.Scope.workitem.toString(); //$NON-NLS-1$
       }
-      String permissionCacheAtt = "2" + permissionIds[0] + scopePostfix;
+      String permissionCacheAtt = "2" + permissionIds[0] + scopePostfix; //$NON-NLS-1$
+      
+      if(calledMethod != null)
+      {
+         String postFix = calledMethod.getDeclaringClass().getName() + "#" + calledMethod.getName(); //$NON-NLS-1$
+         Class< ? >[] parameterTypes = calledMethod.getParameterTypes();
+         for (Class< ? > theClass : parameterTypes)
+         {
+            postFix += "#" + theClass.getName(); //$NON-NLS-1$           
+         }
+         
+         permissionCacheAtt += "##" + postFix; //$NON-NLS-1$
+      }
       
       String[] permissions = (String[]) modelElement.getRuntimeAttribute(permissionCacheAtt);
       if (permissions == null)
@@ -420,7 +431,7 @@ public class AuthorizationContext
          }
          permissions = isAll ? ALL_PERMISSIONS : grants.toArray(new String[grants.size()]);
          modelElement.setRuntimeAttribute(permissionCacheAtt, permissions);
-      }
+      }      
       return permissions;
    }
    
@@ -736,6 +747,8 @@ public class AuthorizationContext
       {
          return new AuthorizationContext(null);
       }
+      calledMethod = method;
+      
       ClientPermission cp = permissionCache.get(method);
       if (cp == null)
       {

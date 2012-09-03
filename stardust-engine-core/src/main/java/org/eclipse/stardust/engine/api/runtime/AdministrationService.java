@@ -295,6 +295,11 @@ public interface AdministrationService extends Service
     * In that case the returned ProcessInstance will already be in state ABORTED.
     *
     * <em>This method also aborts all super process instances.</em>
+    * 
+    * <p>State changes:
+    * <ul><li>Process state before: active, interrupted</li>
+    * <li>State after: The state of root process, all sub-processes and activities that are not yet completed changes to aborted.</li></ul>
+    * </p>
     *
     * @param oid the OID of the process instance to be aborted.
     *
@@ -443,6 +448,12 @@ public interface AdministrationService extends Service
     * if the synchronously parameter is set to false.However, even if the synchronously parameter is true,
     * the execution of activities is performed in the calling thread only up to the first transition marked
     * with "Fork on Traversal", from that point on execution is asynchronous.
+    * 
+    * <p>State changes:
+    * <ul>
+    * <li>Process state after: active</li>
+    * </ul>
+    * </p>
     *
     * @param modelOID      the model where the process is defined.
     * @param id            the ID of the process to start.
@@ -464,6 +475,14 @@ public interface AdministrationService extends Service
    /**
     * Forces the completion of a non-interactive activity instance. A map of access points maybe provided.
     * This way this method can mimic precisely the behavior of a normal completion of the activity.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application, suspended, hibernated</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: completed</li>
+    * <li>Process state after: State does not change.</li>
+    * </ul>
+    * </p>
     *
     * @param activityInstanceOID - the OID of the non-interactive activity to be completed.
     * @param accessPoints - an optional map with access points to perform data mappings,
@@ -492,6 +511,14 @@ public interface AdministrationService extends Service
     * Forces an activity instance to be suspended. It will be added to the worklist of
     * the default performer declared for the corresponding activity, and the specified
     * activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application, suspended, hibernated</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li>
+    * </ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     *

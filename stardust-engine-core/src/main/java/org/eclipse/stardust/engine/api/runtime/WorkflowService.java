@@ -70,9 +70,17 @@ public interface WorkflowService extends Service
     * <code>activityInstanceOID</code>.
     *
     * <p>Activating means:
-    * <li>Removing the activity instance from its original worklist.</li>
+    * <ul><li>Removing the activity instance from its original worklist.</li>
     * <li>Adding the activity instance to the logged-in user's worklist.</li>
-    * <li>Setting the state of the activity instance to APPLICATION state.</li>
+    * <li>Setting the state of the activity instance to APPLICATION state.</li></ul>
+    * </p>
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: suspended, hibernated or application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: application, activity with application that provides asynchronous receive functionality: hibernated</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be activated.
     *
@@ -101,6 +109,13 @@ public interface WorkflowService extends Service
    /**
     * Completes the interactive activity instance identified by the
     * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
+    * 
+    * <p>State Changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: completed</li>
+    * <li>Process state after: Completed if all activities are completed. Otherwise state does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be completed.
     * @param context the ID of the context on which the data mapping will be performed.
@@ -135,6 +150,13 @@ public interface WorkflowService extends Service
    /**
     * Completes the interactive activity instance identified by the
     * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
+    * 
+    * <p>State Changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: completed</li>
+    * <li>Process state after: Completed if all activities are completed. Otherwise state does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be completed.
     * @param context the ID of the context on which the data mapping will be performed.
@@ -318,6 +340,13 @@ public interface WorkflowService extends Service
     * Suspends the specified activity instance. It will be added to the same worklist
     * in which it was prior to activation, and the specified activity instance will be
     * set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     * @param outData the context data containing values of out access points to be stored.
@@ -343,6 +372,13 @@ public interface WorkflowService extends Service
     * Suspends the specified activity instance. It will be added to the worklist of the
     * default performer declared for the corresponding activity, and the specified
     * activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     *
@@ -366,6 +402,13 @@ public interface WorkflowService extends Service
     * Suspends the specified activity instance. It will be added to the worklist of the
     * default performer declared for the corresponding activity, and the specified
     * activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     * @param context the ID of the context on which the data mapping will be performed.
@@ -391,6 +434,13 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * current user, and the specified activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     *
@@ -414,6 +464,13 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * current user, and the specified activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     * @param context the ID of the context on which the data mapping will be performed.
@@ -438,6 +495,13 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * provided user, and the specified activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     * @param userOID the OID of the user.
@@ -465,6 +529,13 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * provided user, and the specified activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     * @param userOID the OID of the user.
@@ -494,6 +565,13 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * provided performer, and the specified activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     * @param participant the ID of the performer.
@@ -518,6 +596,13 @@ public interface WorkflowService extends Service
    /**
     * Suspends the specified activity instance. It will be added to the worklist of the
     * provided performer, and the specified activity instance will be set to SUSPENDED state.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity to be suspended.
     * @param participant the ID of the performer.
@@ -543,6 +628,13 @@ public interface WorkflowService extends Service
 
    /**
     * Suspends the activity instance and, if the participant is not null, delegates it to the specified participant.
+    * 
+    * <p>State changes:
+    * <ul><li>Activity state before: application</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>Activity state after: suspended</li>
+    * <li>Process state after: State does not change.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID the OID of the activity instance.
     * @param participant the participant (model participant, user or user group) to which the activity instance will be delegated.
@@ -587,6 +679,10 @@ public interface WorkflowService extends Service
    /**
     * Starts the process specified by the given <code>ID</code> using the provided data
     * and returns the OID of the newly created process instance.
+    * 
+    * <p>State changes:
+    * <ul><li>Process state after: active</li></ul>
+    * </p>
     *
     * @param id The ID of the process to be started. If multiple models with different IDs
     *        are deployed then the process definition id needs to be qualified with model id,
@@ -927,6 +1023,15 @@ public interface WorkflowService extends Service
     * using <code>AbortScope.RootHierarchy</code>.
     * <p/>
     * Note: Abort is performed asynchronously.
+    * 
+    * <p>State changes
+    * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>State after: 
+    * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its root process, all contained sub-processes and activities that are not yet completed changes to aborted.
+    * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity changes to aborted. If activity instance is a subprocess then the state of contained subprocesses and activities also changes to aborted. 
+    * <br>If the last activity of the process is aborted and is not a subprocess then the process state will be set to completed.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID The OID of the activity instance to be aborted.
     *
@@ -958,6 +1063,15 @@ public interface WorkflowService extends Service
     * aborting user is a valid performing participant for this activity.
     * <p/>
     * Note: Abort is performed asynchronously.
+    * 
+    * <p>State changes
+    * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
+    * <li>Process state before: active, interrupted</li>
+    * <li>State after: 
+    * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its root process, all contained sub-processes and activities that are not yet completed changes to aborted.
+    * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity changes to aborted. If activity instance is a subprocess then the state of contained subprocesses and activities also changes to aborted. 
+    * <br>If the last activity of the process is aborted and is not a subprocess then the process state will be set to completed.</li></ul>
+    * </p>
     *
     * @param activityInstanceOID The OID of the activity instance to be aborted.
     * @param abortScope The scope of abortion. You can either choose the current activity
@@ -996,6 +1110,14 @@ public interface WorkflowService extends Service
     * Aborts the specified process instance. Depending on the scope, it will abort either
     * this process instance only (including eventual subprocesses) or the whole process
     * hierarchy starting with the root process.
+    * 
+    * <p>State changes:
+    * <ul><li>Process state before: active, interrupted</li>
+    * <li>State after:
+    * <br><i>If abort scope is root hierarchy:</i> The state of root process, all sub-processes and activities that are not yet completed changes to aborted.</li>
+    * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its subprocesses and activities that are not yet completed changes to aborted. 
+    * </br>If the last activity of the process is aborted and is not a subprocess then the process state will be set to completed.</li></ul>
+    * </p>
     *
     * @param processInstanceOid The OID of the process instance to be aborted.
     * @param abortScope The scope of abortion. You can abort either the spawned process instance

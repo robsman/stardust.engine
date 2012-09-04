@@ -1012,7 +1012,18 @@ public class SchemaHelper
             }
          }
 
-         DataCluster[] cluster = RuntimeSetup.instance().getDataClusterSetup();
+         DataCluster[] cluster;
+         try
+         {
+            cluster = RuntimeSetup.instance().getDataClusterSetup();
+         }
+         catch (PublicException e)
+         {
+            LargeStringHolder.deleteAllForOID(prop.getOID(), PropertyPersistor.class);
+            prop.delete();
+            session.save();
+            throw e;
+         }
 
          final String schemaName = Parameters.instance().getString(
                SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,

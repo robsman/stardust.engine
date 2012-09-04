@@ -147,12 +147,18 @@ public class RuntimeSetup implements XMLConstants
                                  String ignorePreparedStatementsAttr 
                                     = dsNode.getAttribute(DATA_SLOT_IGNORE_PREPARED_STATEMENTS_ATT);
                                  boolean ignorePreparedStatements = Boolean.valueOf(ignorePreparedStatementsAttr);
-                                 
+                                 String nValueColumn = dsNode.getAttribute(DATA_SLOT_NVALCOLUMN_ATT);
+                                 String sValueColumn = dsNode.getAttribute(DATA_SLOT_SVALCOLUMN_ATT);
+                                 if (StringUtils.isNotEmpty(nValueColumn)
+                                       && StringUtils.isNotEmpty(sValueColumn))
+                                 {
+                                    throw new PublicException(
+                                          "A single data-slot must not contain both storage types sValueColumn and nValueColumn.");
+                                 }
                                  slots.add(new DataSlot(modelId, dataId, attribute,
                                        dsNode.getAttribute(DATA_SLOT_OIDCOLUMN_ATT),
                                        dsNode.getAttribute(DATA_SLOT_TYPECOLUMN_ATT),
-                                       dsNode.getAttribute(DATA_SLOT_NVALCOLUMN_ATT),
-                                       dsNode.getAttribute(DATA_SLOT_SVALCOLUMN_ATT),
+                                       nValueColumn, sValueColumn,
                                        ignorePreparedStatements));
                               }
                               else

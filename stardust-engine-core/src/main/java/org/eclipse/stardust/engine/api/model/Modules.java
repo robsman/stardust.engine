@@ -26,23 +26,22 @@ public enum Modules
    PARTITIONS ("MultiPartitions"),
    DOMAINS ("MultiDomains"),
    WAREHOUSE ("ProcessWarehouse"),
-   
-   ANALYSTS ("ProcessWorkbenchAnalystEdition"),
+
    DEVELOPER ("ProcessWorkbenchDeveloperEdition"),
    MODELLING ("ProcessDefinitionDesktop"), // deprecated, same as DEVELOPER
 
    REPORT_DESIGNER ("ReportDesigner"),
    REPORT_RUNTIME ("ReportingRuntime"),
-   
+
    ARIS_IMPORT ("ARISImport"),
    TOPEASE_IMPORT ("TopEaseImport"),
    INCOME_IMPORT ("IncomeImport"),
 
    EFFORT ("EffortCalculation"),
-   
+
    SIMULATION ("SimulationModeller"),
    SIMULATION_CONNECTION ("SimulationAuditTrailConnection");
-   
+
    private String id;
 
    private Modules(String id)

@@ -21,7 +21,6 @@ import java.util.concurrent.locks.Lock;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProviderHolder;
 
 /**
  * @author Nicolas.Werlein

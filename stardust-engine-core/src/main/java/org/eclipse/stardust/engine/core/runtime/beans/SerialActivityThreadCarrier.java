@@ -24,8 +24,8 @@ import javax.jms.Message;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProviderHolder;
 
 /**
  * @author Nicolas.Werlein

@@ -8,10 +8,11 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.engine.core.spi.cluster;
+package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
 
 /**
  * <p>

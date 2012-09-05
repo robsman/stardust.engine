@@ -46,6 +46,7 @@
       <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="compile->default" />
       <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="compile->carnot-engine-compile" transitive="false" />
       <dependency org="com.infinity.bpm" name="carnot-spring" rev="${ipp.version.full}" conf="compile->carnot-spring-compile" />
+      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="compile->jms-api-module-compile" />
       
       <!-- 'test' configuration -->
       <dependency org="com.hazelcast" name="hazelcast" rev="1.9" conf="test->default" />

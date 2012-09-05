@@ -10,12 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
+
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Attribute;
@@ -53,6 +51,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProviderHolder;
 
 /**
  * A (logical) thread for the execution of a workflow process.
@@ -117,12 +116,16 @@ public class ActivityThread implements Runnable
 
          thread.run();
       }
+      else if (isSerialExecutionScenario(processInstance))
+      {
+         scheduleSerialActivityThread(processInstance, activity, hasParent);
+      }
       else
       {
          ActivityThreadCarrier carrier = new ActivityThreadCarrier();
-         carrier.setProcessInstance(processInstance);
-         carrier.setActivity(activity);
-         carrier.setActivityInstance(activityInstance);
+         carrier.setProcessInstanceOID(processInstance != null ? processInstance.getOID() : 0L);
+         carrier.setActivityOID(activity != null ? activity.getOID() : 0L);
+         carrier.setActivityInstanceOID(activityInstance != null ? activityInstance.getOID() : 0L);
          carrier.setTimeout(interruptionState);
 
          ForkingServiceFactory factory = (ForkingServiceFactory)
@@ -140,6 +143,32 @@ public class ActivityThread implements Runnable
       }
    }
 
+   private static void scheduleSerialActivityThread(final IProcessInstance pi, final IActivity activity, final boolean hasParent)
+   {
+      try
+      {
+         ClusterSafeObjectProviderHolder.OBJ_PROVIDER.beforeAccess();
+         
+         final long rootPiOid = pi.getRootProcessInstanceOID();
+         final Map<Long, Queue> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
+         Queue<SerialActivityThreadData> queue = map.get(rootPiOid);
+         if (queue == null)
+         {
+            queue = new LinkedList<SerialActivityThreadData>();
+         }
+         final SerialActivityThreadData data = new SerialActivityThreadData(pi.getOID(), activity.getOID());
+         queue.add(data);
+         
+         /* explicitly override modified queue in cluster safe map */
+         /* in order to notify cluster safe map provider           */
+         map.put(rootPiOid, queue);
+      }
+      finally
+      {
+         ClusterSafeObjectProviderHolder.OBJ_PROVIDER.afterAccess();
+      }
+   }
+   
    // @todo (france, ub): remove interruptionState from the contract as soon as it is
    // appropriate
    public ActivityThread(
@@ -344,6 +373,21 @@ public class ActivityThread implements Runnable
    
    }
 
+   public IProcessInstance processInstance()
+   {
+      return processInstance;
+   }
+   
+   public IActivity activity()
+   {
+      return activity;
+   }
+   
+   public IActivityInstance activityInstance()
+   {
+      return activityInstance;
+   }
+   
    private boolean isInAbortingPiHierarchy()
    {
       boolean result = false;
@@ -640,7 +684,7 @@ public class ActivityThread implements Runnable
                   }
                   else
                   {
-                     if (isSerialExecutionScenario() && isAndJoinAI())
+                     if (isSerialExecutionScenario(processInstance) && isAndJoinAI())
                      {
                         /* do not schedule a new activity thread for every single incoming */
                         /* thread - the serial execution ensures that the last thread is   */
@@ -665,11 +709,6 @@ public class ActivityThread implements Runnable
             }
          }
       }
-   }
-
-   private boolean isSerialExecutionScenario()
-   {
-      return processInstance.isTransient();
    }
    
    private boolean isAndJoinAI()

@@ -37,19 +37,12 @@ public final class ActivityThreadCarrier extends ActionCarrier
 {
    public static final Logger trace = LogManager.getLogger(ActivityThreadCarrier.class);
 
-   private static final String JMSXGROUP_ID_PROPERTY = "JMSXGroupID";
-   
    public static final String PROCESS_INSTANCE_OID_TAG = "processInstanceOID";
    public static final String ACTIVITY_OID_TAG = "activityOID";
    public static final String ACTIVITY_INSTANCE_OID_TAG = "activityInstanceOID";
    public static final String TIMEOUT_NOTIFICATION = "timeoutNotification";
 
    private long processInstanceOID;
-   /**
-    * is not <code>null</code> if and only if transient process instance support
-    * is enabled <b>and</b> the process instance in question is transient
-    */
-   private Long rootProcessInstanceOID;
    private long activityOID;
    private long activityInstanceOID;
    private boolean timeout;
@@ -62,50 +55,19 @@ public final class ActivityThreadCarrier extends ActionCarrier
       super(SYSTEM_MESSAGE_TYPE_ID);
    }
 
-   public void setProcessInstance(IProcessInstance processInstance)
+   public void setProcessInstanceOID(long processInstanceOID)
    {
-      if (processInstance != null)
-      {
-         processInstanceOID = processInstance.getOID();
-         if (rootProcessInstanceOID == null && processInstance.isTransient())
-         {
-            rootProcessInstanceOID = processInstance.getRootProcessInstanceOID();
-         }
-      }
-      else
-      {
-         processInstanceOID = 0;
-      }
+      this.processInstanceOID = processInstanceOID;
    }
 
-   public void setActivity(IActivity activity)
+   public void setActivityOID(long activityOID)
    {
-      if (activity != null)
-      {
-         activityOID = activity.getOID();
-      }
-      else
-      {
-         activityOID = 0;
-      }
+      this.activityOID = activityOID;
    }
 
-   public void setActivityInstance(IActivityInstance activityInstance)
+   public void setActivityInstanceOID(long activityInstanceOID)
    {
-      if (activityInstance != null)
-      {
-         activityInstanceOID = activityInstance.getOID();
-         
-         final IProcessInstance processInstance = activityInstance.getProcessInstance();
-         if (rootProcessInstanceOID == null && processInstance.isTransient())
-         {
-            rootProcessInstanceOID = activityInstance.getProcessInstance().getRootProcessInstanceOID();
-         }
-      }
-      else
-      {
-         activityInstanceOID = 0;
-      }
+      this.activityInstanceOID = activityInstanceOID;
    }
 
    public void setTimeout(Throwable timeout)
@@ -148,11 +110,6 @@ public final class ActivityThreadCarrier extends ActionCarrier
          mapMessage.setLong(ACTIVITY_INSTANCE_OID_TAG, activityInstanceOID);
          mapMessage.setLong(ACTIVITY_OID_TAG, activityOID);
          mapMessage.setBoolean(TIMEOUT_NOTIFICATION, timeout);
-      
-         if (rootProcessInstanceOID != null)
-         {
-            mapMessage.setStringProperty(JMSXGROUP_ID_PROPERTY, rootProcessInstanceOID.toString());
-         }
          
          if (Parameters.instance().getBoolean(
                KernelTweakingProperties.EVENT_TIME_OVERRIDABLE, false)

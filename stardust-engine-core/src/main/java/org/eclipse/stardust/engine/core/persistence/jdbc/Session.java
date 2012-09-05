@@ -3305,7 +3305,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          return persistent;
       }
 
-      if (ProcessInstanceUtils.isTransientPiSupportEnabled())
+      if (ProcessInstanceUtils.isTransientPiSupportEnabled() && isTransientPersistentCandidate(typeManager))
       {
          final Persistent transientPersistent = TransientProcessInstanceSupport.findAndReattach(oid, type, this);
          if (transientPersistent != null)
@@ -3372,6 +3372,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       return result;
    }
 
+   private boolean isTransientPersistentCandidate(final TypeDescriptor typeDesc)
+   {
+      return typeDesc.isTryDeferredInsert();
+   }
+   
    /**
     * Creates an object of type <tt>type</tt> and populates its attributed with
     * the current row values in the result set <tt>resultSet</tt>.

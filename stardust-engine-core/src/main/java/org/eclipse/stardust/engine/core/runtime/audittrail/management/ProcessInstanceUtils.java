@@ -787,4 +787,13 @@ public class ProcessInstanceUtils
       final boolean transientPiSupportEnabled = params.getBoolean(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, false);
       return transientPiSupportEnabled;
    }
+   
+   public static boolean isSerialExecutionScenario(final IProcessInstance pi)
+   {
+      if (pi != null)
+      {
+         return pi.isTransient();
+      }
+      return false;
+   }
 }

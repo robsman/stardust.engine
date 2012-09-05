@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import org.eclipse.stardust.common.Action;
 
-public abstract class SecurityContextAwareAction implements Action
+public abstract class SecurityContextAwareAction<T> implements Action<T>
 {
    private short partitionOid;
    private long userDomainOid;

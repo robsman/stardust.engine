@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
+
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.*;
@@ -30,8 +32,8 @@ import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.PhantomException;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
@@ -41,10 +43,12 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.command.Configurable;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProviderHolder;
 
 /**
  * @author mgille
@@ -96,9 +100,44 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityThread.schedule(processInstance, rootActivity, null, synchronously, null,
             Collections.EMPTY_MAP, false);
 
-      return DetailsFactory.create(processInstance);
+      final ProcessInstance pi = DetailsFactory.create(processInstance);
+      
+      if (isSerialExecutionScenario(processInstance))
+      {
+         final boolean piNotCompleted = pi.getState() != ProcessInstanceState.Completed;
+         if (piNotCompleted && isActivityThreadAvailable(pi.getRootProcessInstanceOID()))
+         {
+            scheduleSerialActivityThread(pi.getRootProcessInstanceOID());
+         }
+      }
+      
+      return pi;
    }
 
+   private boolean isActivityThreadAvailable(final long rootPiOID)
+   {
+      final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
+      return map.containsKey(rootPiOID);
+   }
+   
+   private void scheduleSerialActivityThread(final long rootPiOid)
+   {
+      final SerialActivityThreadCarrier carrier = new SerialActivityThreadCarrier();
+      carrier.setRootProcessInstanceOid(rootPiOid);
+      
+      final ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
+      ForkingService service = null;
+      try
+      {
+         service = factory.get();
+         service.fork(carrier, true);
+      }
+      finally
+      {
+         factory.release(service);
+      }
+   }
+   
    public ProcessInstance spawnSubprocessInstance(long rootProcessInstanceOid,
          String spawnProcessID, boolean copyData, Map<String, ? > data)
          throws IllegalOperationException, ObjectNotFoundException

@@ -53,6 +53,11 @@ package org.eclipse.stardust.test.transientpi;
    /* package-private */ static final String PROCESS_DEF_ID_SPLIT = "SplitProcess";
    
    /**
+    * the ID of the process definition that contains two AND splits
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_SPLIT_SPLIT = "SplitSplitProcess";
+   
+   /**
     * the ID of the process definition that enforces a rollback
     */
    /* package-private */ static final String PROCESS_DEF_ID_ROLLBACK = "RollbackProcess";
@@ -61,6 +66,16 @@ package org.eclipse.stardust.test.transientpi;
     * the ID of the process definition that has a transient and a non-transient route
     */
    /* package-private */ static final String PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE = "TransientAndNon_transientRoute";
+   
+   /**
+    * the ID of the process definition that switches from transient to non-transient execution
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_FROM_TRANSIENT_TO_NON_TRANSIENT = "FromTransientToNon_transient";
+   
+   /**
+    * the ID of the process definition that can be started via JMS
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_TRANSIENT_VIA_JMS = "TransientProcessViaJMSTrigger";
    
    
    /**

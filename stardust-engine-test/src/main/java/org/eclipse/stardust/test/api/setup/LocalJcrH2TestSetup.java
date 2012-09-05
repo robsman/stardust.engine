@@ -12,12 +12,16 @@ package org.eclipse.stardust.test.api.setup;
 
 import java.util.Arrays;
 
+import javax.jms.Queue;
+import javax.jms.QueueConnectionFactory;
 import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.impl.H2Server;
 import org.eclipse.stardust.test.impl.SpringAppContext;
@@ -53,6 +57,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
    private static final Log LOG = LogFactory.getLog(LocalJcrH2TestSetup.class);
    
    private static final String DATA_SOURCE_FACTORY_BEAN_ID = "xaAuditTrailConnectionFactory";
+   private static final String JMS_RESOURCE_PROVIDER_BEAN_ID = "jmsResourceResolver";
    
    private static final H2Server DBMS = new H2Server();
    private static final SpringAppContext SPRING_APP_CTX = new SpringAppContext();
@@ -66,6 +71,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
    private ServiceFactory sf;
    
    private DataSource ds;
+   private IJmsResourceProvider jmsResourceProvider;
    
    /**
     * <p>
@@ -202,6 +208,8 @@ public class LocalJcrH2TestSetup extends ExternalResource
     * in order to directly execute SQL statements.
     * </p>
     * 
+    * @throws IllegalStateException if the data source cannot be obtained from the <Spring Application Context
+    * 
     * @return the data source of the database backing this test setup
     */
    public DataSource dataSource()
@@ -217,6 +225,75 @@ public class LocalJcrH2TestSetup extends ExternalResource
       }
       
       return ds;
+   }
+   
+   /**
+    * <p>
+    * Allows for retrieving the queue connection factory of this test setup, if any.
+    * </p>
+    * 
+    * @throws IllegalStateException if the queue connection factory cannot be obtained from the Spring Application Context
+    *    or JMS is not in use in this test setup
+    * 
+    * @return the queue connection factory of this test setup
+    */
+   public QueueConnectionFactory queueConnectionFactory()
+   {
+      if (jmsResourceProvider == null)
+      {
+         jmsResourceProvider = initJmsResourceProvider();
+      }
+      
+      final QueueConnectionFactory queueCf = jmsResourceProvider.resolveQueueConnectionFactory(JmsProperties.QUEUE_CONNECTION_FACTORY_PROPERTY);
+      if (queueCf == null)
+      {
+         throw new IllegalStateException("Queue connection factory cannot be obtained.");
+      }
+      return queueCf;
+   }
+   
+   /**
+    * <p>
+    * Allows for retrieving a queue with the given name, if any.
+    * </p>
+    * 
+    * @throws IllegalStateException if the queue cannot be obtained from the Spring Application Context
+    *    or JMS is not in use in this test setup
+    * 
+    * @param name the name of the queue to be returned
+    * 
+    * @return the requested queue
+    */
+   public Queue queue(final String name)
+   {
+      if (jmsResourceProvider == null)
+      {
+         jmsResourceProvider = initJmsResourceProvider();
+      }
+      
+      final Queue queue = jmsResourceProvider.resolveQueue(name);
+      if (queue == null)
+      {
+         throw new IllegalStateException("Queue cannot be obtained.");
+      }
+      return queue;
+   }
+   
+   private IJmsResourceProvider initJmsResourceProvider()
+   {
+      if (forkingServiceMode != ForkingServiceMode.JMS)
+      {
+         throw new IllegalStateException("JMS is not in use in this test setup.");
+      }
+      
+      final IJmsResourceProvider result = SPRING_APP_CTX.appCtx().getBean(JMS_RESOURCE_PROVIDER_BEAN_ID, IJmsResourceProvider.class);
+      
+      if (result == null)
+      {
+         throw new IllegalStateException("Queue cannot be obtained from Spring Application Context.");
+      }
+      
+      return result;
    }
    
    /**

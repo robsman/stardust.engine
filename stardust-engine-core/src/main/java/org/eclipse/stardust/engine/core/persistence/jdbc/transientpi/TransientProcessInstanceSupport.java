@@ -82,7 +82,7 @@ public class TransientProcessInstanceSupport
          return;
       }
       
-      determineWhetherCurrentSessionIsTransient(pis, ais);
+      determineWhetherCurrentSessionIsTransient(pis, (ais != null) ? ais : Collections.<Object, PersistenceController>emptyMap());
       if ( !isCurrentSessionTransient())
       {
          resetTransientPiProperty(pis);
@@ -270,8 +270,6 @@ public class TransientProcessInstanceSupport
    
    private void resetTransientPiProperty(final Map<Object, PersistenceController> pis)
    {
-      LOGGER.warn("Resetting transient process instance execution to non-transient.");
-      
       final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
       final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
       rootPi.resetTransientProperty();

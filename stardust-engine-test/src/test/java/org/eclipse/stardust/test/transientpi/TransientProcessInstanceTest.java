@@ -23,6 +23,11 @@ import java.sql.Statement;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
@@ -30,22 +35,30 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadCarrier;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProviderHolder;
+import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.engine.spring.integration.jca.SpringAppContextHazelcastJcaConnectionFactoryProvider;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.JmsConstants;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.jta.JtaTransactionManager;
 
@@ -104,6 +117,7 @@ public class TransientProcessInstanceTest
       final Parameters params = Parameters.instance();
       params.set(PROCESS_EXECUTION_STATE, ProcessExecutionState.NOT_STARTED);
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
+      params.set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
       params.set(KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER, SpringAppContextHazelcastJcaConnectionFactoryProvider.class.getName());
    }
    
@@ -236,11 +250,12 @@ public class TransientProcessInstanceTest
    {
       enableTransientProcessesSupport();
       
-      sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.COMPLETED));
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -265,6 +280,7 @@ public class TransientProcessInstanceTest
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.COMPLETED));
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -282,11 +298,12 @@ public class TransientProcessInstanceTest
    {
       enableTransientProcessesSupport();
       
-      sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.INTERRUPTED));
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -311,6 +328,7 @@ public class TransientProcessInstanceTest
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.INTERRUPTED));
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -333,6 +351,30 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is enabled.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether transient processes can be executed successfully and
+    * that they're <b>not</b> written to the database.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessSplitSplitScenario() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_SPLIT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -346,7 +388,7 @@ public class TransientProcessInstanceTest
     * </p>
     */
    @Test
-   public void testRollbackScenario() throws Exception
+   public void testRollbackScenario()
    {
       enableTransientProcessesSupport();
       
@@ -383,6 +425,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -401,9 +444,10 @@ public class TransientProcessInstanceTest
    {
       enableTransientProcessesSupport();
       
-      sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, null, true);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -428,6 +472,77 @@ public class TransientProcessInstanceTest
       sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is enabled.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether a process instance started transiently is able to complete non-transiently,
+    * if it hits an activity that does not permit transient execution. Plus, it tests whether the
+    * already scheduled serial activity threads are properly converted to 'common' concurrent
+    * activity threads (<i>System Queue</i>).
+    * </p>
+    */
+   @Test
+   public void testFromTransientToNonTransient() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FROM_TRANSIENT_TO_NON_TRANSIENT, null, true);
+      
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(ActivityInstanceState.Suspended));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is enabled.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether a transient processes does not schedule a serial activity thread
+    * if it can be completed in one transaction.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessDoesNotScheduleSerialActivityThread()
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is enabled.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether a transient processes (exposing a <i>JMS</i> trigger) can be started
+    * via the <i>Application Queue</i>.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessViaAppQueue() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      startProcessViaJms(PROCESS_DEF_ID_TRANSIENT_VIA_JMS);
+      final long piOid = receiveProcessInstanceCompletedMessage();
+
+      assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(piOid), is(true));
    }
    
    private boolean hasPiEntryInDb() throws SQLException
@@ -457,6 +572,46 @@ public class TransientProcessInstanceTest
       }
       
       return result;
+   }
+   
+   private boolean activityThreadQueueDoesNotExist(final long rootPiOid)
+   {
+      final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
+      return map.get(rootPiOid) == null;
+   }
+   
+   private void startProcessViaJms(final String processId)
+   {
+      final Queue queue = testClassSetup.queue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY);
+      final JmsTemplate jmsTemplate = new JmsTemplate();
+      jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
+      jmsTemplate.setSessionTransacted(true);
+      jmsTemplate.send(queue, new MessageCreator()
+      {
+         @Override
+         public Message createMessage(final Session session) throws JMSException
+         {
+            final MapMessage msg = session.createMapMessage();
+            msg.setStringProperty(DefaultMessageHelper.PROCESS_ID_HEADER, processId);
+            
+            return msg;
+         }
+      });
+   }
+   
+   private long receiveProcessInstanceCompletedMessage() throws JMSException
+   {
+      final Queue queue = testClassSetup.queue(JmsConstants.TEST_QUEUE_NAME_PROPERTY);
+      final JmsTemplate jmsTemplate = new JmsTemplate();
+      jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
+      jmsTemplate.setReceiveTimeout(5000L);
+      
+      final Message message = jmsTemplate.receive(queue);
+      if (message == null)
+      {
+         throw new JMSException("Timeout while receiving.");
+      }
+      return message.getLongProperty(DefaultMessageHelper.PROCESS_INSTANCE_OID_HEADER);
    }
    
    private void enableTransientProcessesSupport()

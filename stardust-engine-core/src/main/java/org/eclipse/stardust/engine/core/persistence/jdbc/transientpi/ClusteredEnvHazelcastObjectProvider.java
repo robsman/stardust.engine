@@ -46,15 +46,25 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
    @Override
    public <K, V> Map<K, V> clusterSafeMap(final String mapId)
    {
+      if (mapId == null)
+      {
+         throw new NullPointerException("Map ID for Hazelcast map must not be null.");
+      }
+      
       return Hazelcast.getMap(mapId);
    }
-   
+
    @Override
    public Lock clusterSafeLock(final String lockId)
    {
+      if (lockId == null)
+      {
+         throw new NullPointerException("Lock ID for Hazelcast lock must not be null.");
+      }
+      
       return Hazelcast.getLock(lockId);
    }
-   
+
    @Override
    public void beforeAccess()
    {

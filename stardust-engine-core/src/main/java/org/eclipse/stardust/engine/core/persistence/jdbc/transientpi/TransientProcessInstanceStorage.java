@@ -19,11 +19,9 @@ import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
-import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
+import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProviderHolder;
 
 /**
  * @author Nicolas.Werlein
@@ -170,23 +168,14 @@ public class TransientProcessInstanceStorage
    
    private static final class ProcessInstanceBlobsHolder
    {
-      private final ClusterSafeObjectProvider objProvider;
-      
       private final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs;
       
       private final Lock lock;
       
       public ProcessInstanceBlobsHolder()
       {
-         final ClusterSafeObjectProvider objProvider = ExtensionProviderUtils.getFirstExtensionProvider(ClusterSafeObjectProvider.class, KernelTweakingProperties.CLUSTER_SAFE_OBJ_PROVIDER);
-         if (objProvider == null)
-         {
-            throw new IllegalStateException("No cluster safe object provider could be found.");
-         }
-         
-         this.objProvider = objProvider;
-         this.piBlobs = objProvider.clusterSafeMap(TRANSIENT_PROCESS_STORAGE_MAP_ID);
-         this.lock = objProvider.clusterSafeLock(TRANSIENT_PROCESS_STORAGE_LOCK_ID);
+         this.piBlobs = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(TRANSIENT_PROCESS_STORAGE_MAP_ID);
+         this.lock = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeLock(TRANSIENT_PROCESS_STORAGE_LOCK_ID);
       }
       
       public <T> T accessPiBlobs(final TxAwareClusterSafeOperation<T> op)
@@ -194,7 +183,7 @@ public class TransientProcessInstanceStorage
          final T result;
          try
          {
-            objProvider.beforeAccess();
+            ClusterSafeObjectProviderHolder.OBJ_PROVIDER.beforeAccess();
             lock.lock();
             result = op.execute(piBlobs);
          }
@@ -211,7 +200,7 @@ public class TransientProcessInstanceStorage
             }
             finally
             {
-               objProvider.afterAccess();
+               ClusterSafeObjectProviderHolder.OBJ_PROVIDER.afterAccess();
             }
          }
          

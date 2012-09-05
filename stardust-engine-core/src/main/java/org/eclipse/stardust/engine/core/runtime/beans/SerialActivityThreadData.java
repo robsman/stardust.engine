@@ -14,7 +14,7 @@ import java.io.Serializable;
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SerialActivityThreadData implements Serializable
 {

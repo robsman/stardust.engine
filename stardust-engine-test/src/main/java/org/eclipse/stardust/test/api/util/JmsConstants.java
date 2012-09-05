@@ -12,7 +12,7 @@ package org.eclipse.stardust.test.api.util;
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class JmsConstants
 {

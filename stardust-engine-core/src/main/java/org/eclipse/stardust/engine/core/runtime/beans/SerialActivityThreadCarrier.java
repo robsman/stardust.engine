@@ -29,7 +29,7 @@ import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProviderHol
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class SerialActivityThreadCarrier extends ActionCarrier<Void>
 {

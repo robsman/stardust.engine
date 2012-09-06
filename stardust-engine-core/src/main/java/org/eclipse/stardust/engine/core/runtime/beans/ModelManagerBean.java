@@ -1154,6 +1154,8 @@ public class ModelManagerBean implements ModelManager
             }
          }
 
+         Map<IProcessDefinition, IProcessDefinition> impls = collectPrimaryImplementations(units);
+
          loader.deployModel(units, options, rtOidRegistry);
 
          for (ParsedDeploymentUnit unit : units)
@@ -1170,18 +1172,88 @@ public class ModelManagerBean implements ModelManager
             }
          }
 
+         if (impls != null)
+         {
+            for (Map.Entry<IProcessDefinition, IProcessDefinition> entry : impls.entrySet())
+            {
+               String primaryImplementationId = entry.getValue().getModel().getId();
+               IProcessDefinition process = entry.getKey();
+               IModel interfaceModel = (IModel) process.getModel();
+               
+               ModelRefBean.setPrimaryImplementation(process, primaryImplementationId, ModelDeploymentBean.getLastDeployment());
+               
+               DeploymentInfoDetails info = new DeploymentInfoDetails(
+                     (Date) interfaceModel.getAttribute(PredefinedConstants.VALID_FROM_ATT), interfaceModel.getId(),
+                     "Primary implementation for process '{" + interfaceModel.getId() + "}" + process.getId()
+                     + "' [modelOid: " + interfaceModel.getModelOID() + "] set to '" + primaryImplementationId + "'.");
+               info.setSuccess(true);
+               info.setModelOID(interfaceModel.getModelOID());
+               infos.add(info);
+            }
+         }
+
          recomputeAlivenessCache();
 
          ModelManagerFactory.setDirty();
          SynchronizationService.flush();
 
-         for (int i = 0; i < infos.size(); i++)
+         for (int i = 0; i < units.size(); i++)
          {
             DeploymentUtils.attachDeploymentAttributes(
                   (DeploymentInfoDetails) infos.get(i), units.get(i).getModel());
          }
 
          return infos;
+      }
+
+      private Map<IProcessDefinition, IProcessDefinition> collectPrimaryImplementations(List<ParsedDeploymentUnit> elements)
+      {
+         Map<IProcessDefinition, IProcessDefinition> impls = null;
+
+         for (ParsedDeploymentUnit unit : elements)
+         {
+            IModel model = unit.getModel();
+            IModel previousModel = null;
+            for (IProcessDefinition pd : model.getProcessDefinitions())
+            {
+               if (pd.getDeclaresInterface())
+               {
+                  if (previousModel == null)
+                  {
+                     previousModel = findActiveModel(model.getId());
+                  }
+                  if (previousModel != null)
+                  {
+                     IProcessDefinition previousProcess = previousModel.findProcessDefinition(pd.getId());
+                     if (previousProcess != null && previousProcess.getDeclaresInterface())
+                     {
+                        IProcessDefinition impl = ModelRefBean.getPrimaryImplementation(previousProcess, null, null);
+                        String modelId = impl.getModel().getId();
+                        QName processQID = new QName(model.getId(), pd.getId());
+                        for (ParsedDeploymentUnit u : elements)
+                        {
+                           IModel m = u.getModel();
+                           if (modelId.equals(m.getId()))
+                           {
+                              impl = m.getImplementingProcess(processQID);
+                              if (impl != null)
+                              {
+                                 if (impls == null)
+                                 {
+                                    impls = CollectionUtils.newMap();
+                                 }
+                                 impls.put(pd, impl);
+                              }
+                              break;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         
+         return impls;
       }
 
       private IModel getCurrentModel(String id)

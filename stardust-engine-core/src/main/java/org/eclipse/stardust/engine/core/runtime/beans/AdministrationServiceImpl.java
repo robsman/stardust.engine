@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.io.*;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -228,14 +230,21 @@ public class AdministrationServiceImpl
       }
       if (info.success())
       {
-         trace.info("Model '" + info.getId() + "', model oid = " + info.getModelOID()
-               +  " deployed.");
+         // infos without deployment time are related to setting the
+         // primary implementation, the tracing info is in the comment.
+         if (info.getDeploymentTime() == null)
+         {
+            trace.info(info.getDeploymentComment());
+         }
+         else
+         {
+            trace.info("Model '" + info.getId() + "', model oid = " + info.getModelOID() +  " deployed.");
+         }
       }
       else
       {
          trace.error("Model '" + info.getId() + "', model oid = " + info.getModelOID()
                +  " not deployed.");
-
       }
    }
 
@@ -349,15 +358,8 @@ public class AdministrationServiceImpl
    public List<DeploymentInfo> deployModel(List<DeploymentElement> deploymentElements,
          DeploymentOptions options) throws DeploymentException, ConcurrencyException
    {
-      IAuditTrailPartition partition = SecurityProperties.getPartition();
-      if(partition != null)
-      {
-         AuditTrailPartitionBean foundByOID = AuditTrailPartitionBean.findByOID(partition.getOID());
-         if(foundByOID != null)
-         {
-            foundByOID.lock();
-         }
-      }
+      AuditTrailPartitionBean partition = (AuditTrailPartitionBean) SecurityProperties.getPartition(false);
+      partition.lock();
       
       if(deploymentElements == null)
       {
@@ -404,8 +406,6 @@ public class AdministrationServiceImpl
             elements.add(parsedUnit);
             overrides.put(modelId, parsedUnit.getModel());
          }
-         
-         
          
          // deploy the models
          return doDeployModel(elements, options);
@@ -498,7 +498,8 @@ public class AdministrationServiceImpl
       ModelRefBean.setPrimaryImplementation(interfaceProcess, implementationModelId, deployment.getOID());
 
       trace.info("Primary implementation for process '{" + interfaceModel.getId() + "}" + processId
-            + " [modelOid: " + interfaceOid + "] set to '" + implementationModelId + "'.");
+            + "' [modelOid: " + interfaceOid + "] set to '" + implementationModelId + "'.");
+      
       return new DeploymentInfoDetails(
             (Date) interfaceModel.getAttribute(PredefinedConstants.VALID_FROM_ATT),
             interfaceModel.getId(), comment);
@@ -1647,7 +1648,7 @@ public class AdministrationServiceImpl
             AuditTrailLogger.getInstance(LogCode.ENGINE).info(MessageFormat.format(DEPLOY_MODEL_MESSAGE,
                   model.getName(), model.getModelOID()));
          }
-         return infos;
+         return infos.subList(0, elements.size());
       }
       finally
       {

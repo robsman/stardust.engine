@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public enum AuditTrailPersistence {
    /**

@@ -659,22 +659,14 @@ public class AuthorizationContext
       return department;
    }
 
-   public IOrganization findOrganization(IDepartment department)
+   public IOrganization findOrganization(IDepartment department, IModelParticipant participant)
    {
       if (department == null)
       {
          return null;
       }
-      ModelManager mm = getModelManager();
-      for (IModel model : models)
-      {
-         IOrganization organization = (IOrganization) mm.findModelParticipant(model.getModelOID(), department.getRuntimeOrganizationOID());
-         if (organization != null)
-         {
-            return organization;
-         }
-      }
-      return isDefaultCaseActivityInstance() ? DepartmentUtils.getOrganization(department) : null;
+      long modelOid = participant.getModel().getModelOID();
+      return DepartmentUtils.getOrganization(department, modelOid);
    }
    
    public static AuthorizationContext create(Class target, String methodName, Class ... parameterTypes)
@@ -785,8 +777,11 @@ public class AuthorizationContext
             && ((ActivityInstanceBean) activityInstance).isDefaultCaseActivityInstance();
    }
 
-   public IDepartment synchronizeDepartment(String orgId, List<String> departmentIds)
+   public IDepartment synchronizeDepartment(IOrganization org, List<String> departmentIds)
    {
+      String orgId = org.getId();
+      long modelOid = org.getModel().getModelOID();
+      
       DeptKey key = new DeptKey(orgId, departmentIds);
       IDepartment department = depts.get(key);
       if (department != null)
@@ -805,7 +800,7 @@ public class AuthorizationContext
       {
          try
          {
-            department = SynchronizationService.synchronizeDepartment(orgId, departmentIds).getFirst();
+            department = SynchronizationService.synchronizeDepartment(orgId, modelOid, departmentIds).getFirst();
             depts.put(key, department);
             return department;
          }
@@ -1099,7 +1094,7 @@ public class AuthorizationContext
       for (int j = 0; j < subdepartments.size(); j++)
       {
          IDepartment dep = subdepartments.get(j);
-         if (deptId.equals(dep.getId()) && org == findOrganization(dep))
+         if (deptId.equals(dep.getId()) && org == findOrganization(dep, org))
          {
             department = dep;
             break;
@@ -1113,7 +1108,7 @@ public class AuthorizationContext
          }
          catch (ObjectNotFoundException ex)
          {
-            department = synchronizeDepartment(orgId, departmentIds);
+            department = synchronizeDepartment(org, departmentIds);
          }
          subdepartments.add(department);
       }

@@ -790,10 +790,11 @@ public class QueryServiceImpl implements QueryService, Serializable
       else
       {
          String participantId = org == null ? null : org.getQualifiedId();
+         long participantModelOid = org == null ? PredefinedConstants.ANY_MODEL : org.getModel().getModelOID();
          final Pair<String, List<String>> departmentIdsPair =
          SynchronizationService.getDepartmentPairFor(id, participantId, parent);
          final Pair<IDepartment, Boolean> departmentPair =
-            SynchronizationService.synchronizeDepartment(departmentIdsPair.getFirst(), departmentIdsPair.getSecond());
+            SynchronizationService.synchronizeDepartment(departmentIdsPair.getFirst(), participantModelOid, departmentIdsPair.getSecond());
          IDepartment foundDepartment = departmentPair.getFirst();
          if (foundDepartment != null && departmentPair.getSecond() != null
                && departmentPair.getSecond()

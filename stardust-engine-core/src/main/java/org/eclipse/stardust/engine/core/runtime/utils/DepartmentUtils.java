@@ -342,12 +342,12 @@ public final class DepartmentUtils
       return CollectionUtils.newListFromIterator(getChildDepartmentsIterator(parent));
    }
    
-   public static IOrganization getOrganization(final IDepartment department) throws ObjectNotFoundException
+   public static IOrganization getOrganization(final IDepartment department, long modelOid) throws ObjectNotFoundException
    {
       final long orgOid = department.getRuntimeOrganizationOID();
       final ModelManager manager = ModelManagerFactory.getCurrent();
       final IModelParticipant participant = manager.findModelParticipant(
-            PredefinedConstants.ANY_MODEL, orgOid);
+            modelOid, orgOid);
       if (participant instanceof IOrganization)
       {
          return (IOrganization) participant;

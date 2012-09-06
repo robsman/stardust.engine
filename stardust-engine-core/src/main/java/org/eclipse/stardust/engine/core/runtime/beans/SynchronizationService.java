@@ -125,7 +125,7 @@ public abstract class SynchronizationService
       else
       {
          new IsolatedCreateSyncService(Collections.EMPTY_MAP)
-               .synchronizeUnguarded(department);
+               .synchronizeUnguarded(department, PredefinedConstants.ANY_MODEL);
       }
    }
 
@@ -181,13 +181,15 @@ public abstract class SynchronizationService
       return group;
    }
 
-   public static Pair<IDepartment, Boolean> synchronizeDepartment(final String participantId,
-         final List<String> departmentKeys) throws ObjectNotFoundException
+   public static Pair<IDepartment, Boolean> synchronizeDepartment(
+         final String participantId, long modelOid, final List<String> departmentKeys)
+         throws ObjectNotFoundException
    {
       Pair<IDepartment, Boolean> departmentPair;
 
       if (SecurityProperties.isInternalAuthentication()
-            || Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL, false))
+            || Parameters.instance().getBoolean(Constants.CARNOT_ARCHIVE_AUDITTRAIL,
+                  false))
       {
          final IDepartment department = findDepartment(participantId, departmentKeys);
          departmentPair = new Pair<IDepartment, Boolean>(department, true);
@@ -195,15 +197,15 @@ public abstract class SynchronizationService
       else
       {
          departmentPair = new IsolatedCreateSyncService(Collections.EMPTY_MAP)
-               .synchronizeExternalDepartment(participantId, departmentKeys);
+               .synchronizeExternalDepartment(participantId, modelOid, departmentKeys);
       }
 
       return departmentPair;
    }
 
-   public static Pair<String, List<String>> getDepartmentPairFor(final IDepartment department)
+   public static Pair<String, List<String>> getDepartmentPairFor(final IDepartment department, long modelOid)
    {
-      final IOrganization participant = DepartmentUtils.getOrganization(department);
+      final IOrganization participant = DepartmentUtils.getOrganization(department, modelOid);
       final String participantId = participant.getQualifiedId();
 
       final List<String> departmentKeys = newArrayList();
@@ -309,7 +311,7 @@ public abstract class SynchronizationService
    }
 
    protected Pair<IDepartment, Boolean> synchronizeExternalDepartment(final String participantId,
-         final List<String> departmentKeys)
+         long modelOid, final List<String> departmentKeys)
    {
       Pair<IDepartment, Boolean> departmentPair;
 
@@ -329,7 +331,7 @@ public abstract class SynchronizationService
          {
             ParametersFacade.popLayer(params);
          }
-         synchronizeUnguarded(departmentPair.getFirst());
+         synchronizeUnguarded(departmentPair.getFirst(), modelOid);
       }
       catch (ObjectNotFoundException e)
       {
@@ -762,7 +764,7 @@ public abstract class SynchronizationService
       }
    }
 
-   protected void synchronizeUnguarded(final IDepartment department)
+   protected void synchronizeUnguarded(final IDepartment department, long modelOid)
    {
       /* null department does not need to be synchronized */
       if (department == null) return;
@@ -776,7 +778,7 @@ public abstract class SynchronizationService
          final DynamicParticipantSynchronizationProvider provider = initializeProvider();
          if (null != provider)
          {
-            final Pair<String, List<String>> departmentPair = getDepartmentPairFor(department);
+            final Pair<String, List<String>> departmentPair = getDepartmentPairFor(department, modelOid);
             final ExternalDepartmentConfiguration departmentConf = provider
                   .provideDepartmentConfiguration(departmentPair.getFirst(),
                         departmentPair.getSecond(), properties);
@@ -981,7 +983,9 @@ public abstract class SynchronizationService
          final GrantInfo grant,
          final IModelParticipant participant)
    {
-      final Pair<IDepartment, Boolean> departmentPair = synchronizeDepartment(participant.getQualifiedId(), grant.getDepartmentKey());
+      long modelOid = participant.getModel().getModelOID();
+      
+      final Pair<IDepartment, Boolean> departmentPair = synchronizeDepartment(participant.getQualifiedId(), modelOid, grant.getDepartmentKey());
       final boolean isValid = departmentPair.getSecond() != null && departmentPair.getSecond();
 
       if (isValid)
@@ -1256,7 +1260,9 @@ public abstract class SynchronizationService
          {
             department = importExternalDepartment(departmentKey, parentDepartment, org);
          }
-         synchronizeUnguarded(department);
+         
+         long modelOid = org.getModel().getModelOID();
+         synchronizeUnguarded(department, modelOid);
          return department;
       }
       else

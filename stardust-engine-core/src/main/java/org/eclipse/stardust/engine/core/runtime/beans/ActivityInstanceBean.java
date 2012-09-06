@@ -1989,7 +1989,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       if (newDepartment != null && newDepartment != IDepartment.NULL)
       {
-         IOrganization refOrg = DepartmentUtils.getOrganization(newDepartment);
+         long modelOid =  participant.getModel().getModelOID();
+         IOrganization refOrg = DepartmentUtils.getOrganization(newDepartment, modelOid);
          if (!refOrg.equals(participant) && !DepartmentUtils.isChild(participant, refOrg))
          {
             throw new AccessForbiddenException(
@@ -2064,7 +2065,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          return null;
       }
-      IOrganization refOrg = DepartmentUtils.getOrganization(department);
+      IOrganization refOrg = DepartmentUtils.getOrganization(department, model);
       if (refOrg == org)
       {
          return department;
@@ -2078,7 +2079,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          while (department != null)
          {
             department = department.getParentDepartment();
-            refOrg = DepartmentUtils.getOrganization(department);
+            refOrg = DepartmentUtils.getOrganization(department, model);
             if (refOrg == org)
             {
                return department;

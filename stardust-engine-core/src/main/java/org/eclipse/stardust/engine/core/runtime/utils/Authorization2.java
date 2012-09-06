@@ -457,8 +457,8 @@ public class Authorization2
             if (department != 0)
             {
                // no direct matches, check hierarchy now.
-               IDepartment targetDepartmnent = DepartmentBean.findByOID(department);
-               IOrganization targetOrganization = context.findOrganization(targetDepartmnent);
+               IDepartment targetDepartment = DepartmentBean.findByOID(department);               
+               IOrganization targetOrganization = context.findOrganization(targetDepartment, participant);
                if (targetOrganization == restrictions.get(restrictions.size() - 1))
                {
                   for (IDepartment dptmt : deps)
@@ -497,7 +497,7 @@ public class Authorization2
       if (forceNew || department > 0)
       {
          IDepartment referenceDepartment = department == 0 ? null : DepartmentBean.findByOID(department);
-         IOrganization referenceOrganization = context.findOrganization(referenceDepartment);
+         IOrganization referenceOrganization = context.findOrganization(referenceDepartment, targetOrganization);
          IDepartment targetDepartment = null;
          if (referenceOrganization == targetOrganization)
          {
@@ -537,7 +537,7 @@ public class Authorization2
 
    private static IDepartment findParentDepartment(AuthorizationContext context, IDepartment department, IOrganization organization)
    {
-      IOrganization org = context.findOrganization(department);
+      IOrganization org = context.findOrganization(department, organization);
       if (org == organization)
       {
          return department;

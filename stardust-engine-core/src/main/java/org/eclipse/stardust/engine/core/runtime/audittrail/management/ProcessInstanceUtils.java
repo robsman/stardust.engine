@@ -791,6 +791,11 @@ public class ProcessInstanceUtils
    
    public static boolean isSerialExecutionScenario(final IProcessInstance pi)
    {
+      if ( !isTransientPiSupportEnabled())
+      {
+         return false;
+      }
+      
       if (pi != null)
       {
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);

@@ -188,7 +188,7 @@ public class SerialActivityThreadCarrier extends ActionCarrier<Void>
       private ActivityThread createActivityThreadFor(final long piOID, final long activityOID)
       {
          final IProcessInstance pi = ProcessInstanceBean.findByOID(piOID);
-         // TODO (nw) remove deprecated API usage
+         @SuppressWarnings("deprecation")
          final IActivity activity = (IActivity) ModelManagerFactory.getCurrent().lookupObjectByOID(activityOID);
          
          return new ActivityThread(pi, activity, null, null, Collections.emptyMap(), false);

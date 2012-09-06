@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 
 
 /**
@@ -218,7 +219,7 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
 
    public long getReferenceDeployment();
    
-   public boolean isTransient();
+   public AuditTrailPersistence getAuditTrailPersistence();
    
-   public void resetTransientProperty();
+   public void setAuditTrailPersistence(final AuditTrailPersistence auditTrailPersistence);
 }

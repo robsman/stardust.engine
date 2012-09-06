@@ -67,6 +67,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -792,7 +793,8 @@ public class ProcessInstanceUtils
    {
       if (pi != null)
       {
-         return pi.isTransient();
+         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+         return AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
       }
       return false;
    }

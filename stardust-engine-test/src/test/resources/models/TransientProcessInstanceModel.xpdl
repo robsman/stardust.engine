@@ -347,7 +347,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                   </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="10046" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
@@ -443,7 +443,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                   </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="10055" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
@@ -545,7 +545,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                      <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
@@ -646,7 +646,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                   </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="10076" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
@@ -872,7 +872,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                   </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="10103" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
@@ -989,7 +989,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                      <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
@@ -1190,7 +1190,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                   </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="10148" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
@@ -1511,7 +1511,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                   </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="10184" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
@@ -1765,7 +1765,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                      <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>
@@ -1885,7 +1885,7 @@
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
                   <carnot:Attributes>
-                     <carnot:Attribute Name="carnot:engine:transientProcessExecutionSupport" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
                      <carnot:Attribute Name="authorization:processDefinition.abortProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.modifyProcessInstances[0]" Value="Administrator"/>
                      <carnot:Attribute Name="authorization:processDefinition.deleteProcessInstances[0]" Value="Administrator"/>

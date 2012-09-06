@@ -24,7 +24,9 @@ import javax.jms.Message;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 /**
@@ -143,7 +145,8 @@ public class SerialActivityThreadCarrier extends ActionCarrier<Void>
          final Queue<SerialActivityThreadData> beforeExecutionQueue = retrieveQueue();
          final ActivityThread activityThread = initActivityThread(beforeExecutionQueue);
          
-         if ( !activityThread.processInstance().isTransient())
+         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(activityThread.processInstance());
+         if (rootPi.getAuditTrailPersistence() == AuditTrailPersistence.PERSISTENT)
          {
             scheduleSystemQueueActivityThreads(activityThread, beforeExecutionQueue);
             activityThreadMap.remove(rootPiOID);

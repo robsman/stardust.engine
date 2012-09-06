@@ -218,7 +218,7 @@ public class TransientProcessInstanceSupport
       
       final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
       final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
-      transientPis &= rootPi.isTransient();
+      transientPis &= AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
    }
    
    private void determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
@@ -272,7 +272,7 @@ public class TransientProcessInstanceSupport
    {
       final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
       final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
-      rootPi.resetTransientProperty();
+      rootPi.setAuditTrailPersistence(AuditTrailPersistence.PERSISTENT);
    }
    
    private void assertEnabled()

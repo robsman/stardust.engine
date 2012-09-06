@@ -46,6 +46,7 @@ import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
@@ -175,7 +176,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private static final String startingActivityInstance_EAGER_FETCH = Boolean.FALSE.toString();
    private static final String startingActivityInstance_MANDATORY = Boolean.FALSE.toString();
 
-   private static final String TRANSIENT_PROPERTY_KEY = "Infinity.Engine.TransientProperty";
+   private static final String AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY = "Infinity.Engine.AuditTrailPersistence";
    
    /**
     * @deprecated This attribute will not be maintained starting with version 3.2.1.
@@ -381,7 +382,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       session.cluster(this);
 
-      setPropertyValue(TRANSIENT_PROPERTY_KEY, supportsTransientExecution(processDefinition));
+      setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, determineAuditTrailPersistence(processDefinition));
 
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExecutionPlan plan = rtEnv.getExecutionPlan();
@@ -1474,24 +1475,31 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return new String[] { PI_NOTE, ABORTING_PI_OID };
    }
 
-   public boolean isTransient()
+   public AuditTrailPersistence getAuditTrailPersistence()
    {
-      final Boolean transientPi = (Boolean) getPropertyValue(TRANSIENT_PROPERTY_KEY);
-      if (transientPi != null)
+      final AuditTrailPersistence auditTrailPersistence = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
+      if (auditTrailPersistence != null)
       {
-         return transientPi.booleanValue();
+         return auditTrailPersistence;
       }
-      return false;
-   }      
+      
+      final boolean isRootPi = getRootProcessInstanceOID() == getOID();
+      return isRootPi ? AuditTrailPersistence.PERSISTENT : AuditTrailPersistence.UNDEFINED;
+   }
    
-   public void resetTransientProperty()
+   public void setAuditTrailPersistence(final AuditTrailPersistence newValue)
    {
-      final Boolean transientPi = (Boolean) getPropertyValue(TRANSIENT_PROPERTY_KEY);
-      if (transientPi != null && transientPi.booleanValue() == true)
+      if (newValue == null)
       {
-         trace.warn("Resetting transient process instance execution to non-transient (OID: " + oid + ").");
+         throw new NullPointerException("Audit Trail Persistence must not be null.");
       }
-      setPropertyValue(TRANSIENT_PROPERTY_KEY, false);
+      
+      final AuditTrailPersistence oldValue = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
+      if (oldValue != null)
+      {
+         trace.warn("Changing Audit Trail Persistence from '" + oldValue + "' to '" + newValue + "' (OID: " + oid + ").");
+      }
+      setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, newValue);
    }
    
    private boolean noteExists()
@@ -1506,16 +1514,21 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return propertyExists(property);
    }
 
-   private boolean supportsTransientExecution(final IProcessDefinition processDef)
+   private AuditTrailPersistence determineAuditTrailPersistence(final IProcessDefinition processDef)
    {
       final boolean piSupportGloballyEnabled = ProcessInstanceUtils.isTransientPiSupportEnabled();
       if ( !piSupportGloballyEnabled)
       {
-         return false;
+         return AuditTrailPersistence.PERSISTENT;
       }
       
-      final Boolean transientExecSupport = (Boolean) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_EXECUTION_SUPPORT);
-      return (transientExecSupport != null) ? transientExecSupport.booleanValue() : false;
+      final String auditTrailPersistence = (String) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_AUDIT_TRAIL_PERSISTENCE);
+      if (auditTrailPersistence == null)
+      {
+         return AuditTrailPersistence.UNDEFINED;
+      }
+      
+      return AuditTrailPersistence.valueOf(auditTrailPersistence);
    }
    
    private static boolean propertyExists(Attribute properties)

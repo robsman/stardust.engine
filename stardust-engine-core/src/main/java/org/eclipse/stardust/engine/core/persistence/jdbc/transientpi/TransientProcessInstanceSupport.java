@@ -168,9 +168,17 @@ public class TransientProcessInstanceSupport
       return allPisAreCompleted;
    }
    
-   public boolean persistentsNeedToBeWrittenToInMemStorage()
+   public boolean persistentsNeedToBeWrittenToBlob()
    {
-      return isCurrentSessionTransient() && (!areAllPisCompleted() || isDeferredPersist());
+      if ( !isCurrentSessionTransient())
+      {
+         return false;
+      }
+      
+      final boolean needForWriteToInMemStorage = !areAllPisCompleted();
+      final boolean needForDeferredPersist = isDeferredPersist();
+      
+      return needForWriteToInMemStorage || needForDeferredPersist;
    }
    
    public static Persistent findAndReattach(final long oid, final Class<? extends Persistent> clazz, final Session session)

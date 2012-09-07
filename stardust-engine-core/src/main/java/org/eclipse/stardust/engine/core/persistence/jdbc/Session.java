@@ -1623,7 +1623,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          }
 
          BlobBuilder blobBuilder = null;
-         if (supportsAsynchWrite || transientPiSupport.persistentsNeedToBeWrittenToInMemStorage())
+         if (supportsAsynchWrite || transientPiSupport.persistentsNeedToBeWrittenToBlob())
          {
             if (supportsAsynchWrite && params.getBoolean("Carnot.Engine.Tuning.SupportAsyncAuditTrailWriteViaJms", true))
             {

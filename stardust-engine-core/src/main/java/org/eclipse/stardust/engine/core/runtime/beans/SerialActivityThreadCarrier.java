@@ -146,7 +146,7 @@ public class SerialActivityThreadCarrier extends ActionCarrier<Void>
          final ActivityThread activityThread = initActivityThread(beforeExecutionQueue);
          
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(activityThread.processInstance());
-         if (rootPi.getAuditTrailPersistence() == AuditTrailPersistence.PERSISTENT)
+         if (rootPi.getAuditTrailPersistence() == AuditTrailPersistence.IMMEDIATE)
          {
             scheduleSystemQueueActivityThreads(activityThread, beforeExecutionQueue);
             activityThreadMap.remove(rootPiOID);

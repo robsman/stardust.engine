@@ -272,7 +272,7 @@ public class TransientProcessInstanceSupport
    {
       final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
       final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
-      rootPi.setAuditTrailPersistence(AuditTrailPersistence.PERSISTENT);
+      rootPi.setAuditTrailPersistence(AuditTrailPersistence.IMMEDIATE);
    }
    
    private void assertEnabled()

@@ -1484,7 +1484,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       
       final boolean isRootPi = getRootProcessInstanceOID() == getOID();
-      return isRootPi ? AuditTrailPersistence.PERSISTENT : AuditTrailPersistence.UNDEFINED;
+      return isRootPi ? AuditTrailPersistence.IMMEDIATE : AuditTrailPersistence.ENGINE_DEFAULT;
    }
    
    public void setAuditTrailPersistence(final AuditTrailPersistence newValue)
@@ -1519,13 +1519,13 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       final boolean piSupportGloballyEnabled = ProcessInstanceUtils.isTransientPiSupportEnabled();
       if ( !piSupportGloballyEnabled)
       {
-         return AuditTrailPersistence.PERSISTENT;
+         return AuditTrailPersistence.IMMEDIATE;
       }
       
       final String auditTrailPersistence = (String) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_AUDIT_TRAIL_PERSISTENCE);
       if (auditTrailPersistence == null)
       {
-         return AuditTrailPersistence.UNDEFINED;
+         return AuditTrailPersistence.ENGINE_DEFAULT;
       }
       
       return AuditTrailPersistence.valueOf(auditTrailPersistence);

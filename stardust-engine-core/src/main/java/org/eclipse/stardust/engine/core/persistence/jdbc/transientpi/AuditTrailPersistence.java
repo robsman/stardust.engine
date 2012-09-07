@@ -19,10 +19,10 @@ public enum AuditTrailPersistence {
     * <p>
     * If it's a sub process instance it inherits the behavior
     * from the parent process; if it's a parent process it falls
-    * back to the standard behavior (see {@link PERSISTENT})
+    * back to the standard behavior (see {@link #IMMEDIATE})
     * </p>
     */
-   UNDEFINED,
+   ENGINE_DEFAULT,
    
    /**
     * <p>
@@ -41,7 +41,7 @@ public enum AuditTrailPersistence {
     * Overrides {@link TRANSIENT}
     * </p>
     */
-   LATE_PERSISTENT,
+   DEFERRED,
    
    /**
     * <p>
@@ -50,15 +50,15 @@ public enum AuditTrailPersistence {
     * </p>
     * 
     * <p>
-    * Overrides {@link LATE_PERSISTENT} and {@link TRANSIENT}
+    * Overrides {@link #DEFERRED} and {@link #TRANSIENT}
     * </p>
     */
-   PERSISTENT;
+   IMMEDIATE;
    
    public static boolean isTransientExecution(final AuditTrailPersistence auditTrailPersistence)
    {
       final boolean isTransient = auditTrailPersistence == AuditTrailPersistence.TRANSIENT;
-      final boolean isLatePersist = auditTrailPersistence == AuditTrailPersistence.LATE_PERSISTENT;
+      final boolean isLatePersist = auditTrailPersistence == AuditTrailPersistence.DEFERRED;
       return isTransient || isLatePersist;
    }
 }

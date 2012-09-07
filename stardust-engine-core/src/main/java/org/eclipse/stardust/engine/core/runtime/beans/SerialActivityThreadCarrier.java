@@ -158,7 +158,7 @@ public class SerialActivityThreadCarrier extends ActionCarrier<Void>
             final Queue<SerialActivityThreadData> afterExecutionQueue = retrieveQueue();   
             if (afterExecutionQueue.peek() != null)
             {
-               scheduleNextSerialActivityThread();
+               scheduleNextSerialActivityThreadWorker();
             }
             else
             {
@@ -228,7 +228,7 @@ public class SerialActivityThreadCarrier extends ActionCarrier<Void>
          return carrier;
       }
       
-      private void scheduleNextSerialActivityThread()
+      private void scheduleNextSerialActivityThreadWorker()
       {
          final SerialActivityThreadCarrier carrier = new SerialActivityThreadCarrier();
          carrier.setRootProcessInstanceOid(rootPiOID);

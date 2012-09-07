@@ -107,7 +107,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          final boolean piNotCompleted = pi.getState() != ProcessInstanceState.Completed;
          if (piNotCompleted && isActivityThreadAvailable(pi.getRootProcessInstanceOID()))
          {
-            scheduleSerialActivityThread(pi.getRootProcessInstanceOID());
+            scheduleSerialActivityThreadWorker(pi.getRootProcessInstanceOID());
          }
       }
       
@@ -120,7 +120,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       return map.containsKey(rootPiOID);
    }
    
-   private void scheduleSerialActivityThread(final long rootPiOid)
+   private void scheduleSerialActivityThreadWorker(final long rootPiOid)
    {
       final SerialActivityThreadCarrier carrier = new SerialActivityThreadCarrier();
       carrier.setRootProcessInstanceOid(rootPiOid);

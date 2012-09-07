@@ -38,7 +38,7 @@ public enum AuditTrailPersistence {
     * </p>
     * 
     * <p>
-    * Overrides {@link TRANSIENT}
+    * Overrides {@link #TRANSIENT}
     * </p>
     */
    DEFERRED,
@@ -58,7 +58,7 @@ public enum AuditTrailPersistence {
    public static boolean isTransientExecution(final AuditTrailPersistence auditTrailPersistence)
    {
       final boolean isTransient = auditTrailPersistence == AuditTrailPersistence.TRANSIENT;
-      final boolean isLatePersist = auditTrailPersistence == AuditTrailPersistence.DEFERRED;
-      return isTransient || isLatePersist;
+      final boolean isDeferred = auditTrailPersistence == AuditTrailPersistence.DEFERRED;
+      return isTransient || isDeferred;
    }
 }

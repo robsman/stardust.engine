@@ -1483,8 +1483,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          return auditTrailPersistence;
       }
       
-      final boolean isRootPi = getRootProcessInstanceOID() == getOID();
-      return isRootPi ? AuditTrailPersistence.IMMEDIATE : AuditTrailPersistence.ENGINE_DEFAULT;
+      return AuditTrailPersistence.ENGINE_DEFAULT;
    }
    
    public void setAuditTrailPersistence(final AuditTrailPersistence newValue)

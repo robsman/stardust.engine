@@ -545,6 +545,30 @@ public class TransientProcessInstanceTest
       assertThat(activityThreadQueueDoesNotExist(piOid), is(true));
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is enabled.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether deferred persist (see 
+    * {@link org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence#DEFERRED})
+    * works correctly.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessSplitScenarioDeferredPersist() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+   }
+   
    private boolean hasPiEntryInDb() throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();

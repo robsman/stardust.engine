@@ -47,6 +47,8 @@ public class TransientProcessInstanceSupport
    
    private boolean transientPis = false;
    
+   private boolean deferredPersist = false;
+   
    private boolean transientSession = false;
    
    private boolean allPisAreCompleted = false;
@@ -113,14 +115,14 @@ public class TransientProcessInstanceSupport
    {
       assertEnabled();
       
-      if (areAllPisCompleted())
+      if (areAllPisCompleted() && !isDeferredPersist())
       {
          /* all process instances are completed: do not write anything to the db */
          /* no need to close persistence controllers: will be done later         */
          return;
       }
       
-      /* at least one process instance is still running: write persistents to blob */
+      /* write persistents to blob */
       ProcessBlobWriter.writeInstances(blobBuilder, typeDesc, persistentsToBeInserted);
    }
    
@@ -151,6 +153,11 @@ public class TransientProcessInstanceSupport
       return transientPis;
    }
    
+   public boolean isDeferredPersist()
+   {
+      return deferredPersist;
+   }
+   
    public boolean isCurrentSessionTransient()
    {
       return transientSession;
@@ -163,7 +170,7 @@ public class TransientProcessInstanceSupport
    
    public boolean persistentsNeedToBeWrittenToInMemStorage()
    {
-      return isCurrentSessionTransient() && !areAllPisCompleted();
+      return isCurrentSessionTransient() && (!areAllPisCompleted() || isDeferredPersist());
    }
    
    public static Persistent findAndReattach(final long oid, final Class<? extends Persistent> clazz, final Session session)
@@ -219,6 +226,8 @@ public class TransientProcessInstanceSupport
       final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
       final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
       transientPis &= AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
+      
+      deferredPersist = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
    }
    
    private void determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)

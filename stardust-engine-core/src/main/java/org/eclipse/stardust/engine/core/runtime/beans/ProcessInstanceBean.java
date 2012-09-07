@@ -1483,6 +1483,12 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          return auditTrailPersistence;
       }
       
+      final boolean piSupportGloballyEnabled = ProcessInstanceUtils.isTransientPiSupportEnabled();
+      if ( !piSupportGloballyEnabled)
+      {
+         return AuditTrailPersistence.IMMEDIATE;
+      }
+      
       return AuditTrailPersistence.ENGINE_DEFAULT;
    }
    

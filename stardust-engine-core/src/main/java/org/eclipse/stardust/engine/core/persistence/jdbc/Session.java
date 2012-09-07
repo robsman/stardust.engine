@@ -1934,29 +1934,24 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                if (transientPiSupport.isCurrentSessionTransient())
                {
-                  transientPiSupport.writeToInMemStorage(blobBuilder);
+                  if ( !transientPiSupport.areAllPisCompleted())
+                  {
+                     transientPiSupport.writeToInMemStorage(blobBuilder);
+                  }
+                  else if (transientPiSupport.isDeferredPersist())
+                  {
+                     writeIntoAuditTrail(blobBuilder);
+                  }
                }
                else if (blobBuilder instanceof ByteArrayBlobBuilder)
                {
-                  BlobReader blobReader = new ByteArrayBlobReader(
-                        ((ByteArrayBlobBuilder) blobBuilder).getBlob());
-
-                  blobReader.init(params);
-                  blobReader.nextBlob();
-
-                  ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
-                  persistor.persistBlob(blobReader);
-
-                  // TODO configure
-                  persistor.writeIntoAuditTrail(this, 1);
-
-                  blobReader.close();
+                  writeIntoAuditTrail(blobBuilder);
                }
             }
             catch (PublicException e)
             {
                throw new InternalException(
-                     "Failed to send JMS message: " + e.getMessage(), e);
+                     "Failed to persist processes to BLOB: " + e.getMessage(), e);
             }
          }
 
@@ -1984,6 +1979,22 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          ExceptionUtils.logAllBatchExceptions(x);
          throw new InternalException("Error during flush.", x);
       }
+   }
+
+   private void writeIntoAuditTrail(final BlobBuilder blobBuilder)
+   {
+      BlobReader blobReader = new ByteArrayBlobReader(((ByteArrayBlobBuilder) blobBuilder).getBlob());
+
+      blobReader.init(params);
+      blobReader.nextBlob();
+
+      ProcessBlobAuditTrailPersistor persistor = new ProcessBlobAuditTrailPersistor();
+      persistor.persistBlob(blobReader);
+
+      // TODO configure
+      persistor.writeIntoAuditTrail(this, 1);
+
+      blobReader.close();
    }
    
    private void remove(AbstractCache externalCache, Persistent persistent)

@@ -165,6 +165,8 @@ public class TransientProcessInstanceSupport
    
    public boolean areAllPisCompleted()
    {
+      assertEnabled();
+      
       return allPisAreCompleted;
    }
    

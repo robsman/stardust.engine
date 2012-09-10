@@ -716,7 +716,7 @@ public class ModelManagerBean implements ModelManager
 
       private final short partitionOid;
       private final List<IModel> models;
-      private final List<IModel> unorderedModels;
+      private final List<IModel> orderedModelsByAge;
 
       private final ModelLoader loader;
 
@@ -752,7 +752,7 @@ public class ModelManagerBean implements ModelManager
       {
          this.partitionOid = partitionOid;
          this.models = CollectionUtils.newList();
-         this.unorderedModels = CollectionUtils.newList();
+         this.orderedModelsByAge = CollectionUtils.newList();
          this.loader = loader;
          managerPartitions.put(partitionOid, this);
 
@@ -762,9 +762,14 @@ public class ModelManagerBean implements ModelManager
          {
             IModelPersistor persistor = (IModelPersistor) i.next();
             loadedModels.put(persistor.getModelOID(), persistor);
-            unorderedModels.add(persistor.fetchModel());
          }
-         Collections.reverse(unorderedModels);
+         
+         for (IModelPersistor persistor : loadedModels.values())
+         {
+            IModel model = persistor.fetchModel();
+            orderedModelsByAge.add(model);
+         }
+         Collections.reverse(orderedModelsByAge);
 
          // building list of models, paying attention to predecessor relationship
          while (!loadedModels.isEmpty())
@@ -1026,16 +1031,16 @@ public class ModelManagerBean implements ModelManager
 
       public IModel findLastDeployedModel()
       {
-         if (!unorderedModels.isEmpty())
+         if (!orderedModelsByAge.isEmpty())
          {
-            return unorderedModels.get(0);
+            return orderedModelsByAge.get(0);
          }
          return null;
       }
 
       public IModel findLastDeployedModel(String id)
       {
-         for (IModel candidate : unorderedModels)
+         for (IModel candidate : orderedModelsByAge)
          {
             if (CompareHelper.areEqual(candidate.getId(), id))
             {
@@ -1050,11 +1055,11 @@ public class ModelManagerBean implements ModelManager
          Date now = new Date();
          List<IModel> result = CollectionUtils.newList();
          Set<String> ids = CollectionUtils.newSet();
-         for (IModel candidate : unorderedModels)
+         for (IModel candidate : orderedModelsByAge)
          {
             Date from = (Date) candidate.getAttribute(PredefinedConstants.VALID_FROM_ATT);
             String id = candidate.getId();
-            if (!ids.contains(id) && (from == null || from.before(now)))
+            if (!ids.contains(id) && (from == null || !now.after(from)))
             {
                result.add(candidate);
                ids.add(id);
@@ -1089,7 +1094,7 @@ public class ModelManagerBean implements ModelManager
       {
          dependentObjectCache.clear();
          models.clear();
-         unorderedModels.clear();
+         orderedModelsByAge.clear();
          deadModels.clear();
          heatingEntries.clear();
       }
@@ -1154,7 +1159,7 @@ public class ModelManagerBean implements ModelManager
             }
          }
 
-         Map<IProcessDefinition, IProcessDefinition> impls = collectPrimaryImplementations(units);
+         Map<IProcessDefinition, String> impls = collectPrimaryImplementations(units);
 
          loader.deployModel(units, options, rtOidRegistry);
 
@@ -1174,9 +1179,9 @@ public class ModelManagerBean implements ModelManager
 
          if (impls != null)
          {
-            for (Map.Entry<IProcessDefinition, IProcessDefinition> entry : impls.entrySet())
+            for (Map.Entry<IProcessDefinition, String> entry : impls.entrySet())
             {
-               String primaryImplementationId = entry.getValue().getModel().getId();
+               String primaryImplementationId = entry.getValue();
                IProcessDefinition process = entry.getKey();
                IModel interfaceModel = (IModel) process.getModel();
                
@@ -1206,10 +1211,12 @@ public class ModelManagerBean implements ModelManager
          return infos;
       }
 
-      private Map<IProcessDefinition, IProcessDefinition> collectPrimaryImplementations(List<ParsedDeploymentUnit> elements)
+      private Map<IProcessDefinition, String> collectPrimaryImplementations(List<ParsedDeploymentUnit> elements)
       {
-         Map<IProcessDefinition, IProcessDefinition> impls = null;
-
+         long referenceDeployment = ModelDeploymentBean.getLastDeployment();
+         ModelManager mm = ModelManagerFactory.getCurrent();
+         
+         Map<IProcessDefinition, String> impls = null;
          for (ParsedDeploymentUnit unit : elements)
          {
             IModel model = unit.getModel();
@@ -1224,25 +1231,37 @@ public class ModelManagerBean implements ModelManager
                   }
                   if (previousModel != null)
                   {
+                     QName processQID = new QName(model.getId(), pd.getId());
+                     int interfaceOid = previousModel.getModelOID();
                      IProcessDefinition previousProcess = previousModel.findProcessDefinition(pd.getId());
                      if (previousProcess != null && previousProcess.getDeclaresInterface())
                      {
-                        IProcessDefinition impl = ModelRefBean.getPrimaryImplementation(previousProcess, null, null);
-                        String modelId = impl.getModel().getId();
-                        QName processQID = new QName(model.getId(), pd.getId());
+                        long runtimeProcessOid = mm.getRuntimeOid(previousProcess);
+                        String implementationId = ModelRefBean.getPrimaryImplementationId(referenceDeployment, interfaceOid, runtimeProcessOid);
+                        QName q = QName.valueOf(implementationId);
+                        String modelId = q.getNamespaceURI();
+                        String processId = null;
+                        if (StringUtils.isEmpty(modelId))
+                        {
+                           modelId = q.getLocalPart();
+                        }
+                        else
+                        {
+                           processId = q.getLocalPart();
+                        }
                         for (ParsedDeploymentUnit u : elements)
                         {
                            IModel m = u.getModel();
                            if (modelId.equals(m.getId()))
                            {
-                              impl = m.getImplementingProcess(processQID);
-                              if (impl != null)
+                              List<IProcessDefinition> impl = m.getAllImplementingProcesses(processQID);
+                              if (contains(impl, processId))
                               {
                                  if (impls == null)
                                  {
                                     impls = CollectionUtils.newMap();
                                  }
-                                 impls.put(pd, impl);
+                                 impls.put(pd, implementationId);
                               }
                               break;
                            }
@@ -1254,6 +1273,25 @@ public class ModelManagerBean implements ModelManager
          }
          
          return impls;
+      }
+
+      private boolean contains(List<IProcessDefinition> impl, String processId)
+      {
+         if (impl != null)
+         {
+            if (processId == null)
+            {
+               return true;
+            }
+            for (IProcessDefinition pd : impl)
+            {
+               if (processId.equals(pd.getId()))
+               {
+                  return true;
+               }
+            }
+         }
+         return false;
       }
 
       private IModel getCurrentModel(String id)
@@ -1654,10 +1692,10 @@ public class ModelManagerBean implements ModelManager
 
       public Iterator<IModel> getAllModels()
       {
-         if (models.size() < unorderedModels.size())
+         if (models.size() < orderedModelsByAge.size())
          {
             // (fh) partition is not fully loaded
-            return unorderedModels.iterator();
+            return orderedModelsByAge.iterator();
          }
          return models.iterator();
       }
@@ -1942,6 +1980,7 @@ public class ModelManagerBean implements ModelManager
       {
          int predecessorIndex = models.indexOf(findModel(predecessor));
          models.add(predecessorIndex + 1, model);
+         orderedModelsByAge.add(0, model);
          dependentObjectCache.reload(model);
 
          if (!persistLink)
@@ -1966,7 +2005,7 @@ public class ModelManagerBean implements ModelManager
       {
          int index = models.indexOf(model);
          models.remove(index);
-         unorderedModels.remove(model);
+         orderedModelsByAge.remove(model);
          if (index < models.size())
          {
             IModel successor = models.get(index);

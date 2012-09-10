@@ -48,9 +48,9 @@ package org.eclipse.stardust.test.transientpi;
    /* package-private */ static final String PROCESS_DEF_ID_FORKED_FAIL = "ForkedProcessFail";
    
    /**
-    * the ID of the process definition that contains an AND split
+    * the ID of the process definition that contains an AND split and is executed transiently
     */
-   /* package-private */ static final String PROCESS_DEF_ID_SPLIT = "SplitProcess";
+   /* package-private */ static final String PROCESS_DEF_ID_SPLIT_TRANSIENT = "SplitProcessTransient";
    
    /**
     * the ID of the process definition that contains two AND splits
@@ -81,6 +81,16 @@ package org.eclipse.stardust.test.transientpi;
     * the ID of the process definition that contains an AND split and uses deferred persist
     */
    /* package-private */ static final String PROCESS_DEF_ID_SPLIT_DEFERRED = "SplitProcessDeferredPersist";
+   
+   /**
+    * the ID of the process definition that contains an AND split and uses default persist
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_SPLIT_DEFAULT = "SplitProcessDefaultPersist";
+   
+   /**
+    * the ID of the process definition that contains an AND split and uses immediate persist
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_SPLIT_IMMEDIATE = "SplitProcessImmediatePersist";
    
    
    /**

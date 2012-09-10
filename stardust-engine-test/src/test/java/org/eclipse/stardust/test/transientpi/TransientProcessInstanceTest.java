@@ -39,6 +39,7 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
 import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadCarrier;
@@ -123,7 +124,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is disabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
     * </p>
     * 
     * <p>
@@ -145,7 +146,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is disabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
     * </p>
     * 
     * <p>
@@ -169,7 +170,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is disabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
     * </p>
     * 
     * <p>
@@ -191,7 +192,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is disabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
     * </p>
     * 
     * <p>
@@ -215,7 +216,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is disabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
     * </p>
     * 
     * <p>
@@ -228,7 +229,7 @@ public class TransientProcessInstanceTest
    {
       disableTransientProcessesSupport();
       
-      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
@@ -237,7 +238,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -260,7 +261,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -285,7 +286,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -308,7 +309,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -333,7 +334,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -346,7 +347,7 @@ public class TransientProcessInstanceTest
    {
       enableTransientProcessesSupport();
       
-      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
@@ -356,7 +357,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -379,7 +380,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -407,7 +408,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -430,7 +431,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -452,7 +453,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -477,7 +478,7 @@ public class TransientProcessInstanceTest
 
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -505,7 +506,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -525,7 +526,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -547,7 +548,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * <b>Transient Process Support is enabled.</b>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
     * </p>
     * 
     * <p>
@@ -567,6 +568,358 @@ public class TransientProcessInstanceTest
       
       assertThat(hasPiEntryInDb(), is(true));
       assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#ENGINE_DEFAULT} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideDefaultWithOff() throws Exception
+   {
+      disableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFAULT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#ENGINE_DEFAULT} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideDefaultWithTransient() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFAULT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#ENGINE_DEFAULT} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideDefaultWithDeferred() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFAULT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * No override ({@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}) for {@link AuditTrailPersistence#ENGINE_DEFAULT}.
+    * </p>
+    */
+   @Test
+   public void testNoGlobalOverrideForDefault() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFAULT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#TRANSIENT} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideTransientWithOff() throws Exception
+   {
+      disableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#TRANSIENT} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideTransientWithTransient() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#TRANSIENT} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideTransientWithDeferred() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * No override ({@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}) for {@link AuditTrailPersistence#TRANSIENT}.
+    * </p>
+    */
+   @Test
+   public void testNoGlobalOverrideForTransient() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_TRANSIENT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#DEFERRED} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideDeferredWithOff() throws Exception
+   {
+      disableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#DEFERRED} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideDeferredWithTransient() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#DEFERRED} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideDeferredWithDeferred() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * No override ({@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}) for {@link AuditTrailPersistence#DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testNoGlobalOverrideForDeferred() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_DEFERRED, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#IMMEDIATE} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideImmediateWithOff() throws Exception
+   {
+      disableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_IMMEDIATE, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#IMMEDIATE} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideImmediateWithTransient() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_IMMEDIATE, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * Override {@link AuditTrailPersistence#IMMEDIATE} with {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testGlobalOverrideImmediateWithDeferred() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_IMMEDIATE, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the global override for Audit Trail Persistence works correctly:
+    * No override ({@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}) for {@link AuditTrailPersistence#IMMEDIATE}.
+    * </p>
+    */
+   @Test
+   public void testNoGlobalOverrideForImmediate() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_IMMEDIATE, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(true));
    }
    
    private boolean hasPiEntryInDb() throws SQLException
@@ -645,6 +998,14 @@ public class TransientProcessInstanceTest
       
       dropTransientProcessInstanceStorage();
    }
+   
+   private void overrideTransientProcessesSupport(final String override)
+   {
+      final Parameters params = Parameters.instance();
+      params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, override);
+      
+      dropTransientProcessInstanceStorage();
+   }   
    
    private void disableTransientProcessesSupport()
    {

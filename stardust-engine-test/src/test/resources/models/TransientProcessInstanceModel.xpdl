@@ -670,7 +670,7 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
-      <WorkflowProcess Id="SplitProcess" Name="Split Process" AccessLevel="PRIVATE">
+      <WorkflowProcess Id="SplitProcessTransient" Name="Split Process Transient" AccessLevel="PRIVATE">
          <ProcessHeader/>
          <Activities>
             <Activity Id="FirstActivity" Name="First Activity">
@@ -2142,6 +2142,478 @@
                                  <carnot:Connection Kind="TRANSITION" Oid="10288" ModelElement="&lt;Transition&gt;5" SourceSymbol="10280" TargetSymbol="10282" SourceAnchor="bottom" TargetAnchor="center"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="10289" SourceSymbol="10282" TargetSymbol="10281" SourceAnchor="center" TargetAnchor="center"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="10290" ModelElement="&lt;Transition&gt;6" SourceSymbol="10278" TargetSymbol="10282" SourceAnchor="center" TargetAnchor="center"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="SplitProcessDefaultPersist" Name="Split Process Default Persist" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="FirstActivity" Name="First Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <TransitionRestrictions>
+                  <TransitionRestriction>
+                     <Split Type="AND">
+                        <TransitionRefs>
+                           <TransitionRef Id="&lt;Transition&gt;1"/>
+                           <TransitionRef Id="&lt;Transition&gt;2"/>
+                           <TransitionRef Id="&lt;Transition&gt;3"/>
+                        </TransitionRefs>
+                     </Split>
+                  </TransitionRestriction>
+               </TransitionRestrictions>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10292" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SecondActivity_Route1" Name="Second Activity - Route 1">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10293">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SecondActivity_Route2" Name="Second Activity - Route 2">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10294">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SecondActivity_Route3" Name="Second Activity - Route 3">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10295">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="LastActivity" Name="Last Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <TransitionRestrictions>
+                  <TransitionRestriction>
+                     <Join Type="AND"/>
+                  </TransitionRestriction>
+               </TransitionRestrictions>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10296">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="&lt;Transition&gt;1" Name="&lt;Transition&gt; 1" From="FirstActivity" To="SecondActivity_Route1">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10297"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;2" Name="&lt;Transition&gt; 2" From="FirstActivity" To="SecondActivity_Route2">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10298"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;3" Name="&lt;Transition&gt; 3" From="FirstActivity" To="SecondActivity_Route3">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10299"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;4" Name="&lt;Transition&gt; 4" From="SecondActivity_Route1" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10300"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;5" Name="&lt;Transition&gt; 5" From="SecondActivity_Route3" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10301"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;6" Name="&lt;Transition&gt; 6" From="SecondActivity_Route2" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10302"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10291">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="ENGINE_DEFAULT" Type="String"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10303" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10304" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10305" X="230" Y="55" Width="141" Height="51" ModelElement="FirstActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10306" X="-5" Y="235" Width="141" Height="51" ModelElement="SecondActivity_Route1"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10307" X="230" Y="245" Width="141" Height="51" ModelElement="SecondActivity_Route2"/>
+                                 <carnot:Symbol Kind="GATEWAY" Oid="10308" X="280" Y="135" Width="42" Height="42" ModelElement="10305" FlowKind="split"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10309" X="465" Y="240" Width="141" Height="51" ModelElement="SecondActivity_Route3"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10310" X="230" Y="445" Width="141" Height="51" ModelElement="LastActivity"/>
+                                 <carnot:Symbol Kind="GATEWAY" Oid="10311" X="280" Y="380" Width="42" Height="42" ModelElement="10310" FlowKind="join"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10312" ModelElement="&lt;Transition&gt;1" SourceSymbol="10308" TargetSymbol="10306" SourceAnchor="left" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10313" ModelElement="&lt;Transition&gt;2" SourceSymbol="10308" TargetSymbol="10307" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10314" SourceSymbol="10305" TargetSymbol="10308" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10315" ModelElement="&lt;Transition&gt;3" SourceSymbol="10308" TargetSymbol="10309" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10316" ModelElement="&lt;Transition&gt;4" SourceSymbol="10306" TargetSymbol="10311" SourceAnchor="bottom" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10317" ModelElement="&lt;Transition&gt;5" SourceSymbol="10309" TargetSymbol="10311" SourceAnchor="bottom" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10318" SourceSymbol="10311" TargetSymbol="10310" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10319" ModelElement="&lt;Transition&gt;6" SourceSymbol="10307" TargetSymbol="10311" SourceAnchor="center" TargetAnchor="center"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="SplitProcessImmediatePersist" Name="Split Process Immediate Persist" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="FirstActivity" Name="First Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <TransitionRestrictions>
+                  <TransitionRestriction>
+                     <Split Type="AND">
+                        <TransitionRefs>
+                           <TransitionRef Id="&lt;Transition&gt;1"/>
+                           <TransitionRef Id="&lt;Transition&gt;2"/>
+                           <TransitionRef Id="&lt;Transition&gt;3"/>
+                        </TransitionRefs>
+                     </Split>
+                  </TransitionRestriction>
+               </TransitionRestrictions>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10321" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SecondActivity_Route1" Name="Second Activity - Route 1">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10322">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SecondActivity_Route2" Name="Second Activity - Route 2">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10323">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="SecondActivity_Route3" Name="Second Activity - Route 3">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10324">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="LastActivity" Name="Last Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <TransitionRestrictions>
+                  <TransitionRestriction>
+                     <Join Type="AND"/>
+                  </TransitionRestriction>
+               </TransitionRestrictions>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10325">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="&lt;Transition&gt;1" Name="&lt;Transition&gt; 1" From="FirstActivity" To="SecondActivity_Route1">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10326"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;2" Name="&lt;Transition&gt; 2" From="FirstActivity" To="SecondActivity_Route2">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10327"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;3" Name="&lt;Transition&gt; 3" From="FirstActivity" To="SecondActivity_Route3">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10328"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;4" Name="&lt;Transition&gt; 4" From="SecondActivity_Route1" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10329"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;5" Name="&lt;Transition&gt; 5" From="SecondActivity_Route3" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10330"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+            <Transition Id="&lt;Transition&gt;6" Name="&lt;Transition&gt; 6" From="SecondActivity_Route2" To="LastActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10331"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10320">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="IMMEDIATE" Type="String"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10332" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10333" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10334" X="230" Y="55" Width="141" Height="51" ModelElement="FirstActivity"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10335" X="-5" Y="235" Width="141" Height="51" ModelElement="SecondActivity_Route1"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10336" X="230" Y="245" Width="141" Height="51" ModelElement="SecondActivity_Route2"/>
+                                 <carnot:Symbol Kind="GATEWAY" Oid="10337" X="280" Y="135" Width="42" Height="42" ModelElement="10334" FlowKind="split"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10338" X="465" Y="240" Width="141" Height="51" ModelElement="SecondActivity_Route3"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10339" X="230" Y="445" Width="141" Height="51" ModelElement="LastActivity"/>
+                                 <carnot:Symbol Kind="GATEWAY" Oid="10340" X="280" Y="380" Width="42" Height="42" ModelElement="10339" FlowKind="join"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10341" ModelElement="&lt;Transition&gt;1" SourceSymbol="10337" TargetSymbol="10335" SourceAnchor="left" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10342" ModelElement="&lt;Transition&gt;2" SourceSymbol="10337" TargetSymbol="10336" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10343" SourceSymbol="10334" TargetSymbol="10337" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10344" ModelElement="&lt;Transition&gt;3" SourceSymbol="10337" TargetSymbol="10338" SourceAnchor="center" TargetAnchor="top"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10345" ModelElement="&lt;Transition&gt;4" SourceSymbol="10335" TargetSymbol="10340" SourceAnchor="bottom" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10346" ModelElement="&lt;Transition&gt;5" SourceSymbol="10338" TargetSymbol="10340" SourceAnchor="bottom" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10347" SourceSymbol="10340" TargetSymbol="10339" SourceAnchor="center" TargetAnchor="center"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10348" ModelElement="&lt;Transition&gt;6" SourceSymbol="10336" TargetSymbol="10340" SourceAnchor="center" TargetAnchor="center"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>

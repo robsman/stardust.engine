@@ -91,6 +91,11 @@ package org.eclipse.stardust.test.transientpi;
     * the ID of the process definition that contains an AND split and uses immediate persist
     */
    /* package-private */ static final String PROCESS_DEF_ID_SPLIT_IMMEDIATE = "SplitProcessImmediatePersist";
+
+   /**
+    * the ID of the process definition that contains two subprocesses
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_SUB_SUB_PROCESS = "Sub_Sub_Process";
    
    
    /**

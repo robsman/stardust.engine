@@ -19,6 +19,8 @@ import java.util.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
@@ -247,6 +249,11 @@ public class TransientProcessInstanceSupport
       for (final PersistenceController pc : ais.values())
       {
          final IActivityInstance ai = (IActivityInstance) pc.getPersistent();
+         if (isSuspendedSubprocessActivityInstance(ai))
+         {
+            continue;
+         }
+         
          transientSession &= ai.isCompleted();
          
          if ( !isCurrentSessionTransient())
@@ -269,6 +276,13 @@ public class TransientProcessInstanceSupport
             return;
          }
       }
+   }
+   
+   private boolean isSuspendedSubprocessActivityInstance(final IActivityInstance ai)
+   {
+      final boolean isSuspended = ai.getState() == ActivityInstanceState.Suspended;
+      final boolean isSubprocessAi = ai.getActivity().getImplementationType() == ImplementationType.SubProcess;
+      return isSuspended && isSubprocessAi;
    }
    
    private void determineWhetherAllPIsAreCompleted(final Map<Object, PersistenceController> pis)

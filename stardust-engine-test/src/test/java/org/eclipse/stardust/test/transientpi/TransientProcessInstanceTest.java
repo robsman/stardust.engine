@@ -928,7 +928,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * <p>
-    * Tests whether subprocess invocations do not disrupt transient process instance execution.
+    * Tests that subprocess invocations do not disrupt transient process instance execution.
     * </p>
     */
    @Test
@@ -949,7 +949,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * <p>
-    * Tests whether while loops do not disrupt transient process instance execution.
+    * Tests that while loops do not disrupt transient process instance execution.
     * </p>
     */
    @Test
@@ -970,7 +970,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * <p>
-    * Tests whether repeat loops do not disrupt transient process instance execution.
+    * Tests that repeat loops do not disrupt transient process instance execution.
     * </p>
     */
    @Test

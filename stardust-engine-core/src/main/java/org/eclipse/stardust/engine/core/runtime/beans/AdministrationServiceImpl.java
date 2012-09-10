@@ -448,7 +448,7 @@ public class AdministrationServiceImpl
    }
 
    public DeploymentInfo setPrimaryImplementation(long interfaceOid, String processId,
-         String implementationModelId, LinkingOptions options)
+         String implementationId, LinkingOptions options)
          throws DeploymentException
    {
       ModelManager manager = ModelManagerFactory.getCurrent();
@@ -462,27 +462,57 @@ public class AdministrationServiceImpl
       {
          deploymentError(new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(processId)), null);
       }
-      if (implementationModelId == null)
+      if (implementationId == null)
       {
-         implementationModelId = interfaceModel.getId();
+         implementationId = interfaceModel.getId();
       }
-      else if (!implementationModelId.equals(interfaceModel.getId()))
+      else if (!implementationId.equals(interfaceModel.getId()))
       {
+         QName qname = QName.valueOf(implementationId);
+         String mId = qname.getNamespaceURI();
+         String pId = null;
+         if (StringUtils.isEmpty(mId))
+         {
+            mId = qname.getLocalPart();
+         }
+         else
+         {
+            pId = qname.getLocalPart();
+         }
+         
          DeployedModelQuery query = DeployedModelQuery.findUsing(interfaceOid);
          query.getFilter().and(DeployedModelQuery.STATE.isEqual(DeployedModelState.VALID.name()));
          FilteringIterator<IModel> matchingModels = new FilteringIterator(
-               manager.getAllModelsForId(implementationModelId),
+               manager.getAllModelsForId(mId),
                new ModelQueryEvaluator(query));
          if (!matchingModels.hasNext())
          {
-            deploymentError(new ObjectNotFoundException(BpmRuntimeError.MDL_NO_MATCHING_MODEL_WITH_ID.raise(implementationModelId)), null);
+            deploymentError(new ObjectNotFoundException(BpmRuntimeError.MDL_NO_MATCHING_MODEL_WITH_ID.raise(mId)), null);
          }
          IProcessDefinition implementationProcess = null;
          QName interfaceProcessQName = new QName(interfaceModel.getId(), interfaceProcess.getId());
          while (matchingModels.hasNext())
          {
             IModel implementationModel = matchingModels.next();
-            implementationProcess = implementationModel.getImplementingProcess(interfaceProcessQName);
+            List<IProcessDefinition> impls = implementationModel.getAllImplementingProcesses(interfaceProcessQName);
+            if (impls != null && !impls.isEmpty())
+            {
+               if (pId == null)
+               {
+                  implementationProcess = impls.get(0);
+               }
+               else
+               {
+                  for (IProcessDefinition impl : impls)
+                  {
+                     if (pId.equals(impl.getId()))
+                     {
+                        implementationProcess = impl;
+                        break;
+                     }
+                  }
+               }
+            }
             if (implementationProcess != null)
             {
                break;
@@ -490,15 +520,15 @@ public class AdministrationServiceImpl
          }
          if (implementationProcess == null)
          {
-            deploymentError(new ObjectNotFoundException(BpmRuntimeError.MDL_NO_IMPLEMENTATION_PROCESS.raise(interfaceProcessQName, implementationModelId)), null);
+            deploymentError(new ObjectNotFoundException(BpmRuntimeError.MDL_NO_IMPLEMENTATION_PROCESS.raise(interfaceProcessQName, implementationId)), null);
          }
       }
       String comment = options == null ? null : options.getComment();
       ModelDeploymentBean deployment = new ModelDeploymentBean(comment);
-      ModelRefBean.setPrimaryImplementation(interfaceProcess, implementationModelId, deployment.getOID());
+      ModelRefBean.setPrimaryImplementation(interfaceProcess, implementationId, deployment.getOID());
 
       trace.info("Primary implementation for process '{" + interfaceModel.getId() + "}" + processId
-            + "' [modelOid: " + interfaceOid + "] set to '" + implementationModelId + "'.");
+            + "' [modelOid: " + interfaceOid + "] set to '" + implementationId + "'.");
       
       return new DeploymentInfoDetails(
             (Date) interfaceModel.getAttribute(PredefinedConstants.VALID_FROM_ATT),

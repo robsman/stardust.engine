@@ -338,68 +338,85 @@ public class ModelRefBean extends PersistentBean implements Serializable
       int interfaceOid = process.getModel().getModelOID();
       QName processQID = new QName(process.getModel().getId(), process.getId());
       
-      String implementationModelId = null;
+      String implementationId = null;
       // 1. get the implementation model id from the data value
       if (data != null && processInstance != null)
       {
          IProcessInstance scopeProcessInstance = processInstance.getScopeProcessInstance();
-         implementationModelId = (String) scopeProcessInstance.getInDataValue(data, dataPath);
+         implementationId = (String) scopeProcessInstance.getInDataValue(data, dataPath);
       }
       // 2. get the implementation model id from the primary implementation 
-      if (StringUtils.isEmpty(implementationModelId))
+      if (StringUtils.isEmpty(implementationId))
       {
-         int code = TYPE.IMPLEMENTS.ordinal();
          long runtimeProcessOid = ModelManagerFactory.getCurrent().getRuntimeOid(process);
          if (runtimeProcessOid == 0)
          {
             // element is not yet registered.
             return process;
          }
-         Session jdbcSession = (Session) dbSession;
-         ComparisonTerm typePredicate = Predicates.isEqual(FR__CODE, code);
-         ComparisonTerm modelPredicate = Predicates.isEqual(FR__MODEL_OID, interfaceOid);
-         ComparisonTerm refIdPredicate = Predicates.isEqual(FR__REF_OID, runtimeProcessOid);
-         ComparisonTerm deploymentPredicate = Predicates.lessOrEqual(FR__DEPLOYMENT, referenceDeployment);
-         QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
-               .select(FIELD__ID)
-               .where(Predicates.andTerm(typePredicate, modelPredicate, refIdPredicate, deploymentPredicate));
-         query.getQueryExtension().addOrderBy(FR__DEPLOYMENT, false);
-         ResultSet resultSet = jdbcSession.executeQuery(query);
-         try
-         {
-            if (resultSet.next())
-            {
-               implementationModelId = resultSet.getString(1);
-            }
-         }
-         catch (SQLException e)
-         {
-            trace.warn("Failed executing query.", e);
-            throw new PublicException(e);
-         }
-         finally
-         {
-            QueryUtils.closeResultSet(resultSet);
-         }
+         implementationId = getPrimaryImplementationId(referenceDeployment, interfaceOid, runtimeProcessOid);
       }
       // 3. fallback to the default implementation
-      if (StringUtils.isEmpty(implementationModelId))
+      if (StringUtils.isEmpty(implementationId))
       {
-         implementationModelId = process.getModel().getId();
+         implementationId = process.getModel().getId();
       }
-      IProcessDefinition primaryImplementation = getPrimaryImplementation(referenceTime, referenceDeployment, interfaceOid, processQID, implementationModelId);
+      IProcessDefinition primaryImplementation = getPrimaryImplementation(referenceTime, referenceDeployment, interfaceOid, processQID, implementationId);
       if (primaryImplementation == null && data != null && processInstance != null)
       {
          throw new NonInteractiveApplicationException("Unable to find a valid implementation for '" + processQID + "'.",
-               new UnresolvedExternalReference(implementationModelId));
+               new UnresolvedExternalReference(implementationId));
       }
       return primaryImplementation == null ? process : primaryImplementation;
    }
 
-   private static IProcessDefinition getPrimaryImplementation(long referenceTimestamp, long referenceDeployment,
-         long interfaceOid, QName processId, String modelId)
+   public static String getPrimaryImplementationId(long referenceDeployment, int interfaceOid, long runtimeProcessOid)
    {
-      boolean sameModel = modelId.equals(processId.getNamespaceURI());
+      Session jdbcSession = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      ComparisonTerm typePredicate = Predicates.isEqual(FR__CODE, TYPE.IMPLEMENTS.ordinal());
+      ComparisonTerm modelPredicate = Predicates.isEqual(FR__MODEL_OID, interfaceOid);
+      ComparisonTerm refIdPredicate = Predicates.isEqual(FR__REF_OID, runtimeProcessOid);
+      ComparisonTerm deploymentPredicate = Predicates.lessOrEqual(FR__DEPLOYMENT, referenceDeployment);
+      QueryDescriptor query = QueryDescriptor.from(ModelRefBean.class)
+            .select(FIELD__ID)
+            .where(Predicates.andTerm(typePredicate, modelPredicate, refIdPredicate, deploymentPredicate));
+      query.getQueryExtension().addOrderBy(FR__DEPLOYMENT, false);
+      ResultSet resultSet = jdbcSession.executeQuery(query);
+      try
+      {
+         if (resultSet.next())
+         {
+            return resultSet.getString(1);
+         }
+      }
+      catch (SQLException e)
+      {
+         trace.warn("Failed executing query.", e);
+         throw new PublicException(e);
+      }
+      finally
+      {
+         QueryUtils.closeResultSet(resultSet);
+      }
+      return null;
+   }
+
+   private static IProcessDefinition getPrimaryImplementation(long referenceTimestamp, long referenceDeployment,
+         long interfaceOid, QName processId, String implementationId)
+   {
+      QName qname = QName.valueOf(implementationId);
+      String mId = qname.getNamespaceURI();
+      String pId = null;
+      if (StringUtils.isEmpty(mId))
+      {
+         mId = qname.getLocalPart();
+      }
+      else
+      {
+         pId = qname.getLocalPart();
+      }
+      
+      boolean sameModel = mId.equals(processId.getNamespaceURI());
       String localPart = processId.getLocalPart();
       ModelManager manager = ModelManagerFactory.getCurrent();
 
@@ -422,11 +439,35 @@ public class ModelRefBean extends PersistentBean implements Serializable
          {
             long candidateOid = resultSet.getLong(1);
             IModel candidate = manager.findModel(candidateOid);
-            if (candidate != null && modelId.equals(candidate.getId()))
+            if (candidate != null && mId.equals(candidate.getId()))
             {
-               IProcessDefinition process = sameModel
-                     ? candidate.findProcessDefinition(localPart)
-                     : candidate.getImplementingProcess(processId);
+               IProcessDefinition process = null;
+               if (sameModel)
+               {
+                  process = candidate.findProcessDefinition(pId == null ? localPart : pId);  
+               }
+               else
+               {
+                  List<IProcessDefinition> impls = candidate.getAllImplementingProcesses(processId);
+                  if (impls != null && !impls.isEmpty())
+                  {
+                     if (pId == null)
+                     {
+                        process = impls.get(0);
+                     }
+                     else
+                     {
+                        for (IProcessDefinition impl : impls)
+                        {
+                           if (pId.equals(impl.getId()))
+                           {
+                              process = impl;
+                              break;
+                           }
+                        }
+                     }
+                  }
+               }
                if (process != null)
                {
                   return process;

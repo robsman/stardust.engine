@@ -114,6 +114,24 @@ public class ModelUtils
       return coll.iterator();
    }
 
+   public static <V> List<V> trim(List<V> list)
+   {
+      if (list == null || list.isEmpty())
+      {
+         return Collections.emptyList();
+      }
+      if (list.size() == 1)
+      {
+         return Collections.singletonList(list.get(0));
+      }
+      if (list instanceof ArrayList)
+      {
+         ((ArrayList<V>) list).trimToSize();
+         return list;
+      }
+      return new ArrayList<V>(list);
+   }
+
    public static <K, V> Map<K, V> trim(Map<K, V> map)
    {
       if (map == null || map.isEmpty())
@@ -125,7 +143,7 @@ public class ModelUtils
          K key = map.keySet().iterator().next();
          return Collections.singletonMap(key, map.get(key));
       }
-      return CollectionUtils.copyMap(map);
+      return new HashMap<K, V>(map);
    }
 
    public static String getQualifiedId(IdentifiableElement element)

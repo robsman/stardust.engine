@@ -92,7 +92,7 @@ public class ModelBean extends RootElementBean
    private Link triggerTypes = new Link(this, "Trigger Types");
    private Link eventConditionTypes = new Link(this, "Event Condition Types");
    private Link eventActionTypes = new Link(this, "Event Action Types");
-   private Map<QName, IProcessDefinition> implementations = Collections.emptyMap();
+   private Map<QName, List<IProcessDefinition>> implementations = Collections.emptyMap();
 
    // @todo (france, ub): how is the merge behaviour of all that stuff?!
    private int defaultProcessDefinitionId = 1;
@@ -221,9 +221,9 @@ public class ModelBean extends RootElementBean
             }
          }
          
-         for (Iterator i = getAllData();i.hasNext();)
+         for (IData data : getData())
          {
-            ((IData) i.next()).checkConsistency(inconsistencies);
+            data.checkConsistency(inconsistencies);
          }
 
          for (Iterator i = getAllApplications();i.hasNext();)
@@ -231,33 +231,9 @@ public class ModelBean extends RootElementBean
             ((IApplication) i.next()).checkConsistency(inconsistencies);
          }
 
-         Set<QName> implementations = CollectionUtils.newSet();
-         Set<QName> duplicates = CollectionUtils.newSet();
-         for (Iterator i = getAllProcessDefinitions();i.hasNext();)
+         for (IProcessDefinition processDefinition : getProcessDefinitions())
          {
-            IProcessDefinition processDefinition = (IProcessDefinition) i.next();
-            if (!processDefinition.getDeclaresInterface())
-            {
-               IReference externalReference = processDefinition.getExternalReference();
-               if (externalReference != null)
-               {
-                  QName fqid = new QName(externalReference.getExternalPackage().getHref(), externalReference.getId());
-                  if (implementations.contains(fqid))
-                  {
-                     duplicates.add(fqid);
-                  }
-                  else
-                  {
-                     implementations.add(fqid);
-                  }
-               }
-            }
             processDefinition.checkConsistency(inconsistencies);
-         }
-         if (!duplicates.isEmpty())
-         {
-            inconsistencies.add(new Inconsistency("Model contains multiple implementations of the same interface: "
-                  + duplicates, this, Inconsistency.ERROR));
          }
 
          for (Iterator i = getAllParticipants();i.hasNext();)
@@ -1417,10 +1393,16 @@ public class ModelBean extends RootElementBean
 
    public IProcessDefinition getImplementingProcess(QName processId)
    {
+      List<IProcessDefinition> list = implementations.get(processId);
+      return list == null || list.isEmpty() ? null : list.get(0);
+   }
+
+   public List<IProcessDefinition> getAllImplementingProcesses(QName processId)
+   {
       return implementations.get(processId);
    }
 
-   public void setImplementations(Map<QName, IProcessDefinition> trim)
+   public void setImplementations(Map<QName, List<IProcessDefinition>> trim)
    {
       implementations = trim;
    }

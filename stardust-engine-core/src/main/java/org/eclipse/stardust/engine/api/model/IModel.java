@@ -454,5 +454,7 @@ public interface IModel extends SymbolTable, RootElement, ConfigurationVariableD
 
    IProcessDefinition getImplementingProcess(QName processId);
    
+   List<IProcessDefinition> getAllImplementingProcesses(QName processId);
+   
    Set<QName> getImplementedInterfaces();
 }

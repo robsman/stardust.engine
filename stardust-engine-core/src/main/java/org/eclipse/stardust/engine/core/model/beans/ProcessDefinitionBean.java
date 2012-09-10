@@ -37,7 +37,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 public class ProcessDefinitionBean extends IdentifiableElementBean
       implements IProcessDefinition
 {
-   private static final String MULTIPLE_IMPLEMENTATIONS_FOR_PROCESS_INTERFACE = "Implementations for process interface ''{0}'' defined by another process.";
    private static final String PROCESS_INTERFACE_NOT_RESOLVED = "Unresolved reference to process interface ''{0}''.";
 
    private static final long serialVersionUID = 1L;
@@ -297,25 +296,17 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       if (externalReference != null)
       {
          QName qname = new QName(externalReference.getExternalPackage().getHref(), externalReference.getId());
-         IModel model = (IModel) getModel();
-         if (model.getImplementingProcess(qname) != this)
+         IModel refModel = externalReference.getExternalPackage().getReferencedModel();
+         if (refModel != null)
          {
-            inconsistencies.add(new Inconsistency(Inconsistency.ERROR, this, MULTIPLE_IMPLEMENTATIONS_FOR_PROCESS_INTERFACE, qname));
-         }
-         else
-         {
-            IModel refModel = externalReference.getExternalPackage().getReferencedModel();
-            if (refModel != null)
+            IProcessDefinition refProcess = refModel.findProcessDefinition(externalReference.getId());
+            if (refProcess == null)
             {
-               IProcessDefinition refProcess = refModel.findProcessDefinition(externalReference.getId());
-               if (refProcess == null)
-               {
-                  inconsistencies.add(new Inconsistency(Inconsistency.ERROR, this, PROCESS_INTERFACE_NOT_RESOLVED, qname));
-               }
-               else
-               {
-                  DeploymentUtils.checkCompatibleInterface(inconsistencies, refProcess, this, true);
-               }
+               inconsistencies.add(new Inconsistency(Inconsistency.ERROR, this, PROCESS_INTERFACE_NOT_RESOLVED, qname));
+            }
+            else
+            {
+               DeploymentUtils.checkCompatibleInterface(inconsistencies, refProcess, this, true);
             }
          }
       }

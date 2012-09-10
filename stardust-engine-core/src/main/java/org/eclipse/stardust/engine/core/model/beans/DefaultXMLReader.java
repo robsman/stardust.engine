@@ -1031,7 +1031,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          }
 
          // Read the process definitions after participants
-         Map<QName, IProcessDefinition> implementations = CollectionUtils.newMap();
+         Map<QName, List<IProcessDefinition>> implementations = CollectionUtils.newMap();
          NodeList processes = node.getOwnerDocument().getElementsByTagName(PROCESS);
          for (int i = 0, nProcesses = processes.getLength(); i < nProcesses; i++)
          {
@@ -1039,8 +1039,19 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
             IReference ref = pd.getExternalReference();
             if (ref != null)
             {
-               implementations.put(new QName(ref.getExternalPackage().getHref(), ref.getId()), pd);
+               QName qname = new QName(ref.getExternalPackage().getHref(), ref.getId());
+               List<IProcessDefinition> list = implementations.get(qname);
+               if (list == null)
+               {
+                  list = new ArrayList<IProcessDefinition>();
+                  implementations.put(qname, list);
+               }
+               list.add(pd);
             }
+         }
+         for (Map.Entry<QName, List<IProcessDefinition>> entry : implementations.entrySet())
+         {
+            entry.setValue(ModelUtils.trim((ArrayList<IProcessDefinition>) entry.getValue()));
          }
          ((ModelBean) model).setImplementations(ModelUtils.trim(implementations));
 

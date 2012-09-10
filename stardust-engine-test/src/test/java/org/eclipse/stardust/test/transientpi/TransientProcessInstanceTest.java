@@ -943,6 +943,27 @@ public class TransientProcessInstanceTest
       assertThat(hasPiEntryInDb(), is(false));
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether while loops do not affect transient process instance execution.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessWhileLoop() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WHILE_LOOP, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+   }   
+   
    private boolean hasPiEntryInDb() throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();

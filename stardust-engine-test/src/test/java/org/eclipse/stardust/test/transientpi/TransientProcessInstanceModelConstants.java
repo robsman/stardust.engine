@@ -97,6 +97,11 @@ package org.eclipse.stardust.test.transientpi;
     */
    /* package-private */ static final String PROCESS_DEF_ID_SUB_SUB_PROCESS = "Sub_Sub_Process";
    
+   /**
+    * the ID of the process definition that contains a while loop
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_WHILE_LOOP = "WhileLoop";
+   
    
    /**
     * the ID of the data in model 'TransientAndNon_transientRoute' determining whether the transient or

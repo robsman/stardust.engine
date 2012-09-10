@@ -187,6 +187,11 @@ public final class KernelTweakingProperties
    
    public static final String SUPPORT_TRANSIENT_PROCESSES = "Carnot.Engine.Tuning.SupportTransientProcesses";
    
+   public static final String SUPPORT_TRANSIENT_PROCESSES_ON = "on";
+   public static final String SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT = "alwaysTransient";
+   public static final String SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED = "alwaysDeferred";
+   public static final String SUPPORT_TRANSIENT_PROCESSES_OFF = "off";
+   
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Internal)
    @PropertyValueType(ClusterSafeObjectProvider.class)
    public static final String CLUSTER_SAFE_OBJ_PROVIDER = "Carnot.Engine.Tuning.SupportTransientProcesses.ClusterSafeObjectProvider";

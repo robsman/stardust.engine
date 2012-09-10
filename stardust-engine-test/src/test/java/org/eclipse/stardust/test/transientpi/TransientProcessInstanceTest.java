@@ -641,7 +641,7 @@ public class TransientProcessInstanceTest
    private void enableTransientProcessesSupport()
    {
       final Parameters params = Parameters.instance();
-      params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, true);
+      params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
       
       dropTransientProcessInstanceStorage();
    }
@@ -649,7 +649,7 @@ public class TransientProcessInstanceTest
    private void disableTransientProcessesSupport()
    {
       final Parameters params = Parameters.instance();
-      params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, false);
+      params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
    }
    
    private void dropTransientProcessInstanceStorage()

@@ -785,8 +785,12 @@ public class ProcessInstanceUtils
    public static boolean isTransientPiSupportEnabled()
    {
       final Parameters params = Parameters.instance();
-      final boolean transientPiSupportEnabled = params.getBoolean(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, false);
-      return transientPiSupportEnabled;
+      final String transientPiSupport = params.getString(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
+      
+      final boolean isOn = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON.equals(transientPiSupport);
+      final boolean isAlwaysTransient = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT.equals(transientPiSupport);
+      final boolean isAlwaysDeferred = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED.equals(transientPiSupport);
+      return isOn | isAlwaysTransient | isAlwaysDeferred;
    }
    
    public static boolean isSerialExecutionScenario(final IProcessInstance pi)

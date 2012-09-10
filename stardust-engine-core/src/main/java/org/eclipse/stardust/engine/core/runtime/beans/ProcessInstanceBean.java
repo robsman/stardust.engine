@@ -48,7 +48,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -1477,16 +1476,45 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public AuditTrailPersistence getAuditTrailPersistence()
    {
+      if (isGlobalAuditTrailPersistenceOverride())
+      {
+         return determineGlobalOverride();
+      }
+      else
+      {
+         return determineProcessInstanceBoundAuditTrailPersistence();
+      }
+   }
+   
+   private AuditTrailPersistence determineGlobalOverride()
+   {
+      final Parameters params = Parameters.instance();
+      final String globalSetting = params.getString(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
+      
+      if (KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF.equals(globalSetting))
+      {
+         return AuditTrailPersistence.IMMEDIATE;
+      }
+      else if (KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT.equals(globalSetting))
+      {
+         return AuditTrailPersistence.TRANSIENT;
+      }
+      else if (KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED.equals(globalSetting))
+      {
+         return AuditTrailPersistence.DEFERRED;
+      }
+      else
+      {
+         throw new IllegalStateException("Value '" + globalSetting + "' is not an override for property '" + KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES + "'.");
+      }
+   }
+   
+   private AuditTrailPersistence determineProcessInstanceBoundAuditTrailPersistence()
+   {
       final AuditTrailPersistence auditTrailPersistence = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
       if (auditTrailPersistence != null)
       {
          return auditTrailPersistence;
-      }
-      
-      final boolean piSupportGloballyEnabled = ProcessInstanceUtils.isTransientPiSupportEnabled();
-      if ( !piSupportGloballyEnabled)
-      {
-         return AuditTrailPersistence.IMMEDIATE;
       }
       
       return AuditTrailPersistence.ENGINE_DEFAULT;
@@ -1499,12 +1527,35 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          throw new NullPointerException("Audit Trail Persistence must not be null.");
       }
       
+      final boolean isGlobalOverride = isGlobalAuditTrailPersistenceOverride();
+      if (isGlobalOverride)
+      {
+         trace.warn("Changing process instance bound Audit Trail Persistence to '" + newValue + "' although a global override is set. (OID: " + oid + ").");
+      }
+      
       final AuditTrailPersistence oldValue = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
-      if (oldValue != null)
+      if (oldValue != null && !isGlobalOverride)
       {
          trace.warn("Changing Audit Trail Persistence from '" + oldValue + "' to '" + newValue + "' (OID: " + oid + ").");
       }
+      
       setPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY, newValue);
+   }
+   
+   private boolean isGlobalAuditTrailPersistenceOverride()
+   {
+      final Parameters params = Parameters.instance();
+      final String globalSetting = params.getString(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
+      
+      final boolean isOff = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF.equals(globalSetting);
+      final boolean isAlwaysTransient = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT.equals(globalSetting);
+      final boolean isAlwaysDeferred = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED.equals(globalSetting);
+      if (isOff || isAlwaysTransient || isAlwaysDeferred)
+      {
+         return true;
+      }
+      
+      return false;
    }
    
    private boolean noteExists()
@@ -1521,12 +1572,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    private AuditTrailPersistence determineAuditTrailPersistence(final IProcessDefinition processDef)
    {
-      final boolean piSupportGloballyEnabled = ProcessInstanceUtils.isTransientPiSupportEnabled();
-      if ( !piSupportGloballyEnabled)
-      {
-         return AuditTrailPersistence.IMMEDIATE;
-      }
-      
       final String auditTrailPersistence = (String) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_AUDIT_TRAIL_PERSISTENCE);
       if (auditTrailPersistence == null)
       {

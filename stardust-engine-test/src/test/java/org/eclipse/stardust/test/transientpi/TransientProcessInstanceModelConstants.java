@@ -101,6 +101,11 @@ package org.eclipse.stardust.test.transientpi;
     * the ID of the process definition that contains a while loop
     */
    /* package-private */ static final String PROCESS_DEF_ID_WHILE_LOOP = "WhileLoop";
+
+   /**
+    * the ID of the process definition that contains a repeat loop
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_REPEAT_LOOP = "RepeatLoop";
    
    
    /**

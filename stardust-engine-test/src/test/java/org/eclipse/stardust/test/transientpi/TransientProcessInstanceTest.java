@@ -928,7 +928,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * <p>
-    * Tests whether subprocess invocations do not affect transient process instance execution.
+    * Tests whether subprocess invocations do not disrupt transient process instance execution.
     * </p>
     */
    @Test
@@ -949,7 +949,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * <p>
-    * Tests whether while loops do not affect transient process instance execution.
+    * Tests whether while loops do not disrupt transient process instance execution.
     * </p>
     */
    @Test
@@ -962,7 +962,28 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
-   }   
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether repeat loops do not disrupt transient process instance execution.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessRepeatLoop() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_REPEAT_LOOP, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+   }
    
    private boolean hasPiEntryInDb() throws SQLException
    {

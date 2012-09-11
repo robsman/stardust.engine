@@ -590,6 +590,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -612,6 +613,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -634,6 +636,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -656,6 +659,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -678,6 +682,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -700,6 +705,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -722,6 +728,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -744,6 +751,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -766,6 +774,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -788,6 +797,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -810,6 +820,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -832,6 +843,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -854,6 +866,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -876,6 +889,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -898,6 +912,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -920,6 +935,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(true));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -941,6 +957,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -962,6 +979,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -983,6 +1001,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    /**
@@ -1004,6 +1023,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasPiEntryInDb(), is(false));
+      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
    
    private boolean hasPiEntryInDb() throws SQLException

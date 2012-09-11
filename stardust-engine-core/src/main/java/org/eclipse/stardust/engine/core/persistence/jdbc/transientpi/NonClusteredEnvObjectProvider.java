@@ -27,6 +27,8 @@ import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
  */
 public class NonClusteredEnvObjectProvider implements ClusterSafeObjectProvider
 {
+   private static final Lock LOCK = new ReentrantLock();
+   
    @Override
    public <K, V> Map<K, V> clusterSafeMap(final String ignored)
    {
@@ -34,20 +36,14 @@ public class NonClusteredEnvObjectProvider implements ClusterSafeObjectProvider
    }
    
    @Override
-   public Lock clusterSafeLock(final String ignored)
-   {
-      return new ReentrantLock();
-   }
-   
-   @Override
    public void beforeAccess()
    {
-      /* nothing to do */
+      LOCK.lock();
    }
    
    @Override
    public void afterAccess()
    {
-      /* nothing to do */
+      LOCK.unlock();
    }
 }

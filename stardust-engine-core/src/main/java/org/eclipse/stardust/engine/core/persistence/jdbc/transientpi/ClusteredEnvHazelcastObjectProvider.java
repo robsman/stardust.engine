@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
 import javax.resource.ResourceException;
 import javax.resource.cci.ConnectionFactory;
@@ -52,17 +51,6 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       }
       
       return Hazelcast.getMap(mapId);
-   }
-
-   @Override
-   public Lock clusterSafeLock(final String lockId)
-   {
-      if (lockId == null)
-      {
-         throw new NullPointerException("Lock ID for Hazelcast lock must not be null.");
-      }
-      
-      return Hazelcast.getLock(lockId);
    }
 
    @Override

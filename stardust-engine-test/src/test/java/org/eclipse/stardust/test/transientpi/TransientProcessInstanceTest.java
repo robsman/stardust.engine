@@ -21,7 +21,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -1183,6 +1191,45 @@ public class TransientProcessInstanceTest
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that concurrent execution of transient process instances works correctly.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessConcurrentExecution() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final int nThreads = 10;
+
+      final String processId = PROCESS_DEF_ID_SPLIT_SPLIT;
+      final Set<ProcessExecutor> processExecutors = new HashSet<ProcessExecutor>();
+      for (int i=0; i<nThreads; i++)
+      {
+         final ProcessExecutor pe = new ProcessExecutor(sf, processId);
+         processExecutors.add(pe);
+      }
+
+      final ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+      final List<Future<Long>> piOids = executor.invokeAll(processExecutors);
+      executor.awaitTermination(5, TimeUnit.SECONDS);
+      
+      for (final Future<Long> f : piOids)
+      {
+         ProcessInstanceStateBarrier.instance().await(f.get(), ProcessInstanceState.Completed);
+         
+         assertThat(hasEntryInDbForPi(f.get()), is(false));
+      }
+
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -1354,4 +1401,23 @@ public class TransientProcessInstanceTest
    }
    
    private static enum ProcessExecutionState { NOT_STARTED, COMPLETED, INTERRUPTED }
+   
+   private static final class ProcessExecutor implements Callable<Long>
+   {
+      private final TestServiceFactory sf;
+      private final String processId;
+      
+      public ProcessExecutor(final TestServiceFactory sf, final String processId)
+      {
+         this.sf = sf;
+         this.processId = processId;
+      }
+      
+      @Override
+      public Long call() throws Exception
+      {
+         final ProcessInstance pi = sf.getWorkflowService().startProcess(processId, null, true);
+         return pi.getOID();
+      }
+   }
 }

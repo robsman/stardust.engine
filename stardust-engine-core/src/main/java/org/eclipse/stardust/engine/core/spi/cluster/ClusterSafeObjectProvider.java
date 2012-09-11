@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.spi.cluster;
 
 import java.util.Map;
-import java.util.concurrent.locks.Lock;
 
 import org.eclipse.stardust.common.annotations.SPI;
 import org.eclipse.stardust.common.annotations.Status;
@@ -25,8 +24,6 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
 public interface ClusterSafeObjectProvider
 {
    public <K, V> Map<K, V> clusterSafeMap(final String mapId);
-   
-   public Lock clusterSafeLock(final String lockId);
    
    public void beforeAccess();
    

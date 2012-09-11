@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
 
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.PublicException;
@@ -30,8 +29,6 @@ public class TransientProcessInstanceStorage
 {
    private static final String TRANSIENT_PROCESS_STORAGE_MAP_ID = "TransientProcessStorageMapID";
    
-   private static final String TRANSIENT_PROCESS_STORAGE_LOCK_ID = "TransientProcessStorageLockID";
-
    private final ProcessInstanceBlobsHolder piBlobsHolder;
    
    public static TransientProcessInstanceStorage instance()
@@ -169,12 +166,9 @@ public class TransientProcessInstanceStorage
    {
       private final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs;
       
-      private final Lock lock;
-      
       public ProcessInstanceBlobsHolder()
       {
          this.piBlobs = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(TRANSIENT_PROCESS_STORAGE_MAP_ID);
-         this.lock = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeLock(TRANSIENT_PROCESS_STORAGE_LOCK_ID);
       }
       
       public <T> T accessPiBlobs(final TxAwareClusterSafeOperation<T> op)
@@ -183,7 +177,6 @@ public class TransientProcessInstanceStorage
          try
          {
             ClusterSafeObjectProviderHolder.OBJ_PROVIDER.beforeAccess();
-            lock.lock();
             result = op.execute(piBlobs);
          }
          catch (final Exception e)
@@ -193,14 +186,7 @@ public class TransientProcessInstanceStorage
          }
          finally
          {
-            try
-            {
-               lock.unlock();
-            }
-            finally
-            {
-               ClusterSafeObjectProviderHolder.OBJ_PROVIDER.afterAccess();
-            }
+            ClusterSafeObjectProviderHolder.OBJ_PROVIDER.afterAccess();
          }
          
          return result;

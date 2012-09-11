@@ -985,6 +985,27 @@ public class TransientProcessInstanceTest
       assertThat(hasPiEntryInDb(), is(false));
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that transient process instance execution works for XOR joins as well.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessSplitXorJoin() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_XOR_JOIN, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasPiEntryInDb(), is(false));
+   }
+   
    private boolean hasPiEntryInDb() throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();

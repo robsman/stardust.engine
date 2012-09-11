@@ -107,6 +107,11 @@ package org.eclipse.stardust.test.transientpi;
     */
    /* package-private */ static final String PROCESS_DEF_ID_REPEAT_LOOP = "RepeatLoop";
    
+   /**
+    * the ID of the process definition that contains an AND split and an XOR join
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_SPLIT_XOR_JOIN = "SplitXORJoin";
+   
    
    /**
     * the ID of the data in model 'TransientAndNon_transientRoute' determining whether the transient or

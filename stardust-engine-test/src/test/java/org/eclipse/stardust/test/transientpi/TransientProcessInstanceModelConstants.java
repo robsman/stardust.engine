@@ -10,6 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.transientpi;
 
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
+
 /**
  * <p>
  * This class contains constants related to the model used for tests
@@ -111,6 +113,26 @@ package org.eclipse.stardust.test.transientpi;
     * the ID of the process definition that contains an AND split and an XOR join
     */
    /* package-private */ static final String PROCESS_DEF_ID_SPLIT_XOR_JOIN = "SplitXORJoin";
+
+   /**
+    * the ID of the process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#ENGINE_DEFAULT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESS_ENGINE_DEFAULT = "AsyncSubprocessEngineDefault";
+
+   /**
+    * the ID of the process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#TRANSIENT}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESS_TRANSIENT = "AsyncSubprocessTransient";
+   
+   /**
+    * the ID of the process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#DEFERRED}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESS_DEFERRED = "AsyncSubprocessDeferred";
+   
+   /**
+    * the ID of the process definition that contains an asynchronous subprocess with {@link AuditTrailPersistence#IMMEDIATE}
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_ASYNC_SUBPROCESS_IMMEDIATE = "AsyncSubprocessImmediate";
    
    
    /**

@@ -137,11 +137,13 @@ public class TransientProcessInstanceTest
    {
       disableTransientProcessesSupport();
       
-      sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.COMPLETED));
-      assertThat(hasPiEntryInDb(), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -165,7 +167,9 @@ public class TransientProcessInstanceTest
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.COMPLETED));
-      assertThat(hasPiEntryInDb(), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -183,11 +187,13 @@ public class TransientProcessInstanceTest
    {
       disableTransientProcessesSupport();
       
-      sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.INTERRUPTED));
-      assertThat(hasPiEntryInDb(), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -211,7 +217,9 @@ public class TransientProcessInstanceTest
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.INTERRUPTED));
-      assertThat(hasPiEntryInDb(), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -233,7 +241,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -255,8 +265,9 @@ public class TransientProcessInstanceTest
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.COMPLETED));
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -280,8 +291,9 @@ public class TransientProcessInstanceTest
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.COMPLETED));
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -303,8 +315,9 @@ public class TransientProcessInstanceTest
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.INTERRUPTED));
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -328,8 +341,9 @@ public class TransientProcessInstanceTest
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.INTERRUPTED));
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -351,8 +365,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -374,8 +389,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -403,6 +419,7 @@ public class TransientProcessInstanceTest
          /* expected */
       }
 
+      assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -425,8 +442,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
    }
 
    /**
@@ -447,8 +465,9 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, null, true);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -472,8 +491,9 @@ public class TransientProcessInstanceTest
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi.getProcessID()));
       sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -500,8 +520,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -515,13 +536,15 @@ public class TransientProcessInstanceTest
     * </p>
     */
    @Test
-   public void testTransientProcessDoesNotScheduleSerialActivityThread()
+   public void testTransientProcessDoesNotScheduleSerialActivityThread() throws Exception
    {
       enableTransientProcessesSupport();
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -542,8 +565,9 @@ public class TransientProcessInstanceTest
       startProcessViaJms(PROCESS_DEF_ID_TRANSIENT_VIA_JMS);
       final long piOid = receiveProcessInstanceCompletedMessage();
 
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(piOid), is(true));
+      assertThat(hasEntryInDbForPi(piOid), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -566,8 +590,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -589,8 +614,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -612,8 +638,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -635,8 +662,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -658,8 +686,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -681,8 +710,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -704,8 +734,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -727,8 +758,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -750,8 +782,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -773,8 +806,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -796,8 +830,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -819,8 +854,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -842,8 +878,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -865,8 +902,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -888,8 +926,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -911,8 +950,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -934,8 +974,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(true));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -956,8 +997,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -978,8 +1020,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
    /**
@@ -1000,8 +1043,9 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
    /**
@@ -1022,11 +1066,124 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(hasPiEntryInDb(), is(false));
-      assertThat(activityThreadQueueDoesNotExist(pi.getRootProcessInstanceOID()), is(true));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
-   private boolean hasPiEntryInDb() throws SQLException
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * ({@link AuditTrailPersistence#ENGINE_DEFAULT}) as well. The starting process instance is
+    * {@link AuditTrailPersistence#TRANSIENT}.
+    * </p>
+    */
+   @Ignore("No support for asynchronous subprocesses")
+   @Test
+   public void testTransientProcessAsyncSubprocessEngineDefault() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_ENGINE_DEFAULT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      final long subPiOid = receiveProcessInstanceCompletedMessage();
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(hasEntryInDbForPi(subPiOid), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * ({@link AuditTrailPersistence#TRANSIENT}) as well. The starting process instance is
+    * {@link AuditTrailPersistence#TRANSIENT}.
+    * </p>
+    */
+   @Ignore("No support for asynchronous subprocesses")
+   @Test
+   public void testTransientProcessAsyncSubprocessTransient() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_TRANSIENT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      final long subPiOid = receiveProcessInstanceCompletedMessage();
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(hasEntryInDbForPi(subPiOid), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * ({@link AuditTrailPersistence#DEFERRED}) as well. The starting process instance is
+    * {@link AuditTrailPersistence#TRANSIENT}.
+    * </p>
+    */
+   @Ignore("No support for asynchronous subprocesses")
+   @Test
+   public void testTransientProcessAsyncSubprocessDeferred() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_DEFERRED, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      final long subPiOid = receiveProcessInstanceCompletedMessage();
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(hasEntryInDbForPi(subPiOid), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * ({@link AuditTrailPersistence#IMMEDIATE}) as well. The starting process instance is
+    * {@link AuditTrailPersistence#TRANSIENT}.
+    * </p>
+    */
+   @Ignore("No support for asynchronous subprocesses")
+   @Test
+   public void testTransientProcessAsyncSubprocessImmediate() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_IMMEDIATE, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      final long subPiOid = receiveProcessInstanceCompletedMessage();
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(hasEntryInDbForPi(subPiOid), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
       final boolean result;
@@ -1037,7 +1194,7 @@ public class TransientProcessInstanceTest
       {
          connection = ds.getConnection();
          stmt = connection.createStatement();
-         final ResultSet rs = stmt.executeQuery("SELECT * FROM PUBLIC.PROCESS_INSTANCE");
+         final ResultSet rs = stmt.executeQuery("SELECT * FROM PUBLIC.PROCESS_INSTANCE WHERE OID = " + oid);
          result = rs.first();
       }
       finally
@@ -1055,10 +1212,10 @@ public class TransientProcessInstanceTest
       return result;
    }
    
-   private boolean activityThreadQueueDoesNotExist(final long rootPiOid)
+   private boolean noSerialActivityThreadQueues()
    {
       final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
-      return map.get(rootPiOid) == null;
+      return map.isEmpty();
    }
    
    private void startProcessViaJms(final String processId)

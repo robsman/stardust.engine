@@ -28,10 +28,9 @@
       </property>
    </bean>
    
-   <!-- use a pool with one element only to be able to immediately observe non-closed connections -->
    <bean id="poolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean">
-      <property name="poolMaxSize" value="1" />
-      <property name="poolMinSize" value="1" />
+      <property name="poolMaxSize" value="100" />
+      <property name="poolMinSize" value="10" />
       <property name="connectionMaxWaitMilliseconds" value="5000" />
       <property name="connectionMaxIdleMinutes" value="1" />
    </bean>

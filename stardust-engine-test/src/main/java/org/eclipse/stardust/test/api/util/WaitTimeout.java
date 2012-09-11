@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class WaitTimeout
 {

@@ -29,12 +29,17 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * Allows to wait for a process instance state change.
  * </p>
  * 
+ * <p>
+ * The default timeout when waiting for a state change is
+ * 5 seconds.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class ProcessInstanceStateBarrier
 {
-   private static final long WAIT_TIMEOUT = 5000;
+   private static WaitTimeout timeout = new WaitTimeout(5, TimeUnit.SECONDS);
    
    private static ProcessInstanceStateBarrier instance;
    
@@ -54,6 +59,23 @@ public class ProcessInstanceStateBarrier
       return (instance != null) 
          ? instance 
          : (instance = new ProcessInstanceStateBarrier());
+   }
+   
+   /**
+    * <p>
+    * Allows for changing the timeout when waiting for a state change.
+    * </p>
+    * 
+    * @param timeout the timeout to set
+    */
+   public synchronized static void setTimeout(final WaitTimeout timeout)
+   {
+      if (timeout == null)
+      {
+         throw new NullPointerException("Timeout must not be null.");
+      }
+      
+      ProcessInstanceStateBarrier.timeout = timeout;
    }
    
    /**
@@ -86,7 +108,7 @@ public class ProcessInstanceStateBarrier
       
       try
       {
-         final boolean success = condition.latch().await(WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
+         final boolean success = condition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
             throw new TimeoutException("Process instance is still not in the state '" + piState + "'.");

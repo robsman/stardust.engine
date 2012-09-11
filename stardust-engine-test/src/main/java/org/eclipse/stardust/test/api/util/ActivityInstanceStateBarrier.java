@@ -28,12 +28,17 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * Allows to wait for an activity instance state change.
  * </p>
  * 
+ * <p>
+ * The default timeout when waiting for a state change is
+ * 5 seconds.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class ActivityInstanceStateBarrier
 {
-   private static final long WAIT_TIMEOUT = 5000;
+   private static WaitTimeout timeout = new WaitTimeout(5, TimeUnit.SECONDS);
    
    private static ActivityInstanceStateBarrier instance;
 
@@ -54,6 +59,23 @@ public class ActivityInstanceStateBarrier
       return (instance != null) 
          ? instance 
          : (instance = new ActivityInstanceStateBarrier());
+   }
+   
+   /**
+    * <p>
+    * Allows for changing the timeout when waiting for a state change.
+    * </p>
+    * 
+    * @param timeout the timeout to set
+    */
+   public synchronized static void setTimeout(final WaitTimeout timeout)
+   {
+      if (timeout == null)
+      {
+         throw new NullPointerException("Timeout must not be null.");
+      }
+      
+      ActivityInstanceStateBarrier.timeout = timeout;
    }
    
    /**
@@ -85,7 +107,7 @@ public class ActivityInstanceStateBarrier
       
       try
       {
-         final boolean success = aiStateCondition.latch().await(WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
+         final boolean success = aiStateCondition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
             throw new TimeoutException("Activity instance is still not in the state '" + aiState + "'.");
@@ -120,7 +142,7 @@ public class ActivityInstanceStateBarrier
       
       try
       {
-         final boolean success = aiAliveCondition.latch().await(WAIT_TIMEOUT, TimeUnit.MILLISECONDS);
+         final boolean success = aiAliveCondition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
             throw new TimeoutException("Activity instance is still not alive.");

@@ -46,6 +46,7 @@ import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
@@ -63,6 +64,7 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.JmsConstants;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.api.util.WaitTimeout;
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
@@ -1205,20 +1207,13 @@ public class TransientProcessInstanceTest
    {
       enableTransientProcessesSupport();
       
-      final int nThreads = 10;
+      final int nThreads = 100;
 
-      final String processId = PROCESS_DEF_ID_SPLIT_SPLIT;
-      final Set<ProcessExecutor> processExecutors = new HashSet<ProcessExecutor>();
-      for (int i=0; i<nThreads; i++)
-      {
-         final ProcessExecutor pe = new ProcessExecutor(sf, processId);
-         processExecutors.add(pe);
-      }
+      final Set<ProcessExecutor> processExecutors = initProcessExecutors(nThreads);
 
-      final ExecutorService executor = Executors.newFixedThreadPool(nThreads);
-      final List<Future<Long>> piOids = executor.invokeAll(processExecutors);
-      executor.awaitTermination(5, TimeUnit.SECONDS);
+      final List<Future<Long>> piOids = executeProcesses(nThreads, processExecutors);
       
+      ProcessInstanceStateBarrier.setTimeout(new WaitTimeout(1, TimeUnit.MINUTES));
       for (final Future<Long> f : piOids)
       {
          ProcessInstanceStateBarrier.instance().await(f.get(), ProcessInstanceState.Completed);
@@ -1229,7 +1224,7 @@ public class TransientProcessInstanceTest
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
-   
+
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -1297,6 +1292,36 @@ public class TransientProcessInstanceTest
          throw new JMSException("Timeout while receiving.");
       }
       return message.getLongProperty(DefaultMessageHelper.PROCESS_INSTANCE_OID_HEADER);
+   }
+   
+   private Set<ProcessExecutor> initProcessExecutors(final int nThreads)
+   {
+      final String processId = PROCESS_DEF_ID_SPLIT_SPLIT;
+      final WorkflowService wfService = sf.getWorkflowService();
+
+      final Set<ProcessExecutor> processExecutors = new HashSet<ProcessExecutor>();
+      for (int i=0; i<nThreads; i++)
+      {
+         final ProcessExecutor pe = new ProcessExecutor(wfService, processId);
+         processExecutors.add(pe);
+      }
+      
+      return processExecutors;
+   }
+   
+   private List<Future<Long>> executeProcesses(final int nThreads, final Set<ProcessExecutor> processExecutors) throws InterruptedException
+   {
+      final ExecutorService executor = Executors.newFixedThreadPool(nThreads);
+      
+      final List<Future<Long>> piOids = executor.invokeAll(processExecutors);
+      executor.shutdown();
+      boolean terminatedGracefully = executor.awaitTermination(10, TimeUnit.SECONDS);
+      if ( !terminatedGracefully)
+      {
+         throw new IllegalStateException("Executor hasn't been terminated gracefully.");
+      }
+      
+      return piOids;
    }
    
    private void enableTransientProcessesSupport()
@@ -1404,19 +1429,19 @@ public class TransientProcessInstanceTest
    
    private static final class ProcessExecutor implements Callable<Long>
    {
-      private final TestServiceFactory sf;
+      private final WorkflowService wfService;
       private final String processId;
       
-      public ProcessExecutor(final TestServiceFactory sf, final String processId)
+      public ProcessExecutor(final WorkflowService wfService, final String processId)
       {
-         this.sf = sf;
+         this.wfService = wfService;
          this.processId = processId;
       }
       
       @Override
       public Long call() throws Exception
       {
-         final ProcessInstance pi = sf.getWorkflowService().startProcess(processId, null, true);
+         final ProcessInstance pi = wfService.startProcess(processId, null, true);
          return pi.getOID();
       }
    }

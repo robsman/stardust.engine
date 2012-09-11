@@ -235,11 +235,35 @@ public class TransientProcessInstanceSupport
          return;
       }
       
-      final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
-      final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+      final IProcessInstance rootPi = determineUniqueRootProcessInstance(pis.values());
       transientPis &= AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
       
       deferredPersist = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
+   }
+   
+   private IProcessInstance determineUniqueRootProcessInstance(final Collection<PersistenceController> pis)
+   {
+      IProcessInstance result = null;
+      
+      for (final PersistenceController pc : pis)
+      {
+         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI((IProcessInstance) pc.getPersistent());
+         if (result == null)
+         {
+            result = rootPi;
+         }
+         else if (result.getOID() != rootPi.getOID())
+         {
+            throw new IllegalStateException("Root process instance is not unique.");
+         }
+      }
+      
+      if (result == null)
+      {
+         throw new NullPointerException("Root process instance could not be determined.");
+      }
+      
+      return result;
    }
    
    private void determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)

@@ -51,8 +51,8 @@ import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
-import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
@@ -1256,7 +1256,7 @@ public class TransientProcessInstanceTest
    
    private boolean noSerialActivityThreadQueues()
    {
-      final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
+      final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadWorkerCarrier.SERIAL_ACTIVITY_THREAD_MAP_ID);
       return map.isEmpty();
    }
    

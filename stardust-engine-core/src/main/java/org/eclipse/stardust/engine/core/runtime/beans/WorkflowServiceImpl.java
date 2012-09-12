@@ -104,38 +104,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       
       if (isSerialExecutionScenario(processInstance))
       {
-         final boolean piNotCompleted = pi.getState() != ProcessInstanceState.Completed;
-         if (piNotCompleted && isActivityThreadAvailable(pi.getRootProcessInstanceOID()))
-         {
-            scheduleSerialActivityThreadWorker(pi.getRootProcessInstanceOID());
-         }
+         ProcessInstanceUtils.scheduleSerialActivityThreadWorkerIfNecessary(processInstance);
       }
       
       return pi;
-   }
-
-   private boolean isActivityThreadAvailable(final long rootPiOID)
-   {
-      final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
-      return map.containsKey(rootPiOID);
-   }
-   
-   private void scheduleSerialActivityThreadWorker(final long rootPiOid)
-   {
-      final SerialActivityThreadCarrier carrier = new SerialActivityThreadCarrier();
-      carrier.setRootProcessInstanceOid(rootPiOid);
-      
-      final ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
-      ForkingService service = null;
-      try
-      {
-         service = factory.get();
-         service.fork(carrier, true);
-      }
-      finally
-      {
-         factory.release(service);
-      }
    }
    
    public ProcessInstance spawnSubprocessInstance(long rootProcessInstanceOid,

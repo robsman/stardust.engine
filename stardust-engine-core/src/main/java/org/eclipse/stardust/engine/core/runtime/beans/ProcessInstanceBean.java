@@ -1534,7 +1534,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       
       final AuditTrailPersistence oldValue = (AuditTrailPersistence) getPropertyValue(AUDIT_TRAIL_PERSISTENCE_PROPERTY_KEY);
-      if (oldValue != null && !isGlobalOverride)
+      if (oldValue != null && oldValue != newValue && !isGlobalOverride)
       {
          trace.warn("Changing Audit Trail Persistence from '" + oldValue + "' to '" + newValue + "' (OID: " + oid + ").");
       }

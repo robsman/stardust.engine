@@ -68,9 +68,11 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
@@ -806,5 +808,32 @@ public class ProcessInstanceUtils
          return AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
       }
       return false;
+   }
+   
+   public static void scheduleSerialActivityThreadWorkerIfNecessary(final IProcessInstance pi)
+   {
+      final boolean piNotCompleted = pi.getState() != ProcessInstanceState.Completed;
+      if (piNotCompleted)
+      {
+         final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
+         final boolean isActivityThreadAvailable = map.containsKey(pi.getRootProcessInstanceOID());
+         if (isActivityThreadAvailable)
+         {
+            final SerialActivityThreadCarrier carrier = new SerialActivityThreadCarrier();
+            carrier.setRootProcessInstanceOid(pi.getRootProcessInstanceOID());
+            
+            final ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
+            ForkingService service = null;
+            try
+            {
+               service = factory.get();
+               service.fork(carrier, true);
+            }
+            finally
+            {
+               factory.release(service);
+            }
+         }
+      }
    }
 }

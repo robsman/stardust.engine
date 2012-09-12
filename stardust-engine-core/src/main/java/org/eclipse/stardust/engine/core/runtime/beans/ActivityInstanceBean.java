@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
+
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -43,6 +45,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceContr
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
@@ -1156,6 +1159,10 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if (!synchronous || subProcess.isCompleted())
       {
          setState(ActivityInstanceState.APPLICATION);
+      }
+      if (!synchronous && isSerialExecutionScenario(subProcess))
+      {
+         ProcessInstanceUtils.scheduleSerialActivityThreadWorkerIfNecessary(subProcess);
       }
    }
 

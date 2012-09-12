@@ -93,6 +93,7 @@ public class TransientProcessInstanceSupport
          return;
       }
       
+      determineWhetherItsDeferredPersist(pis);
       determineWhetherAllPIsAreCompleted(pis);
    }
    
@@ -235,40 +236,23 @@ public class TransientProcessInstanceSupport
          return;
       }
       
-      final IProcessInstance rootPi = determineUniqueRootProcessInstance(pis.values());
-      transientPis &= AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
-      
-      deferredPersist = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
-   }
-   
-   private IProcessInstance determineUniqueRootProcessInstance(final Collection<PersistenceController> pis)
-   {
-      IProcessInstance result = null;
-      
-      for (final PersistenceController pc : pis)
+      boolean atLeastOneTransientPi = false;
+      for (final PersistenceController pc : pis.values())
       {
-         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI((IProcessInstance) pc.getPersistent());
-         if (result == null)
-         {
-            result = rootPi;
-         }
-         else if (result.getOID() != rootPi.getOID())
-         {
-            throw new IllegalStateException("Root process instance is not unique.");
-         }
+         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
+         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+         atLeastOneTransientPi |= AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
       }
-      
-      if (result == null)
-      {
-         throw new NullPointerException("Root process instance could not be determined.");
-      }
-      
-      return result;
+      transientPis &= atLeastOneTransientPi;
    }
-   
+      
    private void determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)
    {
-      transientSession = true;
+      transientSession = determineWhetherRootProcessInstanceIsUnique(pis.values());
+      if ( !isCurrentSessionTransient())
+      {
+         return;
+      }
       
       for (final PersistenceController pc : ais.values())
       {
@@ -279,7 +263,6 @@ public class TransientProcessInstanceSupport
          }
          
          transientSession &= ai.isCompleted();
-         
          if ( !isCurrentSessionTransient())
          {
             return;
@@ -293,8 +276,8 @@ public class TransientProcessInstanceSupport
          final boolean piDoesNotExistInDB = pc.isCreated();
          final boolean piIsNotInterrupted = pi.getState() != ProcessInstanceState.Interrupted;
          final boolean piIsNotAborted = pi.getState() != ProcessInstanceState.Aborted;
+
          transientSession &= piDoesNotExistInDB && piIsNotInterrupted && piIsNotAborted;
-         
          if ( !isCurrentSessionTransient())
          {
             return;
@@ -302,11 +285,50 @@ public class TransientProcessInstanceSupport
       }
    }
    
+   private boolean determineWhetherRootProcessInstanceIsUnique(final Collection<PersistenceController> pis)
+   {
+      boolean result = true;
+      
+      IProcessInstance pi = null;
+      for (final PersistenceController pc : pis)
+      {
+         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI((IProcessInstance) pc.getPersistent());
+         if (pi == null)
+         {
+            pi = rootPi;
+         }
+         else if (pi.getOID() != rootPi.getOID())
+         {
+            result = false;
+            LOGGER.warn("Root process instance is not unique (OIDs: " + pi.getOID() + ", " + rootPi.getOID() + ").");
+         }
+      }
+      
+      if (pi == null)
+      {
+         throw new NullPointerException("Root process instance could not be determined.");
+      }
+      
+      return result;
+   }
+   
    private boolean isSuspendedSubprocessActivityInstance(final IActivityInstance ai)
    {
       final boolean isSuspended = ai.getState() == ActivityInstanceState.Suspended;
       final boolean isSubprocessAi = ai.getActivity().getImplementationType() == ImplementationType.SubProcess;
       return isSuspended && isSubprocessAi;
+   }
+   
+   /**
+    *  we can just take an arbitrary pi since it's guaranteed that all point to the same root pi:
+    *  if it was not the case, {@link #transientSession} would be <code>false</code> and this
+    *  method would not have been invoked
+    */
+   private void determineWhetherItsDeferredPersist(final Map<Object, PersistenceController> pis)
+   {
+      final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
+      final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+      deferredPersist = rootPi.getAuditTrailPersistence() == AuditTrailPersistence.DEFERRED;
    }
    
    private void determineWhetherAllPIsAreCompleted(final Map<Object, PersistenceController> pis)
@@ -327,9 +349,12 @@ public class TransientProcessInstanceSupport
    
    private void resetTransientPiProperty(final Map<Object, PersistenceController> pis)
    {
-      final IProcessInstance pi = (IProcessInstance) pis.values().iterator().next().getPersistent();
-      final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
-      rootPi.setAuditTrailPersistence(AuditTrailPersistence.IMMEDIATE);
+      for (final PersistenceController pc : pis.values())
+      {
+         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
+         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+         rootPi.setAuditTrailPersistence(AuditTrailPersistence.IMMEDIATE);
+      }
    }
    
    private void assertEnabled()

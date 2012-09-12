@@ -1088,11 +1088,11 @@ public class TransientProcessInstanceTest
     * 
     * <p>
     * Tests that transient process instance execution works for asynchronous subprocesses
-    * ({@link AuditTrailPersistence#ENGINE_DEFAULT}) as well. The starting process instance is
+    * ({@link AuditTrailPersistence#ENGINE_DEFAULT}) such that it causes the whole process instance graph 
+    * to change to {@link AuditTrailPersistence#IMMEDIATE}. The starting process instance is
     * {@link AuditTrailPersistence#TRANSIENT}.
     * </p>
     */
-   @Ignore("No support for asynchronous subprocesses")
    @Test
    public void testTransientProcessAsyncSubprocessEngineDefault() throws Exception
    {
@@ -1103,7 +1103,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       final long subPiOid = receiveProcessInstanceCompletedMessage();
       
-      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(hasEntryInDbForPi(subPiOid), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
@@ -1116,11 +1116,11 @@ public class TransientProcessInstanceTest
     * 
     * <p>
     * Tests that transient process instance execution works for asynchronous subprocesses
-    * ({@link AuditTrailPersistence#TRANSIENT}) as well. The starting process instance is
+    * ({@link AuditTrailPersistence#TRANSIENT}) such that it causes the whole process instance graph 
+    * to change to {@link AuditTrailPersistence#IMMEDIATE}. The starting process instance is
     * {@link AuditTrailPersistence#TRANSIENT}.
     * </p>
     */
-   @Ignore("No support for asynchronous subprocesses")
    @Test
    public void testTransientProcessAsyncSubprocessTransient() throws Exception
    {
@@ -1131,35 +1131,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       final long subPiOid = receiveProcessInstanceCompletedMessage();
       
-      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(hasEntryInDbForPi(subPiOid), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
-      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
-   }
-   
-   /**
-    * <p>
-    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
-    * </p>
-    * 
-    * <p>
-    * Tests that transient process instance execution works for asynchronous subprocesses
-    * ({@link AuditTrailPersistence#DEFERRED}) as well. The starting process instance is
-    * {@link AuditTrailPersistence#TRANSIENT}.
-    * </p>
-    */
-   @Ignore("No support for asynchronous subprocesses")
-   @Test
-   public void testTransientProcessAsyncSubprocessDeferred() throws Exception
-   {
-      enableTransientProcessesSupport();
-      
-      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_DEFERRED, null, true);
-      
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
-      final long subPiOid = receiveProcessInstanceCompletedMessage();
-      
-      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(hasEntryInDbForPi(subPiOid), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
@@ -1172,11 +1144,39 @@ public class TransientProcessInstanceTest
     * 
     * <p>
     * Tests that transient process instance execution works for asynchronous subprocesses
-    * ({@link AuditTrailPersistence#IMMEDIATE}) as well. The starting process instance is
+    * ({@link AuditTrailPersistence#DEFERRED}) such that it causes the whole process instance graph 
+    * to change to {@link AuditTrailPersistence#IMMEDIATE}. The starting process instance is
     * {@link AuditTrailPersistence#TRANSIENT}.
     * </p>
     */
-   @Ignore("No support for asynchronous subprocesses")
+   @Test
+   public void testTransientProcessAsyncSubprocessDeferred() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ASYNC_SUBPROCESS_DEFERRED, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      final long subPiOid = receiveProcessInstanceCompletedMessage();
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(hasEntryInDbForPi(subPiOid), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that transient process instance execution works for asynchronous subprocesses
+    * ({@link AuditTrailPersistence#IMMEDIATE}) such that it causes the whole process instance graph 
+    * to change to {@link AuditTrailPersistence#IMMEDIATE}. The starting process instance is
+    * {@link AuditTrailPersistence#TRANSIENT}.
+    * </p>
+    */
    @Test
    public void testTransientProcessAsyncSubprocessImmediate() throws Exception
    {
@@ -1187,7 +1187,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       final long subPiOid = receiveProcessInstanceCompletedMessage();
       
-      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(hasEntryInDbForPi(subPiOid), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));

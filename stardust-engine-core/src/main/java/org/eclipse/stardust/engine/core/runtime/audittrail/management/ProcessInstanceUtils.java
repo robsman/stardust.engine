@@ -815,11 +815,11 @@ public class ProcessInstanceUtils
       final boolean piNotCompleted = pi.getState() != ProcessInstanceState.Completed;
       if (piNotCompleted)
       {
-         final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
+         final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadWorkerCarrier.SERIAL_ACTIVITY_THREAD_MAP_ID);
          final boolean isActivityThreadAvailable = map.containsKey(pi.getRootProcessInstanceOID());
          if (isActivityThreadAvailable)
          {
-            final SerialActivityThreadCarrier carrier = new SerialActivityThreadCarrier();
+            final SerialActivityThreadWorkerCarrier carrier = new SerialActivityThreadWorkerCarrier();
             carrier.setRootProcessInstanceOid(pi.getRootProcessInstanceOID());
             
             final ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);

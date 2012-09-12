@@ -33,17 +33,17 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
  * @author Nicolas.Werlein
  * @version $Revision$
  */
-public class SerialActivityThreadCarrier extends ActionCarrier<Void>
+public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
 {
    private static final long serialVersionUID = 1308240032670965545L;
 
-   public static final String SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID = "SerialActivityThreadCarrierMap";
+   public static final String SERIAL_ACTIVITY_THREAD_MAP_ID = "SerialActivityThreadCarrierMap";
    
    private static final String ROOT_PROCESS_INSTANCE_OID_NAME = "RootProcessInstanceOID";
    
    private Long rootPiOID;
    
-   public SerialActivityThreadCarrier()
+   public SerialActivityThreadWorkerCarrier()
    {
       super(SYSTEM_MESSAGE_TYPE_ID);
    }
@@ -109,7 +109,7 @@ public class SerialActivityThreadCarrier extends ActionCarrier<Void>
 
       private Map<Long, Queue> activityThreadMap;
       
-      public SerialActivityThreadRunner(final SerialActivityThreadCarrier carrier)
+      public SerialActivityThreadRunner(final SerialActivityThreadWorkerCarrier carrier)
       {
          super(carrier);
          
@@ -141,7 +141,7 @@ public class SerialActivityThreadCarrier extends ActionCarrier<Void>
       
       private void doExecute()
       {
-         activityThreadMap = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
+         activityThreadMap = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SERIAL_ACTIVITY_THREAD_MAP_ID);
          final Queue<SerialActivityThreadData> beforeExecutionQueue = retrieveQueue();
          final ActivityThread activityThread = initActivityThread(beforeExecutionQueue);
          
@@ -230,7 +230,7 @@ public class SerialActivityThreadCarrier extends ActionCarrier<Void>
       
       private void scheduleNextSerialActivityThreadWorker()
       {
-         final SerialActivityThreadCarrier carrier = new SerialActivityThreadCarrier();
+         final SerialActivityThreadWorkerCarrier carrier = new SerialActivityThreadWorkerCarrier();
          carrier.setRootProcessInstanceOid(rootPiOID);
          
          fork(new ForkAction()

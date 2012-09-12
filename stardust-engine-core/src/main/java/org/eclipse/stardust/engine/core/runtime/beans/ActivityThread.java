@@ -150,7 +150,7 @@ public class ActivityThread implements Runnable
          ClusterSafeObjectProviderHolder.OBJ_PROVIDER.beforeAccess();
          
          final long rootPiOid = pi.getRootProcessInstanceOID();
-         final Map<Long, Queue> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadCarrier.SERIAL_ACTIVITY_THREAD_CARRIER_MAP_ID);
+         final Map<Long, Queue> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadWorkerCarrier.SERIAL_ACTIVITY_THREAD_MAP_ID);
          Queue<SerialActivityThreadData> queue = map.get(rootPiOid);
          if (queue == null)
          {

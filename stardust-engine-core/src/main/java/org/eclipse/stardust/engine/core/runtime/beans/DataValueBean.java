@@ -309,7 +309,14 @@ public class DataValueBean extends IdentifiablePersistentBean
                         }
                      });
                      
-                     mpTerm.add(Predicates.inList(lhsOperand, valuesIter));
+                     if(operator.equals(Operator.NOT_IN))
+                     {
+                        mpTerm.add(Predicates.notInList(lhsOperand, valuesIter));                                               
+                     }
+                     else
+                     {
+                        mpTerm.add(Predicates.inList(lhsOperand, valuesIter));                                              
+                     }
                   }
 
                   resultTerm.add(mpTerm);

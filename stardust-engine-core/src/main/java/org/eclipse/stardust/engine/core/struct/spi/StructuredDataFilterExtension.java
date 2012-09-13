@@ -424,8 +424,14 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                                        evaluationOptions);
                               }
                            });
-
-                     mpTerm.add(Predicates.inList(valueColumn, valuesIter));
+                     if(operator.equals(Operator.NOT_IN))
+                     {
+                        mpTerm.add(Predicates.notInList(valueColumn, valuesIter));                                               
+                     }
+                     else
+                     {
+                        mpTerm.add(Predicates.inList(valueColumn, valuesIter));                                              
+                     }
                   }
 
                   resultTerm.add(mpTerm);

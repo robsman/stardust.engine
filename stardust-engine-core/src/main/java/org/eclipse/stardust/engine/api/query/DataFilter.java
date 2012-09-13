@@ -389,6 +389,54 @@ public class DataFilter extends AbstractDataFilter
    }
 
    /**
+    * Creates a filter matching workflow data being not equal one of the given
+    * <code>values</code>.
+    *
+    * @param dataID The ID of the workflow data to be matched against.
+    * @param values The list of values to not match with.
+    * @return The readily configured data filter.
+    * @throws PublicException If not all elements of <code>values</code> are instances of
+    *                         exactly the same Java class.
+    */
+   public static DataFilter notIn(String dataID, Collection values)
+   {
+      return notIn(dataID, null, values);
+   }
+
+   /**
+    * Creates a filter matching workflow data being not equal one of the given
+    * <code>values</code>.
+    *
+    * @param dataID The ID of the workflow data to be matched against.
+    * @param attributeName The name of the data attribute to search for (XPath, etc.)
+    * @param values The list of values to not match with.
+    * @return The readily configured data filter.
+    * @throws PublicException If not all elements of <code>values</code> are instances of
+    *                         exactly the same Java class.
+    */
+   public static DataFilter notIn(String dataID, String attributeName, Collection values)
+   {
+      if (values.isEmpty())
+      {
+         throw new PublicException("Empty value list for NOT_IN operator");
+      }
+
+      Set typeSet = new HashSet(values.size());
+      for (Iterator i = values.iterator(); i.hasNext();)
+      {
+         typeSet.add(i.next().getClass());
+
+         if (typeSet.size() > 1)
+         {
+            throw new PublicException("Value types are inhomogeneous: " + typeSet);
+         }
+      }
+
+      return new DataFilter(dataID, attributeName, Operator.NOT_IN, new ArrayList(values),
+            MODE_ALL_FROM_SCOPE);
+   }
+   
+   /**
     * Creates a filter matching workflow data being both greater than or equal the given
     * <code>lowerBound</code> and less than or equal the given <code>upperBound</code>.
     * <p />

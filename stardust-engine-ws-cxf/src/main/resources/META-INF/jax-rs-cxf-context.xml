@@ -43,7 +43,7 @@
 	<!-- class="com.infinity.bpm.rt.api.rest.interactions.UiInteractionsRestlet" /> -->
 	<!-- <bean id="processesRestletBean" -->
 	<!-- class="com.infinity.bpm.rt.api.rest.processinterface.ProcessesRestlet" /> -->
-	<!-- <bean id="typeDeclarationsRestletBean" 
+	<!-- <bean id="typeDeclarationsRestletBean" -->
 	<!-- class="com.infinity.bpm.rt.api.rest.processinterface.TypeDeclarationsRestlet" /> -->
 
 

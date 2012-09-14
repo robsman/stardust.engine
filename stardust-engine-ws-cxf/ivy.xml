@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+	<info organisation="com.infinity.bpm" module="stardust-engine-ws-cxf"
+		revision="${ipp.version.full}" />
+
+	<configurations>
+		<conf name="stardust-engine-ws-cxf-compile" description="EPM Engine - JAX-WS (CXF) - Compile Scope" />
+		<conf name="stardust-engine-ws-cxf-provided" description="EPM Engine - JAX-WS (CXF) - Provided Scope" />
+		<conf name="stardust-engine-ws-cxf-runtime" extends="stardust-engine-ws-cxf-compile" description="EPM Engine - JAX-WS (CXF) - Runtime Scope" />
+
+		<conf name="stardust-engine-ws-cxf-sources" description="EPM Engine - WS CXF Module - Sources" />
+
+		<conf name="stardust-engine-ws-cxf-codegen-runtime" visibility="private" description="Classpath for codegen tasks" />
+      
+		<conf name="compile"
+			extends="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided"
+			visibility="private" description="Compile Time Dependencies" />
+
+		<conf name="test" visibility="private" description="Test dependencies" />
+
+		<conf name="pom" description="EPM Engine - WS CXF Module - POMs" />
+	</configurations>
+
+	<publications>
+		<artifact name="stardust-engine-ws-cxf" type="jar"
+			conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-runtime" ext="jar" />
+
+		<artifact name="stardust-engine-ws-cxf" type="jar"
+			conf="stardust-engine-ws-cxf-sources" m:classifier="sources" />
+
+		<artifact name="stardust-engine-ws-cxf" type="pom" conf="pom"
+			ext="pom" />
+	</publications>
+
+	<dependencies>
+		<!-- stardust-engine-ws-cxf-compile -->
+        <dependency org="org.apache.cxf" name="cxf-api" rev="2.6.1-stardust01" conf="stardust-engine-ws-cxf-compile->default" >
+	       <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
+	       <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
+	    </dependency>
+	    <dependency org="org.apache.cxf" name="cxf-rt-core" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" >
+	       <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
+	    </dependency>
+      
+		<dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="stardust-engine-ws-cxf-compile->default" />
+		<dependency org="com.google.code.gson" name="gson" rev="1.6" conf="stardust-engine-ws-cxf-compile->default" />
+        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
+
+		<override org="javax.ws.rs" module="jsr311-api" rev="1.1.1" />
+		<override org="org.objenesis" module="objenesis" rev="1.0-stardust01" />
+		<override org="com.sun.xml.bind" module="jaxb-impl" rev="2.1.12" />
+		<override org="org.apache.cxf" module="cxf-api" rev="2.6.1-stardust01" />
+
+	</dependencies>
+</ivy-module>

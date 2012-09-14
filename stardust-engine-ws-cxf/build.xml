@@ -1,0 +1,120 @@
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<project name="stardust-engine-ws-cxf" default="build" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
+
+	<property name="project.dir" value="." />
+	<property name="project.src" value="${project.dir}/src/main/java" />
+	<property name="project.resources" value="${project.dir}/src/main/resources" />
+	<property name="project.test" location="${basedir}/src/test" />
+	<property name="project.test.src" location="${project.test}/java" />
+
+	<property name="project.etc" value="${project.dir}/etc" />
+	<property file="${project.etc}/private.properties" />
+
+	<property name="organizationId" value="com.infinity.bpm" />
+	<property name="artifactId" value="stardust-engine-ws-cxf" />
+
+	<import file="${project.dir}/../../build.tools/commons-build.xml" />
+
+	<target name="initOnDevelopment" if="setup.development">
+		<echo message="Performing a development build ..." />
+
+		<property name="javac.debuglevel" value="lines,source,vars" />
+	</target>
+
+	<target name="initOnProduction" unless="setup.development">
+		<echo message="Performing a production build ..." />
+
+		<property name="javac.debuglevel" value="lines,source" />
+	</target>
+
+	<target name="init" depends="initOnDevelopment, initOnProduction">
+		<property name="build.dir" value="${build.home}" />
+		<property name="build.tests" value="${build.dir}/tests" />
+		<property name="build.tests.classes" value="${build.tests}/classes" />
+	</target>
+
+
+	<target name="clean" depends="init" description="removes all build results">
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="initClasspath" depends="init, initClasspath.ivy" />
+
+	<target name="init.ivy">
+		<echo message="Using Ivy for dependency management." />
+		<init-ivy />
+	</target>
+
+	<target name="initClasspath.ivy" depends="init, init.ivy">
+
+		<init-ivy-classpath />
+
+		<path id="stardust-engine-ws-cxf.classpath">
+			<path refid="compile.deps" />
+		</path>
+
+		<path id="stardust-engine-ws-cxf.test.classpath">
+			<path refid="test" />
+		</path>
+	</target>
+
+	<target name="compile" depends="initClasspath" description="Compiles the project's Java classes">
+	</target>
+
+	<target name="jar" depends="compile, wsStub">
+	</target>
+
+	<target name="jar.src" depends="compile">
+	</target>
+
+   <target name="wsStub">
+      <copy todir="${global.build.dir}/webapps/ws-api/WEB-INF" overwrite="true">
+         <fileset dir="${project.resources}/META-INF/">
+         	<include name="jax-rs-cxf-context.xml" />
+         </fileset>
+      </copy>
+   </target>
+
+
+	<target name="build" depends="jar, jar.src, build.ivy" />
+
+	<target name="build.ivy" if="dependencies.mode.ivy" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
+		<!--ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided, stardust-engine-ws-cxf-runtime" publishIvy="true" /-->
+
+		<ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="jax-rs-cxf-module" />
+
+		<ivy:publish resolver="buildenv" conf="*" publishivy="true" artifactspattern="${build.lib}/[artifact](-[classifier]).[ext]" srcivypattern="module-ivy.xml" overwrite="true" haltonmissing="true" />
+
+		<ivy:retrieve file="module-ivy.xml" pattern="${build.lib}/engine-ws-cxf/[artifact]-[revision].[ext]" conf="jax-rs-cxf-module-runtime" module="stardust-engine-ws-cxf-module" />
+
+		<!-- delete duplicated archives; archives which are directly stored in lib remains -->
+
+		<delete>
+			<fileset dir="${build.lib}/engine-ws-cxf" includes="carnot-base*.jar" />
+			<fileset dir="${build.lib}/engine-ws-cxf" includes="carnot-engine*.jar" />
+			<fileset dir="${build.lib}/engine-ws-cxf" includes="stardust-engine*.jar" />
+			<fileset dir="${build.lib}/engine-ws-cxf">
+				<present present="both" targetdir="${build.lib}" />
+			</fileset>
+			<fileset dir="${build.lib}/engine-ws-cxf">
+				<present present="both" targetdir="${build.lib}/ext" />
+			</fileset>
+		</delete>
+
+	</target>
+	
+	<target name="dist" depends="build">
+	</target>
+
+	<target name="deploy" depends="build" />
+</project>

@@ -14,7 +14,7 @@ import org.eclipse.stardust.common.StringUtils;
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class MySqlSeqDbDescriptor extends SequenceDbDriver
 {

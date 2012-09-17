@@ -153,6 +153,10 @@ public abstract class DBDescriptor
       {
          descriptor = new MySqlDbDescriptor();
       }
+      else if (DBMSKey.MYSQL_SEQ.getId().equalsIgnoreCase(databaseType))
+      {
+         descriptor = new MySqlSeqDbDescriptor();
+      }
       else if (DBMSKey.POSTGRESQL.getId().equalsIgnoreCase(databaseType))
       {
          descriptor = new PostgreSQLDbDescriptor();
@@ -310,6 +314,26 @@ public abstract class DBDescriptor
     * @return SQL fragment for getting the next value of a Sequence
     */
    public abstract String getNextValForSeqString(String schemaName, String sequenceName);
+   
+   public String getCreateSequenceStoredProcedureStatementString(String schemaName)
+   {
+      return null;
+   }
+   
+   public String getDropSequenceStoredProcedureStatementString(String schemaName)
+   {
+      return null;
+   }
+   
+   public String getCreateGlobalPKSequenceStatementString(String schemaName)
+   {
+      return null;
+   }
+   
+   public String getDropGlobalPKSequenceStatementString(String schemaName)
+   {
+      return null;
+   }
    
    public boolean supportsColumnDeletion()
    {

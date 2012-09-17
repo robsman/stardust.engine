@@ -200,9 +200,11 @@ public class DDLManager
          buffer.append(dbDescriptor.getSQLType(descriptor.getField().getType(), descriptor.getLength()));
 
          boolean forceNotNull = false;
-         if ( !archive && dbDescriptor.supportsIdentityColumns()
-               && typeManager.requiresPKCreation()
-               && typeManager.isPkField(descriptor.getField()))
+         if ((dbDescriptor.supportsIdentityColumns() || DBMSKey.MYSQL_SEQ.equals(dbDescriptor.getDbmsKey()))
+             && !archive
+             && typeManager.requiresPKCreation()
+             && typeManager.isPkField(descriptor.getField())
+            )
          {
             buffer.append(" ").append(dbDescriptor.getIdentityColumnQualifier());
             forceNotNull = true;
@@ -292,6 +294,64 @@ public class DDLManager
       return buffer.toString();
    }
 
+   public void createGlobalSequenceIfNecessary(final String schemaName, final Connection connection)
+   {
+      if (dbDescriptor.supportsSequences())
+      {
+         final String createGlobalSequenceStmt = dbDescriptor.getCreateGlobalPKSequenceStatementString(schemaName);
+         if (createGlobalSequenceStmt == null)
+         {
+            return;
+         }
+         
+         Statement stmt = null;
+         try
+         {
+            stmt = connection.createStatement();
+            stmt.executeUpdate(createGlobalSequenceStmt);
+            trace.debug("Global PK sequence created.");
+         }
+         catch (final SQLException e)
+         {
+            final String message = "Error creating global pk sequence. Reason: " + e.getMessage();
+            trace.warn(message, e);
+         }
+         finally
+         {
+            QueryUtils.closeStatement(stmt);
+         }
+      }
+   }
+
+   public void createSequenceStoredProcedureIfNecessary(final String schemaName, final Connection connection)
+   {
+      if (dbDescriptor.supportsSequences())
+      {
+         final String createStoredProcedureStmt = dbDescriptor.getCreateSequenceStoredProcedureStatementString(schemaName);
+         if (createStoredProcedureStmt == null)
+         {
+            return;
+         }
+         
+         Statement stmt = null;
+         try
+         {
+            stmt = connection.createStatement();
+            stmt.executeUpdate(createStoredProcedureStmt);
+            trace.debug("Sequence stored procedure created.");
+         }
+         catch (final SQLException e)
+         {
+            final String message = "Error creating sequence stored procedure. Reason: " + e.getMessage();
+            trace.warn(message, e);
+         }
+         finally
+         {
+            QueryUtils.closeStatement(stmt);
+         }
+      }
+   }
+   
    public void createTableForClass(String schemaName, Class type, Connection connection)
    {
       try
@@ -496,9 +556,64 @@ public class DDLManager
       }
    }
 
-   /**
-    *
-    */
+   public void dropGlobalSequenceIfAny(final String schemaName, final Connection connection)
+   {
+      if (dbDescriptor.supportsSequences())
+      {
+         final String dropGlobalSequenceStmt = dbDescriptor.getDropGlobalPKSequenceStatementString(schemaName);
+         if (dropGlobalSequenceStmt == null)
+         {
+            return;
+         }
+         
+         Statement stmt = null;
+         try
+         {
+            stmt = connection.createStatement();
+            stmt.executeUpdate(dropGlobalSequenceStmt);
+            trace.debug("Global PK sequence dropped.");
+         }
+         catch (final SQLException e)
+         {
+            final String message = "Couldn't drop global pk sequence. Reason: " + e.getMessage();
+            trace.warn(message, e);
+         }
+         finally
+         {
+            QueryUtils.closeStatement(stmt);
+         }
+      }
+   }
+   
+   public void dropSequenceStoredProcedureIfAny(final String schemaName, final Connection connection)
+   {
+      if (dbDescriptor.supportsSequences())
+      {
+         final String dropSequenceStoredProcedureStmt = dbDescriptor.getDropSequenceStoredProcedureStatementString(schemaName);
+         if (dropSequenceStoredProcedureStmt == null)
+         {
+            return;
+         }
+         
+         Statement stmt = null;
+         try
+         {
+            stmt = connection.createStatement();
+            stmt.executeUpdate(dropSequenceStoredProcedureStmt);
+            trace.debug("Sequence stored procedure dropped.");
+         }
+         catch (final SQLException e)
+         {
+            final String message = "Couldn't drop sequence stored procedure. Reason: " + e.getMessage();
+            trace.warn(message, e);
+         }
+         finally
+         {
+            QueryUtils.closeStatement(stmt);
+         }
+      }
+   }
+   
    public void dropTableForClass(String schemaName, Class type, Connection connection)
    {
       TypeDescriptor typeManager = TypeDescriptor.get(type);
@@ -603,6 +718,26 @@ public class DDLManager
       {
          PrintStream ps = new PrintStream(new FileOutputStream(file));
 
+         final String createGlobalPkSequenceStmt = dbDescriptor.getCreateGlobalPKSequenceStatementString(schemaName);
+         if (dbDescriptor.supportsSequences() && createGlobalPkSequenceStmt != null)
+         {
+            ps.print(createGlobalPkSequenceStmt);
+            ps.println(statementDelimiter);
+            ps.println();
+         }
+         
+         final String createSequenceStoredProcedureStmt = dbDescriptor.getCreateSequenceStoredProcedureStatementString(schemaName);
+         if (dbDescriptor.supportsSequences() && createSequenceStoredProcedureStmt != null)
+         {
+            final String tmpDelimiter = "//";
+            final String delimiterLiteral = "DELIMITER";
+            ps.println(delimiterLiteral + " " + tmpDelimiter);
+            ps.print(createSequenceStoredProcedureStmt);
+            ps.println(tmpDelimiter);
+            ps.println(delimiterLiteral + " " + statementDelimiter);
+            ps.println();
+         }
+         
          for (Iterator i = classes.iterator(); i.hasNext();)
          {
             Class clazz = (Class) i.next();
@@ -1121,6 +1256,22 @@ public class DDLManager
       {
          PrintStream outStream = new PrintStream(new FileOutputStream(file));
 
+         final String dropGlobalPkSequenceStmt = dbDescriptor.getDropGlobalPKSequenceStatementString(schemaName);
+         if (dbDescriptor.supportsSequences() && dropGlobalPkSequenceStmt != null)
+         {
+            outStream.print(dropGlobalPkSequenceStmt);
+            outStream.println(statementDelimiter);
+            outStream.println();
+         }
+         
+         final String dropSequenceStoredProcedureStmt = dbDescriptor.getDropSequenceStoredProcedureStatementString(schemaName);
+         if (dbDescriptor.supportsSequences() && dropSequenceStoredProcedureStmt != null)
+         {
+            outStream.print(dropSequenceStoredProcedureStmt);
+            outStream.println(statementDelimiter);
+            outStream.println();
+         }
+         
          for (Iterator i = classes.iterator(); i.hasNext();)
          {
             Class type = (Class) i.next();
@@ -1201,7 +1352,7 @@ public class DDLManager
       final String pureTableName = tableName.toUpperCase();
 
       String catalog = null;
-      if (DBMSKey.MYSQL.equals(dbDescriptor.getDbmsKey()))
+      if (DBMSKey.MYSQL.equals(dbDescriptor.getDbmsKey()) || DBMSKey.MYSQL_SEQ.equals(dbDescriptor.getDbmsKey()))
       {
          // MySQL needs catalog to be set to schema name
          catalog = schemaName;
@@ -1224,7 +1375,7 @@ public class DDLManager
                }
                return true;
             }
-            else if (DBMSKey.MYSQL.equals(dbDescriptor.getDbmsKey()))
+            else if (DBMSKey.MYSQL.equals(dbDescriptor.getDbmsKey()) || DBMSKey.MYSQL_SEQ.equals(dbDescriptor.getDbmsKey()))
             {
                // MySQL needs catalog to be set to schema name
                ResultSet rsWithCatalog = null;

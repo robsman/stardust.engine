@@ -266,6 +266,9 @@ public class SchemaHelper
                Parameters.instance().getString(
                      SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
 
+         ddlManager.createGlobalSequenceIfNecessary(schemaName, session.getConnection());
+         ddlManager.createSequenceStoredProcedureIfNecessary(schemaName, session.getConnection());
+         
          for (Iterator i = classes.iterator(); i.hasNext();)
          {
             Class clazz = (Class) i.next();
@@ -365,6 +368,9 @@ public class SchemaHelper
             DDLManager ddlManager = new DDLManager(dbDescriptor);
             Connection connection = session.getConnection();
 
+            ddlManager.dropGlobalSequenceIfAny(schemaName, connection);
+            ddlManager.dropSequenceStoredProcedureIfAny(schemaName, connection);
+            
             String tableDecorator = "";
             for (Iterator i = classes.iterator(); i.hasNext();)
             {

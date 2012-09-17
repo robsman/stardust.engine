@@ -32,6 +32,7 @@ public final class DBMSKey extends StringKey
    public static final DBMSKey DERBY = new DBMSKey("derby", "Apache Derby");
    public static final DBMSKey MSSQL8 = new DBMSKey("mssql8", "Microsoft SQL Server 2000");
    public static final DBMSKey MYSQL = new DBMSKey("mysql", "MySQL Server");
+   public static final DBMSKey MYSQL_SEQ = new DBMSKey("mysql_seq", "MySQL Server with sequences");
    public static final DBMSKey POSTGRESQL = new DBMSKey("postgresql", "PostgreSQL ORDBMS");
    public static final DBMSKey SYBASE = new DBMSKey("sybase", "Sybase");
 

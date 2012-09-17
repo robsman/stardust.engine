@@ -1830,7 +1830,7 @@ public class DmlManager
             buffer.append(" WHERE ").append(whereBuffer);
          }
       }
-      else if (DBMSKey.MYSQL.equals(dbDescriptor.getDbmsKey()))
+      else if (DBMSKey.MYSQL.equals(dbDescriptor.getDbmsKey()) || DBMSKey.MYSQL_SEQ.equals(dbDescriptor.getDbmsKey()))
       {
          final FieldRefResolver resolver = delete;
 

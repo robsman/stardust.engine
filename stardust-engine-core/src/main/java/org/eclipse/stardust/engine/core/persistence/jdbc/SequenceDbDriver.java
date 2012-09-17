@@ -21,7 +21,7 @@ public abstract class SequenceDbDriver extends DBDescriptor
       return false;
    }
 
-   public final String getIdentityColumnQualifier()
+   public String getIdentityColumnQualifier()
    {
       return null;
    }

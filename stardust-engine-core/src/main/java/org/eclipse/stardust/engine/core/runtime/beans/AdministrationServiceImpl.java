@@ -1678,7 +1678,13 @@ public class AdministrationServiceImpl
             AuditTrailLogger.getInstance(LogCode.ENGINE).info(MessageFormat.format(DEPLOY_MODEL_MESSAGE,
                   model.getName(), model.getModelOID()));
          }
-         return infos.subList(0, elements.size());
+         
+         List<DeploymentInfo> subList = CollectionUtils.newList(elements.size());
+         for(DeploymentInfo info : infos.subList(0, elements.size()))
+         {
+            subList.add(info);
+         }
+         return subList;
       }
       finally
       {

@@ -1118,7 +1118,7 @@ public interface WorkflowService extends Service
     * <li>State after:
     * <br><i>If abort scope is root hierarchy:</i> The state of root process, all sub-processes and activities that are not yet completed changes to aborted.</li>
     * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its subprocesses and activities that are not yet completed changes to aborted. 
-    * </br>If the last activity of the process is aborted and is not a subprocess then the process state will be set to completed.</li></ul>
+    * </li></ul>
     * </p>
     *
     * @param processInstanceOid The OID of the process instance to be aborted.

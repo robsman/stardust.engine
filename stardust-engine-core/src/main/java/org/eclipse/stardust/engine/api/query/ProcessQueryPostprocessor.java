@@ -969,9 +969,12 @@ public class ProcessQueryPostprocessor
                      timeout, prefetchNParallelData, prefetchNParallelInstances,
                      prefetchDataDiscriminationThreshold);
             }
-            performPrefetchStructured(dataRtOidsStructured, nData, piSet, timeout,
-                  prefetchNParallelData, prefetchNParallelInstances,
-                  prefetchDataDiscriminationThreshold);
+            if (!dataRtOidsStructured.isEmpty())
+            {
+               performPrefetchStructured(dataRtOidsStructured, nData, piSet, timeout,
+                     prefetchNParallelData, prefetchNParallelInstances,
+                     prefetchDataDiscriminationThreshold);
+            }
          }
       }
    }

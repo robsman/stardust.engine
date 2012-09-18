@@ -836,6 +836,20 @@ public class DDLManager
                   + "VALUES (" + dbDescriptor.getNextValForSeqString(schemaName, "partition_seq") +
                   ", 'default', NULL)");
             ps.println(statementDelimiter);
+            if (session.isUsingLockTables()
+                  && TypeDescriptor.get(AuditTrailPartitionBean.class)
+                        .isDistinctLockTableName())
+            {
+               columns = new ArrayList();
+               columns.add(AuditTrailPartitionBean.FIELD__OID);
+               ps.println(
+                     "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
+                     + buildColumnsFragment(dbDescriptor, columns) 
+                     + "SELECT " + "p.oid " 
+                     + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                     + "WHERE p.id = 'default'");
+               ps.println(statementDelimiter);
+            }
 
             columns = new ArrayList();
             columns.add(UserDomainBean.FIELD__OID);
@@ -928,6 +942,20 @@ public class DDLManager
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES ('default', NULL)");
             ps.println(statementDelimiter);
+            if (session.isUsingLockTables()
+                  && TypeDescriptor.get(AuditTrailPartitionBean.class)
+                        .isDistinctLockTableName())
+            {
+               columns = new ArrayList();
+               columns.add(AuditTrailPartitionBean.FIELD__OID);
+               ps.println(
+                     "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
+                     + buildColumnsFragment(dbDescriptor, columns) 
+                     + "SELECT " + "p.oid " 
+                     + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                     + "WHERE p.id = 'default'");
+               ps.println(statementDelimiter);
+            }
 
             columns = new ArrayList();
             columns.add(UserDomainBean.FIELD__ID);
@@ -1020,6 +1048,18 @@ public class DDLManager
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "VALUES (1, 'default', NULL)");
             ps.println(statementDelimiter);
+            if (session.isUsingLockTables()
+                  && TypeDescriptor.get(AuditTrailPartitionBean.class)
+                        .isDistinctLockTableName())
+            {
+               columns = new ArrayList();
+               columns.add(AuditTrailPartitionBean.FIELD__OID);
+               ps.println(
+                     "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
+                     + buildColumnsFragment(dbDescriptor, columns) 
+                     + "VALUES (1)");
+               ps.println(statementDelimiter);
+            }
 
             columns = new ArrayList();
             columns.add(UserDomainBean.FIELD__OID);

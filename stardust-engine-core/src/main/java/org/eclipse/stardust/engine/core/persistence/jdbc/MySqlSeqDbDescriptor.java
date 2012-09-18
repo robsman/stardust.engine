@@ -74,19 +74,37 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    @Override
    public String getCreatePKStatement(final String schemaName, final String pkSequence, final int sequenceCount)
    {
-      // TODO (nw) support retrieving more than one sequence
-      throw new UnsupportedOperationException("NYI");
-   }
-
-   @Override
-   public String getCreatePKStatement(final String schemaName, final String pkSequence)
-   {
-      final StringBuffer sb = new StringBuffer(100);
+      if (sequenceCount < 1)
+      {
+         throw new IllegalArgumentException("Sequence count must be greater than 0.");
+      }
+      
+      final StringBuffer sb = new StringBuffer(sequenceCount * 100);
       
       sb.append("SELECT ");
       writeSequenceStoredProcedureCall(sb, schemaName, pkSequence);
       
+      if (sequenceCount > 1)
+      {
+         sb.append(" FROM (");
+         for (int i=0; i<sequenceCount; i++)
+         {
+            sb.append("SELECT ").append(i);
+            if (i+1 < sequenceCount)
+            {
+               sb.append(" UNION ");
+            }
+         }
+         sb.append(") AS seq");
+      }
+      
       return sb.toString();
+   }
+   
+   @Override
+   public String getCreatePKStatement(final String schemaName, final String pkSequence)
+   {
+      return getCreatePKStatement(schemaName, pkSequence, 1);
    }
 
    @Override

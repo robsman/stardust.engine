@@ -629,7 +629,7 @@ public class SpawnProcessTest
             "Interactive activityInstance in state suspended exists in spawned process.",
             spawnAi);
 
-      Object processAttachments = wfs.getInDataPath(spawnAi.getOID(), "PROCESS_ATTACHMENTS");
+      Object processAttachments = wfs.getInDataPath(spawnAi.getProcessInstanceOID(), "PROCESS_ATTACHMENTS");
       if (processAttachments instanceof List)
       {
          @SuppressWarnings("unchecked")

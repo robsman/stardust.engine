@@ -151,7 +151,7 @@ public class DB2DbDescriptor extends SequenceDbDriver
 
    public String getCreatePKStatement(final String schemaName, final String pkSequence, int sequenceCount)
    {
-      // TODO (ab) take care of sequenceCount (current implementation only returns one sequence)
+      // TODO CRNT-26273 take care of sequenceCount (current implementation only returns one sequence)
       return getCreatePKStatement(schemaName, pkSequence);
    }
    

@@ -22,7 +22,7 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
    private static final String GLOBAL_PK_SEQUENCE_TABLE_FIELD_NAME_NAME = "name";
    private static final String GLOBAL_PK_SEQUENCE_TABLE_FIELD_VALUE_NAME = "value";
    
-   private static final String SEQUENCE_STORED_PROCEDURE_NAME = "next_sequence";
+   private static final String SEQUENCE_STORED_PROCEDURE_NAME = "next_sequence_value_for";
    
    private final MySqlDbDescriptor delegate;
    

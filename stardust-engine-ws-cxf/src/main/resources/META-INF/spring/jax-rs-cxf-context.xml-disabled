@@ -11,7 +11,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                        http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
 
-	<jaxrs:server id="engine-ws" address="/engine-ws">
+	<jaxrs:server id="engine" address="/engine">
 		<jaxrs:serviceBeans>
 			<ref bean="uiInteractionsRestletBean" />
 			<ref bean="processesRestletBean" />
@@ -23,12 +23,12 @@
 	</jaxrs:server>
 
 	<bean id="uiInteractionsRestletBean"
-		class="com.infinity.bpm.rt.api.rest.interactions.UiInteractionsRestlet" />
+		class="org.eclipse.stardust.engine.rest.interactions.UiInteractionsRestlet" />
 	<bean id="processesRestletBean"
-		class="com.infinity.bpm.rt.api.rest.processinterface.ProcessesRestlet" />
+		class="org.eclipse.stardust.engine.rest.processinterface.ProcessesRestlet" />
 	<bean id="typeDeclarationsRestletBean"
-		class="com.infinity.bpm.rt.api.rest.processinterface.TypeDeclarationsRestlet" />
+		class="org.eclipse.stardust.engine.rest.processinterface.TypeDeclarationsRestlet" />
 	<bean id="runtimeExceptionProviderBean"
-		class="com.infinity.bpm.rt.api.rest.processinterface.RuntimeExceptionProvider" />
+		class="org.eclipse.stardust.engine.rest.processinterface.RuntimeExceptionProvider" />
 
 </beans>

@@ -45,8 +45,8 @@
 			ext="pom" />
 	</publications>
 
-	<dependencies>
-		<!-- stardust-engine-ws-cxf-compile -->
+	<dependencies>		<!-- stardust-engine-ws-cxf-compile -->				<!-- spring -->	    <dependency org="org.springframework" name="spring-beans" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-core" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-jdbc" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-jms" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-context-support" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-tx" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-web" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />
+
         <dependency org="org.apache.cxf" name="cxf-api" rev="2.6.1-stardust01" conf="stardust-engine-ws-cxf-compile->default" >
 	       <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
 	       <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
@@ -57,8 +57,7 @@
       
 		<dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="stardust-engine-ws-cxf-compile->default" />
 		<dependency org="com.google.code.gson" name="gson" rev="1.6" conf="stardust-engine-ws-cxf-compile->default" />
-        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
-
+        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
 		<override org="javax.ws.rs" module="jsr311-api" rev="1.1.1" />
 		<override org="org.objenesis" module="objenesis" rev="1.0-stardust01" />
 		<override org="com.sun.xml.bind" module="jaxb-impl" rev="2.1.12" />

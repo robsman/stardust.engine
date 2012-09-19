@@ -37,7 +37,7 @@
 		<property name="javac.debuglevel" value="lines,source" />
 	</target>
 
-	<target name="init" depends="initOnDevelopment, initOnProduction">
+	<target name="init" depends="initOnDevelopment, initOnProduction, initBuildDir">
 		<property name="build.dir" value="${build.home}" />
 		<property name="build.tests" value="${build.dir}/tests" />
 		<property name="build.tests.classes" value="${build.tests}/classes" />
@@ -46,6 +46,31 @@
 
 	<target name="clean" depends="init" description="removes all build results">
 		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="initBuildDir" unless="build.home">
+		<property name="build.home" value="${project.dir}/build" />
+	</target>
+
+	<target name="initBuild" depends="init, initBuildDir">
+		<property name="build.dir" value="${build.home}" />
+		<property name="build.classes" value="${build.dir}/classes" />
+		<property name="build.lib" value="${build.dir}/lib" />
+		<property name="build.lib.src" value="${build.dir}/src" />
+		<property name="build.src" value="${build.dir}/src" />
+
+		<property name="stardust-engine-ws-cxf.jarfile" value="stardust-engine-ws-cxf.jar" />
+		<property name="stardust-engine-ws-cxf.jar" value="${build.lib}/${stardust-engine-ws-cxf.jarfile}" />
+		<property name="stardust-engine-ws-cxf.src-jarfile" value="stardust-engine-ws-cxf-sources.jar" />
+		<property name="stardust-engine-ws-cxf.src-jar" value="${build.lib.src}/${stardust-engine-ws-cxf.src-jarfile}" />
+	</target>
+
+	<target name="initBuildDirectories" depends="initBuild">
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${build.tests.classes}" />
+		<mkdir dir="${build.lib}" />
+		<mkdir dir="${build.lib.src}" />
+		<mkdir dir="${build.src}" />
 	</target>
 
 	<target name="initClasspath" depends="init, initClasspath.ivy" />
@@ -59,6 +84,7 @@
 
 		<init-ivy-classpath />
 
+
 		<path id="stardust-engine-ws-cxf.classpath">
 			<path refid="compile.deps" />
 		</path>
@@ -67,29 +93,55 @@
 			<path refid="test" />
 		</path>
 	</target>
+	
+   <target name="prepareSources" depends="initBuild">
+      <echo message="Preparing sources for a safe but slow build." />
+      <copy todir="${build.src}" overwrite="true">
+         <fileset dir="${project.src}">
+            <include name="**/*.java" />
+         </fileset>
+      </copy>
+      <replace dir="${build.src}" token="import org.eclipse.xsd" 
+         value="import com.infinity.bpm.thirdparty.xsd" summary="true"/>
+      <replace dir="${build.src}" token="import org.eclipse.emf" 
+         value="import com.infinity.bpm.thirdparty.emf" summary="true"/>
+      <replace dir="${build.src}" token="import org.eclipse.stardust.engine.core.struct.emfxsd" 
+         value="import org.eclipse.stardust.engine.core.struct.emfxsd.runtime" summary="true"/>
+      <replace dir="${build.src}" token="import org.eclipse.stardust.engine.extensions.dms.data.emfxsd" 
+         value="import org.eclipse.stardust.engine.extensions.dms.data.emfxsd.runtime" summary="true"/>
+   </target>
 
-	<target name="compile" depends="initClasspath" description="Compiles the project's Java classes">
+	<target name="compile" depends="initBuildDirectories, initClasspath, prepareSources" description="Compiles the project's Java classes">
+		<ipp:javac-java6 srcdir="${build.src}" destdir="${build.classes}">
+			<include name="**/*.java" />
+			<classpath refid="stardust-engine-ws-cxf.classpath" />
+		</ipp:javac-java6>
 	</target>
 
-	<target name="jar" depends="compile, wsStub">
+	<target name="jar" depends="compile">
+		<ipp:jar jarfile="${stardust-engine-ws-cxf.jar}" implementationTitle="Eclipse Process Manager - WS CXF Integration">
+			<fileset dir="${build.classes}" id="fileset.stardust-engine-ws-cxf.jar">
+				<include name="**/*.*" />
+			</fileset>
+			<fileset dir="${project.resources}" includes="**/*.*" />       
+		</ipp:jar>
 	</target>
 
 	<target name="jar.src" depends="compile">
+		<delete file="${stardust-engine-ws-cxf.src-jar}" />
+		<ipp:jar jarfile="${stardust-engine-ws-cxf.src-jar}" implementationTitle="Eclipse Process Manager - WS CXF Integration Sources">
+			<fileset dir="${build.src}">
+				<include name="**/*.*" />
+			</fileset>
+		</ipp:jar>
 	</target>
-
-   <target name="wsStub">
-      <copy todir="${global.build.dir}/webapps/ws-api/WEB-INF" overwrite="true">
-         <fileset dir="${project.resources}/META-INF/">
-         	<include name="jax-rs-cxf-context.xml" />
-         </fileset>
-      </copy>
-   </target>
-
 
 	<target name="build" depends="jar, jar.src, build.ivy" />
 
 	<target name="build.ivy" if="dependencies.mode.ivy" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
-		<!--ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided, stardust-engine-ws-cxf-runtime" publishIvy="true" /-->
+		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided, stardust-engine-ws-cxf-runtime" publishIvy="true" />
+		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
+		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib.src}" conf="stardust-engine-ws-cxf-sources" publishIvy="false" publishPom="false" />
 
 		<ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="jax-rs-cxf-module" />
 

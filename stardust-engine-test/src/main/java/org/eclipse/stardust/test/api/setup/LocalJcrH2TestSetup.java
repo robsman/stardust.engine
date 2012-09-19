@@ -170,11 +170,12 @@ public class LocalJcrH2TestSetup extends ExternalResource
       
       LOG.info("---> Tearing down the test environment ...");
 
-      RtEnvHome.cleanUpRuntimeAndModels(sf.getAdministrationService());
       sf.close();
       sf = null;
       
       SPRING_APP_CTX.close();
+      /* no need to drop the schema as the database content */
+      /* is gone anyway as soon as the DBMS is stopped      */
       DBMS.stop();
       
       LOG.info("<--- ... teardown of test environment done.");

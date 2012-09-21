@@ -51,6 +51,7 @@ import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
+import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
 import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
@@ -1225,6 +1226,30 @@ public class TransientProcessInstanceTest
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that aborting of a transient process instance works correctly, i.e. the process instance will
+    * be persisted.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessAbort() throws Exception
+   {
+      enableTransientProcessesSupport();
+
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ABORT_PROCESS, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -1422,6 +1447,23 @@ public class TransientProcessInstanceTest
       {
          final JtaTransactionManager txManager = SpringUtils.getApplicationContext().getBean(JTA_TX_MANAGER_SPRING_BEAN_ID, JtaTransactionManager.class);
          txManager.getUserTransaction().setRollbackOnly();
+      }
+   }
+   
+   /**
+    * <p>
+    * This is the application used in the test model that aborts the process instance.
+    * </p>
+    * 
+    * @author Nicolas.Werlein
+    * @version $Revision$
+    */
+   public static final class AbortingApp
+   {
+      public void abort(final long piOid)
+      {
+         new AdministrationServiceImpl().abortProcessInstance(piOid);
+         throw new RuntimeException("Aborting process instance ... (expected exception)");
       }
    }
    

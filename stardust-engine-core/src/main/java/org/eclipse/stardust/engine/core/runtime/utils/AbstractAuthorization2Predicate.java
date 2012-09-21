@@ -22,9 +22,8 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -34,6 +33,7 @@ import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 
 /**
  *
@@ -103,13 +103,13 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    {
       String evaluationProfile = RuntimeInstanceQueryEvaluator.getEvaluationProfile(query);
       boolean isLegacyEvaluation = QUERY_EVALUATION_PROFILE_LEGACY
-            .equals(evaluationProfile);
+            .equals(evaluationProfile);      
       if (!isLegacyEvaluation)
       {
          Set<Pair<String, String>> distinctData = CollectionUtils.newHashSet();
          this.orderedPrefetchData = CollectionUtils.newArrayList();
 
-         FilterAndTerm queryFilter = query.getFilter();
+      	FilterAndTerm queryFilter = query.getFilter();      
          Collection<IOrganization> restricted = context.getRestricted();
          for (IOrganization organization : restricted)
          {
@@ -152,6 +152,8 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                   + evaluationProfile + "' does not support it.");
          }
       }
+      
+      
       return isLegacyEvaluation;
    }
 
@@ -402,4 +404,70 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
 
       return newTerm;
    }
+   
+   public void getExcludeUserFilter(FilterAndTerm queryFilter)
+   {
+      Set<Pair<String, String>> distinctData = CollectionUtils.newHashSet();      
+      List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
+      for(IModel model : activeModels)
+      {
+         String modelId = model.getId();         
+         for(IProcessDefinition process : model.getProcessDefinitions())
+         {
+            for(IActivity activity : process.getActivities())
+            {
+               if (activity.hasEventHandlers(
+                     PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
+               {      
+                  for (int k = 0; k < activity.getEventHandlers().size(); ++k)
+                  {
+                     IEventHandler handler = (IEventHandler) activity.getEventHandlers().get(k);
+                     if (((IEventConditionType) handler.getType()).getImplementation() != EventType.Pull)
+                     {
+                        for (Iterator l = handler.getAllEventActions(); l.hasNext();)
+                        {
+                           IEventAction action = (IEventAction) l.next();
+                           PluggableType type = action.getType();
+                           String instanceName = type.getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
+                           String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
+                           Class classFromClassName = Reflect.getClassFromClassName(excludeUserAction, false);
+                           if(classFromClassName != null)
+                           {
+                              excludeUserAction = classFromClassName.getName();
+                           }
+                           
+                           if(instanceName.equals(excludeUserAction))
+                           {
+                              Map<String, Object> attributes = action.getAllAttributes();
+                              String dataId = (String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
+                              String dataPath = (String) attributes
+                                    .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
+                              
+                              Pair<String, String> dataKey = new Pair("{" + modelId + "}" + dataId, dataPath);
+                              if ( !distinctData.contains(dataKey))
+                              {
+                                 distinctData.add(dataKey);
+                                 orderedPrefetchData.add(dataKey);
+
+                                 DataPrefetchHint filter = new DataPrefetchHint("{" + modelId + "}" + dataId, 
+                                       StringUtils.isEmpty(dataPath) ? null : dataPath);
+                                 if (trace.isDebugEnabled())
+                                 {
+                                    trace.debug("Adding prefetch filter: " + filter);
+                                 }
+                                 
+                                 if (!queryFilter.getParts().contains(filter))
+                                 {
+                                    queryFilter.and(filter);
+                                 }
+                              }                              
+                           }
+                        }
+                     }
+                  }
+               }               
+            }
+         }
+      }
+   }   
 }

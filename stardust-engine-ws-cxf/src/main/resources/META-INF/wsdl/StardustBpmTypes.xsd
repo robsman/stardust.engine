@@ -1,0 +1,2488 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://eclipse.org/stardust/ws/v2012a/api"
+	elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:xmime="http://www.w3.org/2005/05/xmlmime" xmlns:tns="http://eclipse.org/stardust/ws/v2012a/api">
+
+	<simpleType name="Char">
+		<restriction base="string">
+			<length value="1" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="Attributes">
+		<sequence>
+			<element name="attribute" type="tns:Attribute" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Attribute">
+		<annotation>
+			<documentation>
+			Contains custom attributes as name value pairs with additional type information.
+			Type information for primitive types is an abbreviated name. e.g. string, long, float, int, boolean, ect.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="name" type="string" />
+			<element name="type" type="string" />
+			<element name="value" type="string" />
+		</sequence>
+	</complexType>
+
+   <complexType name="Item">
+      <sequence>
+         <element name="key" type="anyType"/>
+         <element name="value" type="anyType"/>
+      </sequence>
+   </complexType>
+
+   <complexType name="Map">
+      <sequence>
+         <element name="item" type="tns:Item" maxOccurs="unbounded" minOccurs="0" />
+      </sequence>
+   </complexType>
+
+	<complexType name="StringList">
+		<sequence>
+			<element name="value" minOccurs="0" maxOccurs="unbounded" type="string" />
+		</sequence>
+	</complexType>
+
+	<!--
+		****************************************** SAMSA
+	-->
+
+	<complexType name="DepartmentInfo">
+	    <annotation>
+	        <documentation>
+			Contains only important core information used to identify a department.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="oid" type="long" />
+			<element name="id" type="string" />
+			<element name="name" type="string" />
+			<element name="runtimeOrganizationOid" type="long" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Department">
+	    <annotation>
+	        <documentation>
+ 			The Department represents a snapshot of the department state.
+ 			It contains information about the parent Department and the linked organization.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:DepartmentInfo">
+				<sequence>
+					<element name="description" type="string" />
+					<element name="parentDepartment" type="tns:Department"
+						minOccurs="0" />
+					<element name="organization" type="tns:Organization" />
+					<!--
+						<element name="scopedParticipant" type="tns:ModelParticipantInfo"
+						/>
+					-->
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="Departments">
+		<sequence>
+			<element name="department" type="tns:Department" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ParticipantInfoBase">
+		<sequence>
+		</sequence>
+	</complexType>
+
+	<complexType name="ParticipantInfo">
+	    <annotation>
+	        <documentation>
+			Contains only important core information used to identify a participant.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ParticipantInfoBase">
+				<sequence>
+					<element name="id" type="string" />
+					<element name="name" type="string" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="DefaultParticipant">
+	    <annotation>
+	        <documentation>
+			Used as a place holder when needing to specify the default participant.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ParticipantInfoBase">
+				<sequence>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="DynamicParticipantInfo">
+	    <annotation>
+	        <documentation>
+			Contains only important core information of a dynamic participant that is needed to identify a DynamicParticipant.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ParticipantInfo">
+				<sequence>
+					<element name="oid" type="long" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ModelParticipantInfo">
+	    <annotation>
+	        <documentation>
+			Contains only important core information of a model participant that is needed to identify a ModelParticipant.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ParticipantInfo">
+				<sequence>
+					<element name="runtimeElementOid" type="long" />
+					<element name="departmentScoped" type="boolean" />
+					<element name="definesDepartmentScope" type="boolean" />
+					<element name="department" type="tns:DepartmentInfo"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="UserInfo">
+	    <annotation>
+	        <documentation>
+			Contains only important core information needed to identify a user.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:DynamicParticipantInfo">
+				<sequence>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="UserGroupInfo">
+	    <annotation>
+	        <documentation>
+			Contains only important core information needed to identify a user group.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:DynamicParticipantInfo">
+				<sequence>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="OrganizationInfo">
+		<complexContent>
+	    <annotation>
+	        <documentation>
+			Contains only important core information needed to identify a organization.
+	        </documentation>
+	    </annotation>
+			<extension base="tns:ModelParticipantInfo">
+				<sequence>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="RoleInfo">
+	    <annotation>
+	        <documentation>
+			Contains only important core information needed to identify a role.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelParticipantInfo">
+				<sequence>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ConditionalPerformerInfo">
+	    <annotation>
+	        <documentation>
+			Contains only important core information needed to identify a conditional performer.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelParticipantInfo">
+				<sequence>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+
+	<!--
+		****************************************** /SAMSA
+	-->
+
+	<complexType name="User">
+	    <annotation>
+	        <documentation>
+            The User represents a snapshot of the user state.
+            It contains general user information, as well as information regarding the
+            permissions the user currently has.
+ 			The User can be modified and used to update the user's information including grants and userGroups.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<!-- optional for modify user -->
+			<element name="oid" type="long" minOccurs="0" />
+
+			<element name="accountId" type="string" />
+
+			<element name="firstName" type="string" minOccurs="0" />
+			<element name="lastName" type="string" minOccurs="0" />
+			<!-- optional for modify user -->
+			<element name="password" type="string" minOccurs="0" />
+
+			<element name="previousLoginTime" type="dateTime" minOccurs="0" />
+			<element name="eMail" type="string" minOccurs="0" />
+
+			<element name="validFrom" type="dateTime" minOccurs="0" />
+			<element name="validTo" type="dateTime" minOccurs="0" />
+
+			<element name="description" type="string" minOccurs="0" />
+			<!-- optional for modify user -->
+			<element name="detailsLevel" type="int" minOccurs="0" />
+
+			<element name="userRealm" type="tns:UserRealm" minOccurs="0" />
+
+			<element name="userGroups" type="tns:UserGroups" minOccurs="0" />
+
+			<element name="grants" type="tns:Grants" minOccurs="0" />
+
+			<element name="attributes" type="tns:Attributes" minOccurs="0" />
+
+            <element name="passwordExpired" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Grants">
+		<sequence>
+			<element name="grant" minOccurs="0" maxOccurs="unbounded">
+				<complexType>
+			    <annotation>
+			       <documentation>
+			       The 'grant' represents a permission granted to a user to perform as a specific participant (role or organization) of a model.
+			       </documentation>
+			    </annotation>
+					<sequence>
+						<element name="id" type="string" />
+						<element name="name" type="string" minOccurs="0" />
+						<element name="modelOid" type="int" minOccurs="0" />
+						<element name="elementOid" type="int" minOccurs="0" />
+						<element name="department" type="tns:Department"
+							minOccurs="0" />
+						<element name="organization" type="boolean" minOccurs="0" />
+						<element name="superGrants" type="tns:Grants" minOccurs="0" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="UserGroups">
+		<sequence>
+			<element name="userGroup" type="tns:UserGroup" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="UserGroup">
+	    <annotation>
+	       <documentation>
+	        The UserGroup represents a snapshot of the UserGroup state.
+	        It contains general information of the UserGroup.
+ 			The UserGroup can be modified and used to update the UserGroup's information.
+	       </documentation>
+	    </annotation>
+		<sequence>
+			<element name="oid" type="long" />
+			<element name="id" type="string" />
+			<element name="name" type="string" minOccurs="0" />
+			<element name="validFrom" type="dateTime" minOccurs="0" />
+			<element name="validTo" type="dateTime" minOccurs="0" />
+			<element name="description" type="string" minOccurs="0" />
+
+			<element name="detailsLevel" type="int" minOccurs="0" />
+
+			<element name="attributes" type="tns:Attributes" minOccurs="0" />
+			<!--          <element name="modelOid" type="long" />-->
+			<!--   	  <element name="properties" type="" />-->
+		</sequence>
+	</complexType>
+
+	<complexType name="UserRealm">
+		<annotation>
+			<documentation>
+			Provides a client view on a user realm.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="oid" type="long" />
+			<element name="description" type="string" minOccurs="0" />
+			<element name="id" type="string" />
+			<element name="name" type="string" />
+			<element name="partitionOid" type="long" />
+			<element name="partitionId" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Participants">
+		<sequence>
+			<element name="roles" type="tns:Roles" minOccurs="0" />
+			<element name="organizations" type="tns:Organizations"
+				minOccurs="0" />
+			<!--      	<element name="users" type="tns:Users" minOccurs="0" />-->
+		</sequence>
+	</complexType>
+
+	<complexType name="Participant">
+	    <annotation>
+	       <documentation>
+	       The Participant contains a role, organization or user.
+	       </documentation>
+	    </annotation>
+		<sequence>
+			<element name="role" type="tns:Role" minOccurs="0" />
+			<!-- or choice -->
+			<element name="organization" type="tns:Organization"
+				minOccurs="0" />
+			<!-- or -->
+			<element name="user" type="tns:User" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Roles">
+		<sequence>
+			<element name="role" type="tns:Role" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Role">
+	    <annotation>
+	       <documentation>
+	       A client view of a workflow role.
+		   A role represents the context in which the user participates in the execution of a process or activity.
+	       </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelParticipant">
+				<sequence>
+					<element name="teams" type="tns:Organizations" minOccurs="0" />
+					<element name="clientOrganizations" type="tns:Organizations"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="Organizations">
+		<sequence>
+			<element name="organization" type="tns:Organization"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Organization">
+	    <annotation>
+	       <documentation>
+	       A client view of a workflow organizational unit.
+           An organization is a logical grouping of workflow participants.
+	       </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelParticipant">
+				<sequence>
+					<element name="teamLeadRole" type="tns:Role" minOccurs="0" />
+					<element name="allSubRoles" type="tns:Roles" minOccurs="0" />
+					<element name="allSubOrganizations" type="tns:Organizations"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ModelParticipant">
+	    <annotation>
+	       <documentation>
+	 	   A client side view of a workflow participant defined in a workflow model.
+           A participant is a workflow element which performs manual or interactive activities.
+	       </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="departmentScoped" type="boolean" />
+					<element name="definesDepartmentScope" type="boolean" />
+					<element name="department" type="tns:DepartmentInfo"
+						minOccurs="0" />
+					<element name="runtimeElementOid" type="long" />
+					<element name="allSuperOrganizations" type="tns:Organizations"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="Model">
+	    <annotation>
+	       <documentation>
+	 	   A client side view of a workflow model.
+		   Contains information about the model as well as sub elements such as processes, roles, organisations etc.
+	       </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelDescription">
+				<sequence>
+					<!-- from Model -->
+					<element name="alive" type="boolean" minOccurs="0" />
+					<element name="roles" type="tns:Roles" minOccurs="0" />
+					<element name="organizations" type="tns:Organizations"
+						minOccurs="0" />
+					<element name="globalVariables">
+						<complexType>
+							<sequence>
+								<element name="globalVariable" type="tns:VariableDefinition"
+									minOccurs="0" maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
+
+					<element name="processes">
+						<complexType>
+							<sequence>
+								<element name="process" type="tns:ProcessDefinition"
+									minOccurs="0" maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
+					<element name="typeDeclarations" type="tns:TypeDeclarations"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="TypeDeclarations">
+		<sequence>
+			<element name="typeDeclaration" type="tns:TypeDeclaration"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="TypeDeclaration">
+	    <annotation>
+	        <documentation>
+	        A client side view of a type declaration.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="xpdlType" type="tns:XpdlType" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="XpdlType">
+	    <annotation>
+	        <documentation>
+	        XPDL specific type declaration definition object.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="externalReference" type="tns:ExternalReference"
+				minOccurs="0" />
+			<element name="schemaType" type="tns:SchemaType" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ExternalReference">
+	    <annotation>
+	        <documentation>
+			Type declaration containing embedded schema.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="namespace" type="string" />
+			<element name="location" type="string" />
+			<element name="xref" type="string" />
+			<element name="xml" type="tns:XmlValue" />
+		</sequence>
+	</complexType>
+
+	<complexType name="SchemaType">
+		<annotation>
+	        <documentation>
+			Type declaration containing embedded schema.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="xml" type="tns:XmlValue" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ModelDescription">
+		<annotation>
+	        <documentation>
+            Provides deployment information for a workflow model.
+			</documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<!-- from DeployedModelDescription -->
+					<element name="active" type="boolean" />
+					<element name="validFrom" type="dateTime" />
+					<element name="validTo" type="dateTime" />
+					<element name="deploymentComment" type="string" />
+					<element name="version" type="string" />
+					<element name="revision" type="int" />
+					<element name="deploymentTime" type="dateTime" />
+					<element name="predecessor" type="int" />
+					<element name="disabled" type="boolean" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ModelDescriptions">
+		<sequence>
+			<element name="modelDescription" type="tns:ModelDescription"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="DeployedModelDescription">
+		<annotation>
+	        <documentation>
+            The DeployedModelDescription class provides deployment information for a workflow model.
+			</documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<!-- from DeployedModelDescription -->
+					<element name="consumerModels" type="tns:OidList" />
+					<element name="deploymentComment" type="string" />
+					<element name="deploymentTime" type="dateTime" />
+					<element name="implementationProcesses" type="tns:ImplementationProcessesMap" />
+					<element name="providersModel" type="tns:OidList" />
+					<element name="revision" type="int" />
+					<element name="validFrom" type="dateTime" />
+					<element name="version" type="string" />
+					<element name="active" type="boolean" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ImplementationProcessesMap">
+		<sequence>
+			<element name="implementationProcessMapEntry" type="tns:ImplementationProcessesMapEntry"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ImplementationProcessesMapEntry">
+		<sequence>
+			<element name="name" type="string"/>
+			<element name="implementationDescriptionList" type="tns:ImplementationDescription"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ImplementationDescription">
+		<annotation>
+			<documentation>
+			The ImplementationDescription provides information concerning a specific implementation of a Process Interface.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="implementationModelOid" type="long" />
+			<element name="implementationProcessId" type="string" />
+			<element name="interfaceModelOid" type="long" />
+			<element name="processInterfaceId" type="string" />
+			<element name="active" type="boolean" />
+			<element name="primaryImplementation" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Models">
+		<annotation>
+			<documentation>
+			Result of an DeployedModelQuery execution. Retrieved items are instances of DeployedModelDescription.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="deployedModelDescription" type="tns:DeployedModelDescription" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ModelElement">
+		<annotation>
+	        <documentation>
+            Abstract element containing base data for all model elements
+			</documentation>
+	    </annotation>
+		<sequence>
+			<!-- from ModelElement -->
+			<element name="modelOid" type="long" />
+			<element name="id" type="string" minOccurs="0" />
+			<element name="name" type="string" minOccurs="0" />
+			<element name="description" type="string" minOccurs="0" />
+			<element name="partitionId" type="string" minOccurs="0" />
+			<element name="partitionOid" type="short" />
+			<element name="attributes" type="tns:Attributes" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="VariableDefinition">
+		<annotation>
+		    <documentation>
+	    	A client side view of a data definition.
+	    	</documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="type" type="QName" />
+					<element name="typeId" type="string" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ProcessDefinitions">
+		<sequence>
+			<element name="processDefinition" type="tns:ProcessDefinition"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessDefinition">
+		<annotation>
+		    <documentation>
+		    The client view of a workflow process.
+ 			A process definition normally comprises a number of discrete activity steps,
+			with associated computer and/or human operations and rules governing the progression
+			of the process through the various activity steps.
+		    </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="rtOid" type="long" />
+
+					<element name="dataPaths" type="tns:DataPaths" nillable="true" />
+
+					<element name="triggers" type="tns:Triggers" minOccurs="0" />
+
+					<element name="activities">
+						<complexType>
+							<sequence>
+								<element name="activity" type="tns:ActivityDefinition"
+									minOccurs="0" maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
+
+					<element name="eventHandlers" type="tns:EventHandlerDefinitions"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="Triggers">
+		<sequence>
+			<element name="trigger" type="tns:Trigger" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Trigger">
+		<annotation>
+		    <documentation>
+		    A client side view of a process trigger.
+ 			A trigger is responsible for starting the process instance corresponding to the
+ 			process definition containing the trigger.
+		    </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="runtimeElementOid" type="long" />
+					<element name="type" type="string" minOccurs="0" />
+					<element name="synchronous" type="boolean" />
+					<element name="accessPoints" type="tns:AccessPoints" minOccurs="0" />
+					<element name="parameterMappings" type="tns:ParameterMappings" minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ParameterMappings">
+		<sequence>
+			<element name="ParameterMapping" type="tns:ParameterMapping" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ParameterMapping">
+		<annotation>
+		    <documentation>
+		    The ParameterMapping represents a mapping between a trigger access point and a workflow data.
+		    </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="dataId" type="string" minOccurs="0" />
+					<element name="parameterPath" type="string" minOccurs="0" />
+					<element name="parameter" type="tns:AccessPoint" minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ActivityDefinition">
+		<annotation>
+		    <documentation>
+		    The client view of a workflow activity.
+ 			An activity is a piece of work, which will be processed by a combination of resource
+ 			(specified by participant assignment) and/or computer applications (specified by
+ 			application assignment), forming one logical step in the realization of the process.
+		    </documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="rtOid" type="long" />
+
+					<element name="abortable" type="boolean" />
+					<element name="interactive" type="boolean" />
+					<element name="implementationType" type="string" />
+					<element name="defaultPerformer" type="tns:Participant"
+						nillable="true" />
+
+					<element name="application" type="tns:Application"
+						nillable="true" />
+
+					<element name="interactionContexts">
+						<complexType>
+							<sequence>
+								<element name="interactionContext" type="tns:InteractionContext"
+									minOccurs="0" maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
+
+					<element name="eventHandlers" type="tns:EventHandlerDefinitions"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="Application">
+	    <annotation>
+	        <documentation>
+	        The client view of a workflow application.
+ 			Applications are software programs that interact with the Eclipse Process
+ 			Manager handling the processing required to support a particular activity in
+ 			whole or in part. Multiple activities may use the same application but only one
+ 			application may be executed within an activity.
+	        </documentation>
+	    </annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="accessPoints" type="tns:AccessPoints"
+						minOccurs="0" />
+					<element name="typeAttributes" type="tns:Attributes"
+						minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="AccessPoints">
+		<sequence>
+			<element name="accessPoint" type="tns:AccessPoint" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="AccessPoint">
+		<annotation>
+		    <documentation>
+		    An AccessPoint is a modelling element where an Application provides access to it's
+            data. It is used as the endpoint for a data mapping. An AccessPoint can expose a java
+            type or a custom defined type to be the end point of a data mapping. Every application
+            keeps a map of all access points identified by the ID attribute.
+		    </documentation>
+		</annotation>
+		<sequence>
+			<element name="id" type="string" minOccurs="0" />
+			<element name="name" type="string" minOccurs="0" />
+			<element name="direction" type="tns:Direction" minOccurs="0" />
+			<element name="accessPathEvaluatorClass" type="string"
+				minOccurs="0" />
+			<element name="attributes" type="tns:Attributes" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="InteractionContext">
+		<annotation>
+			<documentation>
+			The InteractionContext represents the execution context of an activity.
+ 			An activity may have multiple execution contexts, depending on the implementation type.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="inDataFlows" type="tns:DataFlows" />
+					<element name="outDataFlows" type="tns:DataFlows" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="DataFlow">
+		<annotation>
+			<documentation>
+			The DataFlow defines the mapping between an activity and a data.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="type" type="QName" />
+					<element name="direction" type="tns:Direction" />
+
+					<element name="activityId" type="string" />
+					<element name="processDefinitionId" type="string" />
+
+					<element name="context" type="string" />
+					<element name="dataId" type="string" />
+					<element name="dataPath" type="string" minOccurs="0" />
+
+					<element name="applicationAccessPointId" type="string" />
+					<element name="applicationPath" type="string" minOccurs="0" />
+
+					<element name="mappedJavaType" type="string" />
+
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="DataFlows">
+		<sequence>
+			<element name="dataFlow" type="tns:DataFlow" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="DataPath">
+		<annotation>
+			<documentation>
+			The DataPath provides read or write access to the workflow data.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ModelElement">
+				<sequence>
+					<element name="type" type="QName" />
+					<element name="direction" type="tns:Direction" />
+					<element name="descriptor" type="boolean" />
+					<element name="accessPath" type="string" minOccurs="0"/>
+					<element name="dataId" type="string" minOccurs="0"/>
+
+					<element name="mappedJavaType" type="string" />
+					<element name="keyDescriptor" type="boolean" />
+
+					<!--<element name="processDefinitionId" type="string" />-->
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="DataPaths">
+		<sequence>
+			<element name="dataPath" type="tns:DataPath" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="EventHandlerDefinition">
+	  <annotation>
+			<documentation>
+			A client side view of a workflow event handler.
+			</documentation>
+	  </annotation>
+      <complexContent>
+   		<extension base="tns:ModelElement">
+            <sequence>
+      			<element name="rtOid" type="long" />
+
+      			<element name="type" type="tns:EventHandlerTypeDefinition"
+      				minOccurs="0" />
+
+      			<element name="eventActions" type="tns:EventActionDefinitions"
+      				minOccurs="0" />
+      			<element name="bindActions" type="tns:BindActionDefinitions"
+      				minOccurs="0" />
+      			<element name="unbindActions" type="tns:UnbindActionDefinitions"
+      				minOccurs="0" />
+
+      		</sequence>
+         </extension>
+      </complexContent>
+	</complexType>
+
+	<complexType name="EventHandlerDefinitions">
+		<sequence>
+			<element name="eventHandler" type="tns:EventHandlerDefinition"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="EventHandlerTypeDefinition">
+		<sequence>
+			<element name="rtOid" type="long" />
+			<element name="modelOid" type="long" />
+
+			<element name="id" type="string" />
+			<element name="name" type="string" />
+
+			<element name="attributes" type="tns:Attributes" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="EventActionDefinition">
+	  <annotation>
+	      <documentation>
+	      A client side view of a workflow event action. Each modeled event action contains a
+          specific set of attributes, depending on the type of the event action.
+	      </documentation>
+	  </annotation>
+      <complexContent>
+   		<extension base="tns:ModelElement">
+            <sequence>
+      			<element name="rtOid" type="long" />
+
+      			<element name="type" type="tns:EventActionTypeDefinition"
+      				minOccurs="0" />
+
+      		</sequence>
+         </extension>
+      </complexContent>
+	</complexType>
+
+	<complexType name="EventActionDefinitions">
+	    <annotation>
+	        <documentation>
+	        Contains all the event actions registered on the event handler.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="eventAction" type="tns:EventActionDefinition"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="BindActionDefinitions">
+	    <annotation>
+	        <documentation>
+	        Contains all the bind actions registered on the event handler.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="bindAction" type="tns:EventActionDefinition"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="UnbindActionDefinitions">
+	    <annotation>
+	        <documentation>
+	        Contains all the unbind actions registered on the event handler.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="unbindAction" type="tns:EventActionDefinition"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="EventActionTypeDefinition">
+		<sequence>
+			<element name="rtOid" type="long" />
+			<element name="modelOid" type="long" />
+
+			<element name="id" type="string" />
+			<element name="name" type="string" />
+
+			<element name="attributes" type="tns:Attributes" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="HistoricalState">
+		<annotation>
+		    <documentation>
+		    The HistoricalState represents a snapshot of the historic states of an
+            activity instance.
+            </documentation>
+		</annotation>
+		<sequence>
+			<element name="activityOid" type="long" />
+			<element name="activityDefinitionId" type="string" />
+			<element name="processInstanceOid" type="long" />
+			<element name="processDefinitionId" type="string" />
+			<element name="activityState" type="tns:ActivityInstanceState" />
+			<element name="from" type="dateTime" />
+			<element name="until" type="dateTime" />
+			<element name="participant" type="tns:ParticipantInfo" />
+			<element name="onBehalfOfParticipant" type="tns:ParticipantInfo" />
+			<element name="user" type="tns:User" />
+		</sequence>
+	</complexType>
+
+	<complexType name="HistoricalStates">
+		<sequence>
+			<element name="historicalState" type="tns:HistoricalState"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="HistoricalEvent">
+		<annotation>
+		    <documentation>
+		    The HistoricalEvent represents a single event which was recorded during lifetime of a process or activity instance.
+		    Mainly those events consist of state change, delegation, note or exception events.
+            </documentation>
+		</annotation>
+		<sequence>
+			<element name="eventType" type="tns:HistoricalEventType" />
+			<element name="eventTime" type="dateTime" />
+			<element name="user" type="tns:User" />
+			<element name="eventDetails" type="tns:HistoricalEventDetails" />
+		</sequence>
+	</complexType>
+
+	<complexType name="HistoricalEvents">
+		<sequence>
+			<element name="historicalEvent" type="tns:HistoricalEvent"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="HistoricalEventType">
+		<restriction base="string">
+			<enumeration value="StateChange" />
+			<enumeration value="Delegation" />
+			<enumeration value="Note" />
+			<enumeration value="Exception" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="HistoricalEventDetails">
+		<annotation>
+			<documentation>
+			Contains details about the historical event.
+			Different event types use different elements.
+			Delegation uses: fromPerformer, toPerformer.
+			StateChange uses: fromState, toState, toPerformer.
+			Other event types only use text.
+			</documentation>
+		</annotation>
+		<sequence>
+			<!-- if type is Note or Exception -->
+			<element name="text" type="string" minOccurs="0" />
+			<!-- if type is Delegation -->
+			<element name="fromPerformer" type="tns:Participant"
+				minOccurs="0" />
+			<element name="toPerformer" type="tns:Participant" minOccurs="0" />
+			<!-- if type is State Change -->
+			<element name="fromState" type="tns:ActivityInstanceState"
+				minOccurs="0" />
+			<element name="toState" type="tns:ActivityInstanceState"
+				minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ActivityInstance">
+		<annotation>
+			<documentation>
+ 			The ActivityInstance represents a snapshot of the execution state of an activity instance.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="oid" nillable="true" type="long" />
+			<element name="modelElementId" type="string" />
+			<element name="modelElementOid" type="int" />
+			<element name="modelOid" type="int" />
+
+			<element name="activityId" type="string" />
+			<element name="activityName" type="string" />
+
+			<element name="processOid" type="long" />
+			<!--         <element name="processPriority" type="int" />-->
+
+			<element name="processDefinitionId" type="string" />
+			<element name="processDefinitionName" type="string" />
+
+			<element name="conditionalPerformerId" type="string"
+				minOccurs="0" />
+			<element name="conditionalPerformerName" type="string"
+				minOccurs="0" />
+
+			<element name="startTime" type="dateTime" />
+			<element name="lastModificationTime" type="dateTime" />
+
+			<element name="currentPerformer" type="tns:ParticipantInfo"
+				minOccurs="0" />
+			<element name="performedBy" type="tns:UserInfo" minOccurs="0" />
+			<element name="userPerformer" type="tns:User" minOccurs="0" />
+
+			<element name="assignedToModelParticipant" type="boolean" />
+			<element name="assignedToUser" type="boolean" />
+			<element name="assignedToUserGroup" type="boolean" />
+			<element name="scopeProcessInstanceNoteAvailable" type="boolean" />
+
+			<element name="state" type="tns:ActivityInstanceState" />
+
+			<element name="permissionStates" type="tns:PermissionStates"
+				minOccurs="0" />
+
+			<element name="instanceProperties" minOccurs="0"
+				type="tns:InstanceProperties" />
+
+			<element name="descriptorDefinitions" type="tns:DataPaths" minOccurs="0" />
+
+			<!--element name="detailsLevel" nillable="true" type="int" /-->
+
+			<element name="historicalStates" type="tns:HistoricalStates"
+				minOccurs="0" />
+			<element name="historicalEvents" type="tns:HistoricalEvents"
+				minOccurs="0" />
+
+			<!--
+				<element name="attributes" type="tns:Attributes" minOccurs="0" />
+			-->
+		</sequence>
+	</complexType>
+
+	<complexType name="InstanceProperties">
+	    <annotation>
+	        <documentation>
+	        Contains descriptors.
+	        Descriptors can be included or excluded using the descriptor policy.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="instanceProperty" type="tns:Parameter"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessInstance">
+	    <annotation>
+	        <documentation>
+	        The ProcessInstance represents a snapshot of the execution state of an process instance.
+	        </documentation>
+	    </annotation>
+		<sequence>
+			<element name="oid" type="long" />
+			<element name="modelElementId" type="string" />
+			<element name="modelElementOid" type="int" />
+			<element name="modelOid" type="int" />
+
+			<element name="processDefinitionId" type="string" />
+			<element name="processDefinitionName" type="string" />
+			<!--     <element name="processDefinitionOid" type="long" />-->
+
+			<element name="rootProcessOid" type="long" />
+			<element name="scopeProcessOid" type="long" />
+
+			<element name="priority" type="int" />
+
+			<element name="startTime" type="dateTime" />
+			<element name="terminationTime" type="dateTime" minOccurs="0" />
+
+			<element name="startingUser" type="tns:User" minOccurs="0" />
+			<!--
+				<element name="startingActivityInstance" type="tns:ActivityInstance"
+				minOccurs="0" />
+			-->
+
+			<element name="state" type="tns:ProcessInstanceState" />
+
+			<element name="detailsLevel" type="tns:ProcessInstanceDetailsLevel" />
+			<element name="detailsOptions" type="tns:ProcessInstanceDetailsOptions" />
+
+			<element name="instanceProperties" minOccurs="0"
+				type="tns:InstanceProperties" />
+
+			<element name="historicalEvents" type="tns:HistoricalEvents"
+				minOccurs="0" />
+
+			<element name="caseProcessInstance" type="boolean" />
+
+			<element name="linkedProcessInstances" type="tns:ProcessInstanceLinks" minOccurs="0" />
+
+			<!--
+				<element name="attributes" type="tns:Attributes" minOccurs="0" />
+			-->
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessInstanceDetailsOptions">
+      <sequence>
+         <element name="processInstanceDetailsOption" type="tns:ProcessInstanceDetailsOption" minOccurs="0" maxOccurs="unbounded" />
+      </sequence>
+   </complexType>
+
+   <simpleType name="ProcessInstanceDetailsOption">
+      <restriction base="string">
+         <enumeration value="withHierarchyInfo"/>
+         <enumeration value="withLinkInfo"/>
+         <enumeration value="withNotes"/>
+      </restriction>
+   </simpleType>
+
+	<complexType name="EventBindingBase">
+		<sequence>
+			<element name="handlerId" type="string" />
+			<element name="bound" type="boolean" />
+
+			<element name="timeout" type="dateTime" minOccurs="0" />
+
+			<element name="bindingAttributes" type="tns:Attributes"
+				minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessEventBinding">
+		<complexContent>
+			<extension base="tns:EventBindingBase">
+				<sequence>
+					<!--
+						<element name="processInstance" type="tns:ProcessInstance"
+						minOccurs="0" />
+					-->
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ActivityEventBinding">
+		<complexContent>
+			<extension base="tns:EventBindingBase">
+				<sequence>
+					<!--
+						<element name="activityInstance" type="tns:ActivityInstance"
+						minOccurs="0" />
+					-->
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="note" type="tns:Note" />
+
+	<complexType name="Note">
+		<annotation>
+			<documentation>
+			Represents a note including creation time and creating user.
+			Either 'activityOid' or 'processOid' are set depending on if the note
+		    is in ProcessContext or ActivityContext
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="text" type="string" />
+			<element name="timestamp" type="dateTime" />
+			<element name="user" type="tns:User" minOccurs="0" />
+			<!--
+				Either activityOid or processOid are set, depending on if the note
+				is in ProcessContext or ActivityContext
+			-->
+			<element name="activityOid" type="long" minOccurs="0" />
+			<element name="processOid" type="long" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="LogEntry">
+		<annotation>
+			<documentation>
+ 			The LogEntry provides information about the various messages the engine is
+ 			logging into AuditTrail.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="oid" type="long" />
+			<element name="timeStamp" type="dateTime" />
+			<element name="subject" type="string" />
+			<element name="activityOid" type="long" />
+			<element name="processOid" type="long" />
+			<element name="type" type="tns:LogType" />
+			<element name="code" type="tns:LogCode" />
+			<element name="userOid" type="long" />
+			<element name="user" type="tns:User" />
+			<element name="context" type="string" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="LogType">
+		<restriction base="string">
+			<enumeration value="Unknown" />
+			<enumeration value="Debug" />
+			<enumeration value="Info" />
+			<enumeration value="Warn" />
+			<enumeration value="Error" />
+			<enumeration value="Fatal" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="LogCode">
+		<restriction base="string">
+			<enumeration value="Unknown" />
+			<enumeration value="ProcessWarehouse" />
+			<enumeration value="Security" />
+			<enumeration value="Engine" />
+			<enumeration value="Recovery" />
+			<enumeration value="Daemon" />
+			<enumeration value="Event" />
+			<enumeration value="WfXML" />
+			<enumeration value="External" />
+			<enumeration value="Administration" />
+		</restriction>
+	</simpleType>
+
+
+	<complexType name="QueryResult">
+		<annotation>
+			<documentation>
+			 Result of a Query execution.
+			 Holds retrieved items and a flag if more items would be available beyond that subset.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="totalCount" type="long" minOccurs="0" />
+			<element name="hasMore" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="UserQueryResult">
+		<annotation>
+			<documentation>
+			Result of an UserQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="users" minOccurs="0">
+						<complexType>
+							<sequence>
+								<element name="user" type="tns:User" minOccurs="0"
+									maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="UserGroupQueryResult">
+		<annotation>
+			<documentation>
+			Result of an UserGroupQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="userGroups" type="tns:UserGroups" minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ProcessInstanceQueryResult">
+		<annotation>
+			<documentation>
+			Result of an ProcessQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="processInstances" minOccurs="0"
+						type="tns:ProcessInstances" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ProcessInstances">
+		<sequence>
+			<element name="processInstance" type="tns:ProcessInstance"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessDefinitionQueryResult">
+		<annotation>
+			<documentation>
+			Result of an ProcessDefinitionQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="processDefinitions" minOccurs="0"
+						type="tns:ProcessDefinitions" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="DocumentQueryResult">
+		<annotation>
+			<documentation>
+			Result of an DocumentQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="documents" minOccurs="0"
+						type="tns:Documents" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ActivityQueryResult">
+		<annotation>
+			<documentation>
+			Result of an ActivityQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="activityInstances" minOccurs="0"
+						type="tns:ActivityInstances" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="ActivityInstances">
+		<sequence>
+			<element name="activityInstance" type="tns:ActivityInstance"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ModelsQueryResult">
+		<annotation>
+			<documentation>
+			Result of an DeployedModelQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="deployedModels" minOccurs="0"
+						type="tns:Models" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="LogEntryQueryResult">
+		<annotation>
+			<documentation>
+			Result of an LogEntryQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="logEntries" minOccurs="0" type="tns:LogEntries" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="LogEntries">
+		<sequence>
+			<element name="logEntry" type="tns:LogEntry" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="VariableDefinitionQueryResult">
+		<annotation>
+			<documentation>
+			Result of an VariableDefinitionQuery execution.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:QueryResult">
+				<sequence>
+					<element name="variableDefinitions" minOccurs="0" type="tns:VariableDefinitions" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="VariableDefinitions">
+		<sequence>
+			<element name="variableDefinition" type="tns:VariableDefinition" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Worklist">
+		<annotation>
+			<documentation>
+			Result of an WorklistQuery execution.
+			Containing 'userWorklist' and 'sharedWorklists' according to the user and participants contribution specified in the query.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="userWorklist">
+				<complexType>
+					<complexContent>
+						<extension base="tns:QueryResult">
+							<sequence>
+								<element name="owner" type="tns:UserInfo" />
+								<element name="workItems" type="tns:ActivityInstances" />
+							</sequence>
+						</extension>
+					</complexContent>
+				</complexType>
+			</element>
+
+			<element name="sharedWorklists">
+				<complexType>
+					<sequence>
+						<element name="sharedWorklist" minOccurs="0" maxOccurs="unbounded">
+							<complexType>
+								<complexContent>
+									<extension base="tns:QueryResult">
+										<sequence>
+											<element name="owner" type="tns:UserInfo" />
+											<element name="workItems" type="tns:ActivityInstances" />
+										</sequence>
+									</extension>
+								</complexContent>
+							</complexType>
+						</element>
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<!--  DMS -->
+
+	<complexType name='ResourceInfo'>
+		<annotation>
+			<documentation>
+			Holds base information of a resource.
+			The resource can either be a document or folder.
+			</documentation>
+		</annotation>
+		<sequence>
+
+			<element name="name" type="string" />
+			<element name="description" type="string" minOccurs="0" />
+			<element name="owner" type="string" minOccurs="0" />
+
+			<element name='dateCreated' type='dateTime' />
+			<element name='dateLastModified' type='dateTime' />
+
+			<element name="metaDataType" type="QName" minOccurs="0" />
+			<element name="metaData" type="tns:XmlValue" minOccurs="0" />
+
+		</sequence>
+	</complexType>
+
+	<complexType name='DocumentInfo'>
+		<annotation>
+			<documentation>
+			Holds basic information of a document.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ResourceInfo">
+				<sequence>
+					<element name='contentType' type='string' />
+					<element name="documentType" type="tns:DocumentType" minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<complexType name="DocumentType">
+		<annotation>
+		   <documentation>
+		   The document type describes the structure of the documents meta data. It consists of a documentTypeId and a schemaLocation used to retrieve the schema from the repository.
+		   </documentation>
+		</annotation>
+		<sequence>
+		   <element name="documentTypeId" type="string" />
+		   <element name="schemaLocation" type="string" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="DocumentTypes">
+		<annotation>
+		   <documentation>
+		   List of document type.
+		   </documentation>
+		</annotation>
+		<sequence>
+		   <element name="documentType" type="tns:DocumentType" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+    <complexType name="DocumentTypeResults">
+       <sequence>
+          <element name="documentTypeResult" minOccurs="0" maxOccurs="unbounded">
+             <complexType>
+                <sequence>
+                   <element name="modelId" type="string" />
+                   <element name="modelOid" type="long" />
+                   <element name="documentTypes" type="tns:DocumentTypes" nillable="true" />
+                </sequence>
+             </complexType>
+          </element>
+       </sequence>
+    </complexType>
+
+	<complexType name="DocumentVersionInfo">
+		<annotation>
+			<documentation>
+			Holds basic information of a document version.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="label" type="string" minOccurs="0" />
+			<element name="comment" type="string" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="DocumentQuery">
+		<annotation>
+			<documentation>
+			The DocumentQuery is a simple query to find documents using either a name pattern or a XPath query.
+			Specifying a metaDataType tries to retrieve and include metaData of that type for the queries results.
+			</documentation>
+		</annotation>
+		<sequence>
+			<!--Choice: if both elements are used only namePattern is evaluated -->
+			<element name="namePattern" type="string" minOccurs="0" />
+			<element name="xpathQuery" type="string" minOccurs="0" />
+			<!-- Type to receive metaData for -->
+			<element name="metaDataType" type="QName" nillable="true" />
+		</sequence>
+	</complexType>
+
+	<element name="document" type="tns:Document" />
+
+	<complexType name='Document'>
+		<annotation>
+			<documentation>
+			Represents the state of a Document.
+			This does not include document content.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:DocumentInfo">
+				<sequence>
+
+					<element name='id' type='string' />
+					<element name='path' type='string' />
+
+					<element name='size' type='long' />
+
+					<element name='revisionId' type='string' minOccurs="0" />
+					<element name='revisionName' type='string' minOccurs="0" />
+					<element name='revisionComment' type='string' minOccurs="0" />
+					<element name="versionLabels" minOccurs="0">
+						<complexType>
+							<sequence>
+								<element name="versionLabel" type="string" minOccurs="0"
+									maxOccurs="unbounded" />
+							</sequence>
+						</complexType>
+					</element>
+
+					<element name='encoding' type='string' minOccurs="0" />
+
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="documents" type="tns:Documents" />
+
+	<complexType name="Documents">
+		<sequence>
+			<element name="document" type="tns:Document" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="InputDocument">
+		<annotation>
+			<documentation>
+			The InputDocument is used to specify a non existing document including content and targetFolder.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="documentInfo" type="tns:DocumentInfo"
+				nillable="true" />
+			<element name="content" type="base64Binary" minOccurs="0"
+				xmime:expectedContentTypes="*/*" />
+			<element name="versionInfo" type="tns:DocumentVersionInfo"
+				minOccurs="0" />
+			<element name="targetFolder" type="string" minOccurs="0" />
+			<element name="globalVariableId" type="string" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="InputDocuments">
+		<sequence>
+			<element name="inputDocument" type="tns:InputDocument"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="FolderQuery">
+		<annotation>
+			<documentation>
+			The FolderQuery is a simple query to find folders using either a name pattern or a XPath query.
+			Specifying a metaDataType tries to retrieve and include metaData of that type for the queries results.
+			The default level of detail for folders is including direct members.
+			</documentation>
+		</annotation>
+		<sequence>
+			<!--Choice: if both elements are used only namePattern is evaluated -->
+			<element name="namePattern" type="string" minOccurs="0" />
+			<element name="xpathQuery" type="string" minOccurs="0" />
+			<!-- Type to receive metaData for -->
+			<element name="folderLevelOfDetail" type="tns:FolderLevelOfDetail"
+				nillable="true" />
+			<element name="documentMetaDataType" type="QName" nillable="true" />
+			<element name="folderMetaDataType" type="QName" nillable="true" />
+		</sequence>
+	</complexType>
+
+	<complexType name='FolderInfo'>
+		<annotation>
+			<documentation>
+			Holds basic information for a document.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:ResourceInfo">
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="folder" type="tns:Folder" />
+
+	<complexType name="Folder">
+		<annotation>
+			<documentation>
+			Represents the state of a folder.
+			</documentation>
+		</annotation>
+		<complexContent>
+			<extension base="tns:FolderInfo">
+				<sequence>
+
+					<element name="id" type="string" />
+					<element name="path" type="string" />
+
+					<element name="levelOfDetail" type="tns:FolderLevelOfDetail" />
+
+					<element name="documentCount" type="int" minOccurs="0" />
+					<element name="documents" type="tns:Documents" minOccurs="0" />
+
+					<element name="folderCount" type="int" minOccurs="0" />
+					<element name="folders" type="tns:Folders" minOccurs="0" />
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="folders" type="tns:Folders" />
+
+	<complexType name='Folders'>
+		<sequence>
+			<element name="folder" type="tns:Folder" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+   <simpleType name="Privilege">
+      <restriction base="string">
+         <enumeration value="Read" />
+         <enumeration value="Modify" />
+         <enumeration value="Create" />
+         <enumeration value="Delete" />
+         <enumeration value="DeleteChildren" />
+         <enumeration value="ReadAcl" />
+         <enumeration value="ModifyAcl" />
+         <enumeration value="All" />
+      </restriction>
+   </simpleType>
+
+	<complexType name="Privileges">
+		<sequence>
+			<element name="privilege" type="tns:Privilege" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="AccessControlEntry">
+		<annotation>
+			<documentation>
+			An access control entry consists of a principal that is associated with privileges.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="principal" type="string" minOccurs="0" />
+			<element name="privileges" type="tns:Privileges" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="AccessControlEntries">
+		<sequence>
+			<element name="accessControlEntry" type="tns:AccessControlEntry"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="AccessControlPolicy">
+		<annotation>
+			<documentation>
+			An access control policy consists of access control entries.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="accessControlEntries" type="tns:AccessControlEntries"
+				minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="AccessControlPolicies">
+		<sequence>
+			<element name="accessControlPolicy" type="tns:AccessControlPolicy"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="PolicyScope">
+		<restriction base="string">
+			<enumeration value="All" />
+			<enumeration value="Applicable" />
+			<enumeration value="Effective" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="RepositoryMigrationReport">
+		<annotation>
+			<documentation>
+			Reports information about the last migration batch and the migration jobs in general.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="totalCount" type="long" />
+			<element name="resourcesDone" type="long" />
+			<element name="targetRepositoryVersion" type="int" />
+			<element name="currentRepositoryVersion" type="int" />
+			<element name="currentMigrationJob" type="tns:RepositoryMigrationJobInfo" />
+	    </sequence>
+	</complexType>
+
+	<complexType name="RepositoryMigrationJobInfo">
+		<sequence>
+			<element name="name" type="string" />
+			<element name="description" type="string" minOccurs="0" />
+			<element name="fromVersion" type="int" />
+			<element name="toVersion" type="int"  />
+		</sequence>
+	 </complexType>
+
+	<complexType name="PasswordRules">
+		<annotation>
+			<documentation>
+			Represents rules that apply to passwords.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="passwordTracking" type="int" />
+			<element name="notificationMails" type="int" />
+
+			<element name="expirationTime" type="int" />
+			<element name="disableUserTime" type="int" />
+
+			<element name="differentCharacters" type="int" />
+
+			<element name="minimalPasswordLength" type="int" />
+			<element name="letters" type="int" />
+			<element name="digits" type="int" />
+			<element name="mixedCase" type="int" />
+			<element name="punctuation" type="int" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Parameters">
+		<sequence>
+			<element name="parameter" type="tns:Parameter" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Parameter">
+		<annotation>
+			<documentation>
+			The Parameter is a representation for different types of data values.
+			Single primitive data values are using the 'primitive' element.
+			For more complex data the xml element is used.
+			</documentation>
+		</annotation>
+		<sequence>
+
+			<element name="name" type="string" />
+			<element name="namespace" type="string" minOccurs="0" />
+			<element name="type" type="QName" minOccurs="0" />
+
+			<!--
+				this is used like a choice, there will exist at most one of the
+				following elements
+			-->
+			<element name="primitive" type="string" minOccurs="0" />
+			<element name="xml" type="tns:XmlValue" minOccurs="0" />
+		</sequence>
+
+	</complexType>
+
+	<complexType name="XmlValue">
+		<annotation>
+			<documentation>
+			Contains a XML representation of a value.
+			</documentation>
+		</annotation>
+		<sequence>
+			<any processContents="skip" namespace="##other" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Properties">
+		<sequence>
+			<element name="attribute" type="tns:Parameter" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="ProcessInstanceDetailsLevel">
+		<restriction base="string">
+			<enumeration value="Core" />
+			<enumeration value="WithProperties" />
+			<enumeration value="WithResolvedProperties" />
+			<enumeration value="Full" />
+			<enumeration value="Default" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="DeploymentInfo">
+		<annotation>
+			<documentation>
+			The DeploymentInfo is used to receive information about a
+ 			deployment operation. Deployment operations are all operations which modify models in audit trail
+ 			or their attributes, i.e. deploy, owerwrite, modify or delete.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="errors" minOccurs="0">
+				<complexType>
+					<sequence>
+						<element name="error" type="tns:Inconsistency" minOccurs="0"
+							maxOccurs="unbounded" />
+					</sequence>
+				</complexType>
+			</element>
+			<element name="warnings" minOccurs="0">
+				<complexType>
+					<sequence>
+						<element name="warning" type="tns:Inconsistency"
+							minOccurs="0" maxOccurs="unbounded" />
+					</sequence>
+				</complexType>
+			</element>
+			<element name="modelOid" type="int" />
+			<element name="predecessorOID" type="int" />
+			<element name="validFrom" type="dateTime" />
+			<element name="validTo" type="dateTime" />
+			<element name="deploymentTime" type="dateTime" />
+			<element name="success" type="boolean" />
+			<element name="id" type="string" />
+			<element name="comment" type="string" minOccurs="0" />
+			<element name="revision" type="int" />
+			<element name="disabled" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Inconsistency">
+		<annotation>
+			<documentation>
+			The Inconsistency provides information about a model inconsistency.
+ 			Inconsistencies are of two types: errors and warnings. When an error inconsistency is
+ 			issued, the model is unable to work (models with errors cannot be deployed). A warning
+ 			inconsistency implies that the specific workflow operation may fail.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="message" type="string" minOccurs="0" />
+			<element name="sourceElementOid" type="int" />
+		</sequence>
+	</complexType>
+
+	<complexType name="PermissionStates">
+		<sequence>
+			<element name="permissionState" minOccurs="0" maxOccurs="unbounded">
+				<complexType>
+					<annotation>
+						<documentation>
+						A representation of the state of a permission.
+						</documentation>
+					</annotation>
+					<sequence>
+						<element name="permissionId" type="string" />
+						<element name="state" type="tns:PermissionState"
+							minOccurs="0" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<simpleType name="PermissionState">
+		<restriction base="string">
+			<enumeration value="Unknown" />
+			<enumeration value="Granted" />
+			<enumeration value="Denied" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="Permissions">
+		<sequence>
+			<element name="permission" minOccurs="0" maxOccurs="unbounded">
+				<complexType>
+					<annotation>
+						<documentation>
+						Represents a permission that is granted by using the declarative security aspect of the workflow engine.
+						</documentation>
+					</annotation>
+					<sequence>
+						<element name="permissionId" type="string" />
+						<element name="scopes" type="tns:PermissionScope"
+							minOccurs="0" maxOccurs="unbounded" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="PermissionScope">
+		<annotation>
+			<documentation>
+			The scope of a permission can be either model, process or activity.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="modelOid" type="long" minOccurs="0" />
+			<!-- or choice -->
+			<element name="id" type="string" minOccurs="0" />
+
+			<element name="scopeType" type="tns:PermissionScopeType" />
+
+			<element name="parentScope" type="tns:PermissionScope"
+				minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="PermissionScopeType">
+		<restriction base="string">
+			<enumeration value="Model" />
+			<enumeration value="Process" />
+			<enumeration value="Activity" />
+		</restriction>
+	</simpleType>
+
+	<complexType name="AuditTrailHealthReport">
+		<annotation>
+			<documentation>
+			Provides key indicators of audit trail health.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="numberOfProcessInstancesLackingCompletion"
+				type="long" />
+			<element name="numberOfProcessInstancesLackingAbortion" type="long" />
+			<element name="numberOfActivityInstancesLackingAbortion"
+				type="long" />
+			<element name="numberOfProcessInstancesHavingCrashedActivities"
+				type="long" />
+			<element name="numberOfProcessInstancesHavingCrashedThreads"
+				type="long" />
+			<element name="numberOfProcessInstancesHavingCrashedEventBindings"
+				type="long" />
+		</sequence>
+	</complexType>
+
+	<complexType name="DaemonParameter">
+		<sequence>
+			<element name="type" type="string" nillable="true" />
+			<element name="acknowledge" type="boolean" />
+		</sequence>
+	</complexType>
+
+	<complexType name="DaemonParameters">
+		<sequence>
+			<element name="daemonParameter" type="tns:DaemonParameter"
+				minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Daemons">
+		<sequence>
+			<element name="daemon" type="tns:Daemon" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Daemon">
+		<annotation>
+			<documentation>
+			The Daemon represents a snapshot of a workflow daemon.
+ 			The workflow engine contains two types of daemons: the event daemon and the trigger daemons.
+ 			Daemons can be started and stopped using the AdministrationService.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="type" type="string" />
+			<element name="startTime" type="dateTime" />
+			<element name="lastExecutionTime" type="dateTime" />
+			<element name="running" type="boolean" />
+			<element name="acknowledgementState" type="tns:AcknowledgementState"
+				minOccurs="0" />
+			<element name="daemonExecutionState" type="tns:DaemonExecutionState"
+				minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessSpawnInfos">
+	   <sequence>
+	      <element name="ProcessSpawnInfo" type="tns:ProcessSpawnInfo" minOccurs="0" maxOccurs="unbounded" />
+	   </sequence>
+	</complexType>
+
+	<complexType name="ProcessSpawnInfo">
+		<sequence>
+		   <element name="processId" type="string" />
+		   <element name="copyData" type="boolean" />
+		   <element name="parameters" type="tns:Parameters" />
+		</sequence>
+	</complexType>
+
+	<complexType name="OidList">
+	   <sequence>
+	      <element name="oid" type="long" minOccurs="0" maxOccurs="unbounded" />
+	   </sequence>
+	</complexType>
+
+	<complexType name="ProcessInstanceLinks">
+		<sequence>
+		   <element name="processInstanceLink" type="tns:ProcessInstanceLink" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessInstanceLink">
+		<sequence>
+		   <element name="sourceOid" type="long" />
+		   <element name="targetOid" type="long" />
+		   <element name="createTime" type="dateTime" />
+		   <element name="creatingUser" type="tns:User" />
+		   <element name="comment" type="string" />
+		   <element name="linkType" type="tns:ProcessInstanceLinkType" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ProcessInstanceLinkType">
+		<sequence>
+		   <element name="oid" type="long" />
+		   <element name="id" type="string" />
+		   <element name="description" type="string" />
+		</sequence>
+	</complexType>
+
+	<complexType name="Preferences">
+		<annotation>
+			<documentation>
+				none yet
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="moduleId" type="string" />
+			<element name="preferencesId" type="string" />
+			<element name="partitionId" type="string" minOccurs="0" />
+			<element name="realmId" type="string" minOccurs="0" />
+			<element name="userId" type="string" minOccurs="0" />
+			<element name="preferenceScope" type="tns:PreferenceScope" />
+			<element name="preferencesMap" type="tns:PreferencesMap" />
+		</sequence>
+	</complexType>
+
+	<complexType name="PreferencesMap">
+		<sequence>
+			<element name="preference" type="tns:PreferenceEntry" minOccurs="0"
+				maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="PreferenceEntry">
+		<annotation>
+			<documentation>
+				n.a.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="name" type="string" />
+			<element name="type" type="string" />
+			<element name="valueList" minOccurs="0" maxOccurs="unbounded">
+				<complexType>
+					<sequence>
+						<element name="value" type="string" />
+						<element name="type" type="string" />
+					</sequence>
+				</complexType>
+			</element>
+		</sequence>
+	</complexType>
+
+	<complexType name="PreferencesList">
+		<sequence>
+			<element name="preferenceList" minOccurs="0" maxOccurs="unbounded" type="tns:Preferences"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="ConfigurationVariable">
+		<annotation>
+			<documentation>
+				Stores the changeable value of configuration-variable and also exposes non-changeable
+				information like name, defaultValue, description
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="value" type="string"/>
+			<element name="name" type="string"/>
+			<element name="defaultValue" type="string"/>
+			<element name="description" type="string"/>
+			<element name="modelOid" type="int"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="ConfigurationVariables">
+		<annotation>
+			<documentation>
+				Holds a List of ConfigurationVariables belonging to a specific modelId
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="modelId" type="string" />
+			<element name="configurationVariable" minOccurs="0" maxOccurs="unbounded" type="tns:ConfigurationVariable"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="ConfigurationVariablesList">
+		<sequence>
+			<element name="configurationVariables" minOccurs="0" maxOccurs="unbounded" type="tns:ConfigurationVariables"/>
+		</sequence>
+	</complexType>
+
+	<complexType name="ModelReconfigurationInfo">
+		<annotation>
+			<documentation>
+				The ModelReconfigurationInfo class is used to receive information about a model reconfiguration operation.
+				Model reconfiguration operations are all operations which modifies the models in audit trail, their attributes or behavior,
+				e.g. model deployment, configuration variable modification.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="modelOid" type="int" />
+			<element name="id" type="string" />
+			<element name="errors" type="tns:Inconsistency" minOccurs="0" maxOccurs="unbounded" />
+			<element name="warnings" type="tns:Inconsistency" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="ModelReconfigurationInfoList">
+		<sequence>
+			<element name="ModelReconfigurationInfo" type="tns:ModelReconfigurationInfo" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="RuntimePermissions">
+		<annotation>
+			<documentation>
+				RuntimePermissions present permissions that are changeable at runtime. While other permissions are bound to
+				model elements in the process model RuntimePermissions can be set via the public API.
+			</documentation>
+		</annotation>
+		<sequence>
+			<element name="RuntimePermissionsMap" type="tns:RuntimePermissionsMap" />
+		</sequence>
+	</complexType>
+
+	<complexType name="RuntimePermissionsMap">
+		<sequence>
+			<element name="RuntimePermissionsEntry" type="tns:RuntimePermissionsEntry" minOccurs="0"	maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+
+	<complexType name="RuntimePermissionsEntry">
+		<sequence>
+			<element name="name" type="string" />
+			<element name="valueList" type="tns:StringList" />
+		</sequence>
+	</complexType>
+
+	<!--  Simple types -->
+
+	<simpleType name="PreferenceScope">
+		<restriction base="string">
+			<enumeration value="DEFAULT" />
+			<enumeration value="PARTITION" />
+			<enumeration value="REALM" />
+			<enumeration value="USER" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="AcknowledgementState">
+		<restriction base="string">
+			<enumeration value="OK" />
+			<enumeration value="Response Requested" />
+			<enumeration value="Failure" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="DaemonExecutionState">
+		<restriction base="string">
+			<enumeration value="OK" />
+			<enumeration value="Warning" />
+			<enumeration value="Fatal" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="ActivityInstanceState">
+		<restriction base="string">
+			<!-- based on class org.eclipse.stardust.engine.api.runtime.ActivityInstanceState -->
+			<enumeration value="Created" />
+			<enumeration value="Application" />
+			<enumeration value="Suspended" />
+			<enumeration value="Hibernated" />
+			<enumeration value="Interrupted" />
+			<enumeration value="Completed" />
+			<enumeration value="Aborting" />
+			<enumeration value="Aborted" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="ProcessInstanceState">
+		<restriction base="string">
+			<!-- based on class org.eclipse.stardust.engine.api.runtime.ProcessInstanceState -->
+			<enumeration value="Created" />
+			<enumeration value="Active" />
+			<enumeration value="Interrupted" />
+			<enumeration value="Completed" />
+			<enumeration value="Aborting" />
+			<enumeration value="Aborted" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="Direction">
+		<restriction base="string">
+			<enumeration value="In" />
+			<enumeration value="Out" />
+			<enumeration value="InOut" />
+		</restriction>
+	</simpleType>
+
+	<simpleType name="FolderLevelOfDetail">
+		<restriction base="string">
+			<enumeration value="NoMembers">
+			   <annotation>
+                  <documentation>No member of a folder will be selected.</documentation>
+               </annotation>
+            </enumeration>
+			<enumeration value="DirectMembers">
+			   <annotation>
+                  <documentation>Direct members of a folder will be selected.</documentation>
+               </annotation>
+            </enumeration>
+			<enumeration value="MembersOfMembers">
+			   <annotation>
+                  <documentation>All direct members and their members will be selected.</documentation>
+               </annotation>
+            </enumeration>
+		</restriction>
+	</simpleType>
+
+	<simpleType name="AbortScope">
+		<restriction base="string">
+			<enumeration value="RootHierarchy" />
+			<enumeration value="SubHierarchy" />
+		</restriction>
+	</simpleType>
+</schema>

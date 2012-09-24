@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011, 2012 SunGard CSA LLC
+ -->
+
+<application xmlns="http://wadl.dev.java.net/2009/02"
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+             xmlns:wat="http://eclipse.org/stardust/rest/v2012a/types">
+
+   <grammars>
+      <include href="{AbsolutePath}/WebAppTypes.xsd{QueryParameters}" />
+   </grammars>
+
+   <resources base="{BaseURL}">
+      <resource path="{ResourcePath}">
+         <doc title="ProcessService" />
+
+         <method name="POST" id="startProcess">
+            <request>
+               <param style="query" name="synchronously" type="xsd:boolean" default="false" />
+               <param style="query" name="stardust-bpm-partition" type="xsd:string" />
+               <param style="query" name="stardust-bpm-realm" type="xsd:string" />
+               <param style="query" name="stardust-bpm-domain" type="xsd:string" />
+               <param style="query" name="stardust-bpm-model" type="xsd:string" />
+               <representation mediaType="application/xml" element="wat:Args" />
+            </request>
+            <response status="200">
+               <doc title="The completed Process Instance's results." />
+               <representation mediaType="application/xml" element="wat:Results" />
+            </response>
+            <response status="202">
+               <doc title="Process was not completed synchronously. The path to retrieve the ProcessResults from." />
+               <representation mediaType="text/plain" element="wat:Link" />
+            </response>
+            <response status="400">
+               <doc title="The request could not be understood." />
+               <representation mediaType="text/plain" element="wat:ErrorMsg" />
+            </response>
+            <response status="401">
+               <doc title="Unauthorized." />
+               <representation mediaType="text/plain" element="wat:ErrorMsg" />
+            </response>
+            <response status="404">
+               <doc title="The requested resource could not be found." />
+               <representation mediaType="text/plain" element="wat:ErrorMsg" />
+            </response>
+         </method>
+
+         <method name="GET" id="getProcessResults">
+            <request>
+               <param style="query" name="piOID" type="xsd:long" default="-1" />
+               <param style="query" name="stardust-bpm-partition" type="xsd:string" />
+               <param style="query" name="stardust-bpm-realm" type="xsd:string" />
+               <param style="query" name="stardust-bpm-domain" type="xsd:string" />
+               <param style="query" name="stardust-bpm-model" type="xsd:string" />
+            </request>
+            <response status="200">
+               <doc title="The completed Process Instance's results." />
+               <representation mediaType="application/xml" element="wat:Results" />
+            </response>
+            <response status="400">
+               <doc title="The request could not be understood." />
+               <representation mediaType="text/plain" element="wat:ErrorMsg" />
+            </response>
+            <response status="401">
+               <doc title="Unauthorized." />
+               <representation mediaType="text/plain" element="wat:ErrorMsg" />
+            </response>
+            <response status="404">
+               <doc title="The requested resource could not be found." />
+               <representation mediaType="text/plain" element="wat:ErrorMsg" />
+            </response>
+            <response status="503">
+               <doc title="The Process Instance hasn't been completed yet." />
+               <representation mediaType="text/plain" element="wat:ErrorMsg" />
+            </response>
+         </method>
+
+      </resource>
+   </resources>
+
+</application>

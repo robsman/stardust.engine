@@ -1,0 +1,2370 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://eclipse.org/stardust/ws/v2012a/api"
+	elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+	xmlns:bat="http://eclipse.org/stardust/ws/v2012a/api" xmlns:baqt="http://eclipse.org/stardust/ws/v2012a/api/query"
+	xmlns:tns="http://eclipse.org/stardust/ws/v2012a/api">
+
+	<xsd:include schemaLocation="StardustBpmTypes.xsd" />
+	<!--xsd:import namespace="http://eclipse.org/stardust/ws/v2012a/api" schemaLocation="StardustBpmTypes.xsd"
+		/ -->
+	<xsd:import namespace="http://eclipse.org/stardust/ws/v2012a/api/query"
+		schemaLocation="StardustBpmQueryTypes.xsd" />
+
+	<element name="bpmFault" type="tns:BpmFault" />
+
+	<element name="startProcess">
+		<complexType>
+			<sequence>
+				<element name="processId" type="xsd:string" nillable="true" />
+				<element name="parameters" type="bat:Parameters" nillable="true" />
+				<element name="startSynchronously" type="xsd:boolean"
+					nillable="true" />
+				<element name="attachments" type="bat:InputDocuments"
+					minOccurs="0" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="startProcessResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findWorklist">
+		<complexType>
+			<sequence>
+				<element name="worklistQuery" type="baqt:WorklistQuery"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findWorklistResponse">
+		<complexType>
+			<sequence>
+				<element name="worklist" type="bat:Worklist" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="abortActivity">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="abortScope" type="bat:AbortScope" minOccurs="0"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="abortActivityResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="delegateActivity">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="participant" type="bat:ParticipantInfoBase"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="delegateActivityResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="hibernateActivity">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="hibernateActivityResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="activateActivity">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="activateActivityResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="activateNextActivity">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" minOccurs="0" />
+				<element name="worklistQuery" type="baqt:WorklistQuery"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="activateNextActivityResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="activateNextActivityForProcess">
+		<complexType>
+			<sequence>
+				<element name="processOid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="activateNextActivityForProcessResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getActivity">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getActivityResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getProcess">
+		<complexType>
+			<sequence>
+				<element name="processOid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+	<element name="getProcessResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getProcessProperties">
+		<complexType>
+			<sequence>
+				<element name="processInstanceOid" type="xsd:long" />
+				<element name="propertyIds" minOccurs="0" nillable="true">
+					<complexType>
+						<sequence>
+							<element name="propertyId" type="xsd:string" minOccurs="0"
+								maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getProcessPropertiesResponse">
+		<complexType>
+			<sequence>
+				<element name="processProperties" type="bat:InstanceProperties"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setProcessProperties">
+		<complexType>
+			<sequence>
+				<element name="processInstanceOid" type="xsd:long" />
+				<element name="processProperties" type="bat:InstanceProperties"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setProcessPropertiesResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getActivityInData">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="context" type="xsd:string" nillable="true" />
+				<element name="dataIds" minOccurs="0" nillable="true">
+					<complexType>
+						<sequence>
+							<element name="dataId" type="xsd:string" minOccurs="0"
+								maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getActivityInDataResponse">
+		<complexType>
+			<sequence>
+				<element name="inDataValues" type="bat:Parameters" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="activateActivityAndGetInData">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="context" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="activateActivityAndGetInDataResponse">
+		<complexType>
+			<sequence>
+				<element name="inDataValues" type="bat:Parameters" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="suspendActivity">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="participant" type="bat:ParticipantInfoBase"
+					nillable="true" />
+				<element name="context" type="string" nillable="true" />
+				<element name="outDataValues" type="bat:Parameters"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="suspendActivityResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="completeActivityAndActivateNext">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="context" type="string" nillable="true" />
+				<element name="outDataValues" type="bat:Parameters"
+					nillable="true" />
+				<!-- default is false -->
+				<element name="activate" type="xsd:boolean" nillable="true"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="completeActivityAndActivateNextResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstances" type="bat:ActivityInstances"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="completeActivity">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="context" type="string" nillable="true" />
+				<element name="outDataValues" type="bat:Parameters"
+					nillable="true" />
+				<!-- default is false -->
+				<element name="activate" type="xsd:boolean" nillable="true"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="completeActivityResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getActivityEventBinding">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="eventHandlerId" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getActivityEventBindingResponse">
+		<complexType>
+			<sequence>
+				<element name="eventBinding" type="bat:ActivityEventBinding"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createActivityEventBinding">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="bindingInfo" type="bat:ActivityEventBinding"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createActivityEventBindingResponse">
+		<complexType>
+			<sequence>
+				<element name="eventBinding" type="bat:ActivityEventBinding"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeActivityEventBinding">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="eventHandlerId" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeActivityEventBindingResponse">
+		<complexType>
+			<sequence>
+				<element name="eventBinding" type="bat:ActivityEventBinding"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getProcessEventBinding">
+		<complexType>
+			<sequence>
+				<element name="processOid" type="xsd:long" />
+				<element name="eventHandlerId" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getProcessEventBindingResponse">
+		<complexType>
+			<sequence>
+				<element name="eventBinding" type="bat:ProcessEventBinding"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createProcessEventBinding">
+		<complexType>
+			<sequence>
+				<element name="processOid" type="xsd:long" />
+				<element name="bindingInfo" type="bat:ProcessEventBinding"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createProcessEventBindingResponse">
+		<complexType>
+			<sequence>
+				<element name="eventBinding" type="bat:ProcessEventBinding"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeProcessEventBinding">
+		<complexType>
+			<sequence>
+				<element name="processOid" type="xsd:long" />
+				<element name="eventHandlerId" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeProcessEventBindingResponse">
+		<complexType>
+			<sequence>
+				<element name="eventBinding" type="bat:ProcessEventBinding"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getStartableProcessDefinitions">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getStartableProcessDefinitionsResponse">
+		<complexType>
+			<sequence>
+				<element name="processDefinitions" type="bat:ProcessDefinitions"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="spawnSubprocessInstances">
+		<complexType>
+			<sequence>
+				<element name="processInstanceOid" type="xsd:long" />
+				<element name="processSpawnInfos" type="bat:ProcessSpawnInfos" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="spawnSubprocessInstancesResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstances" type="bat:ProcessInstances"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="spawnPeerProcessInstance">
+		<complexType>
+			<sequence>
+				<element name="processInstanceOid" type="xsd:long" />
+				<element name="spawnProcessId" type="xsd:string" />
+				<element name="copyData" type="xsd:boolean" />
+				<element name="parameters" type="bat:Parameters" />
+				<element name="abortProcessInstance" type="xsd:boolean" />
+				<element name="comment" type="xsd:string" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="spawnPeerProcessInstanceResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createCase">
+		<complexType>
+			<sequence>
+				<element name="name" type="xsd:string" />
+				<element name="description" type="xsd:string" />
+				<element name="memberOids" type="bat:OidList" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createCaseResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="joinCase">
+		<complexType>
+			<sequence>
+				<element name="caseOid" type="xsd:long" />
+				<element name="memberOids" type="bat:OidList" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="joinCaseResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="leaveCase">
+		<complexType>
+			<sequence>
+				<element name="caseOid" type="xsd:long" />
+				<element name="memberOids" type="bat:OidList" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="leaveCaseResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="mergeCases">
+		<complexType>
+			<sequence>
+				<element name="targetCaseOid" type="xsd:long" />
+				<element name="sourceCaseOids" type="bat:OidList" />
+				<element name="comment" type="xsd:string" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="mergeCasesResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="delegateCase">
+		<complexType>
+			<sequence>
+				<element name="caseOid" type="xsd:long" />
+				<element name="participantInfo" type="bat:ParticipantInfo" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="delegateCaseResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="joinProcessInstance">
+		<complexType>
+			<sequence>
+				<element name="processInstanceOid" type="xsd:long" />
+				<element name="targetProcessInstanceOid" type="xsd:long" />
+				<element name="comment" type="xsd:string" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="joinProcessInstanceResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<!-- DocumentManagement -->
+
+	<element name="createDocument">
+		<complexType>
+			<sequence>
+				<element name="folderId" type="string" nillable="true" />
+				<element name="createMissingFolders" type="boolean" />
+				<element name="documentInfo" type="bat:DocumentInfo"
+					nillable="true" />
+				<element name="content" type="base64Binary" minOccurs="0"
+					nillable="true" xmime:expectedContentTypes="*/*" />
+				<element name="versionInfo" type="bat:DocumentVersionInfo"
+					minOccurs="0" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createDocumentResponse">
+		<complexType>
+			<sequence>
+				<element name="document" type="bat:Document" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createDocuments">
+		<complexType>
+			<sequence>
+				<element name="inputDocuments" type="bat:InputDocuments"
+					nillable="true" />
+				<element name="createMissingFolders" type="boolean"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createDocumentsResponse">
+		<complexType>
+			<sequence>
+				<element name="documents" type="bat:Documents" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocument">
+		<complexType>
+			<sequence>
+				<element name="documentId" type="string" nillable="true" />
+				<element name="metaDataType" type="QName" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentResponse">
+		<complexType>
+			<sequence>
+				<element name="document" type="bat:Document" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentVersions">
+		<complexType>
+			<sequence>
+				<element name="documentId" type="xsd:string" nillable="true" />
+				<element name="metaDataType" type="QName" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentVersionsResponse">
+		<complexType>
+			<sequence>
+				<element name="documents" type="bat:Documents" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocuments">
+		<complexType>
+			<sequence>
+				<element name="documentIds" nillable="true">
+					<complexType>
+						<sequence>
+							<element name="documentId" type="xsd:string" minOccurs="0"
+								maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+				<element name="metaDataType" type="QName" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentsResponse">
+		<complexType>
+			<sequence>
+				<element name="documents" type="bat:Documents" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findDocuments">
+		<complexType>
+			<sequence>
+				<element name="documentQuery" type="bat:DocumentQuery"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findDocumentsResponse">
+		<complexType>
+			<sequence>
+				<element name="documents" type="bat:Documents" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentContent">
+		<complexType>
+			<sequence>
+				<element name="documentId" type="string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentContentResponse">
+		<complexType>
+			<sequence>
+				<element name="content" type="base64Binary" nillable="true"
+					xmime:expectedContentTypes="*/*" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="requestDocumentContentDownload">
+		<complexType>
+			<sequence>
+				<element name="documentId" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="requestDocumentContentDownloadResponse">
+		<complexType>
+			<sequence>
+				<element name="downloadToken" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="requestDocumentContentUpload">
+		<complexType>
+			<sequence>
+				<element name="documentId" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="requestDocumentContentUploadResponse">
+		<complexType>
+			<sequence>
+				<element name="uploadToken" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="versionDocument">
+		<complexType>
+			<sequence>
+				<element name="documentId" type="xsd:string" nillable="true" />
+				<element name="versionComment" type="xsd:string" nillable="true" />
+				<element name="versionLabel" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="versionDocumentResponse">
+		<complexType>
+			<sequence>
+				<element name="document" type="bat:Document" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="updateDocument">
+		<complexType>
+			<sequence>
+				<element name="documentId" type="string" nillable="true" />
+				<element name="documentInfo" type="bat:DocumentInfo"
+					nillable="true" />
+				<element name="content" type="base64Binary" minOccurs="0"
+					nillable="true" xmime:expectedContentTypes="*/*" />
+				<element name="versionInfo" type="bat:DocumentVersionInfo"
+					minOccurs="0" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="updateDocumentResponse">
+		<complexType>
+			<sequence>
+				<element name="document" type="bat:Document" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeDocument">
+		<complexType>
+			<sequence>
+				<element name="documentId" type="string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeDocumentResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getFolder">
+		<complexType>
+			<sequence>
+				<element name="folderId" type="string" nillable="true" />
+				<element name="folderLevelOfDetail" type="bat:FolderLevelOfDetail"
+					nillable="true" />
+				<element name="documentMetaDataType" type="QName" nillable="true" />
+				<element name="folderMetaDataType" type="QName" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getFolderResponse">
+		<complexType>
+			<sequence>
+				<element name="folder" type="bat:Folder" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getFolders">
+		<complexType>
+			<sequence>
+				<element name="folderIds" nillable="true">
+					<complexType>
+						<sequence>
+							<element name="folderId" type="xsd:string" minOccurs="0"
+								maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+				<element name="folderLevelOfDetail" type="bat:FolderLevelOfDetail"
+					nillable="true" />
+				<element name="documentMetaDataType" type="QName" nillable="true" />
+				<element name="folderMetaDataType" type="QName" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getFoldersResponse">
+		<complexType>
+			<sequence>
+				<element name="folders" type="bat:Folders" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findFolders">
+		<complexType>
+			<sequence>
+				<element name="folderQuery" type="bat:FolderQuery" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findFoldersResponse">
+		<complexType>
+			<sequence>
+				<element name="folders" type="bat:Folders" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createFolder">
+		<complexType>
+			<sequence>
+				<element name="parentFolderId" type="xsd:string" nillable="true" />
+				<element name="folderInfo" type="bat:FolderInfo" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createFolderResponse">
+		<complexType>
+			<sequence>
+				<element name="folder" type="bat:Folder" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="updateFolder">
+		<complexType>
+			<sequence>
+				<element name="updateFolder" type="bat:Folder" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="updateFolderResponse">
+		<complexType>
+			<sequence>
+				<element name="folder" type="bat:Folder" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeFolder">
+		<complexType>
+			<sequence>
+				<element name="folderId" type="xsd:string" nillable="true" />
+				<element name="recursive" type="xsd:boolean" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeFolderResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPrivileges">
+		<complexType>
+			<sequence>
+				<element name="resourceId" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPrivilegesResponse">
+		<complexType>
+			<sequence>
+				<element name="privileges" type="bat:Privileges" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPolicies">
+		<complexType>
+			<sequence>
+				<element name="resourceId" type="xsd:string" nillable="true" />
+				<element name="policyScope" type="bat:PolicyScope" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPoliciesResponse">
+		<complexType>
+			<sequence>
+				<element name="accessControlPolicies" type="bat:AccessControlPolicies"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setPolicy">
+		<complexType>
+			<sequence>
+				<element name="resourceId" type="xsd:string" nillable="true" />
+				<element name="accessControlPolicy" type="bat:AccessControlPolicy"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setPolicyResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="migrateRepository">
+		<complexType>
+			<sequence>
+				<element name="batchSize" type="xsd:int" />
+				<element name="evaluateTotalCount" type="xsd:boolean" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="migrateRepositoryResponse">
+		<complexType>
+			<sequence>
+				<element name="repositoryMigrationReport" type="bat:RepositoryMigrationReport"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentTypes">
+		<complexType>
+			<sequence>
+				<element name="modelId" type="xsd:string" minOccurs="0" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentTypesResponse">
+		<complexType>
+			<sequence>
+				<element name="documentTypeResults" type="bat:DocumentTypeResults" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentTypeSchema">
+		<complexType>
+			<sequence>
+				<element name="schemaLocation" type="xsd:string" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDocumentTypeSchemaResponse">
+		<complexType>
+			<sequence>
+				<element name="schmema" type="bat:XmlValue" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<complexType name="BpmFault">
+		<sequence>
+			<element name="faultCode" type="tns:BpmFaultCode" />
+			<element name="faultId" type="xsd:string" minOccurs="0" />
+			<element name="faultDescription" type="xsd:string" minOccurs="0" />
+		</sequence>
+	</complexType>
+
+	<simpleType name="BpmFaultCode">
+		<xsd:restriction base="xsd:string">
+
+			<!--TODO remove unneeded codes -->
+			<xsd:enumeration value="UnknownError" />
+			<xsd:enumeration value="InvalidName" />
+			<xsd:enumeration value="ItemDoesNotExist" />
+			<xsd:enumeration value="ItemAlreadyExists" />
+			<xsd:enumeration value="NameAlreadyExists" />
+			<xsd:enumeration value="MissingConfiguration" />
+			<xsd:enumeration value="InvalidConfiguration" />
+			<xsd:enumeration value="CapacityExceeded" />
+
+			<!-- InternalException -->
+			<xsd:enumeration value="InternalException" />
+			<xsd:enumeration value="AssertionFailedException" />
+			<!-- PublicException -->
+			<xsd:enumeration value="PublicException" />
+			<xsd:enumeration value="AccessForbiddenException" />
+			<xsd:enumeration value="BindingException" />
+			<xsd:enumeration value="ConcurrencyException" />
+			<xsd:enumeration value="DeploymentException" />
+			<xsd:enumeration value="DocumentManagementServiceException" />
+			<xsd:enumeration value="ExpectedFailureException" />
+			<xsd:enumeration value="IllegalOperationException" />
+			<xsd:enumeration value="IllegalStateChangeException" />
+			<xsd:enumeration value="InvalidArgumentException" />
+			<xsd:enumeration value="InvalidEncodingException" />
+			<xsd:enumeration value="InvalidValueException" />
+			<xsd:enumeration value="LoginFailedException" />
+			<xsd:enumeration value="ModelParsingException" />
+			<xsd:enumeration value="ObjectNotFoundException" />
+			<xsd:enumeration value="ServiceException" />
+			<xsd:enumeration value="ServiceCommandException" />
+			<xsd:enumeration value="UnsupportedFilterException" />
+			<xsd:enumeration value="UserExistsException" />
+			<xsd:enumeration value="UserGroupExistsException" />
+			<xsd:enumeration value="UserRealmExistsException" />
+			<xsd:enumeration value="ValidationException" />
+			<xsd:enumeration value="WfxmlException" />
+			<!-- ResourceException -->
+			<xsd:enumeration value="ResourceException" />
+			<xsd:enumeration value="TransactionFreezedException" />
+			<xsd:enumeration value="UniqueConstraintViolatedException" />
+			<!-- others -->
+			<xsd:enumeration value="ServiceNotAvailableException" />
+			<xsd:enumeration value="UnrecoverableExecutionException" />
+
+		</xsd:restriction>
+	</simpleType>
+
+	<!-- QueryService -->
+	<element name="findAllDepartments">
+		<complexType>
+			<sequence>
+				<element name="parent" type="bat:DepartmentInfo" nillable="true" />
+				<element name="organization" type="bat:OrganizationInfo"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findAllDepartmentsResponse">
+		<complexType>
+			<sequence>
+				<element name="departments" type="bat:Departments" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findDepartment">
+		<complexType>
+			<sequence>
+				<element name="parent" type="bat:DepartmentInfo" nillable="true" />
+				<element name="organization" type="bat:OrganizationInfo"
+					nillable="true" />
+				<element name="id" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findDepartmentResponse">
+		<complexType>
+			<sequence>
+				<element name="department" type="bat:Department" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<!-- new style -->
+
+	<element name="findProcesses">
+		<complexType>
+			<sequence>
+				<element name="query" type="baqt:ProcessQuery" minOccurs="0"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findProcessesResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstances" type="bat:ProcessInstanceQueryResult"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findProcessDefinitions">
+		<complexType>
+			<sequence>
+				<element name="query" type="baqt:ProcessDefinitionQuery"
+					minOccurs="0" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findProcessDefinitionsResponse">
+		<complexType>
+			<sequence>
+				<element name="processDefinitions" type="bat:ProcessDefinitionQueryResult"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllDocuments">
+		<complexType>
+			<sequence>
+				<element name="query" type="baqt:DocumentQuery" minOccurs="0"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllDocumentsResponse">
+		<complexType>
+			<sequence>
+				<element name="documents" type="bat:DocumentQueryResult"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findActivities">
+		<complexType>
+			<sequence>
+				<element name="query" type="baqt:ActivityQuery" minOccurs="0"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findActivitiesResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstances" type="bat:ActivityQueryResult"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findUsers">
+		<complexType>
+			<sequence>
+				<element name="userQuery" type="baqt:UserQuery" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findUsersResponse">
+		<complexType>
+			<sequence>
+				<element name="users" type="bat:UserQueryResult" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findUserGroups">
+		<complexType>
+			<sequence>
+				<element name="userGroupQuery" type="baqt:UserGroupQuery"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findUserGroupsResponse">
+		<complexType>
+			<sequence>
+				<element name="userGroups" type="bat:UserGroupQueryResult"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findLogEntries">
+		<complexType>
+			<sequence>
+				<element name="logEntryQuery" type="baqt:LogEntryQuery"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findLogEntriesResponse">
+		<complexType>
+			<sequence>
+				<element name="logEntries" type="bat:LogEntryQueryResult"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllModelDescriptions">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllModelDescriptionsResponse">
+		<complexType>
+			<sequence>
+				<element name="modelDescriptions" type="bat:ModelDescriptions"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllAliveModelDescriptions">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllAliveModelDescriptionsResponse">
+		<complexType>
+			<sequence>
+				<element name="modelDescriptions" type="bat:ModelDescriptions"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getModelDescription">
+		<complexType>
+			<sequence>
+				<element name="modelOid" type="long" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getModelDescriptionResponse">
+		<complexType>
+			<sequence>
+				<element name="modelDescription" type="bat:ModelDescription"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getModel">
+		<complexType>
+			<sequence>
+				<element name="modelOid" type="xsd:long" nillable="true"
+					minOccurs="0" />
+				<element name="computeAliveness" type="xsd:boolean"
+					nillable="true" minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getModelResponse">
+		<complexType>
+			<sequence>
+				<element name="model" type="bat:Model" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getModelAsXML">
+		<complexType>
+			<sequence>
+				<element name="modelOid" type="xsd:long" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getModelAsXMLResponse">
+		<complexType>
+			<sequence>
+				<element name="xml" type="bat:XmlValue" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getProcessDefinition">
+		<complexType>
+			<sequence>
+				<element name="processId" type="xsd:string" nillable="true" />
+				<element name="modelOid" type="xsd:long" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getProcessDefinitionResponse">
+		<complexType>
+			<sequence>
+				<element name="processDefinition" type="bat:ProcessDefinition"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllProcessDefinitions">
+		<complexType>
+			<sequence>
+				<element name="modelOid" type="xsd:long" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllProcessDefinitionsResponse">
+		<complexType>
+			<sequence>
+				<element name="processDefinitions" type="bat:ProcessDefinitions"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getParticipant">
+		<complexType>
+			<sequence>
+				<element name="participantId" type="xsd:string" nillable="true" />
+				<element name="modelOid" type="xsd:long" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getParticipantResponse">
+		<complexType>
+			<sequence>
+				<element name="participant" type="bat:Participant" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllParticipants">
+		<complexType>
+			<sequence>
+				<element name="modelOid" type="xsd:long" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAllParticipantsResponse">
+		<complexType>
+			<sequence>
+				<element name="participants" type="bat:Participants"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getSchemaDefinition">
+		<complexType>
+			<sequence>
+				<element name="type" type="xsd:QName" nillable="true" />
+				<element name="modelOid" type="xsd:long" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getSchemaDefinitionResponse">
+		<complexType>
+			<sequence>
+				<element name="schema" type="bat:XmlValue" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findVariableDefinitions">
+		<complexType>
+			<sequence>
+				<element name="variableDefinitionQuery" type="baqt:VariableDefinitionQuery"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findVariableDefinitionsResponse">
+		<complexType>
+			<sequence>
+				<element name="queryResult" type="bat:VariableDefinitionQueryResult"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findModels">
+		<complexType>
+			<sequence>
+				<element name="deployedModelQuery" type="baqt:DeployedModelQuery" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findModelsResponse">
+		<complexType>
+			<sequence>
+				<element name="queryResult" type="bat:ModelsQueryResult" nillable="true"/>
+			</sequence>
+		</complexType>
+	</element>
+
+	<!-- UserService -->
+
+	<element name="isInternalAuthentication">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="isInternalAuthenticationResponse">
+		<complexType>
+			<sequence>
+				<element name="internalAuthentication" type="xsd:boolean" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="isInternalAuthorization">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="isInternalAuthorizationResponse">
+		<complexType>
+			<sequence>
+				<element name="internalAuthorization" type="xsd:boolean" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getUser">
+		<complexType>
+			<sequence>
+				<element name="oid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getUserResponse">
+		<complexType>
+			<sequence>
+				<element name="modifiedUser" type="bat:User" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="modifyUser">
+		<complexType>
+			<sequence>
+				<element name="user" type="bat:User" nillable="true" />
+				<element name="generatePassword" type="xsd:boolean"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="modifyUserResponse">
+		<complexType>
+			<sequence>
+				<element name="modifiedUser" type="bat:User" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="resetPassword">
+		<complexType>
+			<sequence>
+				<element name="account" type="xsd:string" nillable="true" />
+				<element name="properties" type="bat:Map" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="resetPasswordResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createUser">
+		<complexType>
+			<sequence>
+				<element name="user" type="bat:User" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createUserResponse">
+		<complexType>
+			<sequence>
+				<element name="createdUser" type="bat:User" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="invalidateUser">
+		<complexType>
+			<sequence>
+				<element name="accountId" type="xsd:string" nillable="true" />
+				<!-- optional -->
+				<element name="realmId" type="xsd:string" minOccurs="0"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="invalidateUserResponse">
+		<complexType>
+			<sequence>
+				<element name="user" type="bat:User" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createUserGroup">
+		<complexType>
+			<sequence>
+				<element name="userGroup" type="bat:UserGroup" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createUserGroupResponse">
+		<complexType>
+			<sequence>
+				<element name="createdUserGroup" type="bat:UserGroup"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getUserGroup">
+		<complexType>
+			<sequence>
+				<element name="oid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getUserGroupResponse">
+		<complexType>
+			<sequence>
+				<element name="userGroup" type="bat:UserGroup" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="modifyUserGroup">
+		<complexType>
+			<sequence>
+				<element name="userGroup" type="bat:UserGroup" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="modifyUserGroupResponse">
+		<complexType>
+			<sequence>
+				<element name="modifiedUserGroup" type="bat:UserGroup"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="invalidateUserGroup">
+		<complexType>
+			<sequence>
+				<element name="userGroupOid" type="xsd:long" minOccurs="0" />
+				<!-- or -->
+				<element name="userGroupId" type="xsd:string" minOccurs="0"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="invalidateUserGroupResponse">
+		<complexType>
+			<sequence>
+				<element name="userGroup" type="bat:UserGroup" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createUserRealm">
+		<complexType>
+			<sequence>
+				<element name="id" type="xsd:string" nillable="true" />
+				<element name="name" type="xsd:string" nillable="true" />
+				<element name="description" type="xsd:string" minOccurs="0"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createUserRealmResponse">
+		<complexType>
+			<sequence>
+				<element name="userRealm" type="bat:UserRealm" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="dropUserRealm">
+		<complexType>
+			<sequence>
+				<element name="id" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="dropUserRealmResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getUserRealms">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getUserRealmsResponse">
+		<complexType>
+			<sequence>
+				<element name="userRealms" nillable="true">
+					<complexType>
+						<sequence>
+							<element name="userRealms" type="bat:UserRealm"
+								minOccurs="0" maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<!-- AdministrationService -->
+
+	<element name="getPasswordRules">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPasswordRulesResponse">
+		<complexType>
+			<sequence>
+				<element name="passwordRules" type="bat:PasswordRules"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setPasswordRules">
+		<complexType>
+			<sequence>
+				<element name="passwordRules" type="bat:PasswordRules"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setPasswordRulesResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createDepartment">
+		<complexType>
+			<sequence>
+				<element name="id" type="xsd:string" nillable="true" />
+				<element name="name" type="xsd:string" nillable="true" />
+				<element name="description" type="xsd:string" nillable="true"
+					minOccurs="0" />
+				<element name="parent" type="bat:DepartmentInfo" nillable="true" />
+				<element name="organization" type="bat:OrganizationInfo"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="createDepartmentResponse">
+		<complexType>
+			<sequence>
+				<element name="department" type="bat:Department" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDepartment">
+		<complexType>
+			<sequence>
+				<element name="oid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDepartmentResponse">
+		<complexType>
+			<sequence>
+				<element name="department" type="bat:Department" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="modifyDepartment">
+		<complexType>
+			<sequence>
+				<element name="oid" type="xsd:long" />
+				<element name="name" type="xsd:string" nillable="true" />
+				<element name="description" type="xsd:string" nillable="true"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="modifyDepartmentResponse">
+		<complexType>
+			<sequence>
+				<element name="department" type="bat:Department" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeDepartment">
+		<complexType>
+			<sequence>
+				<element name="oid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeDepartmentResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="deployModel">
+		<complexType>
+			<sequence>
+
+				<!-- optional block -->
+				<element name="predecessorOid" type="xsd:int" nillable="true"
+					minOccurs="0" />
+				<element name="validFrom" type="xsd:dateTime" nillable="true"
+					minOccurs="0" />
+				<element name="validTo" type="xsd:dateTime" nillable="true"
+					minOccurs="0" />
+				<element name="comment" type="xsd:string" nillable="true"
+					minOccurs="0" />
+				<element name="disabled" type="xsd:boolean" nillable="true"
+					minOccurs="0" />
+				<element name="ignoreWarnings" type="xsd:boolean" nillable="true"
+					minOccurs="0" />
+				<element name="configuration" type="xsd:string" nillable="true"
+					minOccurs="0" />
+
+				<!-- model as XML Element -->
+				<element name="xml" type="bat:XmlValue" nillable="true" />
+
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="deployModelResponse">
+		<complexType>
+			<sequence>
+				<element name="deploymentInfo" type="bat:DeploymentInfo"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="overwriteModel">
+		<complexType>
+			<sequence>
+				<element name="modelOid" type="xsd:int" />
+
+				<!-- optional block -->
+				<element name="validFrom" type="xsd:dateTime" nillable="true"
+					minOccurs="0" />
+				<element name="validTo" type="xsd:dateTime" nillable="true"
+					minOccurs="0" />
+				<element name="comment" type="xsd:string" nillable="true"
+					minOccurs="0" />
+				<element name="disabled" type="xsd:boolean" nillable="true"
+					minOccurs="0" />
+				<element name="ignoreWarnings" type="xsd:boolean" nillable="true"
+					minOccurs="0" />
+				<element name="configuration" type="xsd:string" nillable="true"
+					minOccurs="0" />
+
+				<!-- model as XML Element -->
+				<element name="xml" type="bat:XmlValue" nillable="true" />
+
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="overwriteModelResponse">
+		<complexType>
+			<sequence>
+				<element name="deploymentInfo" type="bat:DeploymentInfo"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="deleteModel">
+		<complexType>
+			<sequence>
+				<element name="modelOid" type="xsd:int" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="deleteModelResponse">
+		<complexType>
+			<sequence>
+				<element name="deploymentInfo" type="bat:DeploymentInfo"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<!-- element name="modifyModel"> <complexType> <sequence> <element name="modelOid"
+		type="xsd:int" /> <element name="predecessorOid" type="xsd:int" nillable="true"
+		/> <element name="validFrom" type="xsd:dateTime" nillable="true" /> <element
+		name="validTo" type="xsd:dateTime" nillable="true" /> <element name="comment"
+		type="xsd:string" nillable="true" /> <element name="disabled" type="xsd:boolean"
+		/> </sequence> </complexType> </element -->
+
+	<!-- element name="modifyModelResponse"> <complexType> <sequence> <element
+		name="deploymentInfo" type="bat:DeploymentInfo" nillable="true" /> </sequence>
+		</complexType> </element -->
+
+	<element name="deleteProcesses">
+		<complexType>
+			<sequence>
+				<element name="oids" nillable="true">
+					<complexType>
+						<sequence>
+							<element name="oid" type="xsd:long" minOccurs="0"
+								maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="deleteProcessesResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="cleanupRuntime">
+		<complexType>
+			<sequence>
+				<element name="keepUsers" type="xsd:boolean" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="cleanupRuntimeResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="cleanupRuntimeAndModels">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="cleanupRuntimeAndModelsResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setProcessInstancePriority">
+		<complexType>
+			<sequence>
+				<element name="oid" type="xsd:long" />
+				<element name="priority" type="xsd:int" />
+				<!-- default is false -->
+				<element name="propagateToSubProcesses" type="xsd:boolean"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setProcessInstancePriorityResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="recoverProcessInstances">
+		<complexType>
+			<sequence>
+				<element name="oids" nillable="true">
+					<complexType>
+						<sequence>
+							<element name="oid" type="xsd:long" minOccurs="0"
+								maxOccurs="unbounded" />
+						</sequence>
+					</complexType>
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="recoverProcessInstancesResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDaemonStatus">
+		<complexType>
+			<sequence>
+				<element name="daemonParameters" type="bat:DaemonParameters"
+					nillable="true" minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDaemonStatusResponse">
+		<complexType>
+			<sequence>
+				<element name="deamons" type="bat:Daemons" nillable="true"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="stopDaemon">
+		<complexType>
+			<sequence>
+				<element name="daemonParameters" type="bat:DaemonParameters"
+					nillable="true" minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="stopDaemonResponse">
+		<complexType>
+			<sequence>
+				<element name="deamons" type="bat:Daemons" nillable="true"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="startDaemon">
+		<complexType>
+			<sequence>
+				<element name="daemonParameters" type="bat:DaemonParameters"
+					nillable="true" minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="startDaemonResponse">
+		<complexType>
+			<sequence>
+				<element name="deamons" type="bat:Daemons" nillable="true"
+					minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAuditTrailHealthReport">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getAuditTrailHealthReportResponse">
+		<complexType>
+			<sequence>
+				<element name="auditTrailHealthReport" type="bat:AuditTrailHealthReport"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="recoverRuntimeEnvironment">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="recoverRuntimeEnvironmentResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="startProcessForModel">
+		<complexType>
+			<sequence>
+				<element name="modelOid" type="xsd:long" />
+				<element name="processId" type="xsd:string" nillable="true" />
+				<element name="parameters" type="bat:Parameters" nillable="true" />
+				<element name="startSynchronously" type="xsd:boolean"
+					nillable="true" />
+				<element name="attachments" type="bat:InputDocuments"
+					minOccurs="0" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="startProcessForModelResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="forceCompletion">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+				<element name="outDataValues" type="bat:Parameters"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="forceCompletionResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="forceSuspend">
+		<complexType>
+			<sequence>
+				<element name="activityOid" type="xsd:long" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="forceSuspendResponse">
+		<complexType>
+			<sequence>
+				<element name="activityInstance" type="bat:ActivityInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="flushCaches">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="flushCachesResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="savePreferences">
+		<complexType>
+			<sequence>
+				<element name="preferenceList" type="bat:PreferencesList" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="savePreferencesResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getConfigurationVariables">
+		<complexType>
+			<sequence>
+				<!--  use either a list of modelIds -->
+				<element name="modelIds" type="bat:StringList" minOccurs="0" nillable="true" />
+				<!--  or use a model Xpdl -->
+				<element name="modelXml" type="bat:XmlValue" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getConfigurationVariablesResponse">
+		<complexType>
+			<sequence>
+				<element name="ConfigurationVariablesList" type="bat:ConfigurationVariablesList"/>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="saveConfigurationVariables">
+		<complexType>
+			<sequence>
+				<element name="configurationVariables" type="bat:ConfigurationVariables"/>
+				<element name="force" type="xsd:boolean"/>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="saveConfigurationVariablesResponse">
+		<complexType>
+			<sequence>
+				<element name="modelReconfigurationInfoList" type="bat:ModelReconfigurationInfoList" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getGlobalPermissions">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getGlobalPermissionsResponse">
+		<complexType>
+			<sequence>
+				<element name="runtimePermissions" type="bat:RuntimePermissions" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setGlobalPermissions">
+		<complexType>
+			<sequence>
+				<element name="runtimePermissions" type="bat:RuntimePermissions" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="setGlobalPermissionsResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+
+	<!-- GLOBAL -->
+	<element name="getSessionUser">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getSessionUserResponse">
+		<complexType>
+			<sequence>
+				<element name="user" type="bat:User" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPermissions">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPermissionsResponse">
+		<complexType>
+			<sequence>
+				<element name="permissions" type="bat:Permissions" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="writeLogEntry">
+		<complexType>
+			<sequence>
+				<element name="logType" type="bat:LogType" nillable="true" />
+				<!-- Either activityOid or processOid can be set -->
+				<element name="activityOid" type="xsd:long" minOccurs="0"
+					nillable="true" />
+				<element name="processOid" type="xsd:long" minOccurs="0"
+					nillable="true" />
+
+				<element name="message" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="writeLogEntryResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="abortProcessInstance">
+		<complexType>
+			<sequence>
+				<element name="oid" type="xsd:long" />
+				<element name="abortScope" type="bat:AbortScope" minOccurs="0" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="abortProcessInstanceResponse">
+		<complexType>
+			<sequence>
+				<element name="processInstance" type="bat:ProcessInstance"
+					nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPreferences">
+		<complexType>
+			<sequence>
+				<element name="scope" type="bat:PreferenceScope" nillable="true" />
+				<element name="moduleId" type="xsd:string" />
+				<element name="preferencesId" type="xsd:string" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getPreferencesResponse">
+		<complexType>
+			<sequence>
+				<element name="preferences" type="bat:Preferences" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findPreferences">
+		<complexType>
+			<sequence>
+				<element name="preferenceQuery" type="baqt:PreferenceQuery" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="findPreferencesResponse">
+		<complexType>
+			<sequence>
+				<element name="preferencesList" type="bat:PreferencesList" />
+			</sequence>
+		</complexType>
+	</element>
+
+</schema>

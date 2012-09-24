@@ -1,0 +1,1289 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:bat="http://eclipse.org/stardust/ws/v2012a/api" xmlns:tns="http://eclipse.org/stardust/ws/v2012a/api/query" elementFormDefault="qualified" targetNamespace="http://eclipse.org/stardust/ws/v2012a/api/query">
+
+   <import namespace="http://eclipse.org/stardust/ws/v2012a/api" schemaLocation="StardustBpmService.xsd"/>
+
+   <complexType name="Query">
+    <annotation>
+	    <documentation>
+	    A query contains three optional elements:
+	    The 'predicate' element used for filtering contains an and-conjunction of predicates.
+	    The 'order' element used to specify a custom order.
+	    The 'policy' element used to specify policies e.g. a 'subsetPolicy' to limit results to a subset.
+		</documentation>
+	</annotation>
+      <sequence>
+         <element minOccurs="0" name="predicate" type="tns:AndTerm"/>
+         <element minOccurs="0" name="order" type="tns:OrderCriteria"/>
+         <element minOccurs="0" name="policy" type="tns:Policy"/>
+      </sequence>
+   </complexType>
+
+   <complexType name="WorklistQuery">
+    <annotation>
+	    <documentation>
+	    Additionally supports optional elements:
+	    A 'userContribution' which enables or disables the retrieval of the user's private worklist with an optional 'subsetPolicy'.
+	    A list of 'participantContributions' limiting the result to specified participants. One 'subsetPolicy' per 'participantContribution' can be set.
+	    </documentation>
+	</annotation>
+    <complexContent>
+     <extension base="tns:Query">
+      <sequence>
+         <element minOccurs="0" name="userContribution" type="tns:UserContribution"/>
+         <element minOccurs="0" name="participantContributions" type="tns:ParticipantContributions"/>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <complexType name="UserContribution">
+      <annotation>
+	    <documentation>
+        Configures the user's private worklist to be partially included in the result.
+ 	    </documentation>
+	  </annotation>
+      <sequence>
+         <element minOccurs="0" name="subsetPolicy" type="tns:SubsetPolicy"/>
+      </sequence>
+      <attribute default="true" name="included" type="boolean"/>
+   </complexType>
+
+   <complexType name="ParticipantContribution">
+      <annotation>
+	    <documentation>
+        Configures the worklist(s) resulting from the given participant filter to be included in the result.
+        The size of these worklist contributions can optionally be restricted by the subsetPolicy
+ 	    </documentation>
+	  </annotation>
+      <sequence>
+         <element minOccurs="0" name="filter" type="tns:PerformingParticipantFilter"/>
+         <element minOccurs="0" name="subsetPolicy" type="tns:SubsetPolicy"/>
+      </sequence>
+   </complexType>
+
+   <complexType name="ParticipantContributions">
+      <sequence>
+         <element maxOccurs="unbounded" minOccurs="0" name="contribution" type="tns:ParticipantContribution"/>
+      </sequence>
+   </complexType>
+
+   <complexType name="ActivityQuery">
+    <annotation>
+	    <documentation>
+        Query container for building complex queries for activity instances.
+        </documentation>
+	</annotation>
+    <complexContent>
+     <extension base="tns:Query">
+      <sequence>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <complexType name="ProcessQuery">
+      <annotation>
+	    <documentation>
+        Query container for building complex queries for process instances.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:Query">
+            <sequence>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <complexType name="ProcessDefinitionQuery">
+      <annotation>
+	    <documentation>
+        Query container for building complex queries for process definitions.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:Query">
+            <sequence>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <complexType name="PreferenceQuery">
+    <annotation>
+	    <documentation>
+
+        </documentation>
+    </annotation>
+    <complexContent>
+     <extension base="tns:Query">
+      <sequence>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+  
+  
+  <complexType name="DeployedModelQuery">
+  	<annotation>
+  		<documentation>
+  		Query container for building complex queries for deployed models. 
+  		</documentation>
+  	</annotation>
+  	<complexContent>
+  		<extension base="tns:Query">
+  			<sequence>
+  			</sequence>
+  		</extension>
+  	</complexContent>
+  </complexType>
+
+   <simpleType name="DeployedModelState">
+      <restriction base="string">
+         <enumeration value="Active"/>
+         <enumeration value="Alive"/>
+         <enumeration value="Disabled"/>
+         <enumeration value="Inactive"/>
+         <enumeration value="Valid"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="UserQuery">
+    <annotation>
+	    <documentation>
+        Query for fetching workflow users matching specific criteria. Most common filter criteria will be the user's attributes.
+        A more advanced use case is retrieving users having a specific role or organization
+        membership by using 'participantAssociation' predicate.
+        </documentation>
+    </annotation>
+    <complexContent>
+     <extension base="tns:Query">
+      <sequence>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <complexType name="UserGroupQuery">
+    <annotation>
+	    <documentation>
+        Query for fetching workflow user groups matching specific criteria.
+        Most common filter criteria will be the user group's attributes.
+        </documentation>
+    </annotation>
+    <complexContent>
+     <extension base="tns:Query">
+      <sequence>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <complexType name="LogEntryQuery">
+    <annotation>
+	    <documentation>
+        Query for fetching log entries matching specific criteria.
+        </documentation>
+    </annotation>
+    <complexContent>
+     <extension base="tns:Query">
+      <sequence>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <complexType name="DocumentQuery">
+    <annotation>
+	    <documentation>
+        Query for finding documents matching specific criteria.
+        </documentation>
+    </annotation>
+    <complexContent>
+     <extension base="tns:Query">
+      <sequence>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <complexType name="VariableDefinitionQuery">
+    <annotation>
+	    <documentation>
+        Query for finding variable definitions matching specific criteria.
+        </documentation>
+    </annotation>
+    <complexContent>
+     <extension base="tns:Query">
+      <sequence>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <complexType abstract="true" name="Operand">
+      <simpleContent>
+         <extension base="string"/>
+      </simpleContent>
+   </complexType>
+
+   <complexType name="VariableReference">
+      <annotation>
+	    <documentation>
+        Used to reference workflow data by assigning an dataId to the 'operand' element.
+        Different scopes are available:
+        'Local' (default) scope is used for finding activity instances belonging to process instances with same scope process instance containing specific workflow data.
+        'AnyParent' scope is used for finding activity instances belonging to process instances and its subprocess instances containing specific workflow data.
+        'AnyParentOrChild' scope is used for for finding activity instances belonging to the complete hierarchy of process instances containing specific workflow data.
+        </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="tns:Operand">
+            <attribute default="Local" name="scope" type="tns:VariableReferenceScope"/>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <simpleType name="VariableReferenceScope">
+      <restriction base="NCName">
+         <enumeration value="Local"/>
+         <enumeration value="AnyParent"/>
+         <enumeration value="AnyParentOrChild"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="AttributeReference">
+      <annotation>
+	    <documentation>
+        Used to reference attributes which are specific to every query type.
+        </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="tns:Operand">
+            <attribute name="entity" type="string" use="optional"/>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <complexType name="ValueLiteral">
+      <annotation>
+	    <documentation>
+        Used to convey values in binary predicates.
+        </documentation>
+      </annotation>
+      <simpleContent>
+         <extension base="string">
+            <attribute name="type" type="QName" use="optional"/>
+         </extension>
+      </simpleContent>
+   </complexType>
+
+   <complexType name="ValuesLiteral">
+      <sequence>
+         <element maxOccurs="unbounded" minOccurs="0" name="value" type="string"/>
+      </sequence>
+
+      <attribute name="type" type="QName" use="optional"/>
+   </complexType>
+
+   <!-- PREDICATE -->
+   <complexType abstract="true" name="PredicateBase"/>
+
+   <element abstract="true" name="filterCriterion" type="tns:PredicateBase"/>
+
+   <!-- filter terms -->
+   <complexType abstract="true" name="PredicateTerm">
+      <annotation>
+		    <documentation>
+		    Contains various elements which work as filters for a query.
+		    The elements 'and' and 'or' can contain a nested PredicateTerm for more complex filtering.
+		    </documentation>
+	  </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+
+               <choice maxOccurs="unbounded" minOccurs="0">
+                  <element name="and" type="tns:AndTerm"/>
+                  <element name="or" type="tns:OrTerm"/>
+
+                  <element name="isNull" type="tns:IsNullPredicate"/>
+                  <element name="notNull" type="tns:NotNullPredicate"/>
+
+                  <element name="isEqual" type="tns:IsEqualPredicate"/>
+                  <element name="notEqual" type="tns:NotEqualPredicate"/>
+                  <element name="lessThan" type="tns:LessThanPredicate"/>
+                  <element name="lessOrEqual" type="tns:LessOrEqualPredicate"/>
+                  <element name="greaterOrEqual" type="tns:GreaterOrEqualPredicate"/>
+                  <element name="greaterThan" type="tns:GreaterThanPredicate"/>
+                  <element name="isLike" type="tns:IsLikePredicate"/>
+
+                  <element name="inList" type="tns:InListPredicate"/>
+                  <element name="notInList" type="tns:NotInListPredicate"/>
+
+                  <element name="between" type="tns:BetweenPredicate"/>
+
+                  <element name="forProcessDefinition" type="tns:ProcessDefinitionFilter"/>
+                  <element name="forProcess" type="tns:ProcessInstanceFilter"/>
+                  <element name="processesInState" type="tns:ProcessStateFilter"/>
+                  <element name="processesInHierarchy" type="tns:ProcessInstanceHierarchyFilter"/>
+                  <element name="processesHavingLink" type="tns:ProcessInstanceLinkFilter"/>
+
+                  <element name="forActivityDefinition" type="tns:ActivityDefinitionFilter"/>
+                  <element name="forActivity" type="tns:ActivityInstanceFilter"/>
+                  <element name="activitiesInState" type="tns:ActivityStateFilter"/>
+
+                  <element name="performingUser" type="tns:PerformingUserFilter"/>
+                  <element name="performedByUser" type="tns:PerformedByUserFilter"/>
+                  <element name="performingParticipant" type="tns:PerformingParticipantFilter"/>
+                  <element name="performingOnBehalfOf" type="tns:PerformingOnBehalfOfFilter"/>
+
+                  <element name="startingUser" type="tns:StartingUserFilter"/>
+                  <element name="userState" type="tns:UserStateFilter"/>
+                  <element name="participantAssociation" type="tns:ParticipantAssociationFilter"/>
+               </choice>
+
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <complexType name="AndTerm">
+      <annotation>
+	    <documentation>
+        Identifies an 'and' conjunction for the nested predicate term.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateTerm"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="OrTerm">
+      <annotation>
+	    <documentation>
+        Identifies an 'or' conjunction for the nested predicate term.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateTerm"/>
+      </complexContent>
+   </complexType>
+
+   <element name="and" substitutionGroup="tns:filterCriterion" type="tns:AndTerm"/>
+   <element name="or" substitutionGroup="tns:filterCriterion" type="tns:OrTerm"/>
+
+   <!-- unary operators -->
+   <complexType abstract="true" name="UnaryPredicate">
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element minOccurs="0" name="variable" type="tns:VariableReference"/>
+               <element minOccurs="0" name="attribute" type="tns:AttributeReference"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <complexType name="IsNullPredicate">
+      <complexContent>
+         <extension base="tns:UnaryPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="NotNullPredicate">
+      <complexContent>
+         <extension base="tns:UnaryPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <element name="isNull" substitutionGroup="tns:filterCriterion" type="tns:IsNullPredicate"/>
+   <element name="notNull" substitutionGroup="tns:filterCriterion" type="tns:NotNullPredicate"/>
+
+   <!-- binary operators -->
+   <complexType abstract="true" name="BinaryPredicateBase">
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element minOccurs="0" name="lhsVariable" type="tns:VariableReference"/>
+               <element minOccurs="0" name="lhsAttribute" type="tns:AttributeReference"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <complexType abstract="true" name="BinaryPredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicateBase">
+            <sequence>
+               <element minOccurs="0" name="rhsValue" type="tns:ValueLiteral"/>
+               <element minOccurs="0" name="rhsAttribute" type="tns:AttributeReference"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <complexType name="IsEqualPredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicate">
+            <attribute default="true" name="caseSensitive" type="boolean"/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <complexType name="NotEqualPredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="LessThanPredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="LessOrEqualPredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="GreaterOrEqualPredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="GreaterThanPredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="IsLikePredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicate">
+            <attribute default="true" name="caseSensitive" type="boolean"/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="isEqual" substitutionGroup="tns:filterCriterion" type="tns:IsEqualPredicate"/>
+   <element name="notEqual" substitutionGroup="tns:filterCriterion" type="tns:NotEqualPredicate"/>
+   <element name="lessThan" substitutionGroup="tns:filterCriterion" type="tns:LessThanPredicate"/>
+   <element name="lessOrEqual" substitutionGroup="tns:filterCriterion" type="tns:LessOrEqualPredicate"/>
+   <element name="greaterOrEqual" substitutionGroup="tns:filterCriterion" type="tns:GreaterOrEqualPredicate"/>
+   <element name="greaterThan" substitutionGroup="tns:filterCriterion" type="tns:GreaterThanPredicate"/>
+   <element name="isLike" substitutionGroup="tns:filterCriterion" type="tns:IsLikePredicate"/>
+
+   <!-- binary list valued operators -->
+   <complexType abstract="true" name="BinaryListValuedPredicate">
+      <complexContent>
+         <extension base="tns:BinaryPredicateBase">
+            <sequence>
+               <element minOccurs="0" name="rhsValues" type="tns:ValuesLiteral"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <complexType name="InListPredicate">
+      <complexContent>
+         <extension base="tns:BinaryListValuedPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="NotInListPredicate">
+      <complexContent>
+         <extension base="tns:BinaryListValuedPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <complexType name="BetweenPredicate">
+      <complexContent>
+         <extension base="tns:BinaryListValuedPredicate"/>
+      </complexContent>
+   </complexType>
+
+   <element name="inList" substitutionGroup="tns:filterCriterion" type="tns:InListPredicate"/>
+   <element name="notInList" substitutionGroup="tns:filterCriterion" type="tns:NotInListPredicate"/>
+   <element name="between" substitutionGroup="tns:filterCriterion" type="tns:BetweenPredicate"/>
+
+   <!-- specific filters -->
+
+   <complexType name="ProcessDefinitionFilter">
+      <annotation>
+        <documentation>
+        Restricts the resulting items to the ones related to a specific process definition.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="processDefinitionId" type="string"/>
+            </sequence>
+
+            <attribute default="true" name="includingSubprocesses" type="boolean"/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="forProcessDefinition" substitutionGroup="tns:filterCriterion" type="tns:ProcessDefinitionFilter"/>
+
+   <complexType name="ProcessInstanceFilter">
+      <annotation>
+        <documentation>
+        Filter criterion for matching specific process instances.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="processOid" type="long"/>
+            </sequence>
+
+            <attribute default="true" name="includingSubprocesses" type="boolean"/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="forProcess" substitutionGroup="tns:filterCriterion" type="tns:ProcessInstanceFilter"/>
+
+   <complexType name="ProcessInstanceLinkFilter">
+      <annotation>
+        <documentation>
+        Filter criterion for matching process instances having links from or to other process instances.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="processOid" type="long"/>
+               <element name="direction" type="tns:LinkDirection"/>
+               <element name="linkTypes">
+                  <complexType>
+                     <sequence>
+                        <element maxOccurs="unbounded" minOccurs="0" name="typeId" type="string"/>
+                     </sequence>
+                  </complexType>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="processesHavingLink" substitutionGroup="tns:filterCriterion" type="tns:ProcessInstanceLinkFilter"/>
+
+   <simpleType name="LinkDirection">
+      <restriction base="string">
+         <enumeration value="from"/>
+         <enumeration value="to"/>
+         <enumeration value="toFrom"/>
+      </restriction>
+   </simpleType>
+
+   <complexType name="ProcessInstanceHierarchyFilter">
+      <annotation>
+        <documentation>
+        Filter criterion for finding root or sub process instances.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="mode" type="tns:HierarchyMode"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="processesInHierarchy" substitutionGroup="tns:filterCriterion" type="tns:ProcessInstanceHierarchyFilter"/>
+
+   <complexType name="ProcessStateFilter">
+      <annotation>
+        <documentation>
+        Restricts the resulting items to the ones having or not having a specific process state.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="states">
+                  <complexType>
+                     <sequence>
+                        <element maxOccurs="unbounded" minOccurs="0" name="state" type="bat:ProcessInstanceState"/>
+                     </sequence>
+
+                     <attribute default="true" name="inclusive" type="boolean"/>
+                  </complexType>
+               </element>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="processesInState" substitutionGroup="tns:filterCriterion" type="tns:ProcessStateFilter"/>
+
+   <complexType name="ActivityDefinitionFilter">
+      <annotation>
+        <documentation>
+        Restricts the resulting items to the ones related to a specific activity.
+ 		The search can be further restricted to certain models by passing in a collection of model oids
+ 		and to a process definition scope by using the 'processId' element.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="activityId" type="string"/>
+               <element minOccurs="0" name="processId" type="string"/>
+            </sequence>
+
+            <attribute default="false" name="includingSubprocesses" type="boolean"/>
+
+            <!--modelOids as list -->
+            <attribute name="modelOids" use="optional">
+               <simpleType>
+                  <list itemType="long"/>
+               </simpleType>
+            </attribute>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="forActivityDefinition" substitutionGroup="tns:filterCriterion" type="tns:ActivityDefinitionFilter"/>
+
+   <complexType name="ActivityInstanceFilter">
+      <annotation>
+        <documentation>
+        Filter criterion for matching specific activity instances.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="activityOid" type="long"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="forActivity" substitutionGroup="tns:filterCriterion" type="tns:ActivityInstanceFilter"/>
+
+   <complexType name="ActivityStateFilter">
+      <annotation>
+        <documentation>
+        Restricts the resulting items to the ones having or not having a specific activity state.
+        </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:PredicateBase">
+            <sequence>
+               <element name="states">
+                  <complexType>
+                     <sequence>
+                        <element maxOccurs="unbounded" minOccurs="0" name="state" type="bat:ActivityInstanceState"/>
+                     </sequence>
+
+                     <attribute default="true" name="inclusive" type="boolean"/>
+                  </complexType>
+               </element>
+
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="activitiesInState" substitutionGroup="tns:filterCriterion" type="tns:ActivityStateFilter"/>
+
+   <complexType name="PerformingUserFilter">
+     <annotation>
+        <documentation>
+        Restricts the resulting items to the ones currently performed by the specified user.
+        (The currently logged in user is mapped to userOid = -1 for this filter.)
+        </documentation>
+     </annotation>
+     <complexContent>
+         <extension base="tns:PredicateBase">
+       		<sequence>
+			<!--   userOID=-1 maps to CURRENT_USER    -->
+    		<element name="userOid" type="long"/>
+   	   		</sequence>
+			<!--<attribute name="userOid" type="long" />-->
+   	   	 </extension>
+   	 </complexContent>
+   </complexType>
+
+   <element name="performingUser" substitutionGroup="tns:filterCriterion" type="tns:PerformingUserFilter"/>
+
+   <complexType name="PerformedByUserFilter">
+     <annotation>
+        <documentation>
+        Restricts the resulting items to the ones that were performed by the specified user.
+        (The currently logged in user is mapped to userOid = -1 for this filter.)
+        </documentation>
+     </annotation>
+     <complexContent>
+         <extension base="tns:PredicateBase">
+       		<sequence>
+			<!--   userOID=-1 maps to CURRENT_USER    -->
+    		<element name="userOid" type="long"/>
+   	   		</sequence>
+   	   		<!--<attribute name="userOid" type="long" />-->
+   	   	 </extension>
+   	 </complexContent>
+   </complexType>
+
+   <element name="performedByUser" substitutionGroup="tns:filterCriterion" type="tns:PerformedByUserFilter"/>
+
+   <complexType name="PerformingParticipantFilter">
+     <annotation>
+        <documentation>
+        Restricts the resulting items to the ones that are performed by the specified user group or model participant.
+        When using 'anyForUser' element the result is restricted to items performed by any participant (roles, organizations or user groups) associated with the calling user.
+        Finding such participants will perform a deep search.
+        </documentation>
+     </annotation>
+     <complexContent>
+      <extension base="tns:PredicateBase">
+       <sequence>
+        <choice>
+          <element name="anyForUser">
+           <complexType/>
+          </element>
+
+          <!-- 5.2.0.35 only UserGroupInfo or ModelParticipantInfo supported-->
+          <element name="modelParticipant">
+	         <complexType>
+	          <sequence>
+	    	     <element name="participant" type="bat:ParticipantInfo"/>
+	    	  </sequence>
+		      <attribute default="true" name="recursively" type="boolean"/>
+             </complexType>
+          </element>
+   	    </choice>
+   	   </sequence>
+   	  </extension>
+   	 </complexContent>
+   </complexType>
+
+   <element name="performingParticipant" substitutionGroup="tns:filterCriterion" type="tns:PerformingParticipantFilter"/>
+
+   <complexType name="PerformingOnBehalfOfFilter">
+     <annotation>
+        <documentation>
+        Restricts the resulting items to the ones that are performed on behalf of the specified user group(s) or model participant(s).
+        </documentation>
+     </annotation>
+     <complexContent>
+      <extension base="tns:PredicateBase">
+       <sequence>
+         <choice>
+        	<!-- 5.2.0.35 only UserGroupInfo or ModelParticipantInfo supported-->
+            <element name="modelParticipant">
+	    	 <complexType>
+	    	  <sequence>
+	    	     <element name="participant" type="bat:ParticipantInfo"/>
+	    	  </sequence>
+		      <attribute default="true" name="recursively" type="boolean"/>
+             </complexType>
+            </element>
+
+            <element name="modelParticipants">
+	    	 <complexType>
+	    	  <sequence>
+	    	   <element minOccurs="0" name="participants">
+	            <complexType>
+	               <sequence>
+	               		<!-- 5.2.0.19 only UserGroupInfo or ModelParticipantInfo supported-->
+	                	<element maxOccurs="unbounded" minOccurs="0" name="participant" type="bat:ParticipantInfo"/>
+	               </sequence>
+	            </complexType>
+	           </element>
+	    	 </sequence>
+             </complexType>
+            </element>
+
+	     </choice>
+   	   </sequence>
+	  </extension>
+	 </complexContent>
+   </complexType>
+
+   <element name="performingOnBehalfOf" substitutionGroup="tns:filterCriterion" type="tns:PerformingOnBehalfOfFilter"/>
+
+   <complexType name="StartingUserFilter">
+     <annotation>
+        <documentation>
+        Restricts the resulting items to the ones that were started by the specified user.
+        (The currently logged in user is mapped to userOid = -1 for this filter.)
+        </documentation>
+     </annotation>
+     <complexContent>
+         <extension base="tns:PredicateBase">
+       		<sequence>
+			<!--   userOID=-1 maps to CURRENT_USER    -->
+    		<element name="userOid" type="long"/>
+   	   		</sequence>
+   	   	 </extension>
+   	 </complexContent>
+   </complexType>
+
+   <element name="startingUser" substitutionGroup="tns:filterCriterion" type="tns:StartingUserFilter"/>
+
+   <complexType name="UserStateFilter">
+     <annotation>
+        <documentation>
+        Restricts the resulting items to users who are logged in.
+        </documentation>
+     </annotation>
+     <complexContent>
+         <extension base="tns:PredicateBase">
+            <attribute default="true" name="loggedInOnly" type="boolean"/>
+   	   	 </extension>
+   	 </complexContent>
+   </complexType>
+
+   <element name="userState" substitutionGroup="tns:filterCriterion" type="tns:UserStateFilter"/>
+
+   <complexType name="ParticipantAssociationFilter">
+     <annotation>
+        <documentation>
+        Filter criterion for restricting results of UserQuery to users having granted
+ 		specific roles/organizations or being members of specific user groups.
+ 		A usage examples is to retrieve all users being administrators.
+        </documentation>
+     </annotation>
+     <complexContent>
+      <extension base="tns:PredicateBase">
+       <sequence>
+         <choice>
+            <element name="department" type="bat:DepartmentInfo"/>
+
+            <element name="teamLeader" type="bat:RoleInfo"/>
+
+            <element name="modelParticipant">
+	    	 <complexType>
+	    	  <sequence>
+	    	   <element name="participant" type="bat:ParticipantInfo"/>
+	    	  </sequence>
+		      <attribute default="false" name="recursively" type="boolean"/>
+             </complexType>
+            </element>
+	     </choice>
+   	   </sequence>
+	  </extension>
+	 </complexContent>
+   </complexType>
+
+   <element name="participantAssociation" substitutionGroup="tns:filterCriterion" type="tns:ParticipantAssociationFilter"/>
+
+<!-- ORDER -->
+   <complexType abstract="true" name="OrderCriterion"/>
+
+   <complexType name="OrderCriteria">
+      <annotation>
+        <documentation>
+		OrderCriteria are used to sort the result of a query.
+        </documentation>
+      </annotation>
+      <sequence>
+         <choice maxOccurs="unbounded" minOccurs="0">
+            <element name="attributeOrder" type="tns:AttributeOrder"/>
+            <element name="dataOrder" type="tns:DataOrder"/>
+         </choice>
+      </sequence>
+   </complexType>
+
+   <element name="orderCriteria" type="tns:OrderCriteria"/>
+
+   <complexType name="AttributeOrder">
+    <annotation>
+        <documentation>
+		Criterion for ordering elements resulting from a query according to a given attribute,
+		either with ascending or descending values.
+        </documentation>
+    </annotation>
+    <complexContent>
+     <extension base="tns:OrderCriterion">
+      <sequence>
+         <element name="attribute" type="tns:AttributeReference"/>
+         <element default="true" name="ascending" type="boolean"/>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <element name="attributeOrder" type="tns:AttributeOrder"/>
+
+   <complexType name="DataOrder">
+    <annotation>
+        <documentation>
+		Criterion for ordering elements resulting from a query according to workflow data,
+        either with ascending or descending values.
+        </documentation>
+    </annotation>
+    <complexContent>
+     <extension base="tns:OrderCriterion">
+      <sequence>
+         <element name="dataId" type="string"/>
+         <element minOccurs="0" name="attribute" type="string"/>
+         <element default="true" name="ascending" type="boolean"/>
+      </sequence>
+     </extension>
+    </complexContent>
+   </complexType>
+
+   <element name="dataOrder" type="tns:DataOrder"/>
+
+   <!-- POLICY -->
+   <complexType abstract="true" name="EvaluationPolicy"/>
+
+   <complexType name="Policy">
+      <annotation>
+         <documentation>
+         An evaluation policy selects (parts of) the strategy for query evaluation, i.e.
+         which model version to use or what subset to deliver.
+         </documentation>
+      </annotation>
+      <sequence>
+         <choice maxOccurs="unbounded" minOccurs="0">
+            <element minOccurs="0" name="subsetPolicy" type="tns:SubsetPolicy"/>
+            <element minOccurs="0" name="modelVersionPolicy" type="tns:ModelVersionPolicy"/>
+            <element minOccurs="0" name="descriptorPolicy" type="tns:DescriptorPolicy"/>
+            <element minOccurs="0" name="processInstanceDetailsPolicy" type="tns:ProcessInstanceDetailsPolicy"/>
+            <element minOccurs="0" name="historicalStatesPolicy" type="tns:HistoricalStatesPolicy"/>
+            <element minOccurs="0" name="historicalEventPolicy" type="tns:HistoricalEventPolicy"/>
+            <element minOccurs="0" name="criticalExecutionTimePolicy" type="tns:CriticalExecutionTimePolicy"/>
+            <element minOccurs="0" name="criticalCostPerExecutionPolicy" type="tns:CriticalCostPerExecutionPolicy"/>
+            <element minOccurs="0" name="criticalProcessingTimePolicy" type="tns:CriticalProcessingTimePolicy"/>
+            <element minOccurs="0" name="performanceCriticalityPolicy" type="tns:PerformanceCriticalityPolicy"/>
+            <element minOccurs="0" name="processCumulationPolicy" type="tns:ProcessCumulationPolicy"/>
+            <element minOccurs="0" name="timeoutPolicy" type="tns:TimeoutPolicy"/>
+            <element minOccurs="0" name="userDetailsPolicy" type="tns:UserDetailsPolicy"/>
+            <element minOccurs="0" name="casePolicy" type="tns:CasePolicy"/>
+         </choice>
+      </sequence>
+    </complexType>
+
+   <element name="policy" type="tns:Policy"/>
+
+   <complexType name="SubsetPolicy">
+      <annotation>
+         <documentation>
+         Evaluation Policy for specifying retrieval of only a subset of found data.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="evaluateTotalCount" type="boolean"/>
+               <element name="maxSize" type="int"/>
+               <element minOccurs="0" name="skippedEntries" type="int"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="subsetPolicy" type="tns:SubsetPolicy"/>
+
+   <complexType name="ModelVersionPolicy">
+      <annotation>
+         <documentation>
+         Evaluation policy affecting query execution in a multi-version model environment.
+         Can be used to restrict query evaluation involving model elements to only consider the
+         currently active model version.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element default="false" name="restrictedToActiveModel" type="boolean"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="modelVersionPolicy" type="tns:ModelVersionPolicy"/>
+
+   <complexType name="DescriptorPolicy">
+      <annotation>
+         <documentation>
+         Evaluation Policy to include or exclude descriptors.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element default="true" name="includeDescriptors" type="boolean"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="descriptorPolicy" type="tns:DescriptorPolicy"/>
+
+   <complexType name="ProcessInstanceDetailsPolicy">
+      <annotation>
+         <documentation>
+         Evaluation Policy for specifying details level of processInstances.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="detailsLevel" type="tns:ProcessInstanceDetailsLevel"/>
+               <element name="detailsOptions" type="bat:ProcessInstanceDetailsOptions"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="processInstanceDetailsPolicy" type="tns:ProcessInstanceDetailsPolicy"/>
+
+   <element name="processInstanceDetailsLevel" type="tns:ProcessInstanceDetailsLevel"/>
+
+	<simpleType name="ProcessInstanceDetailsLevel">
+		<restriction base="string">
+			<enumeration value="Core"/>
+			<enumeration value="WithProperties"/>
+			<enumeration value="WithResolvedProperties"/>
+			<enumeration value="Full"/>
+			<enumeration value="Default"/>
+		</restriction>
+	</simpleType>
+
+   <complexType name="HistoricalStatesPolicy">
+      <annotation>
+         <documentation>
+         Evaluation Policy for including historical states.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element default="NO_HIST_STATES" name="type" type="string"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="historicalStatesPolicy" type="tns:HistoricalStatesPolicy"/>
+
+   <complexType name="CasePolicy">
+      <annotation>
+         <documentation>
+         This policy additionally includes case process instances of which the process instances
+         found by the query itself are members.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element default="INCLUDE_CASES" name="type" type="string"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="casePolicy" type="tns:CasePolicy"/>
+
+   <complexType name="HistoricalEventPolicy">
+      <annotation>
+         <documentation>
+         Evaluation policy determining the inclusion of the given event types in process and activity instances.
+         Not specifying a 'eventTypes' element defaults to all eventTypes.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <!-- default=all-->
+               <element minOccurs="0" name="eventTypes" type="tns:HistoricalEventTypes"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="historicalEventPolicy" type="tns:HistoricalEventPolicy"/>
+
+   <simpleType name="HistoricalEventTypes">
+      <list itemType="tns:HistoricalEventType"/>
+   </simpleType>
+
+   <element name="historicalEventTypes" type="tns:HistoricalEventTypes"/>
+
+   <simpleType name="HistoricalEventType">
+      <restriction base="string">
+         <enumeration value="StateChange"/>
+         <enumeration value="Delegation"/>
+         <enumeration value="Note"/>
+         <enumeration value="Exception"/>
+      </restriction>
+   </simpleType>
+
+   <simpleType name="HierarchyMode">
+      <restriction base="string">
+         <enumeration value="RootProcess"/>
+         <enumeration value="SubProcess"/>
+      </restriction>
+   </simpleType>
+
+   <element name="historicalEventType" type="tns:HistoricalEventType"/>
+
+   <complexType abstract="true" name="AbstractCriticalityPolicy">
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="lowPriorityCriticalPct" type="float"/>
+               <element name="normalPriorityCriticalPct" type="float"/>
+               <element name="highPriorityCriticalPct" type="float"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element abstract="true" name="AbstractCriticalityPolicy" type="tns:AbstractCriticalityPolicy"/>
+
+   <complexType abstract="true" name="AbstractCriticalDurationPolicy">
+      <complexContent>
+         <extension base="tns:AbstractCriticalityPolicy">
+            <sequence/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element abstract="true" name="AbstractCriticalDurationPolicy" type="tns:AbstractCriticalDurationPolicy"/>
+
+   <complexType name="CriticalExecutionTimePolicy">
+      <complexContent>
+         <extension base="tns:AbstractCriticalDurationPolicy">
+            <sequence/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="criticalExecutionTimePolicy" type="tns:CriticalExecutionTimePolicy"/>
+
+   <complexType abstract="true" name="AbstractStoplightPolicy">
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="yellowPct" type="float"/>
+               <element name="redPct" type="float"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element abstract="true" name="abstractStoplightPolicy" type="tns:AbstractStoplightPolicy"/>
+
+   <complexType abstract="true" name="AbstractStoplightCostPolicy">
+      <complexContent>
+         <extension base="tns:AbstractStoplightPolicy">
+            <sequence/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element abstract="true" name="abstractStoplightCostPolicy" type="tns:AbstractStoplightCostPolicy"/>
+
+   <complexType name="CriticalCostPerExecutionPolicy">
+      <complexContent>
+         <extension base="tns:AbstractStoplightCostPolicy">
+            <sequence/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="criticalCostPerExecutionPolicy" type="tns:CriticalCostPerExecutionPolicy"/>
+
+
+   <complexType abstract="true" name="AbstractStoplightDurationPolicy">
+      <complexContent>
+         <extension base="tns:AbstractStoplightPolicy">
+            <sequence/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element abstract="true" name="abstractStoplightDurationPolicy" type="tns:AbstractStoplightDurationPolicy"/>
+
+   <complexType name="CriticalProcessingTimePolicy">
+      <complexContent>
+         <extension base="tns:AbstractStoplightDurationPolicy">
+            <sequence/>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="criticalProcessingTimePolicy" type="tns:CriticalProcessingTimePolicy"/>
+
+   <complexType name="PerformanceCriticalityPolicy">
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="lowPriorityCriticalPct" type="float"/>
+               <element name="normalPriorityCriticalPct" type="float"/>
+               <element name="highPriorityCriticalPct" type="float"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="performanceCriticalityPolicy" type="tns:PerformanceCriticalityPolicy"/>
+
+   <complexType name="ProcessCumulationPolicy">
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="cumulateWithRootPi" type="boolean"/>
+               <element name="cumulateWithScopePi" type="boolean"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="processCumulationPolicy" type="tns:ProcessCumulationPolicy"/>
+
+   <complexType name="TimeoutPolicy">
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="timeout" type="int"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="timeoutPolicy" type="tns:TimeoutPolicy"/>
+
+   <complexType name="UserDetailsPolicy">
+      <annotation>
+         <documentation>
+         Evaluation Policy for specifying details level of returned users.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="level" type="tns:UserDetailsLevel"/>
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="userDetailsPolicy" type="tns:UserDetailsPolicy"/>
+
+   <simpleType name="UserDetailsLevel">
+      <restriction base="string">
+         <enumeration value="Core"/>
+         <enumeration value="WithProperties"/>
+         <enumeration value="Full"/>
+      </restriction>
+   </simpleType>
+
+   <element name="userDetailsLevel" type="tns:UserDetailsLevel"/>
+
+</schema>

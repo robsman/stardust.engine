@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+   targetNamespace="http://eclipse.org/stardust/ws/v2012a/interactions"
+   xmlns:impl="http://eclipse.org/stardust/ws/v2012a/interactions"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"
+   >
+
+ <wsdl:types>
+
+   <xsd:schema targetNamespace="http://eclipse.org/stardust/ws/v2012a/interactions"
+      elementFormDefault="qualified">
+  
+      <xsd:include schemaLocation="StardustBpmInteractionsService.xsd" />
+      
+   </xsd:schema>
+  
+ </wsdl:types>
+
+   <wsdl:message name="bpmFault">
+      <wsdl:part element="impl:bpmInteractionFault" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getDefinitionRequest">
+      <wsdl:part element="impl:getDefinition" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="getDefinitionResponse">
+      <wsdl:part element="impl:getDefinitionResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getOwnerRequest">
+      <wsdl:part element="impl:getOwner" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="getOwnerResponse">
+      <wsdl:part element="impl:getOwnerResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getInputParametersRequest">
+      <wsdl:part element="impl:getInputParameters" name="parameters"/>
+   </wsdl:message>
+   <wsdl:message name="getInputParametersResponse">
+      <wsdl:part element="impl:getInputParametersResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setOutputParametersRequest">
+      <wsdl:part element="impl:setOutputParameters" name="parameters"/>
+   </wsdl:message>
+   <wsdl:message name="setOutputParametersResponse">
+      <wsdl:part element="impl:setOutputParametersResponse" name="parameters"/>
+   </wsdl:message>
+
+
+   <wsdl:portType name="IBpmInteractionsService">
+
+      <wsdl:operation name="getDefinition" parameterOrder="parameters">
+         <wsdl:input message="impl:getDefinitionRequest" />
+         <wsdl:output message="impl:getDefinitionResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getOwner" parameterOrder="parameters">
+         <wsdl:input message="impl:getOwnerRequest" />
+         <wsdl:output message="impl:getOwnerResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getInputParameters" parameterOrder="parameters">
+         <wsdl:input message="impl:getInputParametersRequest" />
+         <wsdl:output message="impl:getInputParametersResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="setOutputParameters" parameterOrder="parameters">
+         <wsdl:input message="impl:setOutputParametersRequest" />
+         <wsdl:output message="impl:setOutputParametersResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="IBpmInteractionsServiceSoapBinding" type="impl:IBpmInteractionsService">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="getDefinition">
+         <wsdlsoap:operation soapAction="getDefinition" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getOwner">
+         <wsdlsoap:operation soapAction="getOwner" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getInputParameters">
+         <wsdlsoap:operation soapAction="getInputParameters" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="setOutputParameters">
+         <wsdlsoap:operation soapAction="setOutputParameters" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="StardustBpmInteractionsServices">
+
+      <wsdl:port binding="impl:IBpmInteractionsServiceSoapBinding" name="BpmInteractionsServiceEndpoint">
+
+         <wsdlsoap:address location="http://localhost:9090/epm/services/BpmInteractions" />
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>

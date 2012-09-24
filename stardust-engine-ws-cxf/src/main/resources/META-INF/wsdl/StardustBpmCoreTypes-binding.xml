@@ -1,0 +1,50 @@
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+ -->
+<jxb:bindings version="1.0"
+   xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:tns="http://eclipse.org/stardust/ws/v2012a/api"
+   >
+   
+   <!-- http://java.sun.com/javaee/5/docs/tutorial/doc/bnbbf.html -->
+   
+   <jxb:globalBindings>
+   
+      <jxb:javaType name="org.eclipse.stardust.common.Direction"
+         xmlType="tns:Direction"
+         parseMethod="org.eclipse.stardust.engine.ws.XmlAdapterUtils.parseDirection"
+         printMethod="org.eclipse.stardust.engine.ws.XmlAdapterUtils.printDirection">
+      </jxb:javaType>
+   
+      <jxb:javaType name="org.eclipse.stardust.engine.api.runtime.ProcessInstanceState"
+         xmlType="tns:ProcessInstanceState"
+         parseMethod="org.eclipse.stardust.engine.ws.XmlAdapterUtils.parseProcessInstanceState"
+         printMethod="org.eclipse.stardust.engine.ws.XmlAdapterUtils.printProcessInstanceState">
+      </jxb:javaType>
+   
+      <jxb:javaType name="org.eclipse.stardust.engine.api.runtime.ActivityInstanceState"
+         xmlType="tns:ActivityInstanceState"
+         parseMethod="org.eclipse.stardust.engine.ws.XmlAdapterUtils.parseActivityInstanceState"
+         printMethod="org.eclipse.stardust.engine.ws.XmlAdapterUtils.printActivityInstanceState">
+      </jxb:javaType>
+   
+   </jxb:globalBindings>
+
+   <jxb:bindings scd="x-schema::tns">
+
+      <jxb:schemaBindings>
+         <jxb:package name="org.eclipse.stardust.engine.api.ws" />
+   
+         <jxb:nameXmlTransform>
+            <jxb:typeName suffix="Xto" />
+   
+            <jxb:anonymousTypeName suffix="Xto" />
+   
+         </jxb:nameXmlTransform>
+   
+      </jxb:schemaBindings>
+
+   </jxb:bindings> 
+
+</jxb:bindings>

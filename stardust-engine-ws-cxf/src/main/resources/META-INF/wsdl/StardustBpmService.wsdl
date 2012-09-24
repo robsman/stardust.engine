@@ -1,0 +1,4266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+   targetNamespace="http://eclipse.org/stardust/ws/v2012a/api"
+   xmlns:impl="http://eclipse.org/stardust/ws/v2012a/api"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+   xmlns:wsa="http://schemas.xmlsoap.org/ws/2004/08/addressing"
+   xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy"
+   xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+   xmlns:sc="http://schemas.sun.com/2006/03/wss/server"
+   xmlns:sp="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702"
+   xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+>
+
+ <wsdl:types>
+
+   <xsd:schema targetNamespace="http://eclipse.org/stardust/ws/v2012a/api"
+      elementFormDefault="qualified">
+
+      <xsd:include schemaLocation="StardustBpmService.xsd" />
+
+   </xsd:schema>
+
+ </wsdl:types>
+
+   <wsdl:message name="bpmFault">
+      <wsdl:part element="impl:bpmFault" name="parameters" />
+   </wsdl:message>
+
+   <!-- WorkflowService -->
+
+   <wsdl:message name="startProcessRequest">
+      <wsdl:part element="impl:startProcess" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="startProcessResponse">
+      <wsdl:part element="impl:startProcessResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findWorklistRequest">
+      <wsdl:part element="impl:findWorklist" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findWorklistResponse">
+      <wsdl:part element="impl:findWorklistResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="activateActivityRequest">
+      <wsdl:part element="impl:activateActivity" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="activateActivityResponse">
+      <wsdl:part element="impl:activateActivityResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="activateNextActivityRequest">
+      <wsdl:part element="impl:activateNextActivity" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="activateNextActivityResponse">
+      <wsdl:part element="impl:activateNextActivityResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="activateNextActivityForProcessRequest">
+      <wsdl:part element="impl:activateNextActivityForProcess" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="activateNextActivityForProcessResponse">
+      <wsdl:part element="impl:activateNextActivityForProcessResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getActivityRequest">
+      <wsdl:part element="impl:getActivity" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="getActivityResponse">
+      <wsdl:part element="impl:getActivityResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getProcessRequest">
+      <wsdl:part element="impl:getProcess" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="getProcessResponse">
+      <wsdl:part element="impl:getProcessResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getProcessPropertiesRequest">
+      <wsdl:part element="impl:getProcessProperties" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="getProcessPropertiesResponse">
+      <wsdl:part element="impl:getProcessPropertiesResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="setProcessPropertiesRequest">
+      <wsdl:part element="impl:setProcessProperties" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="setProcessPropertiesResponse">
+      <wsdl:part element="impl:setProcessPropertiesResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getActivityInDataRequest">
+      <wsdl:part element="impl:getActivityInData" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getActivityInDataResponse">
+      <wsdl:part element="impl:getActivityInDataResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="activateActivityAndGetInDataRequest">
+      <wsdl:part element="impl:activateActivityAndGetInData" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="activateActivityAndGetInDataResponse">
+      <wsdl:part element="impl:activateActivityAndGetInDataResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="suspendActivityRequest">
+      <wsdl:part element="impl:suspendActivity" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="suspendActivityResponse">
+      <wsdl:part element="impl:suspendActivityResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="completeActivityAndActivateNextRequest">
+      <wsdl:part element="impl:completeActivityAndActivateNext" name="parameters"/>
+   </wsdl:message>
+   <wsdl:message name="completeActivityAndActivateNextResponse">
+      <wsdl:part element="impl:completeActivityAndActivateNextResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="completeActivityRequest">
+      <wsdl:part element="impl:completeActivity" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="completeActivityResponse">
+      <wsdl:part element="impl:completeActivityResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="abortActivityRequest">
+		<wsdl:part element="impl:abortActivity" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="abortActivityResponse">
+		<wsdl:part element="impl:abortActivityResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="delegateActivityRequest">
+		<wsdl:part element="impl:delegateActivity" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="delegateActivityResponse">
+		<wsdl:part element="impl:delegateActivityResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="hibernateActivityRequest">
+		<wsdl:part element="impl:hibernateActivity" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="hibernateActivityResponse">
+		<wsdl:part element="impl:hibernateActivityResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getActivityEventBindingRequest">
+      <wsdl:part element="impl:getActivityEventBinding" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getActivityEventBindingResponse">
+      <wsdl:part element="impl:getActivityEventBindingResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createActivityEventBindingRequest">
+      <wsdl:part element="impl:createActivityEventBinding" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createActivityEventBindingResponse">
+      <wsdl:part element="impl:createActivityEventBindingResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeActivityEventBindingRequest">
+      <wsdl:part element="impl:removeActivityEventBinding" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeActivityEventBindingResponse">
+      <wsdl:part element="impl:removeActivityEventBindingResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getProcessEventBindingRequest">
+      <wsdl:part element="impl:getProcessEventBinding" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getProcessEventBindingResponse">
+      <wsdl:part element="impl:getProcessEventBindingResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createProcessEventBindingRequest">
+      <wsdl:part element="impl:createProcessEventBinding" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createProcessEventBindingResponse">
+      <wsdl:part element="impl:createProcessEventBindingResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeProcessEventBindingRequest">
+      <wsdl:part element="impl:removeProcessEventBinding" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeProcessEventBindingResponse">
+      <wsdl:part element="impl:removeProcessEventBindingResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getStartableProcessDefinitionsRequest">
+      <wsdl:part element="impl:getStartableProcessDefinitions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getStartableProcessDefinitionsResponse">
+      <wsdl:part element="impl:getStartableProcessDefinitionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="spawnSubprocessInstancesRequest">
+      <wsdl:part element="impl:spawnSubprocessInstances" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="spawnSubprocessInstancesResponse">
+      <wsdl:part element="impl:spawnSubprocessInstancesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="spawnPeerProcessInstanceRequest">
+      <wsdl:part element="impl:spawnPeerProcessInstance" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="spawnPeerProcessInstanceResponse">
+      <wsdl:part element="impl:spawnPeerProcessInstanceResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createCaseRequest">
+      <wsdl:part element="impl:createCase" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createCaseResponse">
+      <wsdl:part element="impl:createCaseResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="joinCaseRequest">
+      <wsdl:part element="impl:joinCase" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="joinCaseResponse">
+      <wsdl:part element="impl:joinCaseResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="leaveCaseRequest">
+      <wsdl:part element="impl:leaveCase" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="leaveCaseResponse">
+      <wsdl:part element="impl:leaveCaseResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="mergeCasesRequest">
+      <wsdl:part element="impl:mergeCases" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="mergeCasesResponse">
+      <wsdl:part element="impl:mergeCasesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="delegateCaseRequest">
+      <wsdl:part element="impl:delegateCase" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="delegateCaseResponse">
+      <wsdl:part element="impl:delegateCaseResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="joinProcessInstanceRequest">
+      <wsdl:part element="impl:joinProcessInstance" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="joinProcessInstanceResponse">
+      <wsdl:part element="impl:joinProcessInstanceResponse" name="parameters"/>
+   </wsdl:message>
+
+   <!-- QueryService -->
+
+    <wsdl:message name="findAllDepartmentsRequest">
+      <wsdl:part element="impl:findAllDepartments" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findAllDepartmentsResponse">
+      <wsdl:part element="impl:findAllDepartmentsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findDepartmentRequest">
+      <wsdl:part element="impl:findDepartment" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findDepartmentResponse">
+      <wsdl:part element="impl:findDepartmentResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findProcessesRequest">
+      <wsdl:part element="impl:findProcesses" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findProcessesResponse">
+      <wsdl:part element="impl:findProcessesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findProcessDefinitionsRequest">
+      <wsdl:part element="impl:findProcessDefinitions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findProcessDefinitionsResponse">
+      <wsdl:part element="impl:findProcessDefinitionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findActivitiesRequest">
+      <wsdl:part element="impl:findActivities" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findActivitiesResponse">
+      <wsdl:part element="impl:findActivitiesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findUsersRequest">
+      <wsdl:part element="impl:findUsers" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findUsersResponse">
+      <wsdl:part element="impl:findUsersResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findUserGroupsRequest">
+      <wsdl:part element="impl:findUserGroups" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findUserGroupsResponse">
+      <wsdl:part element="impl:findUserGroupsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findLogEntriesRequest">
+      <wsdl:part element="impl:findLogEntries" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findLogEntriesResponse">
+      <wsdl:part element="impl:findLogEntriesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getModelAsXMLRequest">
+      <wsdl:part element="impl:getModelAsXML" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getModelAsXMLResponse">
+      <wsdl:part element="impl:getModelAsXMLResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getProcessDefinitionRequest">
+      <wsdl:part element="impl:getProcessDefinition" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getProcessDefinitionResponse">
+      <wsdl:part element="impl:getProcessDefinitionResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllProcessDefinitionsRequest">
+      <wsdl:part element="impl:getAllProcessDefinitions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllProcessDefinitionsResponse">
+      <wsdl:part element="impl:getAllProcessDefinitionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllModelDescriptionsRequest">
+      <wsdl:part element="impl:getAllModelDescriptions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllModelDescriptionsResponse">
+      <wsdl:part element="impl:getAllModelDescriptionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllAliveModelDescriptionsRequest">
+      <wsdl:part element="impl:getAllAliveModelDescriptions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllAliveModelDescriptionsResponse">
+      <wsdl:part element="impl:getAllAliveModelDescriptionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getModelDescriptionRequest">
+      <wsdl:part element="impl:getModelDescription" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getModelDescriptionResponse">
+      <wsdl:part element="impl:getModelDescriptionResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getModelRequest">
+      <wsdl:part element="impl:getModel" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getModelResponse">
+      <wsdl:part element="impl:getModelResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getParticipantRequest">
+      <wsdl:part element="impl:getParticipant" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getParticipantResponse">
+      <wsdl:part element="impl:getParticipantResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllParticipantsRequest">
+      <wsdl:part element="impl:getAllParticipants" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllParticipantsResponse">
+      <wsdl:part element="impl:getAllParticipantsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getSchemaDefinitionRequest">
+      <wsdl:part element="impl:getSchemaDefinition" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getSchemaDefinitionResponse">
+      <wsdl:part element="impl:getSchemaDefinitionResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findVariableDefinitionsRequest">
+      <wsdl:part element="impl:findVariableDefinitions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findVariableDefinitionsResponse">
+      <wsdl:part element="impl:findVariableDefinitionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findPreferencesRequest">
+      <wsdl:part element="impl:findPreferences" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findPreferencesResponse">
+      <wsdl:part element="impl:findPreferencesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findModelsRequest">
+      <wsdl:part element="impl:findModels" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findModelsResponse">
+      <wsdl:part element="impl:findModelsResponse" name="parameters"/>
+   </wsdl:message>
+   <!-- DocumentManagement -->
+
+   <wsdl:message name="createDocumentRequest">
+      <wsdl:part element="impl:createDocument" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="createDocumentResponse">
+      <wsdl:part element="impl:createDocumentResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="createDocumentsRequest">
+      <wsdl:part element="impl:createDocuments" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="createDocumentsResponse">
+      <wsdl:part element="impl:createDocumentsResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentRequest">
+      <wsdl:part element="impl:getDocument" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="getDocumentResponse">
+      <wsdl:part element="impl:getDocumentResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentVersionsRequest">
+      <wsdl:part element="impl:getDocumentVersions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentVersionsResponse">
+      <wsdl:part element="impl:getDocumentVersionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentsRequest">
+      <wsdl:part element="impl:getDocuments" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentsResponse">
+      <wsdl:part element="impl:getDocumentsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findDocumentsRequest">
+      <wsdl:part element="impl:findDocuments" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="findDocumentsResponse">
+      <wsdl:part element="impl:findDocumentsResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getAllDocumentsRequest">
+      <wsdl:part element="impl:getAllDocuments" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAllDocumentsResponse">
+      <wsdl:part element="impl:getAllDocumentsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentContentRequest">
+      <wsdl:part element="impl:getDocumentContent" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="getDocumentContentResponse">
+      <wsdl:part element="impl:getDocumentContentResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="requestDocumentContentDownloadRequest">
+      <wsdl:part element="impl:requestDocumentContentDownload" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="requestDocumentContentDownloadResponse">
+      <wsdl:part element="impl:requestDocumentContentDownloadResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="requestDocumentContentUploadRequest">
+      <wsdl:part element="impl:requestDocumentContentUpload" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="requestDocumentContentUploadResponse">
+      <wsdl:part element="impl:requestDocumentContentUploadResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="versionDocumentRequest">
+      <wsdl:part element="impl:versionDocument" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="versionDocumentResponse">
+      <wsdl:part element="impl:versionDocumentResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="updateDocumentRequest">
+      <wsdl:part element="impl:updateDocument" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="updateDocumentResponse">
+      <wsdl:part element="impl:updateDocumentResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="removeDocumentRequest">
+      <wsdl:part element="impl:removeDocument" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="removeDocumentResponse">
+      <wsdl:part element="impl:removeDocumentResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getFolderRequest">
+      <wsdl:part element="impl:getFolder" name="parameters" />
+   </wsdl:message>
+   <wsdl:message name="getFolderResponse">
+      <wsdl:part element="impl:getFolderResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="getFoldersRequest">
+      <wsdl:part element="impl:getFolders" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getFoldersResponse">
+      <wsdl:part element="impl:getFoldersResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findFoldersRequest">
+      <wsdl:part element="impl:findFolders" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="findFoldersResponse">
+      <wsdl:part element="impl:findFoldersResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createFolderRequest">
+      <wsdl:part element="impl:createFolder" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createFolderResponse">
+      <wsdl:part element="impl:createFolderResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="updateFolderRequest">
+      <wsdl:part element="impl:updateFolder" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="updateFolderResponse">
+      <wsdl:part element="impl:updateFolderResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeFolderRequest">
+      <wsdl:part element="impl:removeFolder" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeFolderResponse">
+      <wsdl:part element="impl:removeFolderResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPrivilegesRequest">
+      <wsdl:part element="impl:getPrivileges" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPrivilegesResponse">
+      <wsdl:part element="impl:getPrivilegesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPoliciesRequest">
+      <wsdl:part element="impl:getPolicies" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPoliciesResponse">
+      <wsdl:part element="impl:getPoliciesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setPolicyRequest">
+      <wsdl:part element="impl:setPolicy" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setPolicyResponse">
+      <wsdl:part element="impl:setPolicyResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="migrateRepositoryRequest">
+      <wsdl:part element="impl:migrateRepository" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="migrateRepositoryResponse">
+      <wsdl:part element="impl:migrateRepositoryResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentTypesRequest">
+      <wsdl:part element="impl:getDocumentTypes" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentTypesResponse">
+      <wsdl:part element="impl:getDocumentTypesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentTypeSchemaRequest">
+      <wsdl:part element="impl:getDocumentTypeSchema" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDocumentTypeSchemaResponse">
+      <wsdl:part element="impl:getDocumentTypeSchemaResponse" name="parameters"/>
+   </wsdl:message>
+
+   <!-- UserService -->
+
+   <wsdl:message name="isInternalAuthenticationRequest">
+      <wsdl:part element="impl:isInternalAuthentication" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="isInternalAuthenticationResponse">
+      <wsdl:part element="impl:isInternalAuthenticationResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="isInternalAuthorizationRequest">
+      <wsdl:part element="impl:isInternalAuthorization" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="isInternalAuthorizationResponse">
+      <wsdl:part element="impl:isInternalAuthorizationResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getUserRequest">
+      <wsdl:part element="impl:getUser" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getUserResponse">
+      <wsdl:part element="impl:getUserResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="modifyUserRequest">
+      <wsdl:part element="impl:modifyUser" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="modifyUserResponse">
+      <wsdl:part element="impl:modifyUserResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="resetPasswordRequest">
+      <wsdl:part element="impl:resetPassword" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="resetPasswordResponse">
+      <wsdl:part element="impl:resetPasswordResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createUserRequest">
+      <wsdl:part element="impl:createUser" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createUserResponse">
+      <wsdl:part element="impl:createUserResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="invalidateUserRequest">
+      <wsdl:part element="impl:invalidateUser" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="invalidateUserResponse">
+      <wsdl:part element="impl:invalidateUserResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createUserGroupRequest">
+      <wsdl:part element="impl:createUserGroup" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createUserGroupResponse">
+      <wsdl:part element="impl:createUserGroupResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getUserGroupRequest">
+      <wsdl:part element="impl:getUserGroup" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getUserGroupResponse">
+      <wsdl:part element="impl:getUserGroupResponse" name="parameters"/>
+   </wsdl:message>
+
+
+   <wsdl:message name="modifyUserGroupRequest">
+      <wsdl:part element="impl:modifyUserGroup" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="modifyUserGroupResponse">
+      <wsdl:part element="impl:modifyUserGroupResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="invalidateUserGroupRequest">
+      <wsdl:part element="impl:invalidateUserGroup" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="invalidateUserGroupResponse">
+      <wsdl:part element="impl:invalidateUserGroupResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createUserRealmRequest">
+      <wsdl:part element="impl:createUserRealm" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createUserRealmResponse">
+      <wsdl:part element="impl:createUserRealmResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="dropUserRealmRequest">
+      <wsdl:part element="impl:dropUserRealm" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="dropUserRealmResponse">
+      <wsdl:part element="impl:dropUserRealmResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getUserRealmsRequest">
+      <wsdl:part element="impl:getUserRealms" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getUserRealmsResponse">
+      <wsdl:part element="impl:getUserRealmsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <!-- Administration Service -->
+
+   <wsdl:message name="getPasswordRulesRequest">
+      <wsdl:part element="impl:getPasswordRules" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPasswordRulesResponse">
+      <wsdl:part element="impl:getPasswordRulesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setPasswordRulesRequest">
+      <wsdl:part element="impl:setPasswordRules" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setPasswordRulesResponse">
+      <wsdl:part element="impl:setPasswordRulesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createDepartmentRequest">
+      <wsdl:part element="impl:createDepartment" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="createDepartmentResponse">
+      <wsdl:part element="impl:createDepartmentResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDepartmentRequest">
+      <wsdl:part element="impl:getDepartment" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDepartmentResponse">
+      <wsdl:part element="impl:getDepartmentResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="modifyDepartmentRequest">
+      <wsdl:part element="impl:modifyDepartment" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="modifyDepartmentResponse">
+      <wsdl:part element="impl:modifyDepartmentResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeDepartmentRequest">
+      <wsdl:part element="impl:removeDepartment" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="removeDepartmentResponse">
+      <wsdl:part element="impl:removeDepartmentResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deployModelRequest">
+      <wsdl:part element="impl:deployModel" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deployModelResponse">
+      <wsdl:part element="impl:deployModelResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="overwriteModelRequest">
+      <wsdl:part element="impl:overwriteModel" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="overwriteModelResponse">
+      <wsdl:part element="impl:overwriteModelResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deleteModelRequest">
+      <wsdl:part element="impl:deleteModel" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deleteModelResponse">
+      <wsdl:part element="impl:deleteModelResponse" name="parameters"/>
+   </wsdl:message>
+
+   <!-- wsdl:message name="modifyModelRequest">
+      <wsdl:part element="impl:modifyModel" name="parameters"/>
+   </wsdl:message -->
+
+   <!-- wsdl:message name="modifyModelResponse">
+      <wsdl:part element="impl:modifyModelResponse" name="parameters"/>
+   </wsdl:message -->
+
+   <wsdl:message name="deleteProcessesRequest">
+      <wsdl:part element="impl:deleteProcesses" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="deleteProcessesResponse">
+      <wsdl:part element="impl:deleteProcessesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="cleanupRuntimeRequest">
+      <wsdl:part element="impl:cleanupRuntime" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="cleanupRuntimeResponse">
+      <wsdl:part element="impl:cleanupRuntimeResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="cleanupRuntimeAndModelsRequest">
+      <wsdl:part element="impl:cleanupRuntimeAndModels" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="cleanupRuntimeAndModelsResponse">
+      <wsdl:part element="impl:cleanupRuntimeAndModelsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setProcessInstancePriorityRequest">
+      <wsdl:part element="impl:setProcessInstancePriority" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setProcessInstancePriorityResponse">
+      <wsdl:part element="impl:setProcessInstancePriorityResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="recoverProcessInstancesRequest">
+      <wsdl:part element="impl:recoverProcessInstances" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="recoverProcessInstancesResponse">
+      <wsdl:part element="impl:recoverProcessInstancesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDaemonStatusRequest">
+      <wsdl:part element="impl:getDaemonStatus" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getDaemonStatusResponse">
+      <wsdl:part element="impl:getDaemonStatusResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="stopDaemonRequest">
+      <wsdl:part element="impl:stopDaemon" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="stopDaemonResponse">
+      <wsdl:part element="impl:stopDaemonResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="startDaemonRequest">
+      <wsdl:part element="impl:startDaemon" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="startDaemonResponse">
+      <wsdl:part element="impl:startDaemonResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAuditTrailHealthReportRequest">
+      <wsdl:part element="impl:getAuditTrailHealthReport" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getAuditTrailHealthReportResponse">
+      <wsdl:part element="impl:getAuditTrailHealthReportResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="recoverRuntimeEnvironmentRequest">
+      <wsdl:part element="impl:recoverRuntimeEnvironment" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="recoverRuntimeEnvironmentResponse">
+      <wsdl:part element="impl:recoverRuntimeEnvironmentResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="startProcessForModelRequest">
+      <wsdl:part element="impl:startProcessForModel" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="startProcessForModelResponse">
+      <wsdl:part element="impl:startProcessForModelResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="forceCompletionRequest">
+      <wsdl:part element="impl:forceCompletion" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="forceCompletionResponse">
+      <wsdl:part element="impl:forceCompletionResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="forceSuspendRequest">
+      <wsdl:part element="impl:forceSuspend" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="forceSuspendResponse">
+      <wsdl:part element="impl:forceSuspendResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="flushCachesRequest">
+      <wsdl:part element="impl:flushCaches" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="flushCachesResponse">
+      <wsdl:part element="impl:flushCachesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="savePreferencesRequest">
+      <wsdl:part element="impl:savePreferences" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="savePreferencesResponse">
+      <wsdl:part element="impl:savePreferencesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getConfigurationVariablesRequest">
+      <wsdl:part element="impl:getConfigurationVariables" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getConfigurationVariablesResponse">
+      <wsdl:part element="impl:getConfigurationVariablesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="saveConfigurationVariablesRequest">
+      <wsdl:part element="impl:saveConfigurationVariables" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="saveConfigurationVariablesResponse">
+      <wsdl:part element="impl:saveConfigurationVariablesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getGlobalPermissionsRequest">
+      <wsdl:part element="impl:getGlobalPermissions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getGlobalPermissionsResponse">
+      <wsdl:part element="impl:getGlobalPermissionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setGlobalPermissionsRequest">
+      <wsdl:part element="impl:setGlobalPermissions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="setGlobalPermissionsResponse">
+      <wsdl:part element="impl:setGlobalPermissionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <!-- Global -->
+   <wsdl:message name="getSessionUserRequest">
+      <wsdl:part element="impl:getSessionUser" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getSessionUserResponse">
+      <wsdl:part element="impl:getSessionUserResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPermissionsRequest">
+      <wsdl:part element="impl:getPermissions" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPermissionsResponse">
+      <wsdl:part element="impl:getPermissionsResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="writeLogEntryRequest">
+      <wsdl:part element="impl:writeLogEntry" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="writeLogEntryResponse">
+      <wsdl:part element="impl:writeLogEntryResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="abortProcessInstanceRequest">
+      <wsdl:part element="impl:abortProcessInstance" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="abortProcessInstanceResponse">
+      <wsdl:part element="impl:abortProcessInstanceResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPreferencesRequest">
+      <wsdl:part element="impl:getPreferences" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="getPreferencesResponse">
+      <wsdl:part element="impl:getPreferencesResponse" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:portType name="IWorkflowService">
+	  <wsdl:documentation>
+	  The WorkflowService provides all functionality for workflow operations in a
+	  CARNOT runtime environment.
+	  This includes:
+	  starting and aborting process instances,
+	  activating, completing, suspending and aborting activities,
+	  binding and unbinding event handlers,
+	  delegating activities, and
+	  accessing workflow data.
+	  </wsdl:documentation>
+
+      <wsdl:operation name="startProcess" parameterOrder="parameters">
+         <wsdl:documentation>
+         Starts the process specified by the given ID using the provided data and returns the newly created process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:startProcessRequest" />
+         <wsdl:output message="impl:startProcessResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findWorklist" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves (parts of) the worklist of the current logged in user satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findWorklistRequest" />
+         <wsdl:output message="impl:findWorklistResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="activateActivity" parameterOrder="parameters">
+         <wsdl:documentation>
+         Activates the interactive activity instance identified by the activityOID.
+         </wsdl:documentation>
+         <wsdl:input message="impl:activateActivityRequest" />
+         <wsdl:output message="impl:activateActivityResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="activateNextActivity">
+         <wsdl:documentation>
+         Activates the next activity instance after the specified one in the same process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:activateNextActivityRequest" />
+         <wsdl:output message="impl:activateNextActivityResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="activateNextActivityForProcess">
+         <wsdl:documentation>
+         Activates the next activity instance for the specified process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:activateNextActivityForProcessRequest" />
+         <wsdl:output message="impl:activateNextActivityForProcessResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getActivity" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the specified activity instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getActivityRequest" />
+         <wsdl:output message="impl:getActivityResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getProcess" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the specified process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getProcessRequest" />
+         <wsdl:output message="impl:getProcessResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getProcessProperties" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves multiple IN data paths from a process instance as specified in the corresponding process definition.
+         Also notes are contained and are identified by the following parameters.
+         (name='Note' namespace='http://eclipse.org/stardust/ws/v2012a/api')
+         </wsdl:documentation>
+         <wsdl:input message="impl:getProcessPropertiesRequest" />
+         <wsdl:output message="impl:getProcessPropertiesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="setProcessProperties" parameterOrder="parameters">
+         <wsdl:documentation>
+          Sets multiple OUT data paths on a process instance as specified in the corresponding process definition.
+          New notes can be added by using the following parameters. The element named 'xml' must not exist.
+          (name='Note' namespace='http://eclipse.org/stardust/ws/v2012a/api' xml=empty primitive='your note text here')
+         </wsdl:documentation>
+         <wsdl:input message="impl:setProcessPropertiesRequest" />
+         <wsdl:output message="impl:setProcessPropertiesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getActivityInData" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all evaluated IN data mappings that match the provided interaction context for the specified activity.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getActivityInDataRequest" />
+         <wsdl:output message="impl:getActivityInDataResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="activateActivityAndGetInData" parameterOrder="parameters">
+         <wsdl:documentation>
+         Activates the interactive activity instance identified by the activityOID and
+         retrieves all evaluated IN data mappings that match the provided interaction context for the specified activity.
+         </wsdl:documentation>
+         <wsdl:input message="impl:activateActivityAndGetInDataRequest" />
+         <wsdl:output message="impl:activateActivityAndGetInDataResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="suspendActivity" parameterOrder="parameters">
+         <wsdl:documentation>
+         Suspends the specified activity instance to the a participant as follows:
+         If no participant is specified, the activity is added to the same worklist in which it was prior to activation.
+         If the participant is a DefaultPerformer, the activity is suspended to the default performer.
+         If the participant is an instance of UserInfo, the activity is suspended to the specified user.
+         If the participant is an instance of UserGroupInfo, it the activity is suspended to the specified user group.
+         If the participant is an instance of ModelParticipantInfo, it the activity is suspended to the specified model participant.
+         </wsdl:documentation>
+         <wsdl:input message="impl:suspendActivityRequest" />
+         <wsdl:output message="impl:suspendActivityResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="completeActivityAndActivateNext" parameterOrder="parameters">
+         <wsdl:documentation>
+         Completes the interactive activity instance identified by the activityOid on the behalf of the currently logged-in user and
+         activates the next activity instance after the specified one in the same process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:completeActivityAndActivateNextRequest" />
+         <wsdl:output message="impl:completeActivityAndActivateNextResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="completeActivity" parameterOrder="parameters">
+         <wsdl:documentation>
+         Completes the interactive activity instance identified by the activityOid on the behalf of the currently logged-in user.
+         </wsdl:documentation>
+         <wsdl:input message="impl:completeActivityRequest" />
+         <wsdl:output message="impl:completeActivityResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+	  <wsdl:operation name="abortActivity" parameterOrder="parameters">
+         <wsdl:documentation>
+         Aborts the specified activity instance, effectively aborting the whole process instance hierarchy this activity instance belongs to.
+         </wsdl:documentation>
+		 <wsdl:input message="impl:abortActivityRequest" />
+		 <wsdl:output message="impl:abortActivityResponse" />
+		 <wsdl:fault message="impl:bpmFault" name="fault" />
+	  </wsdl:operation>
+
+	  <wsdl:operation name="delegateActivity" parameterOrder="parameters">
+         <wsdl:documentation>
+         Delegates the activity instance to the specified participant as follows:
+         If the participant is a DefaultPerformer, the activity is delegated to the default performer.
+         If the participant is an instance of UserInfo, the activity is delegated to the specified user.
+         If the participant is an instance of UserGroupInfo, it the activity is delegated to the specified user group.
+         If the participant is an instance of ModelParticipantInfo, it the activity is delegated to the specified model participant.
+         </wsdl:documentation>
+		 <wsdl:input message="impl:delegateActivityRequest" />
+		 <wsdl:output message="impl:delegateActivityResponse" />
+		 <wsdl:fault message="impl:bpmFault" name="fault" />
+	  </wsdl:operation>
+
+	  <wsdl:operation name="hibernateActivity" parameterOrder="parameters">
+         <wsdl:documentation>
+         Change the state of the specified activity instance to HIBERNATED.
+         </wsdl:documentation>
+	     <wsdl:input message="impl:hibernateActivityRequest" />
+		 <wsdl:output message="impl:hibernateActivityResponse" />
+		 <wsdl:fault message="impl:bpmFault" name="fault" />
+	  </wsdl:operation>
+
+      <wsdl:operation name="getSessionUser" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves information on the current user.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getSessionUserRequest" />
+         <wsdl:output message="impl:getSessionUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getPermissions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all permissions the current user has on this service.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getPermissionsRequest" />
+         <wsdl:output message="impl:getPermissionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="writeLogEntry" parameterOrder="parameters">
+         <wsdl:documentation>
+         Logs an audit trail event of type LogCode.EXTERNAL.
+         </wsdl:documentation>
+         <wsdl:input message="impl:writeLogEntryRequest" />
+         <wsdl:output message="impl:writeLogEntryResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getActivityEventBinding" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets the binding state of an event handler for the specified activity instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getActivityEventBindingRequest" />
+         <wsdl:output message="impl:getActivityEventBindingResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createActivityEventBinding" parameterOrder="parameters">
+         <wsdl:documentation>
+         Binds an event handler to the specified activity instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createActivityEventBindingRequest" />
+         <wsdl:output message="impl:createActivityEventBindingResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="removeActivityEventBinding" parameterOrder="parameters">
+         <wsdl:documentation>
+         Unbinds an event handler from the specified activity instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:removeActivityEventBindingRequest" />
+         <wsdl:output message="impl:removeActivityEventBindingResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getProcessEventBinding" parameterOrder="parameters">
+         <wsdl:documentation>
+          Gets the binding state of an event handler for the specified process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getProcessEventBindingRequest" />
+         <wsdl:output message="impl:getProcessEventBindingResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createProcessEventBinding" parameterOrder="parameters">
+         <wsdl:documentation>
+         Binds an event handler to the specified process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createProcessEventBindingRequest" />
+         <wsdl:output message="impl:createProcessEventBindingResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="removeProcessEventBinding" parameterOrder="parameters">
+         <wsdl:documentation>
+         Unbinds an event handler from the specified process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:removeProcessEventBindingRequest" />
+         <wsdl:output message="impl:removeProcessEventBindingResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getStartableProcessDefinitions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the list of process definitions that can be started by the current user.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getStartableProcessDefinitionsRequest" />
+         <wsdl:output message="impl:getStartableProcessDefinitionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="spawnSubprocessInstances" parameterOrder="parameters">
+         <wsdl:documentation>
+         Spawns multiple processes as subprocesses of the specified process instance.
+         The spawned processes execute asynchronously but have to be completed before the parent process is able to complete.
+         </wsdl:documentation>
+         <wsdl:input message="impl:spawnSubprocessInstancesRequest" />
+         <wsdl:output message="impl:spawnSubprocessInstancesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="spawnPeerProcessInstance" parameterOrder="parameters">
+         <wsdl:documentation>
+         Spawns a new root process and creates a link of type ProcessInstanceLinkType.SWITCH to the specified process instance.
+         Optionally existing data from the specified process instance can be copied to the newly spawned process.
+         </wsdl:documentation>
+         <wsdl:input message="impl:spawnPeerProcessInstanceRequest" />
+         <wsdl:output message="impl:spawnPeerProcessInstanceResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createCase" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates a case process instance which groups the specified members as subprocesses.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createCaseRequest" />
+         <wsdl:output message="impl:createCaseResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="joinCase" parameterOrder="parameters">
+         <wsdl:documentation>
+         Adds the process instances referenced by the specified memberOids to the specified case process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:joinCaseRequest" />
+         <wsdl:output message="impl:joinCaseResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="leaveCase" parameterOrder="parameters">
+         <wsdl:documentation>
+         Removes the process instances referenced by the specified memberOids from the specified case process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:leaveCaseRequest" />
+         <wsdl:output message="impl:leaveCaseResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="mergeCases" parameterOrder="parameters">
+         <wsdl:documentation>
+         Merges the specified source case process instances into the target case process instance by adding
+         all case members of the source case process instances as members of the target case process instance.
+         </wsdl:documentation>
+         <wsdl:input message="impl:mergeCasesRequest" />
+         <wsdl:output message="impl:mergeCasesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="delegateCase" parameterOrder="parameters">
+         <wsdl:documentation>
+         Delegates the case process instance to the specified participant.
+         </wsdl:documentation>
+         <wsdl:input message="impl:delegateCaseRequest" />
+         <wsdl:output message="impl:delegateCaseResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="joinProcessInstance" parameterOrder="parameters">
+         <wsdl:documentation>
+         Aborts the specified process instance and joins the data into the specified target process instance.
+         Existing data values of the target process instance are not overwritten. Process attachments are merged.
+         </wsdl:documentation>
+         <wsdl:input message="impl:joinProcessInstanceRequest" />
+         <wsdl:output message="impl:joinProcessInstanceResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="abortProcessInstance" parameterOrder="parameters">
+         <wsdl:documentation>
+         Aborts the specified process instance. Depending on the scope, it will abort either
+         this process instance only (including eventual subprocesses) or the whole process
+         hierarchy starting with the root process.
+         </wsdl:documentation>
+         <wsdl:input message="impl:abortProcessInstanceRequest" />
+         <wsdl:output message="impl:abortProcessInstanceResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:portType name="IQueryService">
+	  <wsdl:documentation>
+	  Provides information services for the CARNOT runtime environment.
+	  The functionality includes the following tasks:
+	  retrieve or counts elements in the audit trail (users, process instance, activity instances or log events),
+	  retrieve deployed models from the audit trails,
+	  retrieve participants from the models.
+	  A Query service always operates against an audit trail database.
+	  </wsdl:documentation>
+
+      <wsdl:operation name="findAllDepartments" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all the departments satisfying the search criteria.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findAllDepartmentsRequest" />
+         <wsdl:output message="impl:findAllDepartmentsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findDepartment" parameterOrder="parameters">
+         <wsdl:documentation>
+         Searches for a department having the specified id in the scope defined by the parent department.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findDepartmentRequest" />
+         <wsdl:output message="impl:findDepartmentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findProcesses" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all process instances satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findProcessesRequest" />
+         <wsdl:output message="impl:findProcessesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findProcessDefinitions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all process instances satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findProcessDefinitionsRequest" />
+         <wsdl:output message="impl:findProcessDefinitionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findActivities" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all activity instances satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findActivitiesRequest" />
+         <wsdl:output message="impl:findActivitiesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findUsers" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all users satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findUsersRequest" />
+         <wsdl:output message="impl:findUsersResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findUserGroups" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all user groups satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findUserGroupsRequest" />
+         <wsdl:output message="impl:findUserGroupsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findLogEntries" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all log entries satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findLogEntriesRequest" />
+         <wsdl:output message="impl:findLogEntriesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllModelDescriptions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the list of model descriptions for all deployed models.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getAllModelDescriptionsRequest" />
+         <wsdl:output message="impl:getAllModelDescriptionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllAliveModelDescriptions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the list of model descriptions for all alive models.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getAllAliveModelDescriptionsRequest" />
+         <wsdl:output message="impl:getAllAliveModelDescriptionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getModelDescription" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the description of the specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getModelDescriptionRequest" />
+         <wsdl:output message="impl:getModelDescriptionResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getModel" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getModelRequest" />
+         <wsdl:output message="impl:getModelResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getModelAsXML" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the XML representation of the specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getModelAsXMLRequest" />
+         <wsdl:output message="impl:getModelAsXMLResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getProcessDefinition" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves a process definition from the active or specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getProcessDefinitionRequest" />
+         <wsdl:output message="impl:getProcessDefinitionResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllProcessDefinitions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all process definitions for the active or specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getAllProcessDefinitionsRequest" />
+         <wsdl:output message="impl:getAllProcessDefinitionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getParticipant" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves a participant from a active or specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getParticipantRequest" />
+         <wsdl:output message="impl:getParticipantResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllParticipants" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all participants defined in the active or specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getAllParticipantsRequest" />
+         <wsdl:output message="impl:getAllParticipantsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getPermissions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all permissions the current user has on this service.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getPermissionsRequest" />
+         <wsdl:output message="impl:getPermissionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getSchemaDefinition" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves XSD schema of the specified type declaration.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getSchemaDefinitionRequest" />
+         <wsdl:output message="impl:getSchemaDefinitionResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllDocuments" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets Documents based on the specified DocumentQuery.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getAllDocumentsRequest" />
+         <wsdl:output message="impl:getAllDocumentsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findVariableDefinitions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all variable definitions satisfying the criteria specified in the provided query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findVariableDefinitionsRequest" />
+         <wsdl:output message="impl:findVariableDefinitionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getPreferences" parameterOrder="parameters">
+         <wsdl:documentation>
+         documentation
+         </wsdl:documentation>
+         <wsdl:input message="impl:getPreferencesRequest" />
+         <wsdl:output message="impl:getPreferencesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findPreferences" parameterOrder="parameters">
+         <wsdl:documentation>
+         documentation
+         </wsdl:documentation>
+         <wsdl:input message="impl:findPreferencesRequest" />
+         <wsdl:output message="impl:findPreferencesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findModels" parameterOrder="parameters">
+         <wsdl:documentation>
+         documentation
+         </wsdl:documentation>
+         <wsdl:input message="impl:findModelsRequest" />
+         <wsdl:output message="impl:findModelsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:portType name="IDocumentManagementService">
+   	  <wsdl:documentation>
+   	  The DocumentManagementService provides all functionality for DMS operations in a
+ 	  CARNOT runtime environment.
+ 	  This includes:
+      retrieving, adding, updating and deleting documents and folders,
+      versioning documents, retrieving and updating document content.
+   	  </wsdl:documentation>
+
+      <wsdl:operation name="createDocument" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates document in a folder described by the document info.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createDocumentRequest" />
+         <wsdl:output message="impl:createDocumentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createDocuments" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates multiple documents in folders described by the corresponding document info.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createDocumentsRequest" />
+         <wsdl:output message="impl:createDocumentsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocument" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets the document by ID or path.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDocumentRequest" />
+         <wsdl:output message="impl:getDocumentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocumentVersions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets all versions of the document by document ID (of any of its version).
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDocumentVersionsRequest" />
+         <wsdl:output message="impl:getDocumentVersionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocuments" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets multiple documents by ID or path.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDocumentsRequest" />
+         <wsdl:output message="impl:getDocumentsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findDocuments" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets Documents based on the name pattern or XPath Query search.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findDocumentsRequest" />
+         <wsdl:output message="impl:findDocumentsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocumentContent" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the content of the document identified by documentId.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDocumentContentRequest" />
+         <wsdl:output message="impl:getDocumentContentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="requestDocumentContentDownload" parameterOrder="parameters">
+         <wsdl:documentation>
+         Initiates document content download via DmsContentServlet.
+         </wsdl:documentation>
+         <wsdl:input message="impl:requestDocumentContentDownloadRequest" />
+         <wsdl:output message="impl:requestDocumentContentDownloadResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="requestDocumentContentUpload" parameterOrder="parameters">
+         <wsdl:documentation>
+         Initiates document content upload via DmsContentServlet.
+         </wsdl:documentation>
+         <wsdl:input message="impl:requestDocumentContentUploadRequest" />
+         <wsdl:output message="impl:requestDocumentContentUploadResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="versionDocument" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates a new version of the document.
+         </wsdl:documentation>
+         <wsdl:input message="impl:versionDocumentRequest" />
+         <wsdl:output message="impl:versionDocumentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="updateDocument" parameterOrder="parameters">
+         <wsdl:documentation>
+         Updates document.
+         </wsdl:documentation>
+         <wsdl:input message="impl:updateDocumentRequest" />
+         <wsdl:output message="impl:updateDocumentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="removeDocument" parameterOrder="parameters">
+         <wsdl:documentation>
+         Removes document.
+         </wsdl:documentation>
+         <wsdl:input message="impl:removeDocumentRequest" />
+         <wsdl:output message="impl:removeDocumentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getFolder" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves a folder.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getFolderRequest" />
+         <wsdl:output message="impl:getFolderResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getFolders" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets multiple folders by ID or path.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getFoldersRequest" />
+         <wsdl:output message="impl:getFoldersResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="findFolders" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets folders based on the name pattern or XPath query.
+         </wsdl:documentation>
+         <wsdl:input message="impl:findFoldersRequest" />
+         <wsdl:output message="impl:findFoldersResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createFolder" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates a folder described by the folderInfo in the folder specified by parentFolderId.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createFolderRequest" />
+         <wsdl:output message="impl:createFolderResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="updateFolder" parameterOrder="parameters">
+         <wsdl:documentation>
+         Updates folder.
+         </wsdl:documentation>
+         <wsdl:input message="impl:updateFolderRequest" />
+         <wsdl:output message="impl:updateFolderResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="removeFolder" parameterOrder="parameters">
+         <wsdl:documentation>
+         Removes folder.
+         </wsdl:documentation>
+         <wsdl:input message="impl:removeFolderRequest" />
+         <wsdl:output message="impl:removeFolderResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getPrivileges" parameterOrder="parameters">
+         <wsdl:documentation>
+         Returns the privileges the session has for the resource denoted by resourceId, which must exist.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getPrivilegesRequest" />
+         <wsdl:output message="impl:getPrivilegesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getPolicies" parameterOrder="parameters">
+         <wsdl:documentation>
+         Returns the Access Control Policies for the resource denoted by resourceId by the specified scope.
+         All: Policies that are currently set.
+         Applicable: Policy template which has to be used if no policy is set. (Empty if policies were set once, use 'All' scope to retrieve Policies in this case.)
+         Effective: Effective policies, including implicit Policies from e.g. Administrator or Everyone group.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getPoliciesRequest" />
+         <wsdl:output message="impl:getPoliciesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="setPolicy" parameterOrder="parameters">
+         <wsdl:documentation>
+         Binds the policy to the resource denoted by resourceId (overwrites the old version of the policy) If the policy does not contain any Access Control Entry then this policy is removed from the resource.
+         </wsdl:documentation>
+         <wsdl:input message="impl:setPolicyRequest" />
+         <wsdl:output message="impl:setPolicyResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="migrateRepository" parameterOrder="parameters">
+         <wsdl:documentation>
+         Migrates resources in the repository. This migration process works sequential from the current version to the next higher version. The count of resources migrated in one execution is limited by the parameter batchSize.
+Subsequent calls will migrate further resources if there are resources for migration available. After all resources for the migration from one version to the next are processed subsequent calls will start the migration to the next higher repository structure version.
+The migration is complete if the current version of the repository reaches the target version defined by the repository.
+Important Note Please ensure there is no other write access on the repository to avoid race conditions! Since there is no locking mechanism this should be run in read-only maintenance window!
+The MigrationReport returned by each call contains information about: Total resources that need migration to the next version, resources already migrated, current version, next version and target version of the repository structure.
+         </wsdl:documentation>
+         <wsdl:input message="impl:migrateRepositoryRequest" />
+         <wsdl:output message="impl:migrateRepositoryResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocumentTypes" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets a list of document types defined in all alive models. Can be limited to a specified modelId.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDocumentTypesRequest" />
+         <wsdl:output message="impl:getDocumentTypesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocumentTypeSchema" parameterOrder="parameters">
+         <wsdl:documentation>
+         Gets the schema definition referenced by a document type schema location.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDocumentTypeSchemaRequest" />
+         <wsdl:output message="impl:getDocumentTypeSchemaResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:portType name="IUserService">
+      <wsdl:documentation>
+      The UserService provides functionality for operating on CARNOT users.
+ 	  This includes:
+      creating, modifying and invalidating users, and accessing user data.
+      </wsdl:documentation>
+
+      <wsdl:operation name="isInternalAuthentication" parameterOrder="parameters">
+         <wsdl:documentation>
+         Checks if internal authentication is used.
+         </wsdl:documentation>
+         <wsdl:input message="impl:isInternalAuthenticationRequest" />
+         <wsdl:output message="impl:isInternalAuthenticationResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="isInternalAuthorization" parameterOrder="parameters">
+         <wsdl:documentation>
+         Checks if internal authorization is used.
+         </wsdl:documentation>
+         <wsdl:input message="impl:isInternalAuthorizationRequest" />
+         <wsdl:output message="impl:isInternalAuthorizationResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getSessionUser" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves information on the current user.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getSessionUserRequest" />
+         <wsdl:output message="impl:getSessionUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getUser" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the specified user by userOid.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getUserRequest" />
+         <wsdl:output message="impl:getUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="modifyUser" parameterOrder="parameters">
+         <wsdl:documentation>
+         Modifies the specified user.
+         </wsdl:documentation>
+         <wsdl:input message="impl:modifyUserRequest" />
+         <wsdl:output message="impl:modifyUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="resetPassword" parameterOrder="parameters">
+         <wsdl:documentation>
+         Resets the password of specified user by generated password according to configured password rules.
+         </wsdl:documentation>
+         <wsdl:input message="impl:resetPasswordRequest" />
+         <wsdl:output message="impl:resetPasswordResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createUser" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates a new user with default realm ID.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createUserRequest" />
+         <wsdl:output message="impl:createUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="invalidateUser" parameterOrder="parameters">
+         <wsdl:documentation>
+         Invalidates the user with the specified account.
+         </wsdl:documentation>
+         <wsdl:input message="impl:invalidateUserRequest" />
+         <wsdl:output message="impl:invalidateUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createUserGroup" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates a new user group.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createUserGroupRequest" />
+         <wsdl:output message="impl:createUserGroupResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserGroup" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the specified user group.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getUserGroupRequest" />
+         <wsdl:output message="impl:getUserGroupResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="modifyUserGroup" parameterOrder="parameters">
+         <wsdl:documentation>
+         Modifies the specified user group.
+         </wsdl:documentation>
+         <wsdl:input message="impl:modifyUserGroupRequest" />
+         <wsdl:output message="impl:modifyUserGroupResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="invalidateUserGroup" parameterOrder="parameters">
+         <wsdl:documentation>
+         Invalidates the specified user group.
+         </wsdl:documentation>
+         <wsdl:input message="impl:invalidateUserGroupRequest" />
+         <wsdl:output message="impl:invalidateUserGroupResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createUserRealm" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates a new user realm.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createUserRealmRequest" />
+         <wsdl:output message="impl:createUserRealmResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="dropUserRealm" parameterOrder="parameters">
+         <wsdl:documentation>
+         Drops the user realm associated with the given ID.
+         </wsdl:documentation>
+         <wsdl:input message="impl:dropUserRealmRequest" />
+         <wsdl:output message="impl:dropUserRealmResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserRealms" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all existing user realms.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getUserRealmsRequest" />
+         <wsdl:output message="impl:getUserRealmsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:portType name="IAdministrationService">
+      <wsdl:documentation>
+      Provides administration services for the CARNOT runtime environment.
+      The functionality includes the following tasks:
+      manage the workflow models (deploy, modify or delete)
+      recover the runtime environment or single workflow objects
+      terminate running process instances
+      manage the life cycle management of CARNOT daemons
+
+      An administration service always operates against an audit trail database.
+      The administration service requires that the user performing tasks has been
+      assigned to the predefined role Administrator.
+      </wsdl:documentation>
+
+      <wsdl:operation name="getPasswordRules" parameterOrder="parameters">
+         <wsdl:documentation>
+         Returns the password rules.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getPasswordRulesRequest" />
+         <wsdl:output message="impl:getPasswordRulesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="setPasswordRules" parameterOrder="parameters">
+         <wsdl:documentation>
+         Set password rule.
+         </wsdl:documentation>
+         <wsdl:input message="impl:setPasswordRulesRequest" />
+         <wsdl:output message="impl:setPasswordRulesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="createDepartment" parameterOrder="parameters">
+         <wsdl:documentation>
+         Creates a new department.
+         </wsdl:documentation>
+         <wsdl:input message="impl:createDepartmentRequest" />
+         <wsdl:output message="impl:createDepartmentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDepartment" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the department with the given oid.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDepartmentRequest" />
+         <wsdl:output message="impl:getDepartmentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="modifyDepartment" parameterOrder="parameters">
+         <wsdl:documentation>
+         Change the description of a department.
+         </wsdl:documentation>
+         <wsdl:input message="impl:modifyDepartmentRequest" />
+         <wsdl:output message="impl:modifyDepartmentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="removeDepartment" parameterOrder="parameters">
+         <wsdl:documentation>
+         Removes the department having the specified oid, all his children and all user grants associated with the department.
+         </wsdl:documentation>
+         <wsdl:input message="impl:removeDepartmentRequest" />
+         <wsdl:output message="impl:removeDepartmentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="deployModel" parameterOrder="parameters">
+         <wsdl:documentation>
+         Deploys a new model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:deployModelRequest" />
+         <wsdl:output message="impl:deployModelResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="overwriteModel" parameterOrder="parameters">
+         <wsdl:documentation>
+         Overwrites the specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:overwriteModelRequest" />
+         <wsdl:output message="impl:overwriteModelResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="deleteModel" parameterOrder="parameters">
+         <wsdl:documentation>
+         Deletes the specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:deleteModelRequest" />
+         <wsdl:output message="impl:deleteModelResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <!-- wsdl:operation name="modifyModel" parameterOrder="parameters">
+         <wsdl:documentation>
+         Modifies the deployment attributes of the specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:modifyModelRequest" />
+         <wsdl:output message="impl:modifyModelResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation -->
+
+      <wsdl:operation name="getSessionUser" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves information on the current user.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getSessionUserRequest" />
+         <wsdl:output message="impl:getSessionUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="deleteProcesses" parameterOrder="parameters">
+         <wsdl:documentation>
+         Deletes process instances from the audit trail.
+         </wsdl:documentation>
+         <wsdl:input message="impl:deleteProcessesRequest" />
+         <wsdl:output message="impl:deleteProcessesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="cleanupRuntime" parameterOrder="parameters">
+         <wsdl:documentation>
+         Removes all records from the runtime environment making up the audit trail database.
+         </wsdl:documentation>
+         <wsdl:input message="impl:cleanupRuntimeRequest" />
+         <wsdl:output message="impl:cleanupRuntimeResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="cleanupRuntimeAndModels" parameterOrder="parameters">
+         <wsdl:documentation>
+         Removes all records from the runtime environment making up the audit trail database.
+         </wsdl:documentation>
+         <wsdl:input message="impl:cleanupRuntimeAndModelsRequest" />
+         <wsdl:output message="impl:cleanupRuntimeAndModelsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="setProcessInstancePriority" parameterOrder="parameters">
+         <wsdl:documentation>
+         Changes the process instance priority.
+         </wsdl:documentation>
+         <wsdl:input message="impl:setProcessInstancePriorityRequest" />
+         <wsdl:output message="impl:setProcessInstancePriorityResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="abortProcessInstance" parameterOrder="parameters">
+         <wsdl:documentation>
+         Aborts a process instance disregarding any activities which were or are performed by the process instance.
+         Regularly the process instance to be aborted will be set to the state ABORTING synchronously.
+         The returned ProcessInstance object will already be in that state.
+         Before returning the ProcessInstance object, a asynchronous abortion task is scheduled for it.
+         If the process instance is not yet inserted in the database but needs to be aborted for some reason ( e.g. by abort process event) then the abort operation is optimized to happen completely synchronously.
+         In that case the returned ProcessInstance will already be in state ABORTED.
+         This method also aborts all super process instances disregarding the parameter AbortScope.
+         </wsdl:documentation>
+         <wsdl:input message="impl:abortProcessInstanceRequest" />
+         <wsdl:output message="impl:abortProcessInstanceResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="recoverProcessInstances" parameterOrder="parameters">
+         <wsdl:documentation>
+         Recovers the process instances identified by the given list of OIDs and all associated subprocess instances.
+         </wsdl:documentation>
+         <wsdl:input message="impl:recoverProcessInstancesRequest" />
+         <wsdl:output message="impl:recoverProcessInstancesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getDaemonStatus" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves the specified daemon status.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getDaemonStatusRequest" />
+         <wsdl:output message="impl:getDaemonStatusResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="stopDaemon" parameterOrder="parameters">
+         <wsdl:documentation>
+         Stops the specified daemon.
+         </wsdl:documentation>
+         <wsdl:input message="impl:stopDaemonRequest" />
+         <wsdl:output message="impl:stopDaemonResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="startDaemon" parameterOrder="parameters">
+         <wsdl:documentation>
+         Starts the specified daemon.
+         </wsdl:documentation>
+         <wsdl:input message="impl:startDaemonRequest" />
+         <wsdl:output message="impl:startDaemonResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getAuditTrailHealthReport" parameterOrder="parameters">
+         <wsdl:documentation>
+         Determines key indicators of audit trail health.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getAuditTrailHealthReportRequest" />
+         <wsdl:output message="impl:getAuditTrailHealthReportResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="recoverRuntimeEnvironment" parameterOrder="parameters">
+         <wsdl:documentation>
+         Recovers the complete CARNOT runtime environment.
+         </wsdl:documentation>
+         <wsdl:input message="impl:recoverRuntimeEnvironmentRequest" />
+         <wsdl:output message="impl:recoverRuntimeEnvironmentResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="startProcessForModel" parameterOrder="parameters">
+         <wsdl:documentation>
+         Starts a process from a specified model.
+         </wsdl:documentation>
+         <wsdl:input message="impl:startProcessForModelRequest" />
+         <wsdl:output message="impl:startProcessForModelResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="forceCompletion" parameterOrder="parameters">
+         <wsdl:documentation>Forces the completion of a non-interactive activity instance. Optionally out data mappings may be provided.</wsdl:documentation>
+         <wsdl:input message="impl:forceCompletionRequest" />
+         <wsdl:output message="impl:forceCompletionResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="forceSuspend" parameterOrder="parameters">
+         <wsdl:documentation>
+         Forces an activity instance to be suspended.
+         </wsdl:documentation>
+         <wsdl:input message="impl:forceSuspendRequest" />
+         <wsdl:output message="impl:forceSuspendResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="flushCaches" parameterOrder="parameters">
+         <wsdl:documentation>
+         Flushes all internal caches, effectively returning the engine to a state just like after it has started.
+         </wsdl:documentation>
+         <wsdl:input message="impl:flushCachesRequest" />
+         <wsdl:output message="impl:flushCachesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getPermissions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves all permissions the current user has on this service.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getPermissionsRequest" />
+         <wsdl:output message="impl:getPermissionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="writeLogEntry" parameterOrder="parameters">
+         <wsdl:documentation>
+         Logs an audit trail event of type LogCode.ADMINISTRATION.
+         </wsdl:documentation>
+         <wsdl:input message="impl:writeLogEntryRequest" />
+         <wsdl:output message="impl:writeLogEntryResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getPreferences" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves preferences from the given scope.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getPreferencesRequest" />
+         <wsdl:output message="impl:getPreferencesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="savePreferences" parameterOrder="parameters">
+         <wsdl:documentation>
+         Saves a complete list of preferences to the preference store.
+         </wsdl:documentation>
+         <wsdl:input message="impl:savePreferencesRequest" />
+         <wsdl:output message="impl:savePreferencesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getConfigurationVariables" parameterOrder="parameters">
+         <wsdl:documentation>
+         Retrieves merged configuration variables from all models matching the specified modelIds.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getConfigurationVariablesRequest" />
+         <wsdl:output message="impl:getConfigurationVariablesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="saveConfigurationVariables" parameterOrder="parameters">
+         <wsdl:documentation>
+         Saves changes to configuration variables values.
+         </wsdl:documentation>
+         <wsdl:input message="impl:saveConfigurationVariablesRequest" />
+         <wsdl:output message="impl:saveConfigurationVariablesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="getGlobalPermissions" parameterOrder="parameters">
+         <wsdl:documentation>
+		Retrieves permissions that are globally set. For example permissions concerning model deployment, preference saving,
+		modifying AuditTrail, managing deamons ect.
+         </wsdl:documentation>
+         <wsdl:input message="impl:getGlobalPermissionsRequest" />
+         <wsdl:output message="impl:getGlobalPermissionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="setGlobalPermissions" parameterOrder="parameters">
+         <wsdl:documentation>
+         Saves the changed Permissions. Use getGlobalPermissions to retrieve currently valid global permissions first.
+         Permissions with null or empty lists set as grants will be reset to their internal default.
+         Changed grants are validated against the currently active model for existing model participants.
+         </wsdl:documentation>
+         <wsdl:input message="impl:setGlobalPermissionsRequest" />
+         <wsdl:output message="impl:setGlobalPermissionsResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="IWorkflowServiceSoapBinding" type="impl:IWorkflowService">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="startProcess">
+         <wsdlsoap:operation soapAction="startProcess" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findWorklist">
+         <wsdlsoap:operation soapAction="findWorklist" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="activateActivity">
+         <wsdlsoap:operation soapAction="activateActivity" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="activateNextActivity">
+         <wsdlsoap:operation soapAction="activateNextActivity" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="activateNextActivityForProcess">
+         <wsdlsoap:operation soapAction="activateNextActivityForProcess" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getActivity">
+         <wsdlsoap:operation soapAction="getActivity" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getProcess">
+         <wsdlsoap:operation soapAction="getProcess" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getProcessProperties">
+         <wsdlsoap:operation soapAction="getProcessProperties" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="setProcessProperties">
+         <wsdlsoap:operation soapAction="setProcessProperties" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getActivityInData">
+         <wsdlsoap:operation soapAction="getActivityInData" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="activateActivityAndGetInData">
+         <wsdlsoap:operation soapAction="activateActivityAndGetInData" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="suspendActivity">
+         <wsdlsoap:operation soapAction="suspendActivity" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="completeActivityAndActivateNext">
+         <wsdlsoap:operation soapAction="completeActivityAndActivateNext" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="completeActivity">
+			<wsdlsoap:operation soapAction="completeActivity"
+				style="document" />
+			<wsdl:input>
+				<wsdlsoap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<wsdlsoap:body use="literal" />
+			</wsdl:output>
+			<wsdl:fault name="fault">
+				<wsdlsoap:fault name="fault" use="literal" />
+			</wsdl:fault>
+		</wsdl:operation>
+
+		<wsdl:operation name="delegateActivity">
+			<wsdlsoap:operation soapAction="delegateActivity"
+				style="document" />
+			<wsdl:input>
+				<wsdlsoap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<wsdlsoap:body use="literal" />
+			</wsdl:output>
+			<wsdl:fault name="fault">
+				<wsdlsoap:fault name="fault" use="literal" />
+			</wsdl:fault>
+		</wsdl:operation>
+
+		<wsdl:operation name="abortActivity">
+			<wsdlsoap:operation soapAction="abortActivity"
+				style="document" />
+			<wsdl:input>
+				<wsdlsoap:body use="literal" />
+			</wsdl:input>
+			<wsdl:output>
+				<wsdlsoap:body use="literal" />
+			</wsdl:output>
+			<wsdl:fault name="fault">
+				<wsdlsoap:fault name="fault" use="literal" />
+			</wsdl:fault>
+		</wsdl:operation>
+
+		<wsdl:operation name="hibernateActivity">
+			<wsdlsoap:operation soapAction="hibernateActivity"
+				style="document" />
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getSessionUser">
+         <wsdlsoap:operation soapAction="getSessionUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getPermissions">
+         <wsdlsoap:operation soapAction="getPermissions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="writeLogEntry">
+         <wsdlsoap:operation soapAction="writeLogEntry" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getActivityEventBinding">
+         <wsdlsoap:operation soapAction="getActivityEventBinding" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createActivityEventBinding">
+         <wsdlsoap:operation soapAction="createActivityEventBinding" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="removeActivityEventBinding">
+         <wsdlsoap:operation soapAction="removeActivityEventBinding" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getProcessEventBinding">
+         <wsdlsoap:operation soapAction="getProcessEventBinding" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createProcessEventBinding">
+         <wsdlsoap:operation soapAction="createProcessEventBinding" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="removeProcessEventBinding">
+         <wsdlsoap:operation soapAction="removeProcessEventBinding" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getStartableProcessDefinitions">
+         <wsdlsoap:operation soapAction="getStartableProcessDefinitions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="spawnSubprocessInstances">
+         <wsdlsoap:operation soapAction="spawnSubprocessInstances" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="spawnPeerProcessInstance">
+         <wsdlsoap:operation soapAction="spawnPeerProcessInstance" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createCase">
+         <wsdlsoap:operation soapAction="createCase" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="joinCase">
+         <wsdlsoap:operation soapAction="joinCase" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="leaveCase">
+         <wsdlsoap:operation soapAction="leaveCase" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="mergeCases">
+         <wsdlsoap:operation soapAction="mergeCases" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="delegateCase">
+         <wsdlsoap:operation soapAction="delegateCase" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="joinProcessInstance">
+         <wsdlsoap:operation soapAction="joinProcessInstance" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="abortProcessInstance">
+         <wsdlsoap:operation soapAction="abortProcessInstance" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:binding name="IQueryServiceSoapBinding" type="impl:IQueryService">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="findAllDepartments">
+         <wsdlsoap:operation soapAction="findAllDepartments" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findDepartment">
+         <wsdlsoap:operation soapAction="findDepartment" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findProcesses">
+         <wsdlsoap:operation soapAction="findProcesses" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findProcessDefinitions">
+         <wsdlsoap:operation soapAction="findProcessDefinitions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findActivities">
+         <wsdlsoap:operation soapAction="findActivities" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findUsers">
+         <wsdlsoap:operation soapAction="findUsers" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findUserGroups">
+         <wsdlsoap:operation soapAction="findUserGroups" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findLogEntries">
+         <wsdlsoap:operation soapAction="findLogEntries" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllModelDescriptions">
+         <wsdlsoap:operation soapAction="getAllModelDescriptions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllAliveModelDescriptions">
+         <wsdlsoap:operation soapAction="getAllAliveModelDescriptions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getModelDescription">
+         <wsdlsoap:operation soapAction="getModelDescription" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getModel">
+         <wsdlsoap:operation soapAction="getModel" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getModelAsXML">
+         <wsdlsoap:operation soapAction="getModelAsXML" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getProcessDefinition">
+         <wsdlsoap:operation soapAction="getProcessDefinition" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllProcessDefinitions">
+         <wsdlsoap:operation soapAction="getAllProcessDefinitions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getParticipant">
+         <wsdlsoap:operation soapAction="getParticipant" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllParticipants">
+         <wsdlsoap:operation soapAction="getAllParticipants" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getPermissions">
+         <wsdlsoap:operation soapAction="getPermissions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getSchemaDefinition">
+         <wsdlsoap:operation soapAction="getSchemaDefinition" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllDocuments">
+         <wsdlsoap:operation soapAction="getAllDocuments" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findVariableDefinitions">
+         <wsdlsoap:operation soapAction="findVariableDefinitions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getPreferences">
+         <wsdlsoap:operation soapAction="getPreferences" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findPreferences">
+         <wsdlsoap:operation soapAction="findPreferences" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findModels">
+         <wsdlsoap:operation soapAction="findModels" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:binding name="IDocumentManagementServiceSoapBinding" type="impl:IDocumentManagementService">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="createDocument">
+         <wsdlsoap:operation soapAction="createDocument" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createDocuments">
+         <wsdlsoap:operation soapAction="createDocuments" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocument">
+         <wsdlsoap:operation soapAction="getDocument" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocumentVersions">
+         <wsdlsoap:operation soapAction="getDocumentVersions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocuments">
+         <wsdlsoap:operation soapAction="getDocuments" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findDocuments">
+         <wsdlsoap:operation soapAction="findDocuments" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocumentContent">
+         <wsdlsoap:operation soapAction="getDocumentContent" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="requestDocumentContentDownload">
+         <wsdlsoap:operation soapAction="requestDocumentContentDownload" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="requestDocumentContentUpload">
+         <wsdlsoap:operation soapAction="requestDocumentContentUpload" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="versionDocument">
+         <wsdlsoap:operation soapAction="versionDocument" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="updateDocument">
+         <wsdlsoap:operation soapAction="updateDocument" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="removeDocument">
+         <wsdlsoap:operation soapAction="removeDocument" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getFolder">
+         <wsdlsoap:operation soapAction="getFolder" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getFolders">
+         <wsdlsoap:operation soapAction="getFolders" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="findFolders">
+         <wsdlsoap:operation soapAction="findFolders" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createFolder">
+         <wsdlsoap:operation soapAction="createFolder" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="updateFolder">
+         <wsdlsoap:operation soapAction="updateFolder" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="removeFolder">
+         <wsdlsoap:operation soapAction="removeFolder" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getPrivileges">
+         <wsdlsoap:operation soapAction="getPrivileges" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getPolicies">
+         <wsdlsoap:operation soapAction="getPolicies" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="setPolicy">
+         <wsdlsoap:operation soapAction="setPolicy" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="migrateRepository">
+         <wsdlsoap:operation soapAction="migrateRepository" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocumentTypes">
+         <wsdlsoap:operation soapAction="getDocumentTypes" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDocumentTypeSchema">
+         <wsdlsoap:operation soapAction="getDocumentTypeSchema" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:binding name="IUserServiceSoapBinding" type="impl:IUserService">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="isInternalAuthentication">
+         <wsdlsoap:operation soapAction="isInternalAuthentication" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="isInternalAuthorization">
+         <wsdlsoap:operation soapAction="isInternalAuthorization" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getSessionUser">
+         <wsdlsoap:operation soapAction="getSessionUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getUser">
+         <wsdlsoap:operation soapAction="getUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="modifyUser">
+         <wsdlsoap:operation soapAction="modifyUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="resetPassword">
+         <wsdlsoap:operation soapAction="resetPassword" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createUser">
+         <wsdlsoap:operation soapAction="createUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="invalidateUser">
+         <wsdlsoap:operation soapAction="invalidateUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createUserGroup">
+         <wsdlsoap:operation soapAction="createUserGroup" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserGroup">
+         <wsdlsoap:operation soapAction="getUserGroup" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="modifyUserGroup">
+         <wsdlsoap:operation soapAction="modifyUserGroup" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="invalidateUserGroup">
+         <wsdlsoap:operation soapAction="invalidateUserGroup" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createUserRealm">
+         <wsdlsoap:operation soapAction="createUserRealm" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="dropUserRealm">
+         <wsdlsoap:operation soapAction="dropUserRealm" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserRealms">
+         <wsdlsoap:operation soapAction="getUserRealms" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:binding name="IAdministrationServiceSoapBinding" type="impl:IAdministrationService">
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="getPasswordRules">
+         <wsdlsoap:operation soapAction="getPasswordRules" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="setPasswordRules">
+         <wsdlsoap:operation soapAction="setPasswordRules" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="createDepartment">
+         <wsdlsoap:operation soapAction="createDepartment" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDepartment">
+         <wsdlsoap:operation soapAction="getDepartment" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="modifyDepartment">
+         <wsdlsoap:operation soapAction="modifyDepartment" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="removeDepartment">
+         <wsdlsoap:operation soapAction="removeDepartment" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="deployModel">
+         <wsdlsoap:operation soapAction="deployModel" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="overwriteModel">
+         <wsdlsoap:operation soapAction="overwriteModel" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="deleteModel">
+         <wsdlsoap:operation soapAction="deleteModel" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <!-- wsdl:operation name="modifyModel">
+         <wsdlsoap:operation soapAction="modifyModel" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation -->
+
+      <wsdl:operation name="getSessionUser">
+         <wsdlsoap:operation soapAction="getSessionUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="deleteProcesses">
+         <wsdlsoap:operation soapAction="deleteProcesses" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="cleanupRuntime">
+         <wsdlsoap:operation soapAction="cleanupRuntime" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="cleanupRuntimeAndModels">
+         <wsdlsoap:operation soapAction="cleanupRuntimeAndModels" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="setProcessInstancePriority">
+         <wsdlsoap:operation soapAction="setProcessInstancePriority" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="abortProcessInstance">
+         <wsdlsoap:operation soapAction="abortProcessInstance" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="recoverProcessInstances">
+         <wsdlsoap:operation soapAction="recoverProcessInstances" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getDaemonStatus">
+         <wsdlsoap:operation soapAction="getDaemonStatus" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="stopDaemon">
+         <wsdlsoap:operation soapAction="stopDaemon" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="startDaemon">
+         <wsdlsoap:operation soapAction="startDaemon" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getAuditTrailHealthReport">
+         <wsdlsoap:operation soapAction="getAuditTrailHealthReport" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="recoverRuntimeEnvironment">
+         <wsdlsoap:operation soapAction="recoverRuntimeEnvironment" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="startProcessForModel">
+         <wsdlsoap:operation soapAction="startProcessForModel" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="forceCompletion">
+         <wsdlsoap:operation soapAction="forceCompletion" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="forceSuspend">
+         <wsdlsoap:operation soapAction="forceSuspend" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getPermissions">
+         <wsdlsoap:operation soapAction="getPermissions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="flushCaches">
+         <wsdlsoap:operation soapAction="flushCaches" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="writeLogEntry">
+         <wsdlsoap:operation soapAction="writeLogEntry" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getPreferences">
+         <wsdlsoap:operation soapAction="getPreferences" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="savePreferences">
+         <wsdlsoap:operation soapAction="savePreferences" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getConfigurationVariables">
+         <wsdlsoap:operation soapAction="getConfigurationVariables" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="saveConfigurationVariables">
+         <wsdlsoap:operation soapAction="saveConfigurationVariables" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="getGlobalPermissions">
+         <wsdlsoap:operation soapAction="getGlobalPermissions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="setGlobalPermissions">
+         <wsdlsoap:operation soapAction="setGlobalPermissions" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="StardustBpmServices">
+
+      <!-- Workflow Service (HTTP Basic Authentication) -->
+      <wsdl:port binding="impl:IWorkflowServiceSoapBinding" name="WorkflowServiceHttpBasicAuthEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- Workflow Service (HTTP Basic Authentication using SSL) -->
+      <wsdl:port binding="impl:IWorkflowServiceSoapBinding" name="WorkflowServiceHttpBasicAuthSslEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#SslPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- Workflow Service (WS-Security UsernameToken) -->
+      <wsdl:port binding="impl:IWorkflowServiceSoapBinding" name="WorkflowServiceWssUsernameTokenEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#UsernameTokenPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+
+      <!-- Query Service (HTTP Basic Authentication) -->
+      <wsdl:port binding="impl:IQueryServiceSoapBinding" name="QueryServiceHttpBasicAuthEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- Query Service (HTTP Basic Authentication using SSL) -->
+      <wsdl:port binding="impl:IQueryServiceSoapBinding" name="QueryServiceHttpBasicAuthSslEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#SslPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- Query Service (WS-Security UsernameToken) -->
+      <wsdl:port binding="impl:IQueryServiceSoapBinding" name="QueryServiceWssUsernameTokenEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#UsernameTokenPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+
+      <!-- Document Management Service (HTTP Basic Authentication) -->
+      <wsdl:port binding="impl:IDocumentManagementServiceSoapBinding" name="DocumentManagementServiceHttpBasicAuthEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- Document Management Service (HTTP Basic Authentication using SSL) -->
+      <wsdl:port binding="impl:IDocumentManagementServiceSoapBinding" name="DocumentManagementServiceHttpBasicAuthSslEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#SslPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- Document Management Service (WS-Security UsernameToken) -->
+      <wsdl:port binding="impl:IDocumentManagementServiceSoapBinding" name="DocumentManagementServiceWssUsernameTokenEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#UsernameTokenPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+
+      <!-- User Service (HTTP Basic Authentication) -->
+      <wsdl:port binding="impl:IUserServiceSoapBinding" name="UserServiceHttpBasicAuthEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- User Service (HTTP Basic Authentication using SSL) -->
+      <wsdl:port binding="impl:IUserServiceSoapBinding" name="UserServiceHttpBasicAuthSslEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#SslPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- User Service (WS-Security UsernameToken) -->
+      <wsdl:port binding="impl:IUserServiceSoapBinding" name="UserServiceWssUsernameTokenEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#UsernameTokenPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+
+      <!-- Administration Service (HTTP Basic Authentication) -->
+      <wsdl:port binding="impl:IAdministrationServiceSoapBinding" name="AdministrationServiceHttpBasicAuthEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- Administration Service (HTTP Basic Authentication using SSL) -->
+      <wsdl:port binding="impl:IAdministrationServiceSoapBinding" name="AdministrationServiceHttpBasicAuthSslEndpoint">
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#SslPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+      <!-- Administration Service (WS-Security UsernameToken) -->
+      <wsdl:port binding="impl:IAdministrationServiceSoapBinding" name="AdministrationServiceWssUsernameTokenEndpoint">
+         <wsdl:documentation>
+         Administration Service (WS-Security UsernameToken)
+         </wsdl:documentation>
+         <wsdlsoap:address location="REPLACE_WITH_ACTUAL_URL" />
+         <wsp:PolicyReference URI="#UsernameTokenPolicy" />
+         <wsaw:UsingAddressing wsdl:required="false" />
+      </wsdl:port>
+
+   </wsdl:service>
+
+   <wsp:Policy wsu:Id="UsernameTokenPolicy">
+      <wsp:ExactlyOne>
+         <wsp:All>
+            <sp:TransportBinding>
+               <wsp:Policy>
+                  <sp:TransportToken>
+                     <wsp:Policy>
+                        <sp:HttpsToken RequireClientCertificate="false">
+                           <wsp:Policy />
+                        </sp:HttpsToken>
+                     </wsp:Policy>
+                  </sp:TransportToken>
+                  <sp:Layout>
+                     <wsp:Policy>
+                        <sp:Lax />
+                     </wsp:Policy>
+                  </sp:Layout>
+                  <sp:AlgorithmSuite>
+                     <wsp:Policy>
+                        <sp:Basic128 />
+                     </wsp:Policy>
+                  </sp:AlgorithmSuite>
+               </wsp:Policy>
+            </sp:TransportBinding>
+            <sp:Wss10 />
+            <sp:SignedEncryptedSupportingTokens>
+               <wsp:Policy>
+                  <sp:UsernameToken sp:IncludeToken="http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702/IncludeToken/AlwaysToRecipient">
+                     <wsp:Policy>
+                        <sp:WssUsernameToken10 />
+                     </wsp:Policy>
+                  </sp:UsernameToken>
+               </wsp:Policy>
+            </sp:SignedEncryptedSupportingTokens>
+         </wsp:All>
+      </wsp:ExactlyOne>
+   </wsp:Policy>
+
+   <wsp:Policy wsu:Id="SslPolicy">
+      <wsp:ExactlyOne>
+         <wsp:All>
+            <sp:TransportBinding>
+               <wsp:Policy>
+                  <sp:TransportToken>
+                     <wsp:Policy>
+                        <sp:HttpsToken RequireClientCertificate="false">
+                           <wsp:Policy />
+                        </sp:HttpsToken>
+                     </wsp:Policy>
+                  </sp:TransportToken>
+                  <sp:Layout>
+                     <wsp:Policy>
+                        <sp:Lax />
+                     </wsp:Policy>
+                  </sp:Layout>
+                  <sp:AlgorithmSuite>
+                     <wsp:Policy>
+                        <sp:Basic128 />
+                     </wsp:Policy>
+                  </sp:AlgorithmSuite>
+               </wsp:Policy>
+            </sp:TransportBinding>
+         </wsp:All>
+      </wsp:ExactlyOne>
+   </wsp:Policy>
+
+</wsdl:definitions>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   targetNamespace="http://eclipse.org/stardust/ws/v2012a/interactions"
+   elementFormDefault="qualified"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:bat="http://eclipse.org/stardust/ws/v2012a/api"
+   xmlns:tns="http://eclipse.org/stardust/ws/v2012a/interactions">
+  
+   <!--xsd:include schemaLocation="StardustBpmTypes.xsd" /-->
+   <xsd:import namespace="http://eclipse.org/stardust/ws/v2012a/api" schemaLocation="StardustBpmTypes.xsd" />
+  
+   <element name="bpmInteractionFault" type="tns:BpmInteractionFault" />
+
+   <element name="getDefinition">
+      <complexType>
+         <sequence>
+            <element name="interactionId" type="xsd:string" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+   <element name="getDefinitionResponse">
+      <complexType>
+         <sequence>
+            <element name="definition" type="bat:InteractionContext" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="getOwner">
+      <complexType>
+         <sequence>
+            <element name="interactionId" type="xsd:string" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+   <element name="getOwnerResponse">
+      <complexType>
+         <sequence>
+            <element name="owner" type="bat:User" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="getInputParameters">
+      <complexType>
+         <sequence>
+            <element name="interactionId" type="xsd:string" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+   <element name="getInputParametersResponse">
+      <complexType>
+         <sequence>
+            <element name="inputParameters" type="bat:Parameters" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="setOutputParameters">
+      <complexType>
+         <sequence>
+            <element name="interactionId" type="xsd:string" nillable="true" />
+            <element name="outputParameters" type="bat:Parameters" nillable="true" />
+         </sequence>
+      </complexType>
+   </element>
+   <element name="setOutputParametersResponse">
+      <complexType>
+         <sequence />
+      </complexType>
+   </element>
+
+   <complexType name="BpmInteractionFault">
+      <sequence>
+         <element name="faultCode" type="tns:BpmInteractionFaultCode" />
+         <element name="faultDescription" type="xsd:string" minOccurs="0" />
+      </sequence>
+   </complexType>
+
+   <simpleType name="BpmInteractionFaultCode">
+      <xsd:restriction base="xsd:string">
+         <xsd:enumeration value="UnknownError" />
+         <xsd:enumeration value="UnknownInteraction" />
+         <xsd:enumeration value="WrongParameter" />
+         <xsd:enumeration value="UnsupportedParameterValue" />
+      </xsd:restriction>
+   </simpleType>
+
+
+</schema>

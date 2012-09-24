@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://eclipse.org/stardust/ws/v2012a/api"
+   elementFormDefault="qualified"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:xmime="http://www.w3.org/2005/05/xmlmime"
+   xmlns:tns="http://eclipse.org/stardust/ws/v2012a/api">
+
+   <simpleType name="LogType">
+      <restriction base="string">
+         <enumeration value="Unknown" />
+         <enumeration value="Debug" />
+         <enumeration value="Info" />
+         <enumeration value="Warn" />
+         <enumeration value="Error" />
+         <enumeration value="Fatal" />
+      </restriction>
+   </simpleType>
+   
+   <simpleType name="LogCode">
+      <restriction base="string">
+         <enumeration value="Unknown" />
+         <enumeration value="Process Warehouse" />
+         <enumeration value="Security" />
+         <enumeration value="Engine" />
+         <enumeration value="Recovery" />
+         <enumeration value="Daemon" />
+         <enumeration value="Event" />
+         <enumeration value="WfXML" />
+         <enumeration value="External" />
+         <enumeration value="Administration" />
+      </restriction>
+   </simpleType>
+   
+   <simpleType name="ActivityInstanceState">
+      <restriction base="string">
+         <!-- based on class org.eclipse.stardust.engine.api.runtime.ActivityInstanceState -->
+         <enumeration value="Created" />
+         <enumeration value="Application" />
+         <enumeration value="Suspended" />
+         <enumeration value="Hibernated" />
+         <enumeration value="Interrupted" />
+         <enumeration value="Completed" />
+         <enumeration value="Aborting" />
+         <enumeration value="Aborted" />
+      </restriction>
+   </simpleType>
+   
+   <simpleType name="ProcessInstanceState">
+      <restriction base="string">
+         <!-- based on class org.eclipse.stardust.engine.api.runtime.ProcessInstanceState -->
+         <enumeration value="Created" />
+         <enumeration value="Active" />
+         <enumeration value="Interrupted" />
+         <enumeration value="Completed" />
+         <enumeration value="Aborting" />
+         <enumeration value="Aborted" />
+      </restriction>
+   </simpleType>
+
+   <simpleType name="Direction">
+      <restriction base="string">
+         <enumeration value="In" />
+         <enumeration value="Out" />
+         <enumeration value="InOut" />
+      </restriction>
+   </simpleType>
+
+</schema>

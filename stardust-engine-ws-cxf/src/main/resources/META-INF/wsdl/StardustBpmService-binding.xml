@@ -1,0 +1,14 @@
+<!--
+	Copyright (c) 2011 - 2012 SunGard CSA LLC
+ -->
+<jaxws:bindings wsdlLocation="StardustBpmService.wsdl"
+   xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+   xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+   xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   >
+
+   <jaxws:package name="org.eclipse.stardust.engine.api.ws" />
+
+</jaxws:bindings>

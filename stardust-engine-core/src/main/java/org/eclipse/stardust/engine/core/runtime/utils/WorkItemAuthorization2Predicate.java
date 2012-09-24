@@ -85,6 +85,7 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
             ResultSet rs = (ResultSet) o;
             try
             {
+               long activityInstanceOid = rs.getLong(WorkItemBean.FIELD__ACTIVITY_INSTANCE);               
                long activityRtOid = rs.getLong(WorkItemBean.FIELD__ACTIVITY);
                long modelOid = rs.getLong(WorkItemBean.FIELD__MODEL);
                int performerKind = rs.getInt(WorkItemBean.FIELD__PERFORMER_KIND);
@@ -127,7 +128,7 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                      return false;
                }
                
-               if(isExcludedUser(activityRtOid, modelOid))
+               if(isExcludedUser(activityInstanceOid, modelOid))
                {
                   return false;
                }

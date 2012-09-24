@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:epmws="http://eclipse.org/stardust/ws/v2012a/api"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
+	<import resource="classpath:META-INF/cxf/cxf.xml" />
+  
+	<!-- Handler beans -->
+	<bean id="webServiceEnvUsernameHttpBasicAuthConfigurer" class="org.eclipse.stardust.engine.ws.configurer.WebServiceEnvUsernameHttpBasicAuthConfigurer"/>
+	<bean id="webServiceEnvSessionPropConfigurer" class="org.eclipse.stardust.engine.ws.configurer.WebServiceEnvSessionPropConfigurer"/>
+  
+	<!-- Workflow Service (HTTP Basic Authentication) -->
+	<jaxws:endpoint name="bpmWorkflowServiceHttpBasicAuth"
+		implementor="org.eclipse.stardust.engine.ws.WorkflowServiceFacade"
+		address="/WorkflowServiceHttpBasicAuth"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:WorkflowServiceHttpBasicAuthEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- Workflow Service (HTTP Basic Authentication using SSL) -->
+	<jaxws:endpoint name="bpmWorkflowServiceHttpBasicAuthSsl"
+		implementor="org.eclipse.stardust.engine.ws.WorkflowServiceFacade"
+		address="/WorkflowServiceHttpBasicAuthSsl"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:WorkflowServiceHttpBasicAuthSslEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- Workflow Service (WS-Security UsernameToken) -->
+	<jaxws:endpoint name="bpmWorkflowServiceWssUsernameToken"
+		implementor="org.eclipse.stardust.engine.ws.WorkflowServiceFacade"
+		address="/WorkflowServiceWssUsernameToken"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:WorkflowServiceWssUsernameTokenEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+      <jaxws:properties>
+         <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
+      </jaxws:properties>
+	</jaxws:endpoint>
+
+	<!-- Query Service (HTTP Basic Authentication) -->
+	<jaxws:endpoint name="bpmQueryServiceHttpBasicAuth"
+		implementor="org.eclipse.stardust.engine.ws.QueryServiceFacade"
+		address="/QueryServiceHttpBasicAuth"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:QueryServiceHttpBasicAuthEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- Query Service (HTTP Basic Authentication using SSL) -->
+	<jaxws:endpoint name="bpmQueryServiceHttpBasicAuthSsl"
+		implementor="org.eclipse.stardust.engine.ws.QueryServiceFacade"
+		address="/QueryServiceHttpBasicAuthSsl"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:QueryServiceHttpBasicAuthSslEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- Query Service (WS-Security UsernameToken) -->
+	<jaxws:endpoint name="bpmQueryServiceWssUsernameToken"
+		implementor="org.eclipse.stardust.engine.ws.QueryServiceFacade"
+		address="/QueryServiceWssUsernameToken"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:QueryServiceWssUsernameTokenEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+      <jaxws:properties>
+         <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
+      </jaxws:properties>
+	</jaxws:endpoint>
+
+	<!-- Document Management Service (HTTP Basic Authentication) -->
+	<jaxws:endpoint name="bpmDocumentManagementServiceHttpBasicAuth"
+		implementor="org.eclipse.stardust.engine.ws.DocumentManagementServiceFacade"
+		address="/DocumentManagementServiceHttpBasicAuth"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:DocumentManagementServiceHttpBasicAuthEndpoint">
+		<jaxws:properties>
+   		<entry key="mtom-enabled" value="true"/>
+   		<entry key="mtom-threshold" value="2048"/>
+    	</jaxws:properties>
+    	<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- Document Management Service (HTTP Basic Authentication using SSL) -->
+	<jaxws:endpoint name="bpmDocumentManagementServiceHttpBasicAuthSsl"
+		implementor="org.eclipse.stardust.engine.ws.DocumentManagementServiceFacade"
+		address="/DocumentManagementServiceHttpBasicAuthSsl"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:DocumentManagementServiceHttpBasicAuthSslEndpoint">
+		<jaxws:properties>
+   		<entry key="mtom-enabled" value="true"/>
+   		<entry key="mtom-threshold" value="2048"/>
+    	</jaxws:properties>
+    	<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- Document Management Service (WS-Security UsernameToken) -->
+	<jaxws:endpoint name="bpmDocumentManagementServiceWssUsernameToken"
+		implementor="org.eclipse.stardust.engine.ws.DocumentManagementServiceFacade"
+		address="/DocumentManagementServiceWssUsernameToken"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:DocumentManagementServiceWssUsernameTokenEndpoint">
+		<jaxws:properties>
+   		<entry key="mtom-enabled" value="true"/>
+   		<entry key="mtom-threshold" value="2048"/>
+         <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
+    	</jaxws:properties>
+    	<jaxws:handlers>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- User Service (HTTP Basic Authentication) -->
+	<jaxws:endpoint name="bpmUserServiceHttpBasicAuth"
+		implementor="org.eclipse.stardust.engine.ws.UserServiceFacade"
+		address="/UserServiceHttpBasicAuth"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:UserServiceHttpBasicAuthEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- User Service (HTTP Basic Authentication using SSL) -->
+	<jaxws:endpoint name="bpmUserServiceHttpBasicAuthSsl"
+		implementor="org.eclipse.stardust.engine.ws.UserServiceFacade"
+		address="/UserServiceHttpBasicAuthSsl"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:UserServiceHttpBasicAuthSslEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- User Service (WS-Security UsernameToken) -->
+	<jaxws:endpoint name="bpmUserServiceWssUsernameToken"
+		implementor="org.eclipse.stardust.engine.ws.UserServiceFacade"
+		address="/UserServiceWssUsernameToken"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:UserServiceWssUsernameTokenEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+      <jaxws:properties>
+         <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
+      </jaxws:properties>
+	</jaxws:endpoint>
+
+	<!-- Administration Service (HTTP Basic Authentication) -->
+	<jaxws:endpoint name="bpmAdministrationServiceHttpBasicAuth"
+		implementor="org.eclipse.stardust.engine.ws.AdministrationServiceFacade"
+		address="/AdministrationServiceHttpBasicAuth"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:AdministrationServiceHttpBasicAuthEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- Administration Service (HTTP Basic Authentication using SSL) -->
+	<jaxws:endpoint name="bpmAdministrationServiceHttpBasicAuthSsl"
+		implementor="org.eclipse.stardust.engine.ws.AdministrationServiceFacade"
+		address="/AdministrationServiceHttpBasicAuthSsl"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:AdministrationServiceHttpBasicAuthSslEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvUsernameHttpBasicAuthConfigurer"/>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+	</jaxws:endpoint>
+
+	<!-- Administration Service (WS-Security UsernameToken) -->
+	<jaxws:endpoint name="bpmAdministrationServiceWssUsernameToken"
+		implementor="org.eclipse.stardust.engine.ws.AdministrationServiceFacade"
+		address="/AdministrationServiceWssUsernameToken"
+		wsdlLocation="WEB-INF/wsdl/StardustBpmService.wsdl"
+		serviceName="epmws:StardustBpmServices"
+		endpointName="epmws:AdministrationServiceWssUsernameTokenEndpoint">
+		<jaxws:handlers>
+			<ref bean="webServiceEnvSessionPropConfigurer"/>
+		</jaxws:handlers>
+      <jaxws:properties>
+         <entry key="ws-security.ut.validator" value="org.eclipse.stardust.engine.ws.configurer.UsernameTokenValidatingConfigurer"/>
+      </jaxws:properties>
+	</jaxws:endpoint>
+
+	<!-- BPM Interactions Service -->
+	<jaxws:endpoint name="bpmInteractionsService"
+		implementor="org.eclipse.stardust.engine.ws.interactions.InteractionsServiceFacade"
+		address="/BpmInteractionsService">
+	</jaxws:endpoint>
+   
+</beans>

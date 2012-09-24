@@ -16,6 +16,13 @@
    <info organisation="com.infinity.bpm" module="stardust-engine-ws-cxf-module" revision="${ipp.version.full}" />
 
    <configurations>
+      <conf name="jax-ws-cxf-module-compile" extends="jax-ws-cxf-provider-compile" description="EPM Engine - WS CXF Module - Compile Scope" />
+      <conf name="jax-ws-cxf-module-provided" description="EPM Engine - WS CXF Module - Provided Scope" />
+      <conf name="jax-ws-cxf-module-runtime" extends="jax-ws-cxf-module-compile, jax-ws-cxf-provider-runtime" description="EPM Engine - WS CXF Module - Runtime Scope" />
+
+      <conf name="jax-ws-cxf-provider-compile" visibility="private" />
+      <conf name="jax-ws-cxf-provider-runtime" visibility="private" />
+
       <conf name="jax-rs-cxf-module-compile" extends="jax-rs-cxf-provider-compile" description="EPM Engine - JAX-RS CXF Module - Compile Scope" />
       <conf name="jax-rs-cxf-module-runtime" extends="jax-rs-cxf-module-compile, jax-rs-cxf-provider-runtime" description="EPM Engine - JAX-RS CXF Module - Runtime Scope" />
 
@@ -26,22 +33,36 @@
    </configurations>
 
    <publications>
+      <artifact name="jax-ws-cxf-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="jax-rs-cxf-module" type="pom" conf="module-pom" ext="pom" />
    </publications>
 
    <dependencies>
-<!--       <dependency org="com.infinity.bpm" name="stardust-engine-ws-cxf" rev="${ipp.version.full}" conf="jax-rs-cxf-provider-compile->stardust-engine-ws-cxf-compile"/> -->
+      <dependency org="com.infinity.bpm" name="stardust-engine-ws-cxf" rev="${ipp.version.full}" conf="jax-ws-cxf-provider-compile, jax-rs-cxf-provider-compile->stardust-engine-ws-cxf-compile"/>
+
+      <!-- jax-ws-cxf-provider-compile -->
       
-      <!-- jax-rs-provider-runtime -->
-      <dependency org="org.apache.cxf" name="cxf-api" rev="2.6.1-stardust01" conf="jax-rs-cxf-provider-compile->default" >
+      <dependency org="org.apache.cxf" name="cxf-api" rev="2.6.1-stardust01" conf="jax-ws-cxf-provider-compile->default" >
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
       </dependency>
-      <dependency org="org.apache.cxf" name="cxf-rt-core" rev="2.6.1" conf="jax-rs-cxf-provider-compile->default" >
+      <dependency org="org.apache.cxf" name="cxf-rt-core" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" >
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
       </dependency>
-      <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="jax-rs-cxf-provider-compile->default" />
-      <dependency org="com.google.code.gson" name="gson" rev="1.6" conf="jax-rs-cxf-provider-compile->default" />      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="jax-rs-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" >
+      	<exclude org="org.slf4j" module="slf4j-api" />
+      </dependency>
+
+      <!-- jax-ws-cxf-provider-runtime -->      
+
+      <!-- jax-rs-provider-runtime -->
+      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
 
       <override org="javax.ws.rs" module="jsr311-api" rev="1.1.1" />
       <override org="com.sun.xml.bind" module="jaxb-xjc" rev="2.1.12" />

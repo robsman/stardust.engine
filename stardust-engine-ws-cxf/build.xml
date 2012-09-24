@@ -118,12 +118,24 @@
 		</ipp:javac-java6>
 	</target>
 
-	<target name="jar" depends="compile">
+	<target name="jar" depends="compile, wsStub">
 		<ipp:jar jarfile="${stardust-engine-ws-cxf.jar}" implementationTitle="Eclipse Process Manager - WS CXF Integration">
 			<fileset dir="${build.classes}" id="fileset.stardust-engine-ws-cxf.jar">
 				<include name="**/*.*" />
 			</fileset>
-			<fileset dir="${project.resources}" includes="**/*.*" />       
+			<!--fileset dir="${project.resources}" includes="**/*.*" /-->
+         <fileset dir="${project.resources}" includes="org/eclipse/stardust/engine/ws/interactions/*.*" />
+         <fileset dir="${project.resources}" includes="org/eclipse/stardust/engine/ws/integration/webservices/*.*" />
+		 <fileset dir="${project.resources}" includes="META-INF/wsdl/templates/*.*" />
+		 <fileset dir="${project.resources}" includes="META-INF/wadl/templates/*.*" />
+		 <fileset dir="${project.resources}" includes="META-INF/cxf/*.*" />
+
+         <!-- Resources need to be available for com.infinity.bpm.ide.wst.facet.portal.webservices -->
+         <fileset dir="${project.resources}" includes="META-INF/spring/cxf/jax-ws-cxf-context.xml" />
+         <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmService.wsdl" />
+         <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmService.xsd" />
+         <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmQueryTypes.xsd" />
+         <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmTypes.xsd" />
 		</ipp:jar>
 	</target>
 
@@ -136,6 +148,26 @@
 		</ipp:jar>
 	</target>
 
+   <target name="wsStub">
+      <!-- TODO: seems that mapper doesn't work correctly in ant 1.6.5 so we have to move
+   	     these file manually later -->
+      <copy todir="${global.build.dir}/webapps/ws-api/WEB-INF/wsdl" overwrite="true">
+         <fileset dir="${project.resources}/META-INF/wsdl">
+            <!-- <include name="StardustBpmInteractionsService.wsdl"/> -->
+            <!-- <include name="StardustBpmInteractionsService.xsd"/> -->
+            <include name="StardustBpmService.wsdl" />
+            <include name="StardustBpmService.xsd" />
+            <include name="StardustBpmTypes.xsd" />
+            <include name="StardustBpmQueryTypes.xsd" />
+         </fileset>
+      </copy>
+      <copy todir="${global.build.dir}/webapps/ws-api/WEB-INF" overwrite="true">
+         <fileset dir="${project.resources}/META-INF/">
+            <include name="jax-ws-cxf-context.xml" />
+         </fileset>
+      </copy>
+   </target>
+
 	<target name="build" depends="jar, jar.src, build.ivy" />
 
 	<target name="build.ivy" if="dependencies.mode.ivy" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
@@ -143,10 +175,12 @@
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib.src}" conf="stardust-engine-ws-cxf-sources" publishIvy="false" publishPom="false" />
 
+		<ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="jax-ws-cxf-module" />
 		<ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="jax-rs-cxf-module" />
 
 		<ivy:publish resolver="buildenv" conf="*" publishivy="true" artifactspattern="${build.lib}/[artifact](-[classifier]).[ext]" srcivypattern="module-ivy.xml" overwrite="true" haltonmissing="true" />
 
+		<ivy:retrieve file="module-ivy.xml" pattern="${build.lib}/engine-ws-cxf/[artifact]-[revision].[ext]" conf="jax-ws-cxf-module-runtime" module="stardust-engine-ws-cxf-module" />
 		<ivy:retrieve file="module-ivy.xml" pattern="${build.lib}/engine-ws-cxf/[artifact]-[revision].[ext]" conf="jax-rs-cxf-module-runtime" module="stardust-engine-ws-cxf-module" />
 
 		<!-- delete duplicated archives; archives which are directly stored in lib remains -->
@@ -164,8 +198,16 @@
 		</delete>
 
 	</target>
-	
+
 	<target name="dist" depends="build">
+		<!-- TODO copy to which stardust plugin? -->
+		<property name="ws.integration.lib.dir" value="../../modeler/ide/com.infinity.bpm.modeling.integration.webservices/lib" />
+		<mkdir dir="${ws.integration.lib.dir}" />
+		<copy todir="${ws.integration.lib.dir}" overwrite="true" verbose="true">
+			<fileset dir="${build.lib}">
+				<include name="${stardust-engine-ws-cxf.jarfile}" />
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="deploy" depends="build" />

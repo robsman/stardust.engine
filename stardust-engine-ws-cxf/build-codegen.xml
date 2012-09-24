@@ -1,0 +1,188 @@
+<!--
+    Copyright (c) 2012 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+   
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+<project name="codegen" default="generateJaxWsFacade" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
+
+   <property name="project.dir" location="." />
+   <property name="project.src" location="${project.dir}/src/main/java" />
+   <property name="project.resources" location="${project.dir}/src/main/resources" />
+
+   <property name="latakia.home" location="${project.dir}/../../../latakia" />
+
+   <property file="${project.dir}/etc/private.properties" />
+
+   <target name="build" depends="generateJaxWsFacade" />
+
+   <import file="${project.dir}/../../build.tools/commons-build.xml" />
+
+   <target name="generateJaxWsFacade" depends="init">
+
+      <taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" classpathref="codegen.deps" />
+
+      <echo message="" />
+      <echo message="Generating shared types artifacts ..." />
+      <echo message="" />
+
+      <xjc schema="${project.resources}/META-INF/wsdl/StardustBpmTypes.xsd" destdir="${project.src}" extension="true" header="false">
+         <arg line="-verbose" />
+         <!-- this will create an episode file to be reused by other services -->
+         <arg line="-episode ${project.resources}/META-INF/wsdl/StardustBpmTypes-episode.xml" />
+
+         <binding dir="${project.resources}/META-INF/wsdl/">
+            <include name="StardustBpmTypes-binding.xml" />
+         </binding>
+
+         <depends dir="${project.resources}/META-INF/wsdl">
+            <include name="StardustBpmTypes.xsd" />
+            <include name="StardustBpmTypes-binding.xml" />
+         </depends>
+         <produces dir="${project.src}/org/eclipse/stardust/engine/api/ws" includes="*.java xsd/*.java" />
+      </xjc>
+
+      <echo message="" />
+      <echo message="Generating shared query types artifacts ..." />
+      <echo message="" />
+
+      <xjc schema="${project.resources}/META-INF/wsdl/StardustBpmQueryTypes.xsd" destdir="${project.src}" extension="true" header="false">
+         <arg line="-verbose" />
+         <!-- this will create an episode file to be reused by other services -->
+         <arg line="-episode ${project.resources}/META-INF/wsdl/StardustBpmQueryTypes-episode.xml" />
+
+         <binding dir="${project.resources}/META-INF/wsdl/">
+            <include name="StardustBpmTypes-episode.xml" />
+            <include name="StardustBpmQueryTypes-binding.xml" />
+         </binding>
+
+         <depends dir="${project.resources}/META-INF/wsdl">
+            <include name="StardustBpmQueryTypes.xsd" />
+            <include name="StardustBpmQueryTypes-binding.xml" />
+         </depends>
+         <produces dir="${project.src}/org/eclipse/stardust/engine/api/ws/query" includes="*.java" />
+      </xjc>
+
+      <echo message="" />
+      <echo message="Generating Core-Services artifacts ..." />
+      <echo message="" />
+	
+      <java failonerror="true" classname="org.apache.cxf.tools.wsdlto.WSDLToJava" fork="yes">
+        <classpath>
+           <path refid="codegen.deps" />
+        </classpath>
+        <!--arg line="@{servicename.arg}"/-->
+        <arg line="-p org.eclipse.stardust.engine.ws"/>
+        <arg line="-b ${project.resources}/META-INF/wsdl/StardustBpmService-binding.xml"/>
+        <arg line="-b ${project.resources}/META-INF/wsdl/StardustBpmTypes-binding.xml"/>
+        <arg line="-b ${project.resources}/META-INF/wsdl/StardustBpmQueryTypes-episode.xml"/>
+        <arg value="-verbose"/>
+        <arg line="-d ${project.src}"/>
+        <arg line="${project.resources}/META-INF/wsdl/StardustBpmService.wsdl"/>
+   	  </java>
+
+      <echo message="" />
+      <echo message="Generating Interactions-Service artifacts ..." />
+      <echo message="" />
+
+      <java failonerror="true" classname="org.apache.cxf.tools.wsdlto.WSDLToJava" fork="yes">
+          <classpath>
+             <path refid="codegen.deps" />
+          </classpath>
+          <!--arg line="@{servicename.arg}"/-->
+          <arg line="-p org.eclipse.stardust.engine.ws.interactions"/>
+          <arg line="-b ${project.resources}/META-INF/wsdl/StardustBpmInteractionsService-binding.xml"/>
+          <arg line="-b ${project.resources}/META-INF/wsdl/StardustBpmTypes-episode.xml"/>
+          <arg value="-verbose"/>
+          <arg line="-d ${project.src}"/>
+          <arg line="${project.resources}/META-INF/wsdl/StardustBpmInteractionsService.wsdl"/>
+     </java>
+   	
+   </target>
+
+   <target name="init-strict.import.options" if="svcutil.import.strict">
+      <!-- give some hints on how to interpret strict importing -->
+      <echo message="Importing with strict data contract validation. Currently valid exception are:" />
+      <echo message="- XmlValue" />
+      <echo message="" />
+      <echo message="If other types a refused a new incompatibility was introduced into the contract and needs to be reviewed." />
+      <echo message="" />
+
+      <property name="svcutil.import.options" value="/dataContractOnly" />
+   </target>
+
+   <target name="init-nonstrict.import.options" unless="svcutil.import.strict">
+      <property name="svcutil.import.options" value="/importXmlTypes /noConfig" />
+   </target>
+
+   <target name="generateC#Facade" depends="init, init-strict.import.options, init-nonstrict.import.options">
+
+      <fail message="Missing dotNet-sdk.home property" unless="dotNet-sdk.home" />
+
+      <property name="ws.client.example.dir.c#" value="${latakia.home}/examples/ws-client-c-sharp/src" />
+
+      <mkdir dir="${build.dir}/c-sharp" />
+
+      <exec executable="${dotNet-sdk.home}/bin/xsd.exe">
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmTypes.xsd" />
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmQueryTypes.xsd" />
+         <arg value="/out:${build.dir}/c-sharp/" />
+         <arg value="/namespace:org.eclipse.stardust.engine.api.query" />
+         <arg line="/classes" />
+      </exec>
+
+      <exec executable="${dotNet-sdk.home}/bin/SvcUtil.exe">
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmService.wsdl" />
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmService.xsd" />
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmTypes.xsd" />
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmQueryTypes.xsd" />
+         <arg value="/out:${build.dir}/c-sharp/StardustBpmServices.cs" />
+         <arg value="/namespace:http://eclipse.org/stardust/ws/v2012a/api,org.eclipse.stardust.engine.api" />
+         <arg value="/namespace:http://eclipse.org/stardust/ws/v2012a/api/query,org.eclipse.stardust.engine.api.query.stubs" />
+         <arg value="/targetClientVersion:Version35" />
+         <!--arg value="/serializer:XmlSerializer" /-->
+         <arg value="/serializer:DataContractSerializer" />
+         <arg value="/collectionType:System.Collections.Generic.List`1" />
+         <arg line="${svcutil.import.options}" />
+         <arg line="/excludeType:org.eclipse.stardust.engine.api.query.Query" />
+      </exec>
+
+      <exec executable="${dotNet-sdk.home}/bin/SvcUtil.exe">
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmInteractionsService.wsdl" />
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmInteractionsService.xsd" />
+         <arg value="${project.resources}/META-INF/wsdl/StardustBpmTypes.xsd" />
+         <arg value="/out:${build.dir}/c-sharp/StardustBpmInteractionsService.cs" />
+         <arg value="/namespace:http://eclipse.org/stardust/ws/v2012a/api,org.eclipse.stardust.engine.api" />
+         <arg value="/namespace:http://eclipse.org/stardust/ws/v2012a/interactions,org.eclipse.stardust.engine.api.interations" />
+         <arg value="/targetClientVersion:Version35" />
+         <arg line="${svcutil.import.options}" />
+      </exec>
+
+      <copy todir="${ws.client.example.dir.c#}">
+         <fileset dir="${build.dir}/c-sharp">
+            <include name="StardustBpmServices.cs" />
+            <include name="StardustBpmQueryTypes.cs" />
+         </fileset>
+      </copy>
+
+   </target>
+
+   <target name="init" xmlns:ivy="antlib:org.apache.ivy.ant">
+      <property name="build.dir" location="${project.dir}/build" />
+      <property name="build.classes" value="${build.dir}/classes" />
+      <property name="build.dir.src" value="${build.dir}/src" />
+
+      <mkdir dir="${build.dir}" />
+      <mkdir dir="${build.classes}" />
+      <mkdir dir="${build.dir.src}" />
+
+      <init-ivy />
+
+      <ivy:cachepath pathid="codegen.deps" conf="stardust-engine-ws-cxf-codegen-runtime" module="stardust-engine-ws-cxf" />
+   </target>
+
+</project>

@@ -199,4 +199,6 @@ public final class KernelTweakingProperties
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Public)
    @PropertyValueType(HazelcastJcaConnectionFactoryProvider.class)
    public static final String HZ_JCA_CONNECTION_FACTORY_PROVIDER = "Carnot.Engine.Hazelcast.JcaConnectionFactoryProvider";
+   
+   public static final String ASSIGN_TO_INVALID_USER = "Infinity.Engine.Activity.AssignToInvalidUser";   
 }

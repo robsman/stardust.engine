@@ -47,6 +47,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
@@ -724,7 +725,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    private void putToUserWorklist(IUser user)
    {
-      if ( !user.isValid())
+      if (!user.isValid() && !Parameters.instance().getBoolean(KernelTweakingProperties.ASSIGN_TO_INVALID_USER, false))
       {
          throw new AccessForbiddenException(
                BpmRuntimeError.AUTHx_USER_NOT_VALID.raise(user.getOID()));

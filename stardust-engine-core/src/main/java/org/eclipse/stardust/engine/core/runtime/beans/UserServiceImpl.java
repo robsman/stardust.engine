@@ -468,7 +468,28 @@ public class UserServiceImpl implements UserService, Serializable
    public User createUser(String realm, String account, String firstName,
          String lastName, String description, String password, String eMail,
          Date validFrom, Date validTo)
-   {
+   {      
+      if (StringUtils.isEmpty(realm))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("realm"));
+      }
+      if (StringUtils.isEmpty(account))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("account"));
+      }
+      if (StringUtils.isEmpty(firstName))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("firstName"));
+      }
+      if (StringUtils.isEmpty(lastName))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("lastName"));
+      }
+      if (StringUtils.isEmpty(password))
+      {
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("password"));
+      }
+      
       checkInternalAuthentified();
       
       ExtensionService.initializeRealmExtensions();

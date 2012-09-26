@@ -131,7 +131,9 @@
 		 <fileset dir="${project.resources}" includes="META-INF/cxf/*.*" />
 
          <!-- Resources need to be available for com.infinity.bpm.ide.wst.facet.portal.webservices -->
-         <fileset dir="${project.resources}" includes="META-INF/spring/cxf/jax-ws-cxf-context.xml" />
+         <fileset dir="${project.resources}" includes="META-INF/jax-ws-cxf-context.xml" />
+	     <fileset dir="${project.resources}" includes="META-INF/spring/cxf/jax-rs-cxf-context.xml" />
+	     <fileset dir="${project.resources}" includes="META-INF/spring/postprocessor-context.xml" />
          <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmService.wsdl" />
          <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmService.xsd" />
          <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmQueryTypes.xsd" />
@@ -201,7 +203,7 @@
 
 	<target name="dist" depends="build">
 		<!-- TODO copy to which stardust plugin? -->
-		<property name="ws.integration.lib.dir" value="../../modeler/ide/com.infinity.bpm.modeling.integration.webservices/lib" />
+		<property name="ws.integration.lib.dir" value="../../ide/modeling/org.eclipse.stardust.modeling.integration.webservices/lib" />
 		<mkdir dir="${ws.integration.lib.dir}" />
 		<copy todir="${ws.integration.lib.dir}" overwrite="true" verbose="true">
 			<fileset dir="${build.lib}">

@@ -85,6 +85,22 @@ public class Version implements Comparable<Version>, Serializable
    
    public int compareTo(Version otherVersion, boolean includeMicro) throws ClassCastException
    {
+      if ((major != 0 && otherVersion.major == 0)
+            || (major == 0 && otherVersion.major != 0))
+      {
+         // special treatment for stardust incubation phase: version shift to left, filling micro with 0
+         // TODO: What about comaprison to micro version != 0 ?
+         if (major != 0)
+         {
+            return compareTo(new Version(otherVersion.minor, otherVersion.micro, 0),
+                  includeMicro);
+         }
+         else
+         {
+            return new Version(minor, micro, 0).compareTo(otherVersion, includeMicro);
+         }
+      }
+      
       if (major < otherVersion.major)
       {
          return -1;

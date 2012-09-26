@@ -181,7 +181,6 @@
          <fileset dir="${build.lib}">
             <exclude name="misc/xercesImpl*.jar"/>
             <include name="misc/bcprov-jdk15-*.jar"/>
-            <include name="misc/jsr250-api-*.jar"/>
             <include name="**/xercesImpl*.jar"/>
             <include name="**/xml-apis*.jar"/>
             <include name="**/jmx*.jar"/>

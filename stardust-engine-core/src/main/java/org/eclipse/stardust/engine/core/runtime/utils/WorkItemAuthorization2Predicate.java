@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.query.FilterAndTerm;
 import org.eclipse.stardust.engine.api.query.Query;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.UserPK;
+import org.eclipse.stardust.engine.core.model.beans.ActivityBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
@@ -42,7 +43,17 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predicate
 {
    private static final Logger trace = LogManager.getLogger(WorkItemAuthorization2Predicate.class);
+   private ModelManager modelManager;
 
+   public ModelManager getModelManager()
+   {
+      if (modelManager == null)
+      {
+         modelManager = ModelManagerFactory.getCurrent();
+      }
+      return modelManager;
+   }
+      
    public boolean addPrefetchDataHints(Query query)
    {
       boolean returnValue = super.addPrefetchDataHints(query);
@@ -85,7 +96,6 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
             ResultSet rs = (ResultSet) o;
             try
             {
-               long activityInstanceOid = rs.getLong(WorkItemBean.FIELD__ACTIVITY_INSTANCE);               
                long activityRtOid = rs.getLong(WorkItemBean.FIELD__ACTIVITY);
                long modelOid = rs.getLong(WorkItemBean.FIELD__MODEL);
                int performerKind = rs.getInt(WorkItemBean.FIELD__PERFORMER_KIND);
@@ -128,7 +138,7 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                      return false;
                }
                
-               if(isExcludedUser(activityInstanceOid, modelOid))
+               if(isExcludedUser(activityRtOid, scopeProcessInstanceOid, modelOid))
                {
                   return false;
                }
@@ -153,15 +163,19 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
       return result;
    }
       
-   public boolean isExcludedUser(long activityRtOid, long modelOid)
+   public boolean isExcludedUser(long activityRtOid, long processInstanceOID, long modelOid)
    {
+      if(processInstanceOID == 0)
+      {
+         return false;
+      }
+      
       IUser currentUser = SecurityProperties.getUser();      
       long currentPerformer = currentUser.getOID();
+    
+      ModelManager mm = getModelManager();
+      IActivity activity = mm.findActivity(modelOid, activityRtOid);
       
-      ActivityInstanceBean bean = ActivityInstanceBean.findByOID(activityRtOid);
-      IActivity activity = bean.getActivity();
-      
-      long processInstanceOID = bean.getProcessInstanceOID();      
       IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
       IProcessDefinition processDefinition = processInstance.getProcessDefinition();
             

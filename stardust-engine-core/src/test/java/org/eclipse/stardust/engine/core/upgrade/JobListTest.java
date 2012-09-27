@@ -42,21 +42,21 @@ public class JobListTest extends TestCase
    public void testUpgradeToVersion()
    {
       List jobs = new LinkedList();
-      DumbModelUpgradeJob job09 = new DumbModelUpgradeJob(new Version(0,9,0));
-      DumbModelUpgradeJob job11 = new DumbModelUpgradeJob(new Version(1,1,0));
-      DumbModelUpgradeJob job12 = new DumbModelUpgradeJob(new Version(1,2,0));
-      DumbModelUpgradeJob job17 = new DumbModelUpgradeJob(new Version(1,7,0));
-      jobs.add(job09);
-      jobs.add(job11);
-      jobs.add(job12);
+      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
+      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
+      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
+      DumbModelUpgradeJob job17 = new DumbModelUpgradeJob(new Version(2,7,0));
+      jobs.add(job19);
+      jobs.add(job21);
+      jobs.add(job22);
       jobs.add(job17);
       ModelItem item = new ModelItem(model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
-      ModelItem newModel = (ModelItem) upgrader.upgradeToVersion(new Version(1,6,9), false);
-      assertEquals(job12.getVersion(), newModel.getVersion());
-      assertTrue(!job09.wasVisited());
-      assertTrue(job11.wasVisited());
-      assertTrue(job12.wasVisited());
+      ModelItem newModel = (ModelItem) upgrader.upgradeToVersion(new Version(2,6,9), false);
+      assertEquals(job22.getVersion(), newModel.getVersion());
+      assertTrue(!job19.wasVisited());
+      assertTrue(job21.wasVisited());
+      assertTrue(job22.wasVisited());
       assertTrue(!job17.wasVisited());
    }
 
@@ -66,21 +66,21 @@ public class JobListTest extends TestCase
    public void testUpgradeToCurrentVersion()
    {
       List jobs = new LinkedList();
-      DumbModelUpgradeJob job09 = new DumbModelUpgradeJob(new Version(0,9,0));
-      DumbModelUpgradeJob job11 = new DumbModelUpgradeJob(new Version(1,1,0));
-      DumbModelUpgradeJob job12 = new DumbModelUpgradeJob(new Version(1,2,0));
+      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
+      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
+      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
       DumbModelUpgradeJob current = new DumbModelUpgradeJob(CurrentVersion.getVersion());
-      jobs.add(job09);
-      jobs.add(job11);
-      jobs.add(job12);
+      jobs.add(job19);
+      jobs.add(job21);
+      jobs.add(job22);
       jobs.add(current);
       ModelItem item = new ModelItem(model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
       ModelItem newModel = (ModelItem) upgrader.upgrade(false);
       assertEquals(current.getVersion(), newModel.getVersion());
-      assertTrue(!job09.wasVisited());
-      assertTrue(job11.wasVisited());
-      assertTrue(job12.wasVisited());
+      assertTrue(!job19.wasVisited());
+      assertTrue(job21.wasVisited());
+      assertTrue(job22.wasVisited());
       assertTrue(current.wasVisited());
    }
 
@@ -90,22 +90,22 @@ public class JobListTest extends TestCase
    public void testUpgradeToFutureVersion()
    {
       List jobs = new LinkedList();
-      DumbModelUpgradeJob job09 = new DumbModelUpgradeJob(new Version(0,9,0));
-      DumbModelUpgradeJob job11 = new DumbModelUpgradeJob(new Version(1,1,0));
-      DumbModelUpgradeJob job12 = new DumbModelUpgradeJob(new Version(1,2,0));
+      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
+      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
+      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
       DumbModelUpgradeJob current = new DumbModelUpgradeJob(CurrentVersion.getVersion());
       DumbModelUpgradeJob future = new DumbModelUpgradeJob(new Version(10000, 0, 0));
-      jobs.add(job09);
-      jobs.add(job11);
-      jobs.add(job12);
+      jobs.add(job19);
+      jobs.add(job21);
+      jobs.add(job22);
       jobs.add(current);
       ModelItem item = new ModelItem(model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
       ModelItem newModel = (ModelItem) upgrader.upgrade(false);
       assertEquals(current.getVersion(), newModel.getVersion());
-      assertTrue(!job09.wasVisited());
-      assertTrue(job11.wasVisited());
-      assertTrue(job12.wasVisited());
+      assertTrue(!job19.wasVisited());
+      assertTrue(job21.wasVisited());
+      assertTrue(job22.wasVisited());
       assertTrue(current.wasVisited());
       assertTrue(!future.wasVisited());
    }
@@ -116,24 +116,24 @@ public class JobListTest extends TestCase
    public void testRecovery()
    {
       List jobs = new LinkedList();
-      DumbModelUpgradeJob job09 = new DumbModelUpgradeJob(new Version(0,9,0));
-      DumbModelUpgradeJob job11 = new DumbModelUpgradeJob(new Version(1,1,0));
-      DumbModelUpgradeJob job12 = new DumbModelUpgradeJob(new Version(1,2,0));
+      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
+      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
+      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
       DumbModelUpgradeJob current = new DumbModelUpgradeJob(CurrentVersion.getVersion());
-      jobs.add(job09);
-      jobs.add(job11);
-      jobs.add(job12);
+      jobs.add(job19);
+      jobs.add(job21);
+      jobs.add(job22);
       jobs.add(current);
       ModelItem item = new ModelItem(model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
       ModelItem newModel = (ModelItem) upgrader.upgrade(true);
       assertEquals(current.getVersion(), newModel.getVersion());
-      assertTrue(!job09.wasVisited());
-      assertTrue(job11.wasVisited());
-      assertTrue(job12.wasVisited());
+      assertTrue(!job19.wasVisited());
+      assertTrue(job21.wasVisited());
+      assertTrue(job22.wasVisited());
       assertTrue(current.wasVisited());
-      assertTrue(job11.wasRecovered());
-      assertTrue(!job12.wasRecovered());
+      assertTrue(job21.wasRecovered());
+      assertTrue(!job22.wasRecovered());
       assertTrue(!current.wasRecovered());
    }
 }

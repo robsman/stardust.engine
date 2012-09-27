@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -327,31 +327,32 @@ public class VfsDocumentListAccessPathEvaluator extends AbstractVfsResourceAcces
 
       private boolean handleRootPIProcessAttachmentsEvalContext(AccessPoint accessPointDefinition, Object accessPointInstance, AccessPathEvaluationContext accessPathEvaluationContext)
       {
-         boolean modified;
          if (isRootProcessAttachmentAttributeEnabled(accessPointDefinition, accessPathEvaluationContext))
          {
-            IProcessInstance rootPI = accessPathEvaluationContext.getProcessInstance()
-                  .getRootProcessInstance();
-            this.accessPathEvaluationContext = new AccessPathEvaluationContext(rootPI,
-                  accessPathEvaluationContext.getTargetAccessPointDefinition(),
-                  accessPathEvaluationContext.getTargetPath(),
-                  accessPathEvaluationContext.getActivity());
-
-            if (rootPI instanceof ProcessInstanceBean && accessPointDefinition instanceof IData)
+            IProcessInstance pi = accessPathEvaluationContext
+                  .getProcessInstance();
+            IProcessInstance rootPI = pi.getRootProcessInstance();
+            if (pi.getOID() != rootPI.getOID())
             {
-               this.accessPointInstance = rootPI.getDataValue(
-                     (IData) accessPointDefinition).getValue();
-            }
-            modified = true;
-         }
-         else
-         {
-            this.accessPathEvaluationContext = accessPathEvaluationContext;
-            this.accessPointInstance = accessPointInstance;
-            modified = false;
-         }
+               this.accessPathEvaluationContext = new AccessPathEvaluationContext(
+                     rootPI,
+                     accessPathEvaluationContext
+                           .getTargetAccessPointDefinition(),
+                     accessPathEvaluationContext.getTargetPath(),
+                     accessPathEvaluationContext.getActivity());
 
-         return modified;
+               if (rootPI instanceof ProcessInstanceBean
+                     && accessPointDefinition instanceof IData) {
+                  this.accessPointInstance = rootPI.getDataValue(
+                        (IData) accessPointDefinition).getValue();
+               }
+               return true;
+            }
+         }
+         this.accessPathEvaluationContext = accessPathEvaluationContext;
+         this.accessPointInstance = accessPointInstance;
+
+         return false;
       }
 
    }

@@ -131,7 +131,13 @@ public class Attribute extends LeafNode implements NamedNode
    @Override
    void toXML(XMLStreamWriter xmlWriter) throws XMLStreamException
    {
+      String val = getValue();
+      if(val == null)
+      {
+         val = "";
+      }
+      
       xmlWriter.writeAttribute(getNamespacePrefix(), getNamespaceURI(), getLocalName(),
-            getValue());
+            val);
    }
 }

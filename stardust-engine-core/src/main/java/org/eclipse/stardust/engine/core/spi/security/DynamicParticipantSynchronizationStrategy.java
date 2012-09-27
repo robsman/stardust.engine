@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.security;
 
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 
 /**
  * The DynamicParticipantSynchronizationStrategy is used to determine if a given user or
@@ -20,6 +23,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
  */
 public abstract class DynamicParticipantSynchronizationStrategy
 {
+   public static final Logger trace = RuntimeLog.SPI;
+   
    /**
     * Checks if this user needs to be synchronized.
     * 
@@ -27,6 +32,26 @@ public abstract class DynamicParticipantSynchronizationStrategy
     * @return 
     */
    public abstract boolean isDirty(IUser user);
+   
+   /**
+    * wrapper to catch and log possible exceptions.
+    * 
+    * {@link isDirty(IUserGroup userGroup)}
+    */   
+   public final boolean isDirtyLogAware(IUser user)
+   {
+      try
+      {
+         return isDirty(user);
+      }
+      catch (Exception e)
+      {
+         String exceptionMessage = e.getMessage();
+         trace.warn(exceptionMessage, e);
+         
+         throw new InternalException(e);
+      }
+   }
 
    /**
     * Callback method to inform the SynchronizationStrategy that the user have been
@@ -35,6 +60,26 @@ public abstract class DynamicParticipantSynchronizationStrategy
     * @param user the user that has been synchronized.
     */
    public abstract void setSynchronized(IUser user);
+   
+   /**
+    * wrapper to catch and log possible exceptions.
+    * 
+    * {@link setSynchronized(IUser user))}
+    */      
+   public final void setSynchronizedLogAware(IUser user)
+   {
+      try
+      {
+         setSynchronized(user);
+      }
+      catch (Exception e)
+      {
+         String exceptionMessage = e.getMessage();
+         trace.warn(exceptionMessage, e);
+
+         throw new InternalException(e);         
+      }      
+   }   
 
    /**
     * Checks if this user group needs to be synchronized.

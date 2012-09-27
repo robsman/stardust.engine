@@ -611,7 +611,7 @@ public abstract class SynchronizationService
       if ( !SecurityProperties.isInternalAuthentication())
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-         if (!session.isSynchronized(user) && getSynchronizationStrategy().isDirty(user))
+         if (!session.isSynchronized(user) && getSynchronizationStrategy().isDirtyLogAware(user))
          {
             DynamicParticipantSynchronizationProvider provider = initializeProvider();
             if (null != provider)
@@ -662,7 +662,7 @@ public abstract class SynchronizationService
       if (null != userConf)
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-         if (!session.isSynchronized(user) && getSynchronizationStrategy().isDirty(user))
+         if (!session.isSynchronized(user) && getSynchronizationStrategy().isDirtyLogAware(user))
          {
             if (Parameters.instance().getBoolean(
                   SecurityProperties.AUTHORIZATION_SYNC_TRACE_PROPERTY, false))
@@ -682,7 +682,7 @@ public abstract class SynchronizationService
             }
 
             session.setSynchronized(user);
-            getSynchronizationStrategy().setSynchronized(user);
+            getSynchronizationStrategy().setSynchronizedLogAware(user);
          }
       }
       else

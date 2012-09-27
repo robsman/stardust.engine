@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,10 @@ package org.eclipse.stardust.engine.core.spi.security;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
+
 /**
  * Contract for providing access to external user repositories.
  * 
@@ -21,6 +25,8 @@ import java.util.Map;
  */
 public abstract class DynamicParticipantSynchronizationProvider
 {
+   public static final Logger trace = RuntimeLog.SPI;
+   
    /**
     * Resolves a user in the external registry and provides its attributes.
     *
@@ -30,6 +36,26 @@ public abstract class DynamicParticipantSynchronizationProvider
     * @see #provideUserConfiguration(String realm, String account)
     */
    public abstract ExternalUserConfiguration provideUserConfiguration(String account);
+   
+   /**
+    * wrapper to catch and log possible exceptions.
+    * 
+    * {@link provideUserConfiguration(String account)}
+    */      
+   public final ExternalUserConfiguration provideUserConfigurationLogAware(String account)
+   {
+      try
+      {
+         return provideUserConfiguration(account);
+      }
+      catch (Exception e)
+      {
+         String exceptionMessage = e.getMessage();
+         trace.warn(exceptionMessage, e);
+         
+         throw new InternalException(e);
+      }
+   }   
    
    /**
     * Resolves a user in the external registry and provides its attributes.
@@ -47,7 +73,7 @@ public abstract class DynamicParticipantSynchronizationProvider
    public ExternalUserConfiguration provideUserConfiguration(String realm,
          String account, Map properties)
    {
-      return provideUserConfiguration(account);
+      return provideUserConfigurationLogAware(account);
    }
    
    /**

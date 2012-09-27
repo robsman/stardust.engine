@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,9 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.LoginFailedException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 
 /**
@@ -64,6 +66,13 @@ public final class ExternalLoginResult implements Serializable
     */
    public static final ExternalLoginResult testifyFailure(LoginFailedException reason)
    {
+      if(reason == null)
+      {
+         StringBuilder sb = new StringBuilder();
+         sb.append("LoginFailedException");
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise(sb.toString()));         
+      }      
+      
       return new ExternalLoginResult(false, reason);
    }
 

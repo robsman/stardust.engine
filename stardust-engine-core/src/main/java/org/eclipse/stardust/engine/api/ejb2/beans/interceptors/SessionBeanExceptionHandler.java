@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,12 +16,12 @@ import javax.ejb.EJBContext;
 
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.ejb2.beans.EjbTxPolicy;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 
 
 /**
@@ -30,7 +30,7 @@ import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
  */
 public class SessionBeanExceptionHandler implements MethodInterceptor
 {
-   public static final Logger trace = LogManager.getLogger(SessionBeanExceptionHandler.class);
+   public static final Logger trace = RuntimeLog.API;
    
    private final EjbTxPolicy ejbTxPolicy;
 

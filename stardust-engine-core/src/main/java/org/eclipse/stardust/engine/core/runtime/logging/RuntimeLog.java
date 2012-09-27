@@ -33,6 +33,10 @@ public class RuntimeLog
    
    public static final Logger PERFORMANCE = LogManager.getLogger(CAT_ROOT + ".Performance");
    
+   public static final Logger API = LogManager.getLogger(CAT_ROOT + ".API");
+
+   public static final Logger SPI = LogManager.getLogger(CAT_ROOT + ".SPI");   
+   
    private static final String getRootCategory()
    {
       String fqName = Reflect.getHumanReadableClassName(RuntimeLog.class, true);

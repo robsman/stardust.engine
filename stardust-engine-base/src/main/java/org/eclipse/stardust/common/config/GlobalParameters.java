@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -289,16 +289,19 @@ public class GlobalParameters
                final String key = entry.getKey();
                final Object value = entry.getValue();
 
-               final Object oldValue = currentProperties.get(key);
-
-               StringBuffer logMsg = new StringBuffer();
-               logMsg.append("  ").append(key).append(" = ").append(value);
-               if (null != oldValue)
+               if ( !key.equals("AuditTrail.Password"))
                {
-                  logMsg.append(" (overriding previous value: ").append(oldValue).append(")");
-               }
-               providerTrace.info(logMsg);
+                  final Object oldValue = currentProperties.get(key);
 
+                  StringBuffer logMsg = new StringBuffer();
+                  logMsg.append("  ").append(key).append(" = ").append(value);
+                  if (null != oldValue)
+                  {
+                     logMsg.append(" (overriding previous value: ").append(oldValue)
+                           .append(")");
+                  }
+                  providerTrace.info(logMsg);
+               }
                currentProperties.put(key, value);
             }
 

@@ -42,6 +42,7 @@ public class Main
       argTypes.register("-dburl", "-l", "dburl", "The JDBC URL to use", true);
       argTypes.register("-dbtype", "-t", "dbtype", "The database type", true);
       argTypes.register("-passfile", "-pf", "passfile", "Path to file containing encrypted password.", true);
+      argTypes.register("-dbpassfile", "-dbpf", "dbpassfile", "Path to file containing encrypted audit trail password.", true);
 
       commands.put("upgraderuntime", UpgradeRuntimeCommand.class.getName());
       commands.put("upgrademodel", UpgradeModelCommand.class.getName());

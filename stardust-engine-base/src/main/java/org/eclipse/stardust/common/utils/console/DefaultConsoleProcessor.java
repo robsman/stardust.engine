@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -93,9 +93,16 @@ public class DefaultConsoleProcessor
                   }
                   command = (ConsoleCommand) Reflect.createInstance(commandClass);
                }               
-               if (globalOptions.get("passfile") != null) {
-                   String passFilePath = (String) globalOptions.get("passfile");
-                   globalOptions.put("password", Encrypter.decryptFromFile(passFilePath));
+               if (globalOptions.get("passfile") != null)
+               {
+                  String passFilePath = (String) globalOptions.get("passfile");
+                  globalOptions.put("password", Encrypter.decryptFromFile(passFilePath));
+               }
+               if (globalOptions.get("dbpassfile") != null)
+               {
+                  String passFilePath = (String) globalOptions.get("dbpassfile");
+                  globalOptions
+                        .put("dbpassword", Encrypter.decryptFromFile(passFilePath));
                }
                command.bootstrapGlobalOptions(globalOptions);
                commandArgTypes = command.getOptions();

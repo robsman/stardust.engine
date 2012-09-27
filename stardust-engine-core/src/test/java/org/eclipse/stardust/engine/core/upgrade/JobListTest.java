@@ -29,7 +29,7 @@ import junit.framework.TestCase;
  */
 public class JobListTest extends TestCase
 {
-   String model = "<MODEL carnot_xml_version=\"1.0.0\" id=\"ACME_Workflow_Model\"/>";
+   String model = "<MODEL carnot_xml_version=\"2.0.0\" id=\"ACME_Workflow_Model\"/>";
 ;
    public JobListTest(String name)
    {
@@ -45,11 +45,11 @@ public class JobListTest extends TestCase
       DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
       DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
       DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
-      DumbModelUpgradeJob job17 = new DumbModelUpgradeJob(new Version(2,7,0));
+      DumbModelUpgradeJob job27 = new DumbModelUpgradeJob(new Version(2,7,0));
       jobs.add(job19);
       jobs.add(job21);
       jobs.add(job22);
-      jobs.add(job17);
+      jobs.add(job27);
       ModelItem item = new ModelItem(model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
       ModelItem newModel = (ModelItem) upgrader.upgradeToVersion(new Version(2,6,9), false);
@@ -57,7 +57,7 @@ public class JobListTest extends TestCase
       assertTrue(!job19.wasVisited());
       assertTrue(job21.wasVisited());
       assertTrue(job22.wasVisited());
-      assertTrue(!job17.wasVisited());
+      assertTrue(!job27.wasVisited());
    }
 
    /**

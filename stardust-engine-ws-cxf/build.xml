@@ -59,9 +59,11 @@
 		<property name="build.lib.src" value="${build.dir}/src" />
 		<property name="build.src" value="${build.dir}/src" />
 
-		<property name="stardust-engine-ws-cxf.jarfile" value="stardust-engine-ws-cxf.jar" />
+		<property name="stardust-engine-ws-cxf.pomfile" value="${artifactId}.pom" />
+		<property name="stardust-engine-ws-cxf.pom" value="${build.lib}/${stardust-engine-ws-cxf.pomfile}" />
+		<property name="stardust-engine-ws-cxf.jarfile" value="${artifactId}.jar" />
 		<property name="stardust-engine-ws-cxf.jar" value="${build.lib}/${stardust-engine-ws-cxf.jarfile}" />
-		<property name="stardust-engine-ws-cxf.src-jarfile" value="stardust-engine-ws-cxf-sources.jar" />
+		<property name="stardust-engine-ws-cxf.src-jarfile" value="${artifactId}-sources.jar" />
 		<property name="stardust-engine-ws-cxf.src-jar" value="${build.lib.src}/${stardust-engine-ws-cxf.src-jarfile}" />
 	</target>
 
@@ -213,4 +215,16 @@
 	</target>
 
 	<target name="deploy" depends="build" />
+	
+   <target name="install" depends="deploy" if="maven.localRepository"
+      description="installs the artifacts into a local Maven repository">
+      <ipp:init-mvn />
+      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
+         <arg value="install:install-file"/>
+         <arg value="-Dfile=${stardust-engine-ws-cxf.jar}"/>
+         <arg value="-DpomFile=${stardust-engine-ws-cxf.pom}"/>
+         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
+      </exec>
+   </target>
+
 </project>

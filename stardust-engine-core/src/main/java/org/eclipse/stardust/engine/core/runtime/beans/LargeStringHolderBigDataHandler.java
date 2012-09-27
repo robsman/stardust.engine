@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -485,65 +485,64 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          return;
       }
 
-      Class type = value.getClass();
-      if (type == Short.class)
+      if (value instanceof Short)
       {
          data.setLongValue(((Short) value).shortValue());
          data.setType(BigData.SHORT);
       }
-      else if (type == Integer.class)
+      else if (value instanceof Integer)
       {
          data.setLongValue(((Integer) value).intValue());
          data.setType(BigData.INTEGER);
       }
-      else if (type == Long.class)
+      else if (value instanceof Long)
       {
          data.setLongValue(((Long) value).longValue());
          data.setType(BigData.LONG);
       }
-      else if (type == Byte.class)
+      else if (value instanceof Byte)
       {
          data.setLongValue(((Byte) value).byteValue());
          data.setType(BigData.BYTE);
       }
-      else if (type == Boolean.class)
+      else if (value instanceof Boolean)
       {
          data.setLongValue(((Boolean) value).booleanValue() ? 1 : 0);
          data.setType(BigData.BOOLEAN);
       }
-      else if (type == Date.class)
+      else if (value instanceof Date)
       {
          data.setLongValue(((Date) value).getTime());
          data.setType(BigData.DATE);
       }
-      else if (type == Float.class)
+      else if (value instanceof Float)
       {
          data.setShortStringValue(value.toString());
          data.setType(BigData.FLOAT);
       }
-      else if (type == Double.class)
+      else if (value instanceof Double)
       {
          data.setShortStringValue(value.toString());
          data.setType(BigData.DOUBLE);
       }
-      else if (type == Character.class)
+      else if (value instanceof Character)
       {
          data.setShortStringValue((((char) 0) == ((Character) value).charValue())
                ? null
                : value.toString());
          data.setType(BigData.CHAR);
       }
-      else if (type == Money.class)
+      else if (value instanceof Money)
       {
          data.setShortStringValue(value.toString());
          data.setType(BigData.MONEY);
       }
-      else if (type == Period.class)
+      else if (value instanceof Period)
       {
          data.setShortStringValue(value.toString());
          data.setType(BigData.PERIOD);
       }
-      else if (type == String.class)
+      else if (value instanceof String)
       {
          writeStringValue((String) value, BigData.STRING, BigData.BIG_STRING,
                considerDisk());

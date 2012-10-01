@@ -11,6 +11,8 @@
 package org.eclipse.stardust.engine.api.runtime;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * Provides key indicators of audit trail health.
@@ -28,6 +30,13 @@ public class AuditTrailHealthReport implements Serializable
    private final long nPisHavingCrashedThreads;
    private final long nPisHavingCrashedEventBindings;
    private final long nPendingAiAborts;
+
+   private Set<Long> nPendingPiCompletesSet = Collections.emptySet();
+   private Set<Long> nPendingPiAbortsSet = Collections.emptySet();
+   private Set<Long> nPendingAiAbortsSet = Collections.emptySet();
+   private Set<Long> nPisHavingCrashedAisSet = Collections.emptySet();
+   private Set<Long> nPisHavingCrashedThreadsSet = Collections.emptySet();
+   private Set<Long> nPisHavingCrashedEventBindingsSet = Collections.emptySet();
    
    public AuditTrailHealthReport(long nPendingPiCompletes, long nPendingPiAborts,
          long nPendingAiAborts, long nPisHavingCrashedAis, long nPisHavingCrashedThreads,
@@ -40,6 +49,23 @@ public class AuditTrailHealthReport implements Serializable
       this.nPisHavingCrashedThreads = nPisHavingCrashedThreads;
       this.nPisHavingCrashedEventBindings = nPisHavingCrashedEventBindings;
    }
+   
+   public AuditTrailHealthReport(Set<Long> nPendingPiCompletesSet,
+         Set<Long> nPendingPiAbortsSet, Set<Long> nPendingAiAbortsSet,
+         Set<Long> nPisHavingCrashedAisSet, Set<Long> nPisHavingCrashedThreadsSet,
+         Set<Long> nPisHavingCrashedEventBindingsSet)
+   {
+      this(nPendingPiCompletesSet.size(), nPendingPiAbortsSet.size(), nPendingAiAbortsSet
+            .size(), nPisHavingCrashedAisSet.size(), nPisHavingCrashedThreadsSet.size(),
+            nPisHavingCrashedEventBindingsSet.size());
+      this.nPendingPiCompletesSet = nPendingPiCompletesSet;
+      this.nPendingPiAbortsSet = nPendingPiAbortsSet;
+      this.nPendingAiAbortsSet = nPendingAiAbortsSet;
+      this.nPisHavingCrashedAisSet = nPisHavingCrashedAisSet;
+      this.nPisHavingCrashedThreadsSet = nPisHavingCrashedThreadsSet;
+      this.nPisHavingCrashedEventBindingsSet = nPisHavingCrashedEventBindingsSet;
+   }
+
 
    /**
     * Gets the number of process instances not having further pending activities, but not
@@ -108,5 +134,74 @@ public class AuditTrailHealthReport implements Serializable
    public long getNumberOfProcessInstancesHavingCrashedThreads()
    {
       return nPisHavingCrashedThreads;
+   }
+
+   /**
+    * Gets the set of process instances oids not having further pending activities, but not
+    * beeing marked as completed itself. Performing a process recovery on such processes
+    * is recommended.
+    * 
+    * @return The set of process instances oids.
+    */
+   public Set<Long> getProcessInstancesLackingCompletion()
+   {
+      return nPendingPiCompletesSet;
+   }
+
+   /**
+    * Gets the set of process instances oids which had been scheduled for abortion but did
+    * not succeed. 
+    * Performing a process recovery on such processes is recommended.
+    * 
+    * @return The set of process instances oids.
+    */
+   public Set<Long> getProcessInstancesLackingAbortion()
+   {
+      return nPendingPiAbortsSet;
+   }
+
+   /**
+    * Gets the set of process instances oids having activity instances which had been scheduled for abortion but did
+    * not succeed. 
+    * Performing a process recovery on such processes is recommended.
+    * 
+    * @return The set of process instances oids.
+    */
+   public Set<Long> getActivityInstancesLackingAbortion()
+   {
+      return nPendingAiAbortsSet;
+   }
+
+   /**
+    * Gets the set of process instances oids likely to have crashed activity instances.
+    * Performing a process recovery on such processes is recommended.
+    * 
+    * @return The set of process instances oids.
+    */
+   public Set<Long> getProcessInstancesHavingCrashedActivities()
+   {
+      return nPisHavingCrashedAisSet;
+   }
+
+   /**
+    * Gets the set of process instances oids likely to have crashed activity threads.
+    * Performing a process recovery on such processes is recommended.
+    * 
+    * @return The set of process instances oids.
+    */
+   public Set<Long> getProcessInstancesHavingCrashedThreads()
+   {
+      return nPisHavingCrashedThreadsSet;
+   }
+
+   /**
+    * Gets the set of process instances oids likely to have crashed event bindings.
+    * Performing a process recovery on such processes is recommended.
+    * 
+    * @return The set of process instances oids.
+    */
+   public Set<Long> getProcessInstancesHavingCrashedEventBindings()
+   {
+      return nPisHavingCrashedEventBindingsSet;
    }
 }

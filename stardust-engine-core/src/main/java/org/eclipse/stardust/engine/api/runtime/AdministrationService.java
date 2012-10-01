@@ -431,6 +431,19 @@ public interface AdministrationService extends Service
    public AuditTrailHealthReport getAuditTrailHealthReport();
 
    /**
+    * Determines key indicators of audit trail health.
+    * 
+    * @param countOnly
+    *           Determines if report should include the process instances oids or just the
+    *           total count of oids. If countOnly is set to true the total count of
+    *           process instances will be included in report. If countOnly is set to false
+    *           a list containing the process instances oids will be included in report.
+    * @return A status report indicating some important indicators of audit trail health.
+    */
+   @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
+   public AuditTrailHealthReport getAuditTrailHealthReport(boolean countOnly);
+
+   /**
     * Recovers the complete CARNOT runtime environment.Executed in a separate transaction.
     * By default the execution is synchronous. Only if there are non fatal errors
     * (e.g. locking conflicts), for the affected process instances, a successor asynchronous attempt

@@ -11,7 +11,9 @@
 package org.eclipse.stardust.engine.cli.console;
 
 import java.text.MessageFormat;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
@@ -32,6 +34,8 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
  */
 public class DashboardCommand extends ConsoleCommand
 {
+   private static final String SHOW_OIDS = "showOids";
+
    private static final Options argTypes = new Options();
 
    private static final String OVERVIEW = "overview";
@@ -45,6 +49,8 @@ public class DashboardCommand extends ConsoleCommand
             "Evaluates some overall indicators (default option).", false);
       argTypes.register("-" + RECOVERY, "-r", RECOVERY,
             "Evaluates process recovery related indicators.", false);
+      argTypes.register("-" + SHOW_OIDS, "-so", SHOW_OIDS,
+            "Shows a list of process instances oids of -recovery option result.", false);
    }
 
    public Options getOptions()
@@ -116,24 +122,56 @@ public class DashboardCommand extends ConsoleCommand
          
          print("");
          
-         AuditTrailHealthReport report = serviceFactory.getAdministrationService()
-               .getAuditTrailHealthReport();
-         print("Number of process instances likely to have ..");
-         print(MessageFormat.format(" .. pending process completion:\t{0}", new Object[] {new Long(
-               report.getNumberOfProcessInstancesLackingCompletion())}));
-         print(MessageFormat.format(" .. pending process abortion:\t{0}", new Object[] {new Long(
-               report.getNumberOfProcessInstancesLackingAbortion())}));
-         print(MessageFormat.format(" .. pending activity abortion:\t{0}", new Object[] {new Long(
-               report.getNumberOfActivityInstancesLackingAbortion())}));
-         print(MessageFormat.format(" .. crashed activity instances:\t{0}", new Object[] {new Long(
-               report.getNumberOfProcessInstancesHavingCrashedActivities())}));
-         print(MessageFormat.format(" .. crashed activity threads:\t{0}", new Object[] {new Long(
-               report.getNumberOfProcessInstancesHavingCrashedThreads())}));
+         boolean countOnly = !options.containsKey(SHOW_OIDS);
+         AuditTrailHealthReport report = serviceFactory.getAdministrationService().getAuditTrailHealthReport(countOnly);
+         if(countOnly) 
+         {
+            print("Number of process instances likely to have ..");
+            print(MessageFormat.format(" .. pending process completion:\t{0}", new Object[] {new Long(
+                  report.getNumberOfProcessInstancesLackingCompletion())}));
+            print(MessageFormat.format(" .. pending process abortion:\t{0}", new Object[] {new Long(
+                  report.getNumberOfProcessInstancesLackingAbortion())}));
+            print(MessageFormat.format(" .. pending activity abortion:\t{0}", new Object[] {new Long(
+                  report.getNumberOfActivityInstancesLackingAbortion())}));
+            print(MessageFormat.format(" .. crashed activity instances:\t{0}", new Object[] {new Long(
+                  report.getNumberOfProcessInstancesHavingCrashedActivities())}));
+            print(MessageFormat.format(" .. crashed activity threads:\t{0}", new Object[] {new Long(
+                  report.getNumberOfProcessInstancesHavingCrashedThreads())}));
+         }
+         else 
+         {
+            print("List of process instances oids likely to have ..");
+            print(MessageFormat.format(" .. pending process completion:\t{0}", 
+                  getOids(report.getProcessInstancesLackingCompletion())));
+            print(MessageFormat.format(" .. pending process abortion:\t{0}", getOids(
+                  report.getProcessInstancesLackingAbortion())));
+            print(MessageFormat.format(" .. pending activity abortion:\t{0}", getOids(
+                  report.getActivityInstancesLackingAbortion())));
+            print(MessageFormat.format(" .. crashed activity instances:\t{0}", getOids(
+                  report.getProcessInstancesHavingCrashedActivities())));
+            print(MessageFormat.format(" .. crashed activity threads:\t{0}", getOids(
+                  report.getProcessInstancesHavingCrashedThreads())));
+         }
          
          print("");
       }
 
       return 0;
+   }
+
+   private String getOids(Set<Long> oidSet)
+   {
+      StringBuilder oids = new StringBuilder();
+      for (Iterator iterator = oidSet.iterator(); iterator.hasNext();)
+      {
+         Long oid = (Long) iterator.next();
+         oids.append(oid);
+         if (iterator.hasNext())
+         {
+            oids.append(", ");
+         }
+      }
+      return oidSet.isEmpty() ? "none" : oids.toString();
    }
 
    public String getSummary()

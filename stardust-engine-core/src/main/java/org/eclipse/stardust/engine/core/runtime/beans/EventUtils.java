@@ -713,6 +713,12 @@ public class EventUtils
    
    public static long countDeactiveEventBindings()
    {
+      Set processes = getDeactiveEventBindings();
+      return processes.size();
+   }
+
+   public static Set getDeactiveEventBindings()
+   {
       // get all from event binding where type > DEACTIVE_TYPE
       ResultIterator iterator = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(
             EventBindingBean.class, // 
@@ -733,6 +739,6 @@ public class EventUtils
          }
          processes.add(objectOID);
       }
-      return processes.size();
+      return processes;
    }
 }

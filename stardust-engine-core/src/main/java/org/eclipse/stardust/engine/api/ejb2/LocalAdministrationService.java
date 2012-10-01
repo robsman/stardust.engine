@@ -634,6 +634,21 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
          getAuditTrailHealthReport()
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+    
+    /**
+     * Determines key indicators of audit trail health.
+     *
+     * @return A status report indicating some important indicators of audit trail health.
+     *
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(boolean countOnly)
+     *     
+     */
+    public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
+         getAuditTrailHealthReport(boolean countOnly)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
      * Recovers the complete CARNOT runtime environment.Executed in a separate transaction.

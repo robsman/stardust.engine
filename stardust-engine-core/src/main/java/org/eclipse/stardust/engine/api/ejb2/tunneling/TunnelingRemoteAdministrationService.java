@@ -695,6 +695,23 @@ public interface TunnelingRemoteAdministrationService extends javax.ejb.EJBObjec
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
          java.rmi.RemoteException;
+    
+    /**
+     * Determines key indicators of audit trail health.
+     *
+     * @return A status report indicating some important indicators of audit trail health.
+     *
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(boolean countOnly)
+     *     
+     */
+    public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
+         getAuditTrailHealthReport(boolean countOnly,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         java.rmi.RemoteException;
          
     /**
      * Recovers the complete CARNOT runtime environment.Executed in a separate transaction.

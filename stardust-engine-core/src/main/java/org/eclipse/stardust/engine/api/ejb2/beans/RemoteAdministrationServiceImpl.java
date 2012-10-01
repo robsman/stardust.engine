@@ -984,6 +984,36 @@ public class RemoteAdministrationServiceImpl extends org.eclipse.stardust.engine
          throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
       }
     }
+    
+    /**
+     * Determines key indicators of audit trail health.
+     *
+     * @return A status report indicating some important indicators of audit trail health.
+     *
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(boolean countOnly)
+     *     
+     */
+    public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
+         getAuditTrailHealthReport(boolean countOnly)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+    {
+      try
+      {
+         return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            service).getAuditTrailHealthReport(countOnly);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+    }
 
     /**
      * Recovers the complete CARNOT runtime environment.Executed in a separate transaction.

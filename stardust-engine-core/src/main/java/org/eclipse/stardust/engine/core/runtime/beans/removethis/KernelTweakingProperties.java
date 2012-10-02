@@ -201,4 +201,6 @@ public final class KernelTweakingProperties
    public static final String HZ_JCA_CONNECTION_FACTORY_PROVIDER = "Carnot.Engine.Hazelcast.JcaConnectionFactoryProvider";
    
    public static final String ASSIGN_TO_INVALID_USER = "Infinity.Engine.Activity.AssignToInvalidUser";   
+
+   public static final String INFINITY_DMS_SHARED_DATA_EXIST = "Infinity.Dms.SharedDataExist";
 }

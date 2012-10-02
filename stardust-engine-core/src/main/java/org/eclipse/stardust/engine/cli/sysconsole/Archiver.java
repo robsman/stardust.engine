@@ -2396,7 +2396,7 @@ public class Archiver
       });
    }
 
-   private static Set<Long> findAllDocumentDataOids()
+   public static Set<Long> findAllDocumentDataOids()
    {
       return findAllDataOids(new Functor()
       {

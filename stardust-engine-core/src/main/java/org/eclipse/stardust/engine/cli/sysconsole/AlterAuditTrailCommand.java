@@ -30,6 +30,9 @@ import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.cli.sysconsole.consistency.AuditTrailConsistencyChecker;
+import org.eclipse.stardust.engine.cli.sysconsole.consistency.SharedDocumentDataConsistencyCheck;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 
 
@@ -58,6 +61,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    private static final String AUDITTRAIL_SKIPDML = "skipDML";
    private static final String AUDITTRAIL_SQL = "sql";
    private static final String STATEMENT_DELIMITER = "statementDelimiter";
+   private static final String AUDITTRAIL_CHECK_CONSISTENCY = "checkConsistency";
 
    private static final Options argTypes = new Options();
 
@@ -96,11 +100,13 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             "Spools SQL statements to file instead of executing them on audit trail.", true);
       argTypes.register("-" + STATEMENT_DELIMITER, "-sd", STATEMENT_DELIMITER,
             "Specifies the delimiter applied after each SQL statement.", true);
+      argTypes.register("-" + AUDITTRAIL_CHECK_CONSISTENCY, "-cco", AUDITTRAIL_CHECK_CONSISTENCY,
+            "Checks wether any problem instances exists in audit trail.", false);
 
       argTypes.addExclusionRule(//
             new String[] { LOCKTABLE_ENABLE, LOCKTABLE_VERIFY, LOCKTABLE_DROP,//
                   DATACLUSTER_ENABLE, DATACLUSTER_VERIFY, DATACLUSTER_DROP,//
-                  PARTITION_CREATE, PARTITION_DROP, PARTITIONS_LIST }, true);
+                  PARTITION_CREATE, PARTITION_DROP, PARTITIONS_LIST, AUDITTRAIL_CHECK_CONSISTENCY }, true);
       argTypes.addExclusionRule(//
             new String[] { LOCKTABLE_ENABLE, LOCKTABLE_VERIFY, LOCKTABLE_DROP,//
                   DATACLUSTER_VERIFY, DATACLUSTER_DROP,//
@@ -374,6 +380,34 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
       return optionHandled;
    }
+   
+   private boolean doRunCheckConsistencyOptions(Map options)
+   {
+      boolean optionHandled = false;
+      if (options.containsKey(AUDITTRAIL_CHECK_CONSISTENCY))
+      {
+         optionHandled = true;
+         print("Checks wether any problem instances exists in audit trail.");
+         AuditTrailConsistencyChecker consistencyChecker = new AuditTrailConsistencyChecker(
+               options);
+         consistencyChecker.addConsistencyCheck(new SharedDocumentDataConsistencyCheck());
+         consistencyChecker.run();
+         if (Boolean
+               .parseBoolean(SchemaHelper
+                     .getAuditTrailProperty(KernelTweakingProperties.INFINITY_DMS_SHARED_DATA_EXIST)))
+         {
+            print("The audit trail contains data of type \"Document\" and \"Document Set\" that are shared "
+                  + "between super- and subprocess although they should not. This will may result in "
+                  + "undesired effects at runtime and will slow down archiving operations.");
+         }
+         else
+         {
+            print("The audit trail does not contain any problem instances.");
+         }
+         print("Consistency check done.");
+      }
+      return optionHandled;
+   }
 
    public int doRun(Map options)
    {
@@ -404,7 +438,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       }
 
       if ( !doRunLockingTableOptions(options) && !doRunDataClusterOptions(options)
-            && !doRunPartitionOptions(options))
+            && !doRunPartitionOptions(options) && !doRunCheckConsistencyOptions(options))
       {
          print("Unknown option for command auditTrail.");
       }

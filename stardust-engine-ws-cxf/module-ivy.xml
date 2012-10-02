@@ -56,8 +56,8 @@
       <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
       <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
       <dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" >
-      	<exclude org="org.slf4j" module="slf4j-api" />
-      </dependency>
+      	<exclude org="org.slf4j" module="slf4j-api" />      	<exclude org="org.apache.santuario" module="xmlsec" />
+      </dependency>      <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.2" conf="stardust-engine-ws-cxf-compile->default" />
 
       <!-- jax-ws-cxf-provider-runtime -->      
 

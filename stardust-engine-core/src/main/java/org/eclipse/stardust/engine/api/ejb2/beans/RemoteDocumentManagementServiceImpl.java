@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 52557 
+ * Generated from  Revision: 56243 
  */
 package org.eclipse.stardust.engine.api.ejb2.beans;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.beans;
  * </ul>
  *
  * @author rsauer
- * @version 52557
+ * @version 56243
  */
 public class RemoteDocumentManagementServiceImpl extends org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl
 {

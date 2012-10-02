@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 55779 
+ * Generated from  Revision: 59246 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 55779
+ * @version 59246
  */
 public interface RemoteWorkflowService extends javax.ejb.EJBObject
 {
@@ -27,9 +27,18 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * <code>activityInstanceOID</code>.
      * 
      * <p>Activating means:
-     * <li>Removing the activity instance from its original worklist.</li>
+     * <ul><li>Removing the activity instance from its original worklist.</li>
      * <li>Adding the activity instance to the logged-in user's worklist.</li>
-     * <li>Setting the state of the activity instance to APPLICATION state.</li>
+     * <li>Setting the state of the activity instance to APPLICATION state.</li></ul>
+     * </p>
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: suspended, hibernated or application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: application, activity with application that provides
+     * asynchronous receive functionality: hibernated</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be activated.
      *
@@ -74,6 +83,14 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
+     * 
+     * <p>State Changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: completed</li>
+     * <li>Process state after: Completed if all activities are completed. Otherwise state
+     * does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be completed.
      * @param context the ID of the context on which the data mapping will be performed.
@@ -135,6 +152,14 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Completes the interactive activity instance identified by the
      * <code>activityInstanceOID</code> on the behalf of the currently logged-in user.
+     * 
+     * <p>State Changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: completed</li>
+     * <li>Process state after: Completed if all activities are completed. Otherwise state
+     * does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be completed.
      * @param context the ID of the context on which the data mapping will be performed.
@@ -215,12 +240,6 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     is being processed by another user.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
      *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state
-     *     change is not permitted,
-     *             i.e. the activity is not active.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
@@ -292,12 +311,6 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     is being processed by another user.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
      *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException if that state
-     *     change is not permitted,
-     *             i.e. the activity is not active.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.common.error.ObjectNotFoundException if there is no activity
      *     instance with the specified OID.
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
@@ -424,6 +437,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * Suspends the specified activity instance. It will be added to the same worklist
      * in which it was prior to activation, and the specified activity instance will be
      * set to SUSPENDED state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param outData the context data containing values of out access points to be stored.
@@ -460,6 +480,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      *
@@ -496,6 +523,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * Suspends the specified activity instance. It will be added to the worklist of the
      * default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param context the ID of the context on which the data mapping will be performed.
@@ -534,6 +568,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      *
@@ -570,6 +611,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * current user, and the specified activity instance will be set to SUSPENDED state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param context the ID of the context on which the data mapping will be performed.
@@ -609,6 +657,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param userOID the OID of the user.
@@ -631,13 +686,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
      *     will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.InvalidArgumentException if the specified activity
-     *     instance is a 
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if the specified
+     *     activity instance is a 
      *             quality assurance instance {@link QualityAssuranceState#IS_QUALITY_ASSURANCE} 
      *             and the specified user is the one who worked on the previous workflow instance
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.InvalidArgumentException}
-     *     will be wrapped inside {@link
-     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -653,6 +708,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided user, and the specified activity instance will be set to SUSPENDED state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param userOID the OID of the user.
@@ -703,6 +765,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param participant the ID of the performer.
@@ -741,6 +810,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * Suspends the specified activity instance. It will be added to the worklist of the
      * provided performer, and the specified activity instance will be set to SUSPENDED
      * state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      * @param participant the ID of the performer.
@@ -783,6 +859,13 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Suspends the activity instance and, if the participant is not null, delegates it to
      * the specified participant.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity instance.
      * @param participant the participant (
@@ -862,6 +945,10 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
     /**
      * Starts the process specified by the given <code>ID</code> using the provided data
      * and returns the OID of the newly created process instance.
+     * 
+     * <p>State changes:
+     * <ul><li>Process state after: active</li></ul>
+     * </p>
      *
      * @param id The ID of the process to be started. If multiple models with different IDs
      *     are deployed then the process definition id needs to be qualified with model
@@ -1034,6 +1121,11 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      *                if <code>abortProcessInstance</code> is false (currently not
      *                implemented).
      *     <em>Instances of {@link InvalidArgumentException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ConcurrencyException
+     *                if a lock on process instances cannot be obtained.
+     *     <em>Instances of {@link ConcurrencyException
      *     } will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
@@ -1359,6 +1451,20 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * using <code>AbortScope.RootHierarchy</code>.
      * <p/>
      * Note: Abort is performed asynchronously.
+     * 
+     * <p>State changes
+     * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>State after: 
+     * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
+     * root process, all contained sub-processes and activities that are not yet completed
+     * changes to aborted.
+     * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
+     * changes to aborted. If activity instance is a subprocess then the state of contained
+     * subprocesses and activities also changes to aborted. 
+     * <br>If the last activity of the process is aborted and is not a subprocess then the
+     * process state will be set to completed.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID The OID of the activity instance to be aborted.
      *
@@ -1405,6 +1511,20 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * aborting user is a valid performing participant for this activity.
      * <p/>
      * Note: Abort is performed asynchronously.
+     * 
+     * <p>State changes
+     * <ul><li>Activity state before: suspended, application, interrupted, hibernated</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>State after: 
+     * <br><i>If abort scope is root hierarchy:</i> The state of the specified activity, its
+     * root process, all contained sub-processes and activities that are not yet completed
+     * changes to aborted.
+     * <br><i>If abort scope is sub hierarchy:</i> The state of the specified activity
+     * changes to aborted. If activity instance is a subprocess then the state of contained
+     * subprocesses and activities also changes to aborted. 
+     * <br>If the last activity of the process is aborted and is not a subprocess then the
+     * process state will be set to completed.</li></ul>
+     * </p>
      *
      * @param activityInstanceOID The OID of the activity instance to be aborted.
      * @param abortScope The scope of abortion. You can either choose the current activity
@@ -1460,6 +1580,16 @@ public interface RemoteWorkflowService extends javax.ejb.EJBObject
      * Aborts the specified process instance. Depending on the scope, it will abort either
      * this process instance only (including eventual subprocesses) or the whole process
      * hierarchy starting with the root process.
+     * 
+     * <p>State changes:
+     * <ul><li>Process state before: active, interrupted</li>
+     * <li>State after:
+     * <br><i>If abort scope is root hierarchy:</i> The state of root process, all
+     * sub-processes and activities that are not yet completed changes to aborted.</li>
+     * <br><i>If abort scope is sub hierarchy:</i> The state of the sub-process, all its
+     * subprocesses and activities that are not yet completed changes to aborted. 
+     * </li></ul>
+     * </p>
      *
      * @param processInstanceOid The OID of the process instance to be aborted.
      * @param abortScope The scope of abortion. You can abort either the spawned process instance

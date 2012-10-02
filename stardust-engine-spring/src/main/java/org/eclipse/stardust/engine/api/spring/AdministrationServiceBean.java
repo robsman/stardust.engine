@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 54110 
+ * Generated from Revision: 59672 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -17,13 +17,13 @@ package org.eclipse.stardust.engine.api.spring;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 54110
+ * @version 59672
  */
 public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IAdministrationService
 {
 
    /**
-    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(org.eclipse.stardust.common.security.PasswordRules rules)
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
     */
    public void
          setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
@@ -116,7 +116,8 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
          deployModel(
          java.util.List deploymentElements,
          org.eclipse.stardust.engine.api.runtime.DeploymentOptions options)
-         throws org.eclipse.stardust.engine.api.runtime.DeploymentException
+         throws org.eclipse.stardust.engine.api.runtime.DeploymentException,
+         org.eclipse.stardust.common.error.ConcurrencyException
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).deployModel(deploymentElements, options);
@@ -285,6 +286,16 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
    {
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).getAuditTrailHealthReport();
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(boolean countOnly)
+    */
+   public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
+         getAuditTrailHealthReport(boolean countOnly)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            serviceProxy).getAuditTrailHealthReport(countOnly);
    }
 
    /**

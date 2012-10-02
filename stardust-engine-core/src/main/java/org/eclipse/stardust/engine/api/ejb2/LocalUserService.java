@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 52592 
+ * Generated from  Revision: 56264 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 52592
+ * @version 56264
  */
 public interface LocalUserService extends javax.ejb.EJBLocalObject
 {
@@ -504,11 +504,11 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
      * Creates a new user group.
      *
      * @param id
-     *               the user group ID.
+     *               the user group ID. Must not be null or empty and must be unique.
      * @param name
-     *               the user group name.
+     *               the user group name. Must not be null or empty.
      * @param description
-     *               short description.
+     *               short description. Must not be null.
      * @param validFrom
      *               validity start time or null if unlimited.
      * @param validTo
@@ -521,6 +521,13 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.UserGroupExistsException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws InvalidArgumentException
+     *               if ID is empty
+     *               if name is empty
+     *               if description is empty
+     *     <em>Instances of {@link InvalidArgumentException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException 
      *               if operation is not allowed in this context.
      *     <em>Instances of {@link

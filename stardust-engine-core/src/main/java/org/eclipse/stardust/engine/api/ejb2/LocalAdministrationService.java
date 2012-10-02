@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 54110 
+ * Generated from  Revision: 59672 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 54110
+ * @version 59672
  */
 public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
 {
@@ -31,7 +31,7 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
      * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(
-     *     org.eclipse.stardust.common.security.PasswordRules rules)
+     *     org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
      */
     public void
          setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
@@ -226,6 +226,10 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
      * @throws InvalidArgumentException if the deploymentElements argument is null.
      *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.common.error.ConcurrencyException if the multiple transactions
+     *     trying to deploy models at the same time.
+     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
+     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -419,6 +423,12 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
      * In that case the returned ProcessInstance will already be in state ABORTED.
      * 
      * <em>This method also aborts all super process instances.</em>
+     * 
+     * <p>State changes:
+     * <ul><li>Process state before: active, interrupted</li>
+     * <li>State after: The state of root process, all sub-processes and activities that are
+     * not yet completed changes to aborted.</li></ul>
+     * </p>
      *
      * @param oid the OID of the process instance to be aborted.
      *
@@ -634,17 +644,23 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
     public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
          getAuditTrailHealthReport()
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
-    
+         
     /**
      * Determines key indicators of audit trail health.
+     *
+     * @param countOnly
+     *               Determines if report should include the process instances oids or just the
+     *               total count of oids. If countOnly is set to true the total count of
+     *               process instances will be included in report. If countOnly is set to false
+     *               a list containing the process instances oids will be included in report.
      *
      * @return A status report indicating some important indicators of audit trail health.
      *
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
-     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(boolean countOnly)
-     *     
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getAuditTrailHealthReport(
+     *     boolean countOnly)
      */
     public org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport
          getAuditTrailHealthReport(boolean countOnly)
@@ -678,6 +694,12 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
      * the execution of activities is performed in the calling thread only up to the first
      * transition marked
      * with "Fork on Traversal", from that point on execution is asynchronous.
+     * 
+     * <p>State changes:
+     * <ul>
+     * <li>Process state after: active</li>
+     * </ul>
+     * </p>
      *
      * @param modelOID      the model where the process is defined.
      * @param id            the ID of the process to start.
@@ -710,6 +732,14 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
      * maybe provided.
      * This way this method can mimic precisely the behavior of a normal completion of the
      * activity.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application, suspended, hibernated</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: completed</li>
+     * <li>Process state after: State does not change.</li>
+     * </ul>
+     * </p>
      *
      * @param activityInstanceOID - the OID of the non-interactive activity to be completed.
      * @param accessPoints - an optional map with access points to perform data mappings,
@@ -762,6 +792,14 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
      * Forces an activity instance to be suspended. It will be added to the worklist of
      * the default performer declared for the corresponding activity, and the specified
      * activity instance will be set to SUSPENDED state.
+     * 
+     * <p>State changes:
+     * <ul><li>Activity state before: application, suspended, hibernated</li>
+     * <li>Process state before: active, interrupted</li>
+     * <li>Activity state after: suspended</li>
+     * <li>Process state after: State does not change.</li>
+     * </ul>
+     * </p>
      *
      * @param activityInstanceOID the OID of the activity to be suspended.
      *
@@ -824,7 +862,8 @@ public interface LocalAdministrationService extends javax.ejb.EJBLocalObject
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
-     * Retrieves all permissions the current user has on this service.
+     * Retrieves all permissions the current user has on this service plus the global
+     * permissions.
      *
      * @return a list of permission ids.
      *

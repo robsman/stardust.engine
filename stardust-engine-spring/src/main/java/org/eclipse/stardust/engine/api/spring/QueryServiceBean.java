@@ -1,21 +1,12 @@
 /*
- * Generated from Revision: 52592 
+ * Generated from 
  */
 package org.eclipse.stardust.engine.api.spring;
 
 /**
- * Provides information services for the CARNOT runtime environment.
- * <p>The functionality includes the following tasks:</p>
- * <ul>
- * <li>retrieve or counts elements in the audit trail (
- * users, process instance, activity instances or log events)</li>
- * <li>retrieve deployed models from the audit trails</li>
- * <li>retrieve participants from the models</li>
- * </ul>
- * <p>A Query service always operates against an audit trail database.</p>
+ * to set {@link SessionProperties.DS_NAME_READ_ONLY}
+ * used in {@link DataValueBean}
  *
- * @author ubirkemeyer
- * @version 52592
  */
 public class QueryServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IQueryService
 {

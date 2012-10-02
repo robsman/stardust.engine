@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 52592 
+ * Generated from Revision: 56264 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 52592
+ * @version 56264
  */
 public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IUserService
 {
@@ -246,7 +246,8 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
          java.util.Date validFrom, java.util.Date validTo)
          throws org.eclipse.stardust.engine.api.runtime.UserGroupExistsException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException,
-         org.eclipse.stardust.common.security.InvalidPasswordException
+         org.eclipse.stardust.common.security.InvalidPasswordException,
+         org.eclipse.stardust.common.error.InvalidArgumentException
    {
       return ((org.eclipse.stardust.engine.api.runtime.UserService)
             serviceProxy).createUserGroup(id, name, description, validFrom, validTo);

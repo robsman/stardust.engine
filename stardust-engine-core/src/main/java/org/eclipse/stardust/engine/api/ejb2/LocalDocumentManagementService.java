@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 52557 
+ * Generated from  Revision: 56243 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author rsauer
- * @version 52557
+ * @version 56243
  */
 public interface LocalDocumentManagementService extends javax.ejb.EJBLocalObject
 {

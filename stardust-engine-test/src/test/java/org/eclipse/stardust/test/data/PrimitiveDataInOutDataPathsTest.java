@@ -17,15 +17,15 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -98,7 +98,7 @@ public class PrimitiveDataInOutDataPathsTest
    @Test
    public void testInOutDataPathForTimestamp()
    {
-      testFor(new Timestamp(System.currentTimeMillis()), MY_TIMESTAMP_IN_DATA_PATH, MY_TIMESTAMP_OUT_DATA_PATH);
+      testFor(new Date(System.currentTimeMillis()), MY_TIMESTAMP_IN_DATA_PATH, MY_TIMESTAMP_OUT_DATA_PATH);
    }
    
    /**

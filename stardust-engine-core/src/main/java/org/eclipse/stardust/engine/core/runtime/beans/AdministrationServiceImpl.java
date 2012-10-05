@@ -247,6 +247,95 @@ public class AdministrationServiceImpl
       }
    }
 
+   private void checkCanDeleteModel(long modelOid)
+   {
+      ModelManager modelManager = ModelManagerFactory.getCurrent();
+      IModel model = modelManager.findModel(modelOid);
+      
+      if (model == null)
+      {
+         throw new ObjectNotFoundException(
+               BpmRuntimeError.MDL_UNKNOWN_MODEL_OID.raise(modelOid), modelOid);
+      }
+      if (ModelRefBean.providesUniquePrimaryImplementation(model))
+      {
+         throw new PublicException(
+               "Unable to delete model. It is providing a primary implementation.");
+      }
+      
+      List<IModel> referingModels = new ArrayList<IModel>();
+      for (Iterator<IModel> i = modelManager.getAllModels(); i.hasNext();)
+      {
+         IModel usingModel = i.next();
+         List<IModel> usedModels = ModelRefBean.getUsedModels(usingModel);
+         for (Iterator<IModel> j = usedModels.iterator(); j.hasNext();)
+         {
+            IModel usedModel = j.next();
+            if (model.getOID() != usingModel.getOID())
+            {
+               if (model.getOID() == usedModel.getOID())
+               {
+                  referingModels.add(usingModel);
+               }
+            }
+         }
+      }
+      if (!referingModels.isEmpty())
+      {
+         throw new PublicException(
+               "Unable to delete model. It is referenced by at least one other model.");
+      }
+      
+      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);      
+      long nonterminatedInstances = 0;
+
+      try
+      {
+         ResultSet rs = null;
+         try
+         {
+            PredicateTerm predicate = Predicates.notInList(
+                  ProcessInstanceBean.FR__STATE,
+                  new int[] { ProcessInstanceState.ABORTED, ProcessInstanceState.COMPLETED });
+
+            predicate = Predicates.andTerm( 
+                  Predicates.isEqual( 
+                        ProcessInstanceBean.FR__MODEL, modelOid),
+                        predicate);
+
+            rs = session.executeQuery(QueryDescriptor
+                  .from(session.getSchemaName(), ProcessInstanceBean.class)
+                  .select(Functions.rowCount())
+                  .where(predicate));
+
+            if (rs.next())
+            {
+               nonterminatedInstances = rs.getLong(1);
+            }
+            else
+            {
+               throw new PublicException("Failed retrieving number of nonterminated"
+                     + " process instances for model with OID " + modelOid);
+            }
+         }
+         finally
+         {
+            QueryUtils.closeResultSet(rs);
+         }
+      }
+      catch (Exception e)
+      {
+         throw new PublicException("Failed retrieving number of nonterminated process "
+               + "instances for model with OID " + modelOid, e);
+      }
+
+      if(nonterminatedInstances > 0)
+      {
+         throw new PublicException(
+         "Unable to delete model. It has open process instances.");         
+      }
+   }
+   
    private void deleteModelRuntimePart(long modelOid, boolean ignoreReferences)
    {
       // @todo (paris, ub): isolate every single delete operation?
@@ -344,8 +433,16 @@ public class AdministrationServiceImpl
 
       try
       {
-
-         deleteModelRuntimePart(modelOid, false);
+         try 
+         {
+            checkCanDeleteModel(modelOid);
+            deleteModelRuntimePart(modelOid, true);
+         }
+         catch (Exception e)
+         {
+            deploymentError(e, null);
+         }
+         
          return deleteModelModelingPart(modelOid);
       }
       finally

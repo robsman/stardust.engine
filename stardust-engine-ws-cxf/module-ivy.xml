@@ -59,12 +59,10 @@
       	<exclude org="org.slf4j" module="slf4j-api" />      	<exclude org="org.apache.santuario" module="xmlsec" />
       </dependency>      <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.2" conf="jax-ws-cxf-provider-compile->default" />
 
-      <!-- jax-ws-cxf-provider-runtime -->      
-
+      <!-- jax-ws-cxf-provider-runtime -->        <dependency org="com.sun.xml.messaging.saaj" name="saaj-impl" rev="1.3.2" conf="jax-ws-cxf-provider-runtime->default" >         <exclude org="activation" module="activation" />      </dependency>            <!-- jax-rs-provider-compile -->      <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="jax-rs-cxf-provider-compile->default" />      
       <!-- jax-rs-provider-runtime -->
-      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="jax-rs-cxf-provider-runtime->default" >         <exclude org="javax.ws.rs" module="jsr311-api" />      </dependency>
 
-      <override org="javax.ws.rs" module="jsr311-api" rev="1.1.1" />
       <override org="com.sun.xml.bind" module="jaxb-xjc" rev="2.1.12" />
 	  <override org="com.sun.xml.bind" module="jaxb-impl" rev="2.1.12" />
 	  <override org="org.apache.cxf" module="cxf-api" rev="2.6.1-stardust01" />

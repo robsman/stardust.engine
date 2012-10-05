@@ -55,9 +55,9 @@
 			<exclude org="com.sungard.infinity.bpm" module="jcr-vfs" />
 		</dependency>
 			
-	    <dependency org="org.springframework" name="spring-beans" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-core" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-jdbc" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-jms" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-context-support" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-tx" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-web" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />
+	    <dependency org="org.springframework" name="spring-beans" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-web" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />
 
-	   		<dependency org="org.apache.cxf" name="cxf-tools-wsdlto-databinding-jaxb" rev="2.6.1" conf="stardust-engine-ws-cxf-codegen-runtime->default" >
+	   	<dependency org="org.apache.cxf" name="cxf-tools-wsdlto-databinding-jaxb" rev="2.6.1" conf="stardust-engine-ws-cxf-codegen-runtime->default" >
 		   <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
 		   <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
 		</dependency>
@@ -81,8 +81,8 @@
 	    <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
 	    <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" >
-			<exclude org="org.slf4j" module="slf4j-api" />         <exclude org="org.apache.santuario" module="xmlsec" />
-    </dependency>    <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.2" conf="stardust-engine-ws-cxf-compile->default" />
+			<exclude org="org.slf4j" module="slf4j-api" />            <exclude org="org.apache.santuario" module="xmlsec" />
+        </dependency>        <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.2" conf="stardust-engine-ws-cxf-compile->default" />
       
 		<dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="stardust-engine-ws-cxf-compile->default" />
 		<dependency org="com.google.code.gson" name="gson" rev="1.6" conf="stardust-engine-ws-cxf-compile->default" />

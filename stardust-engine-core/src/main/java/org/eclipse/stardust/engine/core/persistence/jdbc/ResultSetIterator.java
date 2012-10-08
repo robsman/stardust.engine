@@ -74,7 +74,10 @@ public class ResultSetIterator implements ResultIterator
       try
       {
          Assert.condition(startIndex >= 0, "Index has to be >= 0.");
-         trace.debug("-->ResultSetIterator");
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("-->ResultSetIterator");
+         }
          if (extent < 0)
          {
             extent = Integer.MAX_VALUE;
@@ -88,7 +91,10 @@ public class ResultSetIterator implements ResultIterator
          if (0 == this.maxSize && !countAll)
          {
             result = Collections.EMPTY_LIST.iterator();
-            trace.debug("<--ResultSetIterator size: 0");
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("<--ResultSetIterator size: 0");
+            }
          }
          else
          {
@@ -232,10 +238,13 @@ public class ResultSetIterator implements ResultIterator
       finally
       {
          QueryUtils.closeResultSet(resultSet);
-         trace.debug("<--ResultSetIterator size: " + index);
-            long diffTime = System.currentTimeMillis() - startTime;
-            ISqlTimeRecorder recorder = RuntimeLogUtils.getSqlTimeRecorder(Parameters.instance());
-            recorder.record(diffTime);
+         if (trace.isDebugEnabled())
+         {
+            trace.debug("<--ResultSetIterator size: " + index);
+         }
+         long diffTime = System.currentTimeMillis() - startTime;
+         ISqlTimeRecorder recorder = RuntimeLogUtils.getSqlTimeRecorder(Parameters.instance());
+         recorder.record(diffTime);
       }
    }
 

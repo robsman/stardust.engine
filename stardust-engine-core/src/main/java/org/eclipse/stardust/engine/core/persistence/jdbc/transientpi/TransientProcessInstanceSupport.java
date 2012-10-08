@@ -236,14 +236,16 @@ public class TransientProcessInstanceSupport
          return;
       }
       
-      boolean atLeastOneTransientPi = false;
       for (final PersistenceController pc : pis.values())
       {
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
-         atLeastOneTransientPi |= AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
+         
+         final boolean isPiTaggedTransient = AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
+         final boolean isPiCompletedDeferred = pi.isCompleted() && !pc.isCreated();
+         final boolean isPiTransient = isPiTaggedTransient && !isPiCompletedDeferred;
+         transientPis &= isPiTransient;
       }
-      transientPis &= atLeastOneTransientPi;
    }
       
    private void determineWhetherCurrentSessionIsTransient(final Map<Object, PersistenceController> pis, final Map<Object, PersistenceController> ais)

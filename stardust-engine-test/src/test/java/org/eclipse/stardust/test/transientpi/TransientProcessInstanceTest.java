@@ -42,6 +42,7 @@ import javax.transaction.SystemException;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
@@ -1248,6 +1249,30 @@ public class TransientProcessInstanceTest
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that querying for a completed process instance with Audit Trail Persistence
+    * {@link AuditTrailPersistence#DEFERRED} does not cause any problems (see CRNT-26532).
+    * </p>
+    */
+   @Test
+   public void testQueryForCompletedDeferredProcessInstance() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
+
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+      
+      sf.getQueryService().getAllProcessInstances(ProcessInstanceQuery.findAll());
    }
    
    private boolean hasEntryInDbForPi(final long oid) throws SQLException

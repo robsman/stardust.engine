@@ -334,47 +334,7 @@ public class AdministrationServiceImpl
          throw new PublicException(
          "Unable to delete model. It has open process instances.");         
       }
-   }
-   
-   private void checkCanDeleteModel(long modelOid)
-   {
-      ModelManager modelManager = ModelManagerFactory.getCurrent();
-      IModel model = modelManager.findModel(modelOid);
-      
-      if (model == null)
-      {
-         throw new ObjectNotFoundException(
-               BpmRuntimeError.MDL_UNKNOWN_MODEL_OID.raise(modelOid), modelOid);
-      }
-      if (ModelRefBean.providesUniquePrimaryImplementation(model))
-      {
-         throw new PublicException(
-               "Unable to delete model. It is providing a primary implementation.");
-      }
-      
-      List<IModel> referingModels = new ArrayList<IModel>();
-      for (Iterator<IModel> i = modelManager.getAllModels(); i.hasNext();)
-      {
-         IModel usingModel = i.next();
-         List<IModel> usedModels = ModelRefBean.getUsedModels(usingModel);
-         for (Iterator<IModel> j = usedModels.iterator(); j.hasNext();)
-         {
-            IModel usedModel = j.next();
-            if (model.getOID() != usingModel.getOID())
-            {
-               if (model.getOID() == usedModel.getOID())
-               {
-                  referingModels.add(usingModel);
-               }
-            }
-         }
-      }
-      if (!referingModels.isEmpty())
-      {
-         throw new PublicException(
-               "Unable to delete model. It is referenced by at least one other model.");
-      }
-   }
+   }   
    
    private void deleteModelRuntimePart(long modelOid, boolean removeModelReferences)
    {

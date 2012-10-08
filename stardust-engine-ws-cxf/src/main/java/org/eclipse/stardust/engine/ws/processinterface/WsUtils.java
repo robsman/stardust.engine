@@ -155,16 +155,20 @@ public class WsUtils
 
    public static List<String> getEnabledPartitions()
    {
-    List<String> partitions = new LinkedList<String>();
+      List<String> partitions = null;
 
       Parameters parameters = Parameters.instance();
       String partitionsString = parameters.getString(
-            "WebService.ProcessService.EnabledPartitions", "default");
-      Iterator<String> split = StringUtils.split(partitionsString, ',');
-
-      while (split.hasNext())
+            "WebService.ProcessService.EnabledPartitions", null);
+      if (partitionsString != null)
       {
-         partitions.add(split.next().trim());
+         Iterator<String> split = StringUtils.split(partitionsString, ',');
+
+         partitions = new LinkedList<String>();
+         while (split.hasNext())
+         {
+            partitions.add(split.next().trim());
+         }
       }
       return partitions;
    }

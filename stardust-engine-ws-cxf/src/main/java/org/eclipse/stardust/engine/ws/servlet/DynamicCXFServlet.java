@@ -409,7 +409,11 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
       {
          Set<String> destinationsPaths = super.destinationRegistry.getDestinationsPaths();
          String pathInfo = request.getPathInfo();
-         return destinationsPaths.contains(pathInfo);
+         if (pathInfo!= null)
+         {
+            return destinationsPaths.contains(pathInfo);            
+         }
+         return false;
       }
 
       @Override
@@ -525,9 +529,15 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          String partitionId = null;
          String modelId = null;
          String pathInfo = request.getPathInfo();
-
-         if (request.getParameterMap().containsKey("wsdl")
-               || pathInfo.endsWith("/services") || pathInfo.endsWith("/services/"))
+         Map parameterMap = request.getParameterMap();
+         
+         if (pathInfo == null || "/".equals(pathInfo))
+         {
+            // return blank page for calls that would run into NullPointerException.
+            return;
+         }
+         else if (parameterMap.containsKey("wsdl") || pathInfo.endsWith("/services")
+               || pathInfo.endsWith("/services/"))
          {
             partitionId = request.getParameter("partition");
 
@@ -544,16 +554,30 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             modelId = GenericWebServiceEnv.instance().getModelId();
          }
 
-         // TODO limit to enabled partitions
-         // List<String> enabledPartitions = WsUtils.getEnabledPartitions();
-
-         // Authorize technical user.
-         WsUtils.authorizeSynchronizationUser(partitionId);
-
          if (StringUtils.isEmpty(partitionId))
          {
             partitionId = PredefinedConstants.DEFAULT_PARTITION_ID;
          }
+         
+         // limit to enabled partitions
+         List<String> enabledPartitions = WsUtils.getEnabledPartitions();
+         if (enabledPartitions != null && !enabledPartitions.isEmpty()
+               && !enabledPartitions.contains(partitionId))
+         {
+            try
+            {
+               response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access for '"
+                     + partitionId + "' is disabled.");
+            }
+            catch (IOException e)
+            {
+               new ServletException(e);
+            }
+         }
+
+         // Authorize technical user.
+         WsUtils.authorizeSynchronizationUser(partitionId);
+
          if (StringUtils.isEmpty(modelId))
          {
             modelId = WsUtils.getDefaultModelId(partitionId);
@@ -578,8 +602,6 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
                internalRequest = wrappedCloneRequest;
             }
 
-            // TODO delegate from facade endpoint
-            // try to retrieve destination by partitionId, modelId and endpointName
             AbstractHTTPDestination destination = null;
 
             if (!StringUtils.isEmpty(modelId))

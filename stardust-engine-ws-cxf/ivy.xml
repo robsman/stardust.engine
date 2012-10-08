@@ -81,12 +81,12 @@
 	    <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
 	    <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" >
-			<exclude org="org.slf4j" module="slf4j-api" />            <exclude org="org.apache.santuario" module="xmlsec" />
+		   <exclude org="org.slf4j" module="slf4j-api" />           <exclude org="org.apache.santuario" module="xmlsec" />
         </dependency>        <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.2" conf="stardust-engine-ws-cxf-compile->default" />
       
 		<dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="stardust-engine-ws-cxf-compile->default" />
 		<dependency org="com.google.code.gson" name="gson" rev="1.6" conf="stardust-engine-ws-cxf-compile->default" />
-        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
+        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" >           <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />           <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />        </dependency>
         <!-- package org.eclipse.xsd is mapped to com.infinity.bpm.thirdparty.xsd which is repacked into carnot-engine.
            Therefore we doesn't need to include this artifact into the POM -->
         <dependency org="org.eclipse.xsd" name="xsd-runtime" rev="2.6.1" conf="compile->default">

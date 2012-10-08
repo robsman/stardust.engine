@@ -1846,7 +1846,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       QualityAssuranceUtils.assertActivationIsAllowed(this);
       IActivity activity = getActivity();
-      if (activity.isHibernateOnCreation() && getState().equals(ActivityInstanceState.Hibernated))
+      if (activity.isHibernateOnCreation() && getState().equals(ActivityInstanceState.Hibernated)
+            && !ImplementationType.Manual.equals(activity.getImplementationType()))
       {
          invoke(activity);
       }

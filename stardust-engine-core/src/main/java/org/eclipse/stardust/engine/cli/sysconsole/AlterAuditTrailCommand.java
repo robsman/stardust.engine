@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.console.Options;
+import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -302,7 +303,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          while (iter.hasNext())
          {
             ModelPersistorBean model = (ModelPersistorBean) iter.next();
-            AdminServiceUtils.deleteModelRuntimePart(model.getOID(), session);
+            AdminServiceUtils.deleteModelRuntimePart(model.getOID(), session, true);
          }
 
          // Delete runtime data which does not depend on any model in given partition.

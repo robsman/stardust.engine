@@ -336,7 +336,47 @@ public class AdministrationServiceImpl
       }
    }
    
-   private void deleteModelRuntimePart(long modelOid, boolean ignoreReferences)
+   private void checkCanDeleteModel(long modelOid)
+   {
+      ModelManager modelManager = ModelManagerFactory.getCurrent();
+      IModel model = modelManager.findModel(modelOid);
+      
+      if (model == null)
+      {
+         throw new ObjectNotFoundException(
+               BpmRuntimeError.MDL_UNKNOWN_MODEL_OID.raise(modelOid), modelOid);
+      }
+      if (ModelRefBean.providesUniquePrimaryImplementation(model))
+      {
+         throw new PublicException(
+               "Unable to delete model. It is providing a primary implementation.");
+      }
+      
+      List<IModel> referingModels = new ArrayList<IModel>();
+      for (Iterator<IModel> i = modelManager.getAllModels(); i.hasNext();)
+      {
+         IModel usingModel = i.next();
+         List<IModel> usedModels = ModelRefBean.getUsedModels(usingModel);
+         for (Iterator<IModel> j = usedModels.iterator(); j.hasNext();)
+         {
+            IModel usedModel = j.next();
+            if (model.getOID() != usingModel.getOID())
+            {
+               if (model.getOID() == usedModel.getOID())
+               {
+                  referingModels.add(usingModel);
+               }
+            }
+         }
+      }
+      if (!referingModels.isEmpty())
+      {
+         throw new PublicException(
+               "Unable to delete model. It is referenced by at least one other model.");
+      }
+   }
+   
+   private void deleteModelRuntimePart(long modelOid, boolean removeModelReferences)
    {
       // @todo (paris, ub): isolate every single delete operation?
       ModelManager modelManager = null;
@@ -348,38 +388,8 @@ public class AdministrationServiceImpl
 
          if (model == null)
          {
-            throw new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_MODEL_OID
-                  .raise(modelOid), modelOid);
-         }
-         if (!ignoreReferences && ModelRefBean.providesUniquePrimaryImplementation(model))
-         {
-            throw new PublicException(
-                  "Unable to delete model. It is providing a primary implementation.");
-   }
-         if (!ignoreReferences)
-         {
-            List<IModel> referingModels = new ArrayList<IModel>();
-            for (Iterator<IModel> i = modelManager.getAllModels(); i.hasNext();)
-            {
-               IModel usingModel = i.next();
-               List<IModel> usedModels = ModelRefBean.getUsedModels(usingModel);
-               for (Iterator<IModel> j = usedModels.iterator(); j.hasNext();)
-               {
-                  IModel usedModel = j.next();
-                  if (model.getOID() != usingModel.getOID())
-                  {
-                     if (model.getOID() == usedModel.getOID())
-                     {
-                        referingModels.add(usingModel);
-                     }
-                  }
-               }
-            }
-            if (!referingModels.isEmpty())
-            {
-               throw new PublicException(
-                     "Unable to delete model. It is referenced by at least one other model.");
-            }
+            throw new ObjectNotFoundException(
+                  BpmRuntimeError.MDL_UNKNOWN_MODEL_OID.raise(modelOid), modelOid);
          }
       }
       catch (Exception e)
@@ -388,7 +398,7 @@ public class AdministrationServiceImpl
       }
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      AdminServiceUtils.deleteModelRuntimePart(modelOid, session);
+      AdminServiceUtils.deleteModelRuntimePart(modelOid, session, removeModelReferences);
    }
 
    private DeploymentInfo deleteModelModelingPart(long modelOid)
@@ -1011,7 +1021,7 @@ public class AdministrationServiceImpl
          IModel model = (IModel) iter.next();
 
          long modelElementOid = model.getModelOID();
-         deleteModelRuntimePart(modelElementOid, true);
+         deleteModelRuntimePart(modelElementOid, false);
       }
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);

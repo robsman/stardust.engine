@@ -48,9 +48,10 @@ public class AdminServiceUtils
     * Delete all runtime data which depends on model definitions, e.g. process definition, ...
     * 
     * @param modelOid The model OID.
+    * @param removeModelReferences - if references for this model should also be removed
     * @param session The session instance. 
     */
-   public static void deleteModelRuntimePart(long modelOid, Session session)
+   public static void deleteModelRuntimePart(long modelOid, Session session, boolean removeModelReferences)
    {
       AuditTrailModelAccessor accessor = new AuditTrailModelAccessor(session);
       
@@ -299,8 +300,12 @@ public class AdminServiceUtils
                Predicates.isEqual(DataValueBean.FR__MODEL, modelOid),
                Predicates.isEqual(DataValueBean.FR__DATA, dataOid)), false);
       }
+      
       //model references
-      ModelRefBean.deleteForModel(modelOid, session);
+      if(removeModelReferences)
+      {
+         ModelRefBean.deleteForModel(modelOid, session); 
+      }
    }
 
    /**

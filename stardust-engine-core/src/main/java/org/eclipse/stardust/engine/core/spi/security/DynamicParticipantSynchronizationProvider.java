@@ -14,7 +14,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 
 /**
@@ -77,6 +80,49 @@ public abstract class DynamicParticipantSynchronizationProvider
    }
    
    /**
+    * Resolves a user in the external registry and provides its attributes.
+    * A validity check is performed before the user configuration is returned.
+    *
+    * @param realm The security realm of the external user.
+    * @param account The identity of the external user.
+    * @param properties The login properties like partition, domain, ...
+    * @return A (probably snapshot) of the users attributes.
+    * 
+    * @see #provideUserConfiguration(String account)
+    */
+   public ExternalUserConfiguration provideValidUserConfiguration(String realm,
+         String account, Map properties)
+   {
+      ExternalUserConfiguration config = provideUserConfiguration(realm, account, properties);
+      if (config != null)
+      {
+         if (StringUtils.isEmpty(config.getLastName()))
+         {
+            StringBuilder sb = new StringBuilder();
+            sb.append(account);
+            sb.append('@');
+            sb.append(realm);
+            sb.append(": ");
+            sb.append(ExternalUserConfiguration.class.getSimpleName());
+            sb.append(".lastName");
+            throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise(sb.toString()));
+         }
+         if (StringUtils.isEmpty(config.getFirstName()))
+         {
+            StringBuilder sb = new StringBuilder();
+            sb.append(account);
+            sb.append('@');
+            sb.append(realm);
+            sb.append(": ");
+            sb.append(ExternalUserConfiguration.class.getSimpleName());
+            sb.append(".firstName");
+            throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise(sb.toString()));
+         }
+      }
+      return config;
+   }
+   
+   /**
     * Resolves a user group in the external registry for current partition and provides
     * its attributes.
     *
@@ -103,6 +149,33 @@ public abstract class DynamicParticipantSynchronizationProvider
    }
    
    /**
+    * Resolves a user group in the external registry for given partition and provides
+    * its attributes. A validity check is performed before the user group configuration is returned.
+    *
+    * @param groupId The identity of the external user group.
+    * @param properties The login properties like partition, domain, ... 
+    * @return A (probably snapshot) of the user groups attributes.
+    */
+   public final ExternalUserGroupConfiguration provideValidUserGroupConfiguration(String groupId,
+         Map properties)
+   {
+      ExternalUserGroupConfiguration config = provideUserGroupConfiguration(groupId, properties);
+      if (config != null)
+      {
+         if (StringUtils.isEmpty(config.getName()))
+         {
+            StringBuilder sb = new StringBuilder();
+            sb.append(groupId);
+            sb.append(": ");
+            sb.append(ExternalUserGroupConfiguration.class.getSimpleName());
+            sb.append(".name");
+            throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise(sb.toString()));
+         }
+      }
+      return config;
+   }
+
+   /**
     * Resolves a department in the external registry for given partition and provides
     * its attributes.
     *
@@ -127,5 +200,42 @@ public abstract class DynamicParticipantSynchronizationProvider
          List<String> departmentKey, Map<String, ?> properties)
    {
       return provideDepartmentConfiguration(participantId, departmentKey);
+   }
+   
+   /**
+    * Resolves a department in the external registry for given partition and provides
+    * its attributes. A validity check is performed before the department configuration is returned.
+    *
+    * @param departmentKey The identity of the external department.
+    * @param properties The login properties like partition, domain, ...
+    * @return A (probably) snapshot of the department attributes.
+    */
+   public final ExternalDepartmentConfiguration provideValidDepartmentConfiguration(String participantId,
+         List<String> departmentKey, Map<String, ?> properties)
+   {
+      ExternalDepartmentConfiguration config = provideDepartmentConfiguration(
+            participantId, departmentKey, properties);
+      if (config != null)
+      {
+         if (StringUtils.isEmpty(config.getName()))
+         {
+            StringBuilder sb = new StringBuilder();
+            for (String key : departmentKey)
+            {
+               if (sb.length() > 0)
+               {
+                  sb.append('.');
+               }
+               sb.append(key);
+            }
+            sb.append('@');
+            sb.append(participantId);
+            sb.append(": ");
+            sb.append(ExternalDepartmentConfiguration.class.getSimpleName());
+            sb.append(".name");
+            throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise(sb.toString()));
+         }
+      }
+      return config;
    }
 }

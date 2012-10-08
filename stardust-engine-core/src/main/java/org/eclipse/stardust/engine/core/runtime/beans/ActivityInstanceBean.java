@@ -1770,7 +1770,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             {
                // finalizing activity gracefully as requested
                setState(event.getIntendedState().getValue());
-
+               
+               if (isTerminated())
+               {
+                  EventUtils.detachAll(this);
+               }
+               
                RuntimeLog.WF_EVENT.info(MessageFormat.format(
                      "Processed expected exception as modeled for: {0}:", new Object[] { this }), exception);
             }

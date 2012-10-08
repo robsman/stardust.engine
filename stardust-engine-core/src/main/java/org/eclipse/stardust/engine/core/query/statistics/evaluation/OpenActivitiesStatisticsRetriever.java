@@ -68,26 +68,19 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
       
       Calendar cal = Calendar.getInstance();
       cal.setTime(now);
-      cal.set(Calendar.HOUR_OF_DAY, 0);
-      cal.set(Calendar.MINUTE, 0);
-      cal.set(Calendar.SECOND, 0);
-      cal.set(Calendar.MILLISECOND, 0);
-
-      // history starts one month back
-      cal.add(Calendar.MONTH, -1);
-      Date intervalStart = cal.getTime();
-
+      setTimeToDayEnd(cal);
+      
+      int daysInMonth = cal.getMaximum(Calendar.DAY_OF_MONTH);
       final List<Long> historyTimestamps = CollectionUtils.newList();
 
-      // exclude lower interval end
-      cal.add(Calendar.DAY_OF_MONTH, 1);
-      while (cal.getTimeInMillis() <= nowInMilli)
+      for(int i=0; i<daysInMonth; i++)
       {
+         cal.add(Calendar.DAY_OF_MONTH, -1);
          historyTimestamps.add(new Long(cal.getTimeInMillis()));
-
-         cal.add(Calendar.DAY_OF_MONTH, 1);
       }
-      Collections.reverse(historyTimestamps);
+      
+      // history starts one month back
+      Date intervalStart = cal.getTime();
 
       QueryDescriptor sqlQuery = QueryDescriptor.from(ActivityInstanceHistoryBean.class) //
             .select(new Column[] {
@@ -153,7 +146,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
       final AbstractAuthorization2Predicate authPredicate = new AbstractAuthorization2Predicate(ctx) {};
       
       authPredicate.addRawPrefetch(sqlQuery, piJoin.fieldRef(ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE));
-      
+            
       StatisticsQueryUtils.executeQuery(sqlQuery, new IResultSetTemplate()
       {
          private final ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -226,50 +219,33 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
             }
          }
 
-         private void updateStatistics(OpenActivitiesDetails oad,
-               Long cumulationPiOid, IProcessDefinition cumulationProcess)
+         private void updateStatistics(OpenActivitiesDetails oad, Long cumulationPiOid,
+               IProcessDefinition cumulationProcess)
          {
-            for (int i = history.length - 1; i >=0; i-- )
+            for (int i = history.length - 1; i >= 0; i--)
             {
-               long ts = history[i].longValue();
-
-               if (tsFrom > ts)
+               long dayEnd = history[i].longValue();
+               if (tsFrom < dayEnd && (tsUntil == 0 || tsUntil > dayEnd))
                {
-                  // fast forward
-                  continue;
-               }
-               else if (tsUntil < ts)
-               {
-                  // early exit
-                  break;
-               }
-               else
-               {
-                  if (tsFrom < ts && tsUntil > ts)
+                  // AI was pending at this point in time
+                  oad.pendingAisHistory[i]++;
+                  if (!registerNewPi(dayEnd, cumulationPiOid, oad, pendingPisPool))
                   {
-                     // AI was pending at this point in time
-                     oad.pendingAisHistory[i]++;
-                     if (!registerNewPi(ts, cumulationPiOid, oad, pendingPisPool))
-                     {
-                        oad.pendingPisHistory[i]++;
-                     }
+                     oad.pendingPisHistory[i]++;
+                  }
 
-                     if (criticalityPolicy.isCriticalDuration(oad.priority, tsPiStart,
-                           new Date(ts), cumulationProcess))
-                     {
-                        oad.pendingCriticalAisHistory[i]++;
-
-                        if (!registerNewPi(ts, cumulationPiOid, oad, criticalPisPool))
-                        {
-                           oad.pendingCriticalPisHistory[i]++;
-                        }
-                     }
-                        }
-                  else if (tsUntil < ts)
+                  if (criticalityPolicy.isCriticalDuration(oad.priority, tsPiStart,
+                        new Date(dayEnd), cumulationProcess))
                   {
-                     break;
+                     oad.pendingCriticalAisHistory[i]++;
+
+                     if (!registerNewPi(dayEnd, cumulationPiOid, oad, criticalPisPool))
+                     {
+                        oad.pendingCriticalPisHistory[i]++;
+                     }
                   }
                }
+               
             }
 
             if (tsFrom < nowInMilli && ((0 == tsUntil) || !(tsUntil < nowInMilli)))
@@ -289,8 +265,8 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
                      oad.pendingPis++;
                   }
                }
-                  }
-               }
+            }
+         }
 
       });
 
@@ -332,5 +308,19 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
          }
          return false;
       }
+   }
+   
+   private void setTimeToDayEnd(Calendar cal)
+   {
+      int year = cal.get(Calendar.YEAR);
+      int month = cal.get(Calendar.MONTH);
+      int day = cal.get(Calendar.DAY_OF_MONTH);
+      cal.set(year, month, day, 24, 0, 0);
+      
+      
+//      cal.clear(Calendar.HOUR_OF_DAY);
+//      cal.clear(Calendar.MINUTE);
+//      cal.clear(Calendar.SECOND);
+//      cal.clear(Calendar.MILLISECOND);
    }
 }

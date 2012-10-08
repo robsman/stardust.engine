@@ -227,11 +227,15 @@ public class EventUtils
             return;
          }
          IProcessInstance processInstance = getProcessInstance(event);
-         if (processInstance.isAborted())
+         if (processInstance.isTerminated()
+               || context instanceof IActivityInstance
+               && ((IActivityInstance) context).isTerminated())
          {
-            detachAll(context); // (fh) Normally should not happen            
-            AuditTrailLogger.getInstance(LogCode.EVENT, getEventSourceInstance(event))
-                  .warn("Skipping event handling for aborted " + processInstance);
+            detachAll(context); // (fh) Normally should not happen
+            AuditTrailLogger.getInstance(LogCode.EVENT, context)
+                  .warn("Skipping event handling for "
+                        + processInstance.getState().getName().toLowerCase()
+                        + " " + processInstance);
             return;
          }
 

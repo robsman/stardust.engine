@@ -19,8 +19,8 @@ import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-//import org.eclipse.stardust.engine.cli.sysconsole.patch.FixRuntimeOidCommand;
-//import org.eclipse.stardust.engine.cli.sysconsole.utils.SysconsoleCommandExecuter;
+import org.eclipse.stardust.engine.cli.sysconsole.patch.FixRuntimeOidCommand;
+import org.eclipse.stardust.engine.cli.sysconsole.utils.SysconsoleCommandExecuter;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.model.beans.IConfigurationVariablesProvider;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -267,13 +267,13 @@ public class ArchiveCommand extends AuditTrailCommand
             archiver.archiveUserSessions(before, interval);
          }
       }
-
-//      //fix runtime oids which could be corrupted by the previous archive run
-//      String fixCommandName = FixRuntimeOidCommand.COMMAND_NAME;
-//      String[] args = { "-password", "sysop", "-force", "-dbschema", 
-//            archiveSchema, fixCommandName, FixRuntimeOidCommand.NO_LOG_ARG};
-//      SysconsoleCommandExecuter.main(args);
-
+      
+      //fix runtime oids which could be corrupted by the previous archive run
+      String fixCommandName = FixRuntimeOidCommand.COMMAND_NAME;
+      String[] args = { "-password", "sysop", "-force", "-dbschema", 
+            archiveSchema, fixCommandName, FixRuntimeOidCommand.NO_LOG_ARG};
+      SysconsoleCommandExecuter.main(args);
+      
       return 0;
    }
    

@@ -212,25 +212,7 @@ public class TypedXPath implements Serializable
          String xsdTypeName, String xsdTypeNs, int type, boolean isList,
          XPathAnnotations xPathAnnotations)
    {
-      this(parentXPath, orderKey, xPath, xsdTypeName, xsdTypeNs, type,
-            isList, xPathAnnotations, Collections.EMPTY_LIST);
-   }
-
-   public TypedXPath(TypedXPath parentXPath, int orderKey, String xPath,
-         String xsdTypeName, String xsdTypeNs, int type, boolean isList,
-         XPathAnnotations xPathAnnotations, List /*<Object*/ enumerationValues)
-   {
       this(parentXPath, orderKey, xPath, false, null, null, xsdTypeName, xsdTypeNs, type,
-            isList, xPathAnnotations, enumerationValues);
-   }
-
-
-   public TypedXPath(TypedXPath parentXPath, int orderKey, String xPath, //
-         String xsdElementName, String xsdElementNs, //
-         String xsdTypeName, String xsdTypeNs, //
-         int type, boolean isList, XPathAnnotations xPathAnnotations)
-   {
-      this(parentXPath, orderKey, xPath, false, xsdElementName, xsdElementNs, xsdTypeName, xsdTypeNs, type,
             isList, xPathAnnotations, Collections.EMPTY_LIST);
    }
 
@@ -452,10 +434,5 @@ public class TypedXPath implements Serializable
    public String toString()
    {
       return xPath;
-   }
-
-   public class XPathEvaluationException extends Exception
-   {
-
    }
 }

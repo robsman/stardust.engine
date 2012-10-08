@@ -20,7 +20,10 @@ import java.lang.reflect.Proxy;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Action;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Flushable;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.annotations.SharedInstance;
 import org.eclipse.stardust.common.annotations.Stateless;
 import org.eclipse.stardust.common.config.*;
@@ -343,7 +346,7 @@ public abstract class SynchronizationService
             final String scopedParticipantId = scopedParticipant.getQualifiedId();
             final DynamicParticipantSynchronizationProvider provider = initializeProvider();
             if (  provider != null &&
-                  provider.provideDepartmentConfiguration(scopedParticipantId, departmentKeys, properties) != null)
+                  provider.provideValidDepartmentConfiguration(scopedParticipantId, departmentKeys, properties) != null)
             {
                departmentPair = importDepartmentHierarchy(scopedParticipantId, departmentKeys);
             }
@@ -373,7 +376,7 @@ public abstract class SynchronizationService
 
       String realmId = LoginUtils.getUserRealmId(properties);
 
-      ExternalUserConfiguration adminConf = provider.provideUserConfiguration(realmId,
+      ExternalUserConfiguration adminConf = provider.provideValidUserConfiguration(realmId,
             account, properties);
       if (null == adminConf)
       {
@@ -443,7 +446,7 @@ public abstract class SynchronizationService
 
       String realmId = LoginUtils.getUserRealmId(properties);
 
-      ExternalUserConfiguration userConf = provider.provideUserConfiguration(realmId,
+      ExternalUserConfiguration userConf = provider.provideValidUserConfiguration(realmId,
             account, properties);
       if (null == userConf)
       {
@@ -514,7 +517,7 @@ public abstract class SynchronizationService
                BpmRuntimeError.AUTHx_SYNC_MISSING_SYNCHRONIZATION_PROVIDER.raise());
       }
 
-      ExternalUserGroupConfiguration groupConf = provider.provideUserGroupConfiguration(
+      ExternalUserGroupConfiguration groupConf = provider.provideValidUserGroupConfiguration(
             id, properties);
       if (null == groupConf)
       {
@@ -616,7 +619,7 @@ public abstract class SynchronizationService
             DynamicParticipantSynchronizationProvider provider = initializeProvider();
             if (null != provider)
             {
-               ExternalUserConfiguration userConf = provider.provideUserConfiguration(
+               ExternalUserConfiguration userConf = provider.provideValidUserConfiguration(
                      user.getRealm().getId(), user.getAccount(), properties);
 
                if (null != userConf)
@@ -703,7 +706,7 @@ public abstract class SynchronizationService
             if (null != provider)
             {
                ExternalUserGroupConfiguration groupConf = provider
-                     .provideUserGroupConfiguration(group.getId(), properties);
+                     .provideValidUserGroupConfiguration(group.getId(), properties);
                if (null != groupConf)
                {
                   synchronizeUnguarded(group, groupConf);
@@ -780,7 +783,7 @@ public abstract class SynchronizationService
          {
             final Pair<String, List<String>> departmentPair = getDepartmentPairFor(department, modelOid);
             final ExternalDepartmentConfiguration departmentConf = provider
-                  .provideDepartmentConfiguration(departmentPair.getFirst(),
+                  .provideValidDepartmentConfiguration(departmentPair.getFirst(),
                         departmentPair.getSecond(), properties);
             if (departmentConf != null)
             {

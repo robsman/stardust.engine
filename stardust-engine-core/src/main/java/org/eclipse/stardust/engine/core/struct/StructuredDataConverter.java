@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.struct;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.*;
 
 import javax.xml.transform.TransformerException;
@@ -24,6 +25,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.sxml.*;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
+import org.eclipse.xsd.util.XSDConstants;
 
 
 /**
@@ -624,9 +626,41 @@ public class StructuredDataConverter
       {
          // create an element
          Element childNode = StructuredDataXPathUtils.createElement(childXPath, namespaceAware);
-         String valueString = StructuredDataValueFactory.convertToString(childXPath.getType(), childXPath.getXsdTypeName(), value);
-         childNode.appendChild(new Text(valueString));
+         boolean isPlainText = true;
+         if (isAnyType(childXPath) && value != null && value.toString().indexOf('<') >= 0)
+         {
+            try
+            {
+               // (fh) we need to wrap in case the value is a list of nodes (Text or Element)
+               String content = "<wrapper>" + value + "</wrapper>";
+               Document doc = DocumentBuilder.buildDocument(new StringReader(content));
+               Element wrapper = doc.getRootElement();
+               isPlainText = false;
+               while (wrapper.getChildCount() > 0)
+               {
+                  Node node = wrapper.getChild(0);
+                  node.detach();
+                  childNode.appendChild(node);
+               }
+            }
+            catch (Exception e)
+            {
+               // fallback to plain text
+            }
+         }
+         if (isPlainText)
+         {
+            String valueString = StructuredDataValueFactory.convertToString(childXPath.getType(), childXPath.getXsdTypeName(), value);
+            childNode.appendChild(new Text(valueString));
+         }
          parentNode.appendChild(childNode);
       }
+   }
+
+   // (fh) From XSDConstants.isAnyType(XSDTypeDefinition) adapted to use a TypedXPath.
+   private boolean isAnyType(TypedXPath childXPath)
+   {
+      return XSDConstants.isSchemaForSchemaNamespace(childXPath.getXsdTypeNs()) &&
+            "anyType".equals(childXPath.getXsdTypeName());
    }
 }

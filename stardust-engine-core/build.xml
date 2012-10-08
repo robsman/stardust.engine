@@ -304,7 +304,7 @@
       <property name="carnot.emf.xsd.integration.src-jar" location="${build.lib.src}/${carnot.emf.xsd.integration.src-jarfile}" />
 
    </target>
-   
+
    <import file="build-dependencies-${dependencies.mode}.xml" />
 
    <target name="initClasspath" depends="init, dependencies:initClasspath" />

@@ -37,12 +37,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
-import org.eclipse.stardust.engine.core.struct.sxml.Attribute;
-import org.eclipse.stardust.engine.core.struct.sxml.Document;
-import org.eclipse.stardust.engine.core.struct.sxml.Element;
-import org.eclipse.stardust.engine.core.struct.sxml.NamedNode;
-import org.eclipse.stardust.engine.core.struct.sxml.Node;
-import org.eclipse.stardust.engine.core.struct.sxml.Text;
+import org.eclipse.stardust.engine.core.struct.sxml.*;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathException;
 
@@ -435,7 +430,7 @@ public class StructuredDataXPathUtils
       // check that the last part type is a primitive
       String xPathWithoutIndexes = getXPathWithoutIndexes(xPath);
       TypedXPath typedXPath = xPathMap.getXPath(xPathWithoutIndexes);
-      if (typedXPath.getType() == BigData.NULL || typedXPath.isList())
+      if (typedXPath.getType() == BigData.NULL || !isIndexedXPath(xPath) && typedXPath.isList())
       {
          return false;
       }
@@ -710,16 +705,51 @@ public class StructuredDataXPathUtils
     * @param node
     * @return text node value or null if no subnode of type TEXT_NODE found
     */
-   public static String findNodeValue(org.eclipse.stardust.engine.core.struct.sxml.Node node)
+   // TODO: fh - the javadoc is no longer correct
+   public static String findNodeValue(Node node)
    {
-      String nodeValue = node.getValue();
-      if (nodeValue != null && (nodeValue.length() > 0 || node instanceof Attribute))
+      String nodeValue = node instanceof LeafNode ? node.getValue() : getComposedValue(node);
+      if (nodeValue != null && nodeValue.isEmpty() && !(node instanceof Attribute))
       {
-         return nodeValue;
+         // empty text nodes
+         return null;
+      }
+      return nodeValue;
+   }
+
+   private static String getComposedValue(Node node)
+   {
+      int l = node.getChildCount();
+      switch (l)
+      {
+      case 0:
+         return null;
+      case 1:
+         Node child = node.getChild(0);
+         if (child instanceof Text)
+         {
+            return child.getValue();
+         }
+         // fall through
+      default:
+         StringBuilder builder = new StringBuilder();
+         for (int i = 0; i < l; i++)
+         {
+            appendXML(node.getChild(i), builder);
+         }
+         return builder.toString();
+      }
+   }
+
+   private static void appendXML(Node node, StringBuilder builder)
+   {
+      if (node instanceof LeafNode)
+      {
+         builder.append(node.getValue());
       }
       else
       {
-         return null;
+         builder.append(node.toXML());
       }
    }
 

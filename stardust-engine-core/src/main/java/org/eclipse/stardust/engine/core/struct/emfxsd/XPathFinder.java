@@ -159,10 +159,9 @@ public class XPathFinder
          else
          {
             // the root XPath
-            TypedXPath typedXPath = new TypedXPath(null, allXPaths.size(), xpath,
-                  elementName, elementNs, xsdTypeDefinition.getName(),
-                  xsdTypeDefinition.getTargetNamespace(), BigData.NULL, false,
-                  xsdAnnotations);
+            TypedXPath typedXPath = new TypedXPath(null, allXPaths.size(), xpath, false, elementName, elementNs,
+                  xsdTypeDefinition.getName(), xsdTypeDefinition.getTargetNamespace(),
+                  BigData.NULL, false, xsdAnnotations, Collections.EMPTY_LIST);
             allXPaths.add(typedXPath);
             findAttributes(typedXPath, xsdComplexTypeDefinition.getAttributeContents(), allXPaths);
             findAllXPaths(typedXPath, xsdComplexTypeDefinition, allXPaths, visitedTypes, allVisitedTypes);
@@ -343,10 +342,15 @@ public class XPathFinder
       }
       else
       {
+         if (XSDConstants.isAnyType(xsdTypeDefinition))
+         {
+            // any types are treated as raw string 
+            return BigData.STRING;
+         }
          // look up the base type definition if Simple Type
          if (xsdTypeDefinition instanceof XSDSimpleTypeDefinition || xsdTypeDefinition.getBaseType() instanceof XSDSimpleTypeDefinition)
          {
-            if (xsdTypeDefinition.getBaseType() == null || XSDConstants.isAnyType(xsdTypeDefinition))
+            if (xsdTypeDefinition.getBaseType() == null)
             {
                // if null, top of the type hierarchy is reached (anySimpleType) and no known type could be found
                // fall back to string 

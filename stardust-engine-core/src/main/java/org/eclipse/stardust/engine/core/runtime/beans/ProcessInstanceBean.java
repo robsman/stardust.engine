@@ -1614,9 +1614,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          IActivity startingActivity = startingActivityInstance.getActivity();
          if (ImplementationType.SubProcess == startingActivity.getImplementationType())
          {
-            final SubProcessModeKey subProcessMode = startingActivity.getSubProcessMode();
-
-            if (SubProcessModeKey.SYNC_SEPARATE.equals(subProcessMode))
+            SubProcessModeKey subProcessMode = startingActivity.getSubProcessMode();
+            if (subProcessMode != null && !SubProcessModeKey.ASYNC_SEPARATE.equals(subProcessMode))
             {
                ModelElementList outDataMappings = startingActivity.getOutDataMappings();
                for (int i = 0; i < outDataMappings.size(); ++i)
@@ -1833,11 +1832,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          return AccessPathEvaluator.UNMODIFIED_HANDLE == evaluationResult
                ? new EvaluatedValue(currentValue, false)
                : new EvaluatedValue(evaluationResult, true);
-      }
-
-      public Object getCurrentValue()
-      {
-         return currentValue;
       }
 
       public void setCurrentValue(Object defaultValue)

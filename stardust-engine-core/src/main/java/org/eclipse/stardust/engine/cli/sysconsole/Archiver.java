@@ -1487,7 +1487,7 @@ public class Archiver
    {
       try
       {
-         AdminServiceUtils.deleteModelRuntimePart(modelOid, session);
+         AdminServiceUtils.deleteModelRuntimePart(modelOid, session, true);
          AdminServiceUtils.deleteModelModelingPart(modelOid, session);
 
          ModelPersistorBean model = ModelPersistorBean.findByModelOID(modelOid);

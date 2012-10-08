@@ -83,6 +83,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
@@ -1323,6 +1324,14 @@ public class Archiver
    private List getRootPiPOidsSharingDataWithRunningAsynchPis(List stmtBatchRootPiOids,
          List stmtBatchPiClosure)
    {
+      String propertySharedDataExist = SchemaHelper
+            .getAuditTrailProperty(KernelTweakingProperties.INFINITY_DMS_SHARED_DATA_EXIST);
+      boolean applySharedDataFix = StringUtils.isNotEmpty(propertySharedDataExist)
+            && Boolean.parseBoolean(propertySharedDataExist);
+      if (!applySharedDataFix)
+      {
+         return Collections.EMPTY_LIST;
+      }
       Set docDataOids = findAllDocumentDataOids();
       if (docDataOids.isEmpty())
       {

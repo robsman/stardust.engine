@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.struct;
 
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 
 
@@ -18,17 +19,17 @@ public class ClientStructuredDataValueFactory implements IStructuredDataValueFac
 {
    private OidGenerator oidGenerator = new OidGenerator();
 
-   public IStructuredDataValue createKeyedElementEntry(long rootOid, long parentOid,
+   public IStructuredDataValue createKeyedElementEntry(IProcessInstance scopeProcessInstance, long parentOid,
          long xPathOid, String index, String value, int typeKey)
    {
-      return new ClientStructuredDataValue(oidGenerator.getNextOid(), rootOid, parentOid,
+      return new ClientStructuredDataValue(oidGenerator.getNextOid(), scopeProcessInstance, parentOid,
             xPathOid, value, index, typeKey);
    }
 
-   public IStructuredDataValue createRootElementEntry(long rootOid, long xPathOid,
+   public IStructuredDataValue createRootElementEntry(IProcessInstance scopeProcessInstance, long xPathOid,
          String key, String value)
    {
-      return new ClientStructuredDataValue(rootOid, rootOid,
+      return new ClientStructuredDataValue(scopeProcessInstance.getScopeProcessInstanceOID(), scopeProcessInstance,
             IStructuredDataValue.NO_PARENT, xPathOid, value, key, BigData.NULL);
    }
 }
@@ -58,15 +59,15 @@ class ClientStructuredDataValue implements IStructuredDataValue
 
    private String value;
 
-   private long rootOid;
+   private IProcessInstance processInstance;
    
    private int typeKey;
 
-   ClientStructuredDataValue(long oid, long rootOid, long parentOid, long xPathOid, String value,
+   ClientStructuredDataValue(long oid, IProcessInstance processInstance, long parentOid, long xPathOid, String value,
          String key, int typeKey)
    {
       this.oid = oid;
-      this.rootOid = rootOid;
+      this.processInstance = processInstance.getScopeProcessInstance();
       this.parentOid = parentOid;
       this.key = key;
       this.xPathOid = xPathOid;
@@ -137,9 +138,9 @@ class ClientStructuredDataValue implements IStructuredDataValue
       throw new RuntimeException("NIY");
    }
 
-   public long getProcessInstanceOID()
+   public IProcessInstance getProcessInstance()
    {
-      return this.rootOid;
+      return this.processInstance;
    }
 
    public int getType()

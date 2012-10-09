@@ -13,16 +13,13 @@ package org.eclipse.stardust.engine.core.struct;
 import java.util.HashSet;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.StructuredDataReader;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
-import org.eclipse.stardust.engine.core.struct.XPathAnnotations;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.sxml.Document;
 import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
-
-import junit.framework.TestCase;
 
 public class StructuredDataReaderTest extends TestCase
 {
@@ -34,14 +31,19 @@ public class StructuredDataReaderTest extends TestCase
 
    public void testReadReport() throws Exception
    {
+      ProcessInstanceBean scopedProcessInstance = new ProcessInstanceBean();
+      scopedProcessInstance.setOID(0);
+      scopedProcessInstance.setScopeProcessInstance(scopedProcessInstance);
+
+      
       IXPathMap xPathMap = this.buildXPathMap();
 
       Set entries = new HashSet();
       TestStructuredDataValueFactory testStructuredDataValueFactory = new TestStructuredDataValueFactory();
-      IStructuredDataValue e = testStructuredDataValueFactory.createRootElementEntry(0,
+      IStructuredDataValue e = testStructuredDataValueFactory.createRootElementEntry(scopedProcessInstance,
             xPathMap.getRootXPathOID().longValue(), "0", null);
       entries.add(e);
-      e = testStructuredDataValueFactory.createKeyedElementEntry(0, 0,
+      e = testStructuredDataValueFactory.createKeyedElementEntry(scopedProcessInstance, 0,
             xPathMap.getXPathOID("testChild1").longValue(), "0", "testValue", BigData.STRING);
       entries.add(e);
 

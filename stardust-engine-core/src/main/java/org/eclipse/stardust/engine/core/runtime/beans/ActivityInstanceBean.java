@@ -1540,7 +1540,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       while (inAccessPoints.hasNext())
       {
          AccessPoint accessPoint = (AccessPoint) inAccessPoints.next();
-         ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(accessPoint.getType());
+         ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(accessPoint, null);
          AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(processInstance, null);
          Object defaultValue = evaluator.createDefaultValue(accessPoint, evaluationContext);
 
@@ -1571,7 +1571,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             Object accessPointValue = applicationInstance.getOutAccessPointValue(
                   mapping.getActivityAccessPointId());
             AccessPoint activityAccessPoint = mapping.getActivityAccessPoint();
-            ExtendedAccessPathEvaluator appPathEvaluator = SpiUtils.createExtendedAccessPathEvaluator(activityAccessPoint.getType());
+            ExtendedAccessPathEvaluator appPathEvaluator = SpiUtils.createExtendedAccessPathEvaluator(activityAccessPoint, mapping.getActivityPath());
             AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(processInstance, null);
             /*Object result =*/ appPathEvaluator.evaluate(activityAccessPoint,
                   accessPointValue, mapping.getActivityPath(), evaluationContext, bridgeObject);
@@ -1685,7 +1685,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          AccessPoint activityAP = mapping.getActivityAccessPoint();
          ExtendedAccessPathEvaluator apEvaluator = SpiUtils
-         .createExtendedAccessPathEvaluator(activityAP.getType());
+         .createExtendedAccessPathEvaluator(activityAP, mapping.getActivityPath());
          AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
                this.processInstance, mapping.getData(), mapping.getDataPath(), mapping
                .getActivity());

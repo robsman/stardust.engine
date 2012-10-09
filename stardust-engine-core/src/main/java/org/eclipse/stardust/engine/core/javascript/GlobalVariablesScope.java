@@ -109,7 +109,7 @@ public class GlobalVariablesScope extends ScriptableObject
             Object value = symbolTable.lookupSymbol(name);
             if (null != value && null != data.getType())
             {
-               ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data.getType());
+               ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data, null);
                
                AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(symbolTable, null);
                value = evaluator.evaluate(data, value, null, evaluationContext);

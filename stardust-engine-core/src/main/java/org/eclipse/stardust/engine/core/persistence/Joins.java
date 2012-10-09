@@ -121,7 +121,7 @@ public class Joins implements Iterable<Join>
       return joins.size();
    }
 
-   public Object get(int index)
+   public Join get(int index)
    {
       return joins.get(index);
    }

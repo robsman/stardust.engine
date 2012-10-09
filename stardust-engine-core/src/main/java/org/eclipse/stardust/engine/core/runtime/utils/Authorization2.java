@@ -653,7 +653,7 @@ public class Authorization2
    private static Object evaluateDataPath(AuthorizationContext context,
 	         final IData dataObject, String dataPath, final Object dataValue)
 	   {
-	      ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject.getType());
+	      ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(dataObject, dataPath);
 	      SymbolTable symbolTable = new SymbolTable()
 	      {
 	         public Object lookupSymbol(String name)

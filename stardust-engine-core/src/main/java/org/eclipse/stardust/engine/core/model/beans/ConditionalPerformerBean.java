@@ -632,7 +632,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
                + "' available for conditional performer retrieval.");
       }
       
-      ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data.getType());
+      ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data, dereferencePath);
       AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(processInstance, null);
       return evaluator.evaluate(data, dataValue.getValue(),
             dereferencePath, evaluationContext);

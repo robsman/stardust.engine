@@ -46,7 +46,11 @@ import org.eclipse.stardust.engine.api.model.IDataPath;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.PluggableType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataEvaluaterInfo;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
+import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataPrefetchInfo;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
@@ -57,13 +61,16 @@ import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.Functions;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.Joins;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.AliasProjectionResultSet;
 import org.eclipse.stardust.engine.core.persistence.jdbc.AliasProjectionResultSet.ValueType;
+import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.MultiplePersistentResultSet;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ResultSetIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -84,12 +91,16 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.daemons.GetDaemonLogAction;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ClusterAwareXPathEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
@@ -804,6 +815,15 @@ public class ProcessQueryPostprocessor
 
       Map dataPrefetchFilter = new HashMap();
 
+      //contains which structured data entries can be prefetched from the datacluster
+      List<StructuredDataPrefetchInfo> dcStructuredDataInClusterPrefetchInfo
+         = new ArrayList<StructuredDataPrefetchInfo>();
+      //contains which evaluator to use for given data & xpath
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      ExtendedAccessPathEvaluatorRegistry evaluatorRegistry
+         = new ExtendedAccessPathEvaluatorRegistry();
+      rtEnv.setEvaluatorRegistry(evaluatorRegistry);
+      
       while (instanceItr.hasNext())
       {
          IdentifiablePersistent instance = (IdentifiablePersistent) instanceItr.next();
@@ -826,14 +846,15 @@ public class ProcessQueryPostprocessor
          {
             throw new InternalException("Unsupported descriptor context " + instance);
          }
+         
          IProcessDefinition pd = pi.getProcessDefinition();
 
          Pair pdSlice = (Pair) dataPrefetchFilter.get(pd);
          if (null == pdSlice)
          {
-            Set<Long> dataRtOidsStructured = new TreeSet<Long>();
+            Set<Long> dataRtOidsStructuredNoCluster = new TreeSet<Long>();
             Map<Long, IData> dataRtOidsNonStructured = new TreeMap<Long, IData>();
-            Pair dataRtOids = new Pair(dataRtOidsStructured, dataRtOidsNonStructured);
+            Pair dataRtOids = new Pair(dataRtOidsStructuredNoCluster, dataRtOidsNonStructured);
             pdSlice = new Pair(dataRtOids, new TreeSet());
             dataPrefetchFilter.put(pd, pdSlice);
 
@@ -857,8 +878,21 @@ public class ProcessQueryPostprocessor
                               || StructuredTypeRtUtils.isStructuredType(data.getType()
                                     .getId()))
                         {
-                           dataRtOidsStructured.add(new Long(
-                                 modelManager.getRuntimeOid(data)));
+                           String dataXPath = descriptor.getAccessPath();
+                           List<StructuredDataPrefetchInfo> dataPrefetchInfo
+                              = DataClusterPrefetchUtil.getPrefetchInfo(data, dataXPath);
+                           if(!dataPrefetchInfo.isEmpty())
+                           {
+                              //this data can be fetched from datacluster
+                              dcStructuredDataInClusterPrefetchInfo.addAll(dataPrefetchInfo);
+                              //rember the data and the xpath for which the custom evaluator will be used 
+                              evaluatorRegistry.register(data, dataXPath, ClusterAwareXPathEvaluator.class);
+                           }
+                           else
+                           {
+                              dataRtOidsStructuredNoCluster.add(new Long(
+                                    modelManager.getRuntimeOid(data)));
+                           }
                         }
                         // always add to non structured, even if it is a structured data
                         // (because the data_value entry
@@ -935,6 +969,12 @@ public class ProcessQueryPostprocessor
          {
             final HashSet<Long> prefetchedPiOids = CollectionUtils.newHashSet();
             final HashSet<Long> prefetchedDataRtOids = CollectionUtils.newHashSet();
+                                 
+            if( !dcStructuredDataInClusterPrefetchInfo.isEmpty() && !piSet.isEmpty())
+            {
+               performPrefetchStructuredFromDataCluster(dcStructuredDataInClusterPrefetchInfo,
+                     piSet, prefetchNParallelInstances);
+            }
             
             if ( !dataRtOidsNonStructured.isEmpty() && !piSet.isEmpty())
             {
@@ -960,7 +1000,7 @@ public class ProcessQueryPostprocessor
                      + " instance(s) of process " + pd + ".");
             }
             
-         // remove any data cluster prefetched data RT oid which will prevent duplicate prefetching
+            // remove any data cluster prefetched data RT oid which will prevent duplicate prefetching
             CollectionUtils.remove(dataRtOidsNonStructured, prefetchedDataRtOids);
             
             if ( !dataRtOidsNonStructured.isEmpty())
@@ -969,6 +1009,7 @@ public class ProcessQueryPostprocessor
                      timeout, prefetchNParallelData, prefetchNParallelInstances,
                      prefetchDataDiscriminationThreshold);
             }
+
             if (!dataRtOidsStructured.isEmpty())
             {
                performPrefetchStructured(dataRtOidsStructured, nData, piSet, timeout,
@@ -978,15 +1019,148 @@ public class ProcessQueryPostprocessor
          }
       }
    }
+    
+   private static void performPrefetchStructuredFromDataCluster(
+         List<StructuredDataPrefetchInfo> prefetchInfo, 
+         Collection<Long> piSet,
+         int prefetchNParallelInstances)
+   {
+      boolean useDataClusters = Parameters.instance().getBoolean(
+            KernelTweakingProperties.DESCRIPTOR_PREFETCH_USE_DATACLUSTER, false);
+      if ( !useDataClusters || RuntimeSetup.instance().getDataClusterSetup().length == 0)
+      {
+         return;
+      }
+
+      Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      org.eclipse.stardust.engine.core.persistence.jdbc.Session 
+         jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;     
+      ResultSet baseResultSet = null;
+      
+      //selected fields
+      List<Column> allColumns = new ArrayList<Column>();
+      List<FieldRef> defaultFields = SqlUtils.getDefaultSelectFieldList(TypeDescriptor.get(ProcessInstanceBean.class));
+      allColumns.addAll(defaultFields);
+      //joins to cluster table
+      Joins dcJoins = new Joins();
+      List<AliasProjectionResultSetInfo> sdvProjectionInfo 
+         = new ArrayList<AliasProjectionResultSetInfo>();
+
+      List<List<Long>> piSelections = CollectionUtils.split(new ArrayList<Long>(piSet),
+            prefetchNParallelInstances);
+      int i = 0;
+      for(List<Long> piSelection: piSelections)
+      {
+         ComparisonTerm piSelectionTerm = Predicates.inList(
+               ProcessInstanceBean.FR__OID, piSelection.iterator());
+         for(StructuredDataPrefetchInfo info: prefetchInfo)
+         {    
+            boolean stringValueColumnMapped = false;
+            boolean numberValueColumnMapped = false;
+            
+            i++;
+            DataCluster cluster = info.getCluster();
+            DataSlot slot = info.getDataslot();
+            String joinAlias = "dc"+i;
+            
+            Join dcJoin = new Join(cluster, joinAlias);
+            dcJoin = dcJoin.on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE, cluster
+                  .getProcessInstanceColumn());
+            dcJoins.add(dcJoin);
+            
+            List<Column> additionalSelectColumns = new ArrayList<Column>();
+
+            additionalSelectColumns.add(new FieldRef(dcJoin, slot.getTypeColumn()));
+            if (StringUtils.isNotEmpty(slot.getSValueColumn()))
+            {
+               stringValueColumnMapped = true;
+               additionalSelectColumns.add(new FieldRef(dcJoin, slot.getSValueColumn()));
+            }   
+            if (StringUtils.isNotEmpty(slot.getNValueColumn()))
+            {
+               numberValueColumnMapped = true;
+               additionalSelectColumns.add(new FieldRef(dcJoin, slot.getNValueColumn()));
+            }
+
+            //build result set index mapping based on the order of the fields 
+            //declared in class StructuredDataValueBean, links have to be declared as last
+            int localRsIndex = 0;
+            List<Pair<ValueType, Object>> sdvRsMapping = CollectionUtils.newArrayList();
+            long xpathOid = info.getXpathOid();
+                     
+            //REGULAR FIELDS
+            //StructuredDataValueBean.FIELD__OID
+            addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, new Long(i));
+            //StructuredDataValueBean.FIELD__PARENT
+            addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, Long.valueOf(-1));
+            //StructuredDataValueBean.FIELD__ENTRY_KEY
+            addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, "-1");
+            //StructuredDataValueBean.FIELD__XPATH
+            addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, xpathOid);
+            //StructuredDataValueBean.FIELD__TYPE_KEY
+            addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
+            //StructuredDataValueBean.FIELD__STRING_VALUE 
+            if(stringValueColumnMapped)
+            {
+               addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
+            }
+            else
+            {
+               addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, "-1");
+            }
+            //StructuredDataValueBean.FIELD__NUMBER_VALUE
+            if(numberValueColumnMapped)
+            {
+               addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
+            }
+            else
+            {
+               addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, -1L);
+            }
+            //LINKS TO OTHER PERSISTENT
+            //StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+            addCustomIndexEntry(sdvRsMapping, ValueType.GLOBAL_RS_INDEX, 1); 
+            
+            allColumns.addAll(additionalSelectColumns);
+            AliasProjectionResultSetInfo projectionInfo = new AliasProjectionResultSetInfo(dcJoin, sdvRsMapping);
+            sdvProjectionInfo.add(projectionInfo);
+         }
+         
+         //prepare sql query
+         Column[] allColumnsAsArray = allColumns.toArray(new Column[allColumns.size()]);
+         QueryExtension queryExtension = QueryExtension.where(piSelectionTerm);
+         queryExtension.addJoins(dcJoins);
+         queryExtension.setSelection(allColumnsAsArray);
+         baseResultSet = jdbcSession.executeQuery(ProcessInstanceBean.class, queryExtension);
+         
+         //create the final result
+         MultiplePersistentResultSet extendedResultSet = (MultiplePersistentResultSet) MultiplePersistentResultSet
+         .createPersistentProjector(ProcessInstanceBean.class,
+               TypeDescriptor.get(ProcessInstanceBean.class), baseResultSet,
+               allColumnsAsArray, true /* this will force loading all persistent objects */);
+         for(AliasProjectionResultSetInfo info: sdvProjectionInfo)
+         {
+            AliasProjectionResultSet projector 
+               = AliasProjectionResultSet.createAliasProjector(StructuredDataValueBean.class, info.getJoin(), baseResultSet, allColumnsAsArray, info.getMapping());
+            extendedResultSet.add(projector);
+         }
+         
+         ResultIterator iterator = new ResultSetIterator(jdbcSession,
+               ProcessInstanceBean.class, true, extendedResultSet, 0, -1, null, false);
+         while (iterator.hasNext())
+         {
+            iterator.next();
+         }        
+      }
+   }
    
    private static void performPrefetchNonStructuredFromDataCluster(
          final Map<Long, IData> dataRtOids, Collection<Long> piSet,
          int prefetchNParallelInstances, final IProcessDefinition pd, int timeout,
          final HashSet<Long> prefetchedPiOids, final HashSet<Long> prefetchedDataRtOids)
-             {
+   {
       boolean useDataClusters = Parameters.instance().getBoolean(
             KernelTweakingProperties.DESCRIPTOR_PREFETCH_USE_DATACLUSTER, false);
-
       if ( !useDataClusters || RuntimeSetup.instance().getDataClusterSetup().length == 0)
       {
          return;
@@ -1162,8 +1336,8 @@ public class ProcessQueryPostprocessor
          // string_value default: null
          addCustomIndexEntry(fieldIndexValueList, ValueType.OBJECT, null);
          // number_value from DB
-         addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 3);
       }
+      addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 3);
       // type_key
       addCustomIndexEntry(fieldIndexValueList, ValueType.LOCAL_RS_INDEX, 2);
       
@@ -1355,6 +1529,7 @@ public class ProcessQueryPostprocessor
       }
    }
 
+
    private static void performPrefetch(Class type, QueryExtension queryExtension,
          ComparisonTerm oidInListTermReference, Collection oidSet,
          boolean useOidsForCacheHitTest, int timeout, int maxInstanceBatchSize)
@@ -1408,5 +1583,27 @@ public class ProcessQueryPostprocessor
    private static boolean isEventTypeSet(int eventTypes, int eventType)
    {
       return (eventTypes & eventType) == eventType;
+   }
+   
+   private static class AliasProjectionResultSetInfo
+   {
+      private final Join join;
+      private final List<Pair<ValueType, Object>> mapping;
+
+      public AliasProjectionResultSetInfo(Join join, List<Pair<ValueType, Object>> mapping)
+      {
+         this.join = join;
+         this.mapping = mapping;
+      }
+
+      public Join getJoin()
+      {
+         return join;
+      }
+      
+      public List<Pair<ValueType, Object>> getMapping()
+      {
+         return mapping;
+      }
    }
 }

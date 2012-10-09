@@ -42,7 +42,7 @@ public class StructuredDataValueLoader implements Loader
          sdvCacheByPiOid = new HashMap();
          propertyLayer.setProperty(SDV_BY_PI_OID_CACHE, sdvCacheByPiOid);
       }
-      Long piOid = new Long(sdv.getProcessInstanceOID());
+      Long piOid = new Long(sdv.getProcessInstance().getScopeProcessInstanceOID());
       // contains lists of sdv (xPathOid is the map key)
       Map /*<Long,List>*/ sdvListByXPathOid = (Map) sdvCacheByPiOid.get(piOid);
       if (sdvListByXPathOid == null)

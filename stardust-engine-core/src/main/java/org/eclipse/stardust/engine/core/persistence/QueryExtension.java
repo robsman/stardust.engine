@@ -258,6 +258,18 @@ public class QueryExtension
       return selection;
    }
 
+   public void addSelection(Collection<Column> selectColumnsToAdd)
+   {
+      int resultSize = selection.length + selectColumnsToAdd.size();
+      Column[] columnsToAddAsArray = selectColumnsToAdd.toArray(new Column[selectColumnsToAdd.size()]);
+      Column[] result = new Column[resultSize];
+      
+      System.arraycopy(selection, 0, result, 0, selection.length);
+      System.arraycopy(columnsToAddAsArray, 0, result, selection.length, columnsToAddAsArray.length);
+      
+      this.selection = result;
+   }
+   
    public Joins getJoins()
    {
       return joins;

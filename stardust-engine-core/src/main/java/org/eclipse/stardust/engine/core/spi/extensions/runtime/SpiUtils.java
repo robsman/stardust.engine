@@ -23,9 +23,13 @@ import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataType;
 import org.eclipse.stardust.engine.api.model.PluggableType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataEvaluaterInfo;
 import org.eclipse.stardust.engine.core.extensions.data.AccessPathEvaluatorAdapter;
 import org.eclipse.stardust.engine.core.extensions.data.DefaultDataFilterExtension;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.DataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.DataValidatorAdapter;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
@@ -235,10 +239,26 @@ public class SpiUtils
     * @see SpiUtils.createExtendedAccessPathEvaluator(String className)
     */
    public static ExtendedAccessPathEvaluator createExtendedAccessPathEvaluator(
-         PluggableType type)
-   {
-      String accessPathEvaluatorClass = type.getStringAttribute(PredefinedConstants.EVALUATOR_CLASS_ATT);
-      return createExtendedAccessPathEvaluator(accessPathEvaluatorClass);
+         AccessPoint accessPoint, String accessPath)
+   {      
+      final String accessPathEvaluatorClassName;
+      
+      //check if custom evaluator can be retrieved for accesspoint instance
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      ExtendedAccessPathEvaluatorRegistry registry = rtEnv.getEvaluatorRegistry();
+      if(registry != null && registry.hasEvaluatorClass(accessPoint, accessPath))
+      {
+         accessPathEvaluatorClassName
+            = registry.getEvaluatorClass(accessPoint, accessPath).getName();
+      }
+      //retrieve for accesspoint type
+      else
+      {
+         PluggableType type = accessPoint.getType();
+         accessPathEvaluatorClassName = type.getStringAttribute(PredefinedConstants.EVALUATOR_CLASS_ATT);
+      }
+      
+      return createExtendedAccessPathEvaluator(accessPathEvaluatorClassName);
    }
    
    /**

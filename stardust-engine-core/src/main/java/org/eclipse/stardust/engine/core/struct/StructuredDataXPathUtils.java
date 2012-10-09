@@ -1579,4 +1579,19 @@ public class StructuredDataXPathUtils
       return true;
 
    }
+   
+   public static boolean isPrimitiveType(TypedXPath typedXPath)
+   {     
+      return typedXPath.getType() != BigData.NULL;
+   }
+   
+   public static boolean isCollectionType(TypedXPath typedXPath)
+   {
+      return typedXPath.isList() || typedXPath.isEnumeration();
+   }
+   
+   public static boolean isMapType(TypedXPath typedXPath)
+   {
+      return (!isPrimitiveType(typedXPath) && !isCollectionType(typedXPath));
+   }
 }

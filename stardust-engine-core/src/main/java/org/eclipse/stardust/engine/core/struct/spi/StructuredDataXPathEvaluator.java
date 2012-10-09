@@ -332,9 +332,11 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
          final long dataRtOid = modelManager.getRuntimeOid(data);
          final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
          final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-         long scopeProcessInstanceOid = accessPathEvaluationContext.getProcessInstance()
-               .getScopeProcessInstanceOID();
-
+         IProcessInstance scopeProcessInstance 
+            = accessPathEvaluationContext.getProcessInstance().getScopeProcessInstance();
+         long scopeProcessInstanceOid = scopeProcessInstance.getScopeProcessInstanceOID();
+         
+         
          Document document;
          if (null == accessPointInstance)
          {
@@ -428,7 +430,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
                            newEntries = CollectionUtils.newHashSet();
                         }
                         indexesChanged |= setIndexValue(oldEntries, newEntries, node, typedXPath, xPathMap,
-                              stringValue, scopeProcessInstanceOid);
+                              stringValue, scopeProcessInstance);
                      }
                      else
                      {
@@ -445,7 +447,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
                         }
 
                         /*indexesChanged |=*/ setIndexValue(oldEntries_, newEntries_, node, typedXPath, xPathMap,
-                              stringValue, scopeProcessInstanceOid);
+                              stringValue, scopeProcessInstance);
                      }
                   }
                }
@@ -561,7 +563,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
    }
 
    private boolean setIndexValue(Set /*<StructuredDataValueBean>*/ oldEntries, Set /*<StructuredDataValueBean>*/ newEntries,
-         Node node, TypedXPath typedXPath, IXPathMap xPathMap, String stringValue, long scopeProcessInstanceOid)
+         Node node, TypedXPath typedXPath, IXPathMap xPathMap, String stringValue, IProcessInstance scopeProcessInstance)
    {
       boolean modified = false;
       // find out the indexed XPath of the node
@@ -570,7 +572,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
       // traverse the XPath from top to bottom and find/create SDVs for its parts
       StringTokenizer xPathParts = StructuredDataXPathUtils.getXPathPartTokenizer(indexedXPath);
       String currentXPathWithoutIndexes = "";
-      StructuredDataValueBean parentEntry = findRootEntry(oldEntries, newEntries, scopeProcessInstanceOid, xPathMap);
+      StructuredDataValueBean parentEntry = findRootEntry(oldEntries, newEntries, scopeProcessInstance, xPathMap);
       IStructuredDataValueFactory structuredDataValueFactory = new StructuredDataValueFactory();
 
       while (xPathParts.hasMoreTokens())
@@ -618,7 +620,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
                }
                else
                {
-                  entry = (StructuredDataValueBean) structuredDataValueFactory.createKeyedElementEntry(parentEntry.getProcessInstanceOID(), parentEntry.getOID(),
+                  entry = (StructuredDataValueBean) structuredDataValueFactory.createKeyedElementEntry(parentEntry.getProcessInstance(), parentEntry.getOID(),
                      currentXPathOid.longValue(), index, stringValue, typedXPath.getType());
                   newEntries.add(entry);
                   modified = true;
@@ -627,7 +629,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
             else
             {
                // intermediate node
-               entry = (StructuredDataValueBean) structuredDataValueFactory.createKeyedElementEntry(parentEntry.getProcessInstanceOID(), parentEntry.getOID(),
+               entry = (StructuredDataValueBean) structuredDataValueFactory.createKeyedElementEntry(parentEntry.getProcessInstance(), parentEntry.getOID(),
                      currentXPathOid.longValue(), index, null, currentXPath.getType());
                newEntries.add(entry);
                modified = true;
@@ -670,7 +672,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
    }
 
    private StructuredDataValueBean findRootEntry(Collection /*<StructuredDataValueBean>*/ oldEntries,
-         Set /*<StructuredDataValueBean>*/ newEntries, long scopeProcessInstanceOid, IXPathMap xPathMap)
+         Set /*<StructuredDataValueBean>*/ newEntries, IProcessInstance scopeProcessInstance, IXPathMap xPathMap)
    {
       // first search in new entries
       for (Iterator i = newEntries.iterator(); i.hasNext(); )
@@ -698,7 +700,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
 
       // no root entry exists, create it
       StructuredDataValueFactory structuredDataValueFactory = new StructuredDataValueFactory();
-      StructuredDataValueBean rootEntry = (StructuredDataValueBean) structuredDataValueFactory.createRootElementEntry(scopeProcessInstanceOid, xPathMap.getRootXPathOID().longValue(), "0", null);
+      StructuredDataValueBean rootEntry = (StructuredDataValueBean) structuredDataValueFactory.createRootElementEntry(scopeProcessInstance, xPathMap.getRootXPathOID().longValue(), "0", null);
       newEntries.add(rootEntry);
       return rootEntry;
    }

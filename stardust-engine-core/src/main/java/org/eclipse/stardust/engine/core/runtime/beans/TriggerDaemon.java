@@ -163,7 +163,7 @@ public class TriggerDaemon implements IDaemon
             if (parameterPath != null)
             {
                AccessPoint ap = trigger.findAccessPoint(parameterId);
-               ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(ap.getType());
+               ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(ap, parameterPath);
                AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(null, null);
                parameterValue = evaluator.evaluate(ap, parameterValue, parameterPath, evaluationContext);
             }

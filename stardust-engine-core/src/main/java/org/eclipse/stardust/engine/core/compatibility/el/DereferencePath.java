@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.compatibility.el;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
@@ -67,7 +66,7 @@ public class DereferencePath implements ValueExpression
 
          if (null != value && null != data && null != data.getType())
          {
-            ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data.getType());
+            ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data, accessPath);
             
             AccessPathEvaluationContext evaluationContext;
             // try to pass process instance in the context

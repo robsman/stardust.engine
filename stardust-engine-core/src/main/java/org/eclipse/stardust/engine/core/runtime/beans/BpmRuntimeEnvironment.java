@@ -48,6 +48,7 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionP
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsPrincipal;
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
@@ -103,6 +104,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private boolean deploymentBeanCreated = false;
 
    private EventBindingRecords eventBindingRecords;
+   
+   private ExtendedAccessPathEvaluatorRegistry evaluatorRegistry;
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
@@ -198,6 +201,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public void setJmsResourceProvider(IJmsResourceProvider jmsResourceProvider)
    {
       this.jmsResourceProvider = jmsResourceProvider;
+   }
+
+   public ExtendedAccessPathEvaluatorRegistry getEvaluatorRegistry()
+   {
+      return evaluatorRegistry;
+   }
+
+   public void setEvaluatorRegistry(ExtendedAccessPathEvaluatorRegistry evaluatorRegistry)
+   {
+      this.evaluatorRegistry = evaluatorRegistry;
    }
 
    public QueueConnection retrieveQueueConnection(QueueConnectionFactory factory)

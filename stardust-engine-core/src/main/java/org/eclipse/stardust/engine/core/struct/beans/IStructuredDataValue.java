@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct.beans;
 
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+
 /**
  * Describes the value of a structured data entry  
  */
@@ -28,7 +30,7 @@ public interface IStructuredDataValue
 
    public long getOID();
 
-   public long getProcessInstanceOID();
+   public IProcessInstance getProcessInstance();
 
    public long getParentOID();
 

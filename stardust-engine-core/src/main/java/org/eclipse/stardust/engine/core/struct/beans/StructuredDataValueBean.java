@@ -19,7 +19,9 @@ import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 
 /**
@@ -113,7 +115,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
 
    protected static final Class LOADER = StructuredDataValueLoader.class;
    
-   public long processInstance;
+   public ProcessInstanceBean processInstance;
 
    public long parent;
 
@@ -130,6 +132,8 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    static final boolean type_key_USE_LITERALS = true;
 
    private transient LargeStringHolderBigDataHandler dataHandler;
+   
+   public static final String processInstance_REGISTRAR = "addStructuredDataValue";
 
    /**
     * 
@@ -150,10 +154,10 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
     * @param entry_key
     * @param xpath
     */
-   public StructuredDataValueBean(long processInstance, long parent, long xpath,
+   public StructuredDataValueBean(IProcessInstance processInstance, long parent, long xpath,
          Object initialValue, String entry_key, int type_key)
    {
-      this.processInstance = processInstance;
+      this.processInstance = (ProcessInstanceBean) processInstance.getScopeProcessInstance();
       this.parent = parent;
       this.entryKey = entry_key;
       this.xpath = xpath;
@@ -332,7 +336,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
       return true;
    }
 
-   public long getProcessInstanceOID()
+   public ProcessInstanceBean getProcessInstance()
    {
       return this.processInstance;
    }

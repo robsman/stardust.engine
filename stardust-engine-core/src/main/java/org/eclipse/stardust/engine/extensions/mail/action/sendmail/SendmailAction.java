@@ -124,7 +124,7 @@ public class SendmailAction implements EventActionInstance
          if (null != dataValue)
          {
             final IData data = dataValue.getData();
-            ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data.getType());
+            ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data, dataPath);
             AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(processInstance, null);
             body = String.valueOf(evaluator.evaluate(data, dataValue.getValue(), dataPath, evaluationContext));
          }

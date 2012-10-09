@@ -63,7 +63,7 @@ public class SetDataAction implements EventActionInstance
          {
             IProcessInstance processInstance = EventUtils.getProcessInstance(event);
 
-            ExtendedAccessPathEvaluator apEvaluator = SpiUtils.createExtendedAccessPathEvaluator(accessPoint.getType());
+            ExtendedAccessPathEvaluator apEvaluator = SpiUtils.createExtendedAccessPathEvaluator(accessPoint, attributePath);
             AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(processInstance, null);
             Object bo = apEvaluator.evaluate(accessPoint, EventUtils
                   .getAccessPointValue(accessPoint, event, attributes), attributePath, evaluationContext);

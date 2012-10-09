@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.struct;
 
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.IStructuredDataValueFactory;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 
@@ -19,17 +20,17 @@ public class TestStructuredDataValueFactory implements IStructuredDataValueFacto
 {
    private OidGeneratorForTest oidGenerator = new OidGeneratorForTest();
 
-   public IStructuredDataValue createKeyedElementEntry(long rootOid, long parentOid,
+   public IStructuredDataValue createKeyedElementEntry(IProcessInstance scopeProcessInstance, long parentOid,
          long xPathOid, String index, String value, int typeKey)
    {
-      return new TestStructuredDataValue(oidGenerator.getNextOid(), rootOid, parentOid,
+      return new TestStructuredDataValue(oidGenerator.getNextOid(), scopeProcessInstance, parentOid,
             xPathOid, value, index, typeKey);
    }
 
-   public IStructuredDataValue createRootElementEntry(long rootOid, long xPathOid,
+   public IStructuredDataValue createRootElementEntry(IProcessInstance scopeProcessInstance, long xPathOid,
          String key, String value)
    {
-      return new TestStructuredDataValue(rootOid, rootOid,
+      return new TestStructuredDataValue(scopeProcessInstance.getScopeProcessInstanceOID(), scopeProcessInstance,
             IStructuredDataValue.NO_PARENT, xPathOid, value, key, BigData.NULL);
    }
 }

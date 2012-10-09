@@ -17,6 +17,7 @@ import java.util.Locale;
 import org.eclipse.stardust.common.Period;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
@@ -216,16 +217,16 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       }
    }
 
-   public IStructuredDataValue createKeyedElementEntry(long rootOid, long parentOid,
+   public IStructuredDataValue createKeyedElementEntry(IProcessInstance scopeProcessInstance, long parentOid,
          long xPathOid, String entryKey, String stringValue, int typeKey)
    {
-      return new StructuredDataValueBean(rootOid, parentOid, xPathOid, convertTo(typeKey, stringValue), entryKey, typeKey);
+      return new StructuredDataValueBean(scopeProcessInstance, parentOid, xPathOid, convertTo(typeKey, stringValue), entryKey, typeKey);
    }
 
-   public IStructuredDataValue createRootElementEntry(long rootOid, long xPathOid, String entryKey,
+   public IStructuredDataValue createRootElementEntry(IProcessInstance scopeProcessInstance, long xPathOid, String entryKey,
          String stringValue)
    {
-      return new StructuredDataValueBean(rootOid,
+      return new StructuredDataValueBean(scopeProcessInstance,
             IStructuredDataValue.NO_PARENT, xPathOid, stringValue, entryKey, BigData.NULL);
    }
 }

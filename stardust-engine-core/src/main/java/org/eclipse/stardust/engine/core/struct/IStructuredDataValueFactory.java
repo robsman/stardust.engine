@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct;
 
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 
 /**
@@ -29,7 +30,7 @@ public interface IStructuredDataValueFactory
     * @param typeKey
     * @return
     */
-   public IStructuredDataValue createKeyedElementEntry(long rootOid, long parentOid,
+   public IStructuredDataValue createKeyedElementEntry(IProcessInstance scopeProcessInstance, long parentOid,
          long xPathOid, String index, String value, int typeKey);
 
    /**
@@ -41,7 +42,7 @@ public interface IStructuredDataValueFactory
     * @param value
     * @return
     */
-   public IStructuredDataValue createRootElementEntry(long rootOid, long xPathOid, String key,
+   public IStructuredDataValue createRootElementEntry(IProcessInstance scopeProcessInstance, long xPathOid, String key,
          String value);
 
 }

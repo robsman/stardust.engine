@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct;
 
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 
 class TestStructuredDataValue implements IStructuredDataValue
@@ -25,15 +26,15 @@ class TestStructuredDataValue implements IStructuredDataValue
 
    private String value;
 
-   private long rootOid;
+   private IProcessInstance processInstance;
    
    private int typeKey;
 
-   TestStructuredDataValue(long oid, long rootOid, long parentOid, long xPathOid, String value,
+   TestStructuredDataValue(long oid, IProcessInstance processInstance, long parentOid, long xPathOid, String value,
          String key, int typeKey)
    {
       this.oid = oid;
-      this.rootOid = rootOid;
+      this.processInstance = processInstance.getScopeProcessInstance();
       this.parentOid = parentOid;
       this.key = key;
       this.xPathOid = xPathOid;
@@ -104,9 +105,9 @@ class TestStructuredDataValue implements IStructuredDataValue
       throw new RuntimeException("NIY");
    }
 
-   public long getProcessInstanceOID()
+   public IProcessInstance getProcessInstance()
    {
-      return this.rootOid;
+      return this.processInstance;
    }
 
    public int getType()

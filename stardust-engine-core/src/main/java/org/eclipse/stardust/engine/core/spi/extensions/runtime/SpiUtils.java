@@ -241,24 +241,36 @@ public class SpiUtils
    public static ExtendedAccessPathEvaluator createExtendedAccessPathEvaluator(
          AccessPoint accessPoint, String accessPath)
    {      
-      final String accessPathEvaluatorClassName;
-      
       //check if custom evaluator can be retrieved for accesspoint instance
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExtendedAccessPathEvaluatorRegistry registry = rtEnv.getEvaluatorRegistry();
       if(registry != null && registry.hasEvaluatorClass(accessPoint, accessPath))
       {
-         accessPathEvaluatorClassName
+         String accessPathEvaluatorClassName
             = registry.getEvaluatorClass(accessPoint, accessPath).getName();
+         return createExtendedAccessPathEvaluator(accessPathEvaluatorClassName);
       }
       //retrieve for accesspoint type
       else
       {
-         PluggableType type = accessPoint.getType();
-         accessPathEvaluatorClassName = type.getStringAttribute(PredefinedConstants.EVALUATOR_CLASS_ATT);
+         return createExtendedAccessPathEvaluator(accessPoint.getType());
       }
-      
-      return createExtendedAccessPathEvaluator(accessPathEvaluatorClassName);
+   }
+   
+   
+   /**
+    * Instantiate an implementation of the {@link ExtendedAccessPathEvaluator} interface.
+    * 
+    * @param type
+    *           to retrieve the class name from
+    * @return implementation of the ExtendedAccessPathEvaluator
+    * @see SpiUtils.createExtendedAccessPathEvaluator(String className)
+    */
+   public static ExtendedAccessPathEvaluator createExtendedAccessPathEvaluator(
+         PluggableType type)
+   {
+      String accessPathEvaluatorClass = type.getStringAttribute(PredefinedConstants.EVALUATOR_CLASS_ATT);
+      return createExtendedAccessPathEvaluator(accessPathEvaluatorClass);
    }
    
    /**

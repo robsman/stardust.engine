@@ -2571,7 +2571,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
             catch (SQLException e)
             {
-               RuntimeLog.SQL.debug(MessageFormat.format("Failed query: {0}",
+               RuntimeLog.SQL.warn(MessageFormat.format("Failed query: {0}",
                      new Object[] { sqlString }));
                trace.warn("Failed executing query.", e);
                QueryUtils.closeStatement(stmt);
@@ -2597,7 +2597,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
             catch (SQLException e)
             {
-               RuntimeLog.SQL.debug(MessageFormat.format("Failed query: {0}",
+               RuntimeLog.SQL.warn(MessageFormat.format("Failed query: {0}",
                      new Object[] { sqlString }));
                trace.warn("Failed executing query.", e);
                QueryUtils.closeStatement(stmt);
@@ -2976,7 +2976,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                }
                catch (SQLException e)
                {
-                  RuntimeLog.SQL.debug(MessageFormat.format("Failed SQL insert: {0}",
+                  RuntimeLog.SQL.warn(MessageFormat.format("Failed SQL insert: {0}",
                         new Object[] {sqlString}));
                   trace.warn("Failed executing SQL insert.", e);
                   throw new PublicException(e);
@@ -2999,7 +2999,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                }
                catch (SQLException e)
                {
-                  RuntimeLog.SQL.debug(MessageFormat.format("Failed SQL insert: {0}",
+                  RuntimeLog.SQL.warn(MessageFormat.format("Failed SQL insert: {0}",
                         new Object[] {sqlString}));
                   trace.warn("Failed executing SQL insert.", e);
                   throw new PublicException(e);
@@ -3164,7 +3164,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             }
             catch(SQLException x)
             {
-               RuntimeLog.SQL.debug(MessageFormat.format("Failed update: {0}",
+               RuntimeLog.SQL.warn(MessageFormat.format("Failed update: {0}",
                      new Object[] { sqlString }));
                trace.warn(x);
                throw new PublicException(x);

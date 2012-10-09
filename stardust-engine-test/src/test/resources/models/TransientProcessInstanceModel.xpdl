@@ -158,6 +158,24 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </Application>
+      <Application Id="IsolatedQueryApp" Name="Isolated Query App">
+         <ExternalReference location="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$IsolatedQueryApp" xref="queryIsolated:long"/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:Application Oid="10544" Type="plainJava">
+                  <carnot:ApplicationContexts/>
+                  <carnot:AccessPoints/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="carnot:engine:className" Value="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTest$IsolatedQueryApp"/>
+                     <carnot:Attribute Name="carnot:engine:methodName" Value="queryIsolated(long)"/>
+                     <carnot:Attribute Name="carnot:engine:constructorName" Value="TransientProcessInstanceTest$IsolatedQueryApp"/>
+                     <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
+                  </carnot:Attributes>
+               </carnot:Application>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </Application>
    </Applications>
    <DataFields>
       <DataField Id="LAST_ACTIVITY_PERFORMER" Name="&lt;Last Activity Performer&gt;" IsArray="FALSE">
@@ -4271,6 +4289,115 @@
                                  <carnot:Connection Kind="TRANSITION" Oid="10530" ModelElement="&lt;Transition&gt;1" SourceSymbol="10526" TargetSymbol="10528" SourceAnchor="center" TargetAnchor="top"/>
                                  <carnot:Connection Kind="TRANSITION" Oid="10534" ModelElement="&lt;Transition&gt;2" SourceSymbol="10528" TargetSymbol="10532" SourceAnchor="center" TargetAnchor="center"/>
                                  <carnot:Connection Kind="EXECUTED_BY" Oid="10537" SourceSymbol="10536" TargetSymbol="10528"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
+      <WorkflowProcess Id="IsolatedQueryProcess" Name="Isolated Query Process" AccessLevel="PRIVATE">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="IsolatedQueryActivity" Name="Isolated Query Activity">
+               <Implementation>
+                  <Task>
+                     <TaskApplication Id="IsolatedQueryApp">
+                        <ActualParameters>
+                           <ActualParameter>PROCESS_ID</ActualParameter>
+                        </ActualParameters>
+                     </TaskApplication>
+                  </Task>
+               </Implementation>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Automatic/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10542" Implementation="Application" IsAbortableByPerformer="false" IsHibernatedOnCreation="false">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows>
+                           <carnot:DataFlow Oid="10547" Id="PIOID" Name="PI OID" Direction="IN" Context="application">
+                              <carnot:DataRef Id="PROCESS_ID"/>
+                              <carnot:AccessPointRef Id="lParam1"/>
+                           </carnot:DataFlow>
+                        </carnot:DataFlows>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+            <Activity Id="FirstActivity" Name="First Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10548">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions>
+            <Transition Id="&lt;Transition&gt;1" Name="&lt;Transition&gt; 1" From="FirstActivity" To="IsolatedQueryActivity">
+               <Condition Type="CONDITION">true</Condition>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Transition Oid="10550" IsForkingOnTraversal="true"/>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Transition>
+         </Transitions>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10539">
+                  <carnot:Triggers/>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10540" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10541" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10543" X="375" Y="160" Width="141" Height="51" ModelElement="IsolatedQueryActivity"/>
+                                 <carnot:Symbol Kind="APPLICATION" Oid="10545" X="635" Y="165" Width="150" Height="40" ModelElement="IsolatedQueryApp"/>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10549" X="375" Y="60" Width="141" Height="51" ModelElement="FirstActivity"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="10546" SourceSymbol="10545" TargetSymbol="10543"/>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10551" ModelElement="&lt;Transition&gt;1" SourceSymbol="10549" TargetSymbol="10543" SourceAnchor="center" TargetAnchor="center"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>

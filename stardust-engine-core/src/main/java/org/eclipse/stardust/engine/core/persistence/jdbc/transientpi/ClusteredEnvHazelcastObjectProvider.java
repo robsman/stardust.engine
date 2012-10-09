@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
 import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider;
 
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.Transaction;
 
 /**
  * @author Nicolas.Werlein
@@ -61,8 +62,11 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       
       try
       {
-         /* enlists Hazelcast objects in the current tx */
-         rtEnv.retrieveJcaConnection(connectionFactory);
+         if (Hazelcast.getTransaction().getStatus() != Transaction.TXN_STATUS_ACTIVE)
+         {
+            /* enlists Hazelcast objects in the current tx */
+            rtEnv.retrieveJcaConnection(connectionFactory);
+         }
       }
       catch (final ResourceException e)
       {

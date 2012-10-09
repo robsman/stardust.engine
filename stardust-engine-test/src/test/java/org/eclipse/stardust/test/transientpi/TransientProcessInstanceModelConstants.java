@@ -139,6 +139,11 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailP
     */
    /* package-private */ static final String PROCESS_DEF_ID_ABORT_PROCESS = "AbortProcess";
    
+   /**
+    * the ID of the process definition that contains an activity aborting the whole process instance
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_ISOLATED_QUERY_PROCESS = "IsolatedQueryProcess";
+   
    
    /**
     * the ID of the data in model 'TransientAndNon_transientRoute' determining whether the transient or

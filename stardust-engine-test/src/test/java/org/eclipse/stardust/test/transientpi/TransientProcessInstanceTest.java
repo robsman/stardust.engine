@@ -39,6 +39,7 @@ import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
+import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
@@ -52,11 +53,10 @@ import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
-import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
-import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
-import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.extensions.jms.app.DefaultMessageHelper;
 import org.eclipse.stardust.engine.spring.integration.jca.SpringAppContextHazelcastJcaConnectionFactoryProvider;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
@@ -1275,6 +1275,30 @@ public class TransientProcessInstanceTest
       sf.getQueryService().getAllProcessInstances(ProcessInstanceQuery.findAll());
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests that <i>Hazelcast</i>'s restriction that there's a strict 1:1 relationship between
+    * thread and transaction does not cause any harm, i.e. our workaround works correctly (see CRNT-26544).
+    * </p>
+    */
+   @Test
+   public void testMultipleTransactionsPerThread() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ISOLATED_QUERY_PROCESS, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -1489,6 +1513,33 @@ public class TransientProcessInstanceTest
       {
          new AdministrationServiceImpl().abortProcessInstance(piOid);
          throw new RuntimeException("Aborting process instance ... (expected exception)");
+      }
+   }
+   
+   /**
+    * <p>
+    * This is the application used in the test model that queries for the current process
+    * instance in a new transaction.
+    * </p>
+    * 
+    * @author Nicolas.Werlein
+    * @version $Revision$
+    */
+   public static final class IsolatedQueryApp
+   {
+      public void queryIsolated(final long piOid)
+      {
+         final ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
+         final ForkingService forkingService = factory.get();
+         forkingService.isolate(new Action<Void>()
+         {
+            @Override
+            public Void execute()
+            {
+               new WorkflowServiceImpl().getProcessInstance(piOid);
+               return null;
+            }
+         });
       }
    }
    

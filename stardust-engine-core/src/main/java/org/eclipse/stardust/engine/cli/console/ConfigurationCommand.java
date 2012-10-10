@@ -227,7 +227,10 @@ public class ConfigurationCommand extends ConsoleCommand
       String partition = serviceFactory.getUserService().getUser().getPartitionId();
       print("\nReading configuration of partition '" + partition + "'.");
 
-      String rootFolderId = "/";
+      /* rootFolder set to artifacts folder for consistency with portal configuration export functionality
+       * see Ticket CRNT-26589 for details
+       */
+      String rootFolderId = "/artifacts/";
       Folder rootFolder = documentManagementService.getFolder(rootFolderId,
             Folder.LOD_LIST_MEMBERS);
 
@@ -295,7 +298,7 @@ public class ConfigurationCommand extends ConsoleCommand
 
       // String partitionFolderPath = DocumentRepositoryFolderNames.REPOSITORY_ROOT_FOLDER
       // + DocumentRepositoryFolderNames.PARTITIONS_FOLDER + partition;
-      String rootFolderPath = "/";
+      String rootFolderPath = "/artifacts/";
       Folder partitionFolder = documentManagementService.getFolder(rootFolderPath,
             Folder.LOD_LIST_MEMBERS);
 

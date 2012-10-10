@@ -1299,6 +1299,29 @@ public class TransientProcessInstanceTest
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether implicit AND joins work correctly (see CRNT-26559).
+    * </p>
+    */   
+   @Test
+   public void testImplicitAndJoinProcess() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_IMPLICIT_AND_JOIN_PROCESS, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();

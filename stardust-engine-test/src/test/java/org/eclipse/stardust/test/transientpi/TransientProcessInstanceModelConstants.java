@@ -144,6 +144,11 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailP
     */
    /* package-private */ static final String PROCESS_DEF_ID_ISOLATED_QUERY_PROCESS = "IsolatedQueryProcess";
    
+   /**
+    * the ID of the process definition that contains an implicit AND join
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_IMPLICIT_AND_JOIN_PROCESS = "ImplicitANDJoin";
+   
    
    /**
     * the ID of the data in model 'TransientAndNon_transientRoute' determining whether the transient or

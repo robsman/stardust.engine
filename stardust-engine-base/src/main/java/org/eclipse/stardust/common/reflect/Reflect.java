@@ -976,47 +976,51 @@ public class Reflect
    public static Object getFieldValue(Object instance, String name)
    {
       Field field = getField(instance.getClass(), name);
-      if (null != field)
-      {
-         field.setAccessible(true);
-         try
-         {
-            return field.get(instance);
-         }
-         catch (Exception e)
-         {
-            throw new InternalException(e);
-         }
-      }
-      else
+      if (field == null)
       {
          throw new InternalException("Field '" + name + "' for '"
                + instance.getClass().getName() + "' not found");
       }
+      return getFieldValue(instance, field);
    }
 
+   public static Object getFieldValue(Object instance, Field field)
+   {
+      field.setAccessible(true);
+      try
+      {
+         return field.get(instance);
+      }
+      catch (Exception e)
+      {
+         throw new InternalException(e);
+      }
+   }
+   
    public static void setFieldValue(Object instance, String name, Object value)
    {
       Field field = getField(instance.getClass(), name);
-      if (null != field)
-      {
-         field.setAccessible(true);
-         try
-         {
-            field.set(instance, value);
-         }
-         catch (Exception e)
-         {
-            throw new InternalException(e);
-         }
-      }
-      else
+      if (null == field)
       {
          throw new InternalException("Field '" + name + "' for '"
                + instance.getClass().getName() + "' not found");
       }
+      setFieldValue(instance, field, value);
    }
 
+   public static void setFieldValue(Object instance, Field field, Object value)
+   {
+      field.setAccessible(true);
+      try
+      {
+         field.set(instance, value);
+      }
+      catch (Exception e)
+      {
+         throw new InternalException(e);
+      }      
+   }
+   
    public static Collection getFields(Class type)
    {
       List result;

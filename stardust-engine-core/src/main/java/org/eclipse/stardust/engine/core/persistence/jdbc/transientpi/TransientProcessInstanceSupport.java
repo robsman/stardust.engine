@@ -373,7 +373,7 @@ public class TransientProcessInstanceSupport
       final Field[] pkFields = typeDesc.getPkFields();
       for (final Field f : pkFields)
       {
-         if (Reflect.getFieldValue(persistent, f.getName()) == null)
+         if (Reflect.getFieldValue(persistent, f) == null)
          {
             return true;
          }
@@ -494,7 +494,7 @@ public class TransientProcessInstanceSupport
             final Field field = fd.getField();
             final Class<?> fieldType = field.getType();
             final Object fieldValue = readFieldValue(reader, fieldType);
-            Reflect.setFieldValue(p, field.getName(), fieldValue);
+            Reflect.setFieldValue(p, field, fieldValue);
          }
          
          return p;

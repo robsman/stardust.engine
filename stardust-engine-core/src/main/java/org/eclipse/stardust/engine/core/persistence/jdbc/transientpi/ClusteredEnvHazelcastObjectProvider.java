@@ -62,6 +62,7 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       
       try
       {
+         /* Hazelcast can only cope with one transaction per thread */
          if (Hazelcast.getTransaction().getStatus() != Transaction.TXN_STATUS_ACTIVE)
          {
             /* enlists Hazelcast objects in the current tx */

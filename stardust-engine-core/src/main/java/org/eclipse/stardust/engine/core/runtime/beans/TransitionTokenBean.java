@@ -89,6 +89,9 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
       secondLevelTokenCache.registerToken(ActivityThread.START_TRANSITION, startToken);
    }
    
+   /**
+    * @return the unconsumed tokens available INCLUDING the one currently in the process of being consumed
+    */
    public static long countUnconsumedForProcessInstance(IProcessInstance pi, int timeout)
    {
       final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -112,6 +115,10 @@ public class TransitionTokenBean extends IdentifiablePersistentBean
             nAvailableTokens = (cachedTokens instanceof TransitionTokenBean)
                   ? 1
                   : ((List) cachedTokens).size();
+            // since this method requires to return all unconsumed tokens plus the one being
+            // consumed right now, we'll have to +1 since in the session cache the token currently
+            // processed is already marked as being consumed
+            nAvailableTokens++;
          }
       }
 

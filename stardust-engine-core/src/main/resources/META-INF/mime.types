@@ -1,0 +1,21 @@
+#
+# Additional mime types not existing in mimetypes.default
+#
+text/xhtml xhtml
+application/pdf pdf
+application/msword doc
+video/x-ms-wmv wmf
+application/x-shockwave-flash swf
+audio/x-ms-wma wma
+audio/mpeg mp3
+application/zip zip
+text/xml xml
+application/vnd.ms-powerpoint ppt
+application/vnd.ms-excel xls
+image/png png
+application/vnd.openxmlformats-officedocument.wordprocessingml.document	docx
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet xlsx
+application/vnd.openxmlformats-officedocument.presentationml.presentation pptx
+application/rptdesign rptdesign
+text/css css
+

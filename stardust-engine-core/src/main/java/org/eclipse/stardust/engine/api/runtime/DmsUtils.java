@@ -22,6 +22,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import javax.activation.MimetypesFileTypeMap;
+
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
@@ -266,7 +268,7 @@ public class DmsUtils
          // now iterate through each item in the stream. The get next
          // entry call will return a ZipEntry for each file in the
          // stream
-         ZipEntry entry;
+         ZipEntry entry;         
          while ((entry = stream.getNextEntry()) != null)
          {
             // take care of Windows paths
@@ -312,9 +314,10 @@ public class DmsUtils
                      : relativeEntryPath.substring(pathEndIndex + 1);
                byte[] documentContent = readEntryData(stream);
                // use default encoding, should not be a problem
-               documentManagementService.createDocument(folder.getId(),
-                     DmsUtils.createDocumentInfo(documentName, entry), documentContent,
-                     null);
+               DocumentInfo docInfo = DmsUtils.createDocumentInfo(documentName, entry);
+               docInfo.setContentType(new MimetypesFileTypeMap().getContentType(documentName));
+               documentManagementService.createDocument(folder.getId(), docInfo,
+                     documentContent, null);
             }
          }
       }

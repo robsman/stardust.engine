@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
 /**
  *
@@ -442,6 +443,12 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                               String dataId = (String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
                               String dataPath = (String) attributes
                                     .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
+                            
+                              IData data = getData(model, dataId);
+                              if(data != null && !isStructuredType(data))
+                              {
+                                 dataPath = null;
+                              }                              
                               
                               Pair<String, String> dataKey = new Pair("{" + modelId + "}" + dataId, dataPath);
                               if ( !distinctData.contains(dataKey))
@@ -469,5 +476,34 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
             }
          }
       }
+   }  
+   
+   private IData getData(IModel model, String id)
+   {
+      for(IData data : model.getData())
+      {
+         if(!StringUtils.isEmpty(data.getId()) && data.getId().equals(id))
+         {
+            return data;
+         }         
+      }
+    
+      return null;
    }   
+   
+   private boolean isStructuredType(IData data)
+   {
+      if (data.getType().getId().equals(org.eclipse.stardust.engine.core.compatibility.extensions.dms.DmsConstants.DATA_TYPE_ID_DOCUMENT)
+            || data.getType().getId().equals(org.eclipse.stardust.engine.core.compatibility.extensions.dms.DmsConstants.DATA_TYPE_ID_DOCUMENT_SET)
+            || data.getType().getId().equals(DmsConstants.DATA_TYPE_DMS_DOCUMENT)
+            || data.getType().getId().equals(DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST)
+            || data.getType().getId().equals(DmsConstants.DATA_TYPE_DMS_FOLDER)
+            || data.getType().getId().equals(DmsConstants.DATA_TYPE_DMS_FOLDER_LIST)
+            || data.getType().getId().equals(PredefinedConstants.STRUCTURED_DATA))
+      {
+         return true;
+      }      
+      
+      return false;
+   }
 }

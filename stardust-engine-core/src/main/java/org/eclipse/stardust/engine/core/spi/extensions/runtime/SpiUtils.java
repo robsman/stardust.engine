@@ -243,18 +243,18 @@ public class SpiUtils
    {      
       //check if custom evaluator can be retrieved for accesspoint instance
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      ExtendedAccessPathEvaluatorRegistry registry = rtEnv.getEvaluatorRegistry();
-      if(registry != null && registry.hasEvaluatorClass(accessPoint, accessPath))
+      if(rtEnv != null)
       {
-         String accessPathEvaluatorClassName
-            = registry.getEvaluatorClass(accessPoint, accessPath).getName();
-         return createExtendedAccessPathEvaluator(accessPathEvaluatorClassName);
+         ExtendedAccessPathEvaluatorRegistry registry = rtEnv.getEvaluatorRegistry();
+         if(registry != null && registry.hasEvaluatorClass(accessPoint, accessPath))
+         {
+            String accessPathEvaluatorClassName
+               = registry.getEvaluatorClass(accessPoint, accessPath).getName();
+            return createExtendedAccessPathEvaluator(accessPathEvaluatorClassName);
+         }
       }
-      //retrieve for accesspoint type
-      else
-      {
-         return createExtendedAccessPathEvaluator(accessPoint.getType());
-      }
+      
+      return createExtendedAccessPathEvaluator(accessPoint.getType());
    }
    
    

@@ -163,6 +163,11 @@ public class ActivityThread implements Runnable
          /* in order to notify cluster safe map provider           */
          map.put(rootPiOid, queue);
       }
+      catch (final Exception e)
+      {
+         ClusterSafeObjectProviderHolder.OBJ_PROVIDER.exception(e);
+         throw new InternalException(e);
+      }
       finally
       {
          ClusterSafeObjectProviderHolder.OBJ_PROVIDER.afterAccess();

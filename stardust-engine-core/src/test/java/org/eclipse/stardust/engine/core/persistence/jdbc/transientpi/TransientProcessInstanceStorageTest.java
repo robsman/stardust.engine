@@ -89,7 +89,7 @@ public class TransientProcessInstanceStorageTest
    public static void setUpOnce()
    {
       final Parameters params = Parameters.instance();
-      params.set(KernelTweakingProperties.CLUSTER_SAFE_OBJ_PROVIDER, NonClusteredEnvObjectProvider.class.getName());
+      params.set(KernelTweakingProperties.CLUSTER_SAFE_OBJ_PROVIDER, TestingEnvObjectProvider.class.getName());
    }
    
    @Before

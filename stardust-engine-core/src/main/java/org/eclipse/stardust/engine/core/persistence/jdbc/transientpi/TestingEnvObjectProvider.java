@@ -11,11 +11,11 @@
 package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
+
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.Transaction;
 
 /**
  * <p>
@@ -25,25 +25,32 @@ import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
  * @author Nicolas.Werlein
  * @version $Revisin: $
  */
-public class NonClusteredEnvObjectProvider implements ClusterSafeObjectProvider
+public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
 {
-   private static final Lock LOCK = new ReentrantLock();
-   
    @Override
-   public <K, V> Map<K, V> clusterSafeMap(final String ignored)
+   public <K, V> Map<K, V> clusterSafeMap(final String mapId)
    {
-      return new ConcurrentHashMap<K, V>();
+      return Hazelcast.getMap(mapId);
    }
    
    @Override
    public void beforeAccess()
    {
-      LOCK.lock();
+      Hazelcast.getTransaction().begin();
+   }
+   
+   @Override
+   public void exception(final Exception ignored)
+   {
+      Hazelcast.getTransaction().rollback();
    }
    
    @Override
    public void afterAccess()
    {
-      LOCK.unlock();
+      if (Hazelcast.getTransaction().getStatus() == Transaction.TXN_STATUS_ACTIVE)
+      {
+         Hazelcast.getTransaction().commit();
+      }
    }
 }

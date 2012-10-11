@@ -23,6 +23,7 @@ import javax.jms.Message;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
@@ -124,6 +125,11 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
             ClusterSafeObjectProviderHolder.OBJ_PROVIDER.beforeAccess();
             
             doExecute();
+         }
+         catch (final Exception e)
+         {
+            ClusterSafeObjectProviderHolder.OBJ_PROVIDER.exception(e);
+            throw new InternalException(e);
          }
          finally
          {

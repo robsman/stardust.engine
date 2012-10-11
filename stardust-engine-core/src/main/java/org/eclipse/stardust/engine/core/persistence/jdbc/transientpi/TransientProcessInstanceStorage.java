@@ -181,6 +181,8 @@ public class TransientProcessInstanceStorage
          }
          catch (final Exception e)
          {
+            ClusterSafeObjectProviderHolder.OBJ_PROVIDER.exception(e);
+            
             final String errorMsg = "Unable to access process instance storage.";
             throw new TransientProcessInstanceStorageException(errorMsg, e);
          }
@@ -212,19 +214,13 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs)
       {
-         final Set<PersistentKey> intersection = new HashSet<PersistentKey>(piBlobs.keySet());
-         intersection.retainAll(persistentKeys);
-         
-         if (intersection.isEmpty())
+         for (final PersistentKey p : persistentKeys)
          {
-            for (final PersistentKey p : persistentKeys)
+            final ProcessInstanceGraphBlob previous = piBlobs.put(p, blob);
+            if (previous != null)
             {
-               piBlobs.put(p, blob);
+               throw new IllegalStateException("Trying to override an already existing mapping.");
             }
-         }
-         else
-         {
-            throw new IllegalStateException("Trying to override an already existing mapping.");
          }
 
          return null;

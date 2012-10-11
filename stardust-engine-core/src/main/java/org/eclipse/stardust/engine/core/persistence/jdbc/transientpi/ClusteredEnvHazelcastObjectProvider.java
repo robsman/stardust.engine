@@ -76,6 +76,12 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
    }
    
    @Override
+   public void exception(final Exception ignored)
+   {
+      /* nothing to do */
+   }
+   
+   @Override
    public void afterAccess()
    {
       /* nothing to do */

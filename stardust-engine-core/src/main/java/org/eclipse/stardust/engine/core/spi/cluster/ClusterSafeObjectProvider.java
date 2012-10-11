@@ -27,5 +27,7 @@ public interface ClusterSafeObjectProvider
    
    public void beforeAccess();
    
+   public void exception(final Exception e);
+   
    public void afterAccess();
 }

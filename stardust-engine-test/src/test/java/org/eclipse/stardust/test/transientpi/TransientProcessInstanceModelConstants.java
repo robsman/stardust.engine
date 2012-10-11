@@ -140,14 +140,19 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailP
    /* package-private */ static final String PROCESS_DEF_ID_ABORT_PROCESS = "AbortProcess";
    
    /**
-    * the ID of the process definition that contains an activity aborting the whole process instance
+    * the ID of the process definition that contains an activity doing an isolated query (in a new tx)
     */
    /* package-private */ static final String PROCESS_DEF_ID_ISOLATED_QUERY_PROCESS = "IsolatedQueryProcess";
    
    /**
     * the ID of the process definition that contains an implicit AND join
     */
-   /* package-private */ static final String PROCESS_DEF_ID_IMPLICIT_AND_JOIN_PROCESS = "ImplicitANDJoin";
+   /* package-private */ static final String PROCESS_DEF_ID_IMPLICIT_AND_JOIN = "ImplicitANDJoin";
+
+   /**
+    * the ID of the process definition that triggers a new process instance via an event action
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_TRIGGER_PROCESS_EVENT = "TriggerProcessEvent";
    
    
    /**

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
+
 import java.io.Serializable;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
@@ -1253,7 +1255,14 @@ public class AdministrationServiceImpl
       ActivityThread.schedule(processInstance, rootActivity, null,
             synchronously, null, Collections.EMPTY_MAP, false);
 
-      return DetailsFactory.create(processInstance);
+      final ProcessInstance pi = DetailsFactory.create(processInstance);
+      
+      if (isSerialExecutionScenario(processInstance))
+      {
+         ProcessInstanceUtils.scheduleSerialActivityThreadWorkerIfNecessary(processInstance);
+      }
+      
+      return pi;
    }
 
    public List<Daemon> getAllDaemons(boolean acknowledge)

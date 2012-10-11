@@ -1313,11 +1313,36 @@ public class TransientProcessInstanceTest
    {
       enableTransientProcessesSupport();
       
-      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_IMPLICIT_AND_JOIN_PROCESS, null, true);
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_IMPLICIT_AND_JOIN, null, true);
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether triggering a process instance via an event action works correctly.
+    * </p>
+    */   
+   @Test
+   public void testProcessInstanceTriggerEvent() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRIGGER_PROCESS_EVENT, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      final long triggeredPiOid = receiveProcessInstanceCompletedMessage();
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(hasEntryInDbForPi(triggeredPiOid), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }

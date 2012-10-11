@@ -27,6 +27,7 @@ public class CurrentVersion
    public static final String MINOR_VERSION = "@minor@";
    public static final String MICRO_VERSION = "@micro@";
    public static final String BUILD = "@build@";
+   public static final String COPYRIGHT_MESSAGE = "@copyrightMessage@";
 
    /**
     * String representation in the form
@@ -100,8 +101,7 @@ public class CurrentVersion
 
    private static String getVerboseVersion()
    {
-      return "Infinity (TM) Process Platform " + getVersionName()
-            + ", Copyright (C) SunGard CSA LLC, " + CurrentVersion.COPYRIGHT_YEARS
-            + ". All rights reserved.\n";
+      return MessageFormat.format(COPYRIGHT_MESSAGE + "\n", new Object[] {
+            getVersionName(), CurrentVersion.COPYRIGHT_YEARS });
    }
 }

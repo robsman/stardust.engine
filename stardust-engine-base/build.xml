@@ -26,6 +26,12 @@
 
    <property name="organizationId" value="com.infinity.bpm" />
    <property name="artifactId" value="carnot-base" />
+   
+   <!-- Following variables are possible in copyrightMessage:
+        {0}: will be replaced by CurrentVersion.getVersionName(), i.e. major.minor.micro
+        {1}: will be replaced by CurrentVersion.COPYRIGHT_YEARS, e.g. 2000-2012
+   -->
+   <property name="copyright.message" value="Infinity (TM) Process Platform {0}, Copyright (C) SunGard CSA LLC, {1}. All rights reserved." />
 
    <import file="${project.dir}/../../build.tools/commons-build.xml" />
 
@@ -133,6 +139,7 @@
             <filter token="minor" value="${ipp.version.minor}" />
             <filter token="micro" value="${ipp.version.micro}" />
             <filter token="build" value="${ipp.version.build}" />
+            <filter token="copyrightMessage" value="${copyright.message}" />
          </filterset>
       </copy>
    </target>

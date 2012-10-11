@@ -26,6 +26,12 @@
 
   <properties>
     <maven.test.skip>true</maven.test.skip>
+    
+    <!-- Following variables are possible in copyrightMessage:
+        {0}: will be replaced by CurrentVersion.getVersionName(), i.e. major.minor.micro
+        {1}: will be replaced by CurrentVersion.COPYRIGHT_YEARS, e.g. 2000-2012
+    -->
+    <copyright.message>2012 SunGard CSA LLC and others, {0}</copyright.message>
   </properties>
 
   <build>
@@ -94,6 +100,7 @@
                   <property name="SNAPSHOT_BUILD_ALIAS" value="${SNAPSHOT_BUILD_ALIAS}"/>
                   <property name="ipp.version.qualifier" value="${ipp.version.qualifier}"/>
                   <property name="ipp.version.full" value="${ipp.version}"/>
+                  <property name="copyright.message" value="${copyright.message}" />
                   <property name="buildenv.m2.localRepository" value="${settings.localRepository}"/>
                 </ant>
               </target>
@@ -115,6 +122,7 @@
                   <property name="SNAPSHOT_BUILD_ALIAS" value="${SNAPSHOT_BUILD_ALIAS}"/>
                   <property name="ipp.version.qualifier" value="${ipp.version.qualifier}"/>
                   <property name="ipp.version.full" value="${ipp.version}"/>
+                  <property name="copyright.message" value="${copyright.message}" />
                   <property name="maven.localRepository" value="${settings.localRepository}"/>
                   <property name="buildenv.m2.localRepository" value="${settings.localRepository}"/>
                 </ant>

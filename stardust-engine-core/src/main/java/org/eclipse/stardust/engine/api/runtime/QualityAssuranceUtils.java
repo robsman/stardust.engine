@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
@@ -230,6 +231,13 @@ public class QualityAssuranceUtils
     */
    public static boolean shouldQualityAssuranceBePerformed(IActivityInstance activityInstance)
    {   
+      IActivity activity = activityInstance.getActivity();
+      if(!activity.isQualityAssuranceEnabled())
+      {
+         return false;
+      }
+      
+      
       int probability = getQualityAssuranceProbability(activityInstance);
 
       //if quality control instance failed - state will be QualityAssuranceState.IS_REVISED
@@ -266,8 +274,12 @@ public class QualityAssuranceUtils
          }
       }
       
-      //take qa formula into consideration
-      boolean isFomulaEvaluationSuccessful = QualityAssuranceFormulaEvaluater.evaluate(activityInstance);
+      boolean isFomulaEvaluationSuccessful = true;
+      //if a non empty qa fomula exists - included result of formula into consideration
+      if(StringUtils.isNotEmpty(activity.getQualityAssuranceFormula()))
+      {
+         isFomulaEvaluationSuccessful = QualityAssuranceFormulaEvaluater.evaluate(activityInstance);
+      }
       
       return (isProbabilityCheckWinner && isFomulaEvaluationSuccessful);
    }

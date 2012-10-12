@@ -66,8 +66,8 @@
       <property name="poolingSupport" ref="dsPoolingSupport" />
    </bean>
    <bean id="dsPoolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean">
-      <property name="poolMinSize" value="50" />
-      <property name="poolMaxSize" value="100" />
+      <property name="poolMinSize" value="100" />
+      <property name="poolMaxSize" value="200" />
       <property name="connectionMaxWaitMilliseconds" value="5000" />
       <property name="connectionMaxIdleMinutes" value="1" />
    </bean>

@@ -728,6 +728,128 @@ public class SchemaHelper
          new PropertyPersistor(name, defaultValue);
       }
    }
+   
+   public static void alterAuditTrailCreateSequenceTable(String sysconPassword,
+         boolean skipDdl, boolean skipDml, PrintStream spoolFile) throws SQLException
+   {
+      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      Map locals = new HashMap();
+      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX,
+            session);
+      try
+      {
+         ParametersFacade.pushLayer(locals);
+         verifySysopPassword(session, sysconPassword);
+         DBDescriptor dbDescriptor = session.getDBDescriptor();
+         DDLManager ddlManager = new DDLManager(dbDescriptor);
+         final String schemaName = Parameters.instance().getString(
+               SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+               Parameters.instance().getString(
+                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
+
+         if (!skipDdl)
+         {
+            if (null != spoolFile)
+            {
+               spoolFile
+                     .println("/* DDL-statements for creation of 'sequence' table and 'next_sequence_value_for' function */");
+            }
+            ddlManager
+                  .createSequenceTable(schemaName, session.getConnection(), spoolFile);
+         }
+         if (!skipDml)
+         {
+            if (null != spoolFile)
+            {
+               spoolFile
+                     .println("/* DML-statements for synchronization of 'sequence' table */");
+            }
+
+            ddlManager.synchronizeSequenceTable(schemaName, session.getConnection(),
+                  spoolFile);
+         }
+
+         if (null != spoolFile)
+         {
+            spoolFile.println();
+            spoolFile.println("commit;");
+         }
+         session.save();
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+   }
+   
+   public static void alterAuditTrailDropSequenceTable(String sysconPassword,
+         PrintStream spoolFile) throws SQLException
+   {
+      Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
+      Map locals = new HashMap();
+      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX,
+            session);
+      try
+      {
+         ParametersFacade.pushLayer(locals);
+         verifySysopPassword(session, sysconPassword);
+         DBDescriptor dbDescriptor = session.getDBDescriptor();
+         DDLManager ddlManager = new DDLManager(dbDescriptor);
+         Connection connection = session.getConnection();
+
+         final String schemaName = Parameters.instance().getString(
+               SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+               Parameters.instance().getString(
+                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
+
+         if (null != spoolFile)
+         {
+            spoolFile
+                  .println("/* DDL-statements for dropping 'sequence' table and 'next_sequence_value_for' function */");
+         }
+         ddlManager.dropSequenceTable(schemaName, connection, spoolFile);
+
+         if (null != spoolFile)
+         {
+            spoolFile.println();
+            spoolFile.println("commit;");
+         }
+         session.save();
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+   }
+   
+   public static void alterAuditTrailVerifySequenceTable(String sysconPassword)
+         throws SQLException
+   {
+      Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
+      Map locals = new HashMap();
+      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX,
+            session);
+      try
+      {
+         ParametersFacade.pushLayer(locals);
+         verifySysopPassword(session, sysconPassword);
+
+         DBDescriptor dbDescriptor = session.getDBDescriptor();
+         DDLManager ddlManager = new DDLManager(dbDescriptor);
+
+         final String schemaName = Parameters.instance().getString(
+               SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+               Parameters.instance().getString(
+                     SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
+
+         ddlManager.verifySequenceTable(session.getConnection(), schemaName);
+         session.save();
+      }
+      finally
+      {
+         ParametersFacade.popLayer();
+      }
+   }
 
    public static void alterAuditTrailCreateLockingTables(String sysconPassword)
          throws SQLException

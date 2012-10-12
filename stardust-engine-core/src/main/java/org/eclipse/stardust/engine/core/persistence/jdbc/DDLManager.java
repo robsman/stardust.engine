@@ -46,6 +46,8 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
  */
 public class DDLManager
 {
+   private static final String SEQUENCE_TABLE_NAME = "sequence";
+
    public static final Logger trace = LogManager.getLogger(DDLManager.class);
 
    private DBDescriptor dbDescriptor;
@@ -482,6 +484,171 @@ public class DDLManager
       {
          throw new InternalException("While creating type manager for '" +
                type.getName() + "'.", x);
+      }
+   }
+   
+   public void createSequenceTable(String schemaName, Connection connection,
+         PrintStream spoolFile) throws SQLException
+   {
+      if (!containsTable(schemaName, SEQUENCE_TABLE_NAME, connection))
+      {
+         // create table sequence
+         executeOrSpoolStatement(
+               dbDescriptor.getCreateGlobalPKSequenceStatementString(schemaName),
+               connection, spoolFile);
+
+         // create next_sequence_value_for function
+         executeOrSpoolStatement(
+               dbDescriptor.getCreateSequenceStoredProcedureStatementString(schemaName),
+               connection, spoolFile);
+      }
+   }
+   
+   public void synchronizeSequenceTable(String schemaName, Connection connection,
+         PrintStream spoolFile) throws SQLException
+   {
+      if (containsTable(schemaName, SEQUENCE_TABLE_NAME, connection))
+      {
+         // synchronize sequence table with the current primary key value
+         Collection<Class> persistentClasses = SchemaHelper
+               .getPersistentClasses(dbDescriptor);
+         for (Class clazz : persistentClasses)
+         {
+            TypeDescriptor typeManager = TypeDescriptor.get(clazz);
+            if (typeManager.hasPkSequence())
+            {
+               String tableName = schemaName + "." + SEQUENCE_TABLE_NAME;
+               StringBuilder selectMaxOidSQLString = new StringBuilder();
+               selectMaxOidSQLString
+                     .append("(SELECT max(x) FROM (SELECT max(oid) AS x FROM ");
+               selectMaxOidSQLString.append(schemaName);
+               selectMaxOidSQLString.append(".");
+               selectMaxOidSQLString.append(typeManager.getTableName());
+               selectMaxOidSQLString.append(" UNION SELECT 0) AS max)");
+               StringBuilder selectSequenceTableEntrySQLString = new StringBuilder();
+               selectSequenceTableEntrySQLString.append("(SELECT name FROM ");
+               selectSequenceTableEntrySQLString.append(tableName);
+               selectSequenceTableEntrySQLString.append(" seq WHERE seq.name='");
+               selectSequenceTableEntrySQLString.append(typeManager.getPkSequence());
+               selectSequenceTableEntrySQLString.append("')");
+               Statement existsStmt = null;
+               ResultSet resultSet = null;
+               try
+               {
+                  existsStmt = connection.createStatement();
+                  existsStmt.execute(selectSequenceTableEntrySQLString.toString());
+                  resultSet = existsStmt.getResultSet();
+                  if (resultSet.next())
+                  {
+                     executeOrSpoolStatement(
+                           "UPDATE " + tableName + " SET value=" + selectMaxOidSQLString
+                                 + "WHERE name='" + typeManager.getPkSequence() + "'",
+                           connection, spoolFile);
+                  }
+                  else
+                  {
+                     executeOrSpoolStatement("INSERT INTO " + tableName + " VALUES ('"
+                           + typeManager.getPkSequence() + "', " + selectMaxOidSQLString
+                           + ")", connection, spoolFile);
+                  }
+               }
+               finally
+               {
+                  QueryUtils.closeStatementAndResultSet(existsStmt, resultSet);
+               }
+
+            }
+         }
+      }
+   }
+   
+   public void dropSequenceTable(String schemaName, Connection connection,
+         PrintStream spoolFile) throws SQLException
+   {
+      if (containsTable(schemaName, SEQUENCE_TABLE_NAME, connection))
+      {
+         // drop table sequence
+         executeOrSpoolStatement(
+               dbDescriptor.getDropGlobalPKSequenceStatementString(schemaName),
+               connection, spoolFile);
+
+         // drop next_sequence_value_for function
+         executeOrSpoolStatement(
+               dbDescriptor.getDropSequenceStoredProcedureStatementString(schemaName),
+               connection, spoolFile);
+      }
+   }
+   
+   public void verifySequenceTable(Connection connection, String schemaName)
+         throws SQLException
+   {
+      if (!containsTable(schemaName, SEQUENCE_TABLE_NAME, connection))
+      {
+         String message = "Table '" + SEQUENCE_TABLE_NAME + "' does not exist.";
+         System.out.println(message);
+         trace.warn(message);
+      }
+      else
+      {
+         boolean inconsistent = false;
+         Collection<Class> persistentClasses = SchemaHelper
+               .getPersistentClasses(dbDescriptor);
+         for (Class clazz : persistentClasses)
+         {
+            TypeDescriptor typeManager = TypeDescriptor.get(clazz);
+            if (typeManager.hasPkSequence())
+            {
+               Statement verifyStmt = null;
+               ResultSet resultSet = null;
+               StringBuilder verifySQLString = new StringBuilder();
+               verifySQLString.append("SELECT name, value FROM ");
+               verifySQLString.append(schemaName);
+               verifySQLString.append(".");
+               verifySQLString.append(SEQUENCE_TABLE_NAME);
+               verifySQLString.append(" seq WHERE seq.name='");
+               verifySQLString.append(typeManager.getPkSequence());
+               verifySQLString
+                     .append("' AND seq.value=(SELECT max(x) FROM (SELECT max(oid) AS x FROM ");
+               verifySQLString.append(schemaName);
+               verifySQLString.append(".");
+               verifySQLString.append(typeManager.getTableName());
+               verifySQLString.append(" UNION SELECT 0) AS max)");
+               try
+               {
+                  verifyStmt = connection.createStatement();
+                  verifyStmt.execute(verifySQLString.toString());
+                  resultSet = verifyStmt.getResultSet();
+                  if (!resultSet.next())
+                  {
+                     inconsistent = true;
+                  }
+               }
+               catch (SQLException e)
+               {
+                  String message = "Couldn't verify sequence table '"
+                        + SEQUENCE_TABLE_NAME + "'." + " Reason: " + e.getMessage();
+                  System.out.println(message);
+                  trace.warn(message, e);
+               }
+               finally
+               {
+                  QueryUtils.closeStatementAndResultSet(verifyStmt, resultSet);
+               }
+            }
+         }
+         if (inconsistent)
+         {
+            String message = "Table " + SEQUENCE_TABLE_NAME
+                  + " is not consistent. Synchronization is required.";
+            System.out.println(message);
+            trace.warn(message);
+         }
+         else
+         {
+            String message = "Table " + SEQUENCE_TABLE_NAME + " is consistent.";
+            System.out.println(message);
+            trace.info(message);
+         }
       }
    }
 
@@ -2803,4 +2970,5 @@ public class DDLManager
          return sqlType;
       }
    }
+
 }

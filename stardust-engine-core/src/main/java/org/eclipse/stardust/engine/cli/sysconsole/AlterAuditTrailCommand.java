@@ -25,16 +25,17 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.console.Options;
-import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.cli.sysconsole.consistency.AuditTrailConsistencyChecker;
 import org.eclipse.stardust.engine.cli.sysconsole.consistency.SharedDocumentDataConsistencyCheck;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
 
 /**
@@ -48,6 +49,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    private static final String LOCKTABLE_ENABLE = "enableLockTables";
    private static final String LOCKTABLE_VERIFY = "verifyLockTables";
    private static final String LOCKTABLE_DROP = "dropLockTables";
+   
+   private static final String SEQ_TABLE_ENABLE = "enableSequenceTable";
+   private static final String SEQ_TABLE_VERIFY = "verifySequenceTable";
+   private static final String SEQ_TABLE_DROP = "dropSequenceTable";
 
    private static final String PARTITION_CREATE = "createPartition";
    private static final String PARTITIONS_LIST = "listPartitions";
@@ -77,6 +82,13 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             "Verifies existence of proxy locking tables and their consistency.", false);
       argTypes.register("-" + LOCKTABLE_DROP, "-dlt", LOCKTABLE_DROP,
             "Drops any existing proxy locking tables.", false);
+      
+      argTypes.register("-" + SEQ_TABLE_ENABLE, "-est", SEQ_TABLE_ENABLE,
+            "Creates 'sequence' table, 'next_sequence_value_for' function and synchronizes table content.", false);
+      argTypes.register("-" + SEQ_TABLE_VERIFY, "-vst", SEQ_TABLE_VERIFY,
+            "Verifies existence of 'sequence' table and their consistency.", false);
+      argTypes.register("-" + SEQ_TABLE_DROP, "-dst", SEQ_TABLE_DROP,
+            "Drops existing 'sequence' table tables.", false);
 
       argTypes.register("-" + PARTITION_CREATE, "-cp", PARTITION_CREATE,
             "Creates a new partition with the given ID, if no partition having this ID currently exists.", true);
@@ -107,7 +119,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       argTypes.addExclusionRule(//
             new String[] { LOCKTABLE_ENABLE, LOCKTABLE_VERIFY, LOCKTABLE_DROP,//
                   DATACLUSTER_ENABLE, DATACLUSTER_VERIFY, DATACLUSTER_DROP,//
-                  PARTITION_CREATE, PARTITION_DROP, PARTITIONS_LIST, AUDITTRAIL_CHECK_CONSISTENCY }, true);
+                  PARTITION_CREATE, PARTITION_DROP, PARTITIONS_LIST, AUDITTRAIL_CHECK_CONSISTENCY,//
+                  SEQ_TABLE_ENABLE, SEQ_TABLE_VERIFY, SEQ_TABLE_DROP}, true);
       argTypes.addExclusionRule(//
             new String[] { LOCKTABLE_ENABLE, LOCKTABLE_VERIFY, LOCKTABLE_DROP,//
                   DATACLUSTER_VERIFY, DATACLUSTER_DROP,//
@@ -410,6 +423,85 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       return optionHandled;
    }
 
+   private boolean doRunSequenceTableOptions(Map options)
+   {
+      boolean optionHandled = false;
+      String dbType = Parameters.instance().getString(
+            SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_TYPE_SUFFIX);
+      if (DBMSKey.MYSQL_SEQ.getId().equalsIgnoreCase(dbType))
+      {
+         final String password = (String) globalOptions.get("password");
+         optionHandled = true;
+         if (options.containsKey(SEQ_TABLE_ENABLE))
+         {
+            boolean skipDdl = options.containsKey(AUDITTRAIL_SKIPDDL);
+            boolean skipDml = options.containsKey(AUDITTRAIL_SKIPDML);
+            if (!skipDdl)
+            {
+               print("Creating 'sequence' table and 'next_sequence_value_for' function.");
+            }
+            if (!skipDml)
+            {
+               print("Synchronizing 'sequence' table content.");
+            }
+            try
+            {
+               SchemaHelper.alterAuditTrailCreateSequenceTable(password, skipDdl,
+                     skipDml, spoolDevice);
+            }
+            catch (SQLException e)
+            {
+               trace.warn("", e);
+               throw new PublicException("SQL Exception occured: " + e.getMessage());
+            }
+            if (!skipDdl)
+            {
+               print("'sequence' table and 'next_sequence_value_for' function created.");
+            }
+            if (!skipDml)
+            {
+               print("'sequence' table synchronized.");
+            }
+         }
+         else if (options.containsKey(SEQ_TABLE_VERIFY))
+         {
+            optionHandled = true;
+            print("Verifying existence of 'sequence' table and its consistency.");
+            try
+            {
+               SchemaHelper.alterAuditTrailVerifySequenceTable(password);
+            }
+            catch (SQLException e)
+            {
+               trace.warn("", e);
+               throw new PublicException("SQL Exception occured: " + e.getMessage());
+            }
+            print("Verification of 'sequence' table and its consistency done.");
+         }
+         else if (options.containsKey(SEQ_TABLE_DROP))
+         {
+            optionHandled = true;
+            print("Dropping 'sequence' table from Infinity schema.");
+            try
+            {
+               SchemaHelper.alterAuditTrailDropSequenceTable(password, spoolDevice);
+            }
+            catch (SQLException e)
+            {
+               trace.warn("", e);
+               throw new PublicException("SQL Exception occured: " + e.getMessage());
+            }
+            print("'sequence' table dropped.");
+         }
+      }
+      else
+      {
+         print("Invalid audittrail type. 'AuditTrail.Type in carnot.properties' "
+               + "or global option 'dbtype' has to be set to 'MYSQL_SEQ'.");
+      }
+      return optionHandled;
+   }
+
    public int doRun(Map options)
    {
       if (globalOptions.containsKey("dbtype"))
@@ -439,7 +531,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       }
 
       if ( !doRunLockingTableOptions(options) && !doRunDataClusterOptions(options)
-            && !doRunPartitionOptions(options) && !doRunCheckConsistencyOptions(options))
+            && !doRunPartitionOptions(options) && !doRunCheckConsistencyOptions(options)
+            && !doRunSequenceTableOptions(options))
       {
          print("Unknown option for command auditTrail.");
       }

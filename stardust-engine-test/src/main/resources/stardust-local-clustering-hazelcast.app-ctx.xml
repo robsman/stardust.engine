@@ -23,13 +23,13 @@
          <bean id="connectionManagerFactory" class="org.jencks.factory.ConnectionManagerFactoryBean">
             <property name="transactionManager" ref="xaTransactionManager" />
             <property name="transaction" value="local" />
-            <property name="poolingSupport" ref="poolingSupport" />
+            <property name="poolingSupport" ref="hzPoolingSupport" />
          </bean>
       </property>
    </bean>
    
-   <bean id="poolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean">
-      <property name="poolMinSize" value="10" />
+   <bean id="hzPoolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean">
+      <property name="poolMinSize" value="50" />
       <property name="poolMaxSize" value="100" />
       <property name="connectionMaxWaitMilliseconds" value="5000" />
       <property name="connectionMaxIdleMinutes" value="1" />

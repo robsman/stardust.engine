@@ -50,9 +50,13 @@
    <bean id="jmsConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
       <property name="transactionManager" ref="xaTransactionManager" />
       <property name="transaction" value="xa" />
-      <property name="pooling" value="true" />
+      <property name="poolingSupport" ref="jmsPoolingSupport" />
+   </bean>
+   <bean id="jmsPoolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean">
       <property name="poolMinSize" value="10" />
       <property name="poolMaxSize" value="50" />
+      <property name="connectionMaxWaitMilliseconds" value="5000" />
+      <property name="connectionMaxIdleMinutes" value="1" />
    </bean>
    
    <!-- JMS Resource Reference Binding -->

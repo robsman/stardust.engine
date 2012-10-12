@@ -158,42 +158,9 @@ public class DmsDocumentBean extends DmsResourceBean
       return null;
    }
 
-   /**
-    * @deprecated
-    */
-   public void setId(String id)
-   {
-      throw new UnsupportedOperationException(
-      "Modifying the document ID is not supported.");
-   }
-
-   /**
-    * @deprecated
-    */
-   public String getDisplayName()
-   {
-      return getName();
-   }
-
    @Override
    public String toString()
    {
       return getName();
-   }
-
-   /**
-    * @deprecated
-    */
-   public void setDisplayName(String name)
-   {
-      setName(name);
-   }
-
-   /**
-    * @deprecated
-    */
-   public void setDocumentType(String type)
-   {
-      setContentType(type);
    }
 }

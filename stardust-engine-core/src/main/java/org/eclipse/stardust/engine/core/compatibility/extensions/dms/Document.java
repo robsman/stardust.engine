@@ -38,29 +38,4 @@ public interface Document extends org.eclipse.stardust.engine.api.runtime.Docume
    Serializable getProperty(String name);
 
    void setProperty(String name, Serializable value);
-
-   ////
-   //// legacy methods for backwards compatibility
-   ////
-
-   /**
-    * @deprecated
-    */
-   void setId(String id);
-
-   /**
-    * @deprecated
-    */
-   String getDisplayName();
-
-   /**
-    * @deprecated
-    */
-   void setDisplayName(String name);
-
-   /**
-    * @deprecated
-    */
-   void setDocumentType(String type);
-
 }

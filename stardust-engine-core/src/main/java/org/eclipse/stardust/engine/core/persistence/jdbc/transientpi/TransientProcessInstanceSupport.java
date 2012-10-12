@@ -55,13 +55,16 @@ public class TransientProcessInstanceSupport
    
    private boolean allPisAreCompleted = false;
    
-   private final Set<PersistentKey> persistentKeys;
+   private final Set<PersistentKey> persistentKeysToBeInserted;
+   
+   private final Set<PersistentKey> persistentKeysToBeDeleted;
    
    public TransientProcessInstanceSupport(final boolean supportsSequences)
    {
       if (ProcessInstanceUtils.isTransientPiSupportEnabled() && supportsSequences)
       {
-         this.persistentKeys = new HashSet<PersistentKey>();
+         this.persistentKeysToBeInserted = newHashSet();
+         this.persistentKeysToBeDeleted = newHashSet();
          this.enabled = true;
       }
       else
@@ -71,7 +74,8 @@ public class TransientProcessInstanceSupport
             LOGGER.warn("Transient Process instance support cannot be enabled due to lack of support for DB sequences.");
          }
          
-         this.persistentKeys = Collections.emptySet();
+         this.persistentKeysToBeInserted = Collections.emptySet();
+         this.persistentKeysToBeDeleted = Collections.emptySet();
          this.enabled = false;
       }
    }
@@ -97,11 +101,21 @@ public class TransientProcessInstanceSupport
       determineWhetherAllPIsAreCompleted(pis);
    }
    
-   public void storePersistentKeys(final List<Persistent> persistentsToBeInserted)
+   public void collectPersistentKeysToBeInserted(final List<Persistent> persistentsToBeInserted)
+   {
+      collectPersistentKeys(persistentsToBeInserted, persistentKeysToBeInserted);
+   }
+   
+   public void collectPersistentKeyToBeDeleted(final Persistent persistentToBeDeleted)
+   {
+      collectPersistentKeys(Collections.singletonList(persistentToBeDeleted), persistentKeysToBeDeleted);
+   }
+   
+   private void collectPersistentKeys(final List<Persistent> persistentsToCollect, final Set<PersistentKey> persistentKeys)
    {
       assertEnabled();
       
-      for (final Persistent p : persistentsToBeInserted)
+      for (final Persistent p : persistentsToCollect)
       {
          if (p instanceof IdentifiablePersistent)
          {
@@ -133,7 +147,16 @@ public class TransientProcessInstanceSupport
    {
       assertEnabled();
       
-      TransientProcessInstanceStorage.instance().delete(persistentKeys);
+      final Set<PersistentKey> keysToBeDeleted = new HashSet<PersistentKey>(persistentKeysToBeDeleted);
+      if (!isCurrentSessionTransient() || areAllPisCompleted())
+      {
+         keysToBeDeleted.addAll(persistentKeysToBeInserted);
+      }
+      
+      if ( !keysToBeDeleted.isEmpty())
+      {
+         TransientProcessInstanceStorage.instance().delete(keysToBeDeleted);
+      }
    }
    
    public void writeToInMemStorage(final BlobBuilder blobBuilder)
@@ -148,7 +171,7 @@ public class TransientProcessInstanceSupport
       final byte[] blob = ((ByteArrayBlobBuilder) blobBuilder).getBlob();
       final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(blob);
       
-      TransientProcessInstanceStorage.instance().insert(persistentKeys, piBlob);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(persistentKeysToBeInserted, piBlob);
    }
    
    public boolean arePisTransient()

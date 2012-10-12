@@ -10,9 +10,10 @@
  **********************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ public class TransientProcessInstanceStorage
       return TransientProcessInstanceStorageHolder.instance;
    }
    
-   public void insert(final Set<PersistentKey> persistentKeys, final ProcessInstanceGraphBlob blob)
+   public void insertOrUpdate(final Set<PersistentKey> persistentKeys, final ProcessInstanceGraphBlob blob)
    {
       if (persistentKeys == null)
       {
@@ -46,7 +47,7 @@ public class TransientProcessInstanceStorage
          throw new NullPointerException("Blob must not be null.");
       }
       
-      final InsertOperation insertOp = new InsertOperation(persistentKeys, blob);
+      final InsertOrUpdateOperation insertOp = new InsertOrUpdateOperation(persistentKeys, blob);
       piBlobsHolder.accessPiBlobs(insertOp);
    }
 
@@ -199,12 +200,12 @@ public class TransientProcessInstanceStorage
       T execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs);
    }      
    
-   private static final class InsertOperation implements TxAwareClusterSafeOperation<Void>
+   private static final class InsertOrUpdateOperation implements TxAwareClusterSafeOperation<Void>
    {
       private final Set<PersistentKey> persistentKeys;
       private final ProcessInstanceGraphBlob blob;
       
-      public InsertOperation(final Set<PersistentKey> persistentKeys, final ProcessInstanceGraphBlob blob)
+      public InsertOrUpdateOperation(final Set<PersistentKey> persistentKeys, final ProcessInstanceGraphBlob blob)
       {
          this.persistentKeys = persistentKeys;
          this.blob = blob;
@@ -213,15 +214,13 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs)
       {
+         final Map<PersistentKey, ProcessInstanceGraphBlob> blobsToAdd = newHashMap();
          for (final PersistentKey p : persistentKeys)
          {
-            final ProcessInstanceGraphBlob previous = piBlobs.put(p, blob);
-            if (previous != null)
-            {
-               throw new IllegalStateException("Trying to override an already existing mapping.");
-            }
+            blobsToAdd.put(p, blob);
          }
-
+         piBlobs.putAll(blobsToAdd);
+         
          return null;
       }
    }
@@ -238,28 +237,9 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs)
       {
-         PersistentKey keyToDelete = null;
          for (final PersistentKey p : persistentKeys)
          {
-            if (piBlobs.containsKey(p))
-            {
-               keyToDelete = p;
-               break;
-            }
-         }
-         
-         if (keyToDelete != null)
-         {
-            final ProcessInstanceGraphBlob result = piBlobs.remove(keyToDelete);
-            
-            for (final Iterator<ProcessInstanceGraphBlob> iter = piBlobs.values().iterator(); iter.hasNext();)
-            {
-               final ProcessInstanceGraphBlob next = iter.next();
-               if (result.equals(next))
-               {
-                  iter.remove();
-               }
-            }
+            piBlobs.remove(p);
          }
          
          return null;

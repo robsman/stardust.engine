@@ -1736,7 +1736,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   throw new IllegalStateException("Failed to flush transient process as the type '" + type + "' unexpectedly contained modified instances.");
                }
 
-               transientPiSupport.storePersistentKeys(persistentToBeInserted);
+               transientPiSupport.collectPersistentKeysToBeInserted(persistentToBeInserted);
                
                if (transientPiSupport.isCurrentSessionTransient())
                {
@@ -1821,6 +1821,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                Persistent persistent = cntrl.getPersistent();
                remove(externalCache, persistent);
 
+               if (transientPiSupport.arePisTransient())
+               {
+                  transientPiSupport.collectPersistentKeyToBeDeleted(persistent);
+               }
+               
                if (trace.isDebugEnabled())
                {
                   trace.debug(this + ", deleting: " + persistent);

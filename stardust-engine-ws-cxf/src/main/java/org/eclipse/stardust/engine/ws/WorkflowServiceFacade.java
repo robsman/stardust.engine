@@ -38,8 +38,11 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.error.ServiceCommandException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.model.ContextData;
+import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.query.Worklist;
@@ -58,6 +61,7 @@ import org.eclipse.stardust.engine.api.ws.query.WorklistQueryXto;
 @WebService(name = "IWorkflowService", serviceName = "StardustBpmServices", portName = "WorkflowServiceEndpoint", targetNamespace = "http://eclipse.org/stardust/ws/v2012a/api", endpointInterface = "org.eclipse.stardust.engine.api.ws.IWorkflowService")
 public class WorkflowServiceFacade implements IWorkflowService
 {
+   private static final Logger trace = LogManager.getLogger(WorkflowServiceFacade.class);
 
    public ProcessInstanceXto startProcess(String processId, ParametersXto parameters,
          Boolean startSynchronously, InputDocumentsXto attachments) throws BpmFault
@@ -88,7 +92,23 @@ public class WorkflowServiceFacade implements IWorkflowService
                throw e;
             }
          }
-         return toWs(pi);
+         
+
+         Model model = null;
+         try
+         {
+            model = WebServiceEnv.currentWebServiceEnvironment().getModel(
+                  pi.getModelOID());
+         }
+         catch (Throwable e)
+         {
+            trace.warn("Marshaling process instance with oid '"
+                  + pi.getOID()
+                  + "' without process properties. Could not access model information for marshaling. "
+                  + e.getMessage());
+         }
+         
+         return toWs(pi, model);
       }
       catch (ApplicationException e)
       {
@@ -567,10 +587,9 @@ public class WorkflowServiceFacade implements IWorkflowService
          WebServiceEnv wsEnv = currentWebServiceEnvironment();
 
          ActivityEventBindingXto xto = null;
+         WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
          if (null != bindingInfo)
          {
-            WorkflowService wfs = wsEnv.getServiceFactory().getWorkflowService();
-
             EventHandlerBinding binding;
 
             // TODO unbind already existing binding first?
@@ -593,6 +612,11 @@ public class WorkflowServiceFacade implements IWorkflowService
                   bindingInfo.getHandlerId());
 
             xto = toWs(binding, new ActivityEventBindingXto());
+         }
+         else
+         {
+            // causes InvalidArgumentException
+            wfs.bindActivityEventHandler(activityOid, (EventHandlerBinding) null);
          }
 
          return xto;

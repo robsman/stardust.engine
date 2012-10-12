@@ -48,6 +48,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.QueryServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.command.ServiceCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.DataUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
@@ -85,27 +86,35 @@ public class WsApiStartProcessCommand implements ServiceCommand
    {
       try
       {
-         QueryService qs = sf.getQueryService();
+         QueryService qs = new QueryServiceImpl();
 
          Model model = null;
          ProcessDefinition processDefinition = null;
          String unqualifiedProcessId = null;
-         if (processId != null && processId.startsWith("{"))
+         try
          {
-            processDefinition = qs.getProcessDefinition(processId);
-            model = qs.getModel(processDefinition.getModelOID());
-            unqualifiedProcessId = QName.valueOf(processId).getLocalPart();
+            if (processId != null && processId.startsWith("{"))
+            {
+               processDefinition = qs.getProcessDefinition(processId);
+               model = qs.getModel(processDefinition.getModelOID());
+               unqualifiedProcessId = QName.valueOf(processId).getLocalPart();
+            }
+            else
+            {
+               model = qs.getActiveModel();
+               processDefinition = model.getProcessDefinition(processId);
+               unqualifiedProcessId = processId;
+            }
          }
-         else
+         finally
          {
-            model = qs.getActiveModel();
-            processDefinition = model.getProcessDefinition(processId);
-            unqualifiedProcessId = processId;
+            qs = null;
          }
+         
 
          @SuppressWarnings("unchecked")
          Map<String, Object> initialDataValues = (Map) unmarshalInitialDataValues(
-               unqualifiedProcessId, parameters);
+               unqualifiedProcessId, parameters, model);
 
          boolean eagerlyStoreAttachments = true;
          boolean allToAttachments = true;

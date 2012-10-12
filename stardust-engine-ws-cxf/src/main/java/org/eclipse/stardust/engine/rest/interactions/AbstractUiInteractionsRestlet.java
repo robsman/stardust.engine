@@ -230,18 +230,40 @@ public abstract class AbstractUiInteractionsRestlet
    protected DataMapping findDataFlow(Interaction interaction, String parameterId,
          Direction direction) throws WebApplicationException
    {
+      DataMapping ret = null;
       ApplicationContext definition = interaction.getDefinition();
 
-      if ((null != definition) && !isEmpty(parameterId)
-            && (null != definition.getDataMapping(direction, parameterId)))
+      if ((null != definition) && !isEmpty(parameterId))
       {
-         return definition.getDataMapping(direction, parameterId);
+         AccessPoint outParam = findParameterDefinition(interaction, parameterId,
+               direction);
+         if (null == outParam)
+         {
+            if (InteractionDataFlowUtils.supportDataMappingIds())
+            {
+               ret = definition.getDataMapping(direction, parameterId);
+            }
+         }
+         else
+         {
+            List<DataMapping> allDataMappings = definition.getAllDataMappings();
+            for (DataMapping dataMapping : allDataMappings)
+            {
+               if (outParam.equals(dataMapping.getApplicationAccessPoint()))
+               {
+                  ret = dataMapping;
+                  break;
+               }
+            }
+         }
       }
-      else
+      
+      if (ret == null)
       {
          throw new WebApplicationException(Status.NOT_FOUND);
       }
-
+      
+      return ret;
    }
 
    @XmlRootElement(name="activityDefinition", namespace="http://eclipse.org/stardust/ws/v2012a/api")

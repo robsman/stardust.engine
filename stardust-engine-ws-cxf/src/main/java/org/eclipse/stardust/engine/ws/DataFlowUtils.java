@@ -198,16 +198,21 @@ public class DataFlowUtils
       return dataPath.getQualifiedId().startsWith(
             "{" + PredefinedConstants.PREDEFINED_MODEL_ID);
    }
+   
+   public static InstancePropertiesXto marshalInstanceProperties(ProcessInstance pi, boolean includeDescriptors)
+   {
+      Model model = currentWebServiceEnvironment().getModel(pi.getModelOID());
+      
+      return marshalInstanceProperties(pi, includeDescriptors, model);
+   }
 
    public static InstancePropertiesXto marshalInstanceProperties(ProcessInstance pi,
-         boolean includeDescriptors)
+         boolean includeDescriptors, Model model)
    {
       InstancePropertiesXto instanceProperties = null;
       if (pi instanceof ProcessInstanceDetails)
       {
          IDescriptorProvider descriptorProvider = (IDescriptorProvider) pi;
-
-         Model model = currentWebServiceEnvironment().getModel(pi.getModelOID());
 
          if (includeDescriptors)
          {
@@ -650,6 +655,12 @@ public class DataFlowUtils
       // TODO get model via qualified processId
       Model model = WebServiceEnv.currentWebServiceEnvironment().getActiveModel();
 
+      return unmarshalInitialDataValues(processID, params, model);
+   }
+
+   public static Map<String, ? extends Serializable> unmarshalInitialDataValues(
+         String processID, ParametersXto params, Model model)
+   {
       Map<String, Serializable> res = null;
       if ((null != params) && !params.getParameter().isEmpty())
       {

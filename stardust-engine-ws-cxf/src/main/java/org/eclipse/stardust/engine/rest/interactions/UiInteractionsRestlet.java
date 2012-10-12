@@ -253,7 +253,7 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
                // provide JSON representation of structured data
                String jsonpCallback = httpRequest.getParameter("callback");
 
-               String result = getInDataValueAsJson(parameterId, jsonpCallback);
+               String result = getInDataValueAsJson(inParamId, jsonpCallback);
 
                if ( !isEmpty(result))
                {

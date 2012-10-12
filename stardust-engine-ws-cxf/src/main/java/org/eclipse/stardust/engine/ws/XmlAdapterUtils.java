@@ -1563,15 +1563,67 @@ public class XmlAdapterUtils
       return ret;
    }
 
+   /**
+    * Only use in WebService environment.
+    * Model lookup is performed via {@link WebServiceEnv}.
+    * 
+    * Also adds NO descriptors to calls that cannot contain DescriptorPolicy
+    * because descriptors are NOT delivered by default for ProcessInstances
+    * 
+    * @param pi
+    * @return
+    */
    public static ProcessInstanceXto toWs(ProcessInstance pi)
    {
+      Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(pi.getModelOID());
+      
       // this adds NO descriptors to calls that cannot contain
       // DescriptorPolicy
       // because descriptors are NOT delivered by default for ProcessInstances
-      return toWs(pi, null);
+      return toWs(pi, null, model);
+   }
+   
+   /**
+    * Usable even if {@link WebServiceEnv} is not available.
+    * Because of this the model has to be specified.
+    * 
+    * Also adds NO descriptors to calls that cannot contain DescriptorPolicy
+    * because descriptors are NOT delivered by default for ProcessInstances
+    * 
+    * @param pi
+    * @param model model for lookups
+    * @return
+    */
+   public static ProcessInstanceXto toWs(ProcessInstance pi, Model model)
+   {
+      return toWs(pi, null, model);
    }
 
+   /**
+    * Only use in WebService environment.
+    * Model lookup is performed via {@link WebServiceEnv}.
+    * 
+    * @param pi
+    * @param query
+    * @return
+    */
    public static ProcessInstanceXto toWs(ProcessInstance pi, Query query)
+   {
+      Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(pi.getModelOID());
+      
+      return toWs(pi,query, model);
+   }
+   
+   /**
+    * Usable even if {@link WebServiceEnv} is not available.
+    * Because of this the model has to be specified.
+    * 
+    * @param pi
+    * @param query
+    * @param model model for lookups
+    * @return
+    */
+   public static ProcessInstanceXto toWs(ProcessInstance pi, Query query, Model model)
    {
       ProcessInstanceXto res = new ProcessInstanceXto();
 
@@ -1605,8 +1657,12 @@ public class XmlAdapterUtils
             : (DescriptorPolicy) query.getPolicy(DescriptorPolicy.class);
       boolean includeDescriptors = (dp == null) ? false : dp.includeDescriptors();
 
-      res.setInstanceProperties(marshalInstanceProperties(pi, includeDescriptors));
-
+      if (model != null)
+      {
+         res.setInstanceProperties(marshalInstanceProperties(pi, includeDescriptors,
+               model));
+      }
+      
       // TODO pi.getAttributes()
 
       res.setHistoricalEvents(marshalHistoricalEvents(pi.getHistoricalEvents()));
@@ -2602,36 +2658,43 @@ public class XmlAdapterUtils
 
    public static <T extends EventBindingBaseXto> T toWs(EventHandlerBinding binding, T xto)
    {
-      xto.setHandlerId(binding.getHandler().getId());
-      xto.setBound(binding.isBound());
-
-      Map< ? , ? > bindingAttributes = binding.getAllAttributes();
-      if (null != binding.getAttribute(PredefinedConstants.TARGET_TIMESTAMP_ATT))
+      if (binding != null)
       {
-         // copy attributes so we can safely remove the timestamp
-         bindingAttributes = copyMap(bindingAttributes);
+         xto.setHandlerId(binding.getHandler().getId());
+         xto.setBound(binding.isBound());
 
-         Object targetTimestamp = bindingAttributes.remove(PredefinedConstants.TARGET_TIMESTAMP_ATT);
-         if (targetTimestamp instanceof Date)
+         Map< ? , ? > bindingAttributes = binding.getAllAttributes();
+         if (null != binding.getAttribute(PredefinedConstants.TARGET_TIMESTAMP_ATT))
          {
-            xto.setTimeout((Date) targetTimestamp);
-         }
-         else if (targetTimestamp instanceof Long)
-         {
-            xto.setTimeout(new Date(((Long) targetTimestamp).longValue()));
-         }
-         else
-         {
-            if (targetTimestamp != null)
+            // copy attributes so we can safely remove the timestamp
+            bindingAttributes = copyMap(bindingAttributes);
+
+            Object targetTimestamp = bindingAttributes.remove(PredefinedConstants.TARGET_TIMESTAMP_ATT);
+            if (targetTimestamp instanceof Date)
             {
-               trace.warn("Error marshaling  EventBinding: timestamp type unsupported: "
-                     + targetTimestamp.getClass());
+               xto.setTimeout((Date) targetTimestamp);
+            }
+            else if (targetTimestamp instanceof Long)
+            {
+               xto.setTimeout(new Date(((Long) targetTimestamp).longValue()));
+            }
+            else
+            {
+               if (targetTimestamp != null)
+               {
+                  trace.warn("Error marshaling  EventBinding: timestamp type unsupported: "
+                        + targetTimestamp.getClass());
+               }
             }
          }
+         if ( !isEmpty(bindingAttributes))
+         {
+            xto.setBindingAttributes(XmlAdapterUtils.marshalAttributes(bindingAttributes));
+         }
       }
-      if ( !isEmpty(bindingAttributes))
+      else
       {
-         xto.setBindingAttributes(XmlAdapterUtils.marshalAttributes(bindingAttributes));
+         xto = null;
       }
 
       return xto;

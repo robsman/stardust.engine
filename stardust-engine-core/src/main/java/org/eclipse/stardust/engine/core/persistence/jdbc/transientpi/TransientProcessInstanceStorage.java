@@ -162,7 +162,7 @@ public class TransientProcessInstanceStorage
       }
    }
    
-   private static final class ProcessInstanceBlobsHolder
+   /* package-private */ static class ProcessInstanceBlobsHolder
    {
       private final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs;
       
@@ -195,12 +195,12 @@ public class TransientProcessInstanceStorage
       }
    }
    
-   private static interface TxAwareClusterSafeOperation<T>
+   /* package-private */ static interface TxAwareClusterSafeOperation<T>
    {
       T execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs);
    }      
    
-   private static final class InsertOrUpdateOperation implements TxAwareClusterSafeOperation<Void>
+   /* package-private */ static final class InsertOrUpdateOperation implements TxAwareClusterSafeOperation<Void>
    {
       private final Set<PersistentKey> persistentKeys;
       private final ProcessInstanceGraphBlob blob;
@@ -225,7 +225,7 @@ public class TransientProcessInstanceStorage
       }
    }
    
-   private static final class DeleteOperation implements TxAwareClusterSafeOperation<Void>
+   /* package-private */ static final class DeleteOperation implements TxAwareClusterSafeOperation<Void>
    {
       private final Set<PersistentKey> persistentKeys;
       
@@ -246,7 +246,7 @@ public class TransientProcessInstanceStorage
       }
    }
    
-   private static final class SelectOperation implements TxAwareClusterSafeOperation<ProcessInstanceGraphBlob>
+   /* package-private */ static final class SelectOperation implements TxAwareClusterSafeOperation<ProcessInstanceGraphBlob>
    {
       private final PersistentKey key;
       

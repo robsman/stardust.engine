@@ -24,8 +24,11 @@ import java.util.concurrent.*;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.InsertOrUpdateOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.ProcessInstanceBlobsHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.ProcessInstanceGraphBlob;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.TxAwareClusterSafeOperation;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -131,7 +134,9 @@ public class TransientProcessInstanceStorageTest
    public void testDelete()
    {
       TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1);
+      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_1));
       TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_2));
+      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_3));
       
       final ProcessInstanceGraphBlob removedBlob1_1 = TransientProcessInstanceStorage.instance().select(KEY_1_1);
       final ProcessInstanceGraphBlob removedBlob1_2 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
@@ -175,7 +180,58 @@ public class TransientProcessInstanceStorageTest
       assertThat(blob2_3, nullValue());
    }
    
-   // TODO (nw) add test case(s) for tx behaviour
+   /**
+    * <p>
+    * <b>Note</b> Assumes that {@link TransientProcessInstanceStorage#insertOrUpdate(Set, ProcessInstanceGraphBlob)} and
+    * {@link TransientProcessInstanceStorage#select(PersistentKey)} are working.
+    * </p>
+    */
+   @Test
+   public void testTxCommit()
+   {
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1);
+      
+      final ProcessInstanceGraphBlob blob1_1 = TransientProcessInstanceStorage.instance().select(KEY_1_1);
+      final ProcessInstanceGraphBlob blob1_2 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
+      final ProcessInstanceGraphBlob blob1_3 = TransientProcessInstanceStorage.instance().select(KEY_1_3);
+      
+      assertThat(blob1_1, equalTo(BLOB_1));
+      assertThat(blob1_2, equalTo(BLOB_1));
+      assertThat(blob1_3, equalTo(BLOB_1));
+   }
+
+   /**
+    * <p>
+    * <b>Note</b> Assumes that {@link TransientProcessInstanceStorage#insertOrUpdate(Set, ProcessInstanceGraphBlob)} and
+    * {@link TransientProcessInstanceStorage#select(PersistentKey)} are working.
+    * </p>
+    */
+   @Test
+   public void testTxRollback()
+   {
+      /* causes the insert operation to fail */
+      Reflect.setFieldValue(TransientProcessInstanceStorage.instance(), PI_BLOBS_HOLDER_FIELD_NAME, new TestProcessInstanceBlobsHolder());
+      
+      try
+      {
+         TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1);
+      }
+      catch (final Exception ignored)
+      {
+         /* expected */
+      }
+      
+      final ProcessInstanceGraphBlob blob1_1 = TransientProcessInstanceStorage.instance().select(KEY_1_1);
+      final ProcessInstanceGraphBlob blob1_2 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
+      final ProcessInstanceGraphBlob blob1_3 = TransientProcessInstanceStorage.instance().select(KEY_1_3);
+      
+      assertThat(blob1_1, nullValue());
+      assertThat(blob1_2, nullValue());
+      assertThat(blob1_3, nullValue());
+      
+      /* restore original object graph */
+      Reflect.setFieldValue(TransientProcessInstanceStorage.instance(), PI_BLOBS_HOLDER_FIELD_NAME, new ProcessInstanceBlobsHolder());
+   }
    
    private void dropTransientProcessInstanceStorage()
    {
@@ -230,6 +286,20 @@ public class TransientProcessInstanceStorageTest
       {
          TransientProcessInstanceStorage.instance().delete(persistentKeys);
          return null;
+      }
+   }
+   
+   private static final class TestProcessInstanceBlobsHolder extends ProcessInstanceBlobsHolder
+   {
+      @Override
+      public <T> T accessPiBlobs(final TxAwareClusterSafeOperation<T> op)
+      {
+         if (op instanceof InsertOrUpdateOperation)
+         {
+            return super.accessPiBlobs(null);
+         }
+         
+         return super.accessPiBlobs(op);
       }
    }
 }

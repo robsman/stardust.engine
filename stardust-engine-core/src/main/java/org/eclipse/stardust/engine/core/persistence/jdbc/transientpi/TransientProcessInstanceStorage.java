@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -239,13 +238,19 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs)
       {
-         final Set<PersistentKey> intersection = new HashSet<PersistentKey>(persistentKeys);
-         intersection.retainAll(piBlobs.keySet());
-         final boolean piBlobsToDelete = !intersection.isEmpty();
-         if (piBlobsToDelete)
+         PersistentKey keyToDelete = null;
+         for (final PersistentKey p : persistentKeys)
          {
-            final PersistentKey key = intersection.iterator().next();
-            final ProcessInstanceGraphBlob result = piBlobs.remove(key);
+            if (piBlobs.containsKey(p))
+            {
+               keyToDelete = p;
+               break;
+            }
+         }
+         
+         if (keyToDelete != null)
+         {
+            final ProcessInstanceGraphBlob result = piBlobs.remove(keyToDelete);
             
             for (final Iterator<ProcessInstanceGraphBlob> iter = piBlobs.values().iterator(); iter.hasNext();)
             {
@@ -256,6 +261,7 @@ public class TransientProcessInstanceStorage
                }
             }
          }
+         
          return null;
       }
    }

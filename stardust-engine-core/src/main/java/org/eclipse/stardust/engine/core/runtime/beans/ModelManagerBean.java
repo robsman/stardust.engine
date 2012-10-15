@@ -1211,6 +1211,14 @@ public class ModelManagerBean implements ModelManager
          return infos;
       }
 
+      /**
+       * Collects the primary implementations which needs to be set for the deployment units.
+       * The code tries to detect existing relationships in the auditrail database and if corresponding
+       * model / process definitions can be found in the deployment units, they will be set
+       * 
+       * @param elements - the models to deploy
+       * @return the primary implementations to be set
+       */
       private Map<IProcessDefinition, String> collectPrimaryImplementations(List<ParsedDeploymentUnit> elements)
       {
          long referenceDeployment = ModelDeploymentBean.getLastDeployment();
@@ -1238,32 +1246,35 @@ public class ModelManagerBean implements ModelManager
                      {
                         long runtimeProcessOid = mm.getRuntimeOid(previousProcess);
                         String implementationId = ModelRefBean.getPrimaryImplementationId(referenceDeployment, interfaceOid, runtimeProcessOid);
-                        QName q = QName.valueOf(implementationId);
-                        String modelId = q.getNamespaceURI();
-                        String processId = null;
-                        if (StringUtils.isEmpty(modelId))
+                        if(StringUtils.isNotEmpty(implementationId))
                         {
-                           modelId = q.getLocalPart();
-                        }
-                        else
-                        {
-                           processId = q.getLocalPart();
-                        }
-                        for (ParsedDeploymentUnit u : elements)
-                        {
-                           IModel m = u.getModel();
-                           if (modelId.equals(m.getId()))
+                           QName q = QName.valueOf(implementationId);
+                           String modelId = q.getNamespaceURI();
+                           String processId = null;
+                           if (StringUtils.isEmpty(modelId))
                            {
-                              List<IProcessDefinition> impl = m.getAllImplementingProcesses(processQID);
-                              if (contains(impl, processId))
+                              modelId = q.getLocalPart();
+                           }
+                           else
+                           {
+                              processId = q.getLocalPart();
+                           }
+                           for (ParsedDeploymentUnit u : elements)
+                           {
+                              IModel m = u.getModel();
+                              if (modelId.equals(m.getId()))
                               {
-                                 if (impls == null)
+                                 List<IProcessDefinition> impl = m.getAllImplementingProcesses(processQID);
+                                 if (contains(impl, processId))
                                  {
-                                    impls = CollectionUtils.newMap();
+                                    if (impls == null)
+                                    {
+                                       impls = CollectionUtils.newMap();
+                                    }
+                                    impls.put(pd, implementationId);
                                  }
-                                 impls.put(pd, implementationId);
+                                 break;
                               }
-                              break;
                            }
                         }
                      }

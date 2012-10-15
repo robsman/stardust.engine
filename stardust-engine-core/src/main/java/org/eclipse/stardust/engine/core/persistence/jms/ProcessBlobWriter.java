@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -66,11 +67,17 @@ public class ProcessBlobWriter
                   Persistent linkedInstance = (Persistent) javaField.get(instance);
                   if (linkedInstance == null)
                   {
-                     /* the link hasn't been fetched yet why we have to do so first */
-                     instance.getPersistenceController().fetchLink(javaField.getName());
-                     linkedInstance = (Persistent) javaField.get(instance);
+                     /* the link hasn't been fetched yet, but we can obtain  */
+                     /* the value to write from the link buffer though       */
+                     /* (fetching the link is unnecessary and too expensive) */
+                     DefaultPersistenceController pc = (DefaultPersistenceController) instance.getPersistenceController();
+                     Object value = pc.getLinkFk(javaField.getName());
+                     writeFieldFromLinkBuffer(blobBuilder, value, fkFieldType);
                   }
-                  writeField(blobBuilder, linkedInstance, fkJavaField, fkFieldType);
+                  else
+                  {
+                     writeField(blobBuilder, linkedInstance, fkJavaField, fkFieldType);
+                  }
                }
             }
          }
@@ -92,6 +99,18 @@ public class ProcessBlobWriter
       }
    }
 
+   private static void writeFieldFromLinkBuffer(BlobBuilder blobBuilder, Object value, Class<?> fieldType)
+   {
+      if (Long.TYPE == fieldType || Long.class == fieldType)
+      {
+         blobBuilder.writeLong((value != null) ? (Long) value : 0L);
+      }
+      else
+      {
+         throw new IllegalArgumentException("Foreign Key must be of type Long");
+      }
+   }
+   
    private static void writeField(BlobBuilder blobBuilder, Persistent instance,
          Field javaField, Class fieldType) throws InternalException,
          IllegalArgumentException, IllegalAccessException

@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.api.ejb2;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.Map;
 
 import javax.naming.Context;
@@ -22,7 +21,6 @@ import javax.rmi.PortableRemoteObject;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.utils.ejb.EJBUtils;
 import org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext;
@@ -104,7 +102,7 @@ public class InternallyAuthentifiedSecureSessionFactory
       }
       catch (InvocationTargetException e)
       {
-         ApplicationException ex = getRootException(e.getTargetException());
+         ApplicationException ex = ClientInvocationHandler.unwrapException(e);
          throw new ServiceNotAvailableException(ex.getMessage(), ex);
       }
       catch (NamingException e)
@@ -135,41 +133,11 @@ public class InternallyAuthentifiedSecureSessionFactory
                   credentials.get(SecurityProperties.CRED_PASSWORD), properties });
          }
       }
-      catch (InvocationTargetException e)
-      {
-         throw getRootException(e.getTargetException());
-      }
       catch (Exception e)
       {
-         throw new InternalException("Failed to create session bean.", e);
+         throw ClientInvocationHandler.unwrapException(e);
       }
 
       return new SecureSession(endpoint, tunneledContext);
-   }
-
-   // todo: merge with similar code in {@link ClientInvocationHandler}
-   private ApplicationException getRootException(Throwable source)
-   {
-      while (source instanceof RemoteException)
-      {
-         if (((RemoteException) source).detail == null)
-         {
-            return new InternalException(source);
-         }
-         source = ((RemoteException) source).detail;
-      }
-      if (source instanceof WorkflowException)
-      {
-         source = ((WorkflowException) source).getCause();
-         if(source instanceof PublicException)
-         {
-            throw (PublicException)source;
-         }
-      }
-      if (source instanceof ApplicationException)
-      {
-         return (ApplicationException) source;
-      }
-      throw new InternalException(source.getMessage(), source);
    }
 }

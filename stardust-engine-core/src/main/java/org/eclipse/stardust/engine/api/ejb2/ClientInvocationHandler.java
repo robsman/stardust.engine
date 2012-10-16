@@ -14,10 +14,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.rmi.RemoteException;
 
 import javax.ejb.EJBObject;
 import javax.ejb.Handle;
@@ -146,40 +144,27 @@ public class ClientInvocationHandler implements InvocationHandler, Serializable
       {
          return innerMethod.invoke(inner, paramValues);
       }
-      catch (InvocationTargetException e)
-      {
-         throw getRootException(e.getTargetException());
-      }
       catch (Throwable t)
       {
-         throw new InternalException(t);
+         throw unwrapException(t);
       }
    }
 
-   private Throwable getRootException(Throwable source)
+   public static ApplicationException unwrapException(Throwable source)
    {
-      while (source instanceof RemoteException)
+      while (!(source instanceof ApplicationException))
       {
-         if (((RemoteException) source).detail == null)
+         Throwable cause = source.getCause();
+         if (source instanceof UndeclaredThrowableException)
          {
-            return new InternalException(source);
+            trace.warn("Undeclared throwable: ", cause);
          }
-         source = ((RemoteException) source).detail;
+         if (cause == null)
+         {
+            throw new InternalException(source.getMessage(), source);
+         }
+         source = cause;
       }
-      if (source instanceof WorkflowException)
-      {
-         return ((WorkflowException) source).getCause();
-      }
-      if (source instanceof ApplicationException)
-      {
-         return source;
-      }
-      if (source instanceof UndeclaredThrowableException)
-      {
-         trace.warn("Undeclared throwable: ",
-            ((UndeclaredThrowableException) source).getUndeclaredThrowable());
-      }
-      source.printStackTrace();
-      throw new InternalException(source.getMessage(), source);
+      return (ApplicationException) source;
    }
 }

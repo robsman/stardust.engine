@@ -8,9 +8,9 @@
 
 	<xsl:template match="wfm:model">
 		<Package xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
-		
+
 		    <xsl:attribute namespace="http://www.w3.org/2001/XMLSchema-instance" name="xsi:schemaLocation">http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd</xsl:attribute>
-		
+
 			<xsl:call-template name="element-id-and-name" />
 
 			<PackageHeader>
@@ -23,7 +23,7 @@
 				<!-- PriorityUnit not available from Carnot -->
 				<!-- CostUnit not available from Carnot -->
 			</PackageHeader>
-			
+
 			<RedefinableHeader>
 				<xsl:attribute name="PublicationStatus">
 					<xsl:choose>
@@ -41,14 +41,14 @@
 				<!-- CountryKey not available from Carnot -->
 				<!-- Responsibles is not available from Carnot -->
 			</RedefinableHeader>
-			
+
 			<!-- TODO consider full conformance computation -->
 			<ConformanceClass GraphConformance="NON_BLOCKED" />
-			
+
 			<xsl:copy-of select="xpdl:Script"/>
 			<xsl:copy-of select="xpdl:ExternalPackages"/>
 			<xsl:copy-of select="xpdl:TypeDeclarations"/>
-			<xsl:copy-of select="carnot:qualityControl"/>			
+			<xsl:copy-of select="carnot:qualityControl"/>
 
 			<Participants>
 				<xsl:apply-templates select="wfm:role"/>
@@ -73,7 +73,7 @@
 				<ExtendedAttribute Name="CarnotExt">
 					<carnot:Package>
 					    <xsl:call-template name="element-oid" />
-					
+
 						<xsl:attribute name="CarnotVersion"><xsl:value-of select="@carnotVersion" /></xsl:attribute>
 						<xsl:if test="@modelOID">
 							<xsl:attribute name="ModelOid"><xsl:value-of select="@modelOID" /></xsl:attribute>
@@ -94,7 +94,7 @@
 						<xsl:call-template name="carnot-diagrams" />
 
 						<xsl:call-template name="carnot-views" />
-						
+
 						<xsl:if test="wfm:attribute">
 						    <carnot:Attributes>
 								<xsl:for-each select="wfm:attribute[@name != 'carnot:model:xpdl:extendedAttributes']">
@@ -108,7 +108,7 @@
 					</carnot:Package>
 				</ExtendedAttribute>
 				<!-- TODO -->
-				
+
 				<xsl:copy-of select="wfm:attribute[@name='carnot:model:xpdl:extendedAttributes']/*" />
 
 			</ExtendedAttributes>
@@ -119,28 +119,28 @@
 		<Participant xmlns="http://www.wfmc.org/2008/XPDL2.1">
 
 			<xsl:call-template name="element-id-and-name" />
-	
+
 			<ParticipantType Type="ROLE" />
 			<xsl:call-template name="element-proxy" />
 
 			<xsl:call-template name="element-description" />
-			
+
 			<xsl:if test="not(@proxy)">
 				<ExtendedAttributes>
 					<ExtendedAttribute Name="CarnotExt" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 						<carnot:Role>
 						    <xsl:call-template name="element-oid" />
-							
+
 							<xsl:if test="@cardinality">
 							  <xsl:attribute name="Cardinality"><xsl:value-of select="@cardinality" /></xsl:attribute>
 							</xsl:if>
-							
+
 							<xsl:call-template name="carnot-attributes" />
 						</carnot:Role>
 					</ExtendedAttribute>
-	
+
 					<xsl:copy-of select="wfm:attribute[@name='carnot:model:xpdl:extendedAttributes']/*" />
-	
+
 				</ExtendedAttributes>
 			</xsl:if>
 		</Participant>
@@ -149,7 +149,7 @@
 	<xsl:template match="wfm:organization">
 		<Participant xmlns="http://www.wfmc.org/2008/XPDL2.1">
 			<xsl:call-template name="element-id-and-name" />
-	
+
 			<ParticipantType Type="ORGANIZATIONAL_UNIT" />
 			<xsl:call-template name="element-proxy" />
 
@@ -160,11 +160,11 @@
 					<ExtendedAttribute Name="CarnotExt" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 						<carnot:Organization>
 							<xsl:call-template name="element-oid" />
-							
+
 							<xsl:if test="@teamLead">
 							    <xsl:attribute name="TeamLead"><xsl:value-of select="@teamLead" /></xsl:attribute>
 							</xsl:if>
-	
+
 							<xsl:if test="wfm:participant">
 								<carnot:Members>
 									<xsl:for-each select="wfm:participant">
@@ -177,9 +177,9 @@
 							<xsl:call-template name="carnot-attributes" />
 						</carnot:Organization>
 					</ExtendedAttribute>
-	
+
 					<xsl:copy-of select="wfm:attribute[@name='carnot:model:xpdl:extendedAttributes']/*" />
-	
+
 				</ExtendedAttributes>
 			</xsl:if>
 		</Participant>
@@ -188,7 +188,7 @@
 	<xsl:template match="wfm:conditionalPerformer">
 		<Participant xmlns="http://www.wfmc.org/2008/XPDL2.1">
 			<xsl:call-template name="element-id-and-name" />
-	
+
 			<ParticipantType>
 				<xsl:attribute name="Type">
 					<xsl:choose>
@@ -211,13 +211,13 @@
 							<xsl:if test="@dataPath">
 								<xsl:attribute name="DataPath"><xsl:value-of select="@dataPath" /></xsl:attribute>
 							</xsl:if>
-							
+
 							<xsl:call-template name="carnot-attributes" />
 						</carnot:ConditionalPerformer>
 					</ExtendedAttribute>
-	
+
 					<xsl:copy-of select="wfm:attribute[@name='carnot:model:xpdl:extendedAttributes']/*" />
-	
+
 				</ExtendedAttributes>
 			</xsl:if>
 		</Participant>
@@ -229,7 +229,7 @@
 			<xsl:call-template name="element-description" />
 
 			<!-- TODO apply access points at all? -->
-			
+
 			<xsl:choose>
 				<xsl:when test="@type='sessionBean'">
 					<ExternalReference>
@@ -259,7 +259,7 @@
 				</xsl:when>
 				<xsl:when test="@type='messageParsingBean'">
 					<xsl:call-template name="formal-parameters" />
-				</xsl:when>																					
+				</xsl:when>
 				<xsl:when test="@type='sapr3application'">
 					<!-- TODO -->
 					<xsl:call-template name="formal-parameters" />
@@ -290,13 +290,13 @@
 						<xsl:if test="@interactive">
 							<xsl:attribute name="IsInteractive"><xsl:value-of select="@interactive" /></xsl:attribute>
 						</xsl:if>
-						
+
 						<carnot:ApplicationContexts>
 							<xsl:for-each select="wfm:context">
 								<carnot:ApplicationContext>
 									<xsl:call-template name="element-oid" />
 									<xsl:attribute name="Type"><xsl:value-of select="@type" /></xsl:attribute>
-									
+
 									<xsl:call-template name="carnot-description" />
 
 									<xsl:call-template name="carnot-access-points" />
@@ -305,9 +305,9 @@
 								</carnot:ApplicationContext>
 							</xsl:for-each>
 						</carnot:ApplicationContexts>
-						
+
 						<xsl:call-template name="carnot-access-points" />
-						
+
 						<xsl:call-template name="carnot-attributes" />
 					</carnot:Application>
 				</ExtendedAttribute>
@@ -317,10 +317,10 @@
 			</ExtendedAttributes>
 		</Application>
 	</xsl:template>
-	
+
 	<xsl:template match="wfm:data">
 		<DataField xmlns="http://www.wfmc.org/2008/XPDL2.1">
-		
+
 			<xsl:call-template name="element-id-and-name" />
 
 			<xsl:if test="not(@proxy)">
@@ -329,15 +329,15 @@
 			</xsl:if>
 
 			<xsl:call-template name="data-type" />
-			
+
 			<xsl:if test="not(@proxy)">
 				<xsl:if test="@type = 'primitive' and wfm:attribute[@name='carnot:engine:defaultValue']">
 					<InitialValue><xsl:value-of select="wfm:attribute[@name='carnot:engine:defaultValue']/@value" /></InitialValue>
 				</xsl:if>
 				<!-- Length not needed as Carnot does not support arrays currently -->
-				
+
 				<xsl:call-template name="element-description" />
-				
+
 				<ExtendedAttributes>
 					<ExtendedAttribute Name="CarnotExt">
 						<carnot:DataField xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
@@ -348,7 +348,7 @@
 							<xsl:if test="@predefined">
 								<xsl:attribute name="IsPredefined"><xsl:value-of select="@predefined" /></xsl:attribute>
 							</xsl:if>
-							
+
 							<xsl:if test="wfm:attribute">
 							    <carnot:Attributes>
 									<xsl:for-each select="wfm:attribute[@name != 'carnot:model:xpdl:extendedAttributes']">
@@ -360,12 +360,12 @@
 							</xsl:if>
 						</carnot:DataField>
 					</ExtendedAttribute>
-	
+
 					<xsl:copy-of select="wfm:attribute[@name='carnot:model:xpdl:extendedAttributes']/*" />
-	
+
 				</ExtendedAttributes>
 			</xsl:if>
-		
+
 		</DataField>
 	</xsl:template>
 
@@ -386,7 +386,7 @@
 				<xsl:if test="@defaultPriority">
 		            <Priority xmlns="http://www.wfmc.org/2008/XPDL2.1"><xsl:value-of select="@defaultPriority" /></Priority>
                 </xsl:if>
-				
+
 				<!-- Limit is not available from Carnot, as timeouts are separately handled with events -->
 				<!-- ValidFrom will be inherited from Package, TODO investigate Package:ValidFrom -->
 				<!-- ValidTo will be inherited from Package, TODO investigate Package:ValidTo -->
@@ -394,19 +394,19 @@
 			</ProcessHeader>
 
 			<!-- no need for RedefinableHeader, as all contained info is inherited from Package -->
-			
+
 			<xsl:copy-of select="xpdl:FormalParameters"/>
-			
+
 			<!-- DataTypes with process scope are not available from Carnot -->
-			
+
 			<!-- DataFields with process scope are not available from Carnot -->
-			
+
 			<!-- Participants with process scope are not available from Carnot -->
-			
+
 			<!-- Applications with process scope are not available from Carnot -->
-			
+
 			<!-- no need for ActivitySets, as Carnot does not support anonymous blocks -->
-			
+
 			<Activities>
 				<xsl:apply-templates select="wfm:activity"/>
 			</Activities>
@@ -422,7 +422,7 @@
 					    <xsl:if test="wfm:externalReference">
 							<carnot:Implements>
 								<xsl:if test="wfm:externalReference/@PackageRef">
-									<xsl:attribute name="PackageRef"><xsl:value-of select="wfm:externalReference/@PackageRef" /></xsl:attribute>									
+									<xsl:attribute name="PackageRef"><xsl:value-of select="wfm:externalReference/@PackageRef" /></xsl:attribute>
 									<xsl:attribute name="ref"><xsl:value-of select="wfm:externalReference/@ref" /></xsl:attribute>
 								</xsl:if>
 							</carnot:Implements>
@@ -435,7 +435,7 @@
 									<xsl:call-template name="element-id-and-name" />
 
 									<xsl:attribute name="Type"><xsl:value-of select="@type" /></xsl:attribute>
-									
+
 									<xsl:call-template name="carnot-description" />
 									<xsl:call-template name="carnot-access-points" />
 
@@ -471,7 +471,7 @@
 								</carnot:Trigger>
 							</xsl:for-each>
 						</carnot:Triggers>
-						
+
 						<carnot:DataPaths>
 							<xsl:for-each select="wfm:dataPath">
 								<carnot:DataPath>
@@ -503,9 +503,9 @@
 						<xsl:call-template name="carnot-attributes" />
 
 						<xsl:call-template name="carnot-diagrams" />
-						
+
 						<xsl:copy-of select="carnot:FormalParameterMappings"/>
-						
+
 					</carnot:WorkflowProcess>
 				</ExtendedAttribute>
 
@@ -530,7 +530,7 @@
 					<Performer><xsl:value-of select="@performer"/></Performer>
 					<xsl:if test="@qualityControlPerformer">
 						<QualityControlPerformer><xsl:value-of select="@qualityControlPerformer"/></QualityControlPerformer>
-					</xsl:if>										
+					</xsl:if>
 					<StartMode>
 						<Automatic/>
 					</StartMode>
@@ -556,7 +556,7 @@
 										<xsl:attribute name="Id"><xsl:value-of select="@application"/></xsl:attribute>
 							    	</xsl:otherwise>
 							    </xsl:choose>
-								
+
 								<!-- TODO order ActualParameters -->
 								<ActualParameters>
 									<xsl:for-each select="wfm:dataMapping">
@@ -570,9 +570,9 @@
 										</xsl:choose>
 									</xsl:for-each>
 								</ActualParameters>
-								
+
 								<xsl:call-template name="element-description" />
-	
+
 								<!-- TODO ExtendedAttributes -->
 							</TaskApplication>
 						</Task>
@@ -582,7 +582,7 @@
 					</xsl:if>
 					<xsl:if test="@qualityControlPerformer">
 						<QualityControlPerformer><xsl:value-of select="@qualityControlPerformer"/></QualityControlPerformer>
-					</xsl:if>					
+					</xsl:if>
 					<StartMode>
 						<Automatic/>
 					</StartMode>
@@ -683,7 +683,7 @@
 						<xsl:if test="@subProcessMode">
 							<xsl:attribute name="SubProcessMode"><xsl:value-of select="@subProcessMode" /></xsl:attribute>
 						</xsl:if>
-						
+
 						<xsl:call-template name="carnot-event-handlers" />
 
 						<carnot:QualityCodes>
@@ -705,7 +705,7 @@
 									<xsl:if test="@context">
 										<xsl:attribute name="Context"><xsl:value-of select="@context" /></xsl:attribute>
 									</xsl:if>
-									
+
 									<carnot:DataRef>
 										<xsl:attribute name="Id"><xsl:value-of select="@data" /></xsl:attribute>
 										<xsl:if test="@dataPath">
@@ -754,14 +754,14 @@
 			    <xsl:otherwise>
 				    <xsl:if test="$condition = 'CONDITION'">
 						<Condition>
-							<xsl:attribute name="Type">CONDITION</xsl:attribute>								
+							<xsl:attribute name="Type">CONDITION</xsl:attribute>
 							<xsl:value-of select="$expression" />
 						</Condition>
 				    </xsl:if>
 			    </xsl:otherwise>
 		    </xsl:choose>
 			<xsl:call-template name="element-description" />
-			
+
 			<ExtendedAttributes>
 				<ExtendedAttribute Name="CarnotExt">
 					<carnot:Transition xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
@@ -769,7 +769,7 @@
 						<xsl:if test="@forkOnTraversal">
 							<xsl:attribute name="IsForkingOnTraversal"><xsl:value-of select="@forkOnTraversal" /></xsl:attribute>
 						</xsl:if>
-							
+
 						<xsl:call-template name="carnot-attributes" />
 					</carnot:Transition>
 				</ExtendedAttribute>
@@ -795,7 +795,7 @@
 				<carnot:DataType>
 					<xsl:call-template name="element-oid" />
 					<xsl:call-template name="element-id-and-name" />
-					
+
 					<xsl:if test="@panelClass">
 						<xsl:attribute name="PanelClass"><xsl:value-of select="@panelClass" /></xsl:attribute>
 					</xsl:if>
@@ -826,14 +826,14 @@
 					<xsl:if test="@readable">
 						<xsl:attribute name="IsReadable"><xsl:value-of select="@readable" /></xsl:attribute>
 					</xsl:if>
-	
+
 					<xsl:call-template name="carnot-description" />
 					<xsl:call-template name="carnot-attributes" />
 				</carnot:DataType>
 			</xsl:for-each>
 		</carnot:DataTypes>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-application-types" xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 		<carnot:ApplicationTypes>
 			<xsl:for-each select="wfm:applicationType">
@@ -1028,7 +1028,7 @@
 
                                        <xsl:call-template name="carnot-description" />
                                        <xsl:call-template name="carnot-attributes" />
-					
+
 					<carnot:LinkSource>
 						<xsl:if test="@source_classname">
 							<xsl:attribute name="ClassName"><xsl:value-of select="@source_classname" /></xsl:attribute>
@@ -1121,7 +1121,7 @@
 			<Description xmlns="http://www.wfmc.org/2008/XPDL2.1"><xsl:value-of select="wfm:description" /></Description>
 		</xsl:if>
 	</xsl:template>
-	
+
 	<xsl:template name="data-type">
         <xsl:if test="@type or @proxy">
 		<DataType xmlns="http://www.wfmc.org/2008/XPDL2.1">
@@ -1183,7 +1183,7 @@
 				        <xsl:when test="wfm:attribute[@name='carnot:engine:schemaType']/@value='xsd'">
 							<ExternalReference>
 								<xsl:attribute name="location"><xsl:value-of select="wfm:attribute[@name='carnot:engine:schemaURL']/@value" /></xsl:attribute>
-								
+
 								<xsl:variable name="elementName" select="carnot-xpdl-utils:getQnameLocalPart(string(wfm:attribute[@name='carnot:engine:typeId']/@value))" xmlns:carnot-xpdl-utils="xalan://org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils" />
 								<xsl:variable name="elementNs" select="carnot-xpdl-utils:getQnameNsUri(string(wfm:attribute[@name='carnot:engine:typeId']/@value))" xmlns:carnot-xpdl-utils="xalan://org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils" />
 
@@ -1223,7 +1223,7 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
-				
+
 				<xsl:when test="@type='dmsDocument'">
 					<xsl:choose>
 						<xsl:when test="xpdl:ExternalReference">
@@ -1236,7 +1236,7 @@
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:when>
-				
+
 				<xsl:when test="@type='dmsDocumentList'">
 					<xsl:choose>
 						<xsl:when test="xpdl:ExternalReference">
@@ -1256,7 +1256,7 @@
 							<xsl:when test="wfm:attribute[@name='carnot:engine:className']/@value">
 								<xsl:attribute name="location"><xsl:value-of select="wfm:attribute[@name='carnot:engine:className']/@value" /></xsl:attribute>
 							</xsl:when>
-							
+
 							<xsl:otherwise>
 								<xsl:attribute name="location">java.lang.Object</xsl:attribute>
 							</xsl:otherwise>
@@ -1270,7 +1270,7 @@
 		</DataType>
         </xsl:if>
 	</xsl:template>
-	
+
 	<xsl:template name="formal-parameters">
 		<FormalParameters xmlns="http://www.wfmc.org/2008/XPDL2.1">
 			<xsl:for-each select="wfm:accessPoint">
@@ -1281,13 +1281,13 @@
 					<xsl:attribute name="Index"><xsl:value-of select="position()" /></xsl:attribute>
 					<xsl:attribute name="Mode"><xsl:value-of select="@direction"/></xsl:attribute>
 					<xsl:attribute name="Name"><xsl:value-of select="@name"/></xsl:attribute>
-		
+
 					<xsl:call-template name="data-type" />
 				</FormalParameter>
 			</xsl:for-each>
 		</FormalParameters>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-description">
 		<xsl:if test="wfm:description">
 			<carnot:Description xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
@@ -1295,7 +1295,7 @@
 			</carnot:Description>
 		</xsl:if>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-attributes">
 		<xsl:if test="wfm:attribute">
 			<carnot:Attributes xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
@@ -1305,7 +1305,7 @@
 			</carnot:Attributes>
 		</xsl:if>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-attribute">
 		<carnot:Attribute xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 			<xsl:attribute name="Name"><xsl:value-of select="@name" /></xsl:attribute>
@@ -1315,13 +1315,13 @@
 			<xsl:if test="@type">
 				<xsl:attribute name="Type"><xsl:value-of select="@type" /></xsl:attribute>
 			</xsl:if>
-			
+
 			<xsl:if test="not(@value)">
 				<carnot:Value><xsl:copy-of select="*" /></carnot:Value>
 			</xsl:if>
 		</carnot:Attribute>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-access-points">
 		<carnot:AccessPoints xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 			<xsl:for-each select="wfm:accessPoint">
@@ -1335,14 +1335,14 @@
 					<xsl:if test="@type">
 						<xsl:attribute name="Type"><xsl:value-of select="@type" /></xsl:attribute>
 					</xsl:if>
-					
+
                     <xsl:call-template name="carnot-description" />
 					<xsl:call-template name="carnot-attributes" />
 				</carnot:AccessPoint>
 			</xsl:for-each>
 		</carnot:AccessPoints>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-event-handlers">
 		<carnot:EventHandlers xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 			<xsl:for-each select="wfm:eventHandler">
@@ -1363,9 +1363,9 @@
 					<xsl:if test="@logHandler">
 						<xsl:attribute name="IsLogged"><xsl:value-of select="@logHandler" /></xsl:attribute>
 					</xsl:if>
-					
+
 					<xsl:call-template name="carnot-description" />
-					
+
 					<carnot:EventActions>
 						<xsl:for-each select="wfm:bindAction">
 							<xsl:call-template name="carnot-event-action">
@@ -1389,23 +1389,23 @@
 			</xsl:for-each>
 		</carnot:EventHandlers>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-event-action" xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 		<xsl:param name="kind" />
-	
+
 		<carnot:EventAction>
 			<xsl:call-template name="element-oid" />
 			<xsl:call-template name="element-id-and-name" />
 
 			<xsl:attribute name="Type"><xsl:value-of select="@type" /></xsl:attribute>
 			<xsl:attribute name="Kind"><xsl:value-of select="$kind" /></xsl:attribute>
-			
+
 			<xsl:call-template name="carnot-description" />
-			
+
 			<xsl:call-template name="carnot-attributes" />
 		</carnot:EventAction>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-diagrams" xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 		<carnot:Diagrams>
 			<xsl:for-each select="wfm:diagram">
@@ -1424,7 +1424,7 @@
 			</xsl:for-each>
 		</carnot:Diagrams>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-views" xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 		<carnot:Views>
 			<xsl:for-each select="wfm:view">
@@ -1433,7 +1433,7 @@
 					<xsl:attribute name="Name"><xsl:value-of select="@name" /></xsl:attribute>
 
 					<xsl:call-template name="carnot-description" />
-					
+
 					<carnot:Viewables>
 						<xsl:for-each select="wfm:viewable">
 							<carnot:Viewable>
@@ -1441,7 +1441,7 @@
 							</carnot:Viewable>
 						</xsl:for-each>
 					</carnot:Viewables>
-					
+
 					<xsl:call-template name="carnot-views" />
 
 					<xsl:call-template name="carnot-attributes" />
@@ -1449,7 +1449,7 @@
 			</xsl:for-each>
 		</carnot:Views>
 	</xsl:template>
-	
+
 	<xsl:template name="carnot-symbols-and-connections" xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 		<carnot:Symbols>
 			<xsl:apply-templates select="wfm:*[contains(local-name(), 'Symbol')]" />
@@ -1493,7 +1493,7 @@
 		<carnot:Symbol Kind="GROUP">
 			<xsl:call-template name="element-oid" />
             <xsl:call-template name="common-node-symbol-attributes" />
-			
+
 			<xsl:call-template name="carnot-symbols-and-connections" />
 		</carnot:Symbol>
 	</xsl:template>
@@ -1527,21 +1527,21 @@
 			<xsl:with-param name="kind">TEXT</xsl:with-param>
 		</xsl:call-template>
 	</xsl:template>
-    
+
     <xsl:template match="wfm:poolSymbol" xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
         <carnot:Symbol Kind="POOL">
             <xsl:call-template name="element-oid" />
             <xsl:call-template name="element-id-and-name" />
-            
+
             <xsl:call-template name="common-swimlane-symbol-attributes" />
-            
+
             <xsl:if test="@boundaryVisible">
                 <xsl:attribute name="BoundaryVisible"><xsl:value-of select="@boundaryVisible" /></xsl:attribute>
             </xsl:if>
             <xsl:if test="@process">
                 <xsl:attribute name="Process"><xsl:value-of select="@process" /></xsl:attribute>
             </xsl:if>
-                       
+
             <xsl:call-template name="carnot-symbols-and-connections" />
         </carnot:Symbol>
     </xsl:template>
@@ -1552,11 +1552,11 @@
             <xsl:call-template name="element-id-and-name" />
 
             <xsl:call-template name="common-swimlane-symbol-attributes" />
-            
+
             <xsl:if test="@parentLane">
                 <xsl:attribute name="ParentLane"><xsl:value-of select="@parentLane" /></xsl:attribute>
             </xsl:if>
-                       
+
             <xsl:call-template name="carnot-symbols-and-connections" />
         </carnot:Symbol>
     </xsl:template>
@@ -1600,7 +1600,7 @@
 			<xsl:call-template name="element-oid" />
 
             <xsl:call-template name="common-node-symbol-attributes" />
-            
+
 			<xsl:if test="@refer">
 				<xsl:attribute name="ModelElement"><xsl:value-of select="@refer" /></xsl:attribute>
 			</xsl:if>
@@ -1618,6 +1618,11 @@
 					<xsl:value-of select="wfm:text" />
 				</carnot:Text>
 			</xsl:if>
+
+			<xsl:if test="@label">
+				<xsl:attribute name="Label"><xsl:value-of select="@label" /></xsl:attribute>
+			</xsl:if>
+
         </carnot:Symbol>
 	</xsl:template>
 
@@ -1720,7 +1725,7 @@
             <xsl:call-template name="carnot-connection-attributes" />
 		</carnot:Connection>
 	</xsl:template>
-       
+
 	<xsl:template match="wfm:transitionConnection" xmlns="http://www.wfmc.org/2008/XPDL2.1" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
 		<carnot:Connection Kind="TRANSITION">
 			<xsl:call-template name="element-oid" />
@@ -1730,9 +1735,9 @@
             </xsl:if>
 			<xsl:attribute name="SourceSymbol"><xsl:value-of select="@sourceActivitySymbol" /></xsl:attribute>
 			<xsl:attribute name="TargetSymbol"><xsl:value-of select="@targetActivitySymbol" /></xsl:attribute>
-            
+
             <xsl:call-template name="carnot-connection-attributes" />
-            
+
 			<xsl:if test="@points">
 				<carnot:Points><xsl:value-of select="@points" /></carnot:Points>
 			</xsl:if>
@@ -1749,10 +1754,10 @@
             <xsl:call-template name="carnot-connection-attributes" />
 		</carnot:Connection>
 	</xsl:template>
-       
+
     <xsl:template name="carnot-connection-attributes">
         <xsl:call-template name="color-and-style" />
-                       
+
         <xsl:if test="@sourceAnchor">
             <xsl:attribute name="SourceAnchor"><xsl:value-of select="@sourceAnchor" /></xsl:attribute>
         </xsl:if>
@@ -1762,11 +1767,11 @@
         <xsl:if test="@routing">
             <xsl:attribute name="Routing"><xsl:value-of select="@routing" /></xsl:attribute>
         </xsl:if>
-        
+
         <xsl:call-template name="carnot-coordinates" />
-        
+
     </xsl:template>
-       
+
     <xsl:template name="carnot-coordinates" xmlns:carnot="http://www.carnot.ag/xpdl/3.1">
         <xsl:for-each select="wfm:coordinate">
             <carnot:Coordinate>
@@ -1774,11 +1779,11 @@
                 <xsl:attribute name="YPos"><xsl:value-of select="@y" /></xsl:attribute>
             </carnot:Coordinate>
         </xsl:for-each>
-    </xsl:template>    
+    </xsl:template>
 
 	<xsl:template name="common-node-symbol-attributes">
 		<xsl:call-template name="color-and-style" />
-		                   
+
 		<xsl:attribute name="X"><xsl:value-of select="@x" /></xsl:attribute>
 		<xsl:attribute name="Y"><xsl:value-of select="@y" /></xsl:attribute>
 
@@ -1795,7 +1800,7 @@
 
 	<xsl:template name="common-swimlane-symbol-attributes">
 		<xsl:call-template name="common-node-symbol-attributes" />
-		
+
 		<xsl:if test="@orientation">
 			<xsl:attribute name="Orientation"><xsl:value-of select="@orientation" /></xsl:attribute>
 		</xsl:if>

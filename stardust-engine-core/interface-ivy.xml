@@ -255,6 +255,7 @@
          <exclude org="log4j" module="log4j"/>
          <exclude org="edu.ucar" module="netcdf"/>
          <exclude org="org.apache.pdfbox" module="pdfbox"/>
+         <exclude org="com.drewnoakes" module="metadata-extractor" />
          <!-- the following entries prevents version conflicts -->
          <exclude org="asm" module="asm"/>
          <exclude org="commons-httpclient" module="commons-httpclient"/>

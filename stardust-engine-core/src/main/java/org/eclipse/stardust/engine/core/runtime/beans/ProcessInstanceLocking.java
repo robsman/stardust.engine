@@ -32,7 +32,9 @@ public class ProcessInstanceLocking implements Serializable
 
    private static final Logger trace = LogManager.getLogger(ProcessInstanceLocking.class);
 
-   // cached PIs for complete sub process hierarchy. Filled in {@link lockStartTockens}.
+   /**
+    *  cached PIs for complete sub process hierarchy. Filled in {@link #lockStartTokens}.
+    */
    private final List<IProcessInstance> piTransitionsCache = CollectionUtils.newArrayList();
 
    /**
@@ -46,7 +48,7 @@ public class ProcessInstanceLocking implements Serializable
       boolean foundNewTokens;
       do
       {
-         foundNewTokens = lockStartTockens(processInstance);
+         foundNewTokens = lockStartTokens(processInstance);
       }
       while (foundNewTokens);
 
@@ -54,7 +56,7 @@ public class ProcessInstanceLocking implements Serializable
 
    }
 
-   private boolean lockStartTockens(IProcessInstance processInstance)
+   private boolean lockStartTokens(IProcessInstance processInstance)
          throws ConcurrencyException
    {
       final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);

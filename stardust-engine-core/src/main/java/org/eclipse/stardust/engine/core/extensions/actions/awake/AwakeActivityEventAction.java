@@ -48,7 +48,7 @@ public class AwakeActivityEventAction  implements EventActionInstance
             try
             {
                new WorkflowServiceImpl().activateAndComplete(ai.getOID(), null,
-                     Collections.EMPTY_MAP, false);
+                     Collections.EMPTY_MAP, true);
             }
             catch (ConcurrencyException e)
             {

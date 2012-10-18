@@ -406,16 +406,9 @@ public class DocumentManagementServiceImpl
                {
                   checkValidDocumentType(document);
 
-                  return getVirtualFolderHandler().runIsolateAction(
-                        new Action<Document>()
-                        {
-                           public Document execute()
-                           {
-                              return fromVfs(vfs.createFile(folderIdWithPrefix,
-                                    toVfs(document), content, encoding),
-                                    getPartitionPrefix());
-                           }
-                        });
+                  return fromVfs(vfs.createFile(folderIdWithPrefix, toVfs(document),
+                        content, encoding), getPartitionPrefix());
+
                }
                else
                {
@@ -787,15 +780,9 @@ public class DocumentManagementServiceImpl
                // folder does not exist, maybe it is a virtual folder
                ensureVirtualFolderExists(parentFolderIdWithPrefix);
 
-               return getVirtualFolderHandler().runIsolateAction(new Action<Folder>()
-               {
-                  public Folder execute()
-                  {
-                     return fromVfs(
-                           vfs.createFolder(parentFolderIdWithPrefix, toVfs(folder)),
-                           getPartitionPrefix());
-                  }
-               });
+               return fromVfs(vfs.createFolder(parentFolderIdWithPrefix, toVfs(folder)),
+                     getPartitionPrefix());
+
             }
             else if (hasValidPartitionPrefix(parentFolder.getPath(),
                   getPartitionPrefix(), AccessMode.Write))
@@ -1046,14 +1033,7 @@ public class DocumentManagementServiceImpl
             {
                ensureVirtualFolderExists(decodedResourceId);
 
-               getVirtualFolderHandler().runIsolateAction(new Action<Object>()
-               {
-                  public Folder execute()
-                  {
-                     vfs.setPolicy(decodedResourceId, toVfs(policy));
-                     return null;
-                  }
-               });
+               vfs.setPolicy(decodedResourceId, toVfs(policy));
             }
             else
             {

@@ -153,6 +153,11 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailP
     * the ID of the process definition that triggers a new process instance via an event action
     */
    /* package-private */ static final String PROCESS_DEF_ID_TRIGGER_PROCESS_EVENT = "TriggerProcessEvent";
+
+   /**
+    * the ID of the process definition that contains a manual trigger
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_MANUAL_TRIGGER = "ManualTrigger";
    
    
    /**

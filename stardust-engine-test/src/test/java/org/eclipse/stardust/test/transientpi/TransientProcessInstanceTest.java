@@ -12,6 +12,7 @@ package org.eclipse.stardust.test.transientpi;
 
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.*;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -1343,6 +1344,29 @@ public class TransientProcessInstanceTest
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(hasEntryInDbForPi(triggeredPiOid), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether executing a process instance with a manual trigger works correctly.
+    * </p>
+    */
+   @Test
+   public void testWithManualTrigger() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_TRIGGER, null, true);
+      
+      assertThat(pi.getStartingUser().getAccount(), equalTo(MOTU));
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }

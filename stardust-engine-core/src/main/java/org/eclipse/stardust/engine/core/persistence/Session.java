@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.persistence;
 
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.Vector;
 
 import org.eclipse.stardust.common.error.ConcurrencyException;
@@ -279,6 +280,8 @@ public interface Session
     */
    public boolean existsInCache(Class type, Object identityKey);
    
+   public <T> Iterator<T> getSessionCacheIterator(Class<T> type, FilterOperation<T> op);
+   
    /**
     * Returns true if no changes are allowed to this audit trail (e.g. it is an archive audit trail)
     * 
@@ -291,4 +294,10 @@ public interface Session
       
    }
 
+   public interface FilterOperation<T>
+   {
+      public FilterResult filter(T persistentToFilter);
+      
+      public static enum FilterResult { ADD, OMIT }
+   }
 }

@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
@@ -112,17 +113,36 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
 
    public static List<IProcessInstance> findChildren(IProcessInstance pi)
    {
-      long oid = pi.getOID();
-      final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      final long oid = pi.getOID();
+      final Iterator<ProcessInstanceHierarchyBean> pihIter;
 
-      QueryExtension query = QueryExtension.where(new AndTerm().add(
-            Predicates.isEqual(FR__PROCESS_INSTANCE, oid)).add(
-            Predicates.notEqual(FR__SUB_PROCESS_INSTANCE, oid)));
-
-      query.setOrderCriteria(new OrderCriteria(FR__PROCESS_INSTANCE, false));
-
-      Iterator<ProcessInstanceHierarchyBean> pihIter = session.getIterator(
-            ProcessInstanceHierarchyBean.class, query);
+      if (pi.getPersistenceController().isCreated())
+      {
+         final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         pihIter = session.getSessionCacheIterator(ProcessInstanceHierarchyBean.class, new FilterOperation<ProcessInstanceHierarchyBean>()
+         {
+            @Override
+            public FilterResult filter(final ProcessInstanceHierarchyBean persistentToFilter)
+            {
+               final boolean isPi = persistentToFilter.getProcessInstance().getOID() == oid;
+               final boolean isNotSubPi = persistentToFilter.getSubProcessInstance().getOID() != oid;
+               return (isPi && isNotSubPi) ? FilterResult.ADD : FilterResult.OMIT;
+            }
+         });
+      }
+      else
+      {
+         final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+   
+         QueryExtension query = QueryExtension.where(new AndTerm().add(
+               Predicates.isEqual(FR__PROCESS_INSTANCE, oid)).add(
+               Predicates.notEqual(FR__SUB_PROCESS_INSTANCE, oid)));
+   
+         query.setOrderCriteria(new OrderCriteria(FR__PROCESS_INSTANCE, false));
+   
+         pihIter = session.getIterator(
+               ProcessInstanceHierarchyBean.class, query);
+      }
 
       List<IProcessInstance> pis = new LinkedList<IProcessInstance>();
       if (pihIter != null)

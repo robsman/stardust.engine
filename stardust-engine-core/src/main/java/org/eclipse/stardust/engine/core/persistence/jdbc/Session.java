@@ -50,6 +50,7 @@ import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.monitoring.PersistentListenerUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
@@ -3543,8 +3544,27 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       Map cache = (Map) objCacheRegistry.get(type);
       return cache != null && cache.containsKey(identityKey);
-      }
+   }
 
+   @Override
+   public <T> Iterator<T> getSessionCacheIterator(final Class<T> type, final FilterOperation<T> op)
+   {
+      final Collection<PersistenceController> cache = getCache(type);
+      
+      final Set<T> persistents = new HashSet<T>();
+      for (final PersistenceController p : cache)
+      {
+         final T t = (T) p.getPersistent();
+         final FilterResult result = op.filter(t);
+         if (result == FilterResult.ADD)
+         {
+            persistents.add(t);
+         }
+      }
+      
+      return persistents.iterator();
+   }
+   
    public void setSynchronized(Persistent persistent)
    {
       TypeDescriptor typeDescr = tdRegistry.getDescriptor(persistent.getClass());

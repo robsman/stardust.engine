@@ -71,6 +71,7 @@ import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor.CompositeKey;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
 
@@ -2367,11 +2368,14 @@ public class DmlManager
          }
          else
          {
-            Object[] key = new Object[pkFields.length];
+            //Object[] key = new Object[pkFields.length];
+            CompositeKey key = TypeDescriptor.createKey(pkFields.length);
             for (int i = 0; i < pkFields.length; i++ )
             {
-               key[i] = getJavaValue(pkFields[i].getType(), 0, resultSet,
-                     1 + typeDescriptor.getFieldColumnIndex(pkFields[i]), true, false);
+               //key[i] = getJavaValue(pkFields[i].getType(), 0, resultSet,
+               //      1 + typeDescriptor.getFieldColumnIndex(pkFields[i]), true, false);
+               key.setKey(i, getJavaValue(pkFields[i].getType(), 0, resultSet,
+                     1 + typeDescriptor.getFieldColumnIndex(pkFields[i]), true, false));
             }
             return key;
          }

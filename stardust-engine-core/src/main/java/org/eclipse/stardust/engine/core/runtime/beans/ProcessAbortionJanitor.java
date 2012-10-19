@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -149,6 +150,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
 
          EventUtils.detachAll(pi);
          MonitoringUtils.processExecutionMonitors().processAborted(pi);
+         ProcessInstanceUtils.cleanupProcessInstance(pi);
 
          AuditTrailLogger.getInstance(LogCode.ENGINE, pi).info(
                "Process instance aborted.");

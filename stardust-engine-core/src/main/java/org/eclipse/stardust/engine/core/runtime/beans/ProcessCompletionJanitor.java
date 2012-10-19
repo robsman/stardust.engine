@@ -20,10 +20,9 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.ISecondLevelTokenCache;
@@ -67,15 +66,8 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
       // cleanup secondlevelcache
       TokenManagerRegistry.instance().removeSecondLevelCache(pi);
 
-      if (Parameters.instance().getBoolean(
-            KernelTweakingProperties.AUTOMATIC_TOKEN_CLEANUP, false))
-      {
-         SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).delete(
-               TransitionTokenBean.class,
-               Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE,
-                     processInstanceOID), true);
-      }
-
+      ProcessInstanceUtils.cleanupProcessInstance(pi);
+      
       if (!hasParent)
       {
          IActivityInstance activityInstance = pi.getStartingActivityInstance();

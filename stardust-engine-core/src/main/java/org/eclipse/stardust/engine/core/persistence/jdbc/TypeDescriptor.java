@@ -975,7 +975,8 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
          }
          else
          {
-            Object[] result = new Object[pkFields.length];
+            //Object[] result = new Object[pkFields.length];
+            CompositeKey result = createKey(pkFields.length);
             for (int i = 0; i < pkFields.length; i++ )
             {
                Object pkValue = pkFields[i].get(persistent);
@@ -985,8 +986,9 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
                   pkValue = ((DefaultPersistenceController) resolvedLink.getPersistenceController()).getTypeDescriptor()
                         .getIdentityKey(resolvedLink);
                }
-               
-               result[i] = pkValue;
+
+               //result[i] = pkValue;
+               result.setKey(i, pkValue);
             }
 
             return result;
@@ -1027,7 +1029,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
          }
          else if (pkValue instanceof Object[])
          {
-            return pkValue;
+            return createKey((Object[]) pkValue);
          }
          else
          {
@@ -1204,5 +1206,125 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
    public boolean isLiteralField(String fieldName)
    {
       return literalFields.contains(fieldName);
+   }
+   
+   static CompositeKey createKey(int length)
+   {
+      return length == 2 ? new CompositeKey2() : new CompositeKeyN(length);
+   }
+
+   static CompositeKey createKey(Object[] pkValue)
+   {
+      CompositeKey composite = createKey(pkValue.length);
+      for (int i = 0; i < pkValue.length; i++)
+      {
+         composite.setKey(i, pkValue[i]);
+      }
+      return composite;
+   }
+
+   static interface CompositeKey extends Comparable
+   {
+      void setKey(int i, Object pkValue);
+   }
+   
+   private static class CompositeKeyN implements CompositeKey
+   {
+      private Comparable[] keys;
+
+      private CompositeKeyN(int length)
+      {
+         keys = new Comparable[length];
+         System.err.println("Created composite with " + length + " keys.");
+      }
+
+      public void setKey(int i, Object pkValue)
+      {
+         keys[i] = pkValue instanceof Comparable ? (Comparable) pkValue : String.valueOf(pkValue);
+      }
+
+      @Override
+      public int hashCode()
+      {
+         return Arrays.hashCode(keys) + 31;
+      }
+
+      @Override
+      public boolean equals(Object obj)
+      {
+         return compareTo(obj) == 0;
+      }
+
+      public int compareTo(Object o)
+      {
+         int result = 1;
+         if (o instanceof CompositeKeyN)
+         {
+            Comparable[] other = ((CompositeKeyN) o).keys;
+            result = keys.length - other.length;
+            if (result == 0)
+            {
+               for (int i = 0; i < keys.length; i++)
+               {
+                  result = keys[i].compareTo(other[i]);
+                  if (result != 0)
+                  {
+                     break;
+                  }
+               }
+            }
+         }
+         return result;
+      }
+   }
+
+   private static class CompositeKey2 implements CompositeKey
+   {
+      private Comparable key0;
+      private Comparable key1;
+      
+      private CompositeKey2()
+      {
+      }
+      
+      public void setKey(int i, Object pkValue)
+      {
+         Comparable c = pkValue instanceof Comparable ? (Comparable) pkValue : String.valueOf(pkValue);
+         if (i == 0)
+         {
+            key0 = c;
+         }
+         else
+         {
+            key1 = c;
+         }
+      }
+
+      @Override
+      public int hashCode()
+      {
+         return 31 * (31 + key0.hashCode()) + key1.hashCode();
+      }
+
+      @Override
+      public boolean equals(Object obj)
+      {
+         return compareTo(obj) == 0;
+      }
+
+      public int compareTo(Object o)
+      {
+         int result = -1;
+         if (o instanceof CompositeKey2)
+         {
+            CompositeKey2 other = (CompositeKey2) o;
+            result = key0.compareTo(other.key0);
+            if (result == 0)
+            {
+               result = key1.compareTo(other.key1);
+            }
+         }
+         return result;
+      }
    }
 }

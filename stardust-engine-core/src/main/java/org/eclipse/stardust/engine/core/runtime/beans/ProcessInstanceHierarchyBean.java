@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
+import javax.persistence.Basic;
+import javax.persistence.Embedded;
+import javax.persistence.FetchType;
+
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -23,13 +26,9 @@ import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
-
-
 public class ProcessInstanceHierarchyBean extends PersistentBean implements
       IProcessInstanceHierarchy
 {
-   private static final Logger trace = LogManager.getLogger(ProcessInstanceHierarchyBean.class);
-
    public static final String FIELD__PROCESS_INSTANCE = "processInstance";
    public static final String FIELD__SUB_PROCESS_INSTANCE = "subProcessInstance";
 
@@ -166,6 +165,49 @@ public class ProcessInstanceHierarchyBean extends PersistentBean implements
             Predicates.isEqual(FR__SUB_PROCESS_INSTANCE, sub.getOID()));
 
       return session.exists(ProcessInstanceHierarchyBean.class, QueryExtension.where(predicate));
+   }
+
+   public static void delete(IProcessInstance pi)
+   {
+      long piOID = pi.getOID();
+
+      Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      boolean isJdbc = session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+      
+      // delete from session
+      if (isJdbc)
+      {
+         Set<Long> oids = CollectionUtils.newSet();
+         Collection<PersistenceController> cache = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(ProcessInstanceHierarchyBean.class);
+         for (PersistenceController ctrl : cache)
+         {
+            ProcessInstanceHierarchyBean pih = (ProcessInstanceHierarchyBean) ctrl.getPersistent();
+            if (pih.processInstance == piOID)
+            {
+               oids.add(pih.subProcessInstance);
+            }
+         }
+         for (PersistenceController ctrl : cache)
+         {
+            ProcessInstanceHierarchyBean pih = (ProcessInstanceHierarchyBean) ctrl.getPersistent();
+            if (ctrl.isCreated() && oids.contains(pih.subProcessInstance))
+            {
+               pih.delete();
+            }
+         }
+      }
+      
+      // delete from audit trail
+      if (!isJdbc || !pi.getPersistenceController().isCreated())
+      {
+         session.delete(
+               ProcessInstanceHierarchyBean.class,
+               Predicates.inList(ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE, QueryDescriptor
+                     .from(ProcessInstanceHierarchyBean.class)
+                     .select(ProcessInstanceHierarchyBean.FIELD__SUB_PROCESS_INSTANCE)
+                     .where(Predicates.isEqual(FR__PROCESS_INSTANCE, piOID))),
+               true);
+      }
    }
 
    public static void delete(IProcessInstance pi, IProcessInstance sub)

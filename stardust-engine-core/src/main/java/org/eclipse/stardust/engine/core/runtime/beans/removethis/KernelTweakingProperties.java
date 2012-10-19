@@ -52,6 +52,9 @@ public final class KernelTweakingProperties
    public static final String AUTOMATIC_TOKEN_CLEANUP =
       "Carnot.Engine.Tuning.ProcessCompletionTokenCleanup";
 
+   public static final String AUTOMATIC_HIERARCHY_CLEANUP =
+      "Carnot.Engine.Tuning.ProcessTerminationHierarchyCleanup";
+
    /**
     * TODO: describe
     */

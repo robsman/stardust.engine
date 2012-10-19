@@ -85,6 +85,26 @@ public class ProcessInstanceUtils
 
    private static final int PK_OID = 0;
    
+   public static void cleanupProcessInstance(IProcessInstance pi)
+   {
+      // hierarchy is deleted only for root process instances
+      if (pi.getOID() == pi.getRootProcessInstanceOID() && Parameters.instance().getBoolean(
+            KernelTweakingProperties.AUTOMATIC_HIERARCHY_CLEANUP, false))
+      {
+         ProcessInstanceHierarchyBean.delete(pi);
+      }
+      
+      // tokens are deleted only for completed process instances
+      if (pi.isCompleted() && Parameters.instance().getBoolean(
+            KernelTweakingProperties.AUTOMATIC_TOKEN_CLEANUP, false))
+      {
+         SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).delete(
+               TransitionTokenBean.class,
+               Predicates.isEqual(TransitionTokenBean.FR__PROCESS_INSTANCE,
+                     pi.getOID()), true);
+      }
+   }
+   
    public static boolean isLoadNotesEnabled()
    {
       Parameters parameters = Parameters.instance();
@@ -461,6 +481,7 @@ public class ProcessInstanceUtils
                piToAbort.setState(ProcessInstanceState.ABORTED);
                EventUtils.detachAll(piToAbort);
                MonitoringUtils.processExecutionMonitors().processAborted(piToAbort);
+               ProcessInstanceUtils.cleanupProcessInstance(piToAbort);
             }
          }
       }

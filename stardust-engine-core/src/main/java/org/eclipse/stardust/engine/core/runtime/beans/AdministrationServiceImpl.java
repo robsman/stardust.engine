@@ -45,6 +45,7 @@ import org.eclipse.stardust.engine.core.model.parser.info.ModelInfo;
 import org.eclipse.stardust.engine.core.model.parser.info.ModelInfoRetriever;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
+import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
@@ -179,6 +180,9 @@ public class AdministrationServiceImpl
          {
             deploymentError(ex, null);
          }
+         
+         MonitoringUtils.partitionMonitors().modelDeployed(element.getModel(), true);                  
+         
          return doOverwriteModel(element, options == null ? new DeploymentOptions() : options);
       }
       finally
@@ -397,6 +401,8 @@ public class AdministrationServiceImpl
          checkDaemonStopState(false);
          IModel model = ModelManagerFactory.getCurrent().findModel(modelOid);
          assertNotPredefinedModel(model);
+         
+         MonitoringUtils.partitionMonitors().modelDeleted(model);         
       }
       catch (Exception e)
       {
@@ -474,6 +480,12 @@ public class AdministrationServiceImpl
             elements.add(parsedUnit);
             overrides.put(modelId, parsedUnit.getModel());
          }
+         
+         for (ParsedDeploymentUnit unit : elements)
+         {
+            IModel model = unit.getModel();
+            MonitoringUtils.partitionMonitors().modelDeployed(model, false);         
+         }                  
          
          // deploy the models
          return doDeployModel(elements, options);

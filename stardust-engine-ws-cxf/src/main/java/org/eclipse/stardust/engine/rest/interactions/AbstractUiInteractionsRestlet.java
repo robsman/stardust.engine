@@ -140,8 +140,11 @@ public abstract class AbstractUiInteractionsRestlet
 
    protected void setOutDataValues(OutDataValues outDataValues)
    {
-      // TODO
-      System.out.println("Received out data: " + outDataValues);
+      Interaction interaction = findInteraction();
+            
+      interaction.setOutDataValues(InteractionDataFlowUtils.unmarshalDataValues(
+            interaction.getModel(), interaction.getDefinition(), outDataValues));
+
    }
 
    protected void setOutDataValue(String parameterId, Object value)

@@ -277,9 +277,9 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
       }
    }
 
-   // @Path("outData")
-   // @PUT
-   // @Consumes(MediaType.APPLICATION_XML)
+   @Path("outData")
+   @PUT
+   @Consumes(MediaType.APPLICATION_XML)
    public void setOutDataValuesFromXml(OutDataValues outDataValues)
    {
       setOutDataValues(outDataValues);

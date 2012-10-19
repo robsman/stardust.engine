@@ -17,8 +17,10 @@ import static org.eclipse.stardust.engine.ws.DataFlowUtils.isStructuredType;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalDmsValue;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalPrimitiveValue;
 import static org.eclipse.stardust.engine.ws.DataFlowUtils.marshalStructValue;
+import static org.eclipse.stardust.engine.ws.DataFlowUtils.unmarshalDataValue;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,8 +31,10 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.AccessPoint;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
+import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.Model;
+import org.eclipse.stardust.engine.api.ws.ParameterXto;
 import org.eclipse.stardust.engine.api.ws.ParametersXto;
 
 
@@ -105,5 +109,57 @@ public class InteractionDataFlowUtils
          }
       }
    }
+   
+   public static Map<String, Serializable> unmarshalDataValues(Model model,
+         ApplicationContext context, ParametersXto params)   
+         {
+            Map<String, Serializable> res = null;
+            
+            if ((null != context) && (null != model) && (null != params))
+            {
+                              
+               res = new HashMap<String, Serializable>();                              
+
+               List<DataMapping> dataMappings = context.getAllOutDataMappings();
+                              
+               for (DataMapping dm : dataMappings)
+               {
+                                          
+                     ParameterXto param = null;
+                     // Iterator through params to find a matching one
+                     for (int i = 0; i < params.getParameter().size(); ++i)
+                     {
+                        param = params.getParameter().get(i);
+                        if (param.getName().equals(dm.getApplicationAccessPoint().getId()))
+                        {
+                           if (null != dm)
+                           {
+                              Data data = model.getData(dm.getDataId());
+                              if (data != null)
+                              {
+                                 res.put(
+                                       param.getName(),
+                                       unmarshalDataValue(model, data, dm.getDataPath(),
+                                             dm.getMappedType(), param));
+                              }
+                              else
+                              {
+                                 throw new NullPointerException("Data not found in model for id: "
+                                       + param.getName());
+                              }                     
+                           
+                           break;
+                        }
+
+                     }                                                                  
+                     
+                  }
+                  
+               }
+            }
+            
+            return res;
+         }
+   
 
 }

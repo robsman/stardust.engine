@@ -15,10 +15,10 @@ import java.util.List;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.DeploymentException;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IUserRealm;
 import org.eclipse.stardust.engine.core.spi.monitoring.IPartitionMonitor;
-
 
 /**
  * @author sauer
@@ -115,20 +115,45 @@ public class PartitionMonitorMediator implements IPartitionMonitor
       }
    }
 
-   public void modelDeployed(IModel model)
+   public void modelDeployed(IModel model, boolean isOverwrite) throws DeploymentException
    {
       for (int i = 0; i < monitors.size(); ++i)
       {
          IPartitionMonitor monitor = monitors.get(i);
          try
          {
-            monitor.modelDeployed(model);
+            monitor.modelDeployed(model, isOverwrite);
          }
+         catch (DeploymentException e)
+         {
+            trace.error("Failed broadcasting partition monitor event.", e);
+            throw (DeploymentException) e;            
+         }         
          catch (Exception e)
          {
             trace.warn("Failed broadcasting partition monitor event.", e);
          }
       }
    }
-   
+
+   public void modelDeleted(IModel model) throws DeploymentException
+   {
+      for (int i = 0; i < monitors.size(); ++i)
+      {
+         IPartitionMonitor monitor = monitors.get(i);
+         try
+         {
+            monitor.modelDeleted(model);
+         }
+         catch (DeploymentException e)
+         {
+            trace.error("Failed broadcasting partition monitor event.", e);
+            throw (DeploymentException) e;            
+         }         
+         catch (Exception e)
+         {
+            trace.warn("Failed broadcasting partition monitor event.", e);
+         }
+      }
+   }  
 }

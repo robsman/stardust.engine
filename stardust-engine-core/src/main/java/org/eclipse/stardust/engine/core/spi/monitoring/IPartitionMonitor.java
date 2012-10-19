@@ -11,9 +11,9 @@
 package org.eclipse.stardust.engine.core.spi.monitoring;
 
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.DeploymentException;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IUserRealm;
-
 
 /**
  * @author sauer
@@ -21,17 +21,50 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUserRealm;
  */
 public interface IPartitionMonitor
 {
-
+   /**
+    * 
+    * @param realm
+    */
    void userRealmCreated(IUserRealm realm);
    
+   /**
+    * 
+    * @param realm
+    */
    void userRealmDropped(IUserRealm realm);
    
+   /**
+    * 
+    * @param user
+    */
    void userCreated(IUser user);
    
+   /**
+    * 
+    * @param user
+    */
    void userEnabled(IUser user);
    
+   /**
+    * 
+    * @param user
+    */
    void userDisabled(IUser user);
 
-   void modelDeployed(IModel model);
-   
+   /**
+    * Client can check if arguments are valid and otherwise throw an DeploymentException.
+    * 
+    * @param model
+    * @param isOverwrite
+    * @throws DeploymentException
+    */
+   void modelDeployed(IModel model, boolean isOverwrite) throws DeploymentException;
+ 
+   /**
+    * Client can check if arguments are valid and otherwise throw an DeploymentException.
+    * 
+    * @param model
+    * @throws DeploymentException
+    */
+   void modelDeleted(IModel model) throws DeploymentException;   
 }

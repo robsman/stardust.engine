@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
@@ -137,6 +138,11 @@ public interface ProcessInstance extends RuntimeObject
     */
    ProcessInstanceAttributes getAttributes();
 
+   /**
+    * @return custom runtime attributes not necessarily reflected in the database
+    */
+   Map<String, Object> getRuntimeAttributes();
+   
    /**
     * Gets a list of requested additional data like notes, delegations, state changes and exceptions.
     * This list is sorted in ascending order (oldest first).

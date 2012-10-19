@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.dto;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -31,6 +33,7 @@ import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
@@ -82,6 +85,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private Map<String, PermissionState> permissions;
 
    private ProcessInstanceAttributes attributes;
+   
+   private final Map<String, Object> rtAttributes;
 
    private final List<HistoricalEvent> historicalEvents = CollectionUtils.newList();
 
@@ -276,6 +281,8 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             ParametersFacade.popLayer();
          }
       }
+      
+      rtAttributes = initRtAttributes(processInstance);
    }
 
    public String getProcessID()
@@ -461,6 +468,11 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       return attributes;
    }
 
+   public Map<String, Object> getRuntimeAttributes()
+   {
+      return rtAttributes;
+   }
+   
    public List<HistoricalEvent> getHistoricalEvents()
    {
       return historicalEvents;
@@ -584,6 +596,15 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    {
       PermissionState ps = (PermissionState) permissions.get(permissionId);
       return ps == null ? PermissionState.Unknown : ps;
+   }
+   
+   private Map<String, Object> initRtAttributes(final IProcessInstance pi)
+   {
+      final Map<String, Object> rtAttributes = newHashMap();
+      
+      rtAttributes.put(AuditTrailPersistence.class.getName(), pi.getAuditTrailPersistence());
+      
+      return rtAttributes;
    }
    
    private static enum ScopeProcessInstanceDetailsOptions

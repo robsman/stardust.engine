@@ -10,7 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.transientpi;
 
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 
 /**
  * <p>

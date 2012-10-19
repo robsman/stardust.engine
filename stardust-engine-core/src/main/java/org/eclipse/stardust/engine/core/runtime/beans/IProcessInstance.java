@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
@@ -23,7 +24,6 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 
 
 /**

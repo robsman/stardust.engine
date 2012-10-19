@@ -8,7 +8,7 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  **********************************************************************************/
-package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
+package org.eclipse.stardust.engine.api.dto;
 
 /**
  * @author Nicolas.Werlein

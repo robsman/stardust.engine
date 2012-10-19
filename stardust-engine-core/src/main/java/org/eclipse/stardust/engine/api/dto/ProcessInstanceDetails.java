@@ -33,7 +33,6 @@ import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;

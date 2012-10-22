@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
@@ -1362,6 +1363,73 @@ public class SchemaHelper
       {
          ParametersFacade.popLayer();
       }
+   }
+   
+   public static void alterAuditTrailDropPartition(String partitionId)
+   {
+      IAuditTrailPartition partition = AuditTrailPartitionBean.findById(partitionId);
+      Session session = (Session) SessionFactory
+            .getSession(SessionFactory.AUDIT_TRAIL);
+
+      // Delete for all models in given partition the runtime data (process instances, ...).
+      Iterator iter = session.getIterator(ModelPersistorBean.class, QueryExtension
+            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partition
+                  .getOID())));
+      while (iter.hasNext())
+      {
+         ModelPersistorBean model = (ModelPersistorBean) iter.next();
+         AdminServiceUtils.deleteModelRuntimePart(model.getOID(), session, true);
+      }
+
+      // Delete runtime data which does not depend on any model in given partition.
+      // loginUserOid can be 0 because keepLoginUser = false.
+      AdminServiceUtils.deleteModelIndependentRuntimeData(false, false, session, 0,
+            partition.getOID());
+
+      // Delete for all model the definition data (process definition, ...).
+      iter = session.getIterator(ModelPersistorBean.class, QueryExtension
+            .where(Predicates.isEqual(ModelPersistorBean.FR__PARTITION, partition
+                  .getOID())));
+      while (iter.hasNext())
+      {
+         ModelPersistorBean model = (ModelPersistorBean) iter.next();
+         AdminServiceUtils.deleteModelModelingPart(model.getOID(), session);
+         model.delete();
+      }
+
+      // Delete ProcessInstanceLinkTypes
+      session.delete(ProcessInstanceLinkTypeBean.class,
+            Predicates.isEqual(ProcessInstanceLinkTypeBean.FR__PARTITION, partition.getOID()),
+            false);
+
+      // Delete partition scope preferences
+      AdminServiceUtils.deletePartitionPreferences(partition.getOID(), session);
+
+      // There should only be one for this partition. But to be on the save side...
+      iter = session.getIterator(UserDomainBean.class, QueryExtension.where(Predicates
+            .isEqual(UserDomainBean.FR__PARTITION, partition.getOID())));
+      while (iter.hasNext())
+      {
+         IUserDomain domain = (IUserDomain) iter.next();
+         domain.delete();
+      }
+
+      // There should only be one for this partition. But to be on the save side...
+      iter = session.getIterator(UserRealmBean.class, QueryExtension.where(Predicates
+            .isEqual(UserRealmBean.FR__PARTITION, partition.getOID())));
+      while (iter.hasNext())
+      {
+         IUserRealm realm = (IUserRealm) iter.next();
+
+         session.delete(UserBean.class, Predicates.isEqual(UserBean.FR__REALM, realm
+               .getOID()), false);
+
+         realm.delete();
+      }
+
+      partition.delete();
+
+      session.save(true);
    }
 
    public static void alterAuditTrailListPartitions(String sysconPassword)

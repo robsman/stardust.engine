@@ -32,6 +32,8 @@ public class RuntimeLog
    public static final Logger WF_EVENT = LogManager.getLogger(CAT_ROOT + ".WfEvent");
    
    public static final Logger PERFORMANCE = LogManager.getLogger(CAT_ROOT + ".Performance");
+
+   public static final Logger DAEMON = LogManager.getLogger(CAT_ROOT + ".Daemon");
    
    public static final Logger API = LogManager.getLogger(CAT_ROOT + ".API");
 

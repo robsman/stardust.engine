@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,6 +41,12 @@ public interface BigData
     */
    int STRING_VALUE = 3;
 
+   /**
+    * Value will be written as stringified + double value, 
+    * double value is used for sorting only.
+    */
+   int DOUBLE_VALUE = 4;
+
    int BOOLEAN = 0;
    int CHAR = 1;
    int BYTE = 2;
@@ -61,6 +67,8 @@ public interface BigData
    void setShortStringValue(String value);
 
    void setLongValue(long value);
+   
+   void setDoubleValue(double value);
 
    int getType();
 
@@ -71,6 +79,8 @@ public interface BigData
    void setType(int type);
 
    String getShortStringValue();
+   
+   public double getDoubleValue();
 
    int getShortStringColumnLength();
 }

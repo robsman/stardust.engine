@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -138,7 +138,19 @@ public class DmlManager
       }
       else if (type == Double.class || type == Double.TYPE)
       {
-         return value.toString();
+         Double doubleValue = (Double) value;
+         Pair<Double, Double> valueBorders = dbDescriptor
+               .getNumericSQLTypeValueBorders(Double.class);
+         if (doubleValue < valueBorders.getFirst())
+         {
+            doubleValue = valueBorders.getFirst();
+         }
+         else if (doubleValue > valueBorders.getSecond())
+         {
+            doubleValue = valueBorders.getSecond();
+         }
+
+         return doubleValue.toString();
       }
       else if (type == String.class)
       {
@@ -259,6 +271,16 @@ public class DmlManager
             }
             else
             {
+               Pair<Double, Double> valueBorders = dbDescriptor
+                     .getNumericSQLTypeValueBorders(Double.class);
+               if (doubleValue < valueBorders.getFirst())
+               {
+                  doubleValue = valueBorders.getFirst();
+               }
+               else if (doubleValue > valueBorders.getSecond())
+               {
+                  doubleValue = valueBorders.getSecond();
+               }
                statement.setDouble(index, doubleValue);
             }
          }
@@ -361,7 +383,7 @@ public class DmlManager
          {
             if (objectValue == null)
             {
-               return new Float(Unknown.DOUBLE);
+               return new Double(Unknown.DOUBLE);
             }
             else if (objectValue instanceof Number)
             {
@@ -465,6 +487,10 @@ public class DmlManager
       else if (type == Float.TYPE)
       {
          return java.sql.Types.FLOAT;
+      }
+      else if (type == Double.TYPE )
+      {
+         return java.sql.Types.DOUBLE;
       }
       else if (type == String.class)
       {

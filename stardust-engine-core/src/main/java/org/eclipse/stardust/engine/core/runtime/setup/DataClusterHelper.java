@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -33,6 +34,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHa
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
 
 
@@ -73,40 +75,84 @@ public class DataClusterHelper
                appendToken = ",";
                
                buffer.append(dataSlot.getOidColumn()).append("=?,");
-               buffer.append(dataSlot.getTypeColumn()).append("=?,");
+               buffer.append(dataSlot.getTypeColumn()).append("=?");
                
-               String valueColumn =
-                     StringUtils.isEmpty(dataSlot.getSValueColumn())
-                     ? dataSlot.getNValueColumn()
-                     : dataSlot.getSValueColumn();
-               buffer.append(valueColumn).append("=?");
+               if (StringUtils.isNotEmpty(dataSlot.getSValueColumn()))
+               {
+                  buffer.append(',').append(dataSlot.getSValueColumn()).append("=?");
+               }
+               if (StringUtils.isNotEmpty(dataSlot.getNValueColumn()))
+               {
+                  buffer.append(',').append(dataSlot.getNValueColumn()).append("=?");
+               }
                
                bindValueList.add(new Pair(Long.class, Long.valueOf(dataValue.getOID())));
                
                String dataTypeId = dataValue.getData().getType().getId();
                if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
                {
-                  String value;
+                  String sValue;
+                  
+                  boolean upadteDValue = false;
+                  Double dValue = null;
+                  
                   // TODO (ab) SPI?
                   if (StructuredTypeRtUtils.isDmsType(dataTypeId)
                         || StructuredTypeRtUtils.isStructuredType(dataTypeId))
                   {
                      Representation representation = getRepresentationForDataValue(
                            dataValue, dataSlot.getAttributeName(), evaluationContext);
-
-                     value = (String) representation.getRepresentation();
+                     
+                     sValue = (String) representation.getRepresentation();
                      int attributeType = DataXPathMap.getXPathMap(dataValue.getData())
                            .getXPath(dataSlot.getAttributeName()).getType();
                      bindValueList
                            .add(new Pair(Integer.class, new Integer(attributeType)));
+                     
+                     // update dValue column is requested 
+                     if (StringUtils.isNotEmpty(dataSlot.getDValueColumn()))
+                     {
+                        IProcessInstance rawPi = dataValue.getProcessInstance();
+                        
+                        // should always be a PIBean
+                        if (rawPi instanceof ProcessInstanceBean)
+                        {
+                           ProcessInstanceBean pi = (ProcessInstanceBean) rawPi;
+                           
+                           // if  
+                           IStructuredDataValue cachedSdv = pi.getCachedStructuredDataValue(
+                                 dataValue.getData().getId(), dataSlot.getAttributeName());
+
+                           // if cached value is available then it has been changed potentially
+                           if (cachedSdv instanceof BigData)
+                           {
+                              dValue = ((BigData) cachedSdv).getDoubleValue();
+                              upadteDValue = true;
+                           }
+                        }
+                        
+                     }
                   }
                   else
                   {
-                     value = dataValue.getShortStringValue();
+                     sValue = dataValue.getShortStringValue();
                      bindValueList.add(new Pair(Integer.class, new Integer(dataValue
                            .getType())));
+                     
+                     // update dValue column is requested 
+                     if (StringUtils.isNotEmpty(dataSlot.getDValueColumn()))
+                     {
+                        dValue = dataValue.getDoubleValue();
+                        upadteDValue = true;
+                     }
                   }
-                  bindValueList.add(new Pair(String.class, value));
+                  bindValueList.add(new Pair(String.class, sValue));
+                  
+                  if (upadteDValue)
+                  {
+                     buffer.append(',').append(dataSlot.getDValueColumn()).append("=?");
+                     bindValueList.add(new Pair(Double.class, dValue));
+                  }
                }
                else
                {

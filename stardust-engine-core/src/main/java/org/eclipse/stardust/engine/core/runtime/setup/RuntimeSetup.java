@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.setup;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -149,16 +150,39 @@ public class RuntimeSetup implements XMLConstants
                                  boolean ignorePreparedStatements = Boolean.valueOf(ignorePreparedStatementsAttr);
                                  String nValueColumn = dsNode.getAttribute(DATA_SLOT_NVALCOLUMN_ATT);
                                  String sValueColumn = dsNode.getAttribute(DATA_SLOT_SVALCOLUMN_ATT);
+                                 String dValueColumn = dsNode.getAttribute(DATA_SLOT_DVALCOLUMN_ATT);
                                  if (StringUtils.isNotEmpty(nValueColumn)
                                        && StringUtils.isNotEmpty(sValueColumn))
                                  {
                                     throw new PublicException(
                                           "A single data-slot must not contain both storage types sValueColumn and nValueColumn.");
                                  }
+                                 if (StringUtils.isNotEmpty(nValueColumn)
+                                       && StringUtils.isNotEmpty(dValueColumn))
+                                 {
+                                    throw new PublicException(
+                                          "A numeric data-slot must not contain both storage types nValueColumn and dValueColumn.");
+                                 }
+                                 if (StringUtils.isEmpty(sValueColumn)
+                                       && StringUtils.isNotEmpty(dValueColumn))
+                                 {
+                                    throw new PublicException(
+                                          "A data-slot must not contain storage type dValueColumn without storage type sValueColumn.");
+                                 }
+                                 if (StringUtils.isNotEmpty(sValueColumn)
+                                       && StringUtils.isEmpty(dValueColumn))
+                                 {
+                                    trace.info(MessageFormat
+                                          .format(
+                                                "Data slot for modelId: {0}, dataId: {1}, attribute: {2} "
+                                                      + "does define a string value column but no double value column. "
+                                                      + "Sorting for these data might be performed lexically even if it contains numeric values",
+                                                new Object[] { modelId, dataId, attribute }));
+                                 }
                                  slots.add(new DataSlot(modelId, dataId, attribute,
                                        dsNode.getAttribute(DATA_SLOT_OIDCOLUMN_ATT),
                                        dsNode.getAttribute(DATA_SLOT_TYPECOLUMN_ATT),
-                                       nValueColumn, sValueColumn,
+                                       nValueColumn, sValueColumn, dValueColumn,
                                        ignorePreparedStatements));
                               }
                               else

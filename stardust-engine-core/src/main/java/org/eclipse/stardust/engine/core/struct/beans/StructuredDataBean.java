@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,11 +15,7 @@ import java.util.Iterator;
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
@@ -69,7 +65,7 @@ public class StructuredDataBean extends IdentifiablePersistentBean implements IX
 
    private transient String fullLengthXPath = null;
    
-   public static Iterator findAll(short partitionOid)
+   public static Iterator<StructuredDataBean> findAll(short partitionOid)
    {
       return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getIterator(
             StructuredDataBean.class,

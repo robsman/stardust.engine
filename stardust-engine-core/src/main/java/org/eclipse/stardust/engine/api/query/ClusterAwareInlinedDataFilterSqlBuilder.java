@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -403,13 +403,15 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
 
       boolean useNumericColumn = false;
       boolean useStringColumn = false;
+      boolean useDoubleColumn = false;
 
       if (null != data)
       {
-         final int typeClassification = LargeStringHolderBigDataHandler.classifyType(
+         final int typeClassification = LargeStringHolderBigDataHandler.classifyTypeForSorting(
                data, order.getAttributeName());
          useNumericColumn |= (BigData.NUMERIC_VALUE == typeClassification);
          useStringColumn |= (BigData.STRING_VALUE == typeClassification);
+         useDoubleColumn |= (BigData.DOUBLE_VALUE == typeClassification);
       }
 
       final org.eclipse.stardust.engine.core.persistence.OrderCriteria result = new org.eclipse.stardust.engine.core.persistence.OrderCriteria();
@@ -429,9 +431,11 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
 
             DataSlot slot = (DataSlot) cluster.getSlot(orderKey.getDataId(), orderKey.getAttributeName());
 
-            if ((null != join) && (null != slot)
+            if ((null != join)
+                  && (null != slot)
                   && !(useNumericColumn && StringUtils.isEmpty(slot.getNValueColumn()))
-                  && !(useStringColumn && StringUtils.isEmpty(slot.getSValueColumn())))
+                  && !((useStringColumn | useDoubleColumn) && StringUtils.isEmpty(slot
+                        .getSValueColumn())))
             {
                if (useNumericColumn)
                {
@@ -441,6 +445,18 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
                if (useStringColumn)
                {
                   result.add(join.fieldRef(slot.getSValueColumn()), order.isAscending());
+               }
+
+               if (useDoubleColumn)
+               {
+                  String orderByCol = slot.getDValueColumn();
+                  if ( !useStringColumn && StringUtils.isEmpty(orderByCol))
+                  {
+                     // Fall back to order by on string column if order by double is requested
+                     // but slot does not define this column.
+                     orderByCol = slot.getSValueColumn();
+                  }
+                  result.add(join.fieldRef(orderByCol), order.isAscending());
                }
 
                break;
@@ -928,6 +944,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
 
                   if (null != data)
                   {
+                     // type classification in this case still decides between string and numeric
                      final int typeClassification = LargeStringHolderBigDataHandler
                            .classifyType(data, order.getAttributeName());
                      useNumericColumn |= (BigData.NUMERIC_VALUE == typeClassification);

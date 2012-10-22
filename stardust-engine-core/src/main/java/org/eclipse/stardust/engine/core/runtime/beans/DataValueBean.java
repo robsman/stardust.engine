@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,6 +54,7 @@ public class DataValueBean extends IdentifiablePersistentBean
    public static final String FIELD__TYPE_KEY = "type_key";
    public static final String FIELD__STRING_VALUE = "string_value";
    public static final String FIELD__NUMBER_VALUE = "number_value";
+   public static final String FIELD__DOUBLE_VALUE = "double_value";
 
    public static final FieldRef FR__OID = new FieldRef(DataValueBean.class, FIELD__OID);
    public static final FieldRef FR__MODEL = new FieldRef(DataValueBean.class, FIELD__MODEL);
@@ -62,6 +63,7 @@ public class DataValueBean extends IdentifiablePersistentBean
    public static final FieldRef FR__TYPE_KEY = new FieldRef(DataValueBean.class, FIELD__TYPE_KEY);
    public static final FieldRef FR__STRING_VALUE = new FieldRef(DataValueBean.class, FIELD__STRING_VALUE);
    public static final FieldRef FR__NUMBER_VALUE = new FieldRef(DataValueBean.class, FIELD__NUMBER_VALUE);
+   public static final FieldRef FR__DOUBLE_VALUE = new FieldRef(DataValueBean.class, FIELD__DOUBLE_VALUE);
 
    public static final String TABLE_NAME = "data_value";
    public static final String DEFAULT_ALIAS = "dv";
@@ -89,6 +91,7 @@ public class DataValueBean extends IdentifiablePersistentBean
    public ProcessInstanceBean processInstance;
    public String string_value;
    public long number_value;
+   public double double_value;
 
    public int type_key = BigData.NULL;
 
@@ -537,6 +540,23 @@ public class DataValueBean extends IdentifiablePersistentBean
       lock();
 
       dataHandler.write(value, forceRefresh);
+   }
+   
+   public double getDoubleValue()
+   {
+      fetch();
+      return double_value;
+   }
+   
+   @Override
+   public void setDoubleValue(double value)
+   {
+      fetch();
+      if ( !CompareHelper.areEqual(this.double_value, value))
+      {
+         markModified(FIELD__DOUBLE_VALUE);
+         double_value = value;
+      }
    }
 
    // @todo (france, ub): investigate usage of this method in the context of plethora

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
 import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ParsedDeploymentUnit;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
+import org.eclipse.stardust.engine.core.struct.beans.IXPath;
 
 
 /**
@@ -72,6 +73,16 @@ public interface ModelManager
    IProcessDefinition findProcessDefinition(long modelOid, long runtimeOid);
    IActivity findActivity(long modelOid, long runtimeOid);
    ITransition findTransition(long modelOid, long runtimeOid);
+   
+   /**
+    * Looks up the IData object which is referenced by given structured data.
+    * 
+    * @param modelOid The model oid of the model the data / structured data belongs to.
+    * @param runtimeOid The runtime oid of the structured data.
+    * 
+    * @return The IData object referenced by given structured data.
+    */
+   IData findDataForStructuredData(long modelOid, long runtimeOid);
    IEventHandler findEventHandler(long modelOid, long runtimeOid);
    
    long getRuntimeOid(IdentifiableElement modelElement);

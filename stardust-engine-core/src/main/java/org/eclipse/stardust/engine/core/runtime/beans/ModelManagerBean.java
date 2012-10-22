@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -214,6 +214,12 @@ public class ModelManagerBean implements ModelManager
    public ITransition findTransition(long modelOid, long runtimeOid)
    {
       return getModelManagerPartition().findTransition(modelOid, runtimeOid);
+   }
+   
+   @Override
+   public IData findDataForStructuredData(long modelOid, long runtimeOid)
+   {
+      return getModelManagerPartition().findDataForStructuredData(modelOid, runtimeOid);
    }
 
    public IEventHandler findEventHandler(long modelOid, long runtimeOid)
@@ -1669,6 +1675,22 @@ public class ModelManagerBean implements ModelManager
          }
 
          return transition;
+      }
+
+      @Override
+      public IData findDataForStructuredData(long modelOid, long runtimeOid)
+      {
+         IData data = null;
+
+         IModel model = findModel(modelOid);
+         if (null != model)
+         {
+            String[] fqId = rtOidRegistry.getFqId(
+                  IRuntimeOidRegistry.STRUCTURED_DATA_XPATH, runtimeOid);
+            data = model.findData(fqId[fqId.length - 2]);
+         }
+
+         return data;
       }
 
       public Iterator getAllAliveModels()

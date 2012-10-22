@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
       implements IStructuredDataValue, BigData
 {
 
-   private static final long serialVersionUID = 722289133134906542L;
+   private static final long serialVersionUID = 722289133134906543L;
 
    private static final Logger trace = LogManager.getLogger(StructuredDataValueBean.class);
 
@@ -42,20 +42,14 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    public static final Object USE_DEFAULT_INITIAL_VALUE = new Object();
 
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
-
    public static final String FIELD__PROCESS_INSTANCE = "processInstance";
-
    public static final String FIELD__PARENT = "parent";
-
    public static final String FIELD__ENTRY_KEY = "entryKey";
-
    public static final String FIELD__XPATH = "xpath";
-
    public static final String FIELD__TYPE_KEY = "type_key";
-
    public static final String FIELD__STRING_VALUE = "string_value";
-
    public static final String FIELD__NUMBER_VALUE = "number_value";
+   public static final String FIELD__DOUBLE_VALUE = "double_value";
 
    public static final FieldRef FR__OID = new FieldRef(StructuredDataValueBean.class,
          FIELD__OID);
@@ -80,33 +74,25 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
 
    public static final FieldRef FR__NUMBER_VALUE = new FieldRef(
          StructuredDataValueBean.class, FIELD__NUMBER_VALUE);
+   
+   public static final FieldRef FR__DOUBLE_VALUE = new FieldRef(
+         StructuredDataValueBean.class, FIELD__DOUBLE_VALUE);
 
    public static final String TABLE_NAME = "structured_data_value";
-
    public static final String DEFAULT_ALIAS = "sdv";
-
    public static final String LOCK_TABLE_NAME = "structured_data_value_lck";
-
    public static final String LOCK_INDEX_NAME = "struct_dv_lck_idx";
-
    public static final String PK_FIELD = FIELD__OID;
-
    public static final String PK_SEQUENCE = "structured_data_value_seq";
 
    public static final boolean TRY_DEFERRED_INSERT = true;
    
    public static final String[] struct_dv_index1_UNIQUE_INDEX = new String[] {FIELD__OID};
-
    public static final String[] struct_dv_index2_INDEX = new String[] {FIELD__PARENT};
-
    public static final String[] struct_dv_index3_INDEX = new String[] {FIELD__XPATH};
-
    public static final String[] struct_dv_index4_INDEX = new String[] {FIELD__TYPE_KEY};
-
    public static final String[] struct_dv_index5_INDEX = new String[] {FIELD__NUMBER_VALUE};
-
    public static final String[] struct_dv_index6_INDEX = new String[] {FIELD__STRING_VALUE};
-
    public static final String[] struct_dv_index7_INDEX = new String[] {FIELD__PROCESS_INSTANCE};
 
    // @todo in the end, COLUMN_LENGTH should be the metadata and not COLUMN_TYPE
@@ -116,18 +102,13 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    protected static final Class LOADER = StructuredDataValueLoader.class;
    
    public ProcessInstanceBean processInstance;
-
    public long parent;
-
    public String entryKey;
-
    public long xpath;
-
    public int type_key = BigData.NULL;
-
    public String string_value;
-
    public long number_value;
+   public double double_value;
    
    static final boolean type_key_USE_LITERALS = true;
 
@@ -347,4 +328,22 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
             + this.parent + "> xPathOid=<" + this.xpath + "> value=<"
             + this.getValue() + "> key=<" + this.entryKey + "> type=<" + this.type_key + ">";
    }
+   
+   public double getDoubleValue()
+   {
+      fetch();
+      return double_value;
+   }
+   
+   @Override
+   public void setDoubleValue(double value)
+   {
+      fetch();
+      if ( !CompareHelper.areEqual(this.double_value, value))
+      {
+         markModified(FIELD__DOUBLE_VALUE);
+         double_value = value;
+      }
+   }
+
 }

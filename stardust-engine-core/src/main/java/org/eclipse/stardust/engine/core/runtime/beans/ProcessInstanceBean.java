@@ -18,11 +18,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.ErrorCase;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.InvalidValueException;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -31,11 +27,7 @@ import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
 import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
-import org.eclipse.stardust.engine.api.runtime.LogCode;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.compatibility.el.EvaluationError;
 import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
 import org.eclipse.stardust.engine.core.compatibility.el.Result;
@@ -57,11 +49,10 @@ import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
+import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -191,6 +182,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private transient Map<String,IDataValue> dataValueCache;
    
    private transient Map<Long, IStructuredDataValue> structuredDataValueCache;
+   private transient Map<Pair<String, String>, IStructuredDataValue> structuredDataValueCacheById;
 
    private transient PropertyIndexHandler propIndexHandler = new PropertyIndexHandler();
 
@@ -882,6 +874,22 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return structuredDataValueCache.get(xPathOid);
    }
 
+   public IStructuredDataValue getCachedStructuredDataValue(String dataId,
+         String attribute)
+   {
+      if (getOID() != getScopeProcessInstanceOID())
+      {
+         return ((ProcessInstanceBean) getScopeProcessInstance())
+               .getCachedStructuredDataValue(dataId, attribute);
+      }
+      if (structuredDataValueCacheById == null)
+      {
+         return null;
+      }
+
+      return structuredDataValueCacheById.get(new Pair(dataId, attribute));
+   }
+
    public Map getExistingDataValues(boolean includePredefined)
    {
       HashMap result = new HashMap();
@@ -1279,10 +1287,24 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       
       if(structuredDataValueCache == null)
       {
-         this.structuredDataValueCache = new HashMap<Long, IStructuredDataValue>();
+         this.structuredDataValueCache = CollectionUtils.newHashMap();
+      }
+      if(structuredDataValueCacheById == null)
+      {
+         this.structuredDataValueCacheById = CollectionUtils.newHashMap();
       }
           
       structuredDataValueCache.put(value.getXPathOID(), value);
+      
+      ModelManager modelManager = ModelManagerFactory.getCurrent();
+      long modelOid = value.getProcessInstance().getProcessDefinition().getModel()
+            .getModelOID();
+      IData theData = modelManager.findDataForStructuredData(modelOid, value.getXPathOID());
+
+      IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
+      TypedXPath typedXPath = xPathMap.getXPath(value.getXPathOID());
+
+      structuredDataValueCacheById.put(new Pair(theData.getId(), typedXPath.getXPath()), value);
    }
 
    public AbstractProperty createProperty(String name, Serializable value)

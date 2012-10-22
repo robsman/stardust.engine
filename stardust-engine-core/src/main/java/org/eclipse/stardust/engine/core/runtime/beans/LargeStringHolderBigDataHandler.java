@@ -13,18 +13,9 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
-import org.eclipse.stardust.common.Base64;
-import org.eclipse.stardust.common.Money;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.Period;
-import org.eclipse.stardust.common.Serialization;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -36,6 +27,9 @@ import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
 /**
@@ -121,6 +115,94 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
             || dataType == BigData.LONG || dataType == BigData.DATE)
       {
          return BigData.NUMERIC_VALUE;
+      }
+      else
+      {
+         return BigData.STRING_VALUE;
+      }
+   }
+
+   /**
+    * Classifies workflow data type representation into {@link BigData#NUMERIC_VALUE}s,
+    * {@link org.eclipse.stardust.engine.core.runtime.beans.BigData#STRING_VALUE}s, {@link BigData#NULL_VALUE}s and
+    * {@link BigData#UNKNOWN_VALUE}s. This classification gives a hint which
+    * {@link BigData} representation will be used for the actual value.
+    * 
+    * @param data The workflow data to be classified.
+    * @return Either {@link BigData#NUMERIC_VALUE}, {@link BigData#STRING_VALUE},
+    *         {@link BigData#NULL_VALUE} or {@link BigData#UNKNOWN_VALUE}.
+    */
+   public static int classifyTypeForSorting(IData data)
+   {
+      if (data.getType().getId().equals(PredefinedConstants.PRIMITIVE_DATA))
+      {
+         Type type = (Type) data.getAttribute(PredefinedConstants.TYPE_ATT);
+         if (type.equals(Type.Boolean)
+               || type.equals(Type.Byte)
+               || type.equals(Type.Short)
+               || type.equals(Type.Integer)
+               || type.equals(Type.Long)
+               || type.equals(Type.Timestamp))
+         {
+            return BigData.NUMERIC_VALUE;
+         }
+         else if (type.equals(Type.Float)
+               || type.equals(Type.Double)
+               || type.equals(Type.Money))
+         {
+            return BigData.DOUBLE_VALUE;
+         }
+         else 
+         {
+            return BigData.STRING_VALUE;
+         }
+      }
+      else
+      {
+         return BigData.UNKNOWN_VALUE;
+      }
+   }
+   
+   /**
+    * Classifies workflow data type representation into {@link BigData#NUMERIC_VALUE}s,
+    * {@link org.eclipse.stardust.engine.core.runtime.beans.BigData#STRING_VALUE}s, {@link BigData#NULL_VALUE}s and
+    * {@link BigData#UNKNOWN_VALUE}s. This classification gives a hint which
+    * {@link BigData} representation will be used for the actual value.
+    * 
+    * @param data The workflow data to be classified.
+    * @param attributeName The name of the data attribute to search for (XPath, etc.)
+    * @return Either {@link BigData#NUMERIC_VALUE}, {@link BigData#STRING_VALUE},
+    *         {@link BigData#NULL_VALUE} or {@link BigData#UNKNOWN_VALUE}.
+    */
+   public static int classifyTypeForSorting(IData data, String attributeName)
+   {
+      if ( !(StructuredTypeRtUtils.isDmsType(data.getType().getId()) || StructuredTypeRtUtils.isStructuredType(data.getType().getId())))
+      {
+         // not a structured data
+         return classifyTypeForSorting(data);
+      }
+      
+      // and now special treatment for structured data
+      if (attributeName == null)
+      {
+         // whole value of structured data is returned, neither NUMERIC_VALUE, nor STRING_VALUE 
+         return BigData.UNKNOWN_VALUE;
+      }
+      
+      IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+      int dataType = xPathMap.getXPath(attributeName).getType();
+      String xsdTypeName = xPathMap.getXPath(attributeName).getXsdTypeName();
+      if (dataType == BigData.BOOLEAN || dataType == BigData.BYTE
+            || dataType == BigData.SHORT || dataType == BigData.INTEGER
+            || dataType == BigData.LONG || dataType == BigData.DATE)
+      {
+         return BigData.NUMERIC_VALUE;
+      }
+      else if (dataType == BigData.FLOAT || dataType == BigData.DOUBLE
+            || dataType == BigData.MONEY ||
+            "decimal".equals(xsdTypeName))
+      {
+         return BigData.DOUBLE_VALUE;
       }
       else
       {
@@ -481,6 +563,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
       {
          data.setLongValue(0);
          data.setShortStringValue(null);
+         data.setDoubleValue(Unknown.DOUBLE);
          data.setType(BigData.NULL);
          return;
       }
@@ -518,11 +601,13 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
       else if (value instanceof Float)
       {
          data.setShortStringValue(value.toString());
+         data.setDoubleValue(((Float) value).doubleValue());
          data.setType(BigData.FLOAT);
       }
       else if (value instanceof Double)
       {
          data.setShortStringValue(value.toString());
+         data.setDoubleValue((Double) value);
          data.setType(BigData.DOUBLE);
       }
       else if (value instanceof Character)
@@ -535,6 +620,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
       else if (value instanceof Money)
       {
          data.setShortStringValue(value.toString());
+         data.setDoubleValue(((Money) value).doubleValue());
          data.setType(BigData.MONEY);
       }
       else if (value instanceof Period)
@@ -544,6 +630,36 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
       }
       else if (value instanceof String)
       {
+         if (data instanceof IStructuredDataValue)
+         {
+            boolean tryParseDouble = true;
+            
+            StructuredDataValueBean sdv = (StructuredDataValueBean) data;
+            ModelManager modelManager = ModelManagerFactory.getCurrent();
+            long modelOid = sdv.getProcessInstance().getProcessDefinition().getModel()
+                  .getModelOID();
+            IData theData = modelManager.findDataForStructuredData(modelOid, sdv.getXPathOID());
+
+            IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
+            TypedXPath typedXPath = xPathMap.getXPath(sdv.getXPathOID());
+            String xsdTypeName = typedXPath.getXsdTypeName();
+            tryParseDouble = "decimal".equals(xsdTypeName);
+
+            if (tryParseDouble)
+            {
+               try
+               {
+                  // As xsd:decimal is stored as string it is tried to convert to double
+                  data.setDoubleValue(Double.parseDouble((String) value));
+               }
+               catch (NumberFormatException x)
+               {
+                  trace.debug("Cannot parse as a double: " + value, x);
+                  data.setDoubleValue(Unknown.DOUBLE);
+               }
+            }
+         }
+         
          writeStringValue((String) value, BigData.STRING, BigData.BIG_STRING,
                considerDisk());
       }

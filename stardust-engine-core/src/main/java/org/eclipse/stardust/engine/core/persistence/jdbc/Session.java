@@ -27,11 +27,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ValueProvider;
-import org.eclipse.stardust.common.error.ApplicationException;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
@@ -63,11 +59,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLogUtils;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterInstance;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.setup.*;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.IActivityExecutionStrategy;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
@@ -213,18 +205,6 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       
       this.forceImmediateInsert = params.getBoolean(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, false);
 
-/*
-      for (int i = 0; i < Constants.PERSISTENT_RUNTIME_CLASSES.length; ++i)
-      {
-         objCacheRegistry.put(Constants.PERSISTENT_RUNTIME_CLASSES[i], new TreeMap());
-      }
-
-      for (int i = 0; i < Constants.PERSISTENT_MODELING_CLASSES.length; ++i)
-      {
-         objCacheRegistry.put(Constants.PERSISTENT_MODELING_CLASSES[i], new TreeMap());
-      }
-*/
-
       String cnConnectionHook = params.getString(SessionProperties.DS_NAME_AUDIT_TRAIL.equals(name)
             ? KEY_AUDIT_TRAIL_CONNECTION_HOOK
             : name + SessionProperties.DS_CONNECTION_HOOK_SUFFIX);
@@ -328,13 +308,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       this.cachedClusterSetup = RuntimeSetup.instance().getDataClusterSetup();
    }
 
-   public Collection getCache(Class type)
+   public Collection<PersistenceController> getCache(Class type)
    {
-      Map cache = (Map) objCacheRegistry.get(type);
+      Map<Object, PersistenceController> cache = objCacheRegistry.get(type);
 
       return (null != cache)
             ? Collections.unmodifiableCollection(cache.values())
-            : Collections.EMPTY_SET;
+            : Collections.<PersistenceController>emptyList();
    }
 
    public void cluster(Persistent persistent)
@@ -3310,12 +3290,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                + " has more than one PK field.");
       }
       
-      Object identityKey = typeManager.getIdentityKey(new Long(oid));
+      Object identityKey = typeManager.getIdentityKey(Long.valueOf(oid));
       Persistent persistent = retrieveFromCache(type, identityKey);
       if (persistent != null)
       {
          Map deadCache = (Map) deadObjCacheRegistry.get(type);
-         if ((null != deadCache) && deadCache.containsKey(new Long(oid)))
+         if ((null != deadCache) && deadCache.containsKey(Long.valueOf(oid)))
          {
             return null;
          }

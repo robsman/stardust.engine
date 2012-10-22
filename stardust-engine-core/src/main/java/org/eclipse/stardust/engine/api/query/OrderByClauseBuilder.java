@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -139,6 +139,7 @@ public final class OrderByClauseBuilder implements OrderEvaluationVisitor
    {
       boolean useNumericColumn = false;
       boolean useStringColumn = false;
+      boolean useDoubleColumn = false;
 
       Set dataOIDs = new HashSet();
       final org.eclipse.stardust.engine.core.persistence.OrderCriteria orderCriteria = new org.eclipse.stardust.engine.core.persistence.OrderCriteria();
@@ -173,7 +174,7 @@ public final class OrderByClauseBuilder implements OrderEvaluationVisitor
                dataOIDs
                      .add(new Long(ModelManagerFactory.getCurrent().getRuntimeOid(data)));
 
-               switch (LargeStringHolderBigDataHandler.classifyType(data))
+               switch (LargeStringHolderBigDataHandler.classifyTypeForSorting(data))
                {
                   case BigData.NUMERIC_VALUE:
 
@@ -185,10 +186,16 @@ public final class OrderByClauseBuilder implements OrderEvaluationVisitor
                      useStringColumn = true;
                      break;
 
+                  case BigData.DOUBLE_VALUE:
+
+                     useDoubleColumn = true;
+                     break;
+
                   default:
 
                      useNumericColumn = true;
                      useStringColumn = true;
+                     useDoubleColumn = true;
                      break;
                }
             }
@@ -232,6 +239,12 @@ public final class OrderByClauseBuilder implements OrderEvaluationVisitor
          if (useStringColumn)
          {
             orderCriteria.add(dvJoin.fieldRef(DataValueBean.FIELD__STRING_VALUE),
+                  order.isAscending());
+         }
+
+         if (useDoubleColumn)
+         {
+            orderCriteria.add(dvJoin.fieldRef(DataValueBean.FIELD__DOUBLE_VALUE),
                   order.isAscending());
          }
 

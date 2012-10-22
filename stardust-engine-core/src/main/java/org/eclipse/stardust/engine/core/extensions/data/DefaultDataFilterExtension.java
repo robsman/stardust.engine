@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.extensions.data;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -79,14 +78,15 @@ public class DefaultDataFilterExtension implements DataFilterExtension
       
       boolean useNumericColumn = false;
       boolean useStringColumn = false;
+      boolean useDoubleColumn = false;
    
-      for (Iterator<IData> i = dataMap.values().iterator(); i.hasNext();)
+      for (IData data: dataMap.values())
       {
-         IData data = i.next();
          final int typeClassification = LargeStringHolderBigDataHandler
-               .classifyType(data);
+               .classifyTypeForSorting(data);
          useNumericColumn |= (BigData.NUMERIC_VALUE == typeClassification);
          useStringColumn |= (BigData.STRING_VALUE == typeClassification);
+         useDoubleColumn |= (BigData.DOUBLE_VALUE == typeClassification);
       }
       
       if (useNumericColumn)
@@ -98,6 +98,12 @@ public class DefaultDataFilterExtension implements DataFilterExtension
       if (useStringColumn)
       {
          orderCriteria.add(dvJoin.fieldRef(DataValueBean.FIELD__STRING_VALUE),
+               order.isAscending());
+      }
+      
+      if (useDoubleColumn)
+      {
+         orderCriteria.add(dvJoin.fieldRef(DataValueBean.FIELD__DOUBLE_VALUE),
                order.isAscending());
       }
       

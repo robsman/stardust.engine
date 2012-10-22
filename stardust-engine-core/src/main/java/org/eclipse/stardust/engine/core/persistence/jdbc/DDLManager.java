@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1859,6 +1859,15 @@ public class DDLManager
                      colDescr.setColumnQualifier(null);
                      columnDescriptors.add(colDescr);
                   }
+
+                  if ( !StringUtils.isEmpty(slot.getDValueColumn()))
+                  {
+                     colDescr = ColumnDescriptor.create(DataValueBean.class,
+                           DataValueBean.FIELD__DOUBLE_VALUE, dbDescriptor);
+                     colDescr.setName(slot.getDValueColumn());
+                     colDescr.setColumnQualifier(null);
+                     columnDescriptors.add(colDescr);
+                  }
                }
 
                String createString = getGenericCreateTableStatementString(schemaName,
@@ -2057,6 +2066,10 @@ public class DDLManager
                {
                   buffer.append(", ").append(dataSlot.getSValueColumn());
                }
+               if ( !StringUtils.isEmpty(dataSlot.getDValueColumn()))
+               {
+                  buffer.append(", ").append(dataSlot.getDValueColumn());
+               }
 
                buffer.append(") = ")
                      .append("(SELECT "+dataValuePrefix+".").append(DataValueBean.FIELD__OID)
@@ -2069,6 +2082,10 @@ public class DDLManager
                if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
                {
                   buffer.append(", ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__STRING_VALUE);
+               }
+               if ( !StringUtils.isEmpty(dataSlot.getDValueColumn()))
+               {
+                  buffer.append(", ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__DOUBLE_VALUE);
                }
 
                buffer.append(subselectSql).append(")");
@@ -2096,6 +2113,13 @@ public class DDLManager
                   buffer.append(", ")
                      .append(dataSlot.getSValueColumn()).append(" = ")
                      .append("(SELECT ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__STRING_VALUE)
+                     .append(subselectSql).append(")");
+               }
+               if ( !StringUtils.isEmpty(dataSlot.getDValueColumn()))
+               {
+                  buffer.append(", ")
+                     .append(dataSlot.getDValueColumn()).append(" = ")
+                     .append("(SELECT ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__DOUBLE_VALUE)
                      .append(subselectSql).append(")");
                }
             }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -89,7 +89,7 @@ public class RuntimeModelLoader implements ModelLoader
    }
 
    protected void registerOids(IRuntimeOidRegistry rtOidRegistry,
-         RuntimeOidUtils.IdCache cache, Iterator<PersistentModelElement> itr,
+         RuntimeOidUtils.IdCache cache, Iterator<? extends PersistentModelElement> itr,
          ElementType type, boolean register)
    {
       while (itr.hasNext())

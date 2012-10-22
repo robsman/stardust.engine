@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,10 +26,12 @@ public class DataSlot
    private final String typeColumn;
    private final String nValueColumn;
    private final String sValueColumn;
+   private final String dValueColumn;
    private final boolean ignorePreparedStatements;
 
-   public DataSlot(String modelId, String dataId, String attributeName, String oidColumn, String typeColumn,
-         String nValueColumn, String sValueColumn, boolean ignorePreparedStatements)
+   public DataSlot(String modelId, String dataId, String attributeName, String oidColumn,
+         String typeColumn, String nValueColumn, String sValueColumn,
+         String dValueColumn, boolean ignorePreparedStatements)
    {
       this.fqDataId = new QName(modelId, dataId);
       this.attributeName = attributeName;
@@ -37,6 +39,7 @@ public class DataSlot
       this.typeColumn = typeColumn;
       this.nValueColumn = nValueColumn;
       this.sValueColumn = sValueColumn;
+      this.dValueColumn = dValueColumn;
       this.ignorePreparedStatements = ignorePreparedStatements;
    }
    
@@ -78,6 +81,11 @@ public class DataSlot
    public String getSValueColumn()
    {
       return sValueColumn;
+   }
+   
+   public String getDValueColumn()
+   {
+      return dValueColumn;
    }
 
    public boolean isIgnorePreparedStatements()

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -549,14 +549,16 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       
       boolean useNumericColumn = false;
       boolean useStringColumn = false;
+      boolean useDoubleColumn = false;
    
       for (Iterator<IData> i = dataMap.values().iterator(); i.hasNext();)
       {
          IData data = i.next();
          final int typeClassification = LargeStringHolderBigDataHandler
-               .classifyType(data, order.getAttributeName());
+               .classifyTypeForSorting(data, order.getAttributeName());
          useNumericColumn |= (BigData.NUMERIC_VALUE == typeClassification);
          useStringColumn |= (BigData.STRING_VALUE == typeClassification);
+         useDoubleColumn |= (BigData.DOUBLE_VALUE == typeClassification);
       }
       
       if (useNumericColumn)
@@ -570,6 +572,13 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          orderCriteria.add(dvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE),
                order.isAscending());
       }
+      
+      if (useDoubleColumn)
+      {
+         orderCriteria.add(dvJoin.fieldRef(StructuredDataValueBean.FIELD__DOUBLE_VALUE),
+               order.isAscending());
+      }
+      
       // else do nothing (compatible to behavior of other data types!) 
       String dataId = order.getDataID() + "/" + order.getAttributeName();
       dataOrderJoins.put(dataId, dvJoin);

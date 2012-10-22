@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1324,6 +1324,8 @@ public class ProcessQueryPostprocessor
       addCustomIndexEntry(fieldIndexValueList, ValueType.OBJECT, Long.valueOf(data.getModel().getModelOID()));
       // data
       addCustomIndexEntry(fieldIndexValueList, ValueType.OBJECT, dataRtOid);
+      
+      // column double_value does not need to be handled as this is used for sorting only
       if (StringUtils.isNotEmpty(slot.getSValueColumn()))
       {
          // string_value from DB

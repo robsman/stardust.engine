@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,12 @@
 package org.eclipse.stardust.engine.core.persistence.jdbc;
 
 import java.util.Collections;
+import java.util.Date;
+import java.util.TreeSet;
 //import java.util.HashMap;
 import java.util.Iterator;
 
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
@@ -344,6 +347,32 @@ public abstract class DBDescriptor
     * Maps Java field types to valid SQL column types.
     */
    public abstract String getSQLType(Class type, long length);
+
+   //public static <E> TreeSet<E> copySet(TreeSet<? extends E> rhs)
+   public <E> Pair< E, E> getNumericSQLTypeValueBorders(
+         Class<E> type)
+   {
+      if (type == Integer.TYPE || type == Integer.class)
+      {
+         return new Pair(Integer.MIN_VALUE, Integer.MAX_VALUE);
+      }
+      else if (type == Long.TYPE || type == Long.class || type == Date.class)
+      {
+         return new Pair(Long.MIN_VALUE, Long.MAX_VALUE);
+      }
+      else if (type == Float.TYPE || type == Float.class)
+      {
+         // Float.MIN_VALUE is NOT negative, use negative MAX_VALUE as lower border
+         return new Pair(-Float.MAX_VALUE, Float.MAX_VALUE);
+      }
+      else if (type == Double.TYPE || type == Double.class)
+      {
+         return new Pair( -1.0e+125, 1.0e+125);
+      }
+
+      throw new InternalException("Illegal type for SQL mapping: '" + type.getName()
+            + "'");
+   }
 
    public abstract boolean useQueryTimeout();
 

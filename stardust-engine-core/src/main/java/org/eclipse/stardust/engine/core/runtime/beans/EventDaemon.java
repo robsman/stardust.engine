@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.extensions.conditions.timer.TimeStampEmitter;
 import org.eclipse.stardust.engine.core.persistence.ClosableIterator;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.PullEventEmitter;
@@ -34,6 +35,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.PullEventEmitter;
 public class EventDaemon implements IDaemon
 {
    private static final Logger trace = LogManager.getLogger(EventDaemon.class);
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
    
    public static final String ID = AdministrationService.EVENT_DAEMON;
 
@@ -94,6 +96,7 @@ public class EventDaemon implements IDaemon
                         {
                            protected void invoke()
                            {
+                              daemonLogger.info("Event Daemon, process event '" + event.toString() + "'.");                              
                               EventUtils.processPullEvent(event);
                            }
                         });

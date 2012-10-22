@@ -26,9 +26,8 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
-
 
 /**
  * Will execute the 'daemon'. Also responsible for handling acknowledge requests.
@@ -39,6 +38,7 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 public class DaemonAction extends SecurityContextAwareAction
 {
    private static final String INVALID_ACTION = "invalid_action";
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
    
    private static final Logger trace = LogManager.getLogger(DaemonAction.class);
 
@@ -80,6 +80,7 @@ public class DaemonAction extends SecurityContextAwareAction
                         type + DaemonProperties.DAEMON_BATCH_SIZE_SUFFIX, Long.MAX_VALUE);
                ExecuteDaemonAction innerAction = new ExecuteDaemonAction(carrier, daemon, batchSize);
 
+               daemonLogger.info("Running daemon '" + type.toString() + "'.");                              
                while (IDaemon.WORK_PENDING.equals(innerAction.getExecutionStatus()))
                {
                   SecurityContextBoundAction securityContextBoundAction =

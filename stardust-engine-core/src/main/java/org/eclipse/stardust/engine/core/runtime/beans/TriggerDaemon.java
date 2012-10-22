@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.BatchedPullTriggerEvaluator;
@@ -36,6 +37,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.TriggerMatch;
 public class TriggerDaemon implements IDaemon
 {
    private static final Logger trace = LogManager.getLogger(TriggerDaemon.class);
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
 
    private ITriggerType triggerType;
    private Object evaluator;
@@ -120,6 +122,8 @@ public class TriggerDaemon implements IDaemon
                   //{
                   //   isSync = Boolean.getBoolean(syncFlag);
                   //}
+
+                  daemonLogger.info("Trigger Daemon, process trigger '" + trigger.toString() + ", " + match.toString() + "'.");
                   new WorkflowServiceImpl().startProcess(processDefinition.getId(),
                         performParameterMapping(trigger, match.getData()), isSync);
                }
@@ -179,5 +183,4 @@ public class TriggerDaemon implements IDaemon
       }
       return result;
    }
-
 }

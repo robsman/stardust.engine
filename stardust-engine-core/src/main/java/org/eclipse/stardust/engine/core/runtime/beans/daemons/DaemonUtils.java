@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IDaemon;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 
@@ -37,6 +38,7 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 public class DaemonUtils
 {
    public static final Logger trace = LogManager.getLogger(DaemonUtils.class);
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
    
    public static Daemon startDaemon(String daemonId, boolean acknowledge)
    {
@@ -49,7 +51,8 @@ public class DaemonUtils
          service = factory.get();
          
          trace.info("Starting daemon '" + daemonId + "'.");
-
+         daemonLogger.info("Starting daemon '" + daemonId + "'.");
+         
          DaemonCarrier carrier = new DaemonCarrier(daemonId);
          carrier.setStartTimeStamp(System.currentTimeMillis());
 
@@ -87,7 +90,8 @@ public class DaemonUtils
          service = factory.get();
          
          trace.info("Stopping daemon '" + daemonId + "'.");
-
+         daemonLogger.info("Stopping daemon '" + daemonId + "'.");
+         
          DaemonCarrier carrier = new DaemonCarrier(daemonId);
 
          GetDaemonLogAction getStartLogAction = GetDaemonLogAction.getStartLog(carrier);

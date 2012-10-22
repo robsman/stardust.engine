@@ -1365,11 +1365,12 @@ public class SchemaHelper
       }
    }
    
-   public static void alterAuditTrailDropPartition(String partitionId)
+   public static void alterAuditTrailDropPartition(String partitionId, String password)
    {
       IAuditTrailPartition partition = AuditTrailPartitionBean.findById(partitionId);
       Session session = (Session) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL);
+      verifySysopPassword(session, password);
 
       // Delete for all models in given partition the runtime data (process instances, ...).
       Iterator iter = session.getIterator(ModelPersistorBean.class, QueryExtension

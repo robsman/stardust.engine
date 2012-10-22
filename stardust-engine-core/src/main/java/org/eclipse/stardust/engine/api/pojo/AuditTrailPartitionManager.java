@@ -31,7 +31,7 @@ public class AuditTrailPartitionManager
    public static void dropAuditTrailPartition(String partitionId, String password)
    {
       Utils.initCarnotEngine(partitionId);
-      SchemaHelper.alterAuditTrailDropPartition(partitionId);
+      SchemaHelper.alterAuditTrailDropPartition(partitionId, password);
    }
 
 }

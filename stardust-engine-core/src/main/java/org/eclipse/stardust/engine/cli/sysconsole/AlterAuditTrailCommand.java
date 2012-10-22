@@ -301,7 +301,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          String partitionId = (String) options.get(PARTITION_DROP);
 
          Utils.initCarnotEngine(partitionId);
-         SchemaHelper.alterAuditTrailDropPartition(partitionId);
+         SchemaHelper.alterAuditTrailDropPartition(partitionId, password);
 
          print("Deletion of partition and contained data from AuditTrail done.");
       }

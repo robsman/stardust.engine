@@ -37,6 +37,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.internal.SyncCriticalitiesToDiskAction;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 
@@ -47,8 +48,8 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
  */
 public class CriticalityDaemon implements IDaemon
 {
-
    private static final Logger trace = LogManager.getLogger(CriticalityDaemon.class);
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
 
    public static final String ID = AdministrationService.CRITICALITY_DAEMON;
 
@@ -83,6 +84,8 @@ public class CriticalityDaemon implements IDaemon
             criticalityMap.put(oid, CriticalityEvaluator.recalculateCriticality(oid));
             lastAiOid = oid;
          }
+         
+         daemonLogger.info("Criticality Daemon, perform synchronisation.");                                       
          jobManager.performSynchronousJob(new SyncCriticalitiesToDiskAction(
                criticalityMap));
          currentAiOid = lastAiOid;
@@ -104,6 +107,8 @@ public class CriticalityDaemon implements IDaemon
                long oid = (Long) i.next();
                Map criticalityMap = CollectionUtils.newMap();
                criticalityMap.put(oid, CriticalityEvaluator.recalculateCriticality(oid));
+               
+               daemonLogger.info("Criticality Daemon, perform synchronisation.");                                                      
                jobManager.performSynchronousJob(new SyncCriticalitiesToDiskAction(
                      criticalityMap));
                lastAiOid = oid;
@@ -182,5 +187,4 @@ public class CriticalityDaemon implements IDaemon
    {
       return ID;
    }
-
 }

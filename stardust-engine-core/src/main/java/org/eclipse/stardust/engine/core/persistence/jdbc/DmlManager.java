@@ -139,6 +139,11 @@ public class DmlManager
       else if (type == Double.class || type == Double.TYPE)
       {
          Double doubleValue = (Double) value;
+         if(doubleValue == Unknown.DOUBLE)
+         {
+            return SQL_NULL;
+         }
+         
          Pair<Double, Double> valueBorders = dbDescriptor
                .getNumericSQLTypeValueBorders(Double.class);
          if (doubleValue < valueBorders.getFirst())

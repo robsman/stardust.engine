@@ -37,6 +37,13 @@ import org.eclipse.stardust.common.error.InternalException;
  */
 public abstract class DBDescriptor
 {
+   private static final Pair INT_VALUE_RANGE = new Pair(Integer.MIN_VALUE, Integer.MAX_VALUE);
+   private static final Pair LONG_VALUE_RANGE = new Pair(Long.MIN_VALUE, Long.MAX_VALUE);
+
+   // Float.MIN_VALUE is NOT negative, use negative MAX_VALUE as lower border
+   private static final Pair FLOAT_VALUE_RANGE = new Pair(-Float.MAX_VALUE, Float.MAX_VALUE);
+   private static final Pair DOUBLE_VALUE_RANGE = new Pair( -1.0e+125, 1.0e+125);
+
    private static final String DBDESCRIPTOR_PREFIX = "org.eclipse.stardust.engine.core.persistence.jdbc.dbdescriptor.";
 
    public static final String SEQUENCE_HELPER_TABLE_NAME = "sequence_helper";
@@ -354,20 +361,19 @@ public abstract class DBDescriptor
    {
       if (type == Integer.TYPE || type == Integer.class)
       {
-         return new Pair(Integer.MIN_VALUE, Integer.MAX_VALUE);
+         return INT_VALUE_RANGE;
       }
       else if (type == Long.TYPE || type == Long.class || type == Date.class)
       {
-         return new Pair(Long.MIN_VALUE, Long.MAX_VALUE);
+         return LONG_VALUE_RANGE;
       }
       else if (type == Float.TYPE || type == Float.class)
       {
-         // Float.MIN_VALUE is NOT negative, use negative MAX_VALUE as lower border
-         return new Pair(-Float.MAX_VALUE, Float.MAX_VALUE);
+         return FLOAT_VALUE_RANGE;
       }
       else if (type == Double.TYPE || type == Double.class)
       {
-         return new Pair( -1.0e+125, 1.0e+125);
+         return DOUBLE_VALUE_RANGE;
       }
 
       throw new InternalException("Illegal type for SQL mapping: '" + type.getName()

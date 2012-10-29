@@ -27,13 +27,24 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.UserPK;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
 /**
@@ -57,11 +68,22 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
 
    private List<Pair<String, String>> orderedPrefetchData = Collections.EMPTY_LIST;
 
+   private ModelManager modelManager;
+
    public AbstractAuthorization2Predicate(AuthorizationContext context)
    {
       this.context = context;
    }
 
+   public ModelManager getModelManager()
+   {
+      if (modelManager == null)
+      {
+         modelManager = ModelManagerFactory.getCurrent();
+      }
+      return modelManager;
+   }   
+   
    public void setFetchPredicate(FetchPredicate delegate)
    {
       this.delegate = delegate;
@@ -105,12 +127,21 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
       String evaluationProfile = RuntimeInstanceQueryEvaluator.getEvaluationProfile(query);
       boolean isLegacyEvaluation = QUERY_EVALUATION_PROFILE_LEGACY
             .equals(evaluationProfile);      
+            
       if (!isLegacyEvaluation)
       {
          Set<Pair<String, String>> distinctData = CollectionUtils.newHashSet();
          this.orderedPrefetchData = CollectionUtils.newArrayList();
-
-      	FilterAndTerm queryFilter = query.getFilter();      
+         FilterAndTerm queryFilter = query.getFilter();      
+         
+         if(query instanceof ActivityInstanceQuery)
+         {
+            if(query.getPolicy(ExcludeUserPolicy.class) != null)
+            {
+               getExcludeUserFilter(queryFilter);            
+            }         
+         }      
+         
          Collection<IOrganization> restricted = context.getRestricted();
          for (IOrganization organization : restricted)
          {
@@ -152,8 +183,7 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
             trace.warn("Prefetching of department data not applied as selected evaluation profile '"
                   + evaluationProfile + "' does not support it.");
          }
-      }
-      
+      }      
       
       return isLegacyEvaluation;
    }
@@ -506,4 +536,88 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
       
       return false;
    }
+   
+   public boolean isExcludedUser(long activityRtOid, long processInstanceOID, long modelOid)
+   {
+      if(processInstanceOID == 0)
+      {
+         return false;
+      }
+      
+      IUser currentUser = SecurityProperties.getUser();      
+      long currentPerformer = currentUser.getOID();
+    
+      ModelManager mm = getModelManager();
+      IActivity activity = mm.findActivity(modelOid, activityRtOid);
+      
+      IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
+      IProcessDefinition processDefinition = processInstance.getProcessDefinition();
+            
+      if (activity.hasEventHandlers(
+            PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
+      {      
+         for (int k = 0; k < activity.getEventHandlers().size(); ++k)
+         {
+            IEventHandler handler = (IEventHandler) activity.getEventHandlers().get(k);
+            if (((IEventConditionType) handler.getType()).getImplementation() != EventType.Pull)
+            {
+               for (Iterator l = handler.getAllEventActions(); l.hasNext();)
+               {
+                  IEventAction action = (IEventAction) l.next();
+                  PluggableType type = action.getType();
+                  String instanceName = type.getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
+                  String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
+                  Class classFromClassName = Reflect.getClassFromClassName(excludeUserAction, false);
+                  if(classFromClassName != null)
+                  {
+                     excludeUserAction = classFromClassName.getName();
+                  }
+                  
+                  if(instanceName.equals(excludeUserAction))
+                  {
+                     Map<String, Object> attributes = action.getAllAttributes();
+                     String dataId = (String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
+                     String dataPath = (String) attributes
+                           .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
+                     IData data = ModelUtils.getData(processDefinition, dataId);
+                     IDataValue dataValue = processInstance.getDataValue(data);
+                     
+                     Object value = dataValue.getValue();
+                     if(!StringUtils.isEmpty(dataPath))
+                     {
+                        ExtendedAccessPathEvaluator evaluator = SpiUtils
+                        .createExtendedAccessPathEvaluator(data, dataPath);
+                        AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
+                        processInstance, null, null, null);
+                        value = evaluator.evaluate(data, dataValue.getValue(), dataPath, evaluationContext);                        
+                     }
+                     
+                     Long longValue = null;
+                     if(value instanceof Long)
+                     {
+                        longValue = (Long) value;
+                     }
+                     else if(value instanceof UserPK)
+                     {
+                        try
+                        {
+                           longValue = Long.parseLong(value.toString());
+                        }
+                        catch (NumberFormatException e)
+                        {
+                        }                        
+                     }
+                                          
+                     if(longValue != null && currentPerformer == longValue)
+                     {
+                        return true;
+                     }                        
+                  }
+               }
+            }
+         }
+      }
+      
+      return false;   
+   }         
 }

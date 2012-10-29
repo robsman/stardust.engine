@@ -12,41 +12,16 @@ package org.eclipse.stardust.engine.core.runtime.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Iterator;
-import java.util.Map;
 
-import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IEventAction;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PluggableType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.FilterAndTerm;
 import org.eclipse.stardust.engine.api.query.Query;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
-import org.eclipse.stardust.engine.api.runtime.UserPK;
-import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IWorkItem;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 
 /**
  * Predicate class which is used to restrict access to work items based on its activity 
@@ -58,16 +33,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predicate
 {
    private static final Logger trace = LogManager.getLogger(WorkItemAuthorization2Predicate.class);
-   private ModelManager modelManager;
-
-   public ModelManager getModelManager()
-   {
-      if (modelManager == null)
-      {
-         modelManager = ModelManagerFactory.getCurrent();
-      }
-      return modelManager;
-   }
       
    public boolean addPrefetchDataHints(Query query)
    {
@@ -176,89 +141,5 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
          }
       }
       return result;
-   }
-      
-   public boolean isExcludedUser(long activityRtOid, long processInstanceOID, long modelOid)
-   {
-      if(processInstanceOID == 0)
-      {
-         return false;
-      }
-      
-      IUser currentUser = SecurityProperties.getUser();      
-      long currentPerformer = currentUser.getOID();
-    
-      ModelManager mm = getModelManager();
-      IActivity activity = mm.findActivity(modelOid, activityRtOid);
-      
-      IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
-      IProcessDefinition processDefinition = processInstance.getProcessDefinition();
-            
-      if (activity.hasEventHandlers(
-            PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
-      {      
-         for (int k = 0; k < activity.getEventHandlers().size(); ++k)
-         {
-            IEventHandler handler = (IEventHandler) activity.getEventHandlers().get(k);
-            if (((IEventConditionType) handler.getType()).getImplementation() != EventType.Pull)
-            {
-               for (Iterator l = handler.getAllEventActions(); l.hasNext();)
-               {
-                  IEventAction action = (IEventAction) l.next();
-                  PluggableType type = action.getType();
-                  String instanceName = type.getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
-                  String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
-                  Class classFromClassName = Reflect.getClassFromClassName(excludeUserAction, false);
-                  if(classFromClassName != null)
-                  {
-                     excludeUserAction = classFromClassName.getName();
-                  }
-                  
-                  if(instanceName.equals(excludeUserAction))
-                  {
-                     Map<String, Object> attributes = action.getAllAttributes();
-                     String dataId = (String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
-                     String dataPath = (String) attributes
-                           .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
-                     IData data = ModelUtils.getData(processDefinition, dataId);
-                     IDataValue dataValue = processInstance.getDataValue(data);
-                     
-                     Object value = dataValue.getValue();
-                     if(!StringUtils.isEmpty(dataPath))
-                     {
-                        ExtendedAccessPathEvaluator evaluator = SpiUtils
-                        .createExtendedAccessPathEvaluator(data, dataPath);
-                        AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
-                        processInstance, null, null, null);
-                        value = evaluator.evaluate(data, dataValue.getValue(), dataPath, evaluationContext);                        
-                     }
-                     
-                     Long longValue = null;
-                     if(value instanceof Long)
-                     {
-                        longValue = (Long) value;
-                     }
-                     else if(value instanceof UserPK)
-                     {
-                        try
-                        {
-                           longValue = Long.parseLong(value.toString());
-                        }
-                        catch (NumberFormatException e)
-                        {
-                        }                        
-                     }
-                                          
-                     if(longValue != null && currentPerformer == longValue)
-                     {
-                        return true;
-                     }                        
-                  }
-               }
-            }
-         }
-      }
-      
-      return false;   
    }      
 }

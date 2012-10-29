@@ -15,10 +15,11 @@ import java.sql.SQLException;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.query.ExcludeUserPolicy;
+import org.eclipse.stardust.engine.api.query.Query;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-
 
 /**
  * 
@@ -38,11 +39,23 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
       ActivityInstanceBean.FR__CURRENT_DEPARTMENT
    };
 
+   private boolean excludeUserPolicy;
+
    public ActivityInstanceAuthorization2Predicate(AuthorizationContext context)
    {
       super(context);
    }
 
+   public boolean addPrefetchDataHints(Query query)
+   {
+      if(query.getPolicy(ExcludeUserPolicy.class) != null)
+      {
+         excludeUserPolicy = true;
+      }
+      
+      return super.addPrefetchDataHints(query);
+   }
+   
    public FieldRef[] getLocalFields()
    {
       return LOCAL_STRINGS;
@@ -68,6 +81,12 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
                long currentUserPerformer = rs.getLong(ActivityInstanceBean.FIELD__CURRENT_USER_PERFORMER);
                long processInstanceOid = rs.getLong(ActivityInstanceBean.FIELD__PROCESS_INSTANCE);
                long departmentOid = rs.getLong(ActivityInstanceBean.FIELD__CURRENT_DEPARTMENT);
+               
+               if(excludeUserPolicy && isExcludedUser(activityRtOid, processInstanceOid, modelOid))
+               {
+                  return false;
+               }               
+               
                context.setActivityData(processInstanceOid, activityRtOid, modelOid, currentPerformer,
                      currentUserPerformer, departmentOid);
                return Authorization2.hasPermission(context);

@@ -198,7 +198,7 @@ public class WorklistQueryEvaluator
                   WorkItemBean.FR__DEPARTMENT,
                   WorkItemBean.FR__MODEL,
                   WorkItemBean.FR__ACTIVITY,
-                  legacyEvaluation
+                  !legacyEvaluation
                         ? WorkItemBean.FR__SCOPE_PROCESS_INSTANCE
                         : Functions.constantExpression("0 AS " + WorkItemBean.FIELD__SCOPE_PROCESS_INSTANCE),
                   countFunction},

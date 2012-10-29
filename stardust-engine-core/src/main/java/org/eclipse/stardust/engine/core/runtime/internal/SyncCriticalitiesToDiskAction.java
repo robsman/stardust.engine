@@ -136,8 +136,8 @@ public class SyncCriticalitiesToDiskAction extends Procedure
                         stmt.addBatch(MessageFormat.format(
                               updateTableSql,
                               new Object[] {
-                                    DmlManager.getSQLValue(Double.TYPE, new Float(
-                                          criticality), jdbcSession.getDBDescriptor()),
+                                    DmlManager.getSQLValue(Double.TYPE, new Double(criticality), 
+                                          jdbcSession.getDBDescriptor()),
                                     DmlManager.getSQLValue(Long.TYPE, new Long(aiOid),
                                           jdbcSession.getDBDescriptor())}));
                      }

@@ -1,7 +1,7 @@
 package org.eclipse.stardust.engine.api.query;
 
 /**
- * Policy to exclude AI´s from excluded users in the result.
+ * Policy to exclude Activity Instances from excluded users in the result.
  * 
  * @see ExcludeUserPolicy#EXCLUDE_USER
  */

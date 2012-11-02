@@ -808,10 +808,6 @@ public interface WorkflowService extends Service
     * @throws ConcurrencyException
     *            if a lock on process instances cannot be obtained.
     */
-//   @ExecutionPermission(
-//         id=ExecutionPermission.Id.abortProcessInstances,
-//         scope=ExecutionPermission.Scope.processDefinition,
-//         defer=true)
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
          scope=ExecutionPermission.Scope.model,
@@ -821,6 +817,36 @@ public interface WorkflowService extends Service
          boolean abortProcessInstance, String comment) throws IllegalOperationException,
          ObjectNotFoundException, InvalidArgumentException, ConcurrencyException;
 
+   /**
+    * Spawns a new root process and creates a link of type
+    * {@link ProcessInstanceLinkType#SWITCH} to the specified process instance.<br>
+    * Optionally existing data from the specified process instance can be copied to the
+    * newly spawned process.
+    * <p>
+    * Please note that currently the specified process instance has to be aborted by
+    * setting <code>abortProcessInstance</code> to <code>true</code>.
+    *
+    * @param processInstanceOid
+    *           The oid of the process to spawn from.
+    * @param spawnProcessID
+    *           The id of the process definition to spawn as a new root process.
+    * @param options          
+    *           Options that controls how the spawning operation has to be performed.
+    * @return The {@link ProcessInstance} that was spawned.
+    *
+    * @throws IllegalOperationException
+    *            if the process instance is terminated or not a root process instance.
+    *            if the process instance and the process definition are from different models.
+    *            if the process instances process definition is the same as the specified process definition.
+    * @throws ObjectNotFoundException
+    *            if the process instance for the specified oid or the process definition
+    *            for the specified process id is not found.
+    * @throws InvalidArgumentException
+    *            if <code>abortProcessInstance</code> is false (currently not
+    *            implemented).
+    * @throws ConcurrencyException
+    *            if a lock on process instances cannot be obtained.
+    */   
    @ExecutionPermission(
          id=ExecutionPermission.Id.spawnPeerProcessInstance,
          scope=ExecutionPermission.Scope.model,

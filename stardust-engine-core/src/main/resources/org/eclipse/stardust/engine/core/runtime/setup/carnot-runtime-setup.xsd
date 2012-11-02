@@ -65,6 +65,7 @@
          <xs:attribute name="nValueColumn" type="xs:string" use="optional" />
          <xs:attribute name="sValueColumn" type="xs:string" use="optional" />
          <xs:attribute name="dValueColumn" type="xs:string" use="optional" />
+         <xs:attribute name="ignorePreparedStatements" type="xs:boolean" use="optional" />         
       </xs:complexType>
    </xs:element>
 

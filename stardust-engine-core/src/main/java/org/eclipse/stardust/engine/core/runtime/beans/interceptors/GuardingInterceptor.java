@@ -19,7 +19,6 @@ import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
-
 /**
  * @author ubirkemeyer
  * @version $Revision$
@@ -28,16 +27,11 @@ public class GuardingInterceptor implements MethodInterceptor
 {
    private static final long serialVersionUID = -2252311619932405039L;
    
-   private static final String PREFIX = "org.eclipse.stardust.engine.api.runtime.";
-   private static final String LEGACY_PREFIX = "ag.carnot.workflow.runtime.";
-   
-   private final String guardedParamName;
-   private final String legacyGuardedParamName;
+   private final String paramName;
 
    public GuardingInterceptor(String serviceName)
    {
-      this.guardedParamName = serviceName.substring(PREFIX.length()) + ".Guarded";
-      this.legacyGuardedParamName = serviceName.substring(LEGACY_PREFIX.length()) + ".Guarded";
+      paramName = serviceName.substring(serviceName.lastIndexOf('.') + 1) + ".Guarded";
    }
 
    public Object invoke(MethodInvocation invocation) throws Throwable
@@ -52,9 +46,8 @@ public class GuardingInterceptor implements MethodInterceptor
          {
             // check if password must be changed
             SecurityUtils.checkPasswordExpired(SecurityProperties.getUser(), invocation);         
-            
-            if (invocation.getParameters().getBoolean(guardedParamName, true)
-                  || invocation.getParameters().getBoolean(legacyGuardedParamName, true))
+                        
+            if (invocation.getParameters().getBoolean(paramName, true))
             {
                Authorization2.checkPermission(invocation.getMethod(), invocation.getArguments());
             }

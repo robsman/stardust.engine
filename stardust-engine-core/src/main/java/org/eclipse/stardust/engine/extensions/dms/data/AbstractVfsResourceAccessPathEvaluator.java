@@ -61,7 +61,8 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
       super();
    }
    
-   protected void syncToRepository(Document document, Logger trace, AccessPoint accessPointDefinition)
+   protected void syncToRepository(Document document, Logger trace,
+         AccessPoint accessPointDefinition)
    {
       boolean isInternalDocumentSyncCall = Parameters.instance().getBoolean(
             IS_INTERNAL_DOCUMENT_SYNC_CALL, false);
@@ -73,13 +74,14 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
          try
          {
 
-            IUser user = SecurityProperties.getUser();      
-            
+            IUser user = SecurityProperties.getUser();
+
             if (user == null)
             {
-               Parameters.instance().set(SecurityProperties.CURRENT_USER, TransientUser.getInstance());
+               Parameters.instance().set(SecurityProperties.CURRENT_USER,
+                     TransientUser.getInstance());
             }
-            
+
             DocumentManagementService dms = null;
             try
             {
@@ -96,9 +98,11 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
                try
                {
                   Document existingDocument = dms.getDocument(document.getId());
-                  if (existingDocument != null && !existingDocument.equals(document));
+                  if (existingDocument != null && !existingDocument.equals(document))
                   {
-                     dms.updateDocument(document, false, null, null, false);                     
+                     mergeNonUpdatableProperties(document, existingDocument);
+
+                     dms.updateDocument(document, false, null, null, false);
                   }
                }
                catch (Exception e)
@@ -127,10 +131,16 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
          {
             if (layer != null)
             {
-            ParametersFacade.popLayer();
+               ParametersFacade.popLayer();
+            }
          }
       }
    }
+
+   private void mergeNonUpdatableProperties(Document document, Document existingDocument)
+   {
+      // DocumentAnnotations are not persisted in audit trail
+      document.setDocumentAnnotations(existingDocument.getDocumentAnnotations());
    }
 
    protected Object readFromAuditTrail(AccessPoint accessPointDefinition, Object accessPointInstance, String inPath, AccessPathEvaluationContext accessPathEvaluationContext)

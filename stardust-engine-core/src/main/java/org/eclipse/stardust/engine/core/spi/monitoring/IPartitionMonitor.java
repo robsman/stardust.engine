@@ -16,36 +16,45 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IUserRealm;
 
 /**
+ * SPI based monitoring for
+ * user/realm management
+ * model deployment
+ * 
  * @author sauer
  * @version $Revision: $
  */
 public interface IPartitionMonitor
 {
    /**
+    * Client can analyze and monitor argument and method call.
     * 
     * @param realm
     */
    void userRealmCreated(IUserRealm realm);
    
    /**
+    * Client can analyze and monitor argument and method call.
     * 
     * @param realm
     */
    void userRealmDropped(IUserRealm realm);
    
    /**
+    * Client can analyze and monitor argument and method call.
     * 
     * @param user
     */
    void userCreated(IUser user);
    
    /**
+    * Client can analyze and monitor argument and method call.
     * 
     * @param user
     */
    void userEnabled(IUser user);
    
    /**
+    * Client can analyze and monitor argument and method call.
     * 
     * @param user
     */

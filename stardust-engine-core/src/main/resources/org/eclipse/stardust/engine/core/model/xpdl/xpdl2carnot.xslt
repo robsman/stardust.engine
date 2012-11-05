@@ -1430,6 +1430,7 @@
                 <xsl:if test="@ParentLane">
                     <xsl:attribute name="parentLane"><xsl:value-of select="@ParentLane"/></xsl:attribute>
                 </xsl:if>
+				<xsl:call-template name="carnot-attributes"/>                
             </xsl:if>
 		    <xsl:if test="c:Text">
 		        <xsl:choose>

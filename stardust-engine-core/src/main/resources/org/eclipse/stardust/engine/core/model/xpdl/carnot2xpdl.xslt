@@ -1543,6 +1543,7 @@
             </xsl:if>
 
             <xsl:call-template name="carnot-symbols-and-connections" />
+			<xsl:call-template name="carnot-attributes" />            
         </carnot:Symbol>
     </xsl:template>
 
@@ -1558,6 +1559,7 @@
             </xsl:if>
 
             <xsl:call-template name="carnot-symbols-and-connections" />
+			<xsl:call-template name="carnot-attributes" />            
         </carnot:Symbol>
     </xsl:template>
 

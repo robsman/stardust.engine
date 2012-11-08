@@ -207,6 +207,12 @@ public class UserDetails implements User
          }
       }
 
+      //respect SynchronizationService#TransientAdministratorDecorator
+      if(user.hasRole(PredefinedConstants.ADMINISTRATOR_ROLE))
+      {
+         isAdministrator = true;
+      }
+         
       if (!activeModels.isEmpty())
       {
          AuthorizationContext ctx = AuthorizationContext.create(new ClientPermission(

@@ -152,6 +152,8 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
+      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.COMPLETED));
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
@@ -201,6 +203,8 @@ public class TransientProcessInstanceTest
       disableTransientProcessesSupport();
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
+      
+      assertThat(pi.getState(), is(ProcessInstanceState.Interrupted));
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.INTERRUPTED));
@@ -276,6 +280,8 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
+      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.COMPLETED));
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
@@ -325,6 +331,8 @@ public class TransientProcessInstanceTest
       enableTransientProcessesSupport();
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
+      
+      assertThat(pi.getState(), is(ProcessInstanceState.Interrupted));
       
       final Parameters params = Parameters.instance();
       assertThat((ProcessExecutionState) params.get(PROCESS_EXECUTION_STATE), is(ProcessExecutionState.INTERRUPTED));
@@ -478,6 +486,8 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, null, true);
       
+      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
@@ -502,7 +512,9 @@ public class TransientProcessInstanceTest
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, data, true);
       
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi.getProcessID()));
-      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      final ActivityInstance completedAi = sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      
+      assertThat(completedAi.getProcessInstance().getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -554,6 +566,8 @@ public class TransientProcessInstanceTest
       enableTransientProcessesSupport();
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      
+      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -1269,6 +1283,8 @@ public class TransientProcessInstanceTest
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
+      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
@@ -1364,6 +1380,8 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_TRIGGER, null, true);
       
+      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      
       assertThat(pi.getStartingUser().getAccount(), equalTo(MOTU));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
@@ -1387,6 +1405,8 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
+      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      
       final AuditTrailPersistence persistence = (AuditTrailPersistence) pi.getRuntimeAttributes().get(AuditTrailPersistence.class.getName());
       assertThat(persistence, is(AuditTrailPersistence.TRANSIENT));
       
@@ -1395,6 +1415,29 @@ public class TransientProcessInstanceTest
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether starting the process instance asynchronously works correctly.
+    * </p>
+    */
+   @Test
+   public void testStartTransientProcessAsync() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_SPLIT_SPLIT, null, false);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+      
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();

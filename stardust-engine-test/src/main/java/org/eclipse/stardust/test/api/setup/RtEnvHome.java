@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
+import org.eclipse.stardust.test.api.util.DaemonHome;
 
 /**
  * <p>
@@ -114,7 +115,7 @@ public class RtEnvHome
     */
    public static void cleanUpRuntimeAndModels(final AdministrationService adminService) throws TestRtEnvException
    {
-      stopAllDaemons(adminService);
+      stopAllRunningDaemons(adminService);
       
       LOG.debug("Trying to clean up the Audit Trail runtime and all deployed models.");
       new RuntimeCleanupTemplate()
@@ -137,7 +138,7 @@ public class RtEnvHome
     */
    public static void cleanUpRuntime(final AdministrationService adminService) throws TestRtEnvException
    {
-      stopAllDaemons(adminService);
+      stopAllRunningDaemons(adminService);
       
       LOG.debug("Trying to clean up the Audit Trail runtime.");
       new RuntimeCleanupTemplate()
@@ -234,22 +235,11 @@ public class RtEnvHome
       return result;
    }
    
-   private static void stopAllDaemons(final AdministrationService adminService)
+   private static void stopAllRunningDaemons(final AdministrationService adminService)
    {
-      LOG.debug("Trying to stop all daemons.");
+      LOG.debug("Trying to stop all running daemons.");
       
-      final List<Daemon> allDaemons = adminService.getAllDaemons(false);
-      for (final Daemon d : allDaemons)
-      {
-         final Daemon daemon = adminService.stopDaemon(d.getType(), true);
-         
-         final boolean isRunning = daemon.isRunning();
-         final boolean isAck = daemon.getAcknowledgementState().equals(AcknowledgementState.RespondedOK);
-         if (isRunning || !isAck)
-         {
-            throw new TestRtEnvException("Unable to stop daemon '" + daemon + "'.", TestRtEnvAction.DAEMON_TEARDOWN);
-         }
-      }
+      DaemonHome.stopAllRunningDaemons(adminService);
    }
    
    private static final class ModelIOException extends RuntimeException

@@ -2130,12 +2130,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          cntrl.markLinkFetched(linkIdx);
 
          Number linkOID = (Number) cntrl.getLinkBuffer()[linkIdx];
-         if (linkOID == null)
+         if (linkOID == null || linkOID.longValue() == 0)
          {
             return null;
          }
-
-         // TODO don't fetch when OID is 0
+         
          target = findByOID(link.getTargetType(), linkOID.longValue());
 
          if (trace.isDebugEnabled())

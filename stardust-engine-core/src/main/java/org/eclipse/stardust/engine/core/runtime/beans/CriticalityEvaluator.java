@@ -12,7 +12,9 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.javascript.CriticalityEvaluationAction;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ICriticalityEvaluator;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
@@ -36,8 +38,18 @@ public class CriticalityEvaluator implements ICriticalityEvaluator
 
    public static double recalculateCriticality(long aiOid)
    {
-
       ActivityInstanceBean aiBean = ActivityInstanceBean.findByOID(aiOid);
+      
+      if (ProcessInstanceUtils.isTransientPiSupportEnabled())
+      {
+         final IProcessInstance pi = aiBean.getProcessInstance();
+         if (AuditTrailPersistence.isTransientExecution(pi.getAuditTrailPersistence()))
+         {
+            /* for transient process instance execution the criticality feature */
+            /* does not make any sense, but decreases performance               */
+            return CRITICALITY_LOWER_LIMIT;
+         }
+      }
 
       return evaluateCriticality(aiBean);
 

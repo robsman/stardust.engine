@@ -154,6 +154,19 @@ public class DmlManager
          {
             doubleValue = valueBorders.getSecond();
          }
+         else
+         {
+            Pair<Double, Double> valueEpsilonBorders = dbDescriptor
+                  .getNumericSQLTypeEpsilonBorders(Double.class);
+            if (doubleValue > valueEpsilonBorders.getFirst() && doubleValue < 0)
+            {
+               doubleValue = 0.0;
+            }
+            else if (doubleValue < valueEpsilonBorders.getSecond() && doubleValue > 0)
+            {
+               doubleValue = 0.0;
+            }
+         }
 
          return doubleValue.toString();
       }
@@ -285,6 +298,20 @@ public class DmlManager
                else if (doubleValue > valueBorders.getSecond())
                {
                   doubleValue = valueBorders.getSecond();
+               }
+               else
+               {
+                  Pair<Double, Double> valueEpsilonBorders = dbDescriptor
+                        .getNumericSQLTypeEpsilonBorders(Double.class);
+                  if (doubleValue > valueEpsilonBorders.getFirst() && doubleValue < 0)
+                  {
+                     doubleValue = 0.0;
+                  }
+                  else if (doubleValue < valueEpsilonBorders.getSecond()
+                        && doubleValue > 0)
+                  {
+                     doubleValue = 0.0;
+                  }
                }
                statement.setDouble(index, doubleValue);
             }

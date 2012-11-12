@@ -43,6 +43,7 @@ public abstract class DBDescriptor
    // Float.MIN_VALUE is NOT negative, use negative MAX_VALUE as lower border
    private static final Pair FLOAT_VALUE_RANGE = new Pair(-Float.MAX_VALUE, Float.MAX_VALUE);
    private static final Pair DOUBLE_VALUE_RANGE = new Pair( -1.0e+125, 1.0e+125);
+   private static final Pair EPSILON_DOUBLE_VALUE_RANGE = new Pair(-2.225E-307, 2.225E-307);
 
    private static final String DBDESCRIPTOR_PREFIX = "org.eclipse.stardust.engine.core.persistence.jdbc.dbdescriptor.";
 
@@ -354,6 +355,11 @@ public abstract class DBDescriptor
     * Maps Java field types to valid SQL column types.
     */
    public abstract String getSQLType(Class type, long length);
+   
+   public <E> Pair<E, E> getNumericSQLTypeEpsilonBorders(Class<E> type)
+   {
+      return EPSILON_DOUBLE_VALUE_RANGE;
+   }
 
    //public static <E> TreeSet<E> copySet(TreeSet<? extends E> rhs)
    public <E> Pair< E, E> getNumericSQLTypeValueBorders(

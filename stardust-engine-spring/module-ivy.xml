@@ -14,7 +14,7 @@
    xmlns:m="http://ant.apache.org/ivy/maven"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-   <info organisation="com.infinity.bpm" module="carnot-spring-module"
+   <info organisation="org.eclipse.stardust.engine" module="carnot-spring-module"
       revision="${ipp.version.full}" />
 
    <configurations>
@@ -36,7 +36,7 @@
 
    <dependencies>
       <!-- client-spring-module-runtime, spring-provider-compile -->
-      <dependency org="com.infinity.bpm" name="carnot-spring" rev="${ipp.version.full}" conf="client-spring-module-runtime,spring-provider-compile->carnot-spring-compile">
+      <dependency org="org.eclipse.stardust.engine" name="carnot-spring" rev="${ipp.version.full}" conf="client-spring-module-runtime,spring-provider-compile->carnot-spring-compile">
          <exclude org="rhino" module="js" />
       </dependency>
       
@@ -57,9 +57,9 @@
       <dependency org="org.springframework" name="spring-webmvc" rev="3.0.5.RELEASE" conf="spring-module-runtime->default" />
       
       <!-- client-spring-module-runtime -->
-      <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->client-module-runtime">
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->client-module-runtime">
          <exclude org="rhino" module="js" />
       </dependency>
-      <dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->logging-log4j-module-runtime"/>
+      <dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->logging-log4j-module-runtime"/>
    </dependencies>
 </ivy-module>

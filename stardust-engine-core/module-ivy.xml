@@ -13,9 +13,9 @@
    xmlns:m="http://ant.apache.org/ivy/maven"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-   <info organisation="com.infinity.bpm" module="infinity-process-engine-module"
+   <info organisation="org.eclipse.stardust.engine" module="infinity-process-engine-module"
       revision="${ipp.version.full}">
-      <extends organisation="com.infinity.bpm" module="infinity-common-artifacts" revision="latest.integration"
+      <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="latest.integration"
          extendType="all" location="interface-ivy.xml"/>
    </info>
    
@@ -112,12 +112,12 @@
    </publications>
    
    <dependencies>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-compile->carnot-client-compile"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-runtime->carnot-client-runtime"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-compile->carnot-engine-compile"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-runtime->carnot-engine-runtime"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-compile->carnot-emf-xsd-integration-compile"/>
-      <dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-runtime->carnot-emf-xsd-integration-runtime"/>
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-compile->carnot-client-compile"/>
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-runtime->carnot-client-runtime"/>
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-compile->carnot-engine-compile"/>
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-runtime->carnot-engine-runtime"/>
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-compile->carnot-emf-xsd-integration-compile"/>
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-runtime->carnot-emf-xsd-integration-runtime"/>
       
       <!-- ******************** -->
       <!--    Override Rules    -->

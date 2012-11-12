@@ -14,8 +14,8 @@
    xmlns:m="http://ant.apache.org/ivy/maven"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-   <info organisation="com.infinity.bpm" module="infinity-process-engine" revision="${ipp.version.full}">
-      <extends organisation="com.infinity.bpm" module="infinity-common-artifacts" revision="latest.integration"
+   <info organisation="org.eclipse.stardust.engine" module="infinity-process-engine" revision="${ipp.version.full}">
+      <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="latest.integration"
          extendType="all" location="interface-ivy.xml"/>
    </info>
 
@@ -106,11 +106,11 @@
    </publications>
 
    <dependencies>
-      <dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" 
+      <dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" 
          conf="carnot-engine-compile->base-module-compile" />
-      <dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" 
+      <dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" 
          conf="carnot-engine-compile-optional->logging-log4j-module-compile" />
-      <dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" 
+      <dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" 
          conf="carnot-client-compile->base-module-compile" />
 
       <!-- ********** -->

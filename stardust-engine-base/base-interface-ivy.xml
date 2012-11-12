@@ -13,7 +13,7 @@
    xmlns:m="http://ant.apache.org/ivy/maven"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-   <info organisation="com.infinity.bpm" module="base-artifacts" revision="${ipp.version.full}"/>
+   <info organisation="org.eclipse.stardust.engine" module="base-artifacts" revision="${ipp.version.full}"/>
 
    <configurations>
       <conf name="logging-log4j-provider-compile" visibility="private"/>

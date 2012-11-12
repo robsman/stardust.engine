@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
     Copyright (c) 2012 SunGard CSA LLC and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
@@ -13,7 +14,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-	<info organisation="com.infinity.bpm" module="stardust-engine-ws-cxf"
+	<info organisation="org.eclipse.stardust.engine" module="stardust-engine-ws-cxf"
 		revision="${ipp.version.full}" />
 
 	<configurations>
@@ -45,17 +46,22 @@
 			ext="pom" />
 	</publications>
 
-	<dependencies>		<!-- stardust-engine-ws-cxf-compile -->				<dependency org="com.infinity.bpm" name="infinity-process-engine" rev="${ipp.version.full}"
+	<dependencies>
+		<!-- stardust-engine-ws-cxf-compile -->
+		
+		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}"
 			conf="stardust-engine-ws-cxf-compile->carnot-engine-compile">
 			<!-- carnot-engine embeds Rhino, so the original JAR is not needed anymore -->
 			<exclude org="rhino" module="js" />
 			<exclude org="org.codehaus.woodstox" module="wstx-asl" />
 			<exclude org="javax.xml.bind" module="jaxb-api" />
 			<exclude org="javax.xml.stream" module="stax-api" />
-			<exclude org="com.sungard.infinity.bpm" module="jcr-vfs" />
+			<exclude org="org.eclipse.stardust.engine" module="jcr-vfs" />
 		</dependency>
 			
-	    <dependency org="org.springframework" name="spring-beans" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />        <dependency org="org.springframework" name="spring-web" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />
+	    <dependency org="org.springframework" name="spring-beans" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />
+        <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />
+        <dependency org="org.springframework" name="spring-web" rev="3.0.5.RELEASE" conf="stardust-engine-ws-cxf-compile->default" />
 
 	   	<dependency org="org.apache.cxf" name="cxf-tools-wsdlto-databinding-jaxb" rev="2.6.1" conf="stardust-engine-ws-cxf-codegen-runtime->default" >
 		   <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
@@ -63,7 +69,7 @@
 		</dependency>
 		<dependency org="org.apache.cxf" name="cxf-tools-wsdlto-frontend-jaxws" rev="2.6.1" conf="stardust-engine-ws-cxf-codegen-runtime->default" />
 
-	    <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-ws-cxf-codegen-runtime->xerces-module-runtime" />
+	    <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-ws-cxf-codegen-runtime->xerces-module-runtime" />
 	
 	 	<dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="stardust-engine-ws-cxf-provided->default" />
 	
@@ -81,12 +87,18 @@
 	    <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
 	    <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" />
 		<dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" >
-		   <exclude org="org.slf4j" module="slf4j-api" />           <exclude org="org.apache.santuario" module="xmlsec" />
-        </dependency>        <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.2" conf="stardust-engine-ws-cxf-compile->default" />
+		   <exclude org="org.slf4j" module="slf4j-api" />
+           <exclude org="org.apache.santuario" module="xmlsec" />
+        </dependency>
+        <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.2" conf="stardust-engine-ws-cxf-compile->default" />
       
 		<dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="stardust-engine-ws-cxf-compile->default" />
 		<dependency org="com.google.code.gson" name="gson" rev="1.6" conf="stardust-engine-ws-cxf-compile->default" />
-        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" >           <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />           <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />        </dependency>
+        <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="stardust-engine-ws-cxf-compile->default" >
+           <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
+           <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
+        </dependency>
+
         <!-- package org.eclipse.xsd is mapped to com.infinity.bpm.thirdparty.xsd which is repacked into carnot-engine.
            Therefore we doesn't need to include this artifact into the POM -->
         <dependency org="org.eclipse.xsd" name="xsd-runtime" rev="2.6.1" conf="compile->default">

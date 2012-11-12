@@ -14,9 +14,9 @@
    xmlns:m="http://ant.apache.org/ivy/maven"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-   <info organisation="com.infinity.bpm" module="stardust-engine-base"
+   <info organisation="org.eclipse.stardust.engine" module="stardust-engine-base"
       revision="${ipp.version.full}">
-      <extends organisation="com.infinity.bpm" module="base-artifacts" revision="latest.integration"
+      <extends organisation="org.eclipse.stardust.engine" module="base-artifacts" revision="latest.integration"
          extendType="all" location="base-interface-ivy.xml"/>
    </info>
 

@@ -25,7 +25,7 @@
 		<conf name="stardust-engine-ws-cxf-sources" description="EPM Engine - WS CXF Module - Sources" />
 
 		<conf name="stardust-engine-ws-cxf-codegen-runtime" visibility="private" description="Classpath for codegen tasks" />
-      
+            <conf name="ws-api-templates" description="WS-API Templates" />      
 		<conf name="compile"
 			extends="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided"
 			visibility="private" description="Compile Time Dependencies" />
@@ -41,9 +41,7 @@
 
 		<artifact name="stardust-engine-ws-cxf" type="jar"
 			conf="stardust-engine-ws-cxf-sources" m:classifier="sources" />
-
-		<artifact name="stardust-engine-ws-cxf" type="pom" conf="pom"
-			ext="pom" />
+            <artifact name="ws-api-templates" type="zip" conf="ws-api-templates" ext="zip" />		<artifact name="stardust-engine-ws-cxf" type="pom" conf="pom"		ext="pom" />      <artifact name="ws-api-templates" type="pom" conf="pom" ext="pom" />      
 	</publications>
 
 	<dependencies>

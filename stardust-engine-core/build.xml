@@ -159,7 +159,7 @@
    </target>
 
    <target name="compile" depends="prepareSources, initKernelBuildDirectories, initClasspath, compile.jdk16"
-      description="compiles the carnot kernel classes" />
+   	unless="skip.compile" description="compiles the carnot kernel classes" />
 
    <target name="compile.jdk16" depends="init"
       description="Compiling Java 1.6 code">
@@ -309,8 +309,6 @@
 
    <target name="initClasspath" depends="init, dependencies:initClasspath" />
 
-   <target name="publish" depends="init, dependencies:publish" />
-
    <target name="initKernelBuildDirectories" depends="initKernelBuild">
       <mkdir dir="${build.classes}" />
       <mkdir dir="${build.lib}" />
@@ -354,7 +352,8 @@
       </junit>
    </target>
 
-   <target name="compileTests" depends="compile, copyTestsSourceFiles, copyTestsDatFiles, initClasspath" description="compiles the Infinity test classes">
+   <target name="compileTests" depends="compile, copyTestsSourceFiles, copyTestsDatFiles, initClasspath" 
+   	unless="skip.compile" description="compiles the Infinity test classes">
       <javac srcdir="${build.tests.src}" destdir="${build.tests.classes}" debug="true" deprecation="no" includes="**/*.java">
          <classpath refid="junit.test.classpath" />
          <classpath refid="junit.test.license.classpath" />
@@ -608,28 +607,65 @@
    <target name="deploy" depends="build, deploy.src, deploy.classes"
       description="makes a deployable version of the kernel" />
 
-   <target name="install" depends="deploy" if="maven.localRepository"
+   <target name="install" if="maven.localRepository" depends="initKernelBuild"
       description="installs the artifacts into a local Maven repository">
-      <ipp:init-mvn />
-      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
-         <arg value="install:install-file"/>
-         <arg value="-Dfile=${carnot.engine.jar}"/>
-         <arg value="-DpomFile=${build.lib}/carnot-engine.pom"/>
-         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
-      </exec>
-      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
-         <arg value="install:install-file"/>
-         <arg value="-Dfile=${carnot.client.jar}"/>
-         <arg value="-DpomFile=${build.lib}/carnot-client.pom"/>
-         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
-      </exec>
-      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
-         <arg value="install:install-file"/>
-         <arg value="-Dfile=${carnot.emf.xsd.integration.jar}"/>
-         <arg value="-DpomFile=${build.lib}/carnot-emf-xsd-integration.pom"/>
-         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
-      </exec>
+   	
+   	<ipp:init-mvn localMavenRepository="${maven.localRepository}" />
+   	<ipp:mvn-install file="${carnot.engine.jar}" pomFile="${build.lib}/carnot-engine.pom" />
+   	<ipp:mvn-install file="${carnot.client.jar}" pomFile="${build.lib}/carnot-client.pom" />
+   	<ipp:mvn-install file="${carnot.emf.xsd.integration.jar}" pomFile="${build.lib}/carnot-emf-xsd-integration.pom" />
+   	
+   	<ipp:mvn-install pomFile="${build.lib}/2nd-level-cache-hazelcast-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/ant-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/carnot-emf-xsd-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/client-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/ejb21-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/ejb30-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/engine-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/jcr-api-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/jcr-jackrabbit-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/jcr-jackrabbit-webapp-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/jcr-vfs-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/jms-activemq-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/jms-api-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/jta-api-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/jta-jencks-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/logging-slf4j-log4j-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/qdox-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/swing-client-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/web-client-module.pom" />
+   	<ipp:mvn-install pomFile="${build.lib}/xerces-module.pom" />
+   	
+   </target>
 
+   <target name="publish" depends="initKernelBuild"
+      description="publish artifacts into a remote Maven repository">
+
+      <ipp:init-mvn />
+      <ipp:mvn-deploy file="${carnot.engine.jar}" pomFile="${build.lib}/carnot-engine.pom" />
+      <ipp:mvn-deploy file="${carnot.client.jar}" pomFile="${build.lib}/carnot-client.pom" />
+      <ipp:mvn-deploy file="${carnot.emf.xsd.integration.jar}" pomFile="${build.lib}/carnot-emf-xsd-integration.pom" />
+   	
+      <ipp:mvn-deploy pomFile="${build.lib}/2nd-level-cache-hazelcast-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/ant-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/carnot-emf-xsd-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/client-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/ejb21-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/ejb30-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/engine-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/jcr-api-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/jcr-jackrabbit-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/jcr-jackrabbit-webapp-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/jcr-vfs-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/jms-activemq-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/jms-api-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/jta-api-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/jta-jencks-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/logging-slf4j-log4j-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/qdox-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/swing-client-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/web-client-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/xerces-module.pom" />
    </target>
 
    <target name="clean" depends="init" description="removes all build results">

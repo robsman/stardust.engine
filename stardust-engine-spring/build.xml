@@ -14,7 +14,6 @@
     (e.g. antit.bat -Djava.home=C:/Programme/Java15) or create a private.properties file
     in the etc folder of the project and put the property in there)
   - you need an Infinity installation or you have to execute at least the latakia build file
-  - set the Java property latakia.home to the corresponding installation or build location
 -->
 
 <project name="carnot-spring" default="build" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
@@ -24,9 +23,6 @@
    <property name="project.resources" value="${project.dir}/src/main/resources" />
    <property name="project.etc" value="${project.dir}/etc" />
    <property file="${project.etc}/private.properties" />
-
-   <!-- if moonglow.home was set via external property -->
-   <available file="${moonglow.home}" property="moonglow.home.present" type="dir" />
 
    <property name="organizationId" value="com.infinity.bpm" />
    <property name="artifactId" value="carnot-spring" />
@@ -45,28 +41,18 @@
       <property name="javac.debuglevel" value="lines,source" />
    </target>
 
-   <target name="init" depends="initOnDevelopment, initOnProduction, initBuildDir, initLatakiaHome, initIvy">
-      <property name="build.dir" value="${build.home}" />
+   <target name="init" depends="initOnDevelopment, initOnProduction">
+      <property name="build.dir" value="${project.dir}/build" />
+      <property name="build.classes" value="${build.dir}/classes" />
+      <property name="build.lib" value="${build.dir}/lib" />
+      <property name="build.lib.src" value="${build.dir}/src" />
    </target>
 
    <target name="clean" depends="init" description="removes all build results">
       <delete dir="${build.dir}" />
    </target>
 
-   <target name="initBuildDir" unless="build.home">
-      <property name="build.home" value="${project.dir}/build" />
-   </target>
-
-   <target name="initLatakiaHome" unless="latakia.home">
-      <property name="latakia.home" value="${project.dir}/../../../latakia/build" />
-   </target>
-
-   <target name="initBuild" depends="init, initBuildDir">
-      <property name="build.dir" value="${build.home}" />
-      <property name="build.classes" value="${build.dir}/classes" />
-      <property name="build.lib" value="${build.dir}/lib" />
-      <property name="build.lib.src" value="${build.dir}/src" />
-
+   <target name="initBuild" depends="init">
       <property name="carnot-spring.jarfile" value="carnot-spring.jar" />
       <property name="carnot-spring.jar" value="${build.lib}/${carnot-spring.jarfile}" />
       <property name="carnot-spring.src-jarfile" value="carnot-spring-sources.jar" />
@@ -84,7 +70,7 @@
       <init-ivy />
    </target>
 
-   <target name="initClasspath" depends="init">
+   <target name="initClasspath" depends="initIvy">
    	<init-ivy-classpath />
 
       <path id="carnot-spring.classpath">
@@ -92,7 +78,8 @@
       </path>
    </target>
 
-   <target name="compile" depends="initBuildDirectories, initClasspath, init" description="Compiles the project's Java classes">
+   <target name="compile" depends="initBuildDirectories, initClasspath" description="Compiles the project's Java classes"
+   	unless="skip.compile">
       <ipp:javac-java6 srcdir="${project.src}" destdir="${build.classes}">
          <include name="**/*.java" />
          <classpath id="compile6.classpath">
@@ -152,7 +139,7 @@
    	
    </target>
    
-   <target name="initCodegen" depends="init" xmlns:ivy="antlib:org.apache.ivy.ant">
+   <target name="initCodegen" depends="init, initIvy" xmlns:ivy="antlib:org.apache.ivy.ant">
       <property name="codegen.build.dir" value="${build.dir}/codegen" />
       <property name="codegen.build.classes" value="${codegen.build.dir}/classes" />
       <property name="codegen.build.dir.src" value="${codegen.build.dir}/src" />
@@ -181,7 +168,8 @@
       </java>
    </target>
    
-   <target name="compileSpringFacadeGenerator" depends="copySpringFacadeGeneratorSourceFiles" description="compiles codegen classes">
+   <target name="compileSpringFacadeGenerator" depends="copySpringFacadeGeneratorSourceFiles" description="compiles codegen classes"
+   	unless="skip.compile">
       <javac srcdir="${codegen.build.dir.src}" destdir="${codegen.build.classes}" debug="true" deprecation="no" includes="**/spring/**/*.java">
          <classpath>
             <path refid="qdox.deps" />
@@ -204,12 +192,11 @@
    </target>
 
    <target name="dist" depends="build, initMoonglowHome">
-      <property name="wst-portals-facet.lib.dir" value="${moonglow.home}/../stardust/ide.wst/org.eclipse.stardust.ide.wst.facet.portal/lib" />
-      <property name="rt-spring-ide.lib.dir" value="${moonglow.home}/../stardust/ide/engine/org.eclipse.stardust.ide.engine.spring/lib" />
-   	<property name="hib-modeling-ide.lib.dir" value="${moonglow.home}/../moonglow/ag.carnot.workflow.modeling.hibernate/lib" />
+   	<property name="stardust.home" location="../../" />
+      <property name="wst-portals-facet.lib.dir" value="${stardust.home}/ide.wst/org.eclipse.stardust.ide.wst.facet.portal/lib" />
+      <property name="rt-spring-ide.lib.dir" value="${stardust.home}/ide/engine/org.eclipse.stardust.ide.engine.spring/lib" />
       <mkdir dir="${wst-portals-facet.lib.dir}" />
       <mkdir dir="${rt-spring-ide.lib.dir}" />
-      <mkdir dir="${hib-modeling-ide.lib.dir}" />
       <copy todir="${wst-portals-facet.lib.dir}" overwrite="true" verbose="true">
          <fileset dir="${build.lib}">
             <include name="${carnot-spring.jarfile}" />
@@ -220,24 +207,37 @@
             <include name="${carnot-spring.jarfile}" />
          </fileset>
       </copy>
-      <copy todir="${hib-modeling-ide.lib.dir}" overwrite="true" verbose="true">
+   	<antcall target="dist-moonglow" inheritall="true" />
+   </target>
+	
+	<target name="dist-moonglow" if="moonglow.home.present">
+	   <property name="hib-modeling-ide.lib.dir" value="${moonglow.home}/ag.carnot.workflow.modeling.hibernate/lib" />
+		<mkdir dir="${hib-modeling-ide.lib.dir}" />
+		<copy todir="${hib-modeling-ide.lib.dir}" overwrite="true" verbose="true" >
          <fileset dir="${build.lib}">
             <include name="${carnot-spring.jarfile}" />
          </fileset>
       </copy>
-   </target>
+	</target>
 
    <target name="deploy" depends="build" />
 
-   <target name="install" depends="deploy" if="maven.localRepository"
-     description="installs the artifacts into a local Maven repository">
-     <ipp:init-mvn />
-      <ipp:init-mvn />
-      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
-         <arg value="install:install-file"/>
-         <arg value="-Dfile=${carnot-spring.jar}"/>
-         <arg value="-DpomFile=${build.lib}/carnot-spring.pom"/>
-         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
-      </exec>
+   <target name="install" if="maven.localRepository" depends="initBuild"
+      description="installs the artifacts into a local Maven repository">
+      
+      <ipp:init-mvn localMavenRepository="${maven.localRepository}" />
+      <ipp:mvn-install file="${carnot-spring.jar}" pomFile="${build.lib}/carnot-spring.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/spring-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/client-spring-module.pom" />
    </target>
+
+   <target name="publish" depends="initBuild"
+      description="publish artifacts into a remote Maven repository">
+
+      <ipp:init-mvn />
+      <ipp:mvn-deploy file="${carnot-spring.jar}" pomFile="${build.lib}/carnot-spring.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/spring-module.pom" />
+      <ipp:mvn-deploy pomFile="${build.lib}/client-spring-module.pom" />      
+   </target>
+	
 </project>

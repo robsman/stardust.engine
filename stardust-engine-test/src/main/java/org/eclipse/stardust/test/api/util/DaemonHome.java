@@ -24,7 +24,7 @@ import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class DaemonHome
 {
@@ -144,7 +144,7 @@ public class DaemonHome
     * </p>
     * 
     * @author Nicolas.Werlein
-    * @version $Revision: $
+    * @version $Revision$
     */
    public static enum DaemonType
    {

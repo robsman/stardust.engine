@@ -73,7 +73,10 @@ public class GenericWebServiceEnv
             processId.set(soapActionWithoutBackSlashes.replace("getProcessResults", ""));
          }
          
-         soapAction.set(soapActionWithoutBackSlashes.replace(processId.get(), ""));
+         if (processId.get() != null)
+         {
+            soapAction.set(soapActionWithoutBackSlashes.replace(processId.get(), ""));
+         }
       }
    }
    

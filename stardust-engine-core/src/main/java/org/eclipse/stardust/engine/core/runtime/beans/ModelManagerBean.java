@@ -1065,7 +1065,7 @@ public class ModelManagerBean implements ModelManager
          {
             Date from = (Date) candidate.getAttribute(PredefinedConstants.VALID_FROM_ATT);
             String id = candidate.getId();
-            if (!ids.contains(id) && (from == null || !now.after(from)))
+            if (!ids.contains(id) && (from == null || !now.before(from)))
             {
                result.add(candidate);
                ids.add(id);

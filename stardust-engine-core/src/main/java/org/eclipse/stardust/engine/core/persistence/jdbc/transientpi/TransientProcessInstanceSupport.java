@@ -302,8 +302,9 @@ public class TransientProcessInstanceSupport
          final boolean piDoesNotExistInDB = pc.isCreated();
          final boolean piIsNotInterrupted = pi.getState() != ProcessInstanceState.Interrupted;
          final boolean piIsNotAborted = pi.getState() != ProcessInstanceState.Aborted;
+         final boolean piIsNotAborting = pi.getState() != ProcessInstanceState.Aborting;
 
-         transientSession &= piDoesNotExistInDB && piIsNotInterrupted && piIsNotAborted;
+         transientSession &= piDoesNotExistInDB && piIsNotInterrupted && piIsNotAborted && piIsNotAborting;
          if ( !isCurrentSessionTransient())
          {
             return;

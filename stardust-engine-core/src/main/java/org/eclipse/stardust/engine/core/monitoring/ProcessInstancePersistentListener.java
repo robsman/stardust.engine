@@ -10,9 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.monitoring;
 
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListenerAction;
@@ -26,31 +25,39 @@ import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListenerActio
  */
 public class ProcessInstancePersistentListener implements IPersistentListener
 {
-   private static final Logger trace = LogManager.getLogger(ProcessInstancePersistentListener.class);
-
    private static final IPersistentListenerAction[] listenerActions = {new UpdateCriticalityAction()};
 
    public void updated(Persistent persistent)
    {                  
       ProcessInstanceBean piBean = (ProcessInstanceBean) persistent;
 
+      if (ProcessInstanceUtils.isTransientExecutionScenario(piBean))
+      {
+         /* for transient process instance execution the criticality feature */
+         /* does not make any sense, but decreases performance               */
+         return;
+      }
+      
       for (int i=0; i < listenerActions.length; i++)
       {
          listenerActions[i].execute(piBean);
       }
-      
-
-
    }
 
    public void created(Persistent persistent)
    {
       ProcessInstanceBean piBean = (ProcessInstanceBean) persistent;
 
+      if (ProcessInstanceUtils.isTransientExecutionScenario(piBean))
+      {
+         /* for transient process instance execution the criticality feature */
+         /* does not make any sense, but decreases performance               */
+         return;
+      }
+      
       for (int i=0; i < listenerActions.length; i++)
       {
          listenerActions[i].execute(piBean);
       }
    }
-
 }

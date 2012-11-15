@@ -23,6 +23,7 @@ import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
@@ -361,5 +362,20 @@ public class ActivityInstanceUtils
       setOutDataValues(context, outData, activityInstance);
       ActivityThread.schedule(null, null, activityInstance, synchronously, null,
             Collections.EMPTY_MAP, false);
+   }
+   
+   public static boolean isTransientExecutionScenario(final IActivityInstance ai)
+   {
+      if ( !ProcessInstanceUtils.isTransientPiSupportEnabled())
+      {
+         return false;
+      }
+
+      if (ai != null)
+      {
+         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(ai.getProcessInstance());
+         return AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
+      }
+      return false;
    }
 }

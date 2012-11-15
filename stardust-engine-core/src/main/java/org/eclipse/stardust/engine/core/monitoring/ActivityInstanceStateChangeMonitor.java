@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.PreferencesConstants;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ActivityInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.CriticalityEvaluator;
@@ -48,6 +49,16 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
    }
 
    public void activityInstanceStateChanged(IActivityInstance activity, int newState)
+   {
+      /* for transient process instance execution the criticality feature */
+      /* does not make any sense, but decreases performance               */
+      if ( !ActivityInstanceUtils.isTransientExecutionScenario(activity))
+      {
+         recalculateCriticalityIfDesired(activity, newState);
+      }
+   }
+
+   private void recalculateCriticalityIfDesired(IActivityInstance activity, int newState)
    {
       boolean recalcOnCreate = true;
 
@@ -89,7 +100,6 @@ public class ActivityInstanceStateChangeMonitor implements IActivityInstanceMoni
                         new Object[] {activity.getOID()}, e));
          }
       }
-
    }
 
    private Map retrievePreferences()

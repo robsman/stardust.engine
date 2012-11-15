@@ -809,6 +809,11 @@ public class ProcessInstanceUtils
    
    public static boolean isSerialExecutionScenario(final IProcessInstance pi)
    {
+      return isTransientExecutionScenario(pi);
+   }
+   
+   public static boolean isTransientExecutionScenario(final IProcessInstance pi)
+   {
       if ( !isTransientPiSupportEnabled())
       {
          return false;

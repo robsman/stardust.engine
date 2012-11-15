@@ -1057,6 +1057,7 @@ public class ProcessQueryPostprocessor
          {    
             boolean stringValueColumnMapped = false;
             boolean numberValueColumnMapped = false;
+            boolean doubleValueColumnMapped = false;
             
             i++;
             DataCluster cluster = info.getCluster();
@@ -1071,6 +1072,7 @@ public class ProcessQueryPostprocessor
             List<Column> additionalSelectColumns = new ArrayList<Column>();
 
             additionalSelectColumns.add(new FieldRef(dcJoin, slot.getTypeColumn()));
+                       
             if (StringUtils.isNotEmpty(slot.getSValueColumn()))
             {
                stringValueColumnMapped = true;
@@ -1081,7 +1083,12 @@ public class ProcessQueryPostprocessor
                numberValueColumnMapped = true;
                additionalSelectColumns.add(new FieldRef(dcJoin, slot.getNValueColumn()));
             }
-
+            if(StringUtils.isNotEmpty(slot.getDValueColumn()))
+            {
+               doubleValueColumnMapped = true;
+               additionalSelectColumns.add(new FieldRef(dcJoin, slot.getDValueColumn()));
+            }
+            
             //build result set index mapping based on the order of the fields 
             //declared in class StructuredDataValueBean, links have to be declared as last
             int localRsIndex = 0;
@@ -1110,6 +1117,15 @@ public class ProcessQueryPostprocessor
             }
             //StructuredDataValueBean.FIELD__NUMBER_VALUE
             if(numberValueColumnMapped)
+            {
+               addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
+            }
+            else
+            {
+               addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, -1L);
+            }
+            //StructuredDataValueBean.FIELD__DOUBLE_VALUE
+            if(doubleValueColumnMapped)
             {
                addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
             }

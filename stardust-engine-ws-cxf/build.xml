@@ -20,7 +20,6 @@
 	<property name="project.etc" value="${project.dir}/etc" />
 	<property file="${project.etc}/private.properties" />
 
-	<property name="organizationId" value="com.infinity.bpm" />
 	<property name="artifactId" value="stardust-engine-ws-cxf" />
 
 	<import file="${project.dir}/../../build.tools/commons-build.xml" />

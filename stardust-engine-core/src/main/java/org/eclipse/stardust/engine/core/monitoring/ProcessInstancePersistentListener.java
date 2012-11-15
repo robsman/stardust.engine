@@ -25,39 +25,33 @@ import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListenerActio
  */
 public class ProcessInstancePersistentListener implements IPersistentListener
 {
-   private static final IPersistentListenerAction[] listenerActions = {new UpdateCriticalityAction()};
+   private static final IPersistentListenerAction criticalityListenerAction = new UpdateCriticalityAction();
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener#updated(org.eclipse.stardust.engine.core.persistence.Persistent)
+    */
    public void updated(Persistent persistent)
    {                  
-      ProcessInstanceBean piBean = (ProcessInstanceBean) persistent;
-
-      if (ProcessInstanceUtils.isTransientExecutionScenario(piBean))
-      {
-         /* for transient process instance execution the criticality feature */
-         /* does not make any sense, but decreases performance               */
-         return;
-      }
-      
-      for (int i=0; i < listenerActions.length; i++)
-      {
-         listenerActions[i].execute(piBean);
-      }
+      conditionalExecuteCriticalityListenerAction(persistent);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener#created(org.eclipse.stardust.engine.core.persistence.Persistent)
+    */
    public void created(Persistent persistent)
+   {
+      conditionalExecuteCriticalityListenerAction(persistent);
+   }
+   
+   private void conditionalExecuteCriticalityListenerAction(final Persistent persistent)
    {
       ProcessInstanceBean piBean = (ProcessInstanceBean) persistent;
 
-      if (ProcessInstanceUtils.isTransientExecutionScenario(piBean))
+      /* for transient process instance execution the criticality feature */
+      /* does not make any sense, but decreases performance               */
+      if ( !ProcessInstanceUtils.isTransientExecutionScenario(piBean))
       {
-         /* for transient process instance execution the criticality feature */
-         /* does not make any sense, but decreases performance               */
-         return;
-      }
-      
-      for (int i=0; i < listenerActions.length; i++)
-      {
-         listenerActions[i].execute(piBean);
-      }
+         criticalityListenerAction.execute(piBean);
+      }      
    }
 }

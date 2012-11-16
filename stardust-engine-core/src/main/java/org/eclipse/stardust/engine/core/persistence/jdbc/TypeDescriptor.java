@@ -1235,7 +1235,6 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
       private CompositeKeyN(int length)
       {
          keys = new Comparable[length];
-         System.err.println("Created composite with " + length + " keys.");
       }
 
       public void setKey(int i, Object pkValue)

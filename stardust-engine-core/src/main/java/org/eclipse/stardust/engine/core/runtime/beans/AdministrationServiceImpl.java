@@ -542,7 +542,8 @@ public class AdministrationServiceImpl
       {
          deploymentError(new ObjectNotFoundException(BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(processId)), null);
       }
-      if (implementationId == null)
+      if (implementationId == null
+            || ("{" + interfaceModel.getId() + "}" + interfaceProcess.getId()).equals(implementationId))
       {
          implementationId = interfaceModel.getId();
       }
@@ -560,14 +561,22 @@ public class AdministrationServiceImpl
             pId = qname.getLocalPart();
          }
          
-         DeployedModelQuery query = DeployedModelQuery.findUsing(interfaceOid);
-         query.getFilter().and(DeployedModelQuery.STATE.isEqual(DeployedModelState.VALID.name()));
-         FilteringIterator<IModel> matchingModels = new FilteringIterator(
-               manager.getAllModelsForId(mId),
-               new ModelQueryEvaluator(query));
-         if (!matchingModels.hasNext())
+         Iterator<IModel> matchingModels = null;
+         if (interfaceModel.getId().equals(mId))
          {
-            deploymentError(new ObjectNotFoundException(BpmRuntimeError.MDL_NO_MATCHING_MODEL_WITH_ID.raise(mId)), null);
+            matchingModels = Collections.singleton(interfaceModel).iterator();
+         }
+         else
+         {
+            DeployedModelQuery query = DeployedModelQuery.findUsing(interfaceOid);
+            query.getFilter().and(DeployedModelQuery.STATE.isEqual(DeployedModelState.VALID.name()));
+            matchingModels = new FilteringIterator(
+                  manager.getAllModelsForId(mId),
+                  new ModelQueryEvaluator(query));
+            if (!matchingModels.hasNext())
+            {
+               deploymentError(new ObjectNotFoundException(BpmRuntimeError.MDL_NO_MATCHING_MODEL_WITH_ID.raise(mId)), null);
+            }
          }
          IProcessDefinition implementationProcess = null;
          QName interfaceProcessQName = new QName(interfaceModel.getId(), interfaceProcess.getId());

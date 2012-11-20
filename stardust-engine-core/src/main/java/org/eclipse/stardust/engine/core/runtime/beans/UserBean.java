@@ -542,11 +542,15 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    {
       fetch();
 
-      if (participant.getCardinality() != Unknown.INT
-            && UserParticipantLink.countAllFor(participant) >= participant.getCardinality())
+      int cardinality = participant.getCardinality();
+      if (cardinality != Unknown.INT)
       {
-         throw new PublicException("Cannot assign more users to participant. Cardinality "
-               + participant.getCardinality() + " exceeded.");
+         long count = UserParticipantLink.countAllFor(participant);
+         if (count >= participant.getCardinality())
+         {
+            throw new PublicException("Cannot assign more users to participant. Cardinality "
+                  + participant.getCardinality() + " exceeded.");
+         }
       }
 
       if (findParticipantLink(participant, department) != null)

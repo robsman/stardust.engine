@@ -327,6 +327,9 @@ public class UserServiceImpl implements UserService, Serializable
                   if (participant != null)
                   {
                      addToParticipants(modelManager, user, participant, department);
+                     // (fh) since the grants are model agnostic, we add only the
+                     // first matching participant, respecting the constraints associated with it. 
+                     break;
                   }
                }
             }

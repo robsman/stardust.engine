@@ -849,7 +849,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (activityInstance.getActivity().isInteractive() && null != currentUser
             && 0 != currentUser.getOID())
       {
-         activityInstance.delegateToUser(currentUser);
+         if (activityInstance instanceof ActivityInstanceBean)
+         {
+            ((ActivityInstanceBean) activityInstance).internalDelegateToUser(currentUser,
+                  false);
+         }
+         else
+         {
+            activityInstance.delegateToUser(currentUser);
+         }
       }
 
       activityInstance.activate();
@@ -946,7 +954,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
       else if (participant instanceof IUser)
       {
-         activityInstance.delegateToUser((IUser) participant);
+         if (activityInstance instanceof ActivityInstanceBean)
+         {
+            ((ActivityInstanceBean) activityInstance).internalDelegateToUser(
+                  (IUser) participant, false);
+         }
+         else
+         {
+            activityInstance.delegateToUser((IUser) participant);
+         }
       }
       else if (participant instanceof IUserGroup)
       {

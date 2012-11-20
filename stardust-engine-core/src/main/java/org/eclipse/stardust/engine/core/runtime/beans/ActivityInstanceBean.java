@@ -1880,6 +1880,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void delegateToUser(IUser user) throws AccessForbiddenException
    {
+      internalDelegateToUser(user, true);
+   }
+   
+   void internalDelegateToUser(IUser user, boolean checkPermissionToDelegate)
+   {
       assertDelegationGranted();
 
       IModelParticipant performer = getActivity().getPerformer();
@@ -1893,7 +1898,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
       if (performer.isAuthorized(user))
       {
-         if (DepartmentUtils.getFirstScopedOrganization(performer) != null)
+         if (checkPermissionToDelegate
+               && DepartmentUtils.getFirstScopedOrganization(performer) != null)
          {
             AccessForbiddenException exception = null;
             Iterator<UserParticipantLink> links = user.getAllParticipantLinks();
@@ -1931,7 +1937,6 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                BpmRuntimeError.BPMRT_USER_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
                      user.getOID(), getOID()));
       }
-
    }
 
    public void delegateToUserGroup(IUserGroup userGroup) throws AccessForbiddenException

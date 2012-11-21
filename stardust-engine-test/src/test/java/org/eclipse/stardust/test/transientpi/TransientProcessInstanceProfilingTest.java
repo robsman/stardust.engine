@@ -109,7 +109,7 @@ public class TransientProcessInstanceProfilingTest
    }
    
    @Test
-   public void testIt() throws Exception
+   public void profileIt() throws Exception
    {
       warmUp();
 

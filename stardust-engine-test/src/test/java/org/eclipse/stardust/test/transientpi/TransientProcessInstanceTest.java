@@ -98,8 +98,8 @@ public class TransientProcessInstanceTest
    
    private static final String PROCESS_EXECUTION_STATE = "Process.Execution.State";
    
-   private static final String HAZELCAST_LOGGING_TYPE_KEY = "hazelcast.logging.type";
-   private static final String HAZELCAST_LOGGING_TYPE_VALUE = "log4j";
+   /* package-private */ static final String HAZELCAST_LOGGING_TYPE_KEY = "hazelcast.logging.type";
+   /* package-private */ static final String HAZELCAST_LOGGING_TYPE_VALUE = "log4j";
    
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
@@ -1226,7 +1226,7 @@ public class TransientProcessInstanceTest
       
       final int nThreads = 100;
 
-      final Set<ProcessExecutor> processExecutors = initProcessExecutors(nThreads);
+      final Set<ProcessExecutor> processExecutors = initProcessExecutors(nThreads, sf.getWorkflowService());
 
       final List<Future<Long>> piOids = executeProcesses(nThreads, processExecutors);
       
@@ -1507,10 +1507,9 @@ public class TransientProcessInstanceTest
       return message.getLongProperty(DefaultMessageHelper.PROCESS_INSTANCE_OID_HEADER);
    }
    
-   private Set<ProcessExecutor> initProcessExecutors(final int nThreads)
+   /* package-private */ static Set<ProcessExecutor> initProcessExecutors(final int nThreads, final WorkflowService wfService)
    {
       final String processId = PROCESS_DEF_ID_SPLIT_SPLIT;
-      final WorkflowService wfService = sf.getWorkflowService();
 
       final Set<ProcessExecutor> processExecutors = new HashSet<ProcessExecutor>();
       for (int i=0; i<nThreads; i++)
@@ -1522,7 +1521,7 @@ public class TransientProcessInstanceTest
       return processExecutors;
    }
    
-   private List<Future<Long>> executeProcesses(final int nThreads, final Set<ProcessExecutor> processExecutors) throws InterruptedException
+   /* package-private */ static List<Future<Long>> executeProcesses(final int nThreads, final Set<ProcessExecutor> processExecutors) throws InterruptedException
    {
       final ExecutorService executor = Executors.newFixedThreadPool(nThreads);
       
@@ -1684,7 +1683,7 @@ public class TransientProcessInstanceTest
    
    private static enum ProcessExecutionState { NOT_STARTED, COMPLETED, INTERRUPTED }
    
-   private static final class ProcessExecutor implements Callable<Long>
+   /* package-private */ static final class ProcessExecutor implements Callable<Long>
    {
       private final WorkflowService wfService;
       private final String processId;

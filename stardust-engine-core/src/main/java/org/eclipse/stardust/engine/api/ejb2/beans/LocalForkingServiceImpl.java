@@ -170,9 +170,8 @@ public class LocalForkingServiceImpl implements SessionBean, TimedObject, Daemon
       }
    }
 
-   private Timer getTimer(DaemonCarrier carrier)
+   private Timer getTimer(TimerService service, DaemonCarrier carrier)
    {
-      TimerService service = sessionContext.getTimerService();
       Collection<Timer> timers = service.getTimers();
       for (Timer timer : timers)
       {
@@ -187,30 +186,47 @@ public class LocalForkingServiceImpl implements SessionBean, TimedObject, Daemon
    public void startTimer(DaemonCarrier carrier)
    {
       DaemonCarrier innerCarrier = carrier.copy();
-      if (getTimer(innerCarrier) == null)
+      TimerService timerService = sessionContext.getTimerService();
+      boolean shouldStart = false;
+      synchronized (timerService)
       {
-         TimerService service = sessionContext.getTimerService();
-         long periodicity = Parameters.instance().getLong(
-               innerCarrier.getType() + DaemonProperties.DAEMON_PERIODICITY_SUFFIX, 5) * 1000;
-         service.createTimer(periodicity, periodicity, innerCarrier);
-         trace.info("Timer '" + innerCarrier.getType() + "' started.");
+         if (getTimer(timerService, innerCarrier) == null)
+         {
+            TimerService service = sessionContext.getTimerService();
+            long periodicity = Parameters.instance().getLong(
+                  innerCarrier.getType() + DaemonProperties.DAEMON_PERIODICITY_SUFFIX, 5) * 1000;
+            service.createTimer(periodicity, periodicity, innerCarrier);
+            shouldStart = true;
+            trace.info("Timer '" + innerCarrier.getType() + "' started.");
+         }
+      }
+      if (shouldStart)
+      {
          runDaemon(innerCarrier);
       }
    }
 
    public void stopTimer(DaemonCarrier carrier)
    {
-      Timer timer = getTimer(carrier);
-      if (timer != null)
+      TimerService timerService = sessionContext.getTimerService();
+      synchronized (timerService)
       {
-         timer.cancel();
-         trace.info("Timer '" + carrier.getType() + "' was stopped.");
+         Timer timer = getTimer(timerService, carrier);
+         if (timer != null)
+         {
+            timer.cancel();
+            trace.info("Timer '" + carrier.getType() + "' was stopped.");
+         }
       }
    }
 
    public boolean checkTimer(DaemonCarrier carrier)
    {
-      return getTimer(carrier) != null;
+      TimerService timerService = sessionContext.getTimerService();
+      synchronized (timerService)
+      {
+         return getTimer(timerService, carrier) != null;
+      }
    }
 
    public void runDaemon(DaemonCarrier carrier)

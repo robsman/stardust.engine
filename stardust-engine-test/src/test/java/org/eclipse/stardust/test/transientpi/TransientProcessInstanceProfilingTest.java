@@ -82,6 +82,11 @@ public class TransientProcessInstanceProfilingTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(sf)
                                           .around(testMethodSetup);
+
+   static
+   {
+      Logger.getRootLogger().setLevel(Level.WARN);      
+   }
    
    @BeforeClass
    public static void setUpOnce()
@@ -95,8 +100,6 @@ public class TransientProcessInstanceProfilingTest
 
       incrementDbSequenceSize();
       injectSequenceGenerator(params);
-      
-      Logger.getRootLogger().setLevel(Level.WARN);
    }
 
    @AfterClass

@@ -77,7 +77,7 @@ public class TransientProcessInstanceProfilingTest
 
    
    @ClassRule
-   public static final LocalJcrH2TestSetup testSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS, MODEL_ID);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS, MODEL_ID);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(sf)
@@ -125,7 +125,7 @@ public class TransientProcessInstanceProfilingTest
    {
       try
       {
-         final Connection connection = testSetup.dataSource().getConnection();
+         final Connection connection = testClassSetup.dataSource().getConnection();
          final Statement stmt = connection.createStatement();
          stmt.addBatch("ALTER SEQUENCE activity_instance_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
          stmt.addBatch("ALTER SEQUENCE activity_instance_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);

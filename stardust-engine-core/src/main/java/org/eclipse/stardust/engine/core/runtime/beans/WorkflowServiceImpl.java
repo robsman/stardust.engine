@@ -116,6 +116,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       IProcessInstance parentProcessInstance = ProcessInstanceBean.findByOID(rootProcessInstanceOid);
       assertNotCaseProcessInstance(parentProcessInstance);
+      assertNotTransientProcessInstance(parentProcessInstance);
       assertActiveProcessInstance(parentProcessInstance);
       if (!parentProcessInstance.getProcessDefinition().getModel().getId()
             .equals(processDefinition.getModel().getId()))
@@ -145,6 +146,14 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       }
    }
 
+   private void assertNotTransientProcessInstance(IProcessInstance pi)
+   {
+      if (ProcessInstanceUtils.isTransientExecutionScenario(pi))
+      {
+         throw new IllegalOperationException(BpmRuntimeError.BPMRT_PI_IS_TRANSIENT.raise(pi.getOID()));
+      }
+   }
+   
    private void runProcessInstance(IProcessInstance processInstance, String startActivityId)
    {
       IProcessDefinition processDefinition = processInstance.getProcessDefinition();
@@ -433,6 +442,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       {
          ProcessInstanceBean member = ProcessInstanceBean.findByOID(oid);
          assertNotCaseProcessInstance(member);
+         assertNotTransientProcessInstance(member);
          assertActiveProcessInstance(member);
          IProcessInstance root = member.getRootProcessInstance();
          if (root != null && root != member)
@@ -553,6 +563,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       // check if the source process instance is a case.
       assertNotCaseProcessInstance(originatingProcessInstance);
 
+      // check if the source process instance is a transient process instance.
+      assertNotTransientProcessInstance(originatingProcessInstance);
+      
       // check if the source process instance is a root process instance.
       IProcessInstance rootPI = originatingProcessInstance.getRootProcessInstance();
       if (rootPI != null && rootPI != originatingProcessInstance)
@@ -638,6 +651,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       DataCopyResult data = DataCopyUtils.copyData(originatingProcessInstance, model, dco);
       IProcessInstance processInstance = ProcessInstanceBean.createInstance(processDefinition,
             (IProcessInstance) null, SecurityProperties.getUser(), data.result);
+      assertNotTransientProcessInstance(processInstance);
       processInstance.setPriority(originatingProcessInstance.getPriority());
 
       if (dco.copyAllData() && dco.useHeuristics())
@@ -694,6 +708,12 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       // illegal from join from case process instance
       assertNotCaseProcessInstance(targetProcessInstance);
 
+      // illegal to join from a transient process instance
+      assertNotTransientProcessInstance(originatingProcessInstance);
+      
+      // illegal to join to a transient process instance
+      assertNotTransientProcessInstance(targetProcessInstance);
+      
       // check authorization
       BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();

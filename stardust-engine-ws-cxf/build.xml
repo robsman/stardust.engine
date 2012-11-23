@@ -233,7 +233,13 @@
 
       <ipp:init-mvn localMavenRepository="${maven.localRepository}" />
       <ipp:mvn-install file="${stardust-engine-ws-cxf.jar}" pomFile="${stardust-engine-ws-cxf.pom}" />
-      <ipp:mvn-install file="${ws-api-templates.zip}" pomFile="${ws-api-templates.pom}" />
+      <!-- FIXME: ws-api-templates.pom contains the packaging type zip which is not supported by Maven.
+           So we have to define a different base POM file -->
+      <ipp:mvn-install file="${ws-api-templates.zip}" pomFile="${ws-api-templates.pom}">
+        <mvn-install-args>
+          <arg value="-f=pom.xml" />
+        </mvn-install-args>
+      </ipp:mvn-install>
       <ipp:mvn-install pomFile="${build.lib}/jax-ws-cxf-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/jax-rs-cxf-module.pom" />
    </target>
@@ -242,8 +248,12 @@
      description="publish artifacts into a remote Maven repository">
 
       <ipp:init-mvn />
-   	<ipp:mvn-deploy file="${stardust-engine-ws-cxf.jar}" pomFile="${stardust-engine-ws-cxf.pom}" />
-   	<ipp:mvn-deploy file="${ws-api-templates.zip}" pomFile="${ws-api-templates.pom}" />
+      <ipp:mvn-deploy file="${stardust-engine-ws-cxf.jar}" pomFile="${stardust-engine-ws-cxf.pom}" />
+      <ipp:mvn-deploy file="${ws-api-templates.zip}" pomFile="${ws-api-templates.pom}">
+         <mvn-deploy-args>
+            <arg value="-f=pom.xml" />
+         </mvn-deploy-args>
+      </ipp:mvn-deploy>
       <ipp:mvn-deploy pomFile="${build.lib}/jax-ws-cxf-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/jax-rs-cxf-module.pom" />
    </target>

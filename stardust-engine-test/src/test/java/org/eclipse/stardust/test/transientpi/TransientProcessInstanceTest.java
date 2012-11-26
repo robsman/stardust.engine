@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -46,11 +47,7 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
@@ -97,6 +94,18 @@ public class TransientProcessInstanceTest
    private static final String PI_BLOBS_FIELD_NAME = "piBlobs";
    
    private static final String PROCESS_EXECUTION_STATE = "Process.Execution.State";
+
+   private static final String PI_IS_TRANSIENT_BPM_RT_ERROR_ID = "BPMRT03840";
+   
+   private static final String APP_MAY_COMPLETE = "APP_MAY_COMPLETE";
+   
+   private static final String SPAWN_LINK_COMMENT = "<Spawn Link Comment>";
+   
+   private static final String JOIN_PI_COMMENT = "<Join PI Comment>";
+   
+   private static final String CASE_PI_NAME = "<Case PI Name>";
+   
+   private static final String CASE_PI_DESCRIPTION = "<Case PI Description>";
    
    /* package-private */ static final String HAZELCAST_LOGGING_TYPE_KEY = "hazelcast.logging.type";
    /* package-private */ static final String HAZELCAST_LOGGING_TYPE_VALUE = "log4j";
@@ -130,6 +139,7 @@ public class TransientProcessInstanceTest
    {
       final Parameters params = Parameters.instance();
       params.set(PROCESS_EXECUTION_STATE, ProcessExecutionState.NOT_STARTED);
+      params.set(APP_MAY_COMPLETE, false);
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
       params.set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
       params.set(KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER, SpringAppContextHazelcastJcaConnectionFactoryProvider.class.getName());
@@ -1437,7 +1447,394 @@ public class TransientProcessInstanceTest
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
+
+   /* no need to test for spawning transient subprocess instances from a non-transient process instance                      */
+   /* since the former inherits the Audit Trail Persistence property from the latter (root process determines transientness) */
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether spawning (subprocess) from a transient process instance is rejected with the correct exception. Using
+    * API {@link WorkflowService#spawnSubprocessInstances(long, List)}.
+    * </p>
+    */
+   @Test
+   public void testSpawnSubprocess1FromTransientProcessInstanceIsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
       
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
+
+      final SubprocessSpawnInfo spawnInfo = new SubprocessSpawnInfo(PROCESS_DEF_ID_FORKED, false, Collections.<String, Object>emptyMap());
+      final List<SubprocessSpawnInfo> spawnInfos = Collections.singletonList(spawnInfo);
+      try
+      {
+         sf.getWorkflowService().spawnSubprocessInstances(pi.getOID(), spawnInfos);
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final Parameters params = Parameters.instance();
+      params.set(APP_MAY_COMPLETE, true);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /* no need to test for spawning transient subprocess instances from a non-transient process instance                      */
+   /* since the former inherits the Audit Trail Persistence property from the latter (root process determines transientness) */
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether spawning (subprocess) from a transient process instance is rejected with the correct exception. Using
+    * API {@link WorkflowService#spawnSubprocessInstance(long, String, boolean, Map)}.
+    * </p>
+    */
+   @Test
+   public void testSpawnSubprocess2FromTransientProcessInstanceIsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
+
+      try
+      {
+         sf.getWorkflowService().spawnSubprocessInstance(pi.getOID(), PROCESS_DEF_ID_FORKED, false, Collections.<String, Object>emptyMap());
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final Parameters params = Parameters.instance();
+      params.set(APP_MAY_COMPLETE, true);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether spawning (peer process) a transient process instance is rejected with the correct exception. Using
+    * API {@link WorkflowService#spawnPeerProcessInstance(long, String, boolean, Map, boolean, String)}.
+    * </p>
+    */
+   @Test
+   public void testSpawnTransientPeerProcessInstance1IsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
+      
+      try
+      {
+         sf.getWorkflowService().spawnPeerProcessInstance(pi.getOID(), PROCESS_DEF_ID_FORKED, false, Collections.<String, Serializable>emptyMap(), true, SPAWN_LINK_COMMENT);
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether spawning (peer process) from a transient process instance is rejected with the correct exception. Using
+    * API {@link WorkflowService#spawnPeerProcessInstance(long, String, boolean, Map, boolean, String)}.
+    * </p>
+    */
+   @Test
+   public void testSpawnPeerProcessFromTransientProcessInstance1IsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
+
+      try
+      {
+         sf.getWorkflowService().spawnPeerProcessInstance(pi.getOID(), PROCESS_DEF_ID_MANUAL_ACTIVITY, false, Collections.<String, Serializable>emptyMap(), true, SPAWN_LINK_COMMENT);
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final Parameters params = Parameters.instance();
+      params.set(APP_MAY_COMPLETE, true);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether spawning (peer process) a transient process instance is rejected with the correct exception. Using
+    * API {@link WorkflowService#spawnPeerProcessInstance(long, String, SpawnOptions)}.
+    * </p>
+    */
+   @Test
+   public void testSpawnTransientPeerProcessInstance2IsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
+      
+      final SpawnOptions spawnOptions = new SpawnOptions(null, true, SPAWN_LINK_COMMENT, DataCopyOptions.DEFAULT);
+      try
+      {
+         sf.getWorkflowService().spawnPeerProcessInstance(pi.getOID(), PROCESS_DEF_ID_FORKED, spawnOptions);
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether spawning (peer process) from a transient process instance is rejected with the correct exception. Using
+    * API {@link WorkflowService#spawnPeerProcessInstance(long, String, SpawnOptions)}.
+    * </p>
+    */
+   @Test
+   public void testSpawnPeerProcessFromTransientProcessInstance2IsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
+
+      final SpawnOptions spawnOptions = new SpawnOptions(null, true, SPAWN_LINK_COMMENT, DataCopyOptions.DEFAULT);
+      try
+      {
+         sf.getWorkflowService().spawnPeerProcessInstance(pi.getOID(), PROCESS_DEF_ID_MANUAL_ACTIVITY, spawnOptions);
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final Parameters params = Parameters.instance();
+      params.set(APP_MAY_COMPLETE, true);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether creating a case containing a transient process instance is rejected with the correct exception.
+    * </p>
+    */
+   @Test
+   public void testCreateCaseIsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
+
+      try
+      {
+         sf.getWorkflowService().createCase(CASE_PI_NAME, CASE_PI_DESCRIPTION, new long[] { pi.getOID() });
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final Parameters params = Parameters.instance();
+      params.set(APP_MAY_COMPLETE, true);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether joining a transient process instance to a case is rejected with the correct exception.
+    * </p>
+    */
+   @Test
+   public void testJoinCaseIsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
+      final ProcessInstance casePi = sf.getWorkflowService().createCase(CASE_PI_NAME, CASE_PI_DESCRIPTION, new long[] { nonTransientPi.getOID() });
+      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
+      
+      try
+      {
+         sf.getWorkflowService().joinCase(casePi.getOID(), new long[] { transientPi.getOID() });
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
+      ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Completed);
+
+      final Parameters params = Parameters.instance();
+      params.set(APP_MAY_COMPLETE, true);
+      ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
+      assertThat(hasEntryInDbForPi(casePi.getOID()), is(true));
+      assertThat(hasEntryInDbForPi(transientPi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether joining a transient process instance to a process instance is rejected with the correct exception.
+    * </p>
+    */
+   @Test
+   public void testJoinTransientProcessInstanceToProcessInstanceIsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
+      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
+      
+      try
+      {
+         sf.getWorkflowService().joinProcessInstance(transientPi.getOID(), nonTransientPi.getOID(), JOIN_PI_COMMENT);
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
+      
+      final Parameters params = Parameters.instance();
+      params.set(APP_MAY_COMPLETE, true);
+      ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
+      assertThat(hasEntryInDbForPi(transientPi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether joining a process instance to a transient process instance is rejected with the correct exception.
+    * </p>
+    */
+   @Test
+   public void testJoinProcessInstanceToTransientProcessInstanceIsIllegal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
+      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
+      
+      try
+      {
+         sf.getWorkflowService().joinProcessInstance(nonTransientPi.getOID(), transientPi.getOID(), JOIN_PI_COMMENT);
+         Assert.fail();
+      }
+      catch (final IllegalOperationException e)
+      {
+         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+      }
+      
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
+      
+      final Parameters params = Parameters.instance();
+      params.set(APP_MAY_COMPLETE, true);
+      ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
+      assertThat(hasEntryInDbForPi(transientPi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -1678,6 +2075,29 @@ public class TransientProcessInstanceTest
                return null;
             }
          });
+      }
+   }
+   
+   /**
+    * <p>
+    * This is the application used in the test model that waits for some time
+    * in case it's not allowed to proceed.
+    * </p>
+    * 
+    * @author Nicolas.Werlein
+    * @version $Revision$
+    */
+   public static final class WaitingApp
+   {
+      public void doWait() throws InterruptedException
+      {
+         final Parameters params = Parameters.instance();
+         boolean mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
+         while ( !mayComplete)
+         {
+            Thread.sleep(1000);
+            mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
+         }
       }
    }
    

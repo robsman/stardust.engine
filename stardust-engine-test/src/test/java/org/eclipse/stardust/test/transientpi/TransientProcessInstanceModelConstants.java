@@ -159,6 +159,16 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     */
    /* package-private */ static final String PROCESS_DEF_ID_MANUAL_TRIGGER = "ManualTrigger";
    
+   /**
+    * the ID of the process definition that contains a manual activity
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_MANUAL_ACTIVITY = "ManualActivity";
+   
+   /**
+    * the ID of the process definition that contains an activity waiting for some time
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_WAITING_PROCESS = "WaitingProcess";
+   
    
    /**
     * the ID of the data in model 'TransientAndNon_transientRoute' determining whether the transient or

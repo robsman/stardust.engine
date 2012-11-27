@@ -365,7 +365,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 BPMRT_PI_NOT_CASE = newArgs1("BPMRT03834"); //$NON-NLS-1$
    public static final Args2 BPMRT_PI_NOT_MEMBER = newArgs2("BPMRT03835"); //$NON-NLS-1$
 
-   public static final Args1 BPMRT_PI_IS_TRANSIENT = newArgs1("BPMRT03840"); //$NON-NLS-1$
+   public static final Args1 BPMRT_PI_IS_TRANSIENT = newArgs1("BPMRT03840", BpmRuntimeErrorMessages.getString("BPMRT03840")); //$NON-NLS-1$ //$NON-NLS-2$
    
    public static final Args1 BPMRT_NO_CHANGES_TO_MODEL = newArgs1("BPMRT03850"); //$NON-NLS-1$
    

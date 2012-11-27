@@ -1421,6 +1421,9 @@
                 <xsl:if test="@Participant">
                     <xsl:attribute name="participant"><xsl:value-of select="@Participant"/></xsl:attribute>
                 </xsl:if>
+                <xsl:if test="@ParticipantReference">
+                    <xsl:attribute name="participantReference"><xsl:value-of select="@ParticipantReference"/></xsl:attribute>
+                </xsl:if>                
                 <xsl:if test="@BoundaryVisible">
                     <xsl:attribute name="boundaryVisible"><xsl:value-of select="@BoundaryVisible"/></xsl:attribute>
                 </xsl:if>

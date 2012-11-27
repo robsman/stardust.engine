@@ -1809,6 +1809,9 @@
 		<xsl:if test="@participant">
 			<xsl:attribute name="Participant"><xsl:value-of select="@participant" /></xsl:attribute>
 		</xsl:if>
+		<xsl:if test="@participantReference">
+			<xsl:attribute name="ParticipantReference"><xsl:value-of select="@participantReference" /></xsl:attribute>
+		</xsl:if>		
 		<xsl:if test="@collapsed">
 			<xsl:attribute name="Collapsed"><xsl:value-of select="@collapsed" /></xsl:attribute>
 		</xsl:if>

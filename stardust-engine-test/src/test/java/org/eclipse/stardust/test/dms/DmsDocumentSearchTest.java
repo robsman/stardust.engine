@@ -48,7 +48,7 @@ import org.junit.rules.TestRule;
  * @author Roland.Stamm
  * @version $Revision$
  */
-public class DmsDocumentSearch
+public class DmsDocumentSearchTest
 {
    // doc 1
    private static final String DOC_NAME1 = "test.txt";

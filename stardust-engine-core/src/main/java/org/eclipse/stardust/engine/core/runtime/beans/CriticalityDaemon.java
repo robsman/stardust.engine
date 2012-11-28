@@ -31,11 +31,13 @@ import org.eclipse.stardust.common.rt.IJobManager;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.SyncCriticalitiesToDiskAction;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -142,10 +144,15 @@ public class CriticalityDaemon implements IDaemon
       List updateList = CollectionUtils.newList();
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-
+      
       QueryDescriptor query = from(ActivityInstanceBean.class).select(
             ActivityInstanceBean.FR__OID, ActivityInstanceBean.FR__MODEL);
       query.getQueryExtension()
+            .addJoin(
+                  new Join(ModelPersistorBean.class).on(ActivityInstanceBean.FR__MODEL,
+                        ModelPersistorBean.FIELD__OID).where(
+                  Predicates.isEqual(ModelPersistorBean.FR__PARTITION,
+                  SecurityProperties.getPartitionOid())))
             .setWhere(
                   andTerm(
                         andTerm(

@@ -86,7 +86,7 @@ abstract class AbstractPropertyCache
       }
    }
 
-   AbstractPropertyCache getPredecessor()
+   public AbstractPropertyCache getPredecessor()
    {
       return predecessor;
    }

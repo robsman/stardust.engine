@@ -262,13 +262,14 @@ public class TransientProcessInstanceSupport
       
       for (final PersistenceController pc : pis.values())
       {
-         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
-         final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(pi);
+         if ( !pc.isCreated())
+         {
+            transientPis = false;
+            break;
+         }
          
-         final boolean isPiTaggedTransient = AuditTrailPersistence.isTransientExecution(rootPi.getAuditTrailPersistence());
-         final boolean isCompletedPersistedPi = pi.isCompleted() && !pc.isCreated();
-         final boolean isPiTransient = isPiTaggedTransient && !isCompletedPersistedPi;
-         transientPis &= isPiTransient;
+         final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
+         transientPis &= ProcessInstanceUtils.isTransientExecutionScenario(pi);
       }
    }
       

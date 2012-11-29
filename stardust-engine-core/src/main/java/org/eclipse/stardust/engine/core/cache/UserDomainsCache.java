@@ -135,7 +135,7 @@ public class UserDomainsCache extends AbstractCache<UserDomainBean>
       }
 
       UserDomainBean userDomain = UserDomainBean
-            .findByOID((short) oidKey.getOid());
+            .findByOID(oidKey.getOid());
       if (userDomain == null)
       {
          // remove phantom key

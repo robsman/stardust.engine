@@ -95,7 +95,7 @@ public class UserDomainBean extends IdentifiablePersistentBean implements IUserD
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
       UserDomainBean result = null;
-      if (CacheHelper.isCacheable(DepartmentBean.class))
+      if (CacheHelper.isCacheable(UserDomainBean.class))
       {
          result = UserDomainsCache.instance().findById(id, partitionOid);
          if (result != null)

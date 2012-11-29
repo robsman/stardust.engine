@@ -30,12 +30,12 @@ import org.junit.runners.Suite.SuiteClasses;
  * </p>
  * 
  * <p>
- * This test suite focusses on DMS synchronization between the JCR repository and the
+ * This test suite focuses on DMS synchronization between the JCR repository and the
  * Audit Trail database.
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 @RunWith(Suite.class)
 @SuiteClasses({ DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class })

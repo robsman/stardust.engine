@@ -17,7 +17,7 @@ package org.eclipse.stardust.test.dms;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 /* package-private */ class DmsModelConstants
 {

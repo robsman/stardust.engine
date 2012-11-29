@@ -10,15 +10,17 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
+import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_SYNC_MODEL_NAME;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSuiteSetup;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+
 
 /**
  * <p>
@@ -27,15 +29,20 @@ import org.junit.runners.Suite.SuiteClasses;
  * documentation for details about <i>Document Management</i>).
  * </p>
  * 
+ * <p>
+ * This test suite focusses on DMS synchronization between the JCR repository and the
+ * Audit Trail database.
+ * </p>
+ * 
  * @author Nicolas.Werlein
- * @version $Revision$
+ * @version $Revision: $
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsDocumentAnnotationsTest.class, DmsDocumentSearchTest.class })
-public class DmsTestSuite
+@SuiteClasses({ DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class })
+public class DmsSyncTestSuite
 {
    /* test suite */
    
    @ClassRule
-   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING);
+   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, DMS_SYNC_MODEL_NAME);
 }

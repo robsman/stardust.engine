@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
+import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_SYNC_MODEL_NAME;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import java.util.ArrayList;
@@ -22,11 +23,11 @@ import junit.framework.Assert;
 
 import org.eclipse.stardust.engine.api.model.ContextData;
 import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.RtEnvHome;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -35,19 +36,25 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
+/**
+ * <p>
+ * TODO javadoc
+ * </p>
+ * 
+ * @author Roland.Stamm
+ * @version $Revision: $
+ */
 public class DmsSyncDocumentTest
 {
-   private static final String MODEL_NAME = "DmsSyncTest";
-
    private static final String DOC_NAME = "DmsSyncTest.txt";
 
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   private final DmsAwareTestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, DMS_SYNC_MODEL_NAME);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
@@ -56,9 +63,6 @@ public class DmsSyncDocumentTest
    @Before
    public void setup()
    {
-      // DocumentTypes need to be present for every test run. They get deleted if model is deployed in LocalJcrH2TestSetup
-      RtEnvHome.deploy(sf.getAdministrationService(), MODEL_NAME);
-      
       DocumentManagementService dms = sf.getDocumentManagementService();
 
       for (int i = 1; i < 6; i++ )
@@ -78,7 +82,7 @@ public class DmsSyncDocumentTest
        */
       UserService us = sf.getUserService();
       User motu = us.getUser();
-      motu.addGrant("Role1");
+      UserHome.addGrants(sf, motu, "Role1");
       us.modifyUser(motu);
    }
 
@@ -109,6 +113,7 @@ public class DmsSyncDocumentTest
       Document wfDoc = (Document) wfs.getInDataValue(ai.getOID(), null, "Document1");
       Assert.assertEquals(doc.getDescription(), wfDoc.getDescription());
 
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(docList.get(0).getDescription(), wfDocList.get(0)
@@ -126,6 +131,7 @@ public class DmsSyncDocumentTest
       Assert.assertEquals(doc2.getDescription(), wfDoc2.getDescription());
 
       // assert dmsDocumentList data updated
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList2 = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(doc2.getDescription(), wfDocList2.get(0).getDescription());
@@ -160,6 +166,7 @@ public class DmsSyncDocumentTest
       Document wfDoc = (Document) wfs.getInDataValue(ai.getOID(), null, "Document1");
       Assert.assertEquals(doc.getDescription(), wfDoc.getDescription());
 
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(docList.get(0).getDescription(), wfDocList.get(0)
@@ -178,6 +185,7 @@ public class DmsSyncDocumentTest
       Assert.assertEquals(doc2.getDescription(), dmsDoc2.getDescription());
 
       // assert doc updated in dmsDocumentList data
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList2 = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(doc2.getDescription(), wfDocList2.get(0).getDescription());
@@ -210,6 +218,7 @@ public class DmsSyncDocumentTest
       Document wfDoc = (Document) wfs.getInDataValue(ai.getOID(), null, "Document1");
       Assert.assertEquals(doc.getDescription(), wfDoc.getDescription());
 
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(docList.get(0).getDescription(), wfDocList.get(0)
@@ -223,6 +232,7 @@ public class DmsSyncDocumentTest
       Assert.assertNull(wfDoc2);
 
       // assert dmsDocumentList data updated
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList2 = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertNull(wfDocList2);
@@ -257,6 +267,7 @@ public class DmsSyncDocumentTest
       Document wfDoc = (Document) wfs.getInDataValue(ai.getOID(), null, "Document1");
       Assert.assertEquals(doc.getDescription(), wfDoc.getDescription());
 
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(docList.get(0).getDescription(), wfDocList.get(0)
@@ -275,6 +286,7 @@ public class DmsSyncDocumentTest
       Assert.assertEquals(doc.getDescription(), dmsDoc2.getDescription());
 
       // assert doc in dmsDocumentList data exists
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList2 = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(doc.getDescription(), wfDocList2.get(0).getDescription());
@@ -306,6 +318,7 @@ public class DmsSyncDocumentTest
       Document wfDoc = (Document) wfs.getInDataValue(ai.getOID(), null, "Document1");
       Assert.assertEquals(doc.getDescription(), wfDoc.getDescription());
 
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(docList.get(0).getDescription(), wfDocList.get(0)
@@ -326,6 +339,7 @@ public class DmsSyncDocumentTest
       Assert.assertEquals(doc2.getDescription(), dmsDoc2.getDescription());
 
       // assert doc updated in dmsDocumentList data
+      @SuppressWarnings("unchecked")
       List<Document> wfDocList2 = (List<Document>) wfs.getInDataValue(ai.getOID(), null,
             "DocumentList1");
       Assert.assertEquals(doc2.getDescription(), wfDocList2.get(0).getDescription());

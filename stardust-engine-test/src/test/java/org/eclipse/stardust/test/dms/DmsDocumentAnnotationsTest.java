@@ -54,6 +54,7 @@ import org.junit.rules.TestRule;
  * </p>
  *
  * @author Roland.Stamm
+ * @version $Revision: $
  */
 public class DmsDocumentAnnotationsTest
 {

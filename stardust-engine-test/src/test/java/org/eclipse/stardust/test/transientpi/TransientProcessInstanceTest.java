@@ -91,7 +91,9 @@ public class TransientProcessInstanceTest
 {
    private static final String PI_BLOBS_HOLDER_FIELD_NAME = "piBlobsHolder";
    
-   private static final String PI_BLOBS_FIELD_NAME = "piBlobs";
+   private static final String PERSISTENT_TO_ROOT_PI_FIELD_NAME = "persistentToRootPi";
+   
+   private static final String ROOT_PI_TO_PI_BLOB_FIELD_NAME = "rootPiToPiBlob";
    
    private static final String PROCESS_EXECUTION_STATE = "Process.Execution.State";
 
@@ -1957,20 +1959,28 @@ public class TransientProcessInstanceTest
    
    private void dropTransientProcessInstanceStorage()
    {
-      final Map<?, ?> piBlobs = getPiBlobsMap();
-      piBlobs.clear();
+      getPersistentToRootPiMap().clear();
+      getRootPiToBlobMap().clear();
    }
    
    private boolean isTransientProcessInstanceStorageEmpty()
    {
-      final Map<?, ?> piBlobs = getPiBlobsMap();
-      return piBlobs.isEmpty();
+      final Map<?, ?> persistentToRootPiMap = getPersistentToRootPiMap();
+      final Map<?, ?> rootPiToBlobMap = getRootPiToBlobMap();
+      
+      return persistentToRootPiMap.isEmpty() && rootPiToBlobMap.isEmpty();
    }
    
-   private Map<?, ?> getPiBlobsMap()
+   private Map<?, ?> getPersistentToRootPiMap()
    {
       final Object piBlobsHolder = Reflect.getFieldValue(TransientProcessInstanceStorage.instance(), PI_BLOBS_HOLDER_FIELD_NAME);
-      return (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, PI_BLOBS_FIELD_NAME);
+      return (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, PERSISTENT_TO_ROOT_PI_FIELD_NAME);
+   }
+
+   private Map<?, ?> getRootPiToBlobMap()
+   {
+      final Object piBlobsHolder = Reflect.getFieldValue(TransientProcessInstanceStorage.instance(), PI_BLOBS_HOLDER_FIELD_NAME);
+      return (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, ROOT_PI_TO_PI_BLOB_FIELD_NAME);
    }
    
    /**

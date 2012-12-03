@@ -44,13 +44,17 @@ public class TransientProcessInstanceStorageTest
 {
    private static final String PI_BLOBS_HOLDER_FIELD_NAME = "piBlobsHolder";
    
-   private static final String PI_BLOBS_FIELD_NAME = "piBlobs";
+   private static final String PERSISTENT_TO_ROOT_PI_FIELD_NAME = "persistentToRootPi";
    
+   private static final String ROOT_PI_TO_PI_BLOB_FIELD_NAME = "rootPiToPiBlob";
+   
+   private static final long ROOT_PI_OID_1 = 1;
    private static final PersistentKey KEY_1_1 = new PersistentKey(01, ProcessInstanceBean.class);
    private static final PersistentKey KEY_1_2 = new PersistentKey(10, ActivityInstanceBean.class);
    private static final PersistentKey KEY_1_3 = new PersistentKey(11, ActivityInstanceBean.class);
    private static final ProcessInstanceGraphBlob BLOB_1 = new ProcessInstanceGraphBlob(new byte[] { 1, 1, 1, 0, -1});
    
+   private static final long ROOT_PI_OID_2 = 2;
    private static final PersistentKey KEY_2_1 = new PersistentKey(02, ProcessInstanceBean.class);
    private static final PersistentKey KEY_2_2 = new PersistentKey(12, ActivityInstanceBean.class);
    private static final PersistentKey KEY_2_3 = new PersistentKey(13, ActivityInstanceBean.class);
@@ -114,8 +118,8 @@ public class TransientProcessInstanceStorageTest
    @Test
    public void testInsertAndSelect()
    {
-      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1);
-      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2, ROOT_PI_OID_2);
       
       final ProcessInstanceGraphBlob retrievedBlob1 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
       final ProcessInstanceGraphBlob retrievedBlob2 = TransientProcessInstanceStorage.instance().select(KEY_2_3);
@@ -133,10 +137,10 @@ public class TransientProcessInstanceStorageTest
    @Test
    public void testDelete()
    {
-      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1);
-      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_1));
-      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_2));
-      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_3));
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
+      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_1), false);
+      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_2), false);
+      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_3), true);
       
       final ProcessInstanceGraphBlob removedBlob1_1 = TransientProcessInstanceStorage.instance().select(KEY_1_1);
       final ProcessInstanceGraphBlob removedBlob1_2 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
@@ -156,8 +160,8 @@ public class TransientProcessInstanceStorageTest
    @Test
    public void testConcurrentDelete() throws Exception
    {
-      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1);
-      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2, ROOT_PI_OID_2);
       
       final ExecutorService executorService = Executors.newFixedThreadPool(2);
       final Future<Void> result1 = executorService.submit(new Deleter(PERSISTENT_KEYS_1));
@@ -189,7 +193,7 @@ public class TransientProcessInstanceStorageTest
    @Test
    public void testTxCommit()
    {
-      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
       
       final ProcessInstanceGraphBlob blob1_1 = TransientProcessInstanceStorage.instance().select(KEY_1_1);
       final ProcessInstanceGraphBlob blob1_2 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
@@ -214,7 +218,7 @@ public class TransientProcessInstanceStorageTest
       
       try
       {
-         TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1);
+         TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
       }
       catch (final Exception ignored)
       {
@@ -236,8 +240,12 @@ public class TransientProcessInstanceStorageTest
    private void dropTransientProcessInstanceStorage()
    {
       final Object piBlobsHolder = Reflect.getFieldValue(TransientProcessInstanceStorage.instance(), PI_BLOBS_HOLDER_FIELD_NAME);
-      final Map<?, ?> piBlobs = (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, PI_BLOBS_FIELD_NAME);
-      piBlobs.clear();
+      
+      final Map<?, ?> persistentToRootPi = (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, PERSISTENT_TO_ROOT_PI_FIELD_NAME);
+      persistentToRootPi.clear();
+      
+      final Map<?, ?> rootPiToPiBlob = (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, ROOT_PI_TO_PI_BLOB_FIELD_NAME);
+      rootPiToPiBlob.clear();
    }
    
    private static final class InstanceResolver implements Callable<Void>
@@ -284,7 +292,7 @@ public class TransientProcessInstanceStorageTest
       @Override
       public Void call()
       {
-         TransientProcessInstanceStorage.instance().delete(persistentKeys);
+         TransientProcessInstanceStorage.instance().delete(persistentKeys, true);
          return null;
       }
    }

@@ -27,7 +27,9 @@ import org.eclipse.stardust.engine.core.persistence.Persistent;
  */
 public class TransientProcessInstanceStorage
 {
-   private static final String TRANSIENT_PROCESS_STORAGE_MAP_ID = "TransientProcessStorageMapID";
+   private static final String PERSISTENT_TO_ROOT_PI_MAP_ID = "PersistentToRootProcessInstanceMapID";
+   
+   private static final String ROOT_PI_TO_PI_BLOB_MAP_ID = "RootProcessInstanceToProcessInstanceBlobMapID";
    
    private final ProcessInstanceBlobsHolder piBlobsHolder;
    
@@ -36,7 +38,7 @@ public class TransientProcessInstanceStorage
       return TransientProcessInstanceStorageHolder.instance;
    }
    
-   public void insertOrUpdate(final Set<PersistentKey> persistentKeys, final ProcessInstanceGraphBlob blob)
+   public void insertOrUpdate(final Set<PersistentKey> persistentKeys, final ProcessInstanceGraphBlob blob, final long rootPiOid)
    {
       if (persistentKeys == null)
       {
@@ -47,18 +49,18 @@ public class TransientProcessInstanceStorage
          throw new NullPointerException("Blob must not be null.");
       }
       
-      final InsertOrUpdateOperation insertOp = new InsertOrUpdateOperation(persistentKeys, blob);
+      final InsertOrUpdateOperation insertOp = new InsertOrUpdateOperation(persistentKeys, blob, rootPiOid);
       piBlobsHolder.accessPiBlobs(insertOp);
    }
 
-   public void delete(final Set<PersistentKey> persistentKeys)
+   public void delete(final Set<PersistentKey> persistentKeys, final boolean purgePiGraph)
    {
       if (persistentKeys == null)
       {
          throw new NullPointerException("Persistent keys must not be null.");
       }
 
-      final DeleteOperation deleteOp = new DeleteOperation(persistentKeys);
+      final DeleteOperation deleteOp = new DeleteOperation(persistentKeys, purgePiGraph);
       piBlobsHolder.accessPiBlobs(deleteOp);
    }
    
@@ -164,11 +166,18 @@ public class TransientProcessInstanceStorage
    
    /* package-private */ static class ProcessInstanceBlobsHolder
    {
-      private final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs;
+      /* implicit link between persistents and process instance blob */
+      /* to ensure process instance blob is stored only once:        */
+      /* a clustered map might store the process instance blob       */
+      /* in a serialized value for every single entry                */
+      /* (Hazelcast does so, see CRNT-27238)                         */
+      private final Map<PersistentKey, Long> persistentToRootPi;
+      private final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob;
       
       public ProcessInstanceBlobsHolder()
       {
-         this.piBlobs = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(TRANSIENT_PROCESS_STORAGE_MAP_ID);
+         this.persistentToRootPi = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(PERSISTENT_TO_ROOT_PI_MAP_ID);
+         this.rootPiToPiBlob = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(ROOT_PI_TO_PI_BLOB_MAP_ID);
       }
       
       public <T> T accessPiBlobs(final TxAwareClusterSafeOperation<T> op)
@@ -177,7 +186,7 @@ public class TransientProcessInstanceStorage
          try
          {
             ClusterSafeObjectProviderHolder.OBJ_PROVIDER.beforeAccess();
-            result = op.execute(piBlobs);
+            result = op.execute(persistentToRootPi, rootPiToPiBlob);
          }
          catch (final Exception e)
          {
@@ -197,29 +206,33 @@ public class TransientProcessInstanceStorage
    
    /* package-private */ static interface TxAwareClusterSafeOperation<T>
    {
-      T execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs);
+      T execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob);
    }      
    
    /* package-private */ static final class InsertOrUpdateOperation implements TxAwareClusterSafeOperation<Void>
    {
       private final Set<PersistentKey> persistentKeys;
       private final ProcessInstanceGraphBlob blob;
+      private final long rootPiOid;
       
-      public InsertOrUpdateOperation(final Set<PersistentKey> persistentKeys, final ProcessInstanceGraphBlob blob)
+      public InsertOrUpdateOperation(final Set<PersistentKey> persistentKeys, final ProcessInstanceGraphBlob blob, final long rootPiOid)
       {
          this.persistentKeys = persistentKeys;
          this.blob = blob;
+         this.rootPiOid = rootPiOid;
       }
       
       @Override
-      public Void execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs)
+      public Void execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob)
       {
-         final Map<PersistentKey, ProcessInstanceGraphBlob> blobsToAdd = newHashMap();
+         final Map<PersistentKey, Long> blobsToAdd = newHashMap();
          for (final PersistentKey p : persistentKeys)
          {
-            blobsToAdd.put(p, blob);
+            blobsToAdd.put(p, rootPiOid);
          }
-         piBlobs.putAll(blobsToAdd);
+         persistentToRootPi.putAll(blobsToAdd);
+         
+         rootPiToPiBlob.put(rootPiOid, blob);
          
          return null;
       }
@@ -228,18 +241,35 @@ public class TransientProcessInstanceStorage
    /* package-private */ static final class DeleteOperation implements TxAwareClusterSafeOperation<Void>
    {
       private final Set<PersistentKey> persistentKeys;
+      private final boolean removeBlob;
       
-      public DeleteOperation(final Set<PersistentKey> persistentKeys)
+      public DeleteOperation(final Set<PersistentKey> persistentKeys, final boolean removeBlob)
       {
          this.persistentKeys = persistentKeys;
+         this.removeBlob = removeBlob;
       }
       
       @Override
-      public Void execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs)
+      public Void execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob)
       {
+         /* determine the root PI OID during deletion to avoid */
+         /* an additional map access                           */
+         Long rootPiOid = null;
          for (final PersistentKey p : persistentKeys)
          {
-            piBlobs.remove(p);
+            final Long tmp = persistentToRootPi.remove(p);
+
+            /* not every persistent to be deleted is in the map */
+            /* i.e. tmp may be null                             */
+            if (tmp != null && rootPiOid == null)
+            {
+               rootPiOid = tmp;
+            }
+         }
+         
+         if (rootPiOid != null && removeBlob)
+         {
+            rootPiToPiBlob.remove(rootPiOid);
          }
          
          return null;
@@ -256,9 +286,14 @@ public class TransientProcessInstanceStorage
       }
       
       @Override
-      public ProcessInstanceGraphBlob execute(final Map<PersistentKey, ProcessInstanceGraphBlob> piBlobs)
+      public ProcessInstanceGraphBlob execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob)
       {
-         return piBlobs.get(key);
+         final Long rootPiOid = persistentToRootPi.get(key);
+         if (rootPiOid == null)
+         {
+            return null;
+         }
+         return rootPiToPiBlob.get(rootPiOid);
       }
    }
    

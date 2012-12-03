@@ -56,6 +56,8 @@ public class TransientProcessInstanceSupport
    
    private boolean allPisAreCompleted = false;
    
+   private Long rootPiOidForWriteOp;
+   
    private final Set<PersistentKey> persistentKeysToBeInserted;
    
    private final Set<PersistentKey> persistentKeysToBeDeleted;
@@ -148,15 +150,21 @@ public class TransientProcessInstanceSupport
    {
       assertEnabled();
       
+      final boolean purgePiGraph;
       final Set<PersistentKey> keysToBeDeleted = new HashSet<PersistentKey>(persistentKeysToBeDeleted);
       if (!isCurrentSessionTransient() || areAllPisCompleted())
       {
+         purgePiGraph = true;
          keysToBeDeleted.addAll(persistentKeysToBeInserted);
+      }
+      else
+      {
+         purgePiGraph = false;
       }
       
       if ( !keysToBeDeleted.isEmpty())
       {
-         TransientProcessInstanceStorage.instance().delete(keysToBeDeleted);
+         TransientProcessInstanceStorage.instance().delete(keysToBeDeleted, purgePiGraph);
       }
    }
    
@@ -169,10 +177,15 @@ public class TransientProcessInstanceSupport
          throw new IllegalArgumentException("Blob builder must be of type '" + ByteArrayBlobBuilder.class + "'.");
       }
       
+      if (rootPiOidForWriteOp == null)
+      {
+         throw new IllegalStateException("Root Process Instance OID has not been initialized.");
+      }
+      
       final byte[] blob = ((ByteArrayBlobBuilder) blobBuilder).getBlob();
       final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(blob);
       
-      TransientProcessInstanceStorage.instance().insertOrUpdate(persistentKeysToBeInserted, piBlob);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(persistentKeysToBeInserted, piBlob, rootPiOidForWriteOp);
    }
    
    public boolean arePisTransient()
@@ -336,6 +349,8 @@ public class TransientProcessInstanceSupport
       {
          throw new NullPointerException("Root process instance could not be determined.");
       }
+      
+      this.rootPiOidForWriteOp = pi.getOID();
       
       return result;
    }

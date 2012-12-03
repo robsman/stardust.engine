@@ -23,20 +23,30 @@ import java.util.List;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.core.persistence.EmptyResultSetIterator;
+import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Join;
 import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
 import org.eclipse.stardust.engine.core.persistence.OrderCriterion;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.utils.ActivityInstanceAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.vfs.impl.utils.StringUtils;
 
 
@@ -135,6 +145,18 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
       if (authorizationPredicate != null)
       {
+         authorizationPredicate.addPrefetchDataHints(query);
+      }
+      else if (query.getPolicy(ExcludeUserPolicy.class) != null
+            && SecurityProperties.getUser().hasRole(
+                  PredefinedConstants.ADMINISTRATOR_ROLE))
+      {
+         authorizationPredicate = new ActivityInstanceAuthorization2Predicate(
+               AuthorizationContext.create(QueryService.class, "getAllActivityInstances",
+                     ActivityInstanceQuery.class))
+         {
+         };
+
          authorizationPredicate.addPrefetchDataHints(query);
       }
 

@@ -56,7 +56,7 @@ public class TransientProcessInstanceSupport
    
    private boolean allPisAreCompleted = false;
    
-   private Long rootPiOidForWriteOp;
+   private Set<Long> rootPiOids = newHashSet();
    
    private final Set<PersistentKey> persistentKeysToBeInserted;
    
@@ -164,7 +164,7 @@ public class TransientProcessInstanceSupport
       
       if ( !keysToBeDeleted.isEmpty())
       {
-         TransientProcessInstanceStorage.instance().delete(keysToBeDeleted, purgePiGraph);
+         TransientProcessInstanceStorage.instance().delete(keysToBeDeleted, purgePiGraph, rootPiOids);
       }
    }
    
@@ -177,7 +177,7 @@ public class TransientProcessInstanceSupport
          throw new IllegalArgumentException("Blob builder must be of type '" + ByteArrayBlobBuilder.class + "'.");
       }
       
-      if (rootPiOidForWriteOp == null)
+      if (rootPiOids.isEmpty())
       {
          throw new IllegalStateException("Root Process Instance OID has not been initialized.");
       }
@@ -185,7 +185,11 @@ public class TransientProcessInstanceSupport
       final byte[] blob = ((ByteArrayBlobBuilder) blobBuilder).getBlob();
       final ProcessInstanceGraphBlob piBlob = new ProcessInstanceGraphBlob(blob);
       
-      TransientProcessInstanceStorage.instance().insertOrUpdate(persistentKeysToBeInserted, piBlob, rootPiOidForWriteOp);
+      /* it's safe to assume that for a write operation (i.e. the session is still transient) */
+      /* the root PI OID is unique, i.e. the set only contains one element                    */
+      final long rootPiOid = rootPiOids.iterator().next().longValue();
+      
+      TransientProcessInstanceStorage.instance().insertOrUpdate(persistentKeysToBeInserted, piBlob, rootPiOid);
    }
    
    public boolean arePisTransient()
@@ -330,27 +334,22 @@ public class TransientProcessInstanceSupport
    {
       boolean result = true;
       
-      IProcessInstance pi = null;
       for (final PersistenceController pc : pis)
       {
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI((IProcessInstance) pc.getPersistent());
-         if (pi == null)
-         {
-            pi = rootPi;
-         }
-         else if (pi.getOID() != rootPi.getOID())
-         {
-            result = false;
-            LOGGER.warn("Root process instance is not unique (OIDs: " + pi.getOID() + ", " + rootPi.getOID() + ").");
-         }
+         rootPiOids.add(Long.valueOf(rootPi.getOID()));
       }
       
-      if (pi == null)
+      if (rootPiOids.isEmpty())
       {
-         throw new NullPointerException("Root process instance could not be determined.");
+         throw new IllegalStateException("Root process instance could not be determined.");
       }
-      
-      this.rootPiOidForWriteOp = pi.getOID();
+
+      if (rootPiOids.size() > 1)
+      {
+         result = false;
+         LOGGER.warn("Root process instance is not unique (OIDs: " + rootPiOids + ").");
+      }
       
       return result;
    }

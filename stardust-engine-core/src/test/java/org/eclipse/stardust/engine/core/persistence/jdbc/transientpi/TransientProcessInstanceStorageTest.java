@@ -138,9 +138,9 @@ public class TransientProcessInstanceStorageTest
    public void testDelete()
    {
       TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
-      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_1), false);
-      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_2), false);
-      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_3), true);
+      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_1), false, Collections.singleton(ROOT_PI_OID_1));
+      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_2), false, Collections.singleton(ROOT_PI_OID_1));
+      TransientProcessInstanceStorage.instance().delete(Collections.singleton(KEY_1_3), true, Collections.singleton(ROOT_PI_OID_1));
       
       final ProcessInstanceGraphBlob removedBlob1_1 = TransientProcessInstanceStorage.instance().select(KEY_1_1);
       final ProcessInstanceGraphBlob removedBlob1_2 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
@@ -164,8 +164,8 @@ public class TransientProcessInstanceStorageTest
       TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2, ROOT_PI_OID_2);
       
       final ExecutorService executorService = Executors.newFixedThreadPool(2);
-      final Future<Void> result1 = executorService.submit(new Deleter(PERSISTENT_KEYS_1));
-      final Future<Void> result2 = executorService.submit(new Deleter(PERSISTENT_KEYS_2));
+      final Future<Void> result1 = executorService.submit(new Deleter(PERSISTENT_KEYS_1, ROOT_PI_OID_1));
+      final Future<Void> result2 = executorService.submit(new Deleter(PERSISTENT_KEYS_2, ROOT_PI_OID_2));
       result1.get(5, TimeUnit.SECONDS);
       result2.get(5, TimeUnit.SECONDS);
       
@@ -274,8 +274,9 @@ public class TransientProcessInstanceStorageTest
    private static final class Deleter implements Callable<Void>
    {
       private final Set<PersistentKey> persistentKeys;
+      private final Long rootPiOid;
       
-      public Deleter(final Set<PersistentKey> persistentKeys)
+      public Deleter(final Set<PersistentKey> persistentKeys, final Long rootPiOid)
       {
          if (persistentKeys == null)
          {
@@ -285,14 +286,19 @@ public class TransientProcessInstanceStorageTest
          {
             throw new IllegalArgumentException("Persistent keys must not be null.");
          }
+         if (rootPiOid == null)
+         {
+            throw new NullPointerException("Root process instance OID must not be null.");
+         }
          
          this.persistentKeys = persistentKeys;
+         this.rootPiOid = rootPiOid;
       }
       
       @Override
       public Void call()
       {
-         TransientProcessInstanceStorage.instance().delete(persistentKeys, true);
+         TransientProcessInstanceStorage.instance().delete(persistentKeys, true, Collections.singleton(rootPiOid));
          return null;
       }
    }

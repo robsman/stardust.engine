@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.jcr.Credentials;
 import javax.jcr.LoginException;
@@ -39,9 +38,6 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.ejb.EjbProperties;
 import org.eclipse.stardust.engine.api.dto.RtDetailsFactory;
 import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IScopedModelParticipant;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
@@ -50,9 +46,8 @@ import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDige
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsPrincipal;
+import org.eclipse.stardust.engine.extensions.dms.data.JcrSecurityUtils;
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-import org.eclipse.stardust.vfs.impl.jcr.AuthorizableOrganizationDetails;
 import org.eclipse.stardust.vfs.impl.utils.SessionUtils;
 
 
@@ -346,59 +341,11 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       return credentials;
    }
 
-   public static SimpleCredentials getIppCredentials(String jcrPasswordDummy)
+   public static SimpleCredentials getIppCredentials(String jcrPassword)
    {
-      // code copy: see org.eclipse.stardust.engine.api.spring.IppJcrSessionFactory
       IUser user = SecurityProperties.getUser();
 
-      Set<AuthorizableOrganizationDetails> allModelParticipants = CollectionUtils.newSet();
-      // all users having Administrator Role join Jackrabbit 'administrators' group
-      if (user.hasRole(PredefinedConstants.ADMINISTRATOR_ROLE))
-      {
-         allModelParticipants.add(new AuthorizableOrganizationDetails("administrators"));
-      }
-
-      for (Iterator i = SecurityProperties.getUser().getAllParticipants(); i.hasNext();)
-      {
-         IModelParticipant participant = (IModelParticipant) i.next();
-
-         String participantId = participant.getId();
-
-         String departmentId = null;
-         if (participant instanceof IScopedModelParticipant)
-         {
-            IDepartment department = ((IScopedModelParticipant) participant).getDepartment();
-            if (department != null)
-            {
-               departmentId = department.getId();
-            }
-         }
-         String modelId = participant.getModel().getId();
-
-         String principalName = DmsPrincipal.getModelParticipantPrincipalName(
-               participantId, departmentId, modelId);
-         allModelParticipants.add(new AuthorizableOrganizationDetails(principalName));
-         // For backwards compatibility.
-         allModelParticipants.add(new AuthorizableOrganizationDetails(participant.getId()));
-      }
-
-      for (Iterator i = SecurityProperties.getUser().getAllUserGroupLinks(); i.hasNext();)
-      {
-         UserUserGroupLink participant = (UserUserGroupLink) i.next();
-         IUserGroup userGroup = participant.getUserGroup();
-
-         String principalName = DmsPrincipal.getUserGroupPrincipalName(userGroup.getId());
-         allModelParticipants.add(new AuthorizableOrganizationDetails(principalName));
-      }
-
-      SimpleCredentials credentials = new SimpleCredentials(
-            DmsPrincipal.getUserPrincipalName(user.getId(), user.getRealm().getId()),
-            jcrPasswordDummy.toCharArray());
-      credentials.setAttribute(AuthorizableOrganizationDetails.DIRECT_GROUPS_ATT,
-            allModelParticipants);
-
-
-      return credentials;
+      return JcrSecurityUtils.getCredentialsIncludingParticipantHierarchy(user, jcrPassword);
    }
 
    private boolean isJcrSecurityEnabled()

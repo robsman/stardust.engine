@@ -225,12 +225,12 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob)
       {
-         final Map<PersistentKey, Long> blobsToAdd = newHashMap();
+         final Map<PersistentKey, Long> persistentMappingsToAdd = newHashMap();
          for (final PersistentKey p : persistentKeys)
          {
-            blobsToAdd.put(p, rootPiOid);
+            persistentMappingsToAdd.put(p, rootPiOid);
          }
-         persistentToRootPi.putAll(blobsToAdd);
+         persistentToRootPi.putAll(persistentMappingsToAdd);
          
          rootPiToPiBlob.put(rootPiOid, blob);
          
@@ -257,13 +257,14 @@ public class TransientProcessInstanceStorage
          Long rootPiOid = null;
          for (final PersistentKey p : persistentKeys)
          {
-            final Long tmp = persistentToRootPi.remove(p);
-
-            /* not every persistent to be deleted is in the map */
-            /* i.e. tmp may be null                             */
-            if (tmp != null && rootPiOid == null)
+            /* not every persistent is included in the map:              */
+            /* we'd like to avoid aquiring a lock for entries not        */
+            /* existing in the map; hence, we're using Map#containsKey() */
+            /* up front which does not aquire a possibly unnecessary     */
+            /* lock - as opposed to Map#remove()                         */
+            if (persistentToRootPi.containsKey(p))
             {
-               rootPiOid = tmp;
+               rootPiOid = persistentToRootPi.remove(p);
             }
          }
          

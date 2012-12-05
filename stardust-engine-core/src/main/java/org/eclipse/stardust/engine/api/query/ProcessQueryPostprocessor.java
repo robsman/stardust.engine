@@ -963,7 +963,7 @@ public class ProcessQueryPostprocessor
 
          final Pair dataRtOids = (Pair) pdSlice.getFirst();
          final Set<Long> dataRtOidsStructured = (Set<Long> ) dataRtOids.getFirst();
-         final Map<Long, IData> dataRtOidsNonStructured = new HashMap();//(Map<Long, IData>) dataRtOids.getSecond();
+         final Map<Long, IData> dataRtOidsNonStructured = (Map<Long, IData>) dataRtOids.getSecond();
          final Set<Long> piSet = (Set) pdSlice.getSecond();
          if (!dataRtOidsStructured.isEmpty() || !dataRtOidsNonStructured.isEmpty())
          {

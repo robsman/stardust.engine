@@ -89,18 +89,7 @@ public class LocaleUtil
       sort(fieldIDs, order, first, hi);
       sort(fieldIDs, order, lo, last);
    }
-
-   public static void main(String[] args)
-   {
-      int[] order = {2, 8, 12, 6, 10, 4};
-      int[] fieldIDs = {1, 4, 6, 3, 5, 2};
-      sort(fieldIDs, order);
-      for (int i = 0; i < fieldIDs.length; i++)
-      {
-         System.out.print(fieldIDs[i] + "; ");
-      }
-   }
-
+   
    private LocaleUtil()
    {
       // utility class

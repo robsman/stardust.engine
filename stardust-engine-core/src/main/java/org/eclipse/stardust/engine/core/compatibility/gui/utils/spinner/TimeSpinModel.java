@@ -90,20 +90,4 @@ public class TimeSpinModel extends DefaultSpinModel
    {
       return time;
    }
-
-   public static void main(String[] args)
-   {
-      TimeSpinModel model = new TimeSpinModel();
-      int activeField = model.getActiveField();
-      System.out.println(model.getRange(activeField));
-      model.setNextField();
-      activeField = model.getActiveField();
-      System.out.println(model.getRange(activeField));
-      model.setNextField();
-      activeField = model.getActiveField();
-      System.out.println(model.getRange(activeField));
-      model.setNextField();
-      activeField = model.getActiveField();
-      System.out.println(model.getRange(activeField));
-   }
 }

@@ -10,11 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.ejb2.tools;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +18,12 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 
 import com.thoughtworks.qdox.JavaDocBuilder;
-import com.thoughtworks.qdox.model.*;
+import com.thoughtworks.qdox.model.DocletTag;
+import com.thoughtworks.qdox.model.JavaClass;
+import com.thoughtworks.qdox.model.JavaMethod;
+import com.thoughtworks.qdox.model.JavaParameter;
+import com.thoughtworks.qdox.model.JavaSource;
+import com.thoughtworks.qdox.model.Type;
 
 
 /**
@@ -289,84 +290,6 @@ public class CodeGen
 
    }
 
-   public static void main(String[] args) throws IOException, ClassNotFoundException
-   {
-      String root = ".";
-      String destPackage = "/org/eclipse/stardust/engine/api/ejb2/";
-      
-      if (args.length > 0)
-      {
-         root = args[0];
-      }
-      
-      String destinationRoot = root;
-      
-      if (args.length > 1)
-      {
-         destinationRoot = args[1];
-      }
-
-     if (args.length > 2)
-      {
-         for (int i = 2; i < args.length; i++)
-         {
-            createSources(root, destinationRoot, destPackage, args[i]);
-         }
-      }
-      else
-      {
-         createSources(root, destinationRoot, destPackage, "WorkflowService");
-         createSources(root, destinationRoot, destPackage, "UserService");
-         createSources(root, destinationRoot, destPackage, "AdministrationService");
-         createSources(root, destinationRoot, destPackage, "QueryService");
-         //createSources(root, destinationRoot, destPackage, "WfxmlService");
-         createSources(root, destinationRoot, destPackage, "DocumentManagementService");
-      }
-   }
-   
-   private static void createSources(String root, String destinationRoot,
-         String destPackage, String serviceName) throws IOException, FileNotFoundException
-   {
-      createSources(root, destinationRoot, destPackage, serviceName, false);
-      createSources(root, destinationRoot, destPackage, serviceName, true);
-   }
-
-   private static void createSources(String root, String destinationRoot,
-         String destPackage, String serviceName, boolean tunneling) throws IOException,
-         FileNotFoundException
-   {
-      String longServiceName = "org.eclipse.stardust.engine.api.runtime." + serviceName;
-      String longPathJavaSourceName = root + "/org/eclipse/stardust/engine/api/runtime/" + serviceName
-            + ".java";
-      CodeGen generator = new CodeGen();
-
-      String remoteServiceImpl = generator.createRemoteServiceImpl(longServiceName,
-            longPathJavaSourceName, destPackage, tunneling);
-      FileWriter writer = new FileWriter(new File(destinationRoot + destPackage
-             + (tunneling ? "tunneling/beans/Tunneling" : "beans/Remote") + serviceName + "Impl.java"));
-      writer.write(remoteServiceImpl);
-      writer.close();
-
-      String tunnelingPrefix = (tunneling ? "tunneling/Tunneling" : "");
-
-      String remoteService = generator.createRemoteService(longServiceName,
-            longPathJavaSourceName, destPackage, tunneling);
-      writer = new FileWriter(new File(destinationRoot + destPackage
-            + tunnelingPrefix + "Remote" + serviceName + ".java"));
-      writer.write(remoteService);
-      writer.close();
-
-      // Local-interfaces using the same service implementation as remote interfaces.
-      // Therefore no "createLocalService" is necessary.
-
-      String localService = generator.createLocalService(longServiceName,
-            longPathJavaSourceName, destPackage, tunneling);
-      writer = new FileWriter(new File(destinationRoot + destPackage
-            + tunnelingPrefix + "Local" + serviceName + ".java"));
-      writer.write(localService);
-      writer.close();
-   }
-   
    private static abstract class AbstractMethodGenerator
    {
       private final boolean tunneling;

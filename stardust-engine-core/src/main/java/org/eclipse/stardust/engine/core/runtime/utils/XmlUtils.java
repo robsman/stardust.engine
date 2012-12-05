@@ -1096,19 +1096,5 @@ public class XmlUtils
          throw new InternalException(e);
       }
    }
-   
-   public static void main(String[] args)
-   {
-      String source = "C:\\development\\branches\\trunk\\runtime-New_configuration\\test\\models\\WorkflowModel.xpdl";
-      try
-      {
-         byte[] content = XmlUtils.getContent(source);
-         System.out.println(content.length);
-         System.out.println(XmlUtils.getXMLString(content));
-      }
-      catch (Throwable t)
-      {
-         t.printStackTrace();
-      }
-   }
+
 }

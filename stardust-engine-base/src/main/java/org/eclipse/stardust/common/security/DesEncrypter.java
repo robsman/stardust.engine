@@ -108,21 +108,4 @@ public class DesEncrypter {
 		}
 		return null;
 	}
-
-	public static void main(String[] args) throws Exception {
-		// Here is an example that uses the class
-		try {
-			// Create encrypter/decrypter class
-			DesEncrypter encrypter = new DesEncrypter("TestPassPhrase");
-
-			// Encrypt
-			String encrypted = encrypter.encrypt("Don't tell anybody!");
-
-			// Decrypt
-			String decrypted = encrypter.decrypt(encrypted);
-
-			int x = 0;
-		} catch (Exception e) {
-		}
-	}
 }

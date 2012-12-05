@@ -227,14 +227,30 @@ public class TransientProcessInstanceSupport
       return needForWriteToInMemStorage || needForDeferredPersist;
    }
    
-   public static Persistent findAndReattach(final long oid, final Class<? extends Persistent> clazz, final Session session)
+   public static void loadProcessInstanceGraphIfExistent(final long rootPiOid, final Session session)
    {
-      final ProcessInstanceGraphBlob blob = TransientProcessInstanceStorage.instance().select(new PersistentKey(oid, clazz));
+      final ProcessInstanceGraphBlob blob = TransientProcessInstanceStorage.instance().selectForRootPiOid(rootPiOid);
+      if (blob == null)
+      {
+         return;
+      }
+      
+      loadProcessInstanceGraph(blob, session, null);
+   }
+   
+   public static Persistent loadProcessInstanceGraphIfExistent(final PersistentKey pk, final Session session)
+   {
+      final ProcessInstanceGraphBlob blob = TransientProcessInstanceStorage.instance().select(pk);
       if (blob == null)
       {
          return null;
-      }
+      }      
       
+      return loadProcessInstanceGraph(blob, session, pk);
+   }
+   
+   private static Persistent loadProcessInstanceGraph(final ProcessInstanceGraphBlob blob, final Session session, final PersistentKey pk)
+   {
       final ProcessBlobReader reader = new ProcessBlobReader(session);
       final Set<Persistent> persistents = reader.readProcessBlob(blob);
       
@@ -247,14 +263,14 @@ public class TransientProcessInstanceSupport
             deferredPersistents.add(p);
             continue;
          }
-         reattachPersistent(p, session);
-         if (result == null)
+         loadPersistent(p, session);
+         if (result == null && pk != null)
          {
-            result = identifyLookedUpPersistent(p, oid, clazz);
+            result = identifyLookedUpPersistent(p, pk);
          }
       }
       
-      if (result == null)
+      if (result == null && pk != null)
       {
          throw new IllegalStateException("Persistent could not be found in the corresponding process instance graph.");
       }
@@ -262,7 +278,7 @@ public class TransientProcessInstanceSupport
       for (final Persistent p : deferredPersistents)
       {
          ensurePkLinksAreFetched(p, session);
-         reattachPersistent(p, session);
+         loadPersistent(p, session);
       }
       
       return result;
@@ -438,14 +454,14 @@ public class TransientProcessInstanceSupport
       }
    }
    
-   private static void reattachPersistent(final Persistent p, final Session session)
+   private static void loadPersistent(final Persistent p, final Session session)
    {
       final TypeDescriptor typeDesc = session.getTypeDescriptor(p.getClass());
       final Object identityKey = typeDesc.getIdentityKey(p);
       session.addToPersistenceControllers(identityKey, p.getPersistenceController());
    }
 
-   private static Persistent identifyLookedUpPersistent(final Persistent p, final long oid, final Class<? extends Persistent> clazz)
+   private static Persistent identifyLookedUpPersistent(final Persistent p, final PersistentKey pk)
    {
       if ( !(p instanceof IdentifiablePersistent))
       {
@@ -453,7 +469,7 @@ public class TransientProcessInstanceSupport
       }
       
       final IdentifiablePersistent ip = (IdentifiablePersistent) p;
-      if (clazz.equals(ip.getClass()) && oid == ip.getOID())
+      if (pk.clazz().equals(ip.getClass()) && pk.oid() == ip.getOID())
       {
          return p;
       }

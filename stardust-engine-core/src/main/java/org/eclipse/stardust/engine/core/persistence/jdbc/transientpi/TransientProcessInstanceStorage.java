@@ -18,8 +18,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
 /**
  * @author Nicolas.Werlein
@@ -111,6 +113,16 @@ public class TransientProcessInstanceStorage
          {
             throw new NullPointerException("The persistent's class must not be empty.");
          }
+      }
+      
+      public long oid()
+      {
+         return getFirst().longValue();
+      }
+      
+      public Class<? extends Persistent> clazz()
+      {
+         return getSecond();
       }
    }
    
@@ -239,12 +251,15 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob)
       {
-         final Map<PersistentKey, Long> persistentMappingsToAdd = newHashMap();
-         for (final PersistentKey p : persistentKeys)
+         if (Parameters.instance().getBoolean(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, true))
          {
-            persistentMappingsToAdd.put(p, rootPiOid);
+            final Map<PersistentKey, Long> persistentMappingsToAdd = newHashMap();
+            for (final PersistentKey p : persistentKeys)
+            {
+               persistentMappingsToAdd.put(p, rootPiOid);
+            }
+            persistentToRootPi.putAll(persistentMappingsToAdd);
          }
-         persistentToRootPi.putAll(persistentMappingsToAdd);
          
          rootPiToPiBlob.put(rootPiOid, blob);
          
@@ -268,16 +283,19 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob)
       {
-         for (final PersistentKey p : persistentKeys)
+         if (Parameters.instance().getBoolean(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, true))
          {
-            /* not every persistent is included in the map:              */
-            /* we'd like to avoid aquiring a lock for entries not        */
-            /* existing in the map; hence, we're using Map#containsKey() */
-            /* up front which does not aquire a possibly unnecessary     */
-            /* lock - as opposed to Map#remove()                         */
-            if (persistentToRootPi.containsKey(p))
+            for (final PersistentKey p : persistentKeys)
             {
-               persistentToRootPi.remove(p);
+               /* not every persistent is included in the map:              */
+               /* we'd like to avoid aquiring a lock for entries not        */
+               /* existing in the map; hence, we're using Map#containsKey() */
+               /* up front which does not aquire a possibly unnecessary     */
+               /* lock - as opposed to Map#remove()                         */
+               if (persistentToRootPi.containsKey(p))
+               {
+                  persistentToRootPi.remove(p);
+               }
             }
          }
          

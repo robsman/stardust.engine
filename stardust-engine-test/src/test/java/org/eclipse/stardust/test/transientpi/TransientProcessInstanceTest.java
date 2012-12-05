@@ -145,6 +145,7 @@ public class TransientProcessInstanceTest
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
       params.set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
       params.set(KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER, SpringAppContextHazelcastJcaConnectionFactoryProvider.class.getName());
+      params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, true);
    }
    
    /**
@@ -1837,6 +1838,25 @@ public class TransientProcessInstanceTest
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether execution a transient process is working correctly without exposing the in-memory storage
+    * comprising the transient process instances, i.e. setting {@link KernelTweakingProperties#TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE}
+    * to <code>false</code>.
+    * </p>
+    */
+   @Test
+   public void testTransientProcessExecutionWithoutExposingInMemStorage() throws Exception
+   {
+      disableInMemStorageExposal();
+      
+      testTransientProcessSplitSplitScenario();
+   }
+   
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -1955,6 +1975,12 @@ public class TransientProcessInstanceTest
    {
       final Parameters params = Parameters.instance();
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
+   }
+   
+   private void disableInMemStorageExposal()
+   {
+      final Parameters params = Parameters.instance();
+      params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, false);
    }
    
    private void dropTransientProcessInstanceStorage()

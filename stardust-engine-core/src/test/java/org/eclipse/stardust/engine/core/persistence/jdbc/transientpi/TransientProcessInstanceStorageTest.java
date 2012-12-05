@@ -86,6 +86,7 @@ public class TransientProcessInstanceStorageTest
    @Before
    public void setUp()
    {
+      setExposeInMemStorage(true);
       dropTransientProcessInstanceStorage();
    }
 
@@ -126,6 +127,87 @@ public class TransientProcessInstanceStorageTest
       
       assertThat(retrievedBlob1, equalTo(BLOB_1));
       assertThat(retrievedBlob2, equalTo(BLOB_2));
+   }
+
+   @Test
+   public void testInsertAndSelectForRootPiOid()
+   {
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2, ROOT_PI_OID_2);
+      
+      final ProcessInstanceGraphBlob retrievedBlob1 = TransientProcessInstanceStorage.instance().selectForRootPiOid(ROOT_PI_OID_1);
+      final ProcessInstanceGraphBlob retrievedBlob2 = TransientProcessInstanceStorage.instance().selectForRootPiOid(ROOT_PI_OID_2);
+      
+      assertThat(retrievedBlob1, equalTo(BLOB_1));
+      assertThat(retrievedBlob2, equalTo(BLOB_2));
+   }
+   
+   @Test
+   public void testInsertAndSelectStrictlyInternalInMemStorage()
+   {
+      setExposeInMemStorage(false);
+      
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2, ROOT_PI_OID_2);
+      
+      final ProcessInstanceGraphBlob retrievedBlob1 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
+      final ProcessInstanceGraphBlob retrievedBlob2 = TransientProcessInstanceStorage.instance().select(KEY_2_3);
+      
+      assertThat(retrievedBlob1, nullValue());
+      assertThat(retrievedBlob2, nullValue());
+   }
+
+   @Test
+   public void testInsertAndSelectForRootPiOidStrictlyInternalInMemStorage()
+   {
+      setExposeInMemStorage(false);
+      
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2, ROOT_PI_OID_2);
+      
+      final ProcessInstanceGraphBlob retrievedBlob1 = TransientProcessInstanceStorage.instance().selectForRootPiOid(ROOT_PI_OID_1);
+      final ProcessInstanceGraphBlob retrievedBlob2 = TransientProcessInstanceStorage.instance().selectForRootPiOid(ROOT_PI_OID_2);
+      
+      assertThat(retrievedBlob1, equalTo(BLOB_1));
+      assertThat(retrievedBlob2, equalTo(BLOB_2));
+   }
+   
+   @Test
+   public void testDeleteStrictlyInternalInMemStorage()
+   {
+      setExposeInMemStorage(false);
+
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2, ROOT_PI_OID_2);
+      
+      TransientProcessInstanceStorage.instance().delete(PERSISTENT_KEYS_1, true, Collections.singleton(ROOT_PI_OID_1));
+      TransientProcessInstanceStorage.instance().delete(PERSISTENT_KEYS_2, true, Collections.singleton(ROOT_PI_OID_2));
+      
+      final ProcessInstanceGraphBlob retrievedBlob1 = TransientProcessInstanceStorage.instance().select(KEY_1_2);
+      final ProcessInstanceGraphBlob retrievedBlob2 = TransientProcessInstanceStorage.instance().select(KEY_2_1);
+      
+      final ProcessInstanceGraphBlob directlyRetrievedBlob1 = TransientProcessInstanceStorage.instance().selectForRootPiOid(ROOT_PI_OID_1);
+      final ProcessInstanceGraphBlob directlyRetrievedBlob2 = TransientProcessInstanceStorage.instance().selectForRootPiOid(ROOT_PI_OID_2);
+      
+      assertThat(retrievedBlob1, nullValue());
+      assertThat(retrievedBlob2, nullValue());
+      
+      assertThat(directlyRetrievedBlob1, nullValue());
+      assertThat(directlyRetrievedBlob2, nullValue());
+   }
+   
+   @Test
+   public void testDeleteOmitsMappingMapStrictlyInternalInMemStorage()
+   {
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_1, BLOB_1, ROOT_PI_OID_1);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(PERSISTENT_KEYS_2, BLOB_2, ROOT_PI_OID_2);
+      
+      setExposeInMemStorage(false);
+      
+      TransientProcessInstanceStorage.instance().delete(PERSISTENT_KEYS_1, true, Collections.singleton(ROOT_PI_OID_1));
+      TransientProcessInstanceStorage.instance().delete(PERSISTENT_KEYS_2, true, Collections.singleton(ROOT_PI_OID_2));
+      
+      assertThat(getPersistentToRootPiMap().isEmpty(), is(false));
    }
    
    /**
@@ -239,13 +321,26 @@ public class TransientProcessInstanceStorageTest
    
    private void dropTransientProcessInstanceStorage()
    {
+      getPersistentToRootPiMap().clear();
+      getRootPiToPiBlobMap().clear();
+   }
+   
+   private Map<?, ?> getPersistentToRootPiMap()
+   {
       final Object piBlobsHolder = Reflect.getFieldValue(TransientProcessInstanceStorage.instance(), PI_BLOBS_HOLDER_FIELD_NAME);
-      
-      final Map<?, ?> persistentToRootPi = (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, PERSISTENT_TO_ROOT_PI_FIELD_NAME);
-      persistentToRootPi.clear();
-      
-      final Map<?, ?> rootPiToPiBlob = (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, ROOT_PI_TO_PI_BLOB_FIELD_NAME);
-      rootPiToPiBlob.clear();
+      return (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, PERSISTENT_TO_ROOT_PI_FIELD_NAME);
+   }
+
+   private Map<?, ?> getRootPiToPiBlobMap()
+   {
+      final Object piBlobsHolder = Reflect.getFieldValue(TransientProcessInstanceStorage.instance(), PI_BLOBS_HOLDER_FIELD_NAME);
+      return (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, ROOT_PI_TO_PI_BLOB_FIELD_NAME);
+   }
+   
+   private void setExposeInMemStorage(final boolean doExpose)
+   {
+      final Parameters params = Parameters.instance();
+      params.setBoolean(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, doExpose);
    }
    
    private static final class InstanceResolver implements Callable<Void>

@@ -195,6 +195,8 @@ public final class KernelTweakingProperties
    public static final String SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED = "alwaysDeferred";
    public static final String SUPPORT_TRANSIENT_PROCESSES_OFF = "off";
    
+   public static final String TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE = "Carnot.Engine.Tuning.TransientProcesses.ExposeInMemStorage";
+   
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Internal)
    @PropertyValueType(ClusterSafeObjectProvider.class)
    public static final String CLUSTER_SAFE_OBJ_PROVIDER = "Carnot.Engine.Tuning.SupportTransientProcesses.ClusterSafeObjectProvider";

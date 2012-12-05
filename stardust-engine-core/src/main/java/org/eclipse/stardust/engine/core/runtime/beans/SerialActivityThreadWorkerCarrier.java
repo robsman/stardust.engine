@@ -26,7 +26,10 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceSupport;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
@@ -149,6 +152,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       {
          activityThreadMap = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SERIAL_ACTIVITY_THREAD_MAP_ID);
          final Queue<SerialActivityThreadData> beforeExecutionQueue = retrieveQueue();
+         loadProcessInstanceGraphIfExistent();
          final ActivityThread activityThread = initActivityThread(beforeExecutionQueue);
          
          final IProcessInstance rootPi = ProcessInstanceUtils.getActualRootPI(activityThread.processInstance());
@@ -176,6 +180,12 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       private <T> Queue<T> retrieveQueue()
       {
          return activityThreadMap.get(rootPiOID);
+      }
+      
+      private void loadProcessInstanceGraphIfExistent()
+      {
+         final Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         TransientProcessInstanceSupport.loadProcessInstanceGraphIfExistent(rootPiOID, session);
       }
       
       private ActivityThread initActivityThread(final Queue<SerialActivityThreadData> queue)

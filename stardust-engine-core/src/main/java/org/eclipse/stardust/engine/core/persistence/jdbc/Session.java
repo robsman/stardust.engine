@@ -27,7 +27,11 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ValueProvider;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.ApplicationException;
+import org.eclipse.stardust.common.error.ConcurrencyException;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
@@ -50,6 +54,7 @@ import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.Filt
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
+import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceSupport;
 import org.eclipse.stardust.engine.core.persistence.jms.*;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
@@ -59,7 +64,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLogUtils;
-import org.eclipse.stardust.engine.core.runtime.setup.*;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterInstance;
+import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
+import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.IActivityExecutionStrategy;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
@@ -3303,7 +3312,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       if (ProcessInstanceUtils.isTransientPiSupportEnabled() && isTransientPersistentCandidate(typeManager))
       {
-         final Persistent transientPersistent = TransientProcessInstanceSupport.findAndReattach(oid, type, this);
+         final Persistent transientPersistent = TransientProcessInstanceSupport.loadProcessInstanceGraphIfExistent(new PersistentKey(oid, type), this);
          if (transientPersistent != null)
          {
             return transientPersistent;

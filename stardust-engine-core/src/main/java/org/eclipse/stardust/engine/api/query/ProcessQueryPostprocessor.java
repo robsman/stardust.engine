@@ -963,7 +963,7 @@ public class ProcessQueryPostprocessor
 
          final Pair dataRtOids = (Pair) pdSlice.getFirst();
          final Set<Long> dataRtOidsStructured = (Set<Long> ) dataRtOids.getFirst();
-         final Map<Long, IData> dataRtOidsNonStructured = (Map<Long, IData>) dataRtOids.getSecond();
+         final Map<Long, IData> dataRtOidsNonStructured = new HashMap();//(Map<Long, IData>) dataRtOids.getSecond();
          final Set<Long> piSet = (Set) pdSlice.getSecond();
          if (!dataRtOidsStructured.isEmpty() || !dataRtOidsNonStructured.isEmpty())
          {
@@ -1070,7 +1070,7 @@ public class ProcessQueryPostprocessor
             dcJoins.add(dcJoin);
             
             List<Column> additionalSelectColumns = new ArrayList<Column>();
-
+            additionalSelectColumns.add(new FieldRef(dcJoin, slot.getOidColumn()));
             additionalSelectColumns.add(new FieldRef(dcJoin, slot.getTypeColumn()));
                        
             if (StringUtils.isNotEmpty(slot.getSValueColumn()))
@@ -1097,7 +1097,7 @@ public class ProcessQueryPostprocessor
                      
             //REGULAR FIELDS
             //StructuredDataValueBean.FIELD__OID
-            addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, new Long(i));
+            addCustomIndexEntry(sdvRsMapping, ValueType.LOCAL_RS_INDEX, ++localRsIndex);
             //StructuredDataValueBean.FIELD__PARENT
             addCustomIndexEntry(sdvRsMapping, ValueType.OBJECT, Long.valueOf(-1));
             //StructuredDataValueBean.FIELD__ENTRY_KEY
@@ -1165,7 +1165,9 @@ public class ProcessQueryPostprocessor
                ProcessInstanceBean.class, true, extendedResultSet, 0, -1, null, false);
          while (iterator.hasNext())
          {
-            iterator.next();
+            ProcessInstanceBean pi = (ProcessInstanceBean) iterator.next();
+            System.out.println(pi);
+         
          }        
       }
    }
@@ -1425,49 +1427,51 @@ public class ProcessQueryPostprocessor
          Collection<Long> piSet, int timeout, int prefetchNParallelData,
          int prefetchNParallelInstances, double prefetchDataDiscriminationThreshold)
    {
-      // This term reference will be used for later modification of its value expression
-      ComparisonTerm piTermTemplate = Predicates.inList(
-            DataValueBean.FR__PROCESS_INSTANCE, Collections.EMPTY_LIST.iterator());
-
-      Set<Long> prefetchedDataRtOids = null;
-      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      if (rtEnv != null)
-      {
-         prefetchedDataRtOids = (Set<Long>) rtEnv
-               .get(KernelTweakingProperties.DESCRIPTOR_PREFETCHED_RTOID_SET);
-      }
-
-      if (prefetchedDataRtOids != null)
-      {
-         dataRtOids = CollectionUtils.copyMap(dataRtOids);
-         CollectionUtils.remove(dataRtOids, prefetchedDataRtOids);
-      }
-
-      if ((((double) dataRtOids.size() / (double) nData) < prefetchDataDiscriminationThreshold))
-      {
-         List dataRtOidSlice = new ArrayList(prefetchNParallelData);
-         for (Iterator dataRtOidItr = dataRtOids.keySet().iterator(); dataRtOidItr.hasNext();)
-         {
-            dataRtOidSlice.add(dataRtOidItr.next());
-            if ((dataRtOidSlice.size() >= prefetchNParallelData)
-                  || !dataRtOidItr.hasNext())
-            {
-               performPrefetch(DataValueBean.class, QueryExtension.where(Predicates
-                     .andTerm(Predicates.inList(
-                           DataValueBean.FR__DATA, dataRtOidSlice.iterator()),
-                     piTermTemplate)),
-                     piTermTemplate, piSet, false, timeout,
-                     prefetchNParallelInstances);
-
-               dataRtOidSlice.clear();
-            }
-         }
-      }
-      else
-      {
-         performPrefetch(DataValueBean.class, QueryExtension.where(piTermTemplate),
-               piTermTemplate, piSet, false, timeout, prefetchNParallelInstances);
-      }
+//      // This term reference will be used for later modification of its value expression
+//      ComparisonTerm piTermTemplate = Predicates.inList(
+//            DataValueBean.FR__PROCESS_INSTANCE, Collections.EMPTY_LIST.iterator());
+//
+//      Set<Long> prefetchedDataRtOids = null;
+//      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+//      if (rtEnv != null)
+//      {
+//         prefetchedDataRtOids = (Set<Long>) rtEnv
+//               .get(KernelTweakingProperties.DESCRIPTOR_PREFETCHED_RTOID_SET);
+//      }
+//
+//      if (prefetchedDataRtOids != null)
+//      {
+//         dataRtOids = CollectionUtils.copyMap(dataRtOids);
+//         CollectionUtils.remove(dataRtOids, prefetchedDataRtOids);
+//      }
+//
+//      if ((((double) dataRtOids.size() / (double) nData) < prefetchDataDiscriminationThreshold))
+//      {
+//         List dataRtOidSlice = new ArrayList(prefetchNParallelData);
+//         for (Iterator dataRtOidItr = dataRtOids.keySet().iterator(); dataRtOidItr.hasNext();)
+//         {
+//            dataRtOidSlice.add(dataRtOidItr.next());
+//            if ((dataRtOidSlice.size() >= prefetchNParallelData)
+//                  || !dataRtOidItr.hasNext())
+//            {
+//               performPrefetch(DataValueBean.class, QueryExtension.where(Predicates
+//                     .andTerm(Predicates.inList(
+//                           DataValueBean.FR__DATA, dataRtOidSlice.iterator()),
+//                     piTermTemplate)),
+//                     piTermTemplate, piSet, false, timeout,
+//                     prefetchNParallelInstances);
+//
+//               dataRtOidSlice.clear();
+//            }
+//         }
+//      }
+//      else
+//      {
+//         performPrefetch(DataValueBean.class, QueryExtension.where(piTermTemplate),
+//               piTermTemplate, piSet, false, timeout, prefetchNParallelInstances);
+//      }
+      
+      
    }
 
    private static void performPrefetchStructured(Set dataRtOids, int nData, Collection piSet, int timeout,  int prefetchNParallelData, int prefetchNParallelInstances, double prefetchDataDiscriminationThreshold)

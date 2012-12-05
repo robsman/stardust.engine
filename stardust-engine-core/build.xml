@@ -427,7 +427,7 @@
 
    <target name="runCodeGenTest" depends="initCodeGenTest"
       description="runs CodeGen to create Testfiles for comparing">
-      <java classname="org.eclipse.stardust.engine.api.ejb2.tools.CodeGen" fork="yes">
+      <java classname="org.eclipse.stardust.engine.api.ejb2.tools.CodeGen" fork="yes" failonerror="true">
          <classpath>
             <pathelement path="${build.classes}" />
             <path refid="carnot-engine.compile" />
@@ -568,7 +568,7 @@
    </target>
 
    <target name="codegen" depends="initCodegen, compileEjbFacadeGenerator">
-      <java classname="org.eclipse.stardust.engine.api.ejb2.tools.CodeGen" fork="yes">
+      <java classname="org.eclipse.stardust.engine.api.ejb2.tools.CodeGen" fork="yes" failonerror="true">
          <classpath>
             <pathelement path="${codegen.build.classes}" />
             <path refid="stardust-engine-core.deps" />

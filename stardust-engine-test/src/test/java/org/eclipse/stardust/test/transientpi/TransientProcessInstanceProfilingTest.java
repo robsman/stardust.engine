@@ -95,6 +95,7 @@ public class TransientProcessInstanceProfilingTest
       
       final Parameters params = Parameters.instance();
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
+      params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, false);
       params.set(KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER, SpringAppContextHazelcastJcaConnectionFactoryProvider.class.getName());
       params.set("Carnot.Engine.Tuning.Spring.DeferJdbcConnectionRetrieval", true);
 

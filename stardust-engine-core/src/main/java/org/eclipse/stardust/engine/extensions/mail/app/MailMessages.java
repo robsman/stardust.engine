@@ -46,9 +46,4 @@ public class MailMessages
 			return "!" + property + "!";
 		}
 	}
-	
-	public static void main(String[] args)
-	{
-		System.out.println("Test: "+ MailMessages.getString("replyMessage"));
-	}
 }

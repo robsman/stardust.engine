@@ -489,43 +489,6 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
       }
    }
 
-   public static void main(String[] args)
-   {
-      XPathEvaluator evaluator = new XPathEvaluator();
-
-      String path = "xmlns:q0=http://bla0 xmlns:q1=http://bla1 /q0:xxx/q1:yyy";
-      String text = "<q0:xxx xmlns:q0=\"http://bla0\" xmlns:q1=\"http://bla1\"> <q1:yyy></q1:yyy>   </q0:xxx>";
-      Object result = evaluator.evaluate(null, text, path, "Jimmy");
-      System.out.println(result);
-
-      String text2 = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" +
-         "<ns0:ShowPersonIdentity xmlns:ns0=\"urn:sungardhe:enterprise:ws:messages:1.0\">" +
-      	    "<ns0:NumberFound>60</ns0:NumberFound>" +
-      	    "<ns0:PersonIdentity matchType=\"PossibleMatch\">" +
-      		   "<ns3:PersonIdentifier xmlns:ns3=\"urn:sungardhe:enterprise:domain:party:1.0\">" +
-      		      "<ns2:IdValue xmlns:ns2=\"urn:sungardhe:enterprise:resources:common:1.0\" name=\"BannerUID\">50</ns2:IdValue>" +
-      		   "</ns3:PersonIdentifier>" +
-      		   "<ns3:PersonIdentifier xmlns:ns3=\"urn:sungardhe:enterprise:domain:party:1.0\" idOwner=\"BANNER System Test SCT Banner\">" +
-      		      "<ns2:IdValue xmlns:ns2=\"urn:sungardhe:enterprise:resources:common:1.0\" name=\"IMSID\">120</ns2:IdValue>" +
-      		   "</ns3:PersonIdentifier>" +
-      		   "<ns3:PersonIdentifier xmlns:ns3=\"urn:sungardhe:enterprise:domain:party:1.0\">" +
-      		      "<ns2:IdValue xmlns:ns2=\"urn:sungardhe:enterprise:resources:common:1.0\" name=\"LogonID\">50</ns2:IdValue>" +
-      		   "</ns3:PersonIdentifier>" +
-      		   "<ns3:PersonName xmlns:ns3=\"urn:sungardhe:enterprise:domain:party:1.0\">" +
-      		      "<ns2:FormattedName xmlns:ns2=\"urn:sungardhe:enterprise:resources:common:1.0\">Al Smith</ns2:FormattedName>" +
-      		      "<ns2:GivenName xmlns:ns2=\"urn:sungardhe:enterprise:resources:common:1.0\">Al</ns2:GivenName>" +
-      		      "<ns2:FamilyName xmlns:ns2=\"urn:sungardhe:enterprise:resources:common:1.0\">Smith</ns2:FamilyName>" +
-      		   "</ns3:PersonName>" +
-      		"</ns0:PersonIdentity>" +
-      	  "</ns0:ShowPersonIdentity>";
-      path = "xmlns:ns0=urn:sungardhe:enterprise:ws:messages:1.0" +
-      		" xmlns:ns2=urn:sungardhe:enterprise:resources:common:1.0" +
-      		" xmlns:ns3=urn:sungardhe:enterprise:domain:party:1.0" +
-      		" string(/ns0:ShowPersonIdentity/ns0:PersonIdentity/ns3:PersonIdentifier/ns2:IdValue[@name=\"BannerUID\"]/text())";
-      result = evaluator.evaluate(null, text2, path);
-      System.out.println(result);
-   }
-
    public boolean isStateless()
    {
       return true;

@@ -3011,10 +3011,10 @@ public class XmlAdapterUtils
             internals.put(AuditTrailUtils.RES_PATH, xto.getPath());
          }
          internals.put(AuditTrailUtils.FOLDER_DOCUMENT_COUNT, xto.getDocumentCount());
-         // TODO documents
+         internals.put(AuditTrailUtils.FOLDER_DOCUMENTS, fromXto(xto.getDocuments(), model, null));
 
          internals.put(AuditTrailUtils.FOLDER_FOLDER_COUNT, xto.getFolderCount());
-         // TODO folders
+         internals.put(AuditTrailUtils.FOLDER_SUB_FOLDERS, fromXto(xto.getFolders(), model, null));
       }
 
       return folder;
@@ -3042,14 +3042,51 @@ public class XmlAdapterUtils
          }
          internals.put(AuditTrailUtils.FOLDER_DOCUMENT_COUNT,
                Integer.valueOf(xto.getDocumentCount()));
-         // TODO documents
+         internals.put(AuditTrailUtils.FOLDER_DOCUMENTS, fromXto(xto.getDocuments(), model, metaDataTypeId));
 
          internals.put(AuditTrailUtils.FOLDER_FOLDER_COUNT,
                Integer.valueOf(xto.getFolderCount()));
-         // TODO folders
+         internals.put(AuditTrailUtils.FOLDER_SUB_FOLDERS, fromXto(xto.getFolders(), model, metaDataTypeId));
       }
 
       return folder;
+   }
+   
+   private static List<Map> fromXto(DocumentsXto documents, Model model,
+         String metaDataTypeId)
+   {
+      List<Map> ret = null;
+
+      if (documents != null)
+      {
+         ret = CollectionUtils.newArrayList();
+
+         for (DocumentXto document : documents.getDocument())
+         {
+            DmsDocumentBean folderBean = (DmsDocumentBean) fromXto(document, model, metaDataTypeId, new DmsDocumentBean());
+            ret.add(folderBean.vfsResource());
+         }
+      }
+
+      return ret;
+   }
+
+   public static List<Map> fromXto(FoldersXto folders, Model model, String metaDataTypeId)
+   {
+      List<Map> ret = null;
+
+      if (folders != null)
+      {
+         ret = CollectionUtils.newArrayList();
+
+         for (FolderXto folder : folders.getFolder())
+         {
+            DmsFolderBean folderBean = (DmsFolderBean) fromXto(folder, model, metaDataTypeId, new DmsFolderBean());
+            ret.add(folderBean.vfsResource());
+         }
+      }
+
+      return ret;
    }
 
    private static DocumentInfoXto marshalDocumentInfoXto(DocumentInfo doc,
@@ -3105,7 +3142,11 @@ public class XmlAdapterUtils
 
    public static FolderInfo unmarshalFolderInfo(FolderInfoXto xto)
    {
-      return unmarshalFolderInfoXto(xto, new DmsFolderBean());
+      FolderInfo folderInfo = unmarshalFolderInfoXto(xto, new DmsFolderBean());
+      
+      unmarshalDmsMetaData(xto, folderInfo, null,(DocumentType)null);
+      
+      return folderInfo;
    }
 
    private static FolderInfo unmarshalFolderInfoXto(FolderInfoXto xto, FolderInfo folder)
@@ -3462,32 +3503,34 @@ public class XmlAdapterUtils
    {
       Set<TypedXPath> xPaths = null;
 
-      for (TypeDeclaration type : (List<TypeDeclaration>) model.getAllTypeDeclarations())
+      if (model != null)
       {
-         XSDSchema schema = null;
-         if (type.getXpdlType() instanceof SchemaType)
+         for (TypeDeclaration type : (List<TypeDeclaration>) model.getAllTypeDeclarations())
          {
-            SchemaType schemaType = (SchemaType) type.getXpdlType();
-
-            schema = schemaType.getSchema();
-         }
-         else if (type.getXpdlType() instanceof ExternalReference)
-         {
-            ExternalReference refType = (ExternalReference) type.getXpdlType();
-
-            if (typeName.toString().equals(refType.getXref()))
+            XSDSchema schema = null;
+            if (type.getXpdlType() instanceof SchemaType)
             {
-               schema = refType.getSchema(model);
+               SchemaType schemaType = (SchemaType) type.getXpdlType();
+
+               schema = schemaType.getSchema();
+            }
+            else if (type.getXpdlType() instanceof ExternalReference)
+            {
+               ExternalReference refType = (ExternalReference) type.getXpdlType();
+
+               if (typeName.toString().equals(refType.getXref()))
+               {
+                  schema = refType.getSchema(model);
+               }
+            }
+
+            xPaths = getXPathsFromSchema(typeName, schema);
+            if ( !isEmpty(xPaths))
+            {
+               break;
             }
          }
-
-         xPaths = getXPathsFromSchema(typeName, schema);
-         if ( !isEmpty(xPaths))
-         {
-            break;
-         }
       }
-
       return xPaths;
    }
 

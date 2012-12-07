@@ -96,7 +96,7 @@ public class TransientProcessInstanceProfilingTest
    }
    
    @BeforeClass
-   public static void setUpOnce()
+   public static void setUpOnce() throws SQLException
    {
       System.setProperty(TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_KEY, TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_VALUE);
       
@@ -131,49 +131,42 @@ public class TransientProcessInstanceProfilingTest
       LOG.warn("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX " + duration + " XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");
    }
    
-   public static void incrementDbSequenceSize()
+   private static void incrementDbSequenceSize() throws SQLException
    {
-      try
-      {
-         final Connection connection = testClassSetup.dataSource().getConnection();
-         final Statement stmt = connection.createStatement();
-         stmt.addBatch("ALTER SEQUENCE activity_instance_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE activity_instance_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE act_inst_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE trans_inst_seq  INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE trans_token_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE daemon_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE data_value_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE department_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE event_binding_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE log_entry_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE timer_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE usergroup_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE usergroup_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE user_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE user_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE wfuser_session_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE user_participant_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE user_usergroup_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE process_instance_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE proc_inst_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE structured_data_value_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE domain_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE domain_hierarchy_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE wfuser_domain_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE wfuser_realm_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE clob_data_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE model_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE STRING_DATA_SEQ INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE partition_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.addBatch("ALTER SEQUENCE link_type_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
-         stmt.executeBatch();
-      }
-      catch (final SQLException e)
-      {
-         throw new RuntimeException(e);
-      }
+      final Connection connection = testClassSetup.dataSource().getConnection();
+      final Statement stmt = connection.createStatement();
+      stmt.addBatch("ALTER SEQUENCE activity_instance_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE activity_instance_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE act_inst_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE trans_inst_seq  INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE trans_token_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE daemon_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE data_value_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE department_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE event_binding_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE log_entry_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE timer_log_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE usergroup_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE usergroup_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE user_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE user_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE wfuser_session_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE user_participant_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE user_usergroup_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE process_instance_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE proc_inst_property_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE structured_data_value_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE domain_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE domain_hierarchy_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE wfuser_domain_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE wfuser_realm_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE clob_data_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE model_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE STRING_DATA_SEQ INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE partition_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.addBatch("ALTER SEQUENCE link_type_seq INCREMENT BY " + SEQUENCE_BATCH_SIZE_STRING);
+      stmt.executeBatch();
    }
    
    private static void injectSequenceGenerator(final Parameters params)

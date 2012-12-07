@@ -36,6 +36,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.FastCachingSequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
 import org.eclipse.stardust.engine.spring.integration.jca.SpringAppContextHazelcastJcaConnectionFactoryProvider;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -70,6 +72,11 @@ public class TransientProcessInstanceProfilingTest
    
    private static final Long SEQUENCE_BATCH_SIZE = Long.valueOf(SEQUENCE_BATCH_SIZE_STRING);
    
+   private static final String DEFER_JDBC_CONNECTION_RETRIEVAL_PROPERTY_KEY = "Carnot.Engine.Tuning.Spring.DeferJdbcConnectionRetrieval";
+   
+   private static final String ALL_USERS_WILDCARD_PROPERTY_VALUE = "*";
+   
+   
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
@@ -97,7 +104,9 @@ public class TransientProcessInstanceProfilingTest
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
       params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, false);
       params.set(KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER, SpringAppContextHazelcastJcaConnectionFactoryProvider.class.getName());
-      params.set("Carnot.Engine.Tuning.Spring.DeferJdbcConnectionRetrieval", true);
+      params.set(DEFER_JDBC_CONNECTION_RETRIEVAL_PROPERTY_KEY, true);
+      params.set(SessionManager.PRP_SESSION_NO_TRACKING, ALL_USERS_WILDCARD_PROPERTY_VALUE);
+      params.set(SecurityProperties.LOGIN_USERS_WITHOUT_LOGIN_LOGGING, ALL_USERS_WILDCARD_PROPERTY_VALUE);
 
       incrementDbSequenceSize();
       injectSequenceGenerator(params);

@@ -808,6 +808,41 @@ public class AttributeFilterUtils
                return PREFERENCES_QUERY_USER_ID;
             }
          }
+         if (DocumentQuery.class.equals(clazz))
+         {
+            if (DocumentQuery.CONTENT.getAttributeName().equals(attribute))
+            {
+               return DOCUMENT_QUERY_CONTENT;
+            }
+            else if (DocumentQuery.CONTENT_TYPE.getAttributeName().equals(attribute))
+            {
+               return DOCUMENT_QUERY_CONTENT_TYPE;
+            }
+            else if (DocumentQuery.DATE_CREATED.getAttributeName().equals(attribute))
+            {
+               return DOCUMENT_QUERY_DATE_CREATED;
+            }
+            else if (DocumentQuery.DATE_LAST_MODIFIED.getAttributeName().equals(attribute))
+            {
+               return DOCUMENT_QUERY_DATE_LAST_MODIFIED;
+            }
+            else if (DocumentQuery.ID.getAttributeName().equals(attribute))
+            {
+               return DOCUMENT_QUERY_ID;
+            }
+            else if (DocumentQuery.NAME.getAttributeName().equals(attribute))
+            {
+               return DOCUMENT_QUERY_NAME;
+            }
+            else if (DocumentQuery.OWNER.getAttributeName().equals(attribute))
+            {
+               return DOCUMENT_QUERY_OWNER;
+            }
+            else if (attribute.startsWith(DOCUMENT_QUERY_META_DATA))
+            {
+               return attribute;
+            }
+         }
          if (DeployedModelQuery.class.equals(clazz))
          {
             if (DeployedModelQuery.OID.getAttributeName().equals(attribute))

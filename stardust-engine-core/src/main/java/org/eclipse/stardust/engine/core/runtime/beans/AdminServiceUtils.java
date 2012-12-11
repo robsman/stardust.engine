@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.persistence.Column;
 import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
 import org.eclipse.stardust.engine.core.persistence.Join;
 import org.eclipse.stardust.engine.core.persistence.Joins;
@@ -22,7 +26,6 @@ import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
@@ -227,17 +230,34 @@ public class AdminServiceUtils
          session.delete(ProcessInstanceScopeBean.class, predicate, false);
          
          // deleting rows from data clusters
-         ResultIterator piIterator = session.getIterator(ProcessInstanceBean.class, QueryExtension.where(Predicates.andTerm(
-               Predicates.isEqual(ProcessInstanceBean.FR__MODEL, modelOid),
-               Predicates.isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, pdOid))));
-         List piOids = new ArrayList();
-         for (Iterator iterator = piIterator; iterator.hasNext();)
+         if (session.isUsingDataClusters())
          {
-            IProcessInstance pi = (IProcessInstance) iterator.next();
-            piOids.add(new Long(pi.getOID()));
+            List<Long> piOids = CollectionUtils.newList();
+            QueryDescriptor queryDescriptor = QueryDescriptor
+                  .from(ProcessInstanceBean.class)
+                  .select(new Column[] {ProcessInstanceBean.FR__OID})
+                  .where(
+                        Predicates.andTerm(Predicates.isEqual(
+                              ProcessInstanceBean.FR__MODEL, modelOid), Predicates
+                              .isEqual(ProcessInstanceBean.FR__PROCESS_DEFINITION, pdOid)));
+            ResultSet resultSet = session.executeQuery(queryDescriptor);
+            try
+            {
+               while (resultSet.next())
+               {
+                  long piOid = resultSet.getLong(ProcessInstanceBean.FIELD__OID);
+                  piOids.add(piOid);
+               }
+            }
+            catch (SQLException e)
+            {
+               throw new PublicException(
+                     "Failed retrieving process instances oids for process definition with oid "
+                           + pdOid, e);
+            }
+            ProcessInstanceUtils.deleteDataClusterValues(piOids, session);
          }
-         ProcessInstanceUtils.deleteDataClusterValues(piOids, session);
-         
+
          // process_instance
          session.delete(ProcessInstanceBean.class, Predicates.andTerm(
                Predicates.isEqual(ProcessInstanceBean.FR__MODEL, modelOid),

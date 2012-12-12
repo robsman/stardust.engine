@@ -35,6 +35,11 @@ public class UserDetailsPolicy implements EvaluationPolicy
       return moduleIds;
    }
 
+   /**
+    * Instruct the engine to include preferences from the specified modules.
+    * 
+    * @param moduleIds an array of module ids.
+    */
    public void setPreferenceModules(String... moduleIds)
    {
       this.moduleIds = moduleIds;

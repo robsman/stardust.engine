@@ -124,11 +124,13 @@ public class DetailsFactory
                   return orgDetail.getName();
                }
 
+               @SuppressWarnings("deprecation")
                public String getPartitionId()
                {
                   return orgDetail.getPartitionId();
                }
 
+               @SuppressWarnings("deprecation")
                public short getPartitionOID()
                {
                   return orgDetail.getPartitionOID();
@@ -246,11 +248,13 @@ public class DetailsFactory
                   return roleDetails.getName();
                }
 
+               @SuppressWarnings("deprecation")
                public String getPartitionId()
                {
                   return roleDetails.getPartitionId();
                }
 
+               @SuppressWarnings("deprecation")
                public short getPartitionOID()
                {
                   return roleDetails.getPartitionOID();
@@ -654,6 +658,24 @@ public class DetailsFactory
       {
          BpmRuntimeEnvironment rte = PropertyLayerProviderInterceptor.getCurrent();
          return rte.getDetailsFactory().createDetails(internal);
+      }
+      catch (Exception x)
+      {
+         throw new InternalException(
+               "Failed computing details object: " + x.getMessage(), x);
+      }
+   }
+
+   public static Department createDepartment(IDepartment internal)
+   {
+      if (internal == null)
+      {
+         return null;
+      }
+      try
+      {
+         BpmRuntimeEnvironment rte = PropertyLayerProviderInterceptor.getCurrent();
+         return rte.getDetailsFactory().createDepartmentDetails(internal);
       }
       catch (Exception x)
       {

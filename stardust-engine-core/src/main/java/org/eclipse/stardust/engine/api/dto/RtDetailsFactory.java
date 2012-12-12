@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.dto;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
@@ -112,7 +113,7 @@ public class RtDetailsFactory
 
    public User createUserDetails(IUser user)
    {
-      UserKey key = new UserKey(user);
+      Key key = new Key(user);
       User details = (User) cache.get(key);
       if (details == null)
       {
@@ -144,19 +145,30 @@ public class RtDetailsFactory
       return details;
    }
    
-   private static class UserKey
+   public Department createDepartmentDetails(IDepartment department)
    {
-      private IUser user;
-
-      public UserKey(IUser user)
+      Key key = new Key(department);
+      Department details = (Department) cache.get(key);
+      if (details == null)
       {
-         this.user = user;
+         details = new DepartmentDetails(department);
+         cache.put(key, details);
+      }
+      return details;
+   }
+   
+   private static class Key
+   {
+      private Object[] items;
+
+      public Key(Object... items)
+      {
+         this.items = items;
       }
 
-      @Override
       public int hashCode()
       {
-         return 31 + user.hashCode();
+         return 31 + Arrays.hashCode(items);
       }
 
       @Override
@@ -168,7 +180,7 @@ public class RtDetailsFactory
             return false;
          if (getClass() != obj.getClass())
             return false;
-         return user.equals(((UserKey) obj).user);
+         return Arrays.equals(items, ((Key) obj).items);
       }
    }
 }

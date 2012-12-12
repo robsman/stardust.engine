@@ -294,6 +294,11 @@ public class AuthorizationContext
       return user;
    }
 
+   public void setUser(IUser user)
+   {
+      this.user = user;
+   }
+
    public boolean isAdminOverride()
    {
       return administratorOverride;

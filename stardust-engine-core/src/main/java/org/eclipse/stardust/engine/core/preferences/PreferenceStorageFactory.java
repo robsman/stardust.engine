@@ -27,8 +27,6 @@ import org.eclipse.stardust.engine.core.preferences.configurationvariables.Confi
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 
-
-
 public class PreferenceStorageFactory
 {
    public static IPreferenceStorageManager getCurrent()
@@ -41,12 +39,14 @@ public class PreferenceStorageFactory
          PropertyLayerProviderInterceptor.setCurrent(rtEnv);         
       }
       
-      if (rtEnv.getPreferenceStore() == null)
+      IPreferenceStorageManager store = rtEnv.getPreferenceStore();
+      if (store == null)
       {
-         rtEnv.setPreferenceStore(new PreferenceStorageManager(createHandlers()));
+         store = new PreferenceStorageManager(createHandlers());
+         rtEnv.setPreferenceStore(store);
       }
 
-      return rtEnv.getPreferenceStore();
+      return store;
    }
 
    private static List<PreferenceChangeHandler> createHandlers()

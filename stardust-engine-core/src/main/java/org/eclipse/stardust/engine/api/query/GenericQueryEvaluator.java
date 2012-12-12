@@ -64,11 +64,13 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
       List<I> result;
 
       UserDetailsLevel level = UserDetailsLevel.Full;
+      String[] preferences = null;
       UserDetailsPolicy policy = (UserDetailsPolicy) query
             .getPolicy(UserDetailsPolicy.class);
       if (null != policy)
       {
          level = policy.getLevel();
+         preferences = policy.getPreferenceModules();
       }
 
       PropertyLayer layer = null;
@@ -76,6 +78,10 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
       {
          Map<String, Object> props = new HashMap<String, Object>();
          props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, level);
+         if (preferences != null)
+         {
+            props.put(UserDetailsLevel.PRP_USER_DETAILS_PREFERENCES, preferences);
+         }
 
          layer = ParametersFacade.pushLayer(props);
          /* Without <I,T> antit would result in an incompatible types error
@@ -593,7 +599,7 @@ public final class GenericQueryEvaluator implements FilterEvaluationVisitor
          }
          else
          {
-            procDefIterator = model.getAllProcessDefinitions();
+            procDefIterator = model.getProcessDefinitions().iterator();
          }
 
          while (procDefIterator.hasNext())

@@ -17,6 +17,7 @@ public class UserDetailsPolicy implements EvaluationPolicy
    private static final long serialVersionUID = 1L;
    
    private UserDetailsLevel level;
+   private String[] moduleIds;
 
    public UserDetailsPolicy(UserDetailsLevel level)
    {
@@ -27,5 +28,15 @@ public class UserDetailsPolicy implements EvaluationPolicy
    public UserDetailsLevel getLevel()
    {
       return level;
+   }
+
+   public String[] getPreferenceModules()
+   {
+      return moduleIds;
+   }
+
+   public void setPreferenceModules(String... moduleIds)
+   {
+      this.moduleIds = moduleIds;
    }
 }

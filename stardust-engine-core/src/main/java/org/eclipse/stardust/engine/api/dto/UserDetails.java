@@ -11,13 +11,7 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
@@ -29,23 +23,8 @@ import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.ModelParticipant;
-import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.model.QualifiedModelParticipantInfo;
-import org.eclipse.stardust.engine.api.query.PreferenceQuery;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.Grant;
-import org.eclipse.stardust.engine.api.runtime.PermissionState;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroup;
-import org.eclipse.stardust.engine.api.runtime.UserRealm;
-import org.eclipse.stardust.engine.api.runtime.UserService;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.Session;
@@ -54,22 +33,8 @@ import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupDetails;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmDetails;
-import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.ClientPermission;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
-import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 
 /**
  * Client side view of a workflow user.
@@ -87,7 +52,6 @@ import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
  */
 public class UserDetails implements User
 {
-   // TODO consider serializable contract stability
    private static final long serialVersionUID = 5031463670143301240L;
 
    private static final Logger trace = LogManager.getLogger(UserDetails.class);
@@ -120,23 +84,34 @@ public class UserDetails implements User
    UserDetails(IUser user)
    {
       initDetailsLevel();
-      init(user);
-      initPublicPreferences(user);
 
+      init(user);
+      
+      fetchPreviousLoginTime(user);
+      fetchUserProperties(user);
+      fetchPreferences(user);
+      fetchGrants(user);
+
+      List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
+      
+      fetchIsAdministrator(user, activeModels);
+      fetchPermissions(user, activeModels);
+   }
+
+   private void fetchGrants(IUser user)
+   {
       if (UserDetailsLevel.Full == detailsLevel)
       {
-         // TODO: old grants does not know about departments !
          if (user instanceof UserBean)
          {
-            UserBean ub = (UserBean) user;
-            Iterator<UserParticipantLink> links = ub.getAllParticipantLinks();
+            Iterator<UserParticipantLink> links = ((UserBean) user).getAllParticipantLinks();
             while (links.hasNext())
             {
                UserParticipantLink link = links.next();
                IModelParticipant participant = link.getParticipant();
                if (participant != null)
                {
-                  if(participant instanceof IRole)
+                  if (participant instanceof IRole)
                   {
                      if (participant.getId().equals(PredefinedConstants.ADMINISTRATOR_ROLE))
                      {
@@ -148,9 +123,10 @@ public class UserDetails implements User
                      }
                   }
 
-                  Department department = DetailsFactory.create(link.getDepartment(),
-                        IDepartment.class, DepartmentDetails.class);
-                  grants.add(new GrantDetails(participant, department));
+                  Department department = DetailsFactory.createDepartment(link.getDepartment());
+                  Grant grant = new GrantDetails(participant, department);
+                  grants.add(grant);
+                  newGrants.add(new AddedGrant(grant.getQualifiedId(), department));
                }
                else
                {
@@ -168,7 +144,7 @@ public class UserDetails implements User
             for (Iterator i = user.getAllParticipants(); i.hasNext();)
             {
                IModelParticipant participant = (IModelParticipant) i.next();
-               if(participant instanceof IRole)
+               if (participant instanceof IRole)
                {
                   if (participant.getId().equals(PredefinedConstants.ADMINISTRATOR_ROLE))
                   {
@@ -179,15 +155,12 @@ public class UserDetails implements User
                      isAdministrator = true;
                   }
                }
-               grants.add(new GrantDetails(participant, null));
+               Grant grant = new GrantDetails(participant, null);
+               grants.add(grant);
+               newGrants.add(new AddedGrant(grant.getQualifiedId(), null));
             }
          }
-         for (Iterator i = grants.iterator(); i.hasNext();)
-         {
-            Grant grant = ((Grant) i.next());
-            newGrants.add(new AddedGrant(grant.getQualifiedId(), grant.getDepartment()));
-         }
-
+         
          for (Iterator i = user.getAllUserGroups(false); i.hasNext();)
          {
             IUserGroup group = (IUserGroup) i.next();
@@ -195,86 +168,76 @@ public class UserDetails implements User
             newGroupIds.add(group.getId());
          }
       }
+   }
 
-      permissions = CollectionUtils.newHashMap();
-
-      List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
+   private void fetchIsAdministrator(IUser user, List<IModel> activeModels)
+   {
       if (activeModels.isEmpty())
       {
-         if(account.equals(PredefinedConstants.MOTU))
+         if (account.equals(PredefinedConstants.MOTU)) // Should it be only for internal authentication ?
          {
             isAdministrator = true;
          }
       }
 
       //respect SynchronizationService#TransientAdministratorDecorator
-      if(user.hasRole(PredefinedConstants.ADMINISTRATOR_ROLE))
+      if (user.hasRole(PredefinedConstants.ADMINISTRATOR_ROLE))
       {
          isAdministrator = true;
       }
-         
-      if (!activeModels.isEmpty())
-      {
-         AuthorizationContext ctx = AuthorizationContext.create(new ClientPermission(
-               Permissions.MODEL_MANAGE_AUTHORIZATION));
-         ctx.setModels(activeModels);
-         PermissionState ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-         permissions.put(ctx.getPermissionId(), ps);
-
-         ctx = AuthorizationContext.create(UserService.class, "modifyUser", User.class);
-         ctx.setModels(activeModels);
-         ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-         permissions.put(ctx.getPermissionId(), ps);
-
-         ctx = AuthorizationContext.create(UserService.class, "getUser", long.class);
-         ctx.setModels(activeModels);
-         ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
-         permissions.put(ctx.getPermissionId(), ps);
-      }
    }
 
-   private void initPublicPreferences(IUser user)
+   private void fetchPermissions(IUser user, List<IModel> activeModels)
    {
-      IPreferenceStorageManager preferenceStorageManager = PreferenceStorageFactory
-            .getCurrent();
+      permissions = CollectionUtils.newHashMap();
+      
+      fetchPermission(user, activeModels, Permissions.MODEL_MANAGE_AUTHORIZATION, null);
+      fetchPermission(user, activeModels, null, "modifyUser", User.class);
+      fetchPermission(user, activeModels, null, "getUser", long.class);
+   }
 
-      final String IPP_VIEWS_COMMON = "ipp-views-common";
-      final String PREFERENCES_ID = "preference";
-      final String PICTURE_TYPE = "ipp-views-common.user-profile.prefs.myPicture.type";
-      final String PICTURE_URL = "ipp-views-common.user-profile.prefs.myPicture.http.url";
+   private void fetchPermission(IUser user, List<IModel> activeModels,
+         String name, String method, Class<?>... types)
+   {
+      AuthorizationContext ctx = name == null
+            ? AuthorizationContext.create(UserService.class, method, types)
+            : AuthorizationContext.create(new ClientPermission(name));
+      ctx.setUser(user);
+      ctx.setModels(activeModels);
+      permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx)
+            ? PermissionState.Granted
+            : PermissionState.Denied);
+   }
 
-      Preferences viewsCommonPreferences = preferenceStorageManager.getPreferences(
-            user, PreferenceScope.USER, IPP_VIEWS_COMMON, PREFERENCES_ID);
-      if (viewsCommonPreferences != null)
+   private void fetchPreferences(IUser user)
+   {
+      String[] modules = (String[]) Parameters.instance().get(
+            UserDetailsLevel.PRP_USER_DETAILS_PREFERENCES);
+      if (modules != null)
       {
-         Map<String, Serializable> preferences = viewsCommonPreferences.getPreferences();
-         if (preferences != null)
+         IPreferenceStorageManager store = PreferenceStorageFactory.getCurrent();
+         for (String module : modules)
          {
-            if (preferences.get(PICTURE_TYPE) != null)
+            Preferences preferences = store.getPreferences(user,
+                  PreferenceScope.USER, module, "preference");
+            if (preferences != null)
             {
-               this.setProperty(PICTURE_TYPE, preferences.get(PICTURE_TYPE));
-            }
-            if (preferences.get(PICTURE_URL) != null)
-            {
-               this.setProperty(PICTURE_URL, preferences.get(PICTURE_URL));
+               addPreferences(preferences.getPreferences());
             }
          }
       }
+   }
 
-      final String IPP_ADMIN_PORTAL = "ipp-admin-portal";
-      final String USER_NAME_DISPLAY_FORMAT = "ipp-admin-portal.userNameDisplayFormat.prefs.displayFormat";
-
-      Preferences adminPreferences = preferenceStorageManager.getPreferences(user,
-            PreferenceScope.USER, IPP_ADMIN_PORTAL, PREFERENCES_ID);
-      if (adminPreferences != null)
+   private void addPreferences(Map<String, Serializable> values)
+   {
+      if (values != null)
       {
-         Map<String, Serializable> preferences = adminPreferences.getPreferences();
-         if (preferences != null)
+         for (Map.Entry<String, Serializable> entry : values.entrySet())
          {
-            if (preferences.get(USER_NAME_DISPLAY_FORMAT) != null)
+            Serializable value = entry.getValue();
+            if (value != null)
             {
-               this.setProperty(USER_NAME_DISPLAY_FORMAT,
-                     preferences.get(USER_NAME_DISPLAY_FORMAT));
+               setProperty(entry.getKey(), value);
             }
          }
       }
@@ -294,13 +257,16 @@ public class UserDetails implements User
       this.previousLoginTime = user.getLastLoginTime();
       this.passwordExpired = user.isPasswordExpired();
       this.qualityAssurancePropability = user.getQualityAssuranceProbability();
+   }
 
+   private void fetchPreviousLoginTime(IUser user)
+   {
       if (previousLoginTime != null)
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          UserSessionBean result = (UserSessionBean) session.findFirst(UserSessionBean.class,
                QueryExtension.where(Predicates.andTerm(
-                     Predicates.isEqual(UserSessionBean.FR__USER, oid),
+                     Predicates.isEqual(UserSessionBean.FR__USER, user.getOID()),
                      Predicates.lessThan(UserSessionBean.FR__START_TIME, previousLoginTime.getTime()))).
                      addOrderBy(UserSessionBean.FR__START_TIME, false));
          if (result != null)
@@ -308,15 +274,10 @@ public class UserDetails implements User
             previousLoginTime = result.getStartTime();
          }
       }
+   }
 
-      if (ModelManagerFactory.getCurrent().findActiveModel() == null)
-      {
-         if (account.equals(PredefinedConstants.MOTU))
-         {
-            isAdministrator = true;
-         }
-      }
-
+   private void fetchUserProperties(IUser user)
+   {
       if (UserDetailsLevel.WithProperties == detailsLevel
             || UserDetailsLevel.Full == detailsLevel)
       {

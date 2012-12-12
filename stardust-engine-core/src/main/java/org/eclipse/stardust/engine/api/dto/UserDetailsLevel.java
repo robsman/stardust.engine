@@ -49,6 +49,7 @@ public class UserDetailsLevel extends IntKey
    }
 
    public static final String PRP_USER_DETAILS_LEVEL = "USER_DETAILS_LEVEL";
+   public static final String PRP_USER_DETAILS_PREFERENCES = "PRP_USER_DETAILS_PREFERENCES";
 
    private UserDetailsLevel(int value, String name)
    {

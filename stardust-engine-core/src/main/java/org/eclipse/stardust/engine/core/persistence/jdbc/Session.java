@@ -1688,6 +1688,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   update(externalCache, persistent);
                }
 
+               if (transientPiSupport.isCurrentSessionTransient() && !transientPiSupport.areAllPisCompleted() && persistent instanceof EventBindingBean)
+               {
+                  trace.warn("Event binding '" + persistent + "' applies to a transient process instance and will therefore not be processed by the event daemon.");
+               }
+               
                // // DataCluster update - step 1
                if (isUsingDataClusters() && DataValueBean.class.equals(type))
                {

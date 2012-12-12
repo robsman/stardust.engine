@@ -48,6 +48,7 @@ public class EventBindingBean extends IdentifiablePersistentBean
    public static final String TABLE_NAME = "event_binding";
    public static final String PK_FIELD = FIELD__OID;
    private static final String PK_SEQUENCE = "event_binding_seq";
+   public static final boolean TRY_DEFERRED_INSERT = true;
 
    public static final String[] event_binding_idx1_UNIQUE_INDEX = new String[] {FIELD__OID};
    public static final String[] event_binding_idx2_INDEX = new String[] {
@@ -189,5 +190,21 @@ public class EventBindingBean extends IdentifiablePersistentBean
    {
       fetch();
       return (short) partition;
+   }
+   
+   @Override
+   public String toString()
+   {
+      final StringBuilder sb = new StringBuilder();
+      
+      sb.append("Event binding [");
+      sb.append("oid = ").append(getOID()).append(", ");
+      sb.append("type = ").append(getType()).append(", ");
+      sb.append("model oid = ").append(getModel()).append(", ");
+      sb.append("object oid = ").append(getObjectOID()).append(", ");
+      sb.append("handler oid = ").append(getHandlerOID());
+      sb.append("]");
+      
+      return sb.toString();
    }
 }

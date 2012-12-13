@@ -39,6 +39,7 @@ import javax.xml.bind.annotation.XmlType;
     ProcessInstanceDetailsPolicyXto.class,
     TimeoutPolicyXto.class,
     UserDetailsPolicyXto.class,
+    SubFolderPolicyXto.class,
     CasePolicyXto.class,
     PerformanceCriticalityPolicyXto.class,
     ModelVersionPolicyXto.class,

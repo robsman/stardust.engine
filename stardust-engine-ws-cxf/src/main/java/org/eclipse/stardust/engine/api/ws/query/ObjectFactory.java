@@ -78,12 +78,13 @@ public class ObjectFactory {
     private final static QName _ProcessInstanceDetailsLevel_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "processInstanceDetailsLevel");
     private final static QName _LessOrEqual_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "lessOrEqual");
     private final static QName _ProcessesHavingLink_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "processesHavingLink");
-    private final static QName _AbstractStoplightCostPolicy_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "abstractStoplightCostPolicy");
     private final static QName _And_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "and");
+    private final static QName _AbstractStoplightCostPolicy_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "abstractStoplightCostPolicy");
     private final static QName _ProcessesInState_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "processesInState");
     private final static QName _Or_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "or");
     private final static QName _NotNull_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "notNull");
     private final static QName _GreaterOrEqual_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "greaterOrEqual");
+    private final static QName _SubFolderPolicy_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "subFolderPolicy");
     private final static QName _GreaterThan_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "greaterThan");
     private final static QName _ForProcess_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "forProcess");
     private final static QName _Policy_QNAME = new QName("http://eclipse.org/stardust/ws/v2012a/api/query", "policy");
@@ -101,19 +102,347 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ProcessInstanceLinkFilterXto.LinkTypesXto }
+     * Create an instance of {@link PerformedByUserFilterXto }
      * 
      */
-    public ProcessInstanceLinkFilterXto.LinkTypesXto createProcessInstanceLinkFilterXtoLinkTypesXto() {
-        return new ProcessInstanceLinkFilterXto.LinkTypesXto();
+    public PerformedByUserFilterXto createPerformedByUserFilterXto() {
+        return new PerformedByUserFilterXto();
     }
 
     /**
-     * Create an instance of {@link GreaterOrEqualPredicateXto }
+     * Create an instance of {@link AndTermXto }
      * 
      */
-    public GreaterOrEqualPredicateXto createGreaterOrEqualPredicateXto() {
-        return new GreaterOrEqualPredicateXto();
+    public AndTermXto createAndTermXto() {
+        return new AndTermXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessInstanceDetailsPolicyXto }
+     * 
+     */
+    public ProcessInstanceDetailsPolicyXto createProcessInstanceDetailsPolicyXto() {
+        return new ProcessInstanceDetailsPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link HistoricalStatesPolicyXto }
+     * 
+     */
+    public HistoricalStatesPolicyXto createHistoricalStatesPolicyXto() {
+        return new HistoricalStatesPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link LessOrEqualPredicateXto }
+     * 
+     */
+    public LessOrEqualPredicateXto createLessOrEqualPredicateXto() {
+        return new LessOrEqualPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link ModelVersionPolicyXto }
+     * 
+     */
+    public ModelVersionPolicyXto createModelVersionPolicyXto() {
+        return new ModelVersionPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link PreferenceQueryXto }
+     * 
+     */
+    public PreferenceQueryXto createPreferenceQueryXto() {
+        return new PreferenceQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link ActivityStateFilterXto.StatesXto }
+     * 
+     */
+    public ActivityStateFilterXto.StatesXto createActivityStateFilterXtoStatesXto() {
+        return new ActivityStateFilterXto.StatesXto();
+    }
+
+    /**
+     * Create an instance of {@link GreaterThanPredicateXto }
+     * 
+     */
+    public GreaterThanPredicateXto createGreaterThanPredicateXto() {
+        return new GreaterThanPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link CasePolicyXto }
+     * 
+     */
+    public CasePolicyXto createCasePolicyXto() {
+        return new CasePolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link DocumentQueryXto }
+     * 
+     */
+    public DocumentQueryXto createDocumentQueryXto() {
+        return new DocumentQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link LogEntryQueryXto }
+     * 
+     */
+    public LogEntryQueryXto createLogEntryQueryXto() {
+        return new LogEntryQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link TimeoutPolicyXto }
+     * 
+     */
+    public TimeoutPolicyXto createTimeoutPolicyXto() {
+        return new TimeoutPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link AttributeOrderXto }
+     * 
+     */
+    public AttributeOrderXto createAttributeOrderXto() {
+        return new AttributeOrderXto();
+    }
+
+    /**
+     * Create an instance of {@link PerformingOnBehalfOfFilterXto.ModelParticipantsXto }
+     * 
+     */
+    public PerformingOnBehalfOfFilterXto.ModelParticipantsXto createPerformingOnBehalfOfFilterXtoModelParticipantsXto() {
+        return new PerformingOnBehalfOfFilterXto.ModelParticipantsXto();
+    }
+
+    /**
+     * Create an instance of {@link UserQueryXto }
+     * 
+     */
+    public UserQueryXto createUserQueryXto() {
+        return new UserQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link SubFolderPolicyXto }
+     * 
+     */
+    public SubFolderPolicyXto createSubFolderPolicyXto() {
+        return new SubFolderPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link BetweenPredicateXto }
+     * 
+     */
+    public BetweenPredicateXto createBetweenPredicateXto() {
+        return new BetweenPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link ActivityStateFilterXto }
+     * 
+     */
+    public ActivityStateFilterXto createActivityStateFilterXto() {
+        return new ActivityStateFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link InListPredicateXto }
+     * 
+     */
+    public InListPredicateXto createInListPredicateXto() {
+        return new InListPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessInstanceFilterXto }
+     * 
+     */
+    public ProcessInstanceFilterXto createProcessInstanceFilterXto() {
+        return new ProcessInstanceFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessStateFilterXto }
+     * 
+     */
+    public ProcessStateFilterXto createProcessStateFilterXto() {
+        return new ProcessStateFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link IsNullPredicateXto }
+     * 
+     */
+    public IsNullPredicateXto createIsNullPredicateXto() {
+        return new IsNullPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessCumulationPolicyXto }
+     * 
+     */
+    public ProcessCumulationPolicyXto createProcessCumulationPolicyXto() {
+        return new ProcessCumulationPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessQueryXto }
+     * 
+     */
+    public ProcessQueryXto createProcessQueryXto() {
+        return new ProcessQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link ParticipantContributionsXto }
+     * 
+     */
+    public ParticipantContributionsXto createParticipantContributionsXto() {
+        return new ParticipantContributionsXto();
+    }
+
+    /**
+     * Create an instance of {@link VariableReferenceXto }
+     * 
+     */
+    public VariableReferenceXto createVariableReferenceXto() {
+        return new VariableReferenceXto();
+    }
+
+    /**
+     * Create an instance of {@link NotEqualPredicateXto }
+     * 
+     */
+    public NotEqualPredicateXto createNotEqualPredicateXto() {
+        return new NotEqualPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link PerformingOnBehalfOfFilterXto.ModelParticipantsXto.ParticipantsXto }
+     * 
+     */
+    public PerformingOnBehalfOfFilterXto.ModelParticipantsXto.ParticipantsXto createPerformingOnBehalfOfFilterXtoModelParticipantsXtoParticipantsXto() {
+        return new PerformingOnBehalfOfFilterXto.ModelParticipantsXto.ParticipantsXto();
+    }
+
+    /**
+     * Create an instance of {@link HistoricalEventPolicyXto }
+     * 
+     */
+    public HistoricalEventPolicyXto createHistoricalEventPolicyXto() {
+        return new HistoricalEventPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link LessThanPredicateXto }
+     * 
+     */
+    public LessThanPredicateXto createLessThanPredicateXto() {
+        return new LessThanPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link StartingUserFilterXto }
+     * 
+     */
+    public StartingUserFilterXto createStartingUserFilterXto() {
+        return new StartingUserFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link AttributeReferenceXto }
+     * 
+     */
+    public AttributeReferenceXto createAttributeReferenceXto() {
+        return new AttributeReferenceXto();
+    }
+
+    /**
+     * Create an instance of {@link OrderCriteriaXto }
+     * 
+     */
+    public OrderCriteriaXto createOrderCriteriaXto() {
+        return new OrderCriteriaXto();
+    }
+
+    /**
+     * Create an instance of {@link NotInListPredicateXto }
+     * 
+     */
+    public NotInListPredicateXto createNotInListPredicateXto() {
+        return new NotInListPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link IsLikePredicateXto }
+     * 
+     */
+    public IsLikePredicateXto createIsLikePredicateXto() {
+        return new IsLikePredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link ParticipantAssociationFilterXto.ModelParticipantXto }
+     * 
+     */
+    public ParticipantAssociationFilterXto.ModelParticipantXto createParticipantAssociationFilterXtoModelParticipantXto() {
+        return new ParticipantAssociationFilterXto.ModelParticipantXto();
+    }
+
+    /**
+     * Create an instance of {@link UserContributionXto }
+     * 
+     */
+    public UserContributionXto createUserContributionXto() {
+        return new UserContributionXto();
+    }
+
+    /**
+     * Create an instance of {@link WorklistQueryXto }
+     * 
+     */
+    public WorklistQueryXto createWorklistQueryXto() {
+        return new WorklistQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link PerformingParticipantFilterXto.ModelParticipantXto }
+     * 
+     */
+    public PerformingParticipantFilterXto.ModelParticipantXto createPerformingParticipantFilterXtoModelParticipantXto() {
+        return new PerformingParticipantFilterXto.ModelParticipantXto();
+    }
+
+    /**
+     * Create an instance of {@link UserGroupQueryXto }
+     * 
+     */
+    public UserGroupQueryXto createUserGroupQueryXto() {
+        return new UserGroupQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link IsEqualPredicateXto }
+     * 
+     */
+    public IsEqualPredicateXto createIsEqualPredicateXto() {
+        return new IsEqualPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link PerformingOnBehalfOfFilterXto }
+     * 
+     */
+    public PerformingOnBehalfOfFilterXto createPerformingOnBehalfOfFilterXto() {
+        return new PerformingOnBehalfOfFilterXto();
     }
 
     /**
@@ -125,6 +454,110 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link ParticipantContributionXto }
+     * 
+     */
+    public ParticipantContributionXto createParticipantContributionXto() {
+        return new ParticipantContributionXto();
+    }
+
+    /**
+     * Create an instance of {@link DeployedModelQueryXto }
+     * 
+     */
+    public DeployedModelQueryXto createDeployedModelQueryXto() {
+        return new DeployedModelQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link CriticalProcessingTimePolicyXto }
+     * 
+     */
+    public CriticalProcessingTimePolicyXto createCriticalProcessingTimePolicyXto() {
+        return new CriticalProcessingTimePolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link CriticalCostPerExecutionPolicyXto }
+     * 
+     */
+    public CriticalCostPerExecutionPolicyXto createCriticalCostPerExecutionPolicyXto() {
+        return new CriticalCostPerExecutionPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link QueryXto }
+     * 
+     */
+    public QueryXto createQueryXto() {
+        return new QueryXto();
+    }
+
+    /**
+     * Create an instance of {@link NotNullPredicateXto }
+     * 
+     */
+    public NotNullPredicateXto createNotNullPredicateXto() {
+        return new NotNullPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessInstanceLinkFilterXto.LinkTypesXto }
+     * 
+     */
+    public ProcessInstanceLinkFilterXto.LinkTypesXto createProcessInstanceLinkFilterXtoLinkTypesXto() {
+        return new ProcessInstanceLinkFilterXto.LinkTypesXto();
+    }
+
+    /**
+     * Create an instance of {@link CriticalExecutionTimePolicyXto }
+     * 
+     */
+    public CriticalExecutionTimePolicyXto createCriticalExecutionTimePolicyXto() {
+        return new CriticalExecutionTimePolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link PerformingParticipantFilterXto }
+     * 
+     */
+    public PerformingParticipantFilterXto createPerformingParticipantFilterXto() {
+        return new PerformingParticipantFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessInstanceLinkFilterXto }
+     * 
+     */
+    public ProcessInstanceLinkFilterXto createProcessInstanceLinkFilterXto() {
+        return new ProcessInstanceLinkFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link ActivityInstanceFilterXto }
+     * 
+     */
+    public ActivityInstanceFilterXto createActivityInstanceFilterXto() {
+        return new ActivityInstanceFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link ActivityDefinitionFilterXto }
+     * 
+     */
+    public ActivityDefinitionFilterXto createActivityDefinitionFilterXto() {
+        return new ActivityDefinitionFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link UserDetailsPolicyXto }
+     * 
+     */
+    public UserDetailsPolicyXto createUserDetailsPolicyXto() {
+        return new UserDetailsPolicyXto();
+    }
+
+    /**
      * Create an instance of {@link SubsetPolicyXto }
      * 
      */
@@ -133,11 +566,115 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link IsNullPredicateXto }
+     * Create an instance of {@link PerformanceCriticalityPolicyXto }
      * 
      */
-    public IsNullPredicateXto createIsNullPredicateXto() {
-        return new IsNullPredicateXto();
+    public PerformanceCriticalityPolicyXto createPerformanceCriticalityPolicyXto() {
+        return new PerformanceCriticalityPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link ParticipantAssociationFilterXto }
+     * 
+     */
+    public ParticipantAssociationFilterXto createParticipantAssociationFilterXto() {
+        return new ParticipantAssociationFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessDefinitionQueryXto }
+     * 
+     */
+    public ProcessDefinitionQueryXto createProcessDefinitionQueryXto() {
+        return new ProcessDefinitionQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link DataOrderXto }
+     * 
+     */
+    public DataOrderXto createDataOrderXto() {
+        return new DataOrderXto();
+    }
+
+    /**
+     * Create an instance of {@link GreaterOrEqualPredicateXto }
+     * 
+     */
+    public GreaterOrEqualPredicateXto createGreaterOrEqualPredicateXto() {
+        return new GreaterOrEqualPredicateXto();
+    }
+
+    /**
+     * Create an instance of {@link DescriptorPolicyXto }
+     * 
+     */
+    public DescriptorPolicyXto createDescriptorPolicyXto() {
+        return new DescriptorPolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link PolicyXto }
+     * 
+     */
+    public PolicyXto createPolicyXto() {
+        return new PolicyXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessStateFilterXto.StatesXto }
+     * 
+     */
+    public ProcessStateFilterXto.StatesXto createProcessStateFilterXtoStatesXto() {
+        return new ProcessStateFilterXto.StatesXto();
+    }
+
+    /**
+     * Create an instance of {@link PerformingOnBehalfOfFilterXto.ModelParticipantXto }
+     * 
+     */
+    public PerformingOnBehalfOfFilterXto.ModelParticipantXto createPerformingOnBehalfOfFilterXtoModelParticipantXto() {
+        return new PerformingOnBehalfOfFilterXto.ModelParticipantXto();
+    }
+
+    /**
+     * Create an instance of {@link ValuesLiteralXto }
+     * 
+     */
+    public ValuesLiteralXto createValuesLiteralXto() {
+        return new ValuesLiteralXto();
+    }
+
+    /**
+     * Create an instance of {@link PerformingUserFilterXto }
+     * 
+     */
+    public PerformingUserFilterXto createPerformingUserFilterXto() {
+        return new PerformingUserFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link VariableDefinitionQueryXto }
+     * 
+     */
+    public VariableDefinitionQueryXto createVariableDefinitionQueryXto() {
+        return new VariableDefinitionQueryXto();
+    }
+
+    /**
+     * Create an instance of {@link ProcessDefinitionFilterXto }
+     * 
+     */
+    public ProcessDefinitionFilterXto createProcessDefinitionFilterXto() {
+        return new ProcessDefinitionFilterXto();
+    }
+
+    /**
+     * Create an instance of {@link OrTermXto }
+     * 
+     */
+    public OrTermXto createOrTermXto() {
+        return new OrTermXto();
     }
 
     /**
@@ -157,326 +694,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link DataOrderXto }
-     * 
-     */
-    public DataOrderXto createDataOrderXto() {
-        return new DataOrderXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformingOnBehalfOfFilterXto.ModelParticipantsXto.ParticipantsXto }
-     * 
-     */
-    public PerformingOnBehalfOfFilterXto.ModelParticipantsXto.ParticipantsXto createPerformingOnBehalfOfFilterXtoModelParticipantsXtoParticipantsXto() {
-        return new PerformingOnBehalfOfFilterXto.ModelParticipantsXto.ParticipantsXto();
-    }
-
-    /**
-     * Create an instance of {@link ActivityStateFilterXto }
-     * 
-     */
-    public ActivityStateFilterXto createActivityStateFilterXto() {
-        return new ActivityStateFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link CasePolicyXto }
-     * 
-     */
-    public CasePolicyXto createCasePolicyXto() {
-        return new CasePolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link UserContributionXto }
-     * 
-     */
-    public UserContributionXto createUserContributionXto() {
-        return new UserContributionXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformedByUserFilterXto }
-     * 
-     */
-    public PerformedByUserFilterXto createPerformedByUserFilterXto() {
-        return new PerformedByUserFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformingParticipantFilterXto }
-     * 
-     */
-    public PerformingParticipantFilterXto createPerformingParticipantFilterXto() {
-        return new PerformingParticipantFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessDefinitionFilterXto }
-     * 
-     */
-    public ProcessDefinitionFilterXto createProcessDefinitionFilterXto() {
-        return new ProcessDefinitionFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link DescriptorPolicyXto }
-     * 
-     */
-    public DescriptorPolicyXto createDescriptorPolicyXto() {
-        return new DescriptorPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link ParticipantContributionXto }
-     * 
-     */
-    public ParticipantContributionXto createParticipantContributionXto() {
-        return new ParticipantContributionXto();
-    }
-
-    /**
-     * Create an instance of {@link PreferenceQueryXto }
-     * 
-     */
-    public PreferenceQueryXto createPreferenceQueryXto() {
-        return new PreferenceQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link LogEntryQueryXto }
-     * 
-     */
-    public LogEntryQueryXto createLogEntryQueryXto() {
-        return new LogEntryQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link IsEqualPredicateXto }
-     * 
-     */
-    public IsEqualPredicateXto createIsEqualPredicateXto() {
-        return new IsEqualPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformingOnBehalfOfFilterXto.ModelParticipantXto }
-     * 
-     */
-    public PerformingOnBehalfOfFilterXto.ModelParticipantXto createPerformingOnBehalfOfFilterXtoModelParticipantXto() {
-        return new PerformingOnBehalfOfFilterXto.ModelParticipantXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessInstanceFilterXto }
-     * 
-     */
-    public ProcessInstanceFilterXto createProcessInstanceFilterXto() {
-        return new ProcessInstanceFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link ActivityStateFilterXto.StatesXto }
-     * 
-     */
-    public ActivityStateFilterXto.StatesXto createActivityStateFilterXtoStatesXto() {
-        return new ActivityStateFilterXto.StatesXto();
-    }
-
-    /**
-     * Create an instance of {@link DocumentQueryXto }
-     * 
-     */
-    public DocumentQueryXto createDocumentQueryXto() {
-        return new DocumentQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link LessOrEqualPredicateXto }
-     * 
-     */
-    public LessOrEqualPredicateXto createLessOrEqualPredicateXto() {
-        return new LessOrEqualPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link TimeoutPolicyXto }
-     * 
-     */
-    public TimeoutPolicyXto createTimeoutPolicyXto() {
-        return new TimeoutPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessStateFilterXto.StatesXto }
-     * 
-     */
-    public ProcessStateFilterXto.StatesXto createProcessStateFilterXtoStatesXto() {
-        return new ProcessStateFilterXto.StatesXto();
-    }
-
-    /**
-     * Create an instance of {@link WorklistQueryXto }
-     * 
-     */
-    public WorklistQueryXto createWorklistQueryXto() {
-        return new WorklistQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link VariableReferenceXto }
-     * 
-     */
-    public VariableReferenceXto createVariableReferenceXto() {
-        return new VariableReferenceXto();
-    }
-
-    /**
-     * Create an instance of {@link LessThanPredicateXto }
-     * 
-     */
-    public LessThanPredicateXto createLessThanPredicateXto() {
-        return new LessThanPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link UserDetailsPolicyXto }
-     * 
-     */
-    public UserDetailsPolicyXto createUserDetailsPolicyXto() {
-        return new UserDetailsPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link QueryXto }
-     * 
-     */
-    public QueryXto createQueryXto() {
-        return new QueryXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessCumulationPolicyXto }
-     * 
-     */
-    public ProcessCumulationPolicyXto createProcessCumulationPolicyXto() {
-        return new ProcessCumulationPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformingOnBehalfOfFilterXto }
-     * 
-     */
-    public PerformingOnBehalfOfFilterXto createPerformingOnBehalfOfFilterXto() {
-        return new PerformingOnBehalfOfFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link ActivityInstanceFilterXto }
-     * 
-     */
-    public ActivityInstanceFilterXto createActivityInstanceFilterXto() {
-        return new ActivityInstanceFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link AttributeReferenceXto }
-     * 
-     */
-    public AttributeReferenceXto createAttributeReferenceXto() {
-        return new AttributeReferenceXto();
-    }
-
-    /**
-     * Create an instance of {@link OrTermXto }
-     * 
-     */
-    public OrTermXto createOrTermXto() {
-        return new OrTermXto();
-    }
-
-    /**
-     * Create an instance of {@link InListPredicateXto }
-     * 
-     */
-    public InListPredicateXto createInListPredicateXto() {
-        return new InListPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessInstanceDetailsPolicyXto }
-     * 
-     */
-    public ProcessInstanceDetailsPolicyXto createProcessInstanceDetailsPolicyXto() {
-        return new ProcessInstanceDetailsPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link GreaterThanPredicateXto }
-     * 
-     */
-    public GreaterThanPredicateXto createGreaterThanPredicateXto() {
-        return new GreaterThanPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link ActivityQueryXto }
-     * 
-     */
-    public ActivityQueryXto createActivityQueryXto() {
-        return new ActivityQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link StartingUserFilterXto }
-     * 
-     */
-    public StartingUserFilterXto createStartingUserFilterXto() {
-        return new StartingUserFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link HistoricalStatesPolicyXto }
-     * 
-     */
-    public HistoricalStatesPolicyXto createHistoricalStatesPolicyXto() {
-        return new HistoricalStatesPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link ParticipantAssociationFilterXto.ModelParticipantXto }
-     * 
-     */
-    public ParticipantAssociationFilterXto.ModelParticipantXto createParticipantAssociationFilterXtoModelParticipantXto() {
-        return new ParticipantAssociationFilterXto.ModelParticipantXto();
-    }
-
-    /**
-     * Create an instance of {@link IsLikePredicateXto }
-     * 
-     */
-    public IsLikePredicateXto createIsLikePredicateXto() {
-        return new IsLikePredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessStateFilterXto }
-     * 
-     */
-    public ProcessStateFilterXto createProcessStateFilterXto() {
-        return new ProcessStateFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link ActivityDefinitionFilterXto }
-     * 
-     */
-    public ActivityDefinitionFilterXto createActivityDefinitionFilterXto() {
-        return new ActivityDefinitionFilterXto();
-    }
-
-    /**
      * Create an instance of {@link PerformingParticipantFilterXto.AnyForUserXto }
      * 
      */
@@ -485,219 +702,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ParticipantAssociationFilterXto }
+     * Create an instance of {@link ActivityQueryXto }
      * 
      */
-    public ParticipantAssociationFilterXto createParticipantAssociationFilterXto() {
-        return new ParticipantAssociationFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link DeployedModelQueryXto }
-     * 
-     */
-    public DeployedModelQueryXto createDeployedModelQueryXto() {
-        return new DeployedModelQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessInstanceLinkFilterXto }
-     * 
-     */
-    public ProcessInstanceLinkFilterXto createProcessInstanceLinkFilterXto() {
-        return new ProcessInstanceLinkFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformingOnBehalfOfFilterXto.ModelParticipantsXto }
-     * 
-     */
-    public PerformingOnBehalfOfFilterXto.ModelParticipantsXto createPerformingOnBehalfOfFilterXtoModelParticipantsXto() {
-        return new PerformingOnBehalfOfFilterXto.ModelParticipantsXto();
-    }
-
-    /**
-     * Create an instance of {@link ParticipantContributionsXto }
-     * 
-     */
-    public ParticipantContributionsXto createParticipantContributionsXto() {
-        return new ParticipantContributionsXto();
-    }
-
-    /**
-     * Create an instance of {@link OrderCriteriaXto }
-     * 
-     */
-    public OrderCriteriaXto createOrderCriteriaXto() {
-        return new OrderCriteriaXto();
-    }
-
-    /**
-     * Create an instance of {@link VariableDefinitionQueryXto }
-     * 
-     */
-    public VariableDefinitionQueryXto createVariableDefinitionQueryXto() {
-        return new VariableDefinitionQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link PolicyXto }
-     * 
-     */
-    public PolicyXto createPolicyXto() {
-        return new PolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link NotInListPredicateXto }
-     * 
-     */
-    public NotInListPredicateXto createNotInListPredicateXto() {
-        return new NotInListPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link NotEqualPredicateXto }
-     * 
-     */
-    public NotEqualPredicateXto createNotEqualPredicateXto() {
-        return new NotEqualPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessQueryXto }
-     * 
-     */
-    public ProcessQueryXto createProcessQueryXto() {
-        return new ProcessQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link BetweenPredicateXto }
-     * 
-     */
-    public BetweenPredicateXto createBetweenPredicateXto() {
-        return new BetweenPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformingUserFilterXto }
-     * 
-     */
-    public PerformingUserFilterXto createPerformingUserFilterXto() {
-        return new PerformingUserFilterXto();
-    }
-
-    /**
-     * Create an instance of {@link ModelVersionPolicyXto }
-     * 
-     */
-    public ModelVersionPolicyXto createModelVersionPolicyXto() {
-        return new ModelVersionPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link HistoricalEventPolicyXto }
-     * 
-     */
-    public HistoricalEventPolicyXto createHistoricalEventPolicyXto() {
-        return new HistoricalEventPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link AndTermXto }
-     * 
-     */
-    public AndTermXto createAndTermXto() {
-        return new AndTermXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformingParticipantFilterXto.ModelParticipantXto }
-     * 
-     */
-    public PerformingParticipantFilterXto.ModelParticipantXto createPerformingParticipantFilterXtoModelParticipantXto() {
-        return new PerformingParticipantFilterXto.ModelParticipantXto();
-    }
-
-    /**
-     * Create an instance of {@link ValuesLiteralXto }
-     * 
-     */
-    public ValuesLiteralXto createValuesLiteralXto() {
-        return new ValuesLiteralXto();
-    }
-
-    /**
-     * Create an instance of {@link UserGroupQueryXto }
-     * 
-     */
-    public UserGroupQueryXto createUserGroupQueryXto() {
-        return new UserGroupQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link ProcessDefinitionQueryXto }
-     * 
-     */
-    public ProcessDefinitionQueryXto createProcessDefinitionQueryXto() {
-        return new ProcessDefinitionQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link UserQueryXto }
-     * 
-     */
-    public UserQueryXto createUserQueryXto() {
-        return new UserQueryXto();
-    }
-
-    /**
-     * Create an instance of {@link CriticalExecutionTimePolicyXto }
-     * 
-     */
-    public CriticalExecutionTimePolicyXto createCriticalExecutionTimePolicyXto() {
-        return new CriticalExecutionTimePolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link CriticalCostPerExecutionPolicyXto }
-     * 
-     */
-    public CriticalCostPerExecutionPolicyXto createCriticalCostPerExecutionPolicyXto() {
-        return new CriticalCostPerExecutionPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link CriticalProcessingTimePolicyXto }
-     * 
-     */
-    public CriticalProcessingTimePolicyXto createCriticalProcessingTimePolicyXto() {
-        return new CriticalProcessingTimePolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link NotNullPredicateXto }
-     * 
-     */
-    public NotNullPredicateXto createNotNullPredicateXto() {
-        return new NotNullPredicateXto();
-    }
-
-    /**
-     * Create an instance of {@link PerformanceCriticalityPolicyXto }
-     * 
-     */
-    public PerformanceCriticalityPolicyXto createPerformanceCriticalityPolicyXto() {
-        return new PerformanceCriticalityPolicyXto();
-    }
-
-    /**
-     * Create an instance of {@link AttributeOrderXto }
-     * 
-     */
-    public AttributeOrderXto createAttributeOrderXto() {
-        return new AttributeOrderXto();
+    public ActivityQueryXto createActivityQueryXto() {
+        return new ActivityQueryXto();
     }
 
     /**
@@ -1088,21 +1097,21 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractStoplightCostPolicyXto }{@code >}}
-     * 
-     */
-    @XmlElementDecl(namespace = "http://eclipse.org/stardust/ws/v2012a/api/query", name = "abstractStoplightCostPolicy")
-    public JAXBElement<AbstractStoplightCostPolicyXto> createAbstractStoplightCostPolicy(AbstractStoplightCostPolicyXto value) {
-        return new JAXBElement<AbstractStoplightCostPolicyXto>(_AbstractStoplightCostPolicy_QNAME, AbstractStoplightCostPolicyXto.class, null, value);
-    }
-
-    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link AndTermXto }{@code >}}
      * 
      */
     @XmlElementDecl(namespace = "http://eclipse.org/stardust/ws/v2012a/api/query", name = "and", substitutionHeadNamespace = "http://eclipse.org/stardust/ws/v2012a/api/query", substitutionHeadName = "filterCriterion")
     public JAXBElement<AndTermXto> createAnd(AndTermXto value) {
         return new JAXBElement<AndTermXto>(_And_QNAME, AndTermXto.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link AbstractStoplightCostPolicyXto }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://eclipse.org/stardust/ws/v2012a/api/query", name = "abstractStoplightCostPolicy")
+    public JAXBElement<AbstractStoplightCostPolicyXto> createAbstractStoplightCostPolicy(AbstractStoplightCostPolicyXto value) {
+        return new JAXBElement<AbstractStoplightCostPolicyXto>(_AbstractStoplightCostPolicy_QNAME, AbstractStoplightCostPolicyXto.class, null, value);
     }
 
     /**
@@ -1139,6 +1148,15 @@ public class ObjectFactory {
     @XmlElementDecl(namespace = "http://eclipse.org/stardust/ws/v2012a/api/query", name = "greaterOrEqual", substitutionHeadNamespace = "http://eclipse.org/stardust/ws/v2012a/api/query", substitutionHeadName = "filterCriterion")
     public JAXBElement<GreaterOrEqualPredicateXto> createGreaterOrEqual(GreaterOrEqualPredicateXto value) {
         return new JAXBElement<GreaterOrEqualPredicateXto>(_GreaterOrEqual_QNAME, GreaterOrEqualPredicateXto.class, null, value);
+    }
+
+    /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link SubFolderPolicyXto }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://eclipse.org/stardust/ws/v2012a/api/query", name = "subFolderPolicy")
+    public JAXBElement<SubFolderPolicyXto> createSubFolderPolicy(SubFolderPolicyXto value) {
+        return new JAXBElement<SubFolderPolicyXto>(_SubFolderPolicy_QNAME, SubFolderPolicyXto.class, null, value);
     }
 
     /**

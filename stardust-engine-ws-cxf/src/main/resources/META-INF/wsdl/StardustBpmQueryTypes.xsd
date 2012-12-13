@@ -955,6 +955,7 @@
       <sequence>
          <choice minOccurs="0" maxOccurs="unbounded">
             <element name="subsetPolicy" type="tns:SubsetPolicy" minOccurs="0" />
+            <element name="subFolderPolicy" type="tns:SubFolderPolicy" minOccurs="0" />
             <element name="modelVersionPolicy" type="tns:ModelVersionPolicy" minOccurs="0" />
             <element name="descriptorPolicy" type="tns:DescriptorPolicy" minOccurs="0" />
             <element name="processInstanceDetailsPolicy" type="tns:ProcessInstanceDetailsPolicy" minOccurs="0" />
@@ -992,6 +993,24 @@
    </complexType>
 
    <element name="subsetPolicy" type="tns:SubsetPolicy" />
+   
+   <complexType name="SubFolderPolicy">
+      <annotation>
+         <documentation>
+         Evaluation Policy for limiting a DocumentQuery to a specific subfolder path.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence>
+               <element name="limitSubFolder" type="string" />
+               <element name="recursive" type="boolean" />
+            </sequence>
+         </extension>
+      </complexContent>
+   </complexType>
+
+   <element name="subFolderPolicy" type="tns:SubFolderPolicy" />   
 
    <complexType name="ModelVersionPolicy">
       <annotation>

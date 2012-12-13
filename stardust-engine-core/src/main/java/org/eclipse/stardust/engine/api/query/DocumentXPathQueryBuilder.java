@@ -15,8 +15,6 @@ import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
 
 import org.eclipse.stardust.vfs.MetaDataLocation;
 
-
-
 public class DocumentXPathQueryBuilder
 {
    private Query query;
@@ -25,12 +23,38 @@ public class DocumentXPathQueryBuilder
 
    private DocumentXPathQueryOrderEvaluator orderVisitor;
 
+   private String limitSubFolder = null;
+
    public DocumentXPathQueryBuilder(Query query, EvaluationContext context,
          MetaDataLocation metaDataLocation)
    {
       this.query = query;
       this.filterVisitor = new DocumentXPathQueryFilterEvaluator(metaDataLocation);
       this.orderVisitor = new DocumentXPathQueryOrderEvaluator(metaDataLocation);
+      SubFolderPolicy folderPolicy = (SubFolderPolicy) query.getPolicy(SubFolderPolicy.class);
+
+      if (folderPolicy != null)
+      {
+         String limitSubFolder2 = folderPolicy.getLimitSubFolder();
+         if ( !StringUtils.isEmpty(limitSubFolder2))
+         {
+            if ( limitSubFolder2.equals("/"))
+            {
+               // limit to root folder.
+               limitSubFolder2= "";
+            }
+            else if ( !limitSubFolder2.startsWith("/"))
+            {
+               limitSubFolder2 = "/" + limitSubFolder2;
+            }
+            
+            if (folderPolicy.isRecursive())
+            {
+               limitSubFolder2 += "/";
+            }
+            this.limitSubFolder = limitSubFolder2;
+         }
+      }
    }
 
    public String build(String partitionPrefixPath)
@@ -41,10 +65,18 @@ public class DocumentXPathQueryBuilder
 
       if ( !StringUtils.isEmpty(partitionPrefixPath))
       {
-         restrictionPath = partitionPrefixPath + "/";
+         restrictionPath = partitionPrefixPath;
       }
-      return "/jcr:root" + ISO9075.encodePath(restrictionPath) + "/element(*, nt:file)" + filterTerm
-            + orderByTerm;
+      if ( null != limitSubFolder)
+      {
+         restrictionPath += limitSubFolder;
+      }
+      else
+      {
+         restrictionPath += "/";
+      }
+      return "/jcr:root" + ISO9075.encodePath(restrictionPath) + "/element(*, nt:file)"
+            + filterTerm + orderByTerm;
    }
 
 }

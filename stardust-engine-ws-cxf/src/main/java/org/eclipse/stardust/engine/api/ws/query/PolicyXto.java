@@ -37,6 +37,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;choice maxOccurs="unbounded" minOccurs="0">
  *           &lt;element name="subsetPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}SubsetPolicy" minOccurs="0"/>
+ *           &lt;element name="subFolderPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}SubFolderPolicy" minOccurs="0"/>
  *           &lt;element name="modelVersionPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}ModelVersionPolicy" minOccurs="0"/>
  *           &lt;element name="descriptorPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}DescriptorPolicy" minOccurs="0"/>
  *           &lt;element name="processInstanceDetailsPolicy" type="{http://eclipse.org/stardust/ws/v2012a/api/query}ProcessInstanceDetailsPolicy" minOccurs="0"/>
@@ -61,68 +62,70 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "Policy", propOrder = {
-    "subsetPolicyOrModelVersionPolicyOrDescriptorPolicy"
+    "subsetPolicyOrSubFolderPolicyOrModelVersionPolicy"
 })
 public class PolicyXto {
 
     @XmlElements({
-        @XmlElement(name = "modelVersionPolicy", type = ModelVersionPolicyXto.class),
-        @XmlElement(name = "historicalEventPolicy", type = HistoricalEventPolicyXto.class),
-        @XmlElement(name = "criticalExecutionTimePolicy", type = CriticalExecutionTimePolicyXto.class),
-        @XmlElement(name = "userDetailsPolicy", type = UserDetailsPolicyXto.class),
-        @XmlElement(name = "casePolicy", type = CasePolicyXto.class),
         @XmlElement(name = "criticalCostPerExecutionPolicy", type = CriticalCostPerExecutionPolicyXto.class),
-        @XmlElement(name = "timeoutPolicy", type = TimeoutPolicyXto.class),
-        @XmlElement(name = "subsetPolicy", type = SubsetPolicyXto.class),
-        @XmlElement(name = "criticalProcessingTimePolicy", type = CriticalProcessingTimePolicyXto.class),
         @XmlElement(name = "processCumulationPolicy", type = ProcessCumulationPolicyXto.class),
         @XmlElement(name = "historicalStatesPolicy", type = HistoricalStatesPolicyXto.class),
-        @XmlElement(name = "performanceCriticalityPolicy", type = PerformanceCriticalityPolicyXto.class),
+        @XmlElement(name = "descriptorPolicy", type = DescriptorPolicyXto.class),
+        @XmlElement(name = "timeoutPolicy", type = TimeoutPolicyXto.class),
+        @XmlElement(name = "userDetailsPolicy", type = UserDetailsPolicyXto.class),
+        @XmlElement(name = "subFolderPolicy", type = SubFolderPolicyXto.class),
+        @XmlElement(name = "criticalProcessingTimePolicy", type = CriticalProcessingTimePolicyXto.class),
+        @XmlElement(name = "casePolicy", type = CasePolicyXto.class),
         @XmlElement(name = "processInstanceDetailsPolicy", type = ProcessInstanceDetailsPolicyXto.class),
-        @XmlElement(name = "descriptorPolicy", type = DescriptorPolicyXto.class)
+        @XmlElement(name = "modelVersionPolicy", type = ModelVersionPolicyXto.class),
+        @XmlElement(name = "criticalExecutionTimePolicy", type = CriticalExecutionTimePolicyXto.class),
+        @XmlElement(name = "subsetPolicy", type = SubsetPolicyXto.class),
+        @XmlElement(name = "performanceCriticalityPolicy", type = PerformanceCriticalityPolicyXto.class),
+        @XmlElement(name = "historicalEventPolicy", type = HistoricalEventPolicyXto.class)
     })
-    protected List<EvaluationPolicyXto> subsetPolicyOrModelVersionPolicyOrDescriptorPolicy;
+    protected List<EvaluationPolicyXto> subsetPolicyOrSubFolderPolicyOrModelVersionPolicy;
 
     /**
-     * Gets the value of the subsetPolicyOrModelVersionPolicyOrDescriptorPolicy property.
+     * Gets the value of the subsetPolicyOrSubFolderPolicyOrModelVersionPolicy property.
      * 
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the subsetPolicyOrModelVersionPolicyOrDescriptorPolicy property.
+     * This is why there is not a <CODE>set</CODE> method for the subsetPolicyOrSubFolderPolicyOrModelVersionPolicy property.
      * 
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
-     *    getSubsetPolicyOrModelVersionPolicyOrDescriptorPolicy().add(newItem);
+     *    getSubsetPolicyOrSubFolderPolicyOrModelVersionPolicy().add(newItem);
      * </pre>
      * 
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link ModelVersionPolicyXto }
-     * {@link HistoricalEventPolicyXto }
-     * {@link CriticalExecutionTimePolicyXto }
-     * {@link UserDetailsPolicyXto }
-     * {@link CasePolicyXto }
      * {@link CriticalCostPerExecutionPolicyXto }
-     * {@link TimeoutPolicyXto }
-     * {@link SubsetPolicyXto }
-     * {@link CriticalProcessingTimePolicyXto }
      * {@link ProcessCumulationPolicyXto }
      * {@link HistoricalStatesPolicyXto }
-     * {@link PerformanceCriticalityPolicyXto }
-     * {@link ProcessInstanceDetailsPolicyXto }
      * {@link DescriptorPolicyXto }
+     * {@link TimeoutPolicyXto }
+     * {@link UserDetailsPolicyXto }
+     * {@link SubFolderPolicyXto }
+     * {@link CriticalProcessingTimePolicyXto }
+     * {@link CasePolicyXto }
+     * {@link ProcessInstanceDetailsPolicyXto }
+     * {@link ModelVersionPolicyXto }
+     * {@link CriticalExecutionTimePolicyXto }
+     * {@link SubsetPolicyXto }
+     * {@link PerformanceCriticalityPolicyXto }
+     * {@link HistoricalEventPolicyXto }
      * 
      * 
      */
-    public List<EvaluationPolicyXto> getSubsetPolicyOrModelVersionPolicyOrDescriptorPolicy() {
-        if (subsetPolicyOrModelVersionPolicyOrDescriptorPolicy == null) {
-            subsetPolicyOrModelVersionPolicyOrDescriptorPolicy = new ArrayList<EvaluationPolicyXto>();
+    public List<EvaluationPolicyXto> getSubsetPolicyOrSubFolderPolicyOrModelVersionPolicy() {
+        if (subsetPolicyOrSubFolderPolicyOrModelVersionPolicy == null) {
+            subsetPolicyOrSubFolderPolicyOrModelVersionPolicy = new ArrayList<EvaluationPolicyXto>();
         }
-        return this.subsetPolicyOrModelVersionPolicyOrDescriptorPolicy;
+        return this.subsetPolicyOrSubFolderPolicyOrModelVersionPolicy;
     }
 
 }

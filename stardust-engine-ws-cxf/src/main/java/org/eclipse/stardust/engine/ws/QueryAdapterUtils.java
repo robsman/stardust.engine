@@ -216,7 +216,7 @@ public class QueryAdapterUtils
          if (null != queryXto.getPolicy())
          {
             query = clazz.cast(unmarshalPolicy(queryXto.getPolicy()
-                  .getSubsetPolicyOrModelVersionPolicyOrDescriptorPolicy(), query));
+                  .getSubsetPolicyOrSubFolderPolicyOrModelVersionPolicy(), query));
          }
       }
 
@@ -230,6 +230,10 @@ public class QueryAdapterUtils
          if (policy instanceof SubsetPolicyXto)
          {
             query.setPolicy(unmarshalSubsetPolicy((SubsetPolicyXto) policy));
+         }
+         else if (policy instanceof SubFolderPolicyXto)
+         {
+            query.setPolicy(unmarshalSubFolderPolicy((SubFolderPolicyXto) policy));
          }
          else if (policy instanceof ModelVersionPolicyXto)
          {
@@ -375,6 +379,15 @@ public class QueryAdapterUtils
          }
       }
       return ret;
+   }
+
+   private static EvaluationPolicy unmarshalSubFolderPolicy(SubFolderPolicyXto policy)
+   {
+      if (policy != null)
+      {
+         return new SubFolderPolicy(policy.getLimitSubFolder(), policy.isRecursive());
+      }
+      return null;
    }
 
    private static EvaluationPolicy unmarshalModelVersionPolicy(

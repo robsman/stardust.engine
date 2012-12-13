@@ -203,10 +203,19 @@ public class UserDetails implements User
             ? AuthorizationContext.create(UserService.class, method, types)
             : AuthorizationContext.create(new ClientPermission(name));
       ctx.setUser(user);
-      ctx.setModels(activeModels);
-      permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx)
-            ? PermissionState.Granted
-            : PermissionState.Denied);
+      if (activeModels.isEmpty())
+      {
+         permissions.put(ctx.getPermissionId(), ctx.isAdminOverride()
+               ? PermissionState.Granted
+               : PermissionState.Denied);
+      }
+      else
+      {
+         ctx.setModels(activeModels);
+         permissions.put(ctx.getPermissionId(), Authorization2.hasPermission(ctx)
+               ? PermissionState.Granted
+               : PermissionState.Denied);
+      }
    }
 
    private void fetchPreferences(IUser user)

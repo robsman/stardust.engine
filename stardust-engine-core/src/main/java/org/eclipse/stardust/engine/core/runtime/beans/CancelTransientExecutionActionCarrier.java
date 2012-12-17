@@ -28,7 +28,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientPr
 
 /**
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
 {

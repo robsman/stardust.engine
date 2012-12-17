@@ -88,7 +88,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
    @Override
    public String toString()
    {
-      return "Serial Activity Thread Carrier: root pi = " + rootPiOID;
+      return "Serial Activity Thread Carrier: root pi OID = " + rootPiOID;
    }
    
    private void ensureIsMapMessage(final Message message)
@@ -147,7 +147,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       @Override
       public String toString()
       {
-         return "Serial Activity Thread: root pi = " + rootPiOID;
+         return "Serial Activity Thread: root pi OID = " + rootPiOID;
       }
       
       private void doExecute()

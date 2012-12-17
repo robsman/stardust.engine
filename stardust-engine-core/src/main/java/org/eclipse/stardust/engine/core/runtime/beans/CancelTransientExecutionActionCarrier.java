@@ -78,7 +78,7 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
    @Override
    public String toString()
    {
-      return "Cancel Transient Execution Action Carrier: root pi = " + rootPiOID;
+      return "Cancel Transient Execution Action Carrier: root pi OID = " + rootPiOID;
    }
    
    private void ensureIsMapMessage(final Message message)
@@ -138,7 +138,7 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
       @Override
       public String toString()
       {
-         return "Cancel Transient Execution Action: root pi = " + rootPiOID;
+         return "Cancel Transient Execution Action: root pi OID = " + rootPiOID;
       }
       
       private void removeCancellationMarker()

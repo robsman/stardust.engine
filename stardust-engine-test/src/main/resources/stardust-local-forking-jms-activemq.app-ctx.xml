@@ -66,7 +66,7 @@
    </bean>
    
    <!-- Queue Listeners -->
-   <bean name="systemQueueListenerContainer" parent="AbstractCarnotMessageListenerContainer">
+   <bean name="systemQueueListenerContainer" parent="abstractCarnotMessageListenerContainer">
       <property name="destination" ref="jmsSystemQueue" />
       <property name="messageListener">
          <bean class="org.eclipse.stardust.engine.spring.integration.jms.threading.SystemQueueMessageHandler">
@@ -75,7 +75,7 @@
       </property>
       <property name="concurrentConsumers" value="5" />
    </bean>
-   <bean name="daemonQueueListenerContainer" parent="AbstractCarnotMessageListenerContainer">
+   <bean name="daemonQueueListenerContainer" parent="abstractCarnotMessageListenerContainer">
       <property name="destination" ref="jmsDaemonQueue" />
       <property name="messageListener">
          <bean class="org.eclipse.stardust.engine.spring.integration.jms.threading.DaemonQueueMessageHandler">
@@ -84,7 +84,7 @@
       </property>
       <property name="concurrentConsumers" value="5" />
    </bean>
-   <bean name="applicationQueueListenerContainer" parent="AbstractCarnotMessageListenerContainer">
+   <bean name="applicationQueueListenerContainer" parent="abstractCarnotMessageListenerContainer">
       <property name="destination" ref="jmsApplicationQueue" />
       <property name="messageListener">
          <bean class="org.eclipse.stardust.engine.spring.integration.jms.threading.ApplicationQueueMessageHandler">
@@ -93,7 +93,7 @@
       </property>
       <property name="concurrentConsumers" value="5" />
    </bean>
-   <bean abstract="true" name="AbstractCarnotMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+   <bean abstract="true" name="abstractCarnotMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
       <property name="autoStartup" value="true" />
       <property name="transactionManager" ref="jtaTxManager" />
       <property name="connectionFactory" ref="jmsConnectionFactory" />
@@ -121,7 +121,7 @@
    
    <!-- Queues -->
    <amq:queue id="jmsSystemQueue" physicalName="CarnotSystemQueue" />
-   <amq:queue id="jmsDaemonQueue" physicalName="CarnotDaemonQueue?consumer.prefetchSize=0" />
+   <amq:queue id="jmsDaemonQueue" physicalName="CarnotDaemonQueue" />
    <amq:queue id="jmsApplicationQueue" physicalName="CarnotApplicationQueue" />
    <amq:queue id="jmsTestQueue" physicalName="CarnotTestQueue" />
    

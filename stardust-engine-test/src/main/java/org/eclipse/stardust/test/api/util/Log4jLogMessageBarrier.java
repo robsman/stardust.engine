@@ -28,7 +28,7 @@ import org.eclipse.stardust.engine.api.runtime.TimeoutException;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class Log4jLogMessageBarrier extends WriterAppender
 {

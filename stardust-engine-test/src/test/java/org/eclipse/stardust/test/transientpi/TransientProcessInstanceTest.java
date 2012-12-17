@@ -14,6 +14,8 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -47,6 +49,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
@@ -1933,7 +1936,7 @@ public class TransientProcessInstanceTest
    public void testRecoveryForActivityThreadWithRetry() throws Exception
    {
       enableTxPropagation();
-      enableOneRetry();
+      enableOneSystemQueueConsumerRetry();
       enableTransientProcessesSupport();
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_RECOVERY, null, true);
@@ -1944,6 +1947,73 @@ public class TransientProcessInstanceTest
       sf.getAdministrationService().recoverProcessInstance(pi.getOID());
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the process and activity instance information persisted into the audit trail database is complete
+    * for <i>Audit Trail Persistence</i> {@link AuditTrailPersistence#DEFERRED}.
+    * </p>
+    */
+   @Test
+   public void testDeferredPersistentCompleteness() throws Exception
+   {
+      overrideTransientProcessesSupport(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      final ProcessInstance persistedPi = sf.getWorkflowService().getProcessInstance(pi.getOID());
+      assertPiInfoIsComplete(persistedPi, true);
+      
+      final ActivityInstances persistedAis = sf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
+      for (final ActivityInstance a : persistedAis)
+      {
+         assertAiInfoIsComplete(a);
+      }
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the process and activity instance information persisted into the audit trail database is complete
+    * for the case that <i>Audit Trail Persistence</i> needs to be switched from
+    * {@link AuditTrailPersistence#TRANSIENT} to {@link AuditTrailPersistence#IMMEDIATE}.
+    * </p>
+    */
+   @Test
+   public void testPersistentCompletenessWhenSwitchingFromTransientToImmediate() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED_FAIL, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+      
+      final ProcessInstance persistedPi = sf.getWorkflowService().getProcessInstance(pi.getOID());
+      assertPiInfoIsComplete(persistedPi, false);
+      
+      final ActivityInstances persistedAis = sf.getQueryService().getAllActivityInstances(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
+      for (final ActivityInstance a : persistedAis)
+      {
+         assertAiInfoIsComplete(a);
+      }
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -2082,7 +2152,7 @@ public class TransientProcessInstanceTest
       params.set(KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION, KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION_ALWAYS);
    }
    
-   private void enableOneRetry()
+   private void enableOneSystemQueueConsumerRetry()
    {
       final Parameters params = Parameters.instance();
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 2);
@@ -2112,6 +2182,45 @@ public class TransientProcessInstanceTest
    {
       final Object piBlobsHolder = Reflect.getFieldValue(TransientProcessInstanceStorage.instance(), PI_BLOBS_HOLDER_FIELD_NAME);
       return (Map<?, ?>) Reflect.getFieldValue(piBlobsHolder, ROOT_PI_TO_PI_BLOB_FIELD_NAME);
+   }
+   
+   private void assertPiInfoIsComplete(final ProcessInstance pi, final boolean considerTerminationTime)
+   {
+      assertThat(pi.getDetailsLevel(), notNullValue());
+      assertThat(pi.getDetailsOptions(), notNullValue());
+      assertThat(pi.getModelElementID(), notNullValue());
+      assertThat(pi.getModelElementOID(), not(0));
+      assertThat(pi.getModelOID(), not(0));
+      assertThat(pi.getOID(), not(0L));
+      assertThat(pi.getParentProcessInstanceOid(), not(0L));
+      assertThat(pi.getPriority(), not(-1));
+      assertThat(pi.getProcessID(), notNullValue());
+      assertThat(pi.getProcessName(), notNullValue());
+      assertThat(pi.getRootProcessInstanceOID(), not(0L));
+      assertThat(pi.getScopeProcessInstance(), notNullValue());
+      assertThat(pi.getScopeProcessInstanceOID(), not(0L));
+      assertThat(pi.getStartingUser(), notNullValue());
+      assertThat(pi.getStartTime(), notNullValue());
+      assertThat(pi.getState(), notNullValue());
+      if (considerTerminationTime)
+      {
+         assertThat(pi.getTerminationTime(), notNullValue());
+      }
+   }
+
+   private void assertAiInfoIsComplete(final ActivityInstance ai)
+   {
+      assertThat(ai.getActivity(), notNullValue());
+      assertThat(ai.getLastModificationTime(), notNullValue());
+      assertThat(ai.getModelElementID(), notNullValue());
+      assertThat(ai.getModelElementOID(), not(0));
+      assertThat(ai.getModelOID(), not(0));
+      assertThat(ai.getOID(), not(0L));
+      assertThat(ai.getProcessDefinitionId(), notNullValue());
+      assertThat(ai.getProcessInstance(), notNullValue());
+      assertThat(ai.getProcessInstanceOID(), not(0L));
+      assertThat(ai.getStartTime(), notNullValue());
+      assertThat(ai.getState(), notNullValue());
    }
    
    /**

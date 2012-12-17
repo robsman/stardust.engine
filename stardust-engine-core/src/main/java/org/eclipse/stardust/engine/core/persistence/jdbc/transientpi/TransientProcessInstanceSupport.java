@@ -56,6 +56,8 @@ public class TransientProcessInstanceSupport
    
    private boolean allPisAreCompleted = false;
    
+   private boolean cancelTransientExecution = false;
+   
    private Set<Long> rootPiOids = newHashSet();
    
    private final Set<PersistentKey> persistentKeysToBeInserted;
@@ -97,6 +99,7 @@ public class TransientProcessInstanceSupport
       if ( !isCurrentSessionTransient())
       {
          resetTransientPiProperty(pis);
+         cancelTransientExecution = true;
          return;
       }
       
@@ -131,16 +134,9 @@ public class TransientProcessInstanceSupport
       }
    }
    
-   public void writeToBlobOrDiscard(final List<Persistent> persistentsToBeInserted, final BlobBuilder blobBuilder, final TypeDescriptor typeDesc)
+   public void writeToBlob(final List<Persistent> persistentsToBeInserted, final BlobBuilder blobBuilder, final TypeDescriptor typeDesc)
    {
       assertEnabled();
-      
-      if (areAllPisCompleted() && !isDeferredPersist())
-      {
-         /* all process instances are completed: do not write anything to the db */
-         /* no need to close persistence controllers: will be done later         */
-         return;
-      }
       
       /* write persistents to blob */
       ProcessBlobWriter.writeInstances(blobBuilder, typeDesc, persistentsToBeInserted);
@@ -214,17 +210,18 @@ public class TransientProcessInstanceSupport
       return allPisAreCompleted;
    }
    
+   public boolean isTransientExecutionCancelled()
+   {
+      return cancelTransientExecution;
+   }
+   
    public boolean persistentsNeedToBeWrittenToBlob()
    {
-      if ( !isCurrentSessionTransient())
-      {
-         return false;
-      }
+      final boolean transientExecutionIntermediateState = isCurrentSessionTransient() && !areAllPisCompleted();
+      final boolean deferredPersist = isDeferredPersist();
+      final boolean cancelledTransientExecution = isTransientExecutionCancelled();
       
-      final boolean needForWriteToInMemStorage = !areAllPisCompleted();
-      final boolean needForDeferredPersist = isDeferredPersist();
-      
-      return needForWriteToInMemStorage || needForDeferredPersist;
+      return transientExecutionIntermediateState || deferredPersist || cancelledTransientExecution;
    }
    
    public static void loadProcessInstanceGraphIfExistent(final long rootPiOid, final Session session)

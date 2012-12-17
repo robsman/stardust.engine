@@ -168,6 +168,16 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     * the ID of the process definition that contains an activity waiting for some time
     */
    /* package-private */ static final String PROCESS_DEF_ID_WAITING_PROCESS = "WaitingProcess";
+
+   /**
+    * the ID of the process definition containing a pull event binding
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_PULL_EVENT = "PullEvent";
+   
+   /**
+    * the ID of the process definition used for recovery testing
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_RECOVERY = "Recovery";
    
    
    /**
@@ -175,4 +185,9 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     * the non-transient route should be taken
     */
    /* package-private */ static final String DATA_ID_TRANSIENT_ROUTE = "TransientRoute";
+   
+   /**
+    * the out data path for the primitive data 'Fail'
+    */
+   /* package-private */ static final String OUT_DATA_PATH_FAIL = "OutDataPathFail";
 }

@@ -41,6 +41,7 @@ import javax.jms.Session;
 import javax.sql.DataSource;
 import javax.transaction.SystemException;
 
+import org.apache.log4j.Level;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -52,6 +53,7 @@ import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -62,6 +64,7 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMod
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.JmsConstants;
+import org.eclipse.stardust.test.api.util.Log4jLogMessageBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.api.util.WaitTimeout;
@@ -1857,6 +1860,96 @@ public class TransientProcessInstanceTest
       testTransientProcessSplitSplitScenario();
    }
    
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether the engine complains via a log message that pull event bindings for transient process instances
+    * cannot be processed and will be ignored. 
+    * </p>
+    */
+   @Test
+   public void testPullEventsAreOmitted() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.WARN);
+      barrier.registerWithLog4j();
+
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_PULL_EVENT, null, true);
+      
+      barrier.waitForLogMessage("Event binding .* applies to a transient process instance .*", new WaitTimeout(5, TimeUnit.SECONDS));
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether transient process instances whose processing failed are left in a state that
+    * allows for running a recovery.
+    * </p>
+    */
+   @Test
+   public void testRecovery() throws Exception
+   {
+      enableTxPropagation();
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_RECOVERY, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+      
+      sf.getWorkflowService().setOutDataPath(pi.getOID(), OUT_DATA_PATH_FAIL, Boolean.FALSE);
+      sf.getAdministrationService().recoverProcessInstance(pi.getOID());
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether transient process instances whose processing failed are left in a state that
+    * allows for running a recovery. This test case especially tests whether that holds true for
+    * activity threads that are retriggered multiple times (see {@link MultipleTryInterceptor}.
+    * </p>
+    */
+   @Test
+   public void testRecoveryForActivityThreadWithRetry() throws Exception
+   {
+      enableTxPropagation();
+      enableOneRetry();
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_RECOVERY, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
+      
+      sf.getWorkflowService().setOutDataPath(pi.getOID(), OUT_DATA_PATH_FAIL, Boolean.FALSE);
+      sf.getAdministrationService().recoverProcessInstance(pi.getOID());
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
    private boolean hasEntryInDbForPi(final long oid) throws SQLException
    {
       final DataSource ds = testClassSetup.dataSource();
@@ -1981,6 +2074,18 @@ public class TransientProcessInstanceTest
    {
       final Parameters params = Parameters.instance();
       params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, false);
+   }
+   
+   private void enableTxPropagation()
+   {
+      final Parameters params = Parameters.instance();
+      params.set(KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION, KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION_ALWAYS);
+   }
+   
+   private void enableOneRetry()
+   {
+      final Parameters params = Parameters.instance();
+      params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 2);
    }
    
    private void dropTransientProcessInstanceStorage()

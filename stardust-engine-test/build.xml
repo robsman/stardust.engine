@@ -55,6 +55,7 @@
       
       <!-- Execute the test suites -->
       <execute-all-test-suites />
+      <print-summary />
    </target>
    
    <!-- dependency-report -->
@@ -159,7 +160,7 @@
       
       <sequential>
          <echo message="Executing the '@{name}' test suite ..." />
-         <junit fork="yes" maxmemory="512m" haltonfailure="off" haltonerror="off" printsummary="on">
+         <junit fork="yes" maxmemory="512m" haltonfailure="off" haltonerror="off" printsummary="on" failureproperty="test.failure">
             <test name="@{class}" todir="${build.test-report.dir}" />
             <formatter type="xml" />
             <classpath refid="junit.rt.classpath" />
@@ -168,4 +169,20 @@
          <echo message="${line.separator}" />
       </sequential>
    </macrodef>
+   
+   <!-- print-summary (macro) -->
+   <macrodef name="print-summary">
+      <sequential>
+         <!-- odd means of doing a conditional console output with standard ant -->
+         <antcall target="print-success-if-appropriate" inheritall="true" />
+         <antcall target="print-failure-if-appropriate" inheritall="true" />
+      </sequential>
+   </macrodef>
+   
+   <target name="print-success-if-appropriate" unless="test.failure">
+      <echo message="All tests passed without any failures or errors." />
+   </target>
+   <target name="print-failure-if-appropriate" if="test.failure">
+      <echo message="At least one test case failed." level="error" />
+   </target>
 </project>

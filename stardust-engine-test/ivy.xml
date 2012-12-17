@@ -41,6 +41,7 @@
    <dependencies>
       <!-- 'compile' configuration -->
       <dependency org="com.h2database" name="h2" rev="1.3.164" conf="compile->default" />
+      <dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="compile->logging-log4j-module-compile" />
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="compile->carnot-engine-compile" transitive="false" />
       <dependency org="org.eclipse.stardust.engine" name="carnot-spring" rev="${ipp.version.full}" conf="compile->carnot-spring-compile" />
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="compile->jms-api-module-compile" />

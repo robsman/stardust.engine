@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -132,6 +133,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          catch (final Exception e)
          {
             ClusterSafeObjectProviderHolder.OBJ_PROVIDER.exception(e);
+            scheduleCancellationOfTransientProcessing();
             throw new InternalException(e);
          }
          finally
@@ -151,7 +153,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       private void doExecute()
       {
          activityThreadMap = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SERIAL_ACTIVITY_THREAD_MAP_ID);
-         final Queue<SerialActivityThreadData> beforeExecutionQueue = retrieveQueue();
+         final Queue<SerialActivityThreadData> beforeExecutionQueue = retrieveQueueConsideringCancellationOfTransientExecution();
          loadProcessInstanceGraphIfExistent();
          final ActivityThread activityThread = initActivityThread(beforeExecutionQueue);
          
@@ -165,7 +167,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          {
             activityThread.run();
       
-            final Queue<SerialActivityThreadData> afterExecutionQueue = retrieveQueue();   
+            final Queue<SerialActivityThreadData> afterExecutionQueue = activityThreadMap.get(rootPiOID);   
             if (afterExecutionQueue.peek() != null)
             {
                scheduleNextSerialActivityThreadWorker();
@@ -177,9 +179,24 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          }
       }
       
-      private <T> Queue<T> retrieveQueue()
+      private <T> Queue<T> retrieveQueueConsideringCancellationOfTransientExecution()
       {
-         return activityThreadMap.get(rootPiOID);
+         if (hasTransientExecutionBeenCancelled())
+         {
+            /* transient process execution has been cancelled */
+            throw new IllegalStateException("Transient process instance execution has already been cancelled.");
+         }
+         
+         final Queue<T> result = activityThreadMap.get(rootPiOID);
+         return result;
+      }
+      
+      private boolean hasTransientExecutionBeenCancelled()
+      {
+         final boolean markedForCancellation = activityThreadMap.containsKey(-rootPiOID);
+         final boolean cancelled = activityThreadMap.get(rootPiOID) == null;
+         
+         return markedForCancellation || cancelled;
       }
       
       private void loadProcessInstanceGraphIfExistent()
@@ -223,10 +240,10 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
             activityThreadCarrierSet.add(data.toActivityThreadCarrier());
          }
          
-         fork(new ForkAction()
+         doWithForkingService(new ForkingServiceAction()
          {
             @Override
-            public void fork(final ForkingService forkingService)
+            public void doWithForkingService(final ForkingService forkingService)
             {
                for (final ActivityThreadCarrier atc : activityThreadCarrierSet)
                {
@@ -249,24 +266,43 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          final SerialActivityThreadWorkerCarrier carrier = new SerialActivityThreadWorkerCarrier();
          carrier.setRootProcessInstanceOid(rootPiOID);
          
-         fork(new ForkAction()
+         doWithForkingService(new ForkingServiceAction()
          {
             @Override
-            public void fork(final ForkingService forkingService)
+            public void doWithForkingService(final ForkingService forkingService)
             {
                forkingService.fork(carrier, true);
             }
          });
       }
       
-      private void fork(final ForkAction action)
+      private void scheduleCancellationOfTransientProcessing()
+      {
+         if (hasTransientExecutionBeenCancelled())
+         {
+            /* nothing to do: already cancelled */
+            return;
+         }
+         
+         doWithForkingService(new ForkingServiceAction()
+         {
+            @Override
+            public void doWithForkingService(final ForkingService forkingService)
+            {
+               final IsolatedCancellationAction action = new IsolatedCancellationAction(SerialActivityThreadRunner.this);
+               forkingService.isolate(action);
+            }
+         });
+      }
+      
+      private void doWithForkingService(final ForkingServiceAction action)
       {
          final ForkingServiceFactory fsFactory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
          ForkingService forkingService = null;
          try
          {
             forkingService = fsFactory.get();
-            action.fork(forkingService);
+            action.doWithForkingService(forkingService);
          }
          finally
          {
@@ -274,9 +310,40 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          }         
       }
       
-      private static interface ForkAction
+      private static interface ForkingServiceAction
       {
-         void fork(final ForkingService forkingService);
+         void doWithForkingService(final ForkingService forkingService);
+      }
+      
+      private static final class IsolatedCancellationAction implements Action<Void>
+      {
+         final SerialActivityThreadRunner obj;
+         
+         public IsolatedCancellationAction(final SerialActivityThreadRunner obj)
+         {
+            this.obj = obj;
+         }
+         
+         @Override
+         public Void execute()
+         {
+            /* first mark the root process instance to be cancelled ... */
+            obj.activityThreadMap.put(-obj.rootPiOID, new LinkedList<SerialActivityThreadData>());
+            
+            /* ... then schedule a new thread swapping the transient process instance to the audit trail db */
+            obj.doWithForkingService(new ForkingServiceAction()
+            {
+               @Override
+               public void doWithForkingService(final ForkingService forkingService)
+               {
+                  final CancelTransientExecutionActionCarrier carrier = new CancelTransientExecutionActionCarrier();
+                  carrier.setRootProcessInstanceOid(obj.rootPiOID);
+                  forkingService.fork(carrier, true);
+               }
+            });
+            
+            return null;
+         }
       }
    }  
 }

@@ -1733,13 +1733,13 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
                transientPiSupport.collectPersistentKeysToBeInserted(persistentToBeInserted);
                
-               if (transientPiSupport.isCurrentSessionTransient())
+               if (transientPiSupport.persistentsNeedToBeWrittenToBlob())
                {
-                  transientPiSupport.writeToBlobOrDiscard(persistentToBeInserted, blobBuilder, dmlManager.getTypeDescriptor());
-                  
-                  /* do not write the current entry to the database, but proceed with the next one */
-                  continue;
+                  transientPiSupport.writeToBlob(persistentToBeInserted, blobBuilder, dmlManager.getTypeDescriptor());
                }
+               
+               /* do not write the current entry to the database, but proceed with the next one */
+               continue;
             }
 
             List<Persistent> persistentAlreadyExists = null;
@@ -1932,16 +1932,14 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                   trace.debug("Persisted processes to BLOB.");
                }
 
-               if (transientPiSupport.isCurrentSessionTransient())
+               if (transientPiSupport.isCurrentSessionTransient() && !transientPiSupport.areAllPisCompleted())
                {
-                  if ( !transientPiSupport.areAllPisCompleted())
-                  {
-                     transientPiSupport.writeToInMemStorage(blobBuilder);
-                  }
-                  else if (transientPiSupport.isDeferredPersist())
-                  {
-                     writeIntoAuditTrail(blobBuilder);
-                  }
+                  /* as long as the PIs are not completed 'transient' and 'deferred' are handled equally */
+                  transientPiSupport.writeToInMemStorage(blobBuilder);
+               }
+               else if (transientPiSupport.isDeferredPersist() || transientPiSupport.isTransientExecutionCancelled())
+               {
+                  writeIntoAuditTrail(blobBuilder);
                }
                else if (blobBuilder instanceof ByteArrayBlobBuilder)
                {

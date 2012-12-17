@@ -55,7 +55,6 @@
       
       <!-- Execute the test suites -->
       <execute-all-test-suites />
-      <print-summary />
    </target>
    
    <!-- dependency-report -->
@@ -150,6 +149,8 @@
          <execute-test-suite name="Quality Control" class="org.eclipse.stardust.test.qc.QualityControlTestSuite" />
          <execute-test-suite name="Spawn Process" class="org.eclipse.stardust.test.spawn.SpawnProcessTestSuite" />
          <execute-test-suite name="Transient Process Instance" class="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTestSuite" />
+         
+         <print-summary/>
       </sequential>
    </macrodef>
    

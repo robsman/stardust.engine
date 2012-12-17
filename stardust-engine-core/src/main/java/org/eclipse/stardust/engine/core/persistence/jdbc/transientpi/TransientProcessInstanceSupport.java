@@ -48,7 +48,7 @@ public class TransientProcessInstanceSupport
    
    private final boolean enabled;
    
-   private boolean transientPis = false;
+   private boolean pisAreTransientExecutionCandidates = false;
    
    private boolean deferredPersist = false;
    
@@ -89,8 +89,8 @@ public class TransientProcessInstanceSupport
    {
       assertEnabled();
       
-      determineWhetherPisAreTransient(pis);
-      if ( !arePisTransient())
+      determineWhetherPisAreTransientExecutionCandidates(pis);
+      if ( !arePisTransientExecutionCandidates())
       {
          return;
       }
@@ -188,9 +188,9 @@ public class TransientProcessInstanceSupport
       TransientProcessInstanceStorage.instance().insertOrUpdate(persistentKeysToBeInserted, piBlob, rootPiOid);
    }
    
-   public boolean arePisTransient()
+   public boolean arePisTransientExecutionCandidates()
    {
-      return transientPis;
+      return pisAreTransientExecutionCandidates;
    }
    
    public boolean isDeferredPersist()
@@ -281,11 +281,11 @@ public class TransientProcessInstanceSupport
       return result;
    }
    
-   private void determineWhetherPisAreTransient(final Map<Object, PersistenceController> pis)
+   private void determineWhetherPisAreTransientExecutionCandidates(final Map<Object, PersistenceController> pis)
    {
-      transientPis = (pis != null) && !pis.isEmpty();
+      pisAreTransientExecutionCandidates = (pis != null) && !pis.isEmpty();
       
-      if ( !arePisTransient())
+      if ( !arePisTransientExecutionCandidates())
       {
          return;
       }
@@ -294,12 +294,12 @@ public class TransientProcessInstanceSupport
       {
          if ( !pc.isCreated())
          {
-            transientPis = false;
+            pisAreTransientExecutionCandidates = false;
             break;
          }
          
          final IProcessInstance pi = (IProcessInstance) pc.getPersistent();
-         transientPis &= ProcessInstanceUtils.isTransientExecutionScenario(pi);
+         pisAreTransientExecutionCandidates &= ProcessInstanceUtils.isTransientExecutionScenario(pi);
       }
    }
       

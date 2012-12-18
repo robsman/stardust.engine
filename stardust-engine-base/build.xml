@@ -180,8 +180,8 @@
    </target>
 
    <target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
-      <ivy:publish srcivypattern="${project.dir}/base-interface-ivy.xml" conf="*" resolver="buildenv" merge="false"
-         organisation="com.infinity.bpm" module="base-artifacts" overwrite="true" haltonmissing="true"/>
+      <ivy:resolve file="${project.dir}/base-interface-ivy.xml" />
+      <ivy-publish-local ivyFile="${project.dir}/base-interface-ivy.xml" artifactId="base-artifacts" artifactDir="${build.lib}" publishPom="false" />
       
       <ivy:resolve file="${project.dir}/ivy.xml" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}" 
@@ -193,13 +193,14 @@
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="base-module" />
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="logging-log4j-module" />
       
-   	<ivy:publish resolver="buildenv"
-   	   conf="module-pom" publishivy="true"
-   	   artifactspattern="${build.lib}/[artifact](-[classifier]).[ext]"
-   	   srcivypattern="module-ivy.xml"
-   	   overwrite="true" haltonmissing="true" />
-      
-      <ivy:retrieve file="ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]" 
+      <ivy-publish-local ivyFile="${project.dir}/module-ivy.xml" artifactId="stardust-engine-base-module" artifactDir="${build.lib}" publishPom="false">
+         <additional-artifacts>
+            <artifacts pattern="${build.lib}/base-module.pom" />
+            <artifacts pattern="${build.lib}/logging-log4j-module.pom" />
+         </additional-artifacts>
+      </ivy-publish-local>
+
+      <ivy:retrieve file="${build.lib}/carnot-base.ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]" 
          conf="stardust-engine-base-compile, logging-log4j-provider-compile" module="stardust-engine-base" />
    </target>
 

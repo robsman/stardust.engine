@@ -829,28 +829,32 @@ public class ProcessInstanceUtils
    
    public static void scheduleSerialActivityThreadWorkerIfNecessary(final IProcessInstance pi)
    {
-      final boolean piNotCompleted = pi.getState() != ProcessInstanceState.Completed;
-      if (piNotCompleted)
+      final boolean piCompleted = pi.getState() == ProcessInstanceState.Completed;
+      if (piCompleted)
       {
-         final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadWorkerCarrier.SERIAL_ACTIVITY_THREAD_MAP_ID);
-         final boolean isActivityThreadAvailable = map.containsKey(pi.getRootProcessInstanceOID());
-         if (isActivityThreadAvailable)
-         {
-            final SerialActivityThreadWorkerCarrier carrier = new SerialActivityThreadWorkerCarrier();
-            carrier.setRootProcessInstanceOid(pi.getRootProcessInstanceOID());
-            
-            final ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
-            ForkingService service = null;
-            try
-            {
-               service = factory.get();
-               service.fork(carrier, true);
-            }
-            finally
-            {
-               factory.release(service);
-            }
-         }
+         return;
+      }
+      
+      final Map<Long, SerialActivityThreadData> map = ClusterSafeObjectProviderHolder.OBJ_PROVIDER.clusterSafeMap(SerialActivityThreadWorkerCarrier.SERIAL_ACTIVITY_THREAD_MAP_ID);
+      final boolean isActivityThreadAvailable = map.containsKey(pi.getRootProcessInstanceOID());
+      if ( !isActivityThreadAvailable)
+      {
+         return;
+      }
+      
+      final SerialActivityThreadWorkerCarrier carrier = new SerialActivityThreadWorkerCarrier();
+      carrier.setRootProcessInstanceOid(pi.getRootProcessInstanceOID());
+      
+      final ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
+      ForkingService service = null;
+      try
+      {
+         service = factory.get();
+         service.fork(carrier, true);
+      }
+      finally
+      {
+         factory.release(service);
       }
    }
 }

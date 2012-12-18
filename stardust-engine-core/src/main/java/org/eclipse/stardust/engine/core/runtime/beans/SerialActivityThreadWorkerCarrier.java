@@ -46,6 +46,8 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
    
    private static final String ROOT_PROCESS_INSTANCE_OID_NAME = "RootProcessInstanceOID";
    
+   private static final Queue<SerialActivityThreadData> CANCELLATION_MARKER = new LinkedList<SerialActivityThreadData>();
+   
    private Long rootPiOID;
    
    public SerialActivityThreadWorkerCarrier()
@@ -335,7 +337,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          public Void execute()
          {
             /* first mark the root process instance to be cancelled ... */
-            obj.activityThreadMap.put(-obj.rootPiOID, new LinkedList<SerialActivityThreadData>());
+            obj.activityThreadMap.put(-obj.rootPiOID, CANCELLATION_MARKER);
             
             /* ... then schedule a new thread swapping the transient process instance to the audit trail db */
             obj.doWithForkingService(new ForkingServiceAction()

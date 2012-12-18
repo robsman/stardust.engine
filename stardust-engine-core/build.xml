@@ -71,6 +71,8 @@
             <include name="**/*_de.properties" />
             <include name="**/*_en.properties" />
             <include name="**/*_zh_CN.properties" />
+
+            <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.class"/>
          </fileset>
          <fileset dir="${project.res}">
             <include name="about.html" />
@@ -118,6 +120,8 @@
             <include name="**/*_de.properties" />
             <include name="**/*_en.properties" />
             <include name="**/*_zh_CN.properties" />
+
+            <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.class"/>
          </fileset>
          <fileset dir="${project.res}">
             <include name="about.html" />
@@ -130,12 +134,20 @@
 
    <target name="jar.src" depends="compile">
       <ipp:jar jarfile="${carnot.client.src-jar}" excludes="*.jar" duplicate="preserve" implementationTitle="Infinity Process Engine - Client Sources">
-         <fileset dir="${build.src.generated}" excludes="*.jar" />
-         <fileset dir="${build.src.static}" excludes="*.jar" />
+         <fileset dir="${build.src.generated}" excludes="*.jar" >
+            <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.*"/>
+         </fileset>
+         <fileset dir="${build.src.static}" excludes="*.jar" >
+            <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.*"/>
+         </fileset>
       </ipp:jar>
       <ipp:jar jarfile="${carnot.engine.src-jar}" excludes="*.jar" duplicate="preserve" implementationTitle="Infinity Process Engine - Runtime Sources">
-         <fileset dir="${build.src.generated}" excludes="*.jar" />
-         <fileset dir="${build.src.static}" excludes="*.jar" />
+         <fileset dir="${build.src.generated}" excludes="*.jar" >
+            <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.*"/>
+         </fileset>
+         <fileset dir="${build.src.static}" excludes="*.jar" >
+            <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.*"/>
+         </fileset>
       </ipp:jar>
       <ipp:jar jarfile="${carnot.emf.xsd.integration.src-jar}" excludes="*.jar" duplicate="preserve" implementationTitle="Infinity Process Engine - EMF XSD Integration Sources">
          <fileset dir="${build.src.generated}" excludes="*.jar">

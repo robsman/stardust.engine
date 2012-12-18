@@ -181,22 +181,20 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       
       private <T> Queue<T> retrieveQueueConsideringCancellationOfTransientExecution()
       {
-         if (hasTransientExecutionBeenCancelled())
+         if (activityThreadMap.containsKey(-rootPiOID))
          {
             /* transient process execution has been cancelled */
             throw new IllegalStateException("Transient process instance execution has already been cancelled.");
          }
          
          final Queue<T> result = activityThreadMap.get(rootPiOID);
-         return result;
-      }
-      
-      private boolean hasTransientExecutionBeenCancelled()
-      {
-         final boolean markedForCancellation = activityThreadMap.containsKey(-rootPiOID);
-         final boolean cancelled = activityThreadMap.get(rootPiOID) == null;
+         if (result == null)
+         {
+            /* transient process execution has been cancelled */
+            throw new IllegalStateException("Transient process instance execution has already been cancelled.");
+         }
          
-         return markedForCancellation || cancelled;
+         return result;
       }
       
       private void loadProcessInstanceGraphIfExistent()
@@ -293,6 +291,14 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
                forkingService.isolate(action);
             }
          });
+      }
+      
+      private boolean hasTransientExecutionBeenCancelled()
+      {
+         final boolean markedForCancellation = activityThreadMap.containsKey(-rootPiOID);
+         final boolean cancelled = activityThreadMap.get(rootPiOID) == null;
+         
+         return markedForCancellation || cancelled;
       }
       
       private void doWithForkingService(final ForkingServiceAction action)

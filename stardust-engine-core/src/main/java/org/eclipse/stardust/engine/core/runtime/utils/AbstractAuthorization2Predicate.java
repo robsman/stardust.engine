@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -550,12 +550,8 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
       ModelManager mm = getModelManager();
       IActivity activity = mm.findActivity(modelOid, activityRtOid);
       
-      IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
-      IProcessDefinition processDefinition = processInstance.getProcessDefinition();
-            
-      if (activity.hasEventHandlers(
-            PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
-      {      
+      if (activity.hasEventHandlers(PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
+      {
          for (int k = 0; k < activity.getEventHandlers().size(); ++k)
          {
             IEventHandler handler = (IEventHandler) activity.getEventHandlers().get(k);
@@ -573,8 +569,11 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                      excludeUserAction = classFromClassName.getName();
                   }
                   
-                  if(instanceName.equals(excludeUserAction))
+                  if (instanceName.equals(excludeUserAction))
                   {
+                     IProcessDefinition processDefinition = activity.getProcessDefinition();
+                     IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
+                     
                      Map<String, Object> attributes = action.getAllAttributes();
                      String dataId = (String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
                      String dataPath = (String) attributes

@@ -160,7 +160,7 @@ public class ActivityThread implements Runnable
          queue.add(data);
          
          /* explicitly override modified queue in cluster safe map */
-         /* in order to notify cluster safe map provider           */
+         /* since returned value may only be a clone               */
          map.put(rootPiOid, queue);
       }
       catch (final Exception e)

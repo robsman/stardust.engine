@@ -167,6 +167,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          {
             activityThread.run();
       
+            /* retrieve queue again: new activity threads may have been scheduled during activity thread execution */
             final Queue<SerialActivityThreadData> afterExecutionQueue = activityThreadMap.get(rootPiOID);   
             if (afterExecutionQueue.peek() != null)
             {
@@ -212,7 +213,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          }
          
          /* explicitly override modified queue in cluster safe map */
-         /* in order to notify cluster safe map provider           */
+         /* since returned value may only be a clone               */
          activityThreadMap.put(rootPiOID, queue);
          
          final ActivityThread result = createActivityThreadFor(data.piOID(), data.activityOID());

@@ -144,7 +144,7 @@ public class Log4jLogMessageBarrier extends WriterAppender
       }
       
       /* ... or do we have to wait for it? */
-      boolean found = this.latch.await(timeout.time(), timeout.unit());
+      boolean found = latch.await(timeout.time(), timeout.unit());
       deactivate();
       if ( !found)
       {
@@ -167,9 +167,9 @@ public class Log4jLogMessageBarrier extends WriterAppender
          throw new IllegalStateException("It's not allowed to wait for more than one log message at a time.");
       }
       
-      this.active = true;
       this.regex = Pattern.compile(regex);
       this.latch = new CountDownLatch(1);
+      this.active = true;
    }
    
    private synchronized void deactivate()

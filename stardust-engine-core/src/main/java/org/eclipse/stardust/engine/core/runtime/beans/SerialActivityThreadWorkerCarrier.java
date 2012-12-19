@@ -42,7 +42,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
 {
    private static final long serialVersionUID = 1308240032670965545L;
 
-   public static final String SERIAL_ACTIVITY_THREAD_MAP_ID = "SerialActivityThreadCarrierMap";
+   public static final String SERIAL_ACTIVITY_THREAD_MAP_ID = "stardust::serialActivityThreadMap";
    
    private static final String ROOT_PROCESS_INSTANCE_OID_NAME = "RootProcessInstanceOID";
    

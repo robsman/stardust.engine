@@ -29,9 +29,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
  */
 public class TransientProcessInstanceStorage
 {
-   private static final String PERSISTENT_TO_ROOT_PI_MAP_ID = "PersistentToRootProcessInstanceMapID";
+   private static final String PERSISTENT_TO_ROOT_PI_MAP_ID = "stardust::persistentToRootProcessInstanceMap";
    
-   private static final String ROOT_PI_TO_PI_BLOB_MAP_ID = "RootProcessInstanceToProcessInstanceBlobMapID";
+   private static final String ROOT_PI_TO_PI_BLOB_MAP_ID = "stardust::rootProcessInstanceToProcessInstanceBlobMap";
    
    private final ProcessInstanceBlobsHolder piBlobsHolder;
    

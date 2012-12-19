@@ -51,8 +51,8 @@ public class TransientProcessInstanceStorage
          throw new NullPointerException("Blob must not be null.");
       }
       
-      final InsertOrUpdateOperation insertOp = new InsertOrUpdateOperation(persistentKeys, blob, rootPiOid);
-      piBlobsHolder.accessPiBlobs(insertOp);
+      final InsertOrUpdateOperation insertOrUpdateOp = new InsertOrUpdateOperation(persistentKeys, blob, rootPiOid);
+      piBlobsHolder.accessPiBlobs(insertOrUpdateOp);
    }
 
    public void delete(final Set<PersistentKey> persistentKeys, final boolean purgePiGraph, final Set<Long> rootPiOids)

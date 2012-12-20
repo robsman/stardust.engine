@@ -195,14 +195,14 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          if (activityThreadMap.containsKey(-rootPiOID))
          {
             /* transient process execution has been cancelled */
-            throw new IllegalStateException("Transient process instance execution has already been cancelled.");
+            throw new IllegalStateException("Transient process instance execution has already been cancelled (root pi OID = " + rootPiOID + ").");
          }
          
          final Queue<T> result = activityThreadMap.get(rootPiOID);
          if (result == null)
          {
             /* transient process execution has been cancelled */
-            throw new IllegalStateException("Transient process instance execution has already been cancelled.");
+            throw new IllegalStateException("Transient process instance execution has already been cancelled (root pi OID = " + rootPiOID + ").");
          }
          
          return result;
@@ -222,8 +222,8 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
             throw new IllegalStateException("Activity Thread Queue must not be empty.");
          }
          
-         /* explicitly override modified queue in cluster safe map */
-         /* since returned value may only be a clone               */
+         /* explicitly override modified queue in cluster safe map               */
+         /* since returned value may only be a clone (e.g. in case of Hazelcast) */
          activityThreadMap.put(rootPiOID, queue);
          
          final ActivityThread result = createActivityThreadFor(data.piOID(), data.activityOID());

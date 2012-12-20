@@ -159,8 +159,8 @@ public class ActivityThread implements Runnable
          final SerialActivityThreadData data = new SerialActivityThreadData(pi.getOID(), activity.getOID());
          queue.add(data);
          
-         /* explicitly override modified queue in cluster safe map */
-         /* since returned value may only be a clone               */
+         /* explicitly override modified queue in cluster safe map               */
+         /* since returned value may only be a clone (e.g. in case of Hazelcast) */
          map.put(rootPiOid, queue);
       }
       catch (final Exception e)

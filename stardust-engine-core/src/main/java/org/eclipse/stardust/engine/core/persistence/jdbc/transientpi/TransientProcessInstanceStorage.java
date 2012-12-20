@@ -24,6 +24,10 @@ import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
 /**
+ * <p>
+ * TODO (nw) javadoc
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -127,6 +131,10 @@ public class TransientProcessInstanceStorage
    }
    
    /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    * 
     * @author Nicolas.Werlein
     * @version $Revision$
     */
@@ -180,6 +188,14 @@ public class TransientProcessInstanceStorage
       }
    }
    
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    * 
+    * @author Nicolas.Werlein
+    * @version $Revision$
+    */
    public static final class TransientProcessInstanceStorageException extends PublicException
    {
       private static final long serialVersionUID = 8860981344823291826L;
@@ -190,6 +206,11 @@ public class TransientProcessInstanceStorage
       }
    }
    
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */   
    /* package-private */ static class ProcessInstanceBlobsHolder
    {
       /* implicit link between persistents and process instance blob */
@@ -230,11 +251,21 @@ public class TransientProcessInstanceStorage
       }
    }
    
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */
    /* package-private */ static interface TxAwareClusterSafeOperation<T>
    {
       T execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob);
    }      
-   
+
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */
    /* package-private */ static final class InsertOrUpdateOperation implements TxAwareClusterSafeOperation<Void>
    {
       private final Set<PersistentKey> persistentKeys;
@@ -267,6 +298,11 @@ public class TransientProcessInstanceStorage
       }
    }
    
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */
    /* package-private */ static final class DeleteOperation implements TxAwareClusterSafeOperation<Void>
    {
       private final Set<PersistentKey> persistentKeys;
@@ -311,6 +347,11 @@ public class TransientProcessInstanceStorage
       }
    }
    
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */
    /* package-private */ static final class SelectOperation implements TxAwareClusterSafeOperation<ProcessInstanceGraphBlob>
    {
       private final PersistentKey key;
@@ -332,6 +373,11 @@ public class TransientProcessInstanceStorage
       }
    }
    
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */
    /* package-private */ static final class SelectForRootPiOidOperation implements TxAwareClusterSafeOperation<ProcessInstanceGraphBlob>
    {
       private final long rootPiOid;
@@ -349,8 +395,10 @@ public class TransientProcessInstanceStorage
    }
    
    /**
-    * this class' only purpose is to ensure both safe publication and lazy initialization
-    * (see 'lazy initialization class holder' idiom)
+    * <p>
+    * This class' only purpose is to ensure both safe publication and lazy initialization
+    * (see 'lazy initialization class holder' idiom).
+    * </p>
     */
    private static final class TransientProcessInstanceStorageHolder
    {

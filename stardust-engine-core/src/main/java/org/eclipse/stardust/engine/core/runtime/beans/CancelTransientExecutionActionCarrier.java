@@ -27,6 +27,10 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafe
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceSupport;
 
 /**
+ * <p>
+ * TODO (nw) javadoc
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -97,6 +101,11 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
       }
    }
    
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */
    private static final class CancelTransientExecutionAction extends SecurityContextAwareAction<Void>
    {
       private final long rootPiOID;

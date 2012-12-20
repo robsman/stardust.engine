@@ -20,8 +20,13 @@ import org.springframework.context.ApplicationContext;
 
 /**
  * <p>
+ * The class responsible for retrieving the <i>Hazelcast JCA Connection Factory</i>
+ * from the <i>Spring Application Context</i>.
+ * </p>
+ * 
+ * <p>
  * This class assumes that there's a bean with id <code>localHazelcastConnectionFactory</code>
- * representing the <i>Hazelcast</i> connection factory in the <i>Spring</i> application context.
+ * representing the <i>Hazelcast JCA Connection Factory</i> in the <i>Spring Application Context</i>.
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -31,6 +36,9 @@ public class SpringAppContextHazelcastJcaConnectionFactoryProvider implements Ha
 {
    private static final String HZ_CF_BEAN_ID = "localHazelcastConnectionFactory";
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider#connectionFactory()
+    */
    @Override
    public ConnectionFactory connectionFactory()
    {
@@ -38,8 +46,10 @@ public class SpringAppContextHazelcastJcaConnectionFactoryProvider implements Ha
    }
    
    /**
-    * this class' only purpose is to ensure both safe publication and lazy initialization
-    * (see 'lazy initialization class holder' idiom)
+    * <p>
+    * This class' only purpose is to ensure both safe publication and lazy initialization
+    * (see 'lazy initialization class holder' idiom).
+    * </p>
     */
    private static final class ConnectionFactoryHolder
    {

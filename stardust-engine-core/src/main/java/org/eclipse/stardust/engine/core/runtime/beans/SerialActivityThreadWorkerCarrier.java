@@ -35,6 +35,10 @@ import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessIns
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 /**
+ * <p>
+ * TODO (nw) javadoc
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -109,7 +113,11 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       }
    }
 
-   
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */
    private static final class SerialActivityThreadRunner extends SecurityContextAwareAction<Void>
    {
       private final long rootPiOID;

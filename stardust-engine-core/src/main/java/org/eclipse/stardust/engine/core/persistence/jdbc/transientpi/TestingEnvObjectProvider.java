@@ -19,7 +19,8 @@ import com.hazelcast.core.Transaction;
 
 /**
  * <p>
- * For testing purposes only.
+ * A {@link ClusterSafeObjectProvider} implementaion for testing purposes only
+ * (simulates a transaction aware object access).
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -27,24 +28,36 @@ import com.hazelcast.core.Transaction;
  */
 public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
 {
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#clusterSafeMap(java.lang.String)
+    */
    @Override
    public <K, V> Map<K, V> clusterSafeMap(final String mapId)
    {
       return Hazelcast.getMap(mapId);
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#beforeAccess()
+    */
    @Override
    public void beforeAccess()
    {
       Hazelcast.getTransaction().begin();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#exception(java.lang.Exception)
+    */
    @Override
    public void exception(final Exception ignored)
    {
       Hazelcast.getTransaction().rollback();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#afterAccess()
+    */
    @Override
    public void afterAccess()
    {

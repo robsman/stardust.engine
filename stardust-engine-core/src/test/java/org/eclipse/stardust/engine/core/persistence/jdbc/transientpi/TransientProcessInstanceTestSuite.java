@@ -15,6 +15,10 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
+ * <p>
+ * Test suite for tests wrt. <i>Transient Process Instances</i>.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */

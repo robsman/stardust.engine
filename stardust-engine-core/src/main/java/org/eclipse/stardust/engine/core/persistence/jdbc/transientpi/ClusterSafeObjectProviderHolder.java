@@ -17,7 +17,7 @@ import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
 /**
  * <p>
  * This class' only purpose is to ensure both safe publication and lazy initialization
- * (see 'lazy initialization class holder' idiom)
+ * (see 'lazy initialization class holder' idiom).
  * </p>
  * 
  * @author Nicolas.Werlein

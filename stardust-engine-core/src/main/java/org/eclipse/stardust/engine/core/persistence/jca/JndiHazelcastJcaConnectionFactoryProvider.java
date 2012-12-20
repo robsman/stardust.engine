@@ -19,6 +19,16 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider;
 
 /**
+ * <p>
+ * The class responsible for retrieving the <i>Hazelcast JCA Connection Factory</i>
+ * from the <i>JNDI</i>.
+ * </p>
+ * 
+ * <p>
+ * If not specified otherwise (see property <code>Infinity.Engine.Caching.Hazelcast.ConnectionFactoryJndiName</code>)
+ * it assumes that it's bound to <code>java:/HazelcastCF</code>.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -28,6 +38,9 @@ public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaCo
    
    public static final String HAZELCAST_CF_DEFAULT_JNDI_NAME = "HazelcastCF";
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider#connectionFactory()
+    */
    @Override
    public ConnectionFactory connectionFactory()
    {
@@ -35,8 +48,10 @@ public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaCo
    }
    
    /**
-    * this class' only purpose is to ensure both safe publication and lazy initialization
-    * (see 'lazy initialization class holder' idiom)
+    * <p>
+    * This class' only purpose is to ensure both safe publication and lazy initialization
+    * (see 'lazy initialization class holder' idiom).
+    * </p>
     */
    private static final class ConnectionFactoryHolder
    {

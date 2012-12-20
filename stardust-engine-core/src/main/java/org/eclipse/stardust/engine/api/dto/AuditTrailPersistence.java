@@ -11,50 +11,56 @@
 package org.eclipse.stardust.engine.api.dto;
 
 /**
+ * <p>
+ * Encapsulates the <i>Audit Trail Persistence</i> mode the
+ * engine is running in. 
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public enum AuditTrailPersistence {
+   
    /**
     * <p>
-    * If it's a sub process instance it inherits the behavior
-    * from the parent process; if it's a parent process it falls
-    * back to the standard behavior (see {@link #IMMEDIATE})
+    * The <i>Audit Trail Persistence</i> mode if nothing is defined explicitly:
+    * meaning that it falls back to the standard behavior (see {@link #IMMEDIATE}).
     * </p>
     */
    ENGINE_DEFAULT,
    
    /**
     * <p>
-    * The process instance will never be written to the Audit Trail
+    * Running in this mode the process instance will never be written to the Audit Trail.
     * </p>
     */
    TRANSIENT,
    
    /**
     * <p>
-    * The process instance will be written to the Audit Trail
-    * only after the process instance has been completed
-    * </p>
-    * 
-    * <p>
-    * Overrides {@link #TRANSIENT}
+    * Running in this mode the process instance will be written to the Audit Trail
+    * only after the process instance has been completed.
     * </p>
     */
    DEFERRED,
    
    /**
     * <p>
-    * The process instance will be written to the Audit Trail
-    * after every single transaction (standard behavior)
-    * </p>
-    * 
-    * <p>
-    * Overrides {@link #DEFERRED} and {@link #TRANSIENT}
+    * Running in this mode the process instance will be written to the Audit Trail
+    * after every single transaction (standard behavior).
     * </p>
     */
    IMMEDIATE;
    
+   /**
+    * <p>
+    * Determines whether the given <i>Audit Trail Persistence</i> mode mandates transient
+    * process instance execution or not.
+    * </p>
+    * 
+    * @param auditTrailPersistence the audit trail persistence to be checked
+    * @return whether the execution is transient or not
+    */
    public static boolean isTransientExecution(final AuditTrailPersistence auditTrailPersistence)
    {
       final boolean isTransient = auditTrailPersistence == AuditTrailPersistence.TRANSIENT;

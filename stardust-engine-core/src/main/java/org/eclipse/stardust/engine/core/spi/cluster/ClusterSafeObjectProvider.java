@@ -17,6 +17,10 @@ import org.eclipse.stardust.common.annotations.Status;
 import org.eclipse.stardust.common.annotations.UseRestriction;
 
 /**
+ * <p>
+ * TODO javadoc
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */

@@ -37,6 +37,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
+ * <p>
+ * TODO (nw) javadoc
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */

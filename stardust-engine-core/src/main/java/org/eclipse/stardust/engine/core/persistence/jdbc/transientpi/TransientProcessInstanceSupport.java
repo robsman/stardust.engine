@@ -39,6 +39,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 
 /**
+ * <p>
+ * TODO (nw) javadoc
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -476,6 +480,11 @@ public class TransientProcessInstanceSupport
       }
    }
    
+   /**
+    * <p>
+    * TODO (nw) javadoc
+    * </p>
+    */
    private static final class ProcessBlobReader
    {
       private final Session session;

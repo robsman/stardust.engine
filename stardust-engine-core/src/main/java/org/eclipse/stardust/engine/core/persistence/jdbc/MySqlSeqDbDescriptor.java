@@ -13,6 +13,11 @@ package org.eclipse.stardust.engine.core.persistence.jdbc;
 import org.eclipse.stardust.common.StringUtils;
 
 /**
+ * <p>
+ * A {@link DBDescriptor} for <i>MySQL</i> databases in order to allow for
+ * database sequences support (which <i>MySQL</i> does not provide out of the box).
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -31,12 +36,18 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       delegate = new MySqlDbDescriptor();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDbmsKey()
+    */
    @Override
    public DBMSKey getDbmsKey()
    {
       return DBMSKey.MYSQL_SEQ;
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreatePKSequenceStatementString(java.lang.String, java.lang.String, java.lang.String)
+    */
    @Override
    public String getCreatePKSequenceStatementString(final String schemaName, final String pkSequence, final String initialValueExpr)
    {
@@ -64,6 +75,9 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       return sb.toString();
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDropPKSequenceStatementString(java.lang.String, java.lang.String)
+    */
    @Override
    public String getDropPKSequenceStatementString(final String schemaName, final String pkSequence)
    {
@@ -71,6 +85,9 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       return null;
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreatePKStatement(java.lang.String, java.lang.String, int)
+    */
    @Override
    public String getCreatePKStatement(final String schemaName, final String pkSequence, final int sequenceCount)
    {
@@ -101,12 +118,18 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       return sb.toString();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreatePKStatement(java.lang.String, java.lang.String)
+    */
    @Override
    public String getCreatePKStatement(final String schemaName, final String pkSequence)
    {
       return getCreatePKStatement(schemaName, pkSequence, 1);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getNextValForSeqString(java.lang.String, java.lang.String)
+    */
    @Override
    public String getNextValForSeqString(final String schemaName, final String sequenceName)
    {
@@ -126,72 +149,108 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       sb.append(SEQUENCE_STORED_PROCEDURE_NAME).append("('").append(sequenceName).append("')");
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getSQLType(java.lang.Class, long)
+    */
    @Override
    public String getSQLType(final Class type, final long length)
    {
       return delegate.getSQLType(type, length);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#useQueryTimeout()
+    */
    @Override
    public boolean useQueryTimeout()
    {
       return delegate.useQueryTimeout();
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#useAnsiJoins()
+    */
    @Override
    public boolean useAnsiJoins()
    {
       return delegate.useAnsiJoins();
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#isLockRowStatementSQLQuery()
+    */
    @Override
    public boolean isLockRowStatementSQLQuery()
    {
       return delegate.isLockRowStatementSQLQuery();
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getLockRowStatementString(org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils, org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor, boolean, java.lang.String)
+    */
    @Override
    public String getLockRowStatementString(final SqlUtils sqlUtils, final TypeDescriptor type, final boolean tryToUseDistinctLockTable, final String predicate)
    {
       return delegate.getLockRowStatementString(sqlUtils, type, tryToUseDistinctLockTable, predicate);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#supportsSubselects()
+    */
    @Override
    public boolean supportsSubselects()
    {
       return delegate.supportsSubselects();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreateIndexStatement(java.lang.String, java.lang.String, org.eclipse.stardust.engine.core.persistence.jdbc.IndexDescriptor)
+    */
    @Override
    public String getCreateIndexStatement(final String schemaName, final String tableName, final IndexDescriptor indexDescriptor)
    {
       return delegate.getCreateIndexStatement(schemaName, tableName, indexDescriptor);
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDropIndexStatement(java.lang.String, java.lang.String, java.lang.String)
+    */
    @Override
    public String getDropIndexStatement(final String schemaName, final String tableName, final String indexName)
    {
       return delegate.getDropIndexStatement(schemaName, tableName, indexName);
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#supportsColumnDeletion()
+    */
    @Override
    public boolean supportsColumnDeletion()
    {
       return delegate.supportsColumnDeletion();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreateTableOptions()
+    */
    @Override
    public String getCreateTableOptions()
    {
       return delegate.getCreateTableOptions();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#quoteIdentifier(java.lang.String)
+    */
    @Override
    public String quoteIdentifier(final String identifier)
    {
       return delegate.quoteIdentifier(identifier);
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreateSequenceStoredProcedureStatementString(java.lang.String)
+    */
    @Override
    public String getCreateSequenceStoredProcedureStatementString(String schemaName)
    {
@@ -212,6 +271,9 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       return sb.toString();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDropSequenceStoredProcedureStatementString(java.lang.String)
+    */
    @Override
    public String getDropSequenceStoredProcedureStatementString(String schemaName)
    {
@@ -224,6 +286,9 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       return sb.toString();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getCreateGlobalPKSequenceStatementString(java.lang.String)
+    */
    @Override
    public String getCreateGlobalPKSequenceStatementString(final String schemaName)
    {
@@ -243,6 +308,9 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       return sb.toString();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor#getDropGlobalPKSequenceStatementString(java.lang.String)
+    */
    @Override
    public String getDropGlobalPKSequenceStatementString(final String schemaName)
    {
@@ -258,6 +326,9 @@ public class MySqlSeqDbDescriptor extends SequenceDbDriver
       return sb.toString();
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.persistence.jdbc.SequenceDbDriver#getIdentityColumnQualifier()
+    */
    @Override
    public final String getIdentityColumnQualifier()
    {

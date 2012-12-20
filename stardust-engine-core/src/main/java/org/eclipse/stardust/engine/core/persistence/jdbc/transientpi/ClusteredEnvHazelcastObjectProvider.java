@@ -27,6 +27,12 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.Transaction;
 
 /**
+ * <p>
+ * A <i>Hazelcast</i> implementation of {@link ClusterSafeObjectProvider} which is
+ * transaction aware, i.e. it enlists in the running <i>JTA</i> transaction so that
+ * operations on the objects returned are transactional.
+ * </p>
+ * 
  * @author Nicolas.Werlein
  * @version $Revision$
  */
@@ -43,6 +49,9 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       }
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#clusterSafeMap(java.lang.String)
+    */
    @Override
    public <K, V> Map<K, V> clusterSafeMap(final String mapId)
    {
@@ -54,6 +63,9 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       return Hazelcast.getMap(mapId);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#beforeAccess()
+    */
    @Override
    public void beforeAccess()
    {
@@ -75,12 +87,18 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       }
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#exception(java.lang.Exception)
+    */
    @Override
    public void exception(final Exception ignored)
    {
       /* nothing to do */
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#afterAccess()
+    */
    @Override
    public void afterAccess()
    {

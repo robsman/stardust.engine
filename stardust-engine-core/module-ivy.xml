@@ -122,23 +122,23 @@
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->
-      <override org="log4j" module="log4j" rev="1.2.15" />
+      <override org="log4j" module="log4j" rev="${log4j.version}" />
 
-      <override org="org.slf4j" module="slf4j-api" rev="1.5.11" />
+      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
 
-      <override org="commons-collections" module="commons-collections" rev="3.2" />
-      <override org="commons-logging" module="commons-logging" rev="1.1.1" />
-      <override org="commons-pool" module="commons-pool" rev="1.5.2" />
+      <override org="commons-collections" module="commons-collections" rev="${commons-collections.version}" />
+      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
+      <override org="commons-pool" module="commons-pool" rev="${commons-pool.version}" />
 
-      <override org="org.apache.derby" module="derby" rev="10.4.2.0" />
+      <override org="org.apache.derby" module="derby" rev="${derby.version}" />
 
-      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="1.0.1" />
-      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
-      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
-      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.2.1" />
-      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="2.2.1" />
+      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="${geronimo-stax-api_1.0_spec.version}" />
+      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" />
+      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="${geronimo-jta_1.1_spec.version}" />
+      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="${geronimo-transaction.version}" />
+      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="${geronimo-connector.version}" />
 
-      <override org="org.objenesis" module="objenesis" rev="1.2" />
+      <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

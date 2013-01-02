@@ -101,61 +101,61 @@
       <!-- **************************** -->
       
       <!-- web-client-interface-provided -->
-      <dependency org="javax.servlet" name="servlet-api" rev="2.4" conf="web-client-interface-provided->default" />
-      <dependency org="javax.servlet" name="jsp-api" rev="2.0" conf="web-client-interface-provided->default"/>
+      <dependency org="javax.servlet" name="servlet-api" rev="${servlet-api.version}" conf="web-client-interface-provided->default" />
+      <dependency org="javax.servlet" name="jsp-api" rev="${jsp-api.version}" conf="web-client-interface-provided->default"/>
 
       <!-- jta-interface-compile -->
-      <dependency org="org.apache.geronimo.specs" name="geronimo-jta_1.1_spec" rev="1.1.1" conf="jta-interface-compile->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-jta_1.1_spec" rev="${geronimo-jta_1.1_spec.version}" conf="jta-interface-compile->default" />
 
       <!-- jcr-interface-compile -->
-      <dependency org="javax.jcr" name="jcr" rev="2.0" conf="jcr-interface-compile->default" />
+      <dependency org="javax.jcr" name="jcr" rev="${jcr.version}" conf="jcr-interface-compile->default" />
 
       <!-- jms-interface-runtime -->
-      <dependency org="org.apache.geronimo.specs" name="geronimo-jms_1.1_spec" rev="1.1.1" conf="jms-interface-runtime->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-jms_1.1_spec" rev="${geronimo-jms_1.1_spec.version}" conf="jms-interface-runtime->default" />
 
       <!-- j2ee-mgmt-interface-provided -->
-      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="1.0" conf="j2ee-mgmt-interface-provided->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="${geronimo-j2ee-management_1.0_spec.version}" conf="j2ee-mgmt-interface-provided->default" />
       
       <!-- ejb21-interface-provided -->
-      <dependency org="org.apache.geronimo.specs" name="geronimo-ejb_2.1_spec" transitive="false" rev="1.1" conf="ejb21-interface-provided->default" />
-      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" conf="ejb21-interface-provided->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-ejb_2.1_spec" transitive="false" rev="${geronimo-ejb_2.1_spec.version}" conf="ejb21-interface-provided->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" conf="ejb21-interface-provided->default" />
 
       <!-- ejb30-interface-compile -->
-      <dependency org="javax.persistence" name="persistence-api" rev="1.0" conf="ejb30-interface-compile->default" />
+      <dependency org="javax.persistence" name="persistence-api" rev="${persistence-api.version}" conf="ejb30-interface-compile->default" />
 
       <!-- *************************** -->
       <!--    Provider Dependencies    -->
       <!-- *************************** -->
       
       <!-- base-provider-compile -->
-      <dependency org="javax.xml.bind" name="jaxb-api" rev="2.1" conf="base-provider-compile->default" />
-      <dependency org="javax.xml.stream" name="stax-api" rev="1.0-2" conf="base-provider-compile->default" />
-      <dependency org="rhino" name="js" rev="1.7R2" conf="base-provider-compile,js-provider-runtime->default" />
+      <dependency org="javax.xml.bind" name="jaxb-api" rev="${jaxb-api.version}" conf="base-provider-compile->default" />
+      <dependency org="org.apache.geronimo.specs" name="geronimo-stax-api_1.0_spec" rev="${geronimo-stax-api_1.0_spec.version}" conf="base-provider-compile->default" />
+      <dependency org="rhino" name="js" rev="${js.version}" conf="base-provider-compile,js-provider-runtime->default" />
 
       <!-- base-provider-runtime -->
-      <dependency org="javax.activation" name="activation" rev="1.1" conf="base-provider-runtime->default"/>
-      <dependency org="javax.mail" name="mail" rev="1.4" conf="base-provider-runtime->default"/>
-      <dependency org="org.codehaus.woodstox" name="wstx-asl" rev="3.2.8" conf="base-provider-runtime->default">
+      <dependency org="javax.activation" name="activation" rev="${activation.version}" conf="base-provider-runtime->default"/>
+      <dependency org="javax.mail" name="mail" rev="${mail.version}" conf="base-provider-runtime->default"/>
+      <dependency org="org.codehaus.woodstox" name="wstx-asl" rev="${wstx-asl.version}" conf="base-provider-runtime->default">
          <exclude org="stax" module="stax-api"/>
       </dependency>
 
       <!-- logging-slf4j-log4j-provider-compile -->
-      <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.11" conf="logging-slf4j-log4j-provider-compile->default">
+      <dependency org="org.slf4j" name="slf4j-log4j12" rev="${slf4j-log4j12.version}" conf="logging-slf4j-log4j-provider-compile->default">
          <exclude org="log4j" module="log4j"/>
       </dependency>
 
       <!-- web-client-provider-runtime -->
-      <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.1" conf="web-client-provider-runtime->default"/>
+      <dependency org="commons-fileupload" name="commons-fileupload" rev="${commons-fileupload.version}" conf="web-client-provider-runtime->default"/>
 
       <!-- swing-client-provider-compile -->
-      <dependency org="jgoodies" name="forms" rev="1.0.2" conf="swing-client-provider-compile->default" />
+      <dependency org="jgoodies" name="forms" rev="${forms.version}" conf="swing-client-provider-compile->default" />
 
       <!-- jencks-provider-runtime -->
-      <dependency org="org.tranql" name="tranql-connector" rev="1.7" conf="jencks-provider-runtime->default" />
-      <dependency org="org.apache.geronimo.components" name="geronimo-connector" rev="2.2.1" conf="jencks-provider-runtime->default">
+      <dependency org="org.tranql" name="tranql-connector" rev="${tranql-connector.version}" conf="jencks-provider-runtime->default" />
+      <dependency org="org.apache.geronimo.components" name="geronimo-connector" rev="${geronimo-connector.version}" conf="jencks-provider-runtime->default">
          <exclude org="org.slf4j" module="slf4j-api"/>
       </dependency>
-      <dependency org="org.jencks" name="jencks" rev="2.2" conf="jencks-provider-runtime->default">
+      <dependency org="org.jencks" name="jencks" rev="${jencks.version}" conf="jencks-provider-runtime->default">
          <artifact name="jencks" type="jar" m:classifier="all"/>
          <exclude org="aopalliance" module="aopalliance"/>
          <exclude org="commons-dbcp" module="commons-dbcp"/>
@@ -177,23 +177,23 @@
          <exclude org="org.springframework" module="spring-web"/>
       </dependency>
       <!-- force correct revision in POM -->
-      <dependency org="org.apache.geronimo.components" name="geronimo-transaction" rev="2.2.1" conf="jencks-provider-runtime->default">
+      <dependency org="org.apache.geronimo.components" name="geronimo-transaction" rev="${geronimo-transaction.version}" conf="jencks-provider-runtime->default">
          <exclude org="org.slf4j" module="slf4j-api"/>
          <exclude org="org.objectweb.howl" module="howl"/>
       </dependency>
-      <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="jencks-provider-runtime->default"/>
-      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="jencks-provider-runtime->default"/>
+      <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jencks-provider-runtime->default"/>
+      <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" conf="jencks-provider-runtime->default"/>
 
       <!-- jcr-vfs-provider-compile -->
       <dependency org="org.eclipse.stardust.components" name="jcr-vfs" rev="2.4.0" conf="jcr-vfs-provider-compile->default">
          <exclude org="commons-codec" module="commons-codec"/>
          <exclude org="aopalliance" module="aopalliance" />
       </dependency>
-      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="jcr-vfs-provider-compile->default" />
-      <dependency org="commons-codec" name="commons-codec" rev="1.3" conf="jcr-vfs-provider-compile->default" />
+      <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" conf="jcr-vfs-provider-compile->default" />
+      <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}" conf="jcr-vfs-provider-compile->default" />
 
       <!-- activemq-provider-runtime -->
-      <dependency org="org.apache.activemq" name="activemq-core" rev="5.4.2" conf="activemq-provider-runtime->default">
+      <dependency org="org.apache.activemq" name="activemq-core" rev="${activemq-core.version}" conf="activemq-provider-runtime->default">
          <exclude org="org.apache.camel" module="camel-core" />
          <exclude org="org.apache.activemq" module="activeio-core" />
          <exclude org="org.apache.activemq" module="kahadb"/>
@@ -207,35 +207,37 @@
          <exclude org="com.ibm.icu" module="icu4j"/>
          <exclude org="org.osgi" module="org.osgi.core"/>
       </dependency>
-      <dependency org="org.apache.activemq" name="activemq-ra" rev="5.4.2" conf="activemq-provider-runtime->default">
+      <dependency org="org.apache.activemq" name="activemq-ra" rev="${activemq-ra.version}" conf="activemq-provider-runtime->default">
          <exclude org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec"/>
          <exclude org="org.apache.activemq" module="activemq-core"/>
       </dependency>
-      <dependency org="org.apache.xbean" name="xbean-spring" rev="3.4" conf="activemq-provider-runtime->default">
+      <dependency org="org.apache.xbean" name="xbean-spring" rev="${xbean-spring.version}" conf="activemq-provider-runtime->default">
          <exclude org="commons-logging" module="commons-logging-api" />
          <exclude org="commons-logging" module="commons-logging" />
       </dependency>
       <!-- force correct revision in POM -->
-      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="activemq-provider-runtime->default"/>
+      <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" conf="activemq-provider-runtime->default"/>
 
       <!-- hazelcast-provider-compile -->
-      <dependency org="com.hazelcast" name="hazelcast" rev="1.9" conf="hazelcast-provider-compile->default" />
+      <dependency org="com.hazelcast" name="hazelcast" rev="${hazelcast.version}" conf="hazelcast-provider-compile->default" />
 
       <!-- ant-provider-runtime -->
-      <dependency org="ant" name="ant" rev="1.6.1" conf="ant-provider-runtime->default" />
-      <dependency org="ant" name="ant-commons-net" rev="1.6.1" conf="ant-provider-runtime->default" />
-      <dependency org="ant" name="ant-launcher" rev="1.6.1" conf="ant-provider-runtime->default" />
+      <dependency org="org.apache.ant" name="ant" rev="${apache.ant.version}" conf="ant-provider-runtime->default" />
+      <dependency org="org.apache.ant" name="ant-commons-net" rev="${ant-commons-net.version}" conf="ant-provider-runtime->default">
+         <exclude org="commons-net" module="commons-net" />
+      </dependency>
+      <dependency org="org.apache.ant" name="ant-launcher" rev="${ant-launcher.version}" conf="ant-provider-runtime->default" />
 
       <!-- qdox-provider-compile -->
-      <dependency org="com.thoughtworks.qdox" name="qdox" rev="1.10" conf="qdox-provider-compile->default" />
+      <dependency org="com.thoughtworks.qdox" name="qdox" rev="${qdox.version}" conf="qdox-provider-compile->default" />
       
       <!-- xerces-provider-runtime -->
-      <dependency org="xerces" name="xercesImpl" rev="2.8.1" conf="xerces-provider-runtime->default">
+      <dependency org="xerces" name="xercesImpl" rev="${xercesImpl.version}" conf="xerces-provider-runtime->default">
          <exclude org="xml-apis" module="xml-apis" />
       </dependency>
       
       <!-- jackrabbit-core-with-full-text-search -->
-      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5-infinity01" conf="jackrabbit-core-with-full-text-search->default">
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="${jackrabbit-core.version}" conf="jackrabbit-core-with-full-text-search->default">
          <exclude org="org.apache.derby" module="derby"/>
          <exclude org="log4j" module="log4j"/>
          <!-- the following entries prevents version conflicts -->
@@ -247,10 +249,10 @@
          <exclude org="commons-pool" module="commons-pool"/>
          <exclude org="commons-collections" module="commons-collections"/>
       </dependency>
-      <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="jackrabbit-core-with-full-text-search->default"/>
+      <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-with-full-text-search->default"/>
       
       <!-- jackrabbit-core-without-full-text-search -->
-      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="2.2.5-infinity01" conf="jackrabbit-core-without-full-text-search->default">
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="${jackrabbit-core.version}" conf="jackrabbit-core-without-full-text-search->default">
          <exclude org="org.apache.derby" module="derby"/>
          <exclude org="log4j" module="log4j"/>
          <exclude org="edu.ucar" module="netcdf"/>
@@ -265,18 +267,18 @@
          <exclude org="commons-pool" module="commons-pool"/>
          <exclude org="commons-collections" module="commons-collections"/>
       </dependency>
-      <dependency org="commons-collections" name="commons-collections" rev="3.2" conf="jackrabbit-core-without-full-text-search->default"/>
+      <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-without-full-text-search->default"/>
       
       <!-- jackrabbit-provider-runtime -->
-      <dependency org="commons-httpclient" name="commons-httpclient" rev="3.0" conf="jackrabbit-provider-runtime->default">
+      <dependency org="commons-httpclient" name="commons-httpclient" rev="${commons-httpclient.version}" conf="jackrabbit-provider-runtime->default">
          <exclude org="commons-codec" module="commons-codec"/>
          <exclude org="commons-logging" module="commons-logging"/>
          <exclude org="junit" module="junit"/>
       </dependency>
-      <dependency org="commons-codec" name="commons-codec" rev="1.3" conf="jackrabbit-provider-runtime->default"/>
-      <dependency org="commons-pool" name="commons-pool" rev="1.5.2" conf="jackrabbit-provider-runtime->default"/>
-      <dependency org="commons-logging" name="commons-logging" rev="1.1.1" conf="jackrabbit-provider-runtime->default"/>
-      <dependency org="org.apache.jackrabbit" name="jackrabbit-jca" rev="2.2.5" conf="jackrabbit-provider-runtime->default">
+      <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}" conf="jackrabbit-provider-runtime->default"/>
+      <dependency org="commons-pool" name="commons-pool" rev="${commons-pool.version}" conf="jackrabbit-provider-runtime->default"/>
+      <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" conf="jackrabbit-provider-runtime->default"/>
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-jca" rev="${jackrabbit-jca.version}" conf="jackrabbit-provider-runtime->default">
          <artifact name="jackrabbit-jca" type="jar"/>
          <exclude org="org.apache.jackrabbit" module="jackrabbit-core"/>
          <exclude org="org.apache.derby" module="derby"/>
@@ -288,7 +290,7 @@
       </dependency>
       
       <!-- jackrabbit-webapp-provider-runtime -->
-      <dependency org="org.apache.jackrabbit" name="jackrabbit-webapp" rev="2.2.5" conf="jackrabbit-webapp-provider-runtime->default">
+      <dependency org="org.apache.jackrabbit" name="jackrabbit-webapp" rev="${jackrabbit-webapp.version}" conf="jackrabbit-webapp-provider-runtime->default">
          <artifact name="jackrabbit-webapp" type="jar"/>
          <exclude org="org.apache.jackrabbit" module="jackrabbit-core"/>
          <exclude org="org.apache.jackrabbit" module="jackrabbit-jcr-commons"/>
@@ -301,27 +303,27 @@
          <exclude org="commons-codec" module="commons-codec"/>
       </dependency>
       <!-- force correct revision in POM -->
-      <dependency org="commons-codec" name="commons-codec" rev="1.3" conf="jackrabbit-webapp-provider-runtime->default"/>
+      <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}" conf="jackrabbit-webapp-provider-runtime->default"/>
 
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->
-      <override org="log4j" module="log4j" rev="1.2.15" />
+      <override org="log4j" module="log4j" rev="${log4j.version}" />
 
-      <override org="org.slf4j" module="slf4j-api" rev="1.5.11" />
+      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
 
-      <override org="commons-collections" module="commons-collections" rev="3.2" />
-      <override org="commons-logging" module="commons-logging" rev="1.1.1" />
-      <override org="commons-pool" module="commons-pool" rev="1.5.2" />
+      <override org="commons-collections" module="commons-collections" rev="${commons-collections.version}" />
+      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
+      <override org="commons-pool" module="commons-pool" rev="${commons-pool.version}" />
 
-      <override org="org.apache.derby" module="derby" rev="10.4.2.0" />
+      <override org="org.apache.derby" module="derby" rev="${derby.version}" />
 
-      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="1.0.1" />
-      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="2.0.0" />
-      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="1.1.1" />
-      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="2.2.1" />
+      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="${geronimo-stax-api_1.0_spec.version}" />
+      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" />
+      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="${geronimo-jta_1.1_spec.version}" />
+      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="${geronimo-transaction.version}" />
 
-      <override org="org.objenesis" module="objenesis" rev="1.2" />
+      <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

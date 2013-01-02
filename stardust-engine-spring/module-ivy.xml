@@ -44,17 +44,17 @@
       <!-- but we want to get the Spring dependencies anyway                                                                                   -->
       
       <!-- spring-module-compile -->
-      <dependency org="org.springframework" name="spring-beans" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
-      <dependency org="org.springframework" name="spring-core" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
-      <dependency org="org.springframework" name="spring-jdbc" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
-      <dependency org="org.springframework" name="spring-jms" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
-      <dependency org="org.springframework" name="spring-context" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
-      <dependency org="org.springframework" name="spring-context-support" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
-      <dependency org="org.springframework" name="spring-tx" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
-      <dependency org="org.springframework" name="spring-web" rev="3.0.5.RELEASE" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-beans" rev="${spring-beans.version}" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-core" rev="${spring-core.version}" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-jdbc" rev="${spring-jdbc.version}" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-jms" rev="${spring-jms.version}" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-context" rev="${spring-context.version}" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-context-support" rev="${spring-context-support.version}" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-tx" rev="${spring-tx.version}" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-web" rev="${spring-web.version}" conf="spring-module-compile->default" />
       
       <!-- spring-module-runtime -->
-      <dependency org="org.springframework" name="spring-webmvc" rev="3.0.5.RELEASE" conf="spring-module-runtime->default" />
+      <dependency org="org.springframework" name="spring-webmvc" rev="${spring-webmvc.version}" conf="spring-module-runtime->default" />
       
       <!-- client-spring-module-runtime -->
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->client-module-runtime">

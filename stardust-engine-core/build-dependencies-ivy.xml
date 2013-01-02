@@ -96,7 +96,6 @@
       <property name="emf-ecore.jar" location="${integration-jars.dir}/org.eclipse.emf.ecore.jar"/>
       <property name="emf-ecore-xmi.jar" location="${integration-jars.dir}/org.eclipse.emf.ecore.xmi.jar"/>
       <property name="emf-xsd.jar" location="${integration-jars.dir}/org.eclipse.xsd.jar"/>
-      <property name="emf-xsd-schema-cache.jar" location="${integration-jars.dir}/emf-xsd-schema-cache.jar"/>
       
       <path id="eclipse.classpath">
          <pathelement path="${emf-common.jar}"/>
@@ -195,8 +194,8 @@
             <include name="js-*.jar"/>
          </fileset>
       </delete>
-      <move file="${build.lib}/spring/tranql-connector-1.7.jar" todir="${build.lib}" failonerror="false" />
-      <move file="${build.lib}/commons-httpclient-3.0.jar" todir="${build.lib}/dms" failonerror="false" />
+      <move file="${build.lib}/spring/tranql-connector-${common.tranql-connector.version}.jar" todir="${build.lib}" failonerror="false" />
+      <move file="${build.lib}/commons-httpclient-${common.commons-httpclient.version}.jar" todir="${build.lib}/dms" failonerror="false" />
       <move todir="${build.lib}/spring" failonerror="false">
          <fileset dir="${build.lib}">
             <include name="spring-*.jar"/>

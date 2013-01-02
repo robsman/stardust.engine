@@ -23,7 +23,7 @@
    
    <dependencies>
       <!-- logging-log4j-provider-compile -->
-      <dependency org="log4j" name="log4j" rev="1.2.15" conf="logging-log4j-provider-compile->default">
+      <dependency org="log4j" name="log4j" rev="${log4j.version}" conf="logging-log4j-provider-compile->default">
          <exclude org="com.sun.jmx" module="jmxri"/>
          <exclude org="com.sun.jdmk" module="jmxtools"/>
          <exclude org="javax.jms" module="jms"/>

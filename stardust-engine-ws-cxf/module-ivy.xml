@@ -43,42 +43,42 @@
 
       <!-- jax-ws-cxf-provider-compile -->
       
-      <dependency org="org.apache.cxf" name="cxf-api" rev="2.6.1-stardust01" conf="jax-ws-cxf-provider-compile->default" >
+      <dependency org="org.apache.cxf" name="cxf-api" rev="${cxf-api.version}" conf="jax-ws-cxf-provider-compile->default" >
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
       </dependency>
-      <dependency org="org.apache.cxf" name="cxf-rt-core" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" >
+      <dependency org="org.apache.cxf" name="cxf-rt-core" rev="${cxf-rt-core.version}" conf="jax-ws-cxf-provider-compile->default" >
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
       </dependency>
-      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="2.6.1" conf="jax-ws-cxf-provider-compile->default" >
+      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="${cxf-rt-databinding-jaxb.version}" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="${cxf-rt-transports-http.version}" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="${cxf-rt-ws-addr.version}" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="${cxf-rt-ws-policy.version}" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="${cxf-rt-ws-security.version}" conf="jax-ws-cxf-provider-compile->default" >
       	<exclude org="org.slf4j" module="slf4j-api" />
       	<exclude org="org.apache.santuario" module="xmlsec" />
       </dependency>
-      <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.2" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.santuario" name="xmlsec" rev="${xmlsec.version}" conf="jax-ws-cxf-provider-compile->default" />
 
       <!-- jax-ws-cxf-provider-runtime -->  
-      <dependency org="com.sun.xml.messaging.saaj" name="saaj-impl" rev="1.3.2" conf="jax-ws-cxf-provider-runtime->default" >
+      <dependency org="com.sun.xml.messaging.saaj" name="saaj-impl" rev="${saaj-impl.version}" conf="jax-ws-cxf-provider-runtime->default" >
          <exclude org="activation" module="activation" />
       </dependency>
       
       <!-- jax-rs-provider-compile -->
-      <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" conf="jax-rs-cxf-provider-compile->default" />
+      <dependency org="javax.ws.rs" name="jsr311-api" rev="${jsr311-api.version}" conf="jax-rs-cxf-provider-compile->default" />
       
       <!-- jax-rs-provider-runtime -->
-      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="2.6.1" conf="jax-rs-cxf-provider-runtime->default" >
+      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="${cxf-rt-frontend-jaxrs.version}" conf="jax-rs-cxf-provider-runtime->default" >
          <exclude org="javax.ws.rs" module="jsr311-api" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
       </dependency>
 
-      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="2.1.12" />
-	  <override org="com.sun.xml.bind" module="jaxb-impl" rev="2.1.12" />
-	  <override org="org.apache.cxf" module="cxf-api" rev="2.6.1-stardust01" />
+      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
+      <override org="com.sun.xml.bind" module="jaxb-impl" rev="${jaxb-impl.version}" />
+      <override org="org.apache.cxf" module="cxf-api" rev="${cxf-api.version}" />
    </dependencies>
 </ivy-module>

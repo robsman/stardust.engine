@@ -96,7 +96,6 @@
       <property name="emf-ecore.jar" location="${integration-jars.dir}/org.eclipse.emf.ecore.jar"/>
       <property name="emf-ecore-xmi.jar" location="${integration-jars.dir}/org.eclipse.emf.ecore.xmi.jar"/>
       <property name="emf-xsd.jar" location="${integration-jars.dir}/org.eclipse.xsd.jar"/>
-      <property name="emf-xsd-schema-cache.jar" location="${integration-jars.dir}/emf-xsd-schema-cache.jar"/>
       
       <path id="eclipse.classpath">
          <pathelement path="${emf-common.jar}"/>

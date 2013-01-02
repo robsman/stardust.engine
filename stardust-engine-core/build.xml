@@ -53,8 +53,7 @@
             excludes="about.html, plugin.properties, plugin.xml, META-INF/**/*" />
          <zipfileset src="${emf-xsd.jar}"
             excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*, model/**/*, cache/**/*, org/eclipse/xsd/doc-files/**/*" />
-         <zipfileset src="${emf-xsd.jar}" includes="plugin.properties" prefix="com/infinity/bpm/thirdparty/xsd" />
-         <zipfileset src="${emf-xsd-schema-cache.jar}" />
+         <zipfileset src="${emf-xsd.jar}" includes="plugin.properties, cache" prefix="com/infinity/bpm/thirdparty/xsd" />
 
          <zipfileset src="${js.jar}" />
 
@@ -71,6 +70,8 @@
             <include name="**/*_de.properties" />
             <include name="**/*_en.properties" />
             <include name="**/*_zh_CN.properties" />
+
+            <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.class"/>
          </fileset>
          <fileset dir="${project.res}">
             <include name="about.html" />
@@ -100,8 +101,7 @@
             excludes="about.html, plugin.properties, plugin.xml, META-INF/**/*" />
          <zipfileset src="${emf-xsd.jar}"
             excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*, model/**/*, cache/**/*, org/eclipse/xsd/doc-files/**/*" />
-         <zipfileset src="${emf-xsd.jar}" includes="plugin.properties" prefix="com/infinity/bpm/thirdparty/xsd" />
-         <zipfileset src="${emf-xsd-schema-cache.jar}" />
+         <zipfileset src="${emf-xsd.jar}" includes="plugin.properties, cache/**" prefix="com/infinity/bpm/thirdparty/xsd" />
 
          <zipfileset src="${js.jar}" />
 
@@ -118,6 +118,8 @@
             <include name="**/*_de.properties" />
             <include name="**/*_en.properties" />
             <include name="**/*_zh_CN.properties" />
+
+            <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.class"/>
          </fileset>
          <fileset dir="${project.res}">
             <include name="about.html" />

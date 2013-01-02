@@ -144,8 +144,6 @@
          <artifact name="org.eclipse.xsd" type="jar"/>
       </dependency>
       
-      <dependency org="com.infinity.bpm.3rdparty" name="emf-xsd-schema-cache" rev="${emf-xsd-schema-cache.version}" transitive="false" conf="integration-jars->default"/>
-
       <dependency org="com.googlecode.jarjar" name="jarjar" rev="${jarjar.version}" conf="ant-build-runtime->default"/>
       
       <!-- ******************** -->

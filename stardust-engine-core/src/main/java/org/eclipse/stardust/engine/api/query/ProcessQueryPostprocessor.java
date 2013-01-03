@@ -11,19 +11,8 @@
 package org.eclipse.stardust.engine.api.query;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.OneElementIterator;
@@ -40,58 +29,18 @@ import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetails;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IDataPath;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PluggableType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataEvaluaterInfo;
-import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataPrefetchInfo;
+import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
 import org.eclipse.stardust.engine.api.runtime.LogType;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Functions;
-import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.Joins;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.AliasProjectionResultSet;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.AliasProjectionResultSet.ValueType;
-import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
-import org.eclipse.stardust.engine.core.persistence.jdbc.MultiplePersistentResultSet;
-import org.eclipse.stardust.engine.core.persistence.jdbc.ResultSetIterator;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TableAliasDecorator;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.daemons.GetDaemonLogAction;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
@@ -100,7 +49,6 @@ import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ClusterAwareXPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
@@ -1427,49 +1375,49 @@ public class ProcessQueryPostprocessor
          Collection<Long> piSet, int timeout, int prefetchNParallelData,
          int prefetchNParallelInstances, double prefetchDataDiscriminationThreshold)
    {
-//      // This term reference will be used for later modification of its value expression
-//      ComparisonTerm piTermTemplate = Predicates.inList(
-//            DataValueBean.FR__PROCESS_INSTANCE, Collections.EMPTY_LIST.iterator());
-//
-//      Set<Long> prefetchedDataRtOids = null;
-//      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-//      if (rtEnv != null)
-//      {
-//         prefetchedDataRtOids = (Set<Long>) rtEnv
-//               .get(KernelTweakingProperties.DESCRIPTOR_PREFETCHED_RTOID_SET);
-//      }
-//
-//      if (prefetchedDataRtOids != null)
-//      {
-//         dataRtOids = CollectionUtils.copyMap(dataRtOids);
-//         CollectionUtils.remove(dataRtOids, prefetchedDataRtOids);
-//      }
-//
-//      if ((((double) dataRtOids.size() / (double) nData) < prefetchDataDiscriminationThreshold))
-//      {
-//         List dataRtOidSlice = new ArrayList(prefetchNParallelData);
-//         for (Iterator dataRtOidItr = dataRtOids.keySet().iterator(); dataRtOidItr.hasNext();)
-//         {
-//            dataRtOidSlice.add(dataRtOidItr.next());
-//            if ((dataRtOidSlice.size() >= prefetchNParallelData)
-//                  || !dataRtOidItr.hasNext())
-//            {
-//               performPrefetch(DataValueBean.class, QueryExtension.where(Predicates
-//                     .andTerm(Predicates.inList(
-//                           DataValueBean.FR__DATA, dataRtOidSlice.iterator()),
-//                     piTermTemplate)),
-//                     piTermTemplate, piSet, false, timeout,
-//                     prefetchNParallelInstances);
-//
-//               dataRtOidSlice.clear();
-//            }
-//         }
-//      }
-//      else
-//      {
-//         performPrefetch(DataValueBean.class, QueryExtension.where(piTermTemplate),
-//               piTermTemplate, piSet, false, timeout, prefetchNParallelInstances);
-//      }
+      // This term reference will be used for later modification of its value expression
+      ComparisonTerm piTermTemplate = Predicates.inList(
+            DataValueBean.FR__PROCESS_INSTANCE, Collections.EMPTY_LIST.iterator());
+
+      Set<Long> prefetchedDataRtOids = null;
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      if (rtEnv != null)
+      {
+         prefetchedDataRtOids = (Set<Long>) rtEnv
+               .get(KernelTweakingProperties.DESCRIPTOR_PREFETCHED_RTOID_SET);
+      }
+
+      if (prefetchedDataRtOids != null)
+      {
+         dataRtOids = CollectionUtils.copyMap(dataRtOids);
+         CollectionUtils.remove(dataRtOids, prefetchedDataRtOids);
+      }
+
+      if ((((double) dataRtOids.size() / (double) nData) < prefetchDataDiscriminationThreshold))
+      {
+         List dataRtOidSlice = new ArrayList(prefetchNParallelData);
+         for (Iterator dataRtOidItr = dataRtOids.keySet().iterator(); dataRtOidItr.hasNext();)
+         {
+            dataRtOidSlice.add(dataRtOidItr.next());
+            if ((dataRtOidSlice.size() >= prefetchNParallelData)
+                  || !dataRtOidItr.hasNext())
+            {
+               performPrefetch(DataValueBean.class, QueryExtension.where(Predicates
+                     .andTerm(Predicates.inList(
+                           DataValueBean.FR__DATA, dataRtOidSlice.iterator()),
+                     piTermTemplate)),
+                     piTermTemplate, piSet, false, timeout,
+                     prefetchNParallelInstances);
+
+               dataRtOidSlice.clear();
+            }
+         }
+      }
+      else
+      {
+         performPrefetch(DataValueBean.class, QueryExtension.where(piTermTemplate),
+               piTermTemplate, piSet, false, timeout, prefetchNParallelInstances);
+      }
       
       
    }

@@ -71,16 +71,16 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
       cal.setTime(now);
       setTimeToDayEnd(cal);
       
-      int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+      // history starts one month back
+      int daysOfHistory = calculateHistoryDays(cal);
       final List<Long> historyTimestamps = CollectionUtils.newList();
-
-      for(int i=0; i<daysInMonth; i++)
+      for(int i=0; i<daysOfHistory; i++)
       {
          cal.add(Calendar.DAY_OF_MONTH, -1);
          historyTimestamps.add(new Long(cal.getTimeInMillis()));
       }
       
-      // history starts one month back
+      
       Date intervalStart = cal.getTime();
 
       QueryDescriptor sqlQuery = QueryDescriptor.from(ActivityInstanceHistoryBean.class) //
@@ -311,17 +311,27 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
       }
    }
    
+   private int calculateHistoryDays(Calendar now)
+   {
+      Calendar start = (Calendar) now.clone();
+      start.add(Calendar.MONTH, -1);
+      
+      int daysBetween = 0;
+      while (start.before(now))
+      {
+         start.add(Calendar.DAY_OF_MONTH, 1);
+         daysBetween++;
+      }
+      return daysBetween;
+      
+   }
+   
    private void setTimeToDayEnd(Calendar cal)
    {
       int year = cal.get(Calendar.YEAR);
       int month = cal.get(Calendar.MONTH);
       int day = cal.get(Calendar.DAY_OF_MONTH);
-      cal.set(year, month, day, 24, 0, 0);
-      
-      
-//      cal.clear(Calendar.HOUR_OF_DAY);
-//      cal.clear(Calendar.MINUTE);
-//      cal.clear(Calendar.SECOND);
-//      cal.clear(Calendar.MILLISECOND);
+      cal.set(year, month, day, 23, 59, 59);
+      cal.set(Calendar.MILLISECOND, 999);
    }
 }

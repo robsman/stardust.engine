@@ -14,6 +14,7 @@ package org.eclipse.stardust.engine.core.persistence.jdbc;
  * @author rsauer
  * @version $Revision$
  */
+@Deprecated
 public class Oracle9iDbDescriptor extends OracleDbDescriptor
 {
    public DBMSKey getDbmsKey()

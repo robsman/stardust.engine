@@ -27,6 +27,7 @@ public final class DBMSKey extends StringKey
    
    public static final DBMSKey GENERIC_JDBC = new DBMSKey("other", "Generic JDBC");
    public static final DBMSKey ORACLE = new DBMSKey("oracle", "Oracle RDBMS");
+   @Deprecated
    public static final DBMSKey ORACLE9i = new DBMSKey("oracle9i", "Oracle RDBMS (9i or higher)");
    public static final DBMSKey DB2_UDB = new DBMSKey("db2", "IBM DB2 UDB");
    public static final DBMSKey DERBY = new DBMSKey("derby", "Apache Derby");

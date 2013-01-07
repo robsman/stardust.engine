@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
@@ -70,7 +71,7 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
       cal.setTime(now);
       setTimeToDayEnd(cal);
       
-      int daysInMonth = cal.getMaximum(Calendar.DAY_OF_MONTH);
+      int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
       final List<Long> historyTimestamps = CollectionUtils.newList();
 
       for(int i=0; i<daysInMonth; i++)
@@ -312,6 +313,10 @@ public class OpenActivitiesStatisticsRetriever implements IActivityInstanceQuery
    
    private void setTimeToDayEnd(Calendar cal)
    {
+      SimpleDateFormat f = new SimpleDateFormat("yyyy.MM.dd");
+      System.out.println(f.format(cal.getTime()));
+      
+      
       int year = cal.get(Calendar.YEAR);
       int month = cal.get(Calendar.MONTH);
       int day = cal.get(Calendar.DAY_OF_MONTH);

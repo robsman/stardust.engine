@@ -227,13 +227,23 @@ public class AbstractLoginInterceptor implements MethodInterceptor
 
          Object[] args = invocation.getArguments();
          
-         final String userId = (String) args[0];
+         final String userId;
+         final String originalUserId = (String) args[0];
          final String password = (String) args[1];
          final Map loginProperties = (2 < args.length)
                ? (Map) args[2]
                : Collections.EMPTY_MAP; 
-         result = (ExternalLoginResult) service.isolate(new LoginAction(userId, password,
+         result = (ExternalLoginResult) service.isolate(new LoginAction(originalUserId, password,
                loginProperties));
+         //give the login provider the possebility to modify the user id
+         if(StringUtils.isNotEmpty(result.getUserId()))
+         {
+            userId = result.getUserId();
+         }
+         else
+         {
+            userId = originalUserId;
+         }
          
          if (!result.wasSuccessful())
          {

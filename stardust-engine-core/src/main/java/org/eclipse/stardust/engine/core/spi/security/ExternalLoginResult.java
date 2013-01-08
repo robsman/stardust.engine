@@ -33,7 +33,8 @@ public final class ExternalLoginResult implements Serializable
    private final boolean overridesProperties;
    private final Map properties;
 
-   private static final ExternalLoginResult LOGIN_SUCCESS = new ExternalLoginResult(true, null);
+   private static final ExternalLoginResult LOGIN_SUCCESS = new ExternalLoginResult(true, null, null);
+   private final String userId;
 
    /**
     * Testifies a successful authentication.
@@ -43,6 +44,16 @@ public final class ExternalLoginResult implements Serializable
    public static final ExternalLoginResult testifySuccess()
    {
       return LOGIN_SUCCESS;
+   }
+   
+   /**
+    * Testifies a successful authentication.
+    * @param userId - the userId which will be used for user identification / synchronization in subsequent method calls - can be null
+    * @return The sucess ticket.
+    */
+   public static final ExternalLoginResult testifySuccess(String userId)
+   {
+      return testifySuccess(userId, null);
    }
 
    /**
@@ -55,7 +66,20 @@ public final class ExternalLoginResult implements Serializable
     */
    public static final ExternalLoginResult testifySuccess(Map properties)
    {
-      return new ExternalLoginResult(true, null, properties);
+      return new ExternalLoginResult(true, null, null, properties);
+   }
+   
+   /**
+    * Testifies a successful authentication.
+    * @param userId - the userId which will be used for user identification / synchronization in subsequent method calls - can be null
+    * @param properties        The modified properties map. <code>null</code> results in 
+    *                          an empty map.
+    *                          
+    * @return The sucess ticket.
+    */
+   public static final ExternalLoginResult testifySuccess(String userId, Map properties)
+   {
+      return new ExternalLoginResult(true, null, userId, properties);
    }
 
    /**
@@ -73,21 +97,41 @@ public final class ExternalLoginResult implements Serializable
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise(sb.toString()));         
       }      
       
-      return new ExternalLoginResult(false, reason);
+      return new ExternalLoginResult(false, null, reason);
+   }
+   
+   /**
+    * Testifies a failed authentification.
+    * @param userId - the userId which will be used for user identification / synchronization in subsequent method calls - can be null
+    * @param reason The reason the authentication went fail.
+    * @return The failure ticket.
+    */
+   public static final ExternalLoginResult testifyFailure(String userId, LoginFailedException reason)
+   {
+      if(reason == null)
+      {
+         StringBuilder sb = new StringBuilder();
+         sb.append("LoginFailedException");
+         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise(sb.toString()));         
+      }      
+      
+      return new ExternalLoginResult(false, null, reason);
    }
 
    /**
     * Constructs a new instance.
     * 
     * @param succeeded         The success indicator.
+    * @param userId - the userId which will be used for user identification / synchronization in subsequent method calls - can be null
     * @param loginFailedReason The reason the authentication went fail. May be
     *                          <code>null</code> if the authentication succeeded.
     * @see #testifySuccess
     * @see #testifyFailure
     */
-   private ExternalLoginResult(boolean succeeded, LoginFailedException loginFailedReason)
+   private ExternalLoginResult(boolean succeeded, String userId, LoginFailedException loginFailedReason)
    {
       this.succeeded = succeeded;
+      this.userId = userId;
       this.loginFailedReason = loginFailedReason;
       
       this.overridesProperties = false;
@@ -100,6 +144,7 @@ public final class ExternalLoginResult implements Serializable
     * @param succeeded         The success indicator.
     * @param loginFailedReason The reason the authentication went fail. May be
     *                          <code>null</code> if the authentication succeeded.
+    * @param userId - the userId which will be used for user identification / synchronization in subsequent method calls - can be null                       
     * @param properties        The modified properties map. <code>null</code> results in 
     *                          an empty map.
     *                          
@@ -107,10 +152,11 @@ public final class ExternalLoginResult implements Serializable
     * @see #testifyFailure
     */
    private ExternalLoginResult(boolean succeeded, LoginFailedException loginFailedReason,
-         Map properties)
+         String userId, Map properties)
    {
       this.succeeded = succeeded;
       this.loginFailedReason = loginFailedReason;
+      this.userId = userId;
       
       this.overridesProperties = true;
       this.properties = null == properties ? Collections.EMPTY_MAP : properties;
@@ -155,5 +201,14 @@ public final class ExternalLoginResult implements Serializable
    public Map getProperties()
    {
       return Collections.unmodifiableMap(properties);
+   }
+
+   /**
+    * Gets the userId which will be used for user identification / synchronization in subsequent method calls - can be null
+    * @return the user id
+    */
+   public String getUserId()
+   {
+      return userId;
    }
 }

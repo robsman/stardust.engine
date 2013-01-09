@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.javascript;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -30,6 +31,11 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPat
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
 import org.eclipse.xsd.XSDEnumerationFacet;
 import org.eclipse.xsd.XSDSchemaContent;
 import org.eclipse.xsd.XSDSimpleTypeDefinition;
@@ -147,24 +153,50 @@ public class GlobalVariablesScope extends ScriptableObject
 				}
             }            
             if (PredefinedConstants.STRUCTURED_DATA.equals(dataType.getId()))
-            {          	  
-              //Check if this a Enumeration --> return EnumAccessor
-              List<XSDEnumerationFacet> facets = checkEnumeration(data);
-        	  if (facets != null) {
-        		  value = new EnumAccessor(facets, value);
-        		  return value;
-        	  }	
-        	  if (!(value instanceof String)) {
-                  IXPathMap xPathMap = DataXPathMap.getXPathMap(data);   
-                  StructuredDataMapAccessor adapter = (StructuredDataMapAccessor) adapters.get(data.getId());
-                  if (null == adapter)
-                  {                                                      
-                	 adapter = new StructuredDataMapAccessor(xPathMap.getRootXPath(), (Map) value, true);                  
-                     adapters.put(data.getId(), adapter);
-                  }               
-                  adapter.bindValue(value);              
-                  value = adapter;        		  
-        	  }
+            {
+               // Check if this a Enumeration --> return EnumAccessor
+               List<XSDEnumerationFacet> facets = checkEnumeration(data);
+               if (facets != null)
+               {
+                  value = new EnumAccessor(facets, value);
+                  return value;
+               }
+               if ( !(value instanceof String))
+               {
+                  value = wrapStructuredDataMap(data, value, adapters);
+               }
+            }
+            else if (StructuredTypeRtUtils.isDmsType(dataType.getId()))
+            {
+               if (value instanceof DmsResourceBean)
+               {
+                  // unwrap structured data lego resource map.
+                  value = ((DmsResourceBean) value).vfsResource();
+               }
+               else if (value instanceof List)
+               {
+                  // wrap list type dms data back to structured data representation.
+                  List< ? > valueList = (List< ? >) value;
+                  if ( !valueList.isEmpty())
+                  {
+                     List<Map> legoList = null;
+                     Object listEntry = valueList.get(0);
+                     if (listEntry instanceof DmsDocumentBean)
+                     {
+                        legoList = convertToLegoList((List<DmsDocumentBean>) valueList);
+                        value = Collections.singletonMap(AuditTrailUtils.DOCS_DOCUMENTS,
+                              legoList);
+                     }
+                     else if (listEntry instanceof DmsFolderBean)
+                     {
+                        legoList = convertToLegoList((List<DmsFolderBean>) valueList);
+                        value = Collections.singletonMap(AuditTrailUtils.FOLDERS_FOLDERS,
+                              legoList);
+                     }
+                  }
+               }
+
+               value = wrapStructuredDataMap(data, value, adapters);
             }
             else if (PredefinedConstants.PLAIN_XML_DATA.equals(dataType.getId()))
             {
@@ -190,6 +222,32 @@ public class GlobalVariablesScope extends ScriptableObject
          }
       }
       return super.get(name, start);
+   }
+
+   private Object wrapStructuredDataMap(AccessPoint data, Object value, Map adapters)
+   {
+      IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+      StructuredDataMapAccessor adapter = (StructuredDataMapAccessor) adapters.get(data.getId());
+      if (null == adapter)
+      {
+         adapter = new StructuredDataMapAccessor(xPathMap.getRootXPath(),
+               (Map) value, true);
+         adapters.put(data.getId(), adapter);
+      }
+      adapter.bindValue(value);
+      value = adapter;
+      return value;
+   }
+
+   private List<Map> convertToLegoList(List< ? extends DmsResourceBean> valueList)
+   {
+      List<Map> legoList = CollectionUtils.newArrayList();
+      for (Object object : valueList)
+      {
+         DmsResourceBean dmsResource = (DmsResourceBean) object;
+         legoList.add(dmsResource.vfsResource());
+      }
+      return legoList;
    }
 
    public int getAttributes(String name)

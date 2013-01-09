@@ -188,7 +188,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
                      DocumentTypeUtils.inferDocumentTypeAndStoreDocument(idata, document);
 
                      ProcessInstanceBean iPi = ProcessInstanceBean.findByOID(pi.getOID());
-                     iPi.setDataValue(dataId, document);
+                     iPi.setOutDataValue(idata, "", document);
                   }
                   else
                   {

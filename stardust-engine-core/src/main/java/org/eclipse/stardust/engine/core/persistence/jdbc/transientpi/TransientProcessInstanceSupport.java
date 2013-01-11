@@ -48,7 +48,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
  */
 public class TransientProcessInstanceSupport
 {
-   public static final Logger LOGGER = LogManager.getLogger(TransientProcessInstanceSupport.class);
+   private static final Logger LOGGER = LogManager.getLogger(TransientProcessInstanceSupport.class);
    
    private final boolean enabled;
    
@@ -62,7 +62,7 @@ public class TransientProcessInstanceSupport
    
    private boolean cancelTransientExecution = false;
    
-   private Set<Long> rootPiOids = newHashSet();
+   private final Set<Long> rootPiOids = newHashSet();
    
    private final Set<PersistentKey> persistentKeysToBeInserted;
    

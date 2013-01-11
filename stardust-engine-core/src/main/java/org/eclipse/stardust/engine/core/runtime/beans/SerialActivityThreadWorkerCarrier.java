@@ -36,7 +36,8 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 /**
  * <p>
- * TODO (nw) javadoc
+ * This {@link ActionCarrier} holds the {@link Action} executing a transient process instance
+ * (see {@link SerialActivityThreadWorker}).
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -46,6 +47,9 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
 {
    private static final long serialVersionUID = 1308240032670965545L;
 
+   /**
+    * the ID used for storing the serial activity thread map in the cluster-safe object provider configured
+    */
    public static final String SERIAL_ACTIVITY_THREAD_MAP_ID = "stardust::serialActivityThreadMap";
    
    private static final String ROOT_PROCESS_INSTANCE_OID_NAME = "RootProcessInstanceOID";
@@ -54,22 +58,38 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
    
    private Long rootPiOID;
    
+   /**
+    * The constructor initializing an object of this class.
+    */
    public SerialActivityThreadWorkerCarrier()
    {
       super(SYSTEM_MESSAGE_TYPE_ID);
    }
    
+   /**
+    * <p>
+    * Sets the given root process instance OID of the process instance this carrier is working on.
+    * </p>
+    * 
+    * @param rootPiOID the root process instance OID of the process instance this carrier is working on
+    */
    public void setRootProcessInstanceOid(final long rootPiOID)
    {
       this.rootPiOID = rootPiOID;
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier#doCreateAction()
+    */
    @Override
    public Action<Void> doCreateAction()
    {
       return new SerialActivityThreadRunner(this);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier#doFillMessage(javax.jms.Message)
+    */
    @Override
    protected void doFillMessage(final Message message) throws JMSException
    {
@@ -80,6 +100,9 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       mapMsg.setLong(ROOT_PROCESS_INSTANCE_OID_NAME, rootPiOID);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier#doExtract(javax.jms.Message)
+    */
    @Override
    protected void doExtract(final Message message) throws JMSException
    {
@@ -91,6 +114,9 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       ensureMandatoryFieldIsInitialized();
    }
    
+   /* (non-Javadoc)
+    * @see java.lang.Object#toString()
+    */
    @Override
    public String toString()
    {
@@ -115,7 +141,10 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
 
    /**
     * <p>
-    * TODO (nw) javadoc
+    * This {@link Action} drives the execution of a transient process instance by consuming a scheduled activity thread from the activity thread queue
+    * (stored in the serial activity thread map, see {@link SerialActivityThreadWorkerCarrier#SERIAL_ACTIVITY_THREAD_MAP_ID}) for the process instance graph
+    * (identified by the given root process instance OID). After successful execution the processed activity thread is gone. Only one activity thread per 
+    * {@link SerialActivityThreadRunner} instance will be consumed.
     * </p>
     */
    private static final class SerialActivityThreadRunner extends SecurityContextAwareAction<Void>
@@ -124,6 +153,14 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
 
       private Map<Long, Queue> activityThreadMap;
       
+      /**
+       * <p>
+       * The constructor initializing an object of this class with the {@link ActionCarrier}
+       * encapsulating the {@link Action} to execute.
+       * </p>
+       * 
+       * @param carrier the carrier encapsulating the {@link Action} to execute
+       */
       public SerialActivityThreadRunner(final SerialActivityThreadWorkerCarrier carrier)
       {
          super(carrier);
@@ -131,6 +168,9 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          this.rootPiOID = carrier.rootPiOID.longValue();
       }
       
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.common.Action#execute()
+       */
       @Override
       public Void execute()
       {
@@ -154,6 +194,9 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
          return null;
       }
       
+      /* (non-Javadoc)
+       * @see java.lang.Object#toString()
+       */
       @Override
       public String toString()
       {

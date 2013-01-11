@@ -34,9 +34,9 @@ import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryPro
  */
 public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaConnectionFactoryProvider
 {
-   public static final String PRP_HAZELCAST_CF_JNDI_NAME = "Infinity.Engine.Caching.Hazelcast.ConnectionFactoryJndiName";
+   private static final String PRP_HAZELCAST_CF_JNDI_NAME = "Infinity.Engine.Caching.Hazelcast.ConnectionFactoryJndiName";
    
-   public static final String HAZELCAST_CF_DEFAULT_JNDI_NAME = "HazelcastCF";
+   private static final String HAZELCAST_CF_DEFAULT_JNDI_NAME = "HazelcastCF";
    
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider#connectionFactory()

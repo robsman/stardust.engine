@@ -18,7 +18,8 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
 
 /**
  * <p>
- * TODO (nw) javadoc
+ * An SPI allowing to specify where the <i>Hazelcast JCA Connection Factory</i> should
+ * be retrieved from, e.g. from <i>JNDI</i> or a <i>Spring Application Context</i>.
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -27,5 +28,8 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
 @SPI(status = Status.Stable, useRestriction = UseRestriction.Public)
 public interface HazelcastJcaConnectionFactoryProvider
 {
+   /**
+    * @return the <i>Hazelcast JCA Connection Factory</i>
+    */
    ConnectionFactory connectionFactory();
 }

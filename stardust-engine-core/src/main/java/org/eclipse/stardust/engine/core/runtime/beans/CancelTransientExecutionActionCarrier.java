@@ -21,6 +21,7 @@ import javax.jms.Message;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
@@ -28,7 +29,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientPr
 
 /**
  * <p>
- * TODO (nw) javadoc
+ * This {@link ActionCarrier} holds the {@link Action} cancelling a transient process instance execution
+ * (see {@link CancelTransientExecutionAction}).
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -42,22 +44,38 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
    
    private Long rootPiOID;
    
+   /**
+    * The constructor initializing an object of this class.
+    */
    public CancelTransientExecutionActionCarrier()
    {
       super(SYSTEM_MESSAGE_TYPE_ID);
    }
    
+   /**
+    * <p>
+    * Sets the given root process instance OID of the process instance this carrier is working on.
+    * </p>
+    * 
+    * @param rootPiOID the root process instance OID of the process instance this carrier is working on
+    */
    public void setRootProcessInstanceOid(final long rootPiOID)
    {
       this.rootPiOID = rootPiOID;
    }
    
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier#doCreateAction()
+    */
    @Override
    public Action<Void> doCreateAction()
    {
       return new CancelTransientExecutionAction(this);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier#doFillMessage(javax.jms.Message)
+    */
    @Override
    protected void doFillMessage(final Message message) throws JMSException
    {
@@ -68,6 +86,9 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
       mapMsg.setLong(ROOT_PROCESS_INSTANCE_OID_NAME, rootPiOID);
    }
 
+   /* (non-Javadoc)
+    * @see org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier#doExtract(javax.jms.Message)
+    */
    @Override
    protected void doExtract(final Message message) throws JMSException
    {
@@ -79,6 +100,9 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
       ensureMandatoryFieldIsInitialized();
    }
    
+   /* (non-Javadoc)
+    * @see java.lang.Object#toString()
+    */
    @Override
    public String toString()
    {
@@ -103,7 +127,12 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
    
    /**
     * <p>
-    * TODO (nw) javadoc
+    * The {@link Action} cancelling a transient process instance execution involving the following steps:
+    * <ul>
+    *   <li>Marking the process instance as {@link AuditTrailPersistence#IMMEDIATE}.</li>
+    *   <li>Cleaning up data structures used for transient process instance execution.</li>
+    *   <li>Writing the process instance into the Audit Trail database.</li>
+    * </ul>
     * </p>
     */
    private static final class CancelTransientExecutionAction extends SecurityContextAwareAction<Void>
@@ -112,6 +141,14 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
       
       private Map<Long, Queue> activityThreadMap;
       
+      /**
+       * <p>
+       * The constructor initializing an object of this class with the {@link ActionCarrier}
+       * encapsulating the {@link Action} to execute.
+       * </p>
+       * 
+       * @param carrier the carrier encapsulating the {@link Action} to execute
+       */
       public CancelTransientExecutionAction(final CancelTransientExecutionActionCarrier carrier)
       {
          super(carrier);
@@ -119,6 +156,9 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
          this.rootPiOID = carrier.rootPiOID.longValue();
       }
       
+      /* (non-Javadoc)
+       * @see org.eclipse.stardust.common.Action#execute()
+       */
       @Override
       public Void execute()
       {
@@ -144,6 +184,9 @@ public class CancelTransientExecutionActionCarrier extends ActionCarrier<Void>
          return null;
       }
       
+      /* (non-Javadoc)
+       * @see java.lang.Object#toString()
+       */
       @Override
       public String toString()
       {

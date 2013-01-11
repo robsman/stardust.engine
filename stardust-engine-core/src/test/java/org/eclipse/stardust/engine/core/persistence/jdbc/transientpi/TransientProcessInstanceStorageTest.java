@@ -38,7 +38,11 @@ import org.junit.Test;
 
 /**
  * <p>
- * TODO (nw) javadoc
+ * This class provides test cases for {@link TransientProcessInstanceStorage}.
+ * </p>
+ * 
+ * <p>
+ * The cluster-safe object provider used for test case execution is {@link TestingEnvObjectProvider}.
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -94,6 +98,12 @@ public class TransientProcessInstanceStorageTest
       dropTransientProcessInstanceStorage();
    }
 
+   /**
+    * <p>
+    * Asserts there's only one instance of {@link TransientProcessInstanceStorage} (singleton)
+    * when retrieving an instance concurrently.
+    * </p>
+    */
    @Test
    public void testInstanceThreadSafety() throws Exception
    {
@@ -120,6 +130,11 @@ public class TransientProcessInstanceStorageTest
       }
    }
 
+   /**
+    * <p>
+    * Asserts the 'insert and select scenario' works correctly.
+    * </p>
+    */
    @Test
    public void testInsertAndSelect()
    {
@@ -133,6 +148,11 @@ public class TransientProcessInstanceStorageTest
       assertThat(retrievedBlob2, equalTo(BLOB_2));
    }
 
+   /**
+    * <p>
+    * Asserts the 'insert and select for root process instance scenario' works correctly.
+    * </p>
+    */
    @Test
    public void testInsertAndSelectForRootPiOid()
    {
@@ -146,6 +166,12 @@ public class TransientProcessInstanceStorageTest
       assertThat(retrievedBlob2, equalTo(BLOB_2));
    }
    
+   /**
+    * <p>
+    * Asserts the in-memory storage is not exposed via {@link  TransientProcessInstanceStorage#select(PersistentKey)} 
+    * if {@link KernelTweakingProperties#TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE} is set to <code>false</code>.
+    * </p> 
+    */
    @Test
    public void testInsertAndSelectStrictlyInternalInMemStorage()
    {
@@ -161,6 +187,12 @@ public class TransientProcessInstanceStorageTest
       assertThat(retrievedBlob2, nullValue());
    }
 
+   /**
+    * <p>
+    * Asserts the in-memory storage can be accessed via {@link  TransientProcessInstanceStorage#selectForRootPiOid(long)}
+    * even if {@link KernelTweakingProperties#TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE} is set to <code>false</code>.
+    * </p>
+    */
    @Test
    public void testInsertAndSelectForRootPiOidStrictlyInternalInMemStorage()
    {
@@ -176,6 +208,12 @@ public class TransientProcessInstanceStorageTest
       assertThat(retrievedBlob2, equalTo(BLOB_2));
    }
    
+   /**
+    * <p>
+    * Asserts the in-memory storage is also completely cleaned up if
+    * {@link KernelTweakingProperties#TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE} is set to <code>false</code>.
+    * </p>
+    */
    @Test
    public void testDeleteStrictlyInternalInMemStorage()
    {
@@ -199,7 +237,14 @@ public class TransientProcessInstanceStorageTest
       assertThat(directlyRetrievedBlob1, nullValue());
       assertThat(directlyRetrievedBlob2, nullValue());
    }
-   
+
+   /**
+    * <p>
+    * Asserts the in-memory storage's delete operation does not touch the map mapping persistent OIDs to
+    * the root process instance OID, i.e. does not delete anything from that map if
+    * {@link KernelTweakingProperties#TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE} is set to <code>false</code>.
+    * </p>
+    */
    @Test
    public void testDeleteOmitsMappingMapStrictlyInternalInMemStorage()
    {
@@ -215,6 +260,10 @@ public class TransientProcessInstanceStorageTest
    }
    
    /**
+    * <p>
+    * Asserts the 'delete scenario' works correctly.
+    * </p>
+    * 
     * <p>
     * <b>Note</b> Assumes that {@link TransientProcessInstanceStorage#insertOrUpdate(Set, ProcessInstanceGraphBlob)} and
     * {@link TransientProcessInstanceStorage#select(PersistentKey)} are working.
@@ -238,6 +287,10 @@ public class TransientProcessInstanceStorageTest
    }
    
    /**
+    * <p>
+    * Asserts the 'delete scenario' works correctly even if executed concurrently.
+    * </p>
+    * 
     * <p>
     * <b>Note</b> Assumes that {@link TransientProcessInstanceStorage#insertOrUpdate(Set, ProcessInstanceGraphBlob)} and
     * {@link TransientProcessInstanceStorage#select(PersistentKey)} are working.
@@ -272,6 +325,10 @@ public class TransientProcessInstanceStorageTest
    
    /**
     * <p>
+    * Asserts writes are reflected in the in-memory storage if and only if the transaction has been committed.
+    * </p>
+    * 
+    * <p>
     * <b>Note</b> Assumes that {@link TransientProcessInstanceStorage#insertOrUpdate(Set, ProcessInstanceGraphBlob)} and
     * {@link TransientProcessInstanceStorage#select(PersistentKey)} are working.
     * </p>
@@ -291,6 +348,10 @@ public class TransientProcessInstanceStorageTest
    }
 
    /**
+    * <p>
+    * Asserts writes are <b>not</b> reflected in the in-memory storage if the transaction has been rolled back.
+    * </p>
+    * 
     * <p>
     * <b>Note</b> Assumes that {@link TransientProcessInstanceStorage#insertOrUpdate(Set, ProcessInstanceGraphBlob)} and
     * {@link TransientProcessInstanceStorage#select(PersistentKey)} are working.

@@ -22,6 +22,7 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
@@ -37,9 +38,14 @@ import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.ws.DataFlowUtils;
+import org.eclipse.xsd.XSDSchema;
+import org.eclipse.xsd.impl.XSDImportImpl;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 
 
@@ -318,31 +324,108 @@ public class WSDLGenerator
 
    private void insertCustomTypeDefinitions(final Set<IFormalParameter> usedParameters)
    {
-      final Element wsdlTypesNode = DomUtils.retrieveElementByXPath(wsdlDoc,
-            "/wsdl:definitions/wsdl:types", XPATH_CONTEXT);
+      TreeMap<String, XSDSchema> schemaMap = CollectionUtils.newTreeMap();
+      Map<String, IFormalParameter> formalParameterMap = CollectionUtils.newHashMap();
 
       for (final IFormalParameter f : usedParameters)
       {
          if (StructuredTypeRtUtils.isStructuredType(f.getData().getType().getId()))
          {
-         String typeDeclarationId = (String) f.getData().getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+            String typeDeclarationId = (String) f.getData().getAttribute(
+                  StructuredDataConstants.TYPE_DECLARATION_ATT);
 
-         ITypeDeclaration typeDef = this.model.findTypeDeclaration(typeDeclarationId);
-         IXpdlType xpdlType = typeDef.getXpdlType();
-         org.w3c.dom.Element schemaW3CElement = null;
-         if (xpdlType instanceof IExternalReference)
-         {
-            schemaW3CElement = ((IExternalReference) xpdlType).getSchema(this.model).getDocument()
-            .getDocumentElement();
+            ITypeDeclaration typeDef = this.model.findTypeDeclaration(typeDeclarationId);
+            XSDSchema xsdSchema = StructuredTypeRtUtils.getXSDSchema(this.model, typeDef);
+
+            schemaMap.put(typeDeclarationId, xsdSchema);
+            formalParameterMap.put(typeDeclarationId, f);
+
+            // resolve urn:internal imported schemas transitively
+            resolveInternalSchemaImports(schemaMap, xsdSchema);
          }
-         else if (xpdlType instanceof ISchemaType)
+
+      }
+      final Element wsdlTypesNode = DomUtils.retrieveElementByXPath(wsdlDoc,
+            "/wsdl:definitions/wsdl:types", XPATH_CONTEXT);
+      
+      
+      for (Map.Entry<String, XSDSchema> schemaEntry : schemaMap.entrySet())
+      {
+         XSDSchema xsdSchema = schemaEntry.getValue();
+         if (xsdSchema != null)
          {
-            schemaW3CElement = ((ISchemaType) xpdlType).getSchema().getDocument()
-            .getDocumentElement();
-         }
-         insertElementDefinition(f, schemaW3CElement, typeDeclarationId);
+            String typeDeclarationId = schemaEntry.getKey();
+            IFormalParameter f = formalParameterMap.get(typeDeclarationId);
+            Element schemaW3CElement = xsdSchema.getDocument().getDocumentElement();
+
+            // remove urn:internal schemaLocation attributes on xsd:import
+            removeInternalSchemaLocation(schemaW3CElement);
+            
+            insertElementDefinition(f, schemaW3CElement, typeDeclarationId);
             wsdlTypesNode.appendChild(wsdlTypesNode.getOwnerDocument().importNode(
                   schemaW3CElement, true));
+         }
+      }
+
+   }
+
+   private void removeInternalSchemaLocation(Element element)
+   {
+      NodeList imports = DomUtils.retrieveElementsByXPath(element, "/xsd:schema/xsd:import" , XPATH_CONTEXT);
+      
+      for (int i = 0; i<imports.getLength();i++)
+      {
+         Node node = imports.item(i);
+         
+         NamedNodeMap attributes = node.getAttributes();
+         Node namedItem = attributes.getNamedItem("schemaLocation");
+         String textContent = namedItem.getTextContent();
+         if (textContent != null && textContent.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
+         {
+            // remove schemaLocation Attribute
+            attributes.removeNamedItem("schemaLocation");
+         }         
+      }
+   }
+
+   /**
+    * Resolves all schemas imported by urn:internal imports
+    * 
+    * @param schemaMap After execution this map holds resolved schemas by typeDeclarationId.
+    * @param xsdSchema The schema to resolve urn:internal imports in.
+    */
+   private void resolveInternalSchemaImports(TreeMap<String, XSDSchema> schemaMap,
+         XSDSchema xsdSchema)
+   {
+      List contents = xsdSchema.getContents();
+      for (int j = 0; j < contents.size(); j++ )
+      {
+         Object item = contents.get(j);
+         if (item instanceof XSDImportImpl)
+         {
+            XSDImportImpl xsdImport = (XSDImportImpl) item;
+            String schemaLocation = xsdImport.getSchemaLocation();
+            if (schemaLocation != null
+                  && schemaLocation.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
+            {
+               String toResolveTypeDeclarationId = schemaLocation.substring(StructuredDataConstants.URN_INTERNAL_PREFIX.length());
+
+               if ( !schemaMap.containsKey(toResolveTypeDeclarationId))
+               {
+                  // remove schemaLocation not handled here because eclipse XSD hangs 60sec.
+                  // xsdImport.setSchemaLocation(null);
+                  
+                  ITypeDeclaration toResolveTypeDef = this.model.findTypeDeclaration(toResolveTypeDeclarationId);
+                  XSDSchema resolvedXsdSchema = StructuredTypeRtUtils.getXSDSchema(
+                        this.model, toResolveTypeDef);
+                  
+                  schemaMap.put(toResolveTypeDeclarationId, resolvedXsdSchema);
+                  
+                  // recurse until all imports are resolved.
+                  resolveInternalSchemaImports(schemaMap, resolvedXsdSchema);
+               }
+            }
+
          }
       }
    }
@@ -352,10 +435,13 @@ public class WSDLGenerator
    {
       final String targetNamespace = schemaElement.getAttribute("targetNamespace");
 
-      final int nsIndex = NamespaceHolder.getNamespaceIndex(targetNamespace);
-      String prefix = "ns" + nsIndex;
-      this.nsPairs.put(f.getId(), new NSPrefixPair(prefix, targetNamespace));
-
+      if (f != null)
+      {
+         final int nsIndex = NamespaceHolder.getNamespaceIndex(targetNamespace);
+         String prefix = "ns" + nsIndex;
+         this.nsPairs.put(f.getId(), new NSPrefixPair(prefix, targetNamespace));
+      }
+      
       final Set<String> elementNames = new HashSet<String>();
 
       elementNames.add(type);
@@ -365,6 +451,7 @@ public class WSDLGenerator
       {
          final Element element = (Element) elementDefTemplate.cloneNode(true);
          element.setAttribute("name", elementName);
+         // remove internal schemaLocation attribute from xsd imports
          elementDefTemplate.getParentNode().insertBefore(element, elementDefTemplate);
       }
       elementDefTemplate.getParentNode().removeChild(elementDefTemplate);

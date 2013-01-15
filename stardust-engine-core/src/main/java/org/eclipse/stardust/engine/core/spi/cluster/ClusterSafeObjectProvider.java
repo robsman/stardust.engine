@@ -18,7 +18,7 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
 
 /**
  * <p>
- * TODO javadoc
+ * An SPI allowing to specify which cluster safe object provider to use.
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -27,11 +27,39 @@ import org.eclipse.stardust.common.annotations.UseRestriction;
 @SPI(status = Status.Stable, useRestriction = UseRestriction.Internal)
 public interface ClusterSafeObjectProvider
 {
+   /**
+    * <p>
+    * Returns a cluster safe map for the given map ID. If it does not yet exist, it will be created first.
+    * Same map ID means that the same map is returned.
+    * </p>
+    * 
+    * @param <K> the type of the map keys
+    * @param <V> the type of the map values
+    * @param mapId the ID of the map to be returned; must not be <code>null</code>
+    * @return the map for the given ID
+    */
    public <K, V> Map<K, V> clusterSafeMap(final String mapId);
    
+   /**
+    * <p>
+    * Will be called before each and every operation on an object retrieved from the cluster safe object provider.
+    * </p>
+    */
    public void beforeAccess();
    
+   /**
+    * <p>
+    * Will be called in case an exception occured during access of an object retrieved from the cluster safe object provider.
+    * </p>
+    * 
+    * @param e the exception raised
+    */
    public void exception(final Exception e);
    
+   /**
+    * <p>
+    * Will be called after each and every operation on an object retrieved from the cluster safe object provider.
+    * </p>
+    */
    public void afterAccess();
 }

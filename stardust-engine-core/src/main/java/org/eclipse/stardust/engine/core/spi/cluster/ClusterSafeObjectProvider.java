@@ -36,7 +36,7 @@ public interface ClusterSafeObjectProvider
     * @param <K> the type of the map keys
     * @param <V> the type of the map values
     * @param mapId the ID of the map to be returned; must not be <code>null</code>
-    * @return the map for the given ID
+    * @return the map for the given map ID
     */
    public <K, V> Map<K, V> clusterSafeMap(final String mapId);
    

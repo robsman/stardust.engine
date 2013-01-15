@@ -227,7 +227,7 @@ public class TransientProcessInstanceSupport
       /* the root PI OID is unique, i.e. the set only contains one element                    */
       final long rootPiOid = rootPiOids.iterator().next().longValue();
       
-      TransientProcessInstanceStorage.instance().insertOrUpdate(persistentKeysToBeInserted, piBlob, rootPiOid);
+      TransientProcessInstanceStorage.instance().insertOrUpdate(piBlob, rootPiOid, persistentKeysToBeInserted);
    }
    
    /**

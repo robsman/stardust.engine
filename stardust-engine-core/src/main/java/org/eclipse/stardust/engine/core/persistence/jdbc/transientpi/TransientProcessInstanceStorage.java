@@ -11,6 +11,8 @@
 package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+import static org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE;
+import static org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE_DEFAULT_VALUE;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -441,7 +443,7 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob)
       {
-         if (Parameters.instance().getBoolean(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, true))
+         if (Parameters.instance().getBoolean(TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE_DEFAULT_VALUE))
          {
             final Map<PersistentKey, Long> persistentMappingsToAdd = newHashMap();
             for (final PersistentKey p : persistentKeys)
@@ -490,7 +492,7 @@ public class TransientProcessInstanceStorage
       @Override
       public Void execute(final Map<PersistentKey, Long> persistentToRootPi, final Map<Long, ProcessInstanceGraphBlob> rootPiToPiBlob)
       {
-         if (Parameters.instance().getBoolean(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, true))
+         if (Parameters.instance().getBoolean(TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE_DEFAULT_VALUE))
          {
             for (final PersistentKey p : persistentKeys)
             {

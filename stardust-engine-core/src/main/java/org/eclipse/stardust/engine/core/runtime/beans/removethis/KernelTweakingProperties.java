@@ -196,6 +196,7 @@ public final class KernelTweakingProperties
    public static final String SUPPORT_TRANSIENT_PROCESSES_OFF = "off";
    
    public static final String TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE = "Carnot.Engine.Tuning.TransientProcesses.ExposeInMemStorage";
+   public static final boolean TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE_DEFAULT_VALUE = true;
    
    @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Internal)
    @PropertyValueType(ClusterSafeObjectProvider.class)

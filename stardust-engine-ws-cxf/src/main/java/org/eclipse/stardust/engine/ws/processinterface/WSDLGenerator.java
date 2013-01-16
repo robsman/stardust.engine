@@ -22,7 +22,6 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
@@ -47,13 +46,11 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-
-
 /**
  * <p>
  * Generates a WSDL file based on a template and the given XPDL process model.
  * </p>
- *
+ * 
  * @author Nicolas.Werlein, Roland.Stamm
  */
 public class WSDLGenerator
@@ -78,7 +75,7 @@ public class WSDLGenerator
 
    private final IModel model;
 
-   private Map<String,NSPrefixPair> nsPairs = CollectionUtils.newMap();
+   private Map<String, NSPrefixPair> nsPairs = CollectionUtils.newMap();
 
    static
    {
@@ -108,7 +105,8 @@ public class WSDLGenerator
                PredefinedConstants.XML_ENCODING, XpdlUtils.ISO8859_1_ENCODING);
          modelString2 = XpdlUtils.convertXpdl2Carnot(modelString, encoding);
       }
-      this.model = new DefaultXMLReader(false).importFromXML(new StringReader(modelString2));
+      this.model = new DefaultXMLReader(false).importFromXML(new StringReader(
+            modelString2));
 
       InputStream wsdlInputStream = WSDLGenerator.class.getResourceAsStream(WSDL_TEMPLATE_PATH);
       this.wsdlDoc = DomUtils.createDocument(wsdlInputStream, WSDL_TEMPLATE_PATH);
@@ -117,7 +115,7 @@ public class WSDLGenerator
    @Deprecated
    public WSDLGenerator(final byte[] modelBytes)
    {
-     this(new String(modelBytes));
+      this(new String(modelBytes));
    }
 
    public byte[] generate()
@@ -159,14 +157,13 @@ public class WSDLGenerator
       return WsUtils.getNamespaceSafeModelID(modelId);
    }
 
-
    private Map<String, List<IFormalParameter>> collectFormalParameters()
    {
-      Map<String,List<IFormalParameter>> formalParametersPerProcess = CollectionUtils.newMap();
+      Map<String, List<IFormalParameter>> formalParametersPerProcess = CollectionUtils.newMap();
       List<IProcessDefinition> pds = new ArrayList<IProcessDefinition>();
 
       Link mel = (Link) this.model.getProcessDefinitions();
-      for (Iterator<?> iterator = mel.iterator(); iterator.hasNext();)
+      for (Iterator< ? > iterator = mel.iterator(); iterator.hasNext();)
       {
          Object me = iterator.next();
          if (me instanceof IProcessDefinition)
@@ -178,7 +175,7 @@ public class WSDLGenerator
       for (IProcessDefinition pd : pds)
       {
          List<IFormalParameter> formalParameters = pd.getFormalParameters();
-         if (formalParameters!=null)
+         if (formalParameters != null)
          {
             formalParametersPerProcess.put(pd.getId(), sortById(formalParameters));
          }
@@ -223,7 +220,8 @@ public class WSDLGenerator
             "/wsdl:definitions/wsdl:binding/wsdl:operation[@name='startProcess']",
             new WebServiceBindingAssembler());
 
-      assembleWebServiceTemplate(formalParameters,
+      assembleWebServiceTemplate(
+            formalParameters,
             "/wsdl:definitions/wsdl:types/xsd:schema/xsd:element[@name='getProcessResults']",
             new WebServiceRequestAssembler());
       assembleWebServiceTemplate(
@@ -250,9 +248,9 @@ public class WSDLGenerator
 
       Element definitions = DomUtils.retrieveElementByXPath(wsdlDoc, "/wsdl:definitions",
             XPATH_CONTEXT);
-//      definitions.setAttribute("xmlns:mdl", modelId);
-      definitions.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:mdl", modelId);
-
+      // definitions.setAttribute("xmlns:mdl", modelId);
+      definitions.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:mdl",
+            modelId);
 
       // set modelId as targetNamespace
       final Element typesElement = DomUtils.retrieveElementByXPath(wsdlDoc,
@@ -275,7 +273,7 @@ public class WSDLGenerator
       {
          for (final IFormalParameter f : fs)
          {
-            if (!isPrimitiveType(f.getData()))
+            if ( !isPrimitiveType(f.getData()))
             {
                final NSPrefixPair nsPrefixPair = getNSPrefixPair(f);
                schemaElement.setAttributeNS(XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:"
@@ -288,18 +286,18 @@ public class WSDLGenerator
       final Element firstSchemaChild = DomUtils.getFirstChildElement(schemaElement);
       for (final String namespace : namespacesToImport)
       {
-         final Element importElement = schemaElement.getOwnerDocument().createElementNS(XSD_SCHEMA_URL, "xsd:import");
+         final Element importElement = schemaElement.getOwnerDocument().createElementNS(
+               XSD_SCHEMA_URL, "xsd:import");
          importElement.setAttribute("namespace", namespace);
 
-        firstSchemaChild.getParentNode().insertBefore(importElement, firstSchemaChild);
+         firstSchemaChild.getParentNode().insertBefore(importElement, firstSchemaChild);
       }
    }
 
-   private NSPrefixPair getNSPrefixPair(
-         IFormalParameter f)
+   private NSPrefixPair getNSPrefixPair(IFormalParameter f)
    {
 
-     return nsPairs.get(f.getId());
+      return nsPairs.get(f.getId());
    }
 
    private void assembleWebServiceTemplate(
@@ -326,6 +324,7 @@ public class WSDLGenerator
    {
       TreeMap<String, XSDSchema> schemaMap = CollectionUtils.newTreeMap();
       Map<String, IFormalParameter> formalParameterMap = CollectionUtils.newHashMap();
+      Set<String> unresolvedSchemaLocations = CollectionUtils.newHashSet();
 
       for (final IFormalParameter f : usedParameters)
       {
@@ -337,18 +336,20 @@ public class WSDLGenerator
             ITypeDeclaration typeDef = this.model.findTypeDeclaration(typeDeclarationId);
             XSDSchema xsdSchema = StructuredTypeRtUtils.getXSDSchema(this.model, typeDef);
 
-            schemaMap.put(typeDeclarationId, xsdSchema);
-            formalParameterMap.put(typeDeclarationId, f);
+            if (xsdSchema != null)
+            {
+               schemaMap.put(typeDeclarationId, xsdSchema);
+               formalParameterMap.put(typeDeclarationId, f);
 
-            // resolve urn:internal imported schemas transitively
-            resolveInternalSchemaImports(schemaMap, xsdSchema);
+               // resolve schemas transitively
+               resolveSchemaImports(schemaMap, unresolvedSchemaLocations, xsdSchema);
+            }
          }
 
       }
       final Element wsdlTypesNode = DomUtils.retrieveElementByXPath(wsdlDoc,
             "/wsdl:definitions/wsdl:types", XPATH_CONTEXT);
-      
-      
+
       for (Map.Entry<String, XSDSchema> schemaEntry : schemaMap.entrySet())
       {
          XSDSchema xsdSchema = schemaEntry.getValue();
@@ -358,9 +359,9 @@ public class WSDLGenerator
             IFormalParameter f = formalParameterMap.get(typeDeclarationId);
             Element schemaW3CElement = xsdSchema.getDocument().getDocumentElement();
 
-            // remove urn:internal schemaLocation attributes on xsd:import
-            removeInternalSchemaLocation(schemaW3CElement);
-            
+            // remove resolved schemaLocation attributes on xsd:import
+            removeResolvedSchemaLocation(schemaW3CElement, unresolvedSchemaLocations);
+
             insertElementDefinition(f, schemaW3CElement, typeDeclarationId);
             wsdlTypesNode.appendChild(wsdlTypesNode.getOwnerDocument().importNode(
                   schemaW3CElement, true));
@@ -369,35 +370,44 @@ public class WSDLGenerator
 
    }
 
-   private void removeInternalSchemaLocation(Element element)
+   private void removeResolvedSchemaLocation(Element element,
+         Set<String> unresolvedSchemaLocations)
    {
-      NodeList imports = DomUtils.retrieveElementsByXPath(element, "/xsd:schema/xsd:import" , XPATH_CONTEXT);
-      
-      for (int i = 0; i<imports.getLength();i++)
+      NodeList imports = DomUtils.retrieveElementsByXPath(element,
+            "/xsd:schema/xsd:import", XPATH_CONTEXT);
+
+      for (int i = 0; i < imports.getLength(); i++ )
       {
          Node node = imports.item(i);
-         
+
          NamedNodeMap attributes = node.getAttributes();
+         
          Node namedItem = attributes.getNamedItem("schemaLocation");
-         String textContent = namedItem.getTextContent();
-         if (textContent != null && textContent.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
+         if (namedItem != null)
          {
-            // remove schemaLocation Attribute
-            attributes.removeNamedItem("schemaLocation");
-         }         
+            String schemaLocation = namedItem.getTextContent();
+            if (schemaLocation != null && !unresolvedSchemaLocations.contains(schemaLocation))
+            {
+               // remove schemaLocation Attribute
+               attributes.removeNamedItem("schemaLocation");
+            }
+         }
       }
    }
 
    /**
     * Resolves all schemas imported by urn:internal imports
     * 
-    * @param schemaMap After execution this map holds resolved schemas by typeDeclarationId.
-    * @param xsdSchema The schema to resolve urn:internal imports in.
+    * @param schemaMap
+    *           After execution this map holds resolved schemas by typeDeclarationId.
+    * @param unresolvedSchemaLocations
+    * @param xsdSchema
+    *           The schema to resolve urn:internal imports in.
     */
-   private void resolveInternalSchemaImports(TreeMap<String, XSDSchema> schemaMap,
-         XSDSchema xsdSchema)
+   private void resolveSchemaImports(TreeMap<String, XSDSchema> schemaMap,
+         Set<String> unresolvedSchemaLocations, XSDSchema xsdSchema)
    {
-      List contents = xsdSchema.getContents();
+      List< ? > contents = xsdSchema.getContents();
       for (int j = 0; j < contents.size(); j++ )
       {
          Object item = contents.get(j);
@@ -412,17 +422,49 @@ public class WSDLGenerator
 
                if ( !schemaMap.containsKey(toResolveTypeDeclarationId))
                {
-                  // remove schemaLocation not handled here because eclipse XSD hangs 60sec.
-                  // xsdImport.setSchemaLocation(null);
-                  
+                  // remove schemaLocation not handled here because eclipse XSD hangs
+                  // 60sec at xsdImport.setSchemaLocation(null);
+
                   ITypeDeclaration toResolveTypeDef = this.model.findTypeDeclaration(toResolveTypeDeclarationId);
                   XSDSchema resolvedXsdSchema = StructuredTypeRtUtils.getXSDSchema(
                         this.model, toResolveTypeDef);
-                  
-                  schemaMap.put(toResolveTypeDeclarationId, resolvedXsdSchema);
-                  
+                  if (resolvedXsdSchema != null)
+                  {
+
+                     schemaMap.put(toResolveTypeDeclarationId, resolvedXsdSchema);
+
+                     // recurse until all imports are resolved.
+                     resolveSchemaImports(schemaMap, unresolvedSchemaLocations,
+                           resolvedXsdSchema);
+                  }
+                  else
+                  {
+                     // could not resolve schema
+                     unresolvedSchemaLocations.add(schemaLocation);
+                  }
+               }
+            }
+            else if (schemaLocation != null)
+            {
+               XSDSchema resolvedXsdSchema = xsdImport.getResolvedSchema();
+               if (resolvedXsdSchema == null)
+               {
+                  xsdImport.reset();
+                  xsdImport.importSchema();
+               }
+               resolvedXsdSchema = xsdImport.getResolvedSchema();
+
+               if (resolvedXsdSchema != null)
+               {
+                  schemaMap.put(schemaLocation, resolvedXsdSchema);
+
                   // recurse until all imports are resolved.
-                  resolveInternalSchemaImports(schemaMap, resolvedXsdSchema);
+                  resolveSchemaImports(schemaMap, unresolvedSchemaLocations, resolvedXsdSchema);
+               }
+               else
+               {
+                  // failed to resolve import
+                  unresolvedSchemaLocations.add(schemaLocation);
                }
             }
 
@@ -441,19 +483,19 @@ public class WSDLGenerator
          String prefix = "ns" + nsIndex;
          this.nsPairs.put(f.getId(), new NSPrefixPair(prefix, targetNamespace));
       }
-      
-      final Set<String> elementNames = new HashSet<String>();
 
-      elementNames.add(type);
+      // final Set<String> elementNames = new HashSet<String>();
+
+      // elementNames.add(type);
 
       final Element elementDefTemplate = DomUtils.getFirstChildElement(schemaElement);
-      for (final String elementName : elementNames)
-      {
-         final Element element = (Element) elementDefTemplate.cloneNode(true);
-         element.setAttribute("name", elementName);
-         // remove internal schemaLocation attribute from xsd imports
-         elementDefTemplate.getParentNode().insertBefore(element, elementDefTemplate);
-      }
+      // for (final String elementName : elementNames)
+      // {
+      final Element element = (Element) elementDefTemplate.cloneNode(true);
+      // element.setAttribute("name", elementName);
+
+      elementDefTemplate.getParentNode().insertBefore(element, elementDefTemplate);
+      // }
       elementDefTemplate.getParentNode().removeChild(elementDefTemplate);
    }
 
@@ -466,7 +508,7 @@ public class WSDLGenerator
       {
          for (final IFormalParameter f : l)
          {
-            if (!isPrimitiveType(f.getData()))
+            if ( !isPrimitiveType(f.getData()))
             {
                mergedTypes.add(f);
             }
@@ -476,7 +518,8 @@ public class WSDLGenerator
       return mergedTypes;
    }
 
-   private Element createElementElement(Element parent, final IFormalParameter f, NSPrefixPair nsPrefixPair)
+   private Element createElementElement(Element parent, final IFormalParameter f,
+         NSPrefixPair nsPrefixPair)
    {
       Document doc = parent.getOwnerDocument();
       final Element element = doc.createElementNS(XSD_SCHEMA_URL, "xsd:element");
@@ -495,13 +538,13 @@ public class WSDLGenerator
                StructuredDataConstants.TYPE_DECLARATION_ATT);
 
          final Element reference = doc.createElementNS(XSD_SCHEMA_URL, "xsd:element");
-         reference.setAttribute("ref", nsPrefixPair.prefix() + ":"
-               + typeDeclarationId);
+         reference.setAttribute("ref", nsPrefixPair.prefix() + ":" + typeDeclarationId);
 
          final Element sequence = doc.createElementNS(XSD_SCHEMA_URL, "xsd:sequence");
          sequence.appendChild(reference);
 
-         final Element complexType = doc.createElementNS(XSD_SCHEMA_URL, "xsd:complexType");
+         final Element complexType = doc.createElementNS(XSD_SCHEMA_URL,
+               "xsd:complexType");
          complexType.appendChild(sequence);
 
          element.setAttribute("name", f.getId());
@@ -534,8 +577,7 @@ public class WSDLGenerator
       }
    }
 
-   private final class WebServiceRequestTypesAssembler
-         implements WebServiceAssembler
+   private final class WebServiceRequestTypesAssembler implements WebServiceAssembler
    {
       public void assemble(final List<IFormalParameter> formalParameters,
             final Element element, final String processId)
@@ -549,7 +591,8 @@ public class WSDLGenerator
 
          for (final IFormalParameter f : formalParameters)
          {
-            if (Direction.IN.equals(f.getDirection())|| Direction.IN_OUT.equals(f.getDirection()))
+            if (Direction.IN.equals(f.getDirection())
+                  || Direction.IN_OUT.equals(f.getDirection()))
             {
                createElementElement(requestMessageTypes, f, getNSPrefixPair(f));
             }
@@ -557,8 +600,7 @@ public class WSDLGenerator
       }
    }
 
-   private final class WebServiceResponseTypesAssembler
-         implements WebServiceAssembler
+   private final class WebServiceResponseTypesAssembler implements WebServiceAssembler
    {
       public void assemble(final List<IFormalParameter> formalParameters,
             final Element element, final String processId)
@@ -572,7 +614,8 @@ public class WSDLGenerator
 
          for (final IFormalParameter f : formalParameters)
          {
-            if (Direction.OUT.equals(f.getDirection())|| Direction.IN_OUT.equals(f.getDirection()))
+            if (Direction.OUT.equals(f.getDirection())
+                  || Direction.IN_OUT.equals(f.getDirection()))
             {
                createElementElement(responseMessageTypes, f, getNSPrefixPair(f));
             }
@@ -641,7 +684,8 @@ public class WSDLGenerator
    {
       private static final long serialVersionUID = 8692652926850310799L;
 
-      public static final NSPrefixPair XSD_NS_PAIR = new NSPrefixPair("xsd", XSD_SCHEMA_URL);
+      public static final NSPrefixPair XSD_NS_PAIR = new NSPrefixPair("xsd",
+            XSD_SCHEMA_URL);
 
       public NSPrefixPair(final String prefix, final String namespace)
       {

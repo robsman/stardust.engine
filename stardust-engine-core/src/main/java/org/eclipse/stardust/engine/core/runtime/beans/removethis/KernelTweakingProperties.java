@@ -202,7 +202,7 @@ public final class KernelTweakingProperties
    @PropertyValueType(ClusterSafeObjectProvider.class)
    public static final String CLUSTER_SAFE_OBJ_PROVIDER = "Carnot.Engine.Tuning.SupportTransientProcesses.ClusterSafeObjectProvider";
    
-   @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Public)
+   @ConfigurationProperty(status = Status.Stable, useRestriction = UseRestriction.Internal)
    @PropertyValueType(HazelcastJcaConnectionFactoryProvider.class)
    public static final String HZ_JCA_CONNECTION_FACTORY_PROVIDER = "Carnot.Engine.Hazelcast.JcaConnectionFactoryProvider";
    

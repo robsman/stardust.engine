@@ -48,7 +48,7 @@ public class DOMConverter
     */
    public static org.eclipse.stardust.engine.core.struct.sxml.Element convert(org.w3c.dom.Element element)
    {
-      Element result = new Element(element.getLocalName(), element.getNamespaceURI(),
+      Element result = new Element(getLocalElementName(element), element.getNamespaceURI(),
             element.getPrefix());
 
       copyChildren(element, result);
@@ -191,7 +191,7 @@ public class DOMConverter
          if (child instanceof org.w3c.dom.Element)
          {
             org.w3c.dom.Element domChild = (org.w3c.dom.Element) child;
-            Element sxmlChild = new Element(domChild.getLocalName(),
+            Element sxmlChild = new Element(getLocalElementName(domChild),
                   domChild.getNamespaceURI(), domChild.getPrefix());
 
             copyChildren(domChild, sxmlChild);
@@ -211,5 +211,10 @@ public class DOMConverter
 
          child = child.getNextSibling();
       }
+   }
+   
+   private static String getLocalElementName(org.w3c.dom.Element element)
+   {
+      return element.getLocalName() == null ? element.getNodeName() : element.getLocalName();
    }
 }

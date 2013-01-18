@@ -46,12 +46,7 @@ import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
@@ -666,6 +661,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
       cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY));
       cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE));
+      cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE));
 
       return cols;
    }

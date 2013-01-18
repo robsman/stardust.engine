@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
@@ -537,7 +538,7 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
       return false;
    }
    
-   public boolean isExcludedUser(long activityRtOid, long processInstanceOID, long modelOid)
+   public boolean isExcludedUser(long activityRtOid, long processInstanceOID, long modelOid, long dataValueOid)
    {
       if(processInstanceOID == 0)
       {
@@ -561,62 +562,79 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                {
                   IEventAction action = (IEventAction) l.next();
                   PluggableType type = action.getType();
-                  String instanceName = type.getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
+                  String instanceName = type
+                        .getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
                   String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
-                  Class classFromClassName = Reflect.getClassFromClassName(excludeUserAction, false);
-                  if(classFromClassName != null)
+                  Class classFromClassName = Reflect.getClassFromClassName(
+                        excludeUserAction, false);
+                  if (classFromClassName != null)
                   {
                      excludeUserAction = classFromClassName.getName();
                   }
-                  
+
                   if (instanceName.equals(excludeUserAction))
                   {
-                     IProcessDefinition processDefinition = activity.getProcessDefinition();
-                     IProcessInstance processInstance = ProcessInstanceBean.findByOID(processInstanceOID);
-                     
                      Map<String, Object> attributes = action.getAllAttributes();
-                     String dataId = (String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
+                     String dataId = (String) attributes
+                           .get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
                      String dataPath = (String) attributes
                            .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
-                     IData data = ModelUtils.getData(processDefinition, dataId);
-                     IDataValue dataValue = processInstance.getDataValue(data);
-                     
-                     Object value = dataValue.getValue();
-                     if(!StringUtils.isEmpty(dataPath))
+                     IData data = ModelUtils.getData(activity.getProcessDefinition(),
+                           dataId);
+                     if (PredefinedConstants.LAST_ACTIVITY_PERFORMER.equals(data.getId()))
                      {
-                        ExtendedAccessPathEvaluator evaluator = SpiUtils
-                        .createExtendedAccessPathEvaluator(data, dataPath);
-                        AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
-                        processInstance, null, null, null);
-                        value = evaluator.evaluate(data, dataValue.getValue(), dataPath, evaluationContext);                        
-                     }
-                     
-                     Long longValue = null;
-                     if(value instanceof Long)
-                     {
-                        longValue = (Long) value;
-                     }
-                     else if(value instanceof UserPK)
-                     {
-                        try
+                        IUser lastActivityPerformer = ActivityInstanceBean
+                              .getLastActivityPerformer(processInstanceOID);
+                        Object value = lastActivityPerformer != null
+                              ? lastActivityPerformer.getPrimaryKey()
+                              : null;
+                        if (value instanceof UserPK)
                         {
-                           longValue = Long.parseLong(value.toString());
+                           try
+                           {
+                              dataValueOid = Long.parseLong(value.toString());
+                           }
+                           catch (NumberFormatException e)
+                           {
+                           }
                         }
-                        catch (NumberFormatException e)
-                        {
-                        }                        
                      }
-                                          
-                     if(longValue != null && currentPerformer == longValue)
+                     if (!StringUtils.isEmpty(dataPath))
+                     {
+                        IProcessInstance processInstance = ProcessInstanceBean
+                              .findByOID(processInstanceOID);
+                        IDataValue dataValue = processInstance.getDataValue(data);
+                        ExtendedAccessPathEvaluator evaluator = SpiUtils
+                              .createExtendedAccessPathEvaluator(data, dataPath);
+                        AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
+                              processInstance, null, null, null);
+                        Object value = evaluator.evaluate(data, dataValue.getValue(),
+                              dataPath, evaluationContext);
+                        if (value instanceof Long)
+                        {
+                           dataValueOid = (Long) value;
+                        }
+                        else if (value instanceof UserPK)
+                        {
+                           try
+                           {
+                              dataValueOid = Long.parseLong(value.toString());
+                           }
+                           catch (NumberFormatException e)
+                           {
+                           }
+                        }
+                     }
+
+                     if (currentPerformer == dataValueOid)
                      {
                         return true;
-                     }                        
+                     }
                   }
                }
             }
          }
       }
-      
-      return false;   
-   }         
+      return false;
+   }
 }

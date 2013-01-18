@@ -19,6 +19,7 @@ import org.eclipse.stardust.engine.api.query.FilterAndTerm;
 import org.eclipse.stardust.engine.api.query.Query;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IWorkItem;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
@@ -33,7 +34,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predicate
 {
    private static final Logger trace = LogManager.getLogger(WorkItemAuthorization2Predicate.class);
-      
+
    public boolean addPrefetchDataHints(Query query)
    {
       boolean returnValue = super.addPrefetchDataHints(query);
@@ -82,9 +83,11 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                long performer = rs.getLong(WorkItemBean.FIELD__PERFORMER);
                
                long scopeProcessInstanceOid = 0;
+               long dataValueOid = 0;
                try
                {
                   scopeProcessInstanceOid = rs.getLong(WorkItemBean.FIELD__SCOPE_PROCESS_INSTANCE);
+                  dataValueOid = rs.getLong(DataValueBean.FIELD__NUMBER_VALUE);
                }
                catch (SQLException x)
                {
@@ -118,7 +121,8 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                      return false;
                }
                
-               if(isExcludedUser(activityRtOid, scopeProcessInstanceOid, modelOid))
+               if (isExcludedUser(activityRtOid, scopeProcessInstanceOid, modelOid,
+                     dataValueOid))
                {
                   return false;
                }

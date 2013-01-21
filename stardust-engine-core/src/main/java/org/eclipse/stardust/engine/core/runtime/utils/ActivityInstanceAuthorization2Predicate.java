@@ -19,7 +19,6 @@ import org.eclipse.stardust.engine.api.query.ExcludeUserPolicy;
 import org.eclipse.stardust.engine.api.query.Query;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 
 /**
@@ -83,23 +82,10 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
                long processInstanceOid = rs.getLong(ActivityInstanceBean.FIELD__PROCESS_INSTANCE);
                long departmentOid = rs.getLong(ActivityInstanceBean.FIELD__CURRENT_DEPARTMENT);
                
-               if (excludeUserPolicy)
+               if(excludeUserPolicy && isExcludedUser(activityRtOid, processInstanceOid, modelOid))
                {
-                  long dataValueOid = 0;
-                  try
-                  {
-                     dataValueOid = rs.getLong(DataValueBean.FIELD__NUMBER_VALUE);
-                  }
-                  catch (SQLException x)
-                  {
-                     // leave it to 0 if column cannot be found
-                  }
-                  if (isExcludedUser(activityRtOid, processInstanceOid, modelOid,
-                        dataValueOid))
-                  {
-                     return false;
-                  }
-               }
+                  return false;
+               }               
                
                context.setActivityData(processInstanceOid, activityRtOid, modelOid, currentPerformer,
                      currentUserPerformer, departmentOid);

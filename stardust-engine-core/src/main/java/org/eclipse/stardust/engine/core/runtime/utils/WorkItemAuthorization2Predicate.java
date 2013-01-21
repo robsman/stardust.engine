@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.utils;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -34,7 +35,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predicate
 {
    private static final Logger trace = LogManager.getLogger(WorkItemAuthorization2Predicate.class);
-
+      
    public boolean addPrefetchDataHints(Query query)
    {
       boolean returnValue = super.addPrefetchDataHints(query);
@@ -83,11 +84,9 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                long performer = rs.getLong(WorkItemBean.FIELD__PERFORMER);
                
                long scopeProcessInstanceOid = 0;
-               long dataValueOid = 0;
                try
                {
                   scopeProcessInstanceOid = rs.getLong(WorkItemBean.FIELD__SCOPE_PROCESS_INSTANCE);
-                  dataValueOid = rs.getLong(DataValueBean.FIELD__NUMBER_VALUE);
                }
                catch (SQLException x)
                {
@@ -121,8 +120,7 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                      return false;
                }
                
-               if (isExcludedUser(activityRtOid, scopeProcessInstanceOid, modelOid,
-                     dataValueOid))
+               if(isExcludedUser(activityRtOid, scopeProcessInstanceOid, modelOid))
                {
                   return false;
                }

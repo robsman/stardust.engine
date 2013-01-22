@@ -139,13 +139,16 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
 
       IUser startingUser = processInstance.getStartingUser();
 
+      UserDetailsLevel userDetailsLevel = ProcessInstanceUtils.isTransientExecutionScenario(processInstance)
+            ? UserDetailsLevel.Minimal
+            : UserDetailsLevel.Core;
       PropertyLayer layer = null;
       if (null != startingUser)
       {
          try
          {
             Map<String, Object> props = new HashMap<String, Object>();
-            props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+            props.put(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
             layer = ParametersFacade.pushLayer(props);
             startingUserDetails = DetailsFactory.createUser(startingUser);
          }
@@ -267,7 +270,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          // Do not overwrite level if explicitly set (not null!).
          if (parameters.get(UserDetailsLevel.PRP_USER_DETAILS_LEVEL) == null)
          {
-            Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, UserDetailsLevel.Core);
+            Map<String, ?> props = Collections.singletonMap(UserDetailsLevel.PRP_USER_DETAILS_LEVEL, userDetailsLevel);
             layer = ParametersFacade.pushLayer(props);
          }
 

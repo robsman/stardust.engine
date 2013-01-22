@@ -85,17 +85,17 @@ public class UserDetails implements User
    {
       initDetailsLevel();
 
-      init(user);
+      init(user); // Minimal
       
-      fetchPreviousLoginTime(user);
-      fetchUserProperties(user);
-      fetchPreferences(user);
-      fetchGrants(user);
+      fetchPreviousLoginTime(user); // Core
+      fetchUserProperties(user); // WithProperties
+      fetchPreferences(user); // moduleId[]
+      fetchGrants(user); // Full
 
       List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
       
-      fetchIsAdministrator(user, activeModels);
-      fetchPermissions(user, activeModels);
+      fetchIsAdministrator(user, activeModels); // Core
+      fetchPermissions(user, activeModels); // Core
    }
 
    private void fetchGrants(IUser user)
@@ -179,21 +179,25 @@ public class UserDetails implements User
             isAdministrator = true;
          }
       }
-
-      //respect SynchronizationService#TransientAdministratorDecorator
-      if (user.hasRole(PredefinedConstants.ADMINISTRATOR_ROLE))
+      else if (UserDetailsLevel.Minimal != detailsLevel)
       {
-         isAdministrator = true;
+         // respect SynchronizationService#TransientAdministratorDecorator
+         if (user.hasRole(PredefinedConstants.ADMINISTRATOR_ROLE))
+         {
+            isAdministrator = true;
+         }
       }
    }
 
    private void fetchPermissions(IUser user, List<IModel> activeModels)
    {
       permissions = CollectionUtils.newHashMap();
-      
-      fetchPermission(user, activeModels, Permissions.MODEL_MANAGE_AUTHORIZATION, null);
-      fetchPermission(user, activeModels, null, "modifyUser", User.class);
-      fetchPermission(user, activeModels, null, "getUser", long.class);
+      if (UserDetailsLevel.Minimal != detailsLevel)
+      {
+         fetchPermission(user, activeModels, Permissions.MODEL_MANAGE_AUTHORIZATION, null);
+         fetchPermission(user, activeModels, null, "modifyUser", User.class);
+         fetchPermission(user, activeModels, null, "getUser", long.class);
+      }
    }
 
    private void fetchPermission(IUser user, List<IModel> activeModels,
@@ -270,7 +274,7 @@ public class UserDetails implements User
 
    private void fetchPreviousLoginTime(IUser user)
    {
-      if (previousLoginTime != null)
+      if (previousLoginTime != null && UserDetailsLevel.Minimal != detailsLevel)
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          UserSessionBean result = (UserSessionBean) session.findFirst(UserSessionBean.class,
@@ -746,6 +750,10 @@ public class UserDetails implements User
 
    public boolean isAdministrator()
    {
+      if (UserDetailsLevel.Minimal == detailsLevel)
+      {
+         throw new IllegalStateException();
+      }
       return isAdministrator;
    }
 

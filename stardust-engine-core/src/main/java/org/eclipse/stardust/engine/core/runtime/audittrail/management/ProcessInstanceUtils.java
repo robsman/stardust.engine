@@ -775,6 +775,9 @@ public class ProcessInstanceUtils
       return processInstance;
    }
    
+   /**
+    * @return whether the Infinity property to enable support for transient processes is set 
+    */
    public static boolean isTransientPiSupportEnabled()
    {
       final Parameters params = Parameters.instance();
@@ -785,12 +788,18 @@ public class ProcessInstanceUtils
       final boolean isAlwaysDeferred = KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED.equals(transientPiSupport);
       return isOn | isAlwaysTransient | isAlwaysDeferred;
    }
-   
+
+   /**
+    * @return whether the activity instances of the given process instance should not be executed in parallel, but serially
+    */
    public static boolean isSerialExecutionScenario(final IProcessInstance pi)
    {
       return isTransientExecutionScenario(pi);
    }
    
+   /**
+    * @return whether the given process instance is executed transiently
+    */
    public static boolean isTransientExecutionScenario(final IProcessInstance pi)
    {
       if ( !isTransientPiSupportEnabled())
@@ -806,6 +815,16 @@ public class ProcessInstanceUtils
       return false;
    }
    
+   /**
+    * <p>
+    * Schedules a worker thread processing the queued {@link ActivityThread}s for the given
+    * {@link IProcessInstance}, if and only if there are any {@link ActivityThread}s to be processed
+    * for the given {@link IProcessInstance}. This worker thread guarantees a serial execution of all
+    * {@link ActivityThread}s for the given {@link IProcessInstance}.
+    * </p>
+    * 
+    * @param pi the process instance for which a worker thread should be scheduled
+    */
    public static void scheduleSerialActivityThreadWorkerIfNecessary(final IProcessInstance pi)
    {
       final boolean piCompleted = pi.getState() == ProcessInstanceState.Completed;

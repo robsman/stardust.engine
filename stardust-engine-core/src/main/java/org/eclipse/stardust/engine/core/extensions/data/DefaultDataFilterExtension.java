@@ -142,6 +142,7 @@ public class DefaultDataFilterExtension implements DataFilterExtension
 
       cols.add(descriptor.fieldRef(DataValueBean.FIELD__TYPE_KEY));
       cols.add(descriptor.fieldRef(DataValueBean.FIELD__STRING_VALUE));
+      cols.add(descriptor.fieldRef(DataValueBean.FIELD__NUMBER_VALUE));
 
       return cols;
    }

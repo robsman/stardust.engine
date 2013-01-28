@@ -102,7 +102,7 @@ public class EJBUtils
       if (factoryName == null)
       {
          throw new PublicException(
-               "You have not supplied the correct JNDIInitialContext parameter in properties");
+               "You have not supplied the correct " + INITIAL_CONTEXT_FACTORY + " parameter in properties");
       }
 
       trace.debug("Initial context factory is " + factoryName);

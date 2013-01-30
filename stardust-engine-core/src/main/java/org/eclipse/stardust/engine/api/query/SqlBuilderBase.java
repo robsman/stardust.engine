@@ -49,6 +49,8 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.IScopedModelParticipant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -86,6 +88,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -1397,6 +1400,12 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
    public Object visit(PerformingOnBehalfOfFilter filter, Object rawContext)
    {
+      if ( !Parameters.instance().getBoolean(ChangeLogDigester.PRP_AIH_ENABLED, true))
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.QUERY_FILTER_IS_NOT_AVAILABLE_WITH_DISABLED_AI_HISTORY.raise(PerformingOnBehalfOfFilter.class.getSimpleName()));
+      }
+      
       VisitationContext context = (VisitationContext) rawContext;
 
       Set<IParticipant> participants = QueryUtils.findContributingParticipants(

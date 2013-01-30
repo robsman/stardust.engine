@@ -87,6 +87,8 @@ public interface QueryService extends Service
     *    (XPath) is specified in a DataFilter for queries on a non-structured data
     * @throws IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
+    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    *    but activity instance history is disabled.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readProcessInstanceData,
@@ -109,6 +111,8 @@ public interface QueryService extends Service
     *    (XPath) is specified in a DataFilter for queries on a non-structured data
     * @throws IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
+    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    *    but activity instance history is disabled.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readActivityInstanceData,
@@ -166,7 +170,9 @@ public interface QueryService extends Service
     * @throws IllegalOperationException if attributeName
     *     (XPath) is specified in a DataFilter for queries on a non-structured data
     * @throws IllegalOperationException if attributeName
-    *     (XPath) specified in a DataFilter contains an invalid XPath
+    *    (XPath) specified in a DataFilter contains an invalid XPath
+    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    *    but activity instance history is disabled.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readProcessInstanceData,
@@ -188,7 +194,9 @@ public interface QueryService extends Service
     * @throws IllegalOperationException if attributeName
     *     (XPath) is specified in a DataFilter for queries on a non-structured data
     * @throws IllegalOperationException if attributeName
-    *     (XPath) specified in a DataFilter contains an invalid XPath
+    *    (XPath) specified in a DataFilter contains an invalid XPath
+    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    *    but activity instance history is disabled.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readActivityInstanceData,
@@ -257,6 +265,8 @@ public interface QueryService extends Service
     *    (XPath) is specified in a DataFilter for queries on a non-structured data
     * @throws IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
+    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    *    but activity instance history is disabled.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readProcessInstanceData,
@@ -283,6 +293,8 @@ public interface QueryService extends Service
     *    (XPath) is specified in a DataFilter for queries on a non-structured data
     * @throws IllegalOperationException if attributeName
     *    (XPath) specified in a DataFilter contains an invalid XPath
+    * @throws IllegalOperationException if PerformingOnBehalfOfFilter is used
+    *    but activity instance history is disabled.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readActivityInstanceData,

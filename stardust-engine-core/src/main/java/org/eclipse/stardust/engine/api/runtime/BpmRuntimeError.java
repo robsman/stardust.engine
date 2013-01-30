@@ -388,6 +388,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 QUERY_XPATH_ON_STRUCT_DATA_ORDER_BY_MUST_POINT_TO_PRIMITIVE = newArgs2("QUERY01004", BpmRuntimeErrorMessages.getString("QUERY01004")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 QUERY_FILTER_IS_XXX_FOR_QUERY = newArgs2("QUERY02001", BpmRuntimeErrorMessages.getString("QUERY02001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 QUERY_FILTER_IS_NOT_AVAILABLE_WITH_DISABLED_AI_HISTORY = newArgs1("QUERY02010", BpmRuntimeErrorMessages.getString("QUERY02010")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    //// IPP WS related

@@ -650,7 +650,11 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                try
                {
                   // As xsd:decimal is stored as string it is tried to convert to double
-                  data.setDoubleValue(Double.parseDouble((String) value));
+                  double parsedDouble = Double.parseDouble((String) value);
+                  if ( !Double.isNaN(parsedDouble))
+                  {
+                     data.setDoubleValue(parsedDouble);
+                  }
                }
                catch (NumberFormatException x)
                {

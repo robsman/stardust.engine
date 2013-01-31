@@ -80,6 +80,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
 /**
@@ -642,7 +643,9 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                            }
                         }
                      }
-                     if (!StringUtils.isEmpty(dataPath))
+                      
+                     if (!StructuredTypeRtUtils.isStructuredType(data.getType().getId())
+                           && !StringUtils.isEmpty(dataPath))
                      {
                         IProcessInstance processInstance = ProcessInstanceBean
                               .findByOID(processInstanceOID);

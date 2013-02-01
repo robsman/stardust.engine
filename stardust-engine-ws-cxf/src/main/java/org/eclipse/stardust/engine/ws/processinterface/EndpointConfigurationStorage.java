@@ -217,15 +217,16 @@ public class EndpointConfigurationStorage
             QName qn = QName.valueOf(key.getSecond());
             String modelId = qn.getNamespaceURI();
             String partitionId = key.getFirst();
-            boolean found = false;
+            boolean keep = false;
             for (DeployedModelDescription md : allActiveModels)
             {
-               if (md.getId().equals(modelId) && md.getPartitionId().equals(partitionId))
+               // keep if modelId and partitionId is correct, or from different partition.
+               if (!md.getPartitionId().equals(partitionId) || md.getId().equals(modelId))
                {
-                  found = true;
+                  keep = true;
                }
             }
-            if ( !found)
+            if ( !keep)
             {
                removeCandidateModels.add(key);
                removalList.add(key);

@@ -37,8 +37,9 @@ public class FixRuntimeOidCommand extends AuditTrailCommand
    {   
       boolean logOnly = options.containsKey(LOG_ONLY_ARG);
       boolean noLog = options.containsKey(NO_LOG_ARG);
+      boolean useNewOid = true;
       
-      RuntimeOidPatcher patcher = new RuntimeOidPatcher(logOnly, noLog);
+      RuntimeOidPatcher patcher = new RuntimeOidPatcher(logOnly, useNewOid, noLog);
       patcher.patch();
       
       return 0;

@@ -75,10 +75,13 @@ public class RuntimeOidPatcher
 
    private boolean useNewOid;
 
-   public RuntimeOidPatcher(boolean logOnly, boolean useNewOid)
+   private final boolean noLog;
+
+   public RuntimeOidPatcher(boolean logOnly, boolean useNewOid, boolean noLog)
    {
       this.logOnly = logOnly;
       this.useNewOid = useNewOid;
+      this.noLog = noLog;
    }
 
    private Session obtainSession() throws SQLException
@@ -183,8 +186,11 @@ public class RuntimeOidPatcher
 
       }
 
-      // log what the program is about to do
-      logOperations(patchesByPartitionOid);
+      if (!noLog)
+      {
+         // log what the program is about to do
+         logOperations(patchesByPartitionOid);
+      }
 
       if (!logOnly)
       {

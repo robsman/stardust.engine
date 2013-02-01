@@ -531,9 +531,11 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          String pathInfo = request.getPathInfo();
          Map parameterMap = request.getParameterMap();
          
-         if (pathInfo == null || "/".equals(pathInfo))
+         if (pathInfo == null || "/".equals(pathInfo) || parameterMap.containsKey("stylesheet"))
          {
-            // return blank page for calls that would run into NullPointerException.
+            // Return blank page for calls that would run into NullPointerException.
+            // Request with ?stylesheet is ignored as it is always is sent as a second request from the
+            // browser when requesting the /services listing and it should not update the default partition.
             return;
          }
          else if (parameterMap.containsKey("wsdl") || pathInfo.endsWith("/services")

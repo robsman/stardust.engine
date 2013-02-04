@@ -80,7 +80,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.struct.DataXPathMap;
+import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
+import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
 /**
@@ -643,9 +647,15 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                            }
                         }
                      }
-                      
-                     if (!StructuredTypeRtUtils.isStructuredType(data.getType().getId())
-                           && !StringUtils.isEmpty(dataPath))
+                     boolean isPrimitiveStructType = false;
+                     if (StructuredTypeRtUtils.isStructuredType(data.getType().getId()))
+                     {
+                        IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+                        TypedXPath typedXPath = xPathMap.getXPath(dataPath);
+                        isPrimitiveStructType = StructuredDataXPathUtils
+                              .isPrimitiveType(typedXPath);
+                     }
+                     if (!isPrimitiveStructType && !StringUtils.isEmpty(dataPath))
                      {
                         IProcessInstance processInstance = ProcessInstanceBean
                               .findByOID(processInstanceOID);

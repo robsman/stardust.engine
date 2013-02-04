@@ -544,6 +544,18 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             partitionId = request.getParameter("partition");
 
             modelId = request.getParameter("modelId");
+
+            if (partitionId == null && modelId == null)
+            {
+               String tempString = pathInfo.substring(pathInfo.indexOf("/") + 1);
+               partitionId = tempString.substring(0, tempString.indexOf("/"));
+
+               tempString = pathInfo.substring(pathInfo.indexOf(partitionId)
+                     + partitionId.length() + 1);
+               modelId = tempString.substring(0, tempString.indexOf("/"));
+            }
+            
+            
          }
          else
          {

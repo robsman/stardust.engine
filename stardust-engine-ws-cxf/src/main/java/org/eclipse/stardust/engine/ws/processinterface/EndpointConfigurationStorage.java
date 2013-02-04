@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.ws.WebServiceEnv;
 import org.w3c.dom.Document;
 
@@ -218,6 +219,11 @@ public class EndpointConfigurationStorage
             String modelId = qn.getNamespaceURI();
             String partitionId = key.getFirst();
             boolean keep = false;
+            if ( !SecurityProperties.CURRENT_PARTITION.equals(partitionId))
+            {
+               keep = true;
+            }
+            
             for (DeployedModelDescription md : allActiveModels)
             {
                // keep if modelId and partitionId is correct, or from different partition.

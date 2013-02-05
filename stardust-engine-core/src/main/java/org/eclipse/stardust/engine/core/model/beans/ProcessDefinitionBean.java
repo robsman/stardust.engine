@@ -183,12 +183,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             }
          }
          
-         boolean isRevalidation = false;
-         if (Parameters.instance().get(ModelElementBean.PRP_REVALIDATE_ELEMENTS) != null)
-         {
-            isRevalidation = (Boolean) Parameters.instance().get(
-                  ModelElementBean.PRP_REVALIDATE_ELEMENTS);
-         }
+         boolean isRevalidation = Parameters.instance().getBoolean(
+               ModelElementBean.PRP_REVALIDATE_ELEMENTS, false);
          // Check Implementation of Interface only if it is not a revalidation
          if (!isRevalidation) {
             checkImplementation(inconsistencies);

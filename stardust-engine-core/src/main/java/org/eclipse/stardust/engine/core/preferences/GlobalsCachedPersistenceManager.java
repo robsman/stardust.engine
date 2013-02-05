@@ -262,7 +262,7 @@ public class GlobalsCachedPersistenceManager
          //default scope allows no reading / writing from the database
          if(!cache.containsKey(cacheKey) && !PreferenceScope.DEFAULT.equals(scope))
          {
-            preferences = subPersistenceManager.loadPreferences(scope, moduleId, preferencesId,
+            preferences = subPersistenceManager.loadPreferences(user, scope, moduleId, preferencesId,
                   xmlPreferenceReader);
             putToCache(user, preferences);
          }

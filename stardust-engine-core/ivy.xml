@@ -159,7 +159,6 @@
 
       <override org="org.apache.derby" module="derby" rev="${derby.version}" />
 
-      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="${geronimo-stax-api_1.0_spec.version}" />
       <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" />
       <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="${geronimo-jta_1.1_spec.version}" />
       <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="${geronimo-transaction.version}" />

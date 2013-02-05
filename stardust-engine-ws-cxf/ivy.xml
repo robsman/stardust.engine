@@ -53,7 +53,7 @@
 			<exclude org="rhino" module="js" />
 			<exclude org="org.codehaus.woodstox" module="wstx-asl" />
 			<exclude org="javax.xml.bind" module="jaxb-api" />
-			<exclude org="javax.xml.stream" module="stax-api" />
+			<exclude org="stax" module="stax-api" />
 			<exclude org="org.eclipse.stardust.engine" module="jcr-vfs" />
 		</dependency>
 			

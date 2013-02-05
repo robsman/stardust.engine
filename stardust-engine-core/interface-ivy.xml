@@ -128,8 +128,10 @@
       <!-- *************************** -->
       
       <!-- base-provider-compile -->
-      <dependency org="javax.xml.bind" name="jaxb-api" rev="${jaxb-api.version}" conf="base-provider-compile->default" />
-      <dependency org="org.apache.geronimo.specs" name="geronimo-stax-api_1.0_spec" rev="${geronimo-stax-api_1.0_spec.version}" conf="base-provider-compile->default" />
+      <dependency org="javax.xml.bind" name="jaxb-api" rev="${jaxb-api.version}" conf="base-provider-compile->default">
+         <exclude org="javax.xml.stream" module="stax-api" />
+      </dependency>
+      <dependency org="stax" name="stax-api" rev="${stax-api.version}" conf="base-provider-compile->default" />
       <dependency org="rhino" name="js" rev="${js.version}" conf="base-provider-compile,js-provider-runtime->default" />
 
       <!-- base-provider-runtime -->
@@ -248,6 +250,7 @@
          <exclude org="org.bouncycastle" module="bcmail-jdk15"/>
          <exclude org="commons-pool" module="commons-pool"/>
          <exclude org="commons-collections" module="commons-collections"/>
+         <exclude org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec"/>
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-with-full-text-search->default"/>
       
@@ -266,6 +269,7 @@
          <exclude org="org.bouncycastle" module="bcmail-jdk15"/>
          <exclude org="commons-pool" module="commons-pool"/>
          <exclude org="commons-collections" module="commons-collections"/>
+         <exclude org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec"/>
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-without-full-text-search->default"/>
       
@@ -318,7 +322,6 @@
 
       <override org="org.apache.derby" module="derby" rev="${derby.version}" />
 
-      <override org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec" rev="${geronimo-stax-api_1.0_spec.version}" />
       <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" />
       <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="${geronimo-jta_1.1_spec.version}" />
       <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="${geronimo-transaction.version}" />

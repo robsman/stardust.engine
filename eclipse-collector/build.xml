@@ -17,7 +17,7 @@
 
    <import file="${project.dir}/../../build.tools/commons-build.xml" />
 
-   <property name="eclipse.download.base.url" value="${eclipse-site}/201212210900" />
+   <property name="eclipse.download.base.url" value="${eclipse-site}" />
    <property name="eclipse.download.dir" location="${buildtools.home}/lib/org/eclipse" />
    <available file="${eclipse.download.dir}" type="dir" property="eclipse.artifacts.present"/>
 

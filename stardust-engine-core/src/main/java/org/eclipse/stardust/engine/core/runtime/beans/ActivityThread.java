@@ -358,8 +358,12 @@ public class ActivityThread implements Runnable
          x.printStackTrace();
          LogUtils.traceException(x, false);
    
-         AuditTrailLogger.getInstance(LogCode.ENGINE, processInstance).error(
-               "Unexpected activity thread state.");
+         // do not try to log to audit trail if TX is marked for rollback
+         if (!TransactionUtils.isCurrentTxRollbackOnly())
+         {
+            AuditTrailLogger.getInstance(LogCode.ENGINE, processInstance).error(
+                  "Unexpected activity thread state.");
+         }
    
          throw new InternalException("Unexpected activity thread state.");
       }

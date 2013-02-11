@@ -705,7 +705,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
                {
                   Set<Pair<AuthMode, String>> endpointNameSet = nameProvider.getEndpointNameSet(partitionId);
 
-                  EndpointConfigurationStorage.instance().syncProcessInterfaces(
+                  EndpointConfigurationStorage.instance().syncProcessInterfaces(partitionId,
                         servletPath, endpointNameSet);
                   if (EndpointConfigurationStorage.instance()
                         .hasEndpointConfigurationChanged())

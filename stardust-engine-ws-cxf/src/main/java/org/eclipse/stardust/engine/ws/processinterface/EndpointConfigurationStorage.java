@@ -138,8 +138,8 @@ public class EndpointConfigurationStorage
       return instance;
    }
 
-   public synchronized void syncProcessInterfaces(String servletPath,
-         Set<Pair<AuthMode, String>> endpointNameSet)
+   public synchronized void syncProcessInterfaces(String syncPartitionId,
+         String servletPath, Set<Pair<AuthMode, String>> endpointNameSet)
    {
       try
       {         
@@ -219,17 +219,21 @@ public class EndpointConfigurationStorage
             String modelId = qn.getNamespaceURI();
             String partitionId = key.getFirst();
             boolean keep = false;
-            if ( !SecurityProperties.CURRENT_PARTITION.equals(partitionId))
+            
+            // keep if from different partition
+            if (syncPartitionId == null || !syncPartitionId.equals(partitionId))
             {
                keep = true;
             }
-            
-            for (DeployedModelDescription md : allActiveModels)
+            else
             {
-               // keep if modelId and partitionId is correct, or from different partition.
-               if (!md.getPartitionId().equals(partitionId) || md.getId().equals(modelId))
+               for (DeployedModelDescription md : allActiveModels)
                {
-                  keep = true;
+                  // keep if active model exists
+                  if (md.getId().equals(modelId))
+                  {
+                     keep = true;
+                  }
                }
             }
             if ( !keep)

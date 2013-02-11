@@ -33,6 +33,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.emfxsd.ClasspathUriConverter;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
@@ -932,7 +933,49 @@ public class StructuredTypeRtUtils
             }
          }
       }
-   }   
+   } 
+   
+   public static ITypeDeclaration getTypeDeclaration(AccessPoint data, IModel model)
+   {
+      ITypeDeclaration decl = null;
+
+      if (data instanceof IData)
+      {
+         IReference ref = ((IData) data).getExternalReference();
+         if (ref != null)
+         {
+            IExternalPackage pkg = ref.getExternalPackage();
+
+            if (pkg != null)
+            {
+               // handle UnresolvedExternalReference               
+               IModel otherModel = pkg.getReferencedModel(); 
+               decl = otherModel.findTypeDeclaration(ref.getId());
+            }
+         }         
+         
+      }
+
+      if (decl == null)
+      {         
+         Object type = data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+         if (type != null) {                    
+            String typeString = type.toString();    
+            if (data instanceof IData)
+            {
+               IModel refModel = (IModel) ((IData) data).getModel();
+               decl = refModel.findTypeDeclaration(typeString);
+            }
+            else 
+            {
+               decl = model.findTypeDeclaration(typeString);
+            }
+         }         
+      }
+      
+      return decl;
+   }
+   
 
    private StructuredTypeRtUtils()
    {

@@ -1740,6 +1740,9 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       final VisitationContext context = (VisitationContext) rawContext;
       Join useJoin = null;
 
+      final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());
+      final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());      
+      
       if(context.getQuery().getClass().equals(ProcessInstanceQuery.class))
       {
          CasePolicy casePolicy = (CasePolicy) context.getQuery().getPolicy(CasePolicy.class);
@@ -1776,6 +1779,18 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          {
             fieldRef = TypeDescriptor.get(context.type).fieldRef(
                   criterion.getAttributeName());
+            
+            if (isAiQuery || isAiQueryOnWorkItem)
+            {
+               if (isAiQueryOnWorkItem)
+               {
+                  if (WorkitemKeyMap.isMapped(criterion.getAttributeName()))
+                  {
+                     fieldRef = WorkitemKeyMap.getFieldRef(criterion.getAttributeName());
+                     
+                  }
+               }
+            }
          }
       }
 
@@ -2516,5 +2531,45 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       {
          return SqlBuilderBase.this;
       }
+   }
+   
+   private static class WorkitemKeyMap 
+   {
+      private static final Map<String, FieldRef> keyMap = CollectionUtils.newMap();
+      private static final String ERROR_NO_VALID_ORDER_CRITERION = "no valid order criterion";
+      
+      static
+      {
+         keyMap.put(ActivityInstanceQuery.OID.getAttributeName(),
+               WorkItemBean.FR__ACTIVITY_INSTANCE);
+         
+         // Empty mappings will result in IllegalOperationExceptions as they are not supported
+         keyMap.put(ActivityInstanceQuery.PERFORMED_BY_OID.getAttributeName(), null);
+         keyMap.put(ActivityInstanceQuery.CURRENT_PERFORMER_OID.getAttributeName(), null);
+         keyMap.put(ActivityInstanceQuery.CURRENT_USER_PERFORMER_OID.getAttributeName(), null);
+      }
+      
+      public static FieldRef getFieldRef(String attributeName)
+      {         
+         if (keyMap.get(attributeName) != null)
+         {
+            return keyMap.get(attributeName);
+         }
+         else
+         {
+            throw new IllegalOperationException(
+                  BpmRuntimeError.QUERY_FILTER_IS_XXX_FOR_QUERY.raise(attributeName, ERROR_NO_VALID_ORDER_CRITERION));
+         }
+      }
+      
+      public static boolean isMapped(String attributeName)
+      {
+         if (keyMap.containsKey(attributeName))
+         {
+            return true;
+         }
+         return false;
+      }
+      
    }
 }

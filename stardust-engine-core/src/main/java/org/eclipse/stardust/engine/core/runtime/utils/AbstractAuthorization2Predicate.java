@@ -539,6 +539,9 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                                  if (!queryFilter.getParts().contains(filter))
                                  {
                                     queryFilter.and(filter);
+                                 }
+                                 if (!dataPrefetchHintFilter.containsKey(dataId))
+                                 {
                                     dataPrefetchHintFilter.put(dataId, filter);
                                  }
                               }                              
@@ -629,23 +632,22 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                      {
                         dataValueOid = dataValueOids.get(dataId);
                      }
-                     else if (PredefinedConstants.LAST_ACTIVITY_PERFORMER.equals(data.getId()))
+                     if (PredefinedConstants.LAST_ACTIVITY_PERFORMER.equals(data.getId()))
                      {
                         IUser lastActivityPerformer = ActivityInstanceBean
                               .getLastActivityPerformer(processInstanceOID);
                         Object value = lastActivityPerformer != null
                               ? lastActivityPerformer.getPrimaryKey()
                               : null;
-                        if (value instanceof UserPK)
-                        {
-                           try
-                           {
-                              dataValueOid = Long.parseLong(value.toString());
-                           }
-                           catch (NumberFormatException e)
-                           {
-                           }
-                        }
+                        dataValueOid = getDataValueOid(value);
+                     }
+                     if (PredefinedConstants.STARTING_USER.equals(data.getId()))
+                     {
+                        IProcessInstance processInstance = ProcessInstanceBean
+                              .findByOID(processInstanceOID);
+                        IDataValue dataValue = processInstance.getDataValue(data);
+                        Object value = dataValue.getValue();
+                        dataValueOid = getDataValueOid(value);
                      }
                      boolean isPrimitiveStructType = false;
                      if (StructuredTypeRtUtils.isStructuredType(data.getType().getId()))
@@ -666,20 +668,7 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                               processInstance, null, null, null);
                         Object value = evaluator.evaluate(data, dataValue.getValue(),
                               dataPath, evaluationContext);
-                        if (value instanceof Long)
-                        {
-                           dataValueOid = (Long) value;
-                        }
-                        else if (value instanceof UserPK)
-                        {
-                           try
-                           {
-                              dataValueOid = Long.parseLong(value.toString());
-                           }
-                           catch (NumberFormatException e)
-                           {
-                           }
-                        }
+                        dataValueOid = getDataValueOid(value);
                      }
 
                      if (currentPerformer == dataValueOid)
@@ -692,5 +681,25 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
          }
       }
       return false;
+   }
+
+   private long getDataValueOid(Object value)
+   {
+      long oid = 0;
+      if (value instanceof Long)
+      {
+         oid = (Long) value;
+      }
+      else if (value instanceof UserPK)
+      {
+         try
+         {
+            oid = Long.parseLong(value.toString());
+         }
+         catch (NumberFormatException e)
+         {
+         }
+      }
+      return oid;
    }
 }

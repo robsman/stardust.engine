@@ -12,6 +12,7 @@ package org.eclipse.stardust.common.reflect;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -340,6 +341,13 @@ public class Reflect
             Constructor ctor = clazz.getConstructor(argTypes);
             return ctor.newInstance(args);
          }
+      }
+      catch (InvocationTargetException e)
+      {
+         Throwable targetException = e.getTargetException();
+         Throwable t = targetException != null ? targetException : e;
+         throw new InternalException("Cannot instantiate class '" + clazz.getName()
+               + "'.", t);
       }
       catch (Exception e)
       {

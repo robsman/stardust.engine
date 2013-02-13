@@ -46,9 +46,11 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Variant;
 
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.AccessPoint;
+import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.ws.ParameterXto;
 import org.eclipse.stardust.engine.core.interactions.Interaction;
@@ -108,6 +110,24 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
    public InteractionOwner getOwner()
    {
       return super.getOwner();
+   }
+   
+   @Path("embeddedMarkup")
+   @GET
+   @Produces(MediaType.TEXT_HTML)
+   public Response getEmbeddedMarkup()
+   {
+      Interaction interaction = findInteraction();
+      ApplicationContext context = interaction.getDefinition();
+      String markup = (String)context.getAttribute("carnot:engine:ui:externalWebApp:markup");
+      if (StringUtils.isNotEmpty(markup))
+      {
+         return Response.ok(markup, MediaType.TEXT_HTML_TYPE).build();
+      }
+      else
+      {
+         throw new WebApplicationException(Status.NO_CONTENT);
+      }
    }
 
    @Path("inData")

@@ -85,7 +85,7 @@ public class WADLGenerator
 
    public String generateWADL()
    {
-      final String baseUri = uriInfo.getBaseUri().toString();
+      String baseUri = uriInfo.getBaseUri().toString();      
       final String requestPath = uriInfo.getPath();
       final Map<String,List<String>> queryParameters = uriInfo.getQueryParameters();
       final String path;
@@ -97,6 +97,11 @@ public class WADLGenerator
       else
       {
          path = requestPath;
+      }
+      
+      if (baseUri != null && !baseUri.endsWith("/") && path != null && !path.startsWith("/"))
+      {
+         baseUri = baseUri + "/";
       }
 
       final StringBuilder sb = loadWADLTemplate();

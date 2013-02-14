@@ -547,14 +547,24 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
             if (partitionId == null && modelId == null)
             {
-               String tempString = pathInfo.substring(pathInfo.indexOf("/") + 1);
-               partitionId = tempString.substring(0, tempString.indexOf("/"));
+               try
+               {
+                  String tempString = pathInfo.substring(pathInfo.indexOf("/") + 1);
+                  partitionId = tempString.substring(0, tempString.indexOf("/"));
 
-               tempString = pathInfo.substring(pathInfo.indexOf(partitionId)
-                     + partitionId.length() + 1);
-               modelId = tempString.substring(0, tempString.indexOf("/"));
+                  tempString = pathInfo.substring(pathInfo.indexOf(partitionId)
+                        + partitionId.length() + 1);
+                  modelId = tempString.substring(0, tempString.indexOf("/"));
+               }
+               catch (NullPointerException npe)
+               {
+                  partitionId = null;
+               }
+               catch (IndexOutOfBoundsException ie)
+               {
+                  partitionId = null;
+               }
             }
-            
             
          }
          else

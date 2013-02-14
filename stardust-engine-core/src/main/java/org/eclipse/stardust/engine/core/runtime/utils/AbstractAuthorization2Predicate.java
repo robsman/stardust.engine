@@ -107,6 +107,8 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    private List<FieldRef> selectExtension;
 
    private List<Pair<String, String>> orderedPrefetchData = Collections.EMPTY_LIST;
+   
+   private Set<Pair<String, String>> distinctData = CollectionUtils.newHashSet();
 
    private ModelManager modelManager;
 
@@ -171,8 +173,7 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
             .equals(evaluationProfile);      
             
       if (!isLegacyEvaluation)
-      {
-         Set<Pair<String, String>> distinctData = CollectionUtils.newHashSet();
+      {         
          this.orderedPrefetchData = CollectionUtils.newArrayList();
          this.dataPrefetchHintFilter = CollectionUtils.newMap();
          FilterAndTerm queryFilter = query.getFilter();      
@@ -261,13 +262,13 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                for (int i = 0; i < orderedPrefetchData.size(); i++)
                {
                   Pair<String, String> prefetchData = orderedPrefetchData.get(i);
-                  int type = rs.getInt(absExtIndex + i * 2);
+                  int type = rs.getInt(absExtIndex + i * 3);
                   Object value = null;
                   if ( !rs.wasNull())
                   {
                      if (type != BigData.NULL)
                      {
-                        value = rs.getObject(absExtIndex + i * 2 + 1);
+                        value = rs.getObject(absExtIndex + i * 3 + 1);
                      }
                      if (trace.isDebugEnabled())
                      {
@@ -480,8 +481,7 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    }
    
    public void getExcludeUserFilter(FilterAndTerm queryFilter)
-   {
-      Set<Pair<String, String>> distinctData = CollectionUtils.newHashSet();      
+   {      
       List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
       for(IModel model : activeModels)
       {

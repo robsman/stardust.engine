@@ -122,6 +122,7 @@
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->
+<!--
       <override org="log4j" module="log4j" rev="${log4j.version}" />
 
       <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
@@ -139,6 +140,7 @@
       <override org="org.apache.geronimo.components" module="geronimo-connector" rev="${geronimo-connector.version}" />
 
       <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
+-->
 
       <!-- *************** -->
       <!--    Conflicts    -->

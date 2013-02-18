@@ -130,13 +130,17 @@
       <!-- base-provider-compile -->
       <dependency org="javax.xml.bind" name="jaxb-api" rev="${jaxb-api.version}" conf="base-provider-compile->default">
          <exclude org="javax.xml.stream" module="stax-api" />
+         <exclude org="javax.activation" module="activation" />
       </dependency>
       <dependency org="stax" name="stax-api" rev="${stax-api.version}" conf="base-provider-compile->default" />
       <dependency org="rhino" name="js" rev="${js.version}" conf="base-provider-compile,js-provider-runtime->default" />
 
       <!-- base-provider-runtime -->
       <dependency org="javax.activation" name="activation" rev="${activation.version}" conf="base-provider-runtime->default"/>
-      <dependency org="javax.mail" name="mail" rev="${mail.version}" conf="base-provider-runtime->default"/>
+      <dependency org="javax.mail" name="mail" rev="${mail.version}" conf="base-provider-runtime->default">
+         <exclude org="javax.activation" module="activation" />
+      </dependency>
+      <dependency org="javax.activation" name="activation" rev="${activation.version}" conf="base-provider-runtime->default"/>
       <dependency org="org.codehaus.woodstox" name="wstx-asl" rev="${wstx-asl.version}" conf="base-provider-runtime->default">
          <exclude org="stax" module="stax-api"/>
       </dependency>
@@ -224,9 +228,12 @@
       <dependency org="com.hazelcast" name="hazelcast" rev="${hazelcast.version}" conf="hazelcast-provider-compile->default" />
 
       <!-- ant-provider-runtime -->
-      <dependency org="org.apache.ant" name="ant" rev="${apache.ant.version}" conf="ant-provider-runtime->default" />
+      <dependency org="org.apache.ant" name="ant" rev="${apache.ant.version}" conf="ant-provider-runtime->default">
+         <exclude org="org.apache.ant" module="ant-launcher" />
+      </dependency>
       <dependency org="org.apache.ant" name="ant-commons-net" rev="${ant-commons-net.version}" conf="ant-provider-runtime->default">
          <exclude org="commons-net" module="commons-net" />
+         <exclude org="org.apache.ant" module="ant" />
       </dependency>
       <dependency org="org.apache.ant" name="ant-launcher" rev="${ant-launcher.version}" conf="ant-provider-runtime->default" />
 
@@ -291,6 +298,7 @@
          <exclude org="com.sun.jdmk" module="jmxtools"/>
          <exclude org="javax.jms" module="jms"/>
          <exclude org="ch.qos.logback" module="logback-classic"/>
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>
       </dependency>
       
       <!-- jackrabbit-webapp-provider-runtime -->
@@ -308,25 +316,6 @@
       </dependency>
       <!-- force correct revision in POM -->
       <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}" conf="jackrabbit-webapp-provider-runtime->default"/>
-
-      <!-- ******************** -->
-      <!--    Override Rules    -->
-      <!-- ******************** -->
-      <override org="log4j" module="log4j" rev="${log4j.version}" />
-
-      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
-
-      <override org="commons-collections" module="commons-collections" rev="${commons-collections.version}" />
-      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
-      <override org="commons-pool" module="commons-pool" rev="${commons-pool.version}" />
-
-      <override org="org.apache.derby" module="derby" rev="${derby.version}" />
-
-      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" />
-      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="${geronimo-jta_1.1_spec.version}" />
-      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="${geronimo-transaction.version}" />
-
-      <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

@@ -117,14 +117,18 @@
       <!--    Test    -->
       <!-- ********** -->
       <!-- JUnit -->
-      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default" />
+      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
 
       <!-- Hamcrest -->
       <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}" conf="test->default" />
       <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
 
       <!-- Mockito -->
-      <dependency org="org.mockito" name="mockito-core" rev="${mockito-core.version}" conf="test->default" />
+      <dependency org="org.mockito" name="mockito-core" rev="${mockito-core.version}" conf="test->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
 
       <!-- ************** -->
       <!--    Internal    -->
@@ -149,6 +153,7 @@
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->
+<!--
       <override org="log4j" module="log4j" rev="${log4j.version}" />
 
       <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
@@ -164,7 +169,7 @@
       <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="${geronimo-transaction.version}" />
 
       <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
-
+-->
       <!-- *************** -->
       <!--    Conflicts    -->
       <!-- *************** -->

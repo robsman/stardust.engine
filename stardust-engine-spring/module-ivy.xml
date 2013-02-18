@@ -45,13 +45,17 @@
       
       <!-- spring-module-compile -->
       <dependency org="org.springframework" name="spring-beans" rev="${spring-beans.version}" conf="spring-module-compile->default" />
-      <dependency org="org.springframework" name="spring-core" rev="${spring-core.version}" conf="spring-module-compile->default" />
+      <dependency org="org.springframework" name="spring-core" rev="${spring-core.version}" conf="spring-module-compile->default">
+         <exclude org="commons-logging" module="commons-logging" />
+      </dependency>
       <dependency org="org.springframework" name="spring-jdbc" rev="${spring-jdbc.version}" conf="spring-module-compile->default" />
       <dependency org="org.springframework" name="spring-jms" rev="${spring-jms.version}" conf="spring-module-compile->default" />
       <dependency org="org.springframework" name="spring-context" rev="${spring-context.version}" conf="spring-module-compile->default" />
       <dependency org="org.springframework" name="spring-context-support" rev="${spring-context-support.version}" conf="spring-module-compile->default" />
       <dependency org="org.springframework" name="spring-tx" rev="${spring-tx.version}" conf="spring-module-compile->default" />
       <dependency org="org.springframework" name="spring-web" rev="${spring-web.version}" conf="spring-module-compile->default" />
+
+      <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" conf="carnot-spring-compile->default" />
       
       <!-- spring-module-runtime -->
       <dependency org="org.springframework" name="spring-webmvc" rev="${spring-webmvc.version}" conf="spring-module-runtime->default" />

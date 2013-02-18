@@ -43,13 +43,17 @@
       <!-- carnot-spring-compile -->
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile->engine-module-compile" />
       <dependency org="org.springframework" name="spring-beans" rev="${spring-beans.version}" conf="carnot-spring-compile->default" />
-      <dependency org="org.springframework" name="spring-core" rev="${spring-core.version}" conf="carnot-spring-compile->default" />
+      <dependency org="org.springframework" name="spring-core" rev="${spring-core.version}" conf="carnot-spring-compile->default">
+         <exclude org="commons-logging" module="commons-logging" />
+      </dependency>
       <dependency org="org.springframework" name="spring-jdbc" rev="${spring-jdbc.version}" conf="carnot-spring-compile->default" />
       <dependency org="org.springframework" name="spring-jms" rev="${spring-jms.version}" conf="carnot-spring-compile->default" />
       <dependency org="org.springframework" name="spring-context" rev="${spring-context.version}" conf="carnot-spring-compile->default" />
       <dependency org="org.springframework" name="spring-context-support" rev="${spring-context-support.version}" conf="carnot-spring-compile->default" />
       <dependency org="org.springframework" name="spring-tx" rev="${spring-tx.version}" conf="carnot-spring-compile->default" />
       <dependency org="org.springframework" name="spring-web" rev="${spring-web.version}" conf="carnot-spring-compile->default" />
+
+      <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" conf="carnot-spring-compile->default" />
 
       <!-- carnot-spring-compile-optional -->
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-compile-optional->jcr-vfs-module-compile" />
@@ -61,7 +65,9 @@
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-provided->ejb21-module-compile" />
       
       <!-- test -->
-      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default" />
+      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
       <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}" conf="test->default" />
       <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
    </dependencies>

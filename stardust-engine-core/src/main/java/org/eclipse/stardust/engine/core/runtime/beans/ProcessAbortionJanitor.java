@@ -53,22 +53,29 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
       this.processInstanceOid = carrier.getProcessInstanceOid();
       this.triesLeft = carrier.getTriesLeft();
    }
+   
+   private boolean canHandleExceptionOnAbort(Exception exception)
+   {
+      return exception instanceof ConcurrencyException;
+   }
 
    public Object execute()
    {
       triesLeft -= 1;
-
       boolean performed = false;
-
       ProcessInstanceBean pi = null;
+      Exception exception = null;
+
       try
       {
          if (Parameters.instance().getBoolean(
                KernelTweakingProperties.PREVENT_ABORTING_TO_ABORTED_STATE_CHANGE, false))
          {
+            triesLeft = 0;
+            performed = true;
             return Boolean.TRUE;
          }
-                                                      
+
          pi = ProcessInstanceBean.findByOID(processInstanceOid);
          if ( !pi.isTerminated())
          {
@@ -83,12 +90,32 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
       }
       catch (ConcurrencyException e)
       {
+
+         trace.warn(MessageFormat.format(
+               "Cannot run abortion janitor for {0} due to a locking conflict",
+               new Object[] {pi}));
+         exception = e;
+      }
+      // catch exception and dont let the MultipleTryInterceptor retry
+      catch (Exception e)
+      {
+         trace.warn("Cannot run abortion janitor due to a unexpected exception", e);
+         exception = e;
+      }
+      finally
+      {
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         if (triesLeft > 0 && rtEnv.getExecutionPlan() == null)
+
+         ProcessAbortionJanitorMonitor monitor = ProcessAbortionJanitorMonitor.getInstance();
+         monitor.unregister(processInstanceOid);
+
+         // if exception is handleable and tries are left - resheduling new abort thread
+         if (canHandleExceptionOnAbort(exception) && triesLeft > 0
+               && rtEnv.getExecutionPlan() == null)
          {
             trace.info(MessageFormat.format(
-                  "Cannot run abortion janitor for {0} due to a locking conflict, scheduling a new one. Tries left: {1}.",
-                  new Object[] {pi, new Integer(triesLeft)}));
+                  "Rescheduling janitor for {0} Tries left: {1}.", new Object[] {
+                        pi, new Integer(triesLeft)}));
 
             try
             {
@@ -99,25 +126,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
             }
             scheduleJanitor(new AbortionJanitorCarrier(processInstanceOid, triesLeft));
          }
-         else
-         {
-            trace.warn(MessageFormat.format("Could not run abortion janitor for {0}.",
-                  new Object[] {pi}));
-         }
-      }
-      // catch exception and dont let the MultipleTryInterceptor retry
-      catch (Throwable t)
-      {
-         triesLeft = 0;
-         trace.warn("Unexpected exception during aborting process, cannot proceed.", t);
-      }
-      finally
-      {
-         if (performed || triesLeft <= 0)
-         {
-            ProcessAbortionJanitorMonitor monitor = ProcessAbortionJanitorMonitor.getInstance();
-            monitor.unregister(processInstanceOid);
-         }
+
       }
 
       return performed ? Boolean.TRUE : Boolean.FALSE;

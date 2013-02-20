@@ -388,7 +388,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          throw new IllegalStateChangeException(this.toString(), ActivityInstanceState.getState(state), this.getState());
       }
       ProcessInstanceState piState = getProcessInstance().getState();
-      if((piState.equals(ProcessInstanceState.Aborted) || piState.equals(ProcessInstanceState.Aborting)) &&
+      if(ProcessInstanceUtils.isInAbortingPiHierarchy(getProcessInstance()) && 
            !(state == ActivityInstanceState.ABORTED || state == ActivityInstanceState.ABORTING))
       {
          //reshedule aborting

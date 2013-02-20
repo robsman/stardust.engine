@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.util.*;
 
 import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.Attribute;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
@@ -28,12 +29,14 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.*;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -238,8 +241,128 @@ public class ProcessInstanceUtils
          }
       }
    }
-   
-   
+
+   /**
+    * Checks if the process tree for the given processInstance. If the process instance
+    * itself or any of its parents is in {@link ProcessInstanceState#ABORTED} or
+    * {@link ProcessInstanceState#ABORTING} state, true is returned,
+    * 
+    * @param processInstance
+    *           - the process instance to check
+    * @return true if the process instance or its parent is is in
+    *         {@link ProcessInstanceState#ABORTED} or
+    *         {@link ProcessInstanceState#ABORTING} state, false otherwise
+    */
+   public static boolean isInAbortingPiHierarchy(IProcessInstance processInstance)
+   {
+      boolean result = false;
+      final Long piOid = Long.valueOf(processInstance.getOID());
+
+      if (piOid.longValue() == processInstance.getRootProcessInstanceOID())
+      {
+         return isAbortedStateSafe(processInstance);
+      }
+      else
+      {
+         IProcessInstance rootPi = processInstance.getRootProcessInstance();
+
+         if (isAbortedStateSafe(rootPi))
+         {
+            result = true;
+         }
+         else
+         {
+            if ( !rootPi.getPersistenceController().isLocked())
+            {
+               try
+               {
+                  rootPi.getPersistenceController().reloadAttribute(
+                        ProcessInstanceBean.FIELD__PROPERTIES_AVAILABLE);
+               }
+               catch (PhantomException e)
+               {
+                  throw new InternalException(e);
+               }
+            }
+            if (rootPi.isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_PI_ABORTING))
+            {
+               List abortingOids = new ArrayList();
+               for (Iterator iter = rootPi.getAbortingPiOids().iterator(); iter.hasNext();)
+               {
+                  Attribute attribute = (Attribute) iter.next();
+                  abortingOids.add(attribute.getValue());
+               }
+
+               IProcessInstance currentPi = processInstance;
+               while (null != currentPi)
+               {
+                  if (abortingOids.contains(Long.valueOf(currentPi.getOID())))
+                  {
+                     result = true;
+                     break;
+                  }
+
+                  // get the parent process instance, if any.
+                  IActivityInstance startingActivityInstance = currentPi.getStartingActivityInstance();
+                  if (null == startingActivityInstance)
+                  {
+                     currentPi = null;
+                  }
+                  else
+                  {
+                     currentPi = startingActivityInstance.getProcessInstance();
+                  }
+               }
+            }
+         }
+      }
+
+      return result;
+   }
+
+   /**
+    * Tests if the given process instance has a persisted state of ABORTING or ABORTED.
+    * After that call the state is recovered.
+    * 
+    * @param pi
+    *           the process instance
+    * @return true if the persisted state is ABORTING or ABORT
+    */
+   private static boolean isAbortedStateSafe(IProcessInstance pi)
+   {
+      ProcessInstanceState stateBackup = pi.getState();
+      if (ProcessInstanceState.Aborting.equals(stateBackup)
+            || ProcessInstanceState.Aborted.equals(stateBackup))
+      {
+         return true;
+      }
+      try
+      {
+         ((PersistentBean) pi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
+         return pi.isAborting() || pi.isAborted();
+      }
+      catch (PhantomException x)
+      {
+         throw new InternalException(x);
+      }
+      finally
+      {
+         if ( !stateBackup.equals(pi.getState()))
+         {
+            try
+            {
+               Reflect.getField(ProcessInstanceBean.class,
+                     ProcessInstanceBean.FIELD__STATE).setInt(pi, stateBackup.getValue());
+            }
+            catch (Exception e)
+            {
+               // should never happen
+               throw new InternalException(e);
+            }
+         }
+      }
+   }
+
    public static int deleteProcessInstances(List piOids, Session session)
    {
       if (piOids.isEmpty())

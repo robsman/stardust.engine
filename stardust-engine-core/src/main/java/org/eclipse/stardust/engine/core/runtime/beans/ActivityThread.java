@@ -47,6 +47,7 @@ import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger.LoggingBehaviour;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -395,71 +396,7 @@ public class ActivityThread implements Runnable
    
    private boolean isInAbortingPiHierarchy()
    {
-      boolean result = false;
-      final Long piOid = Long.valueOf(processInstance.getOID());
-
-      if (piOid.longValue() == processInstance.getRootProcessInstanceOID())
-      {
-         return isAbortedStateSafe(processInstance);
-      }
-      else
-      {
-         IProcessInstance rootPi = processInstance.getRootProcessInstance();
-
-         if (isAbortedStateSafe(rootPi))
-         {
-            result = true;
-         }
-         else
-         {
-            if(!rootPi.getPersistenceController().isLocked())
-            {
-               try
-               {
-                  rootPi.getPersistenceController().reloadAttribute(
-                     ProcessInstanceBean.FIELD__PROPERTIES_AVAILABLE);
-               }
-               catch (PhantomException e) 
-               {
-                  throw new InternalException(e);
-               }
-            }
-            if (rootPi
-                  .isPropertyAvailable(ProcessInstanceBean.PI_PROPERTY_FLAG_PI_ABORTING))
-            {
-               List abortingOids = new ArrayList();
-               for (Iterator iter = rootPi.getAbortingPiOids().iterator(); iter.hasNext();)
-               {
-                  Attribute attribute = (Attribute) iter.next();
-                  abortingOids.add(attribute.getValue());
-               }
-   
-               IProcessInstance currentPi = processInstance;
-               while (null != currentPi)
-               {
-                  if (abortingOids.contains(Long.valueOf(currentPi.getOID())))
-                  {
-                     result = true;
-                     break;
-                  }
-   
-                  // get the parent process instance, if any.
-                  IActivityInstance startingActivityInstance = currentPi
-                        .getStartingActivityInstance();
-                  if (null == startingActivityInstance)
-                  {
-                     currentPi = null;
-                  }
-                  else
-                  {
-                     currentPi = startingActivityInstance.getProcessInstance();
-                  }
-               }
-            }
-         }
-      }
-
-      return result;
+      return ProcessInstanceUtils.isInAbortingPiHierarchy(this.processInstance);      
    }
    
    private void createActivityInstance(List<TransitionTokenBean> inTokens)
@@ -968,49 +905,7 @@ public class ActivityThread implements Runnable
       }
       return threadContext;
    }
-
-   /**
-    * Tests if the given process instance has a persisted state of ABORTING or ABORTED.
-    * After that call the state is recovered.
-    * 
-    * @param pi the process instance
-    * @return true if the persisted state is ABORTING or ABORT
-    */
-   private static boolean isAbortedStateSafe(IProcessInstance pi)
-   {
-      ProcessInstanceState stateBackup = pi.getState();
-      if(ProcessInstanceState.Aborting.equals(stateBackup) ||
-            ProcessInstanceState.Aborted.equals(stateBackup))
-      {
-         return true;
-      }
-      try
-      {
-         ((PersistentBean) pi).reloadAttribute(ProcessInstanceBean.FIELD__STATE);
-         return pi.isAborting() || pi.isAborted();
-      }
-      catch (PhantomException x)
-      {
-         throw new InternalException(x);
-      }
-      finally
-      {
-         if ( !stateBackup.equals(pi.getState()))
-         {
-            try
-            {
-               Reflect.getField(ProcessInstanceBean.class,
-                     ProcessInstanceBean.FIELD__STATE).setInt(pi, stateBackup.getValue());
-            }
-            catch (Exception e)
-            {
-               // should never happen
-               throw new InternalException(e);
-            }
-         }
-      }
-   }
-
+ 
    private static class PhantomActivityInstance extends ActivityInstanceBean
    {
       PhantomActivityInstance(IActivity activity)

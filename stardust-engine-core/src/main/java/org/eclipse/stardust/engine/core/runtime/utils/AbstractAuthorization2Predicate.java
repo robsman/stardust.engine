@@ -112,7 +112,7 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
 
    private ModelManager modelManager;
 
-   Map<String, DataPrefetchHint> dataPrefetchHintFilter = Collections.EMPTY_MAP;
+   Map<String, DataPrefetchHint> dataPrefetchHintFilter = CollectionUtils.newMap();
 
    public AbstractAuthorization2Predicate(AuthorizationContext context)
    {
@@ -165,6 +165,11 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    {
       return EMPTY;
    }
+   
+   public boolean hasDataPrefetchHintFilter()
+   {
+      return dataPrefetchHintFilter != null && !dataPrefetchHintFilter.isEmpty();
+   }
 
    public boolean addPrefetchDataHints(Query query)
    {
@@ -175,15 +180,14 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
       if (!isLegacyEvaluation)
       {         
          this.orderedPrefetchData = CollectionUtils.newArrayList();
-         this.dataPrefetchHintFilter = CollectionUtils.newMap();
          FilterAndTerm queryFilter = query.getFilter();      
          
          if(query instanceof ActivityInstanceQuery)
          {
-            if(query.getPolicy(ExcludeUserPolicy.class) != null)
+            if (query.getPolicy(ExcludeUserPolicy.class) != null)
             {
-               getExcludeUserFilter(queryFilter);            
-            }         
+               getExcludeUserFilter(queryFilter);
+            }      
          }      
          
          Collection<IOrganization> restricted = context.getRestricted();
@@ -481,80 +485,92 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    }
    
    public void getExcludeUserFilter(FilterAndTerm queryFilter)
-   {      
+   {
       List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
-      for(IModel model : activeModels)
+      for (IModel model : activeModels)
       {
-         String modelId = model.getId();         
-         for(IProcessDefinition process : model.getProcessDefinitions())
+         String modelId = model.getId();
+         for (IProcessDefinition process : model.getProcessDefinitions())
          {
-            for(IActivity activity : process.getActivities())
+            for (IActivity activity : process.getActivities())
             {
-               if (activity.hasEventHandlers(
-                     PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
-               {      
+               if (activity
+                     .hasEventHandlers(PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
+               {
                   for (int k = 0; k < activity.getEventHandlers().size(); ++k)
                   {
-                     IEventHandler handler = (IEventHandler) activity.getEventHandlers().get(k);
+                     IEventHandler handler = (IEventHandler) activity.getEventHandlers()
+                           .get(k);
                      if (((IEventConditionType) handler.getType()).getImplementation() != EventType.Pull)
                      {
                         for (Iterator l = handler.getAllEventActions(); l.hasNext();)
                         {
                            IEventAction action = (IEventAction) l.next();
                            PluggableType type = action.getType();
-                           String instanceName = type.getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
+                           String instanceName = type
+                                 .getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
                            String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
-                           Class classFromClassName = Reflect.getClassFromClassName(excludeUserAction, false);
-                           if(classFromClassName != null)
+                           Class classFromClassName = Reflect.getClassFromClassName(
+                                 excludeUserAction, false);
+                           if (classFromClassName != null)
                            {
                               excludeUserAction = classFromClassName.getName();
                            }
-                           
-                           if(instanceName.equals(excludeUserAction))
+
+                           if (instanceName.equals(excludeUserAction))
                            {
                               Map<String, Object> attributes = action.getAllAttributes();
-                              String dataId = (String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
+                              String dataId = (String) attributes
+                                    .get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
                               String dataPath = (String) attributes
                                     .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
-                            
+
                               IData data = getData(model, dataId);
-                              if(data != null && !isStructuredType(data))
+                              if (data != null && !isStructuredType(data))
                               {
                                  dataPath = null;
-                              }                              
-                              
-                              Pair<String, String> dataKey = new Pair("{" + modelId + "}" + dataId, dataPath);
-                              if ( !distinctData.contains(dataKey))
+                              }
+
+                              Pair<String, String> dataKey = new Pair("{" + modelId + "}"
+                                    + dataId, dataPath);
+                              if (!distinctData.contains(dataKey))
                               {
                                  distinctData.add(dataKey);
                                  orderedPrefetchData.add(dataKey);
 
-                                 DataPrefetchHint filter = new DataPrefetchHint("{" + modelId + "}" + dataId, 
+                                 DataPrefetchHint filter = new DataPrefetchHint("{"
+                                       + modelId + "}" + dataId,
                                        StringUtils.isEmpty(dataPath) ? null : dataPath);
                                  if (trace.isDebugEnabled())
                                  {
                                     trace.debug("Adding prefetch filter: " + filter);
                                  }
-                                 
+
                                  if (!queryFilter.getParts().contains(filter))
                                  {
                                     queryFilter.and(filter);
-                                 }
-                                 if (!dataPrefetchHintFilter.containsKey(dataId))
-                                 {
                                     dataPrefetchHintFilter.put(dataId, filter);
                                  }
-                              }                              
+                                 else
+                                 {
+                                    int idx = queryFilter.getParts().indexOf(filter);
+                                    filter = idx < 0
+                                          ? filter
+                                          : (DataPrefetchHint) queryFilter.getParts()
+                                                .get(idx);
+                                    dataPrefetchHintFilter.put(dataId, filter);
+                                 }
+                              }
                            }
                         }
                      }
                   }
-               }               
+               }
             }
          }
       }
-   }  
-   
+   }
+
    private IData getData(IModel model, String id)
    {
       for(IData data : model.getData())
@@ -584,20 +600,21 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
       return false;
    }
    
-   public boolean isExcludedUser(long activityRtOid, long processInstanceOID, long modelOid, Map<String, Long> dataValueOids)
+   public boolean isExcludedUser(long activityRtOid, long processInstanceOID,
+         long modelOid, Map<String, Long> dataValueOids)
    {
-      if(processInstanceOID == 0)
+      if (processInstanceOID == 0)
       {
          return false;
       }
-      
+
       long dataValueOid = 0;
-      IUser currentUser = SecurityProperties.getUser();      
+      IUser currentUser = SecurityProperties.getUser();
       long currentPerformer = currentUser.getOID();
-    
+
       ModelManager mm = getModelManager();
       IActivity activity = mm.findActivity(modelOid, activityRtOid);
-      
+
       if (activity.hasEventHandlers(PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
       {
          for (int k = 0; k < activity.getEventHandlers().size(); ++k)

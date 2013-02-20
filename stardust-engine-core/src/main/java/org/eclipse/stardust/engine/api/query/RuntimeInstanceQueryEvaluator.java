@@ -44,6 +44,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.ActivityInstanceAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
@@ -281,7 +282,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
    private long getExplicitTotalCount(QueryExtension queryExtension,
          FetchPredicate fetchPredicate, boolean useCasePolicy)
    {
-      if (useCasePolicy)
+      if (useCasePolicy || hasDataPrefetchHintFilter(fetchPredicate))
       {
          return Long.MAX_VALUE;
       }
@@ -290,6 +291,18 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
          return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(type,
                queryExtension, fetchPredicate, QueryUtils.getTimeOut(query));
       }
+   }
+
+   private boolean hasDataPrefetchHintFilter(FetchPredicate fetchPredicate)
+   {
+      boolean hasDataPrefetchHints = false;
+      if ((fetchPredicate instanceof AbstractAuthorization2Predicate)
+            && ((AbstractAuthorization2Predicate) fetchPredicate)
+                  .hasDataPrefetchHintFilter())
+      {
+         hasDataPrefetchHints = true;
+      }
+      return hasDataPrefetchHints;
    }
 
    private static void applyDistinctOnQueryExtension(QueryExtension queryExtension,

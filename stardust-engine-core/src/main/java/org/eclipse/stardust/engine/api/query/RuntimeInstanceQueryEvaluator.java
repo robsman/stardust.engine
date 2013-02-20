@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
@@ -144,11 +145,13 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
    {
       final BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
+      boolean excludedUserEnabled = Parameters.instance().getBoolean(
+            KernelTweakingProperties.ENGINE_EXCLUDE_USER_EVALUATION, false);
       if (authorizationPredicate != null)
       {
          authorizationPredicate.addPrefetchDataHints(query);
       }
-      else if (query.getPolicy(ExcludeUserPolicy.class) != null
+      else if (excludedUserEnabled && query.getPolicy(ExcludeUserPolicy.class) != null
             && SecurityProperties.getUser().hasRole(
                   PredefinedConstants.ADMINISTRATOR_ROLE))
       {

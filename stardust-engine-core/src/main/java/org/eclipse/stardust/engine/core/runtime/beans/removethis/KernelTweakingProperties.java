@@ -209,4 +209,6 @@ public final class KernelTweakingProperties
    public static final String ASSIGN_TO_INVALID_USER = "Infinity.Engine.Activity.AssignToInvalidUser";   
 
    public static final String INFINITY_DMS_SHARED_DATA_EXIST = "Infinity.Dms.SharedDataExist";
+   
+   public static final String ENGINE_EXCLUDE_USER_EVALUATION = "Engine.Tuning.Query.ExcludeUser.Evaluation";
 }

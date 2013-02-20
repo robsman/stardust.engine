@@ -25,6 +25,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -76,6 +77,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
@@ -486,79 +488,83 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    
    public void getExcludeUserFilter(FilterAndTerm queryFilter)
    {
-      List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
-      for (IModel model : activeModels)
+      if (isExcludeUserEvaluationEnabled())
       {
-         String modelId = model.getId();
-         for (IProcessDefinition process : model.getProcessDefinitions())
+         List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
+         for (IModel model : activeModels)
          {
-            for (IActivity activity : process.getActivities())
+            String modelId = model.getId();
+            for (IProcessDefinition process : model.getProcessDefinitions())
             {
-               if (activity
-                     .hasEventHandlers(PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
+               for (IActivity activity : process.getActivities())
                {
-                  for (int k = 0; k < activity.getEventHandlers().size(); ++k)
+                  if (activity
+                        .hasEventHandlers(PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
                   {
-                     IEventHandler handler = (IEventHandler) activity.getEventHandlers()
-                           .get(k);
-                     if (((IEventConditionType) handler.getType()).getImplementation() != EventType.Pull)
+                     for (int k = 0; k < activity.getEventHandlers().size(); ++k)
                      {
-                        for (Iterator l = handler.getAllEventActions(); l.hasNext();)
+                        IEventHandler handler = (IEventHandler) activity
+                              .getEventHandlers().get(k);
+                        if (((IEventConditionType) handler.getType()).getImplementation() != EventType.Pull)
                         {
-                           IEventAction action = (IEventAction) l.next();
-                           PluggableType type = action.getType();
-                           String instanceName = type
-                                 .getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
-                           String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
-                           Class classFromClassName = Reflect.getClassFromClassName(
-                                 excludeUserAction, false);
-                           if (classFromClassName != null)
+                           for (Iterator l = handler.getAllEventActions(); l.hasNext();)
                            {
-                              excludeUserAction = classFromClassName.getName();
-                           }
-
-                           if (instanceName.equals(excludeUserAction))
-                           {
-                              Map<String, Object> attributes = action.getAllAttributes();
-                              String dataId = (String) attributes
-                                    .get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
-                              String dataPath = (String) attributes
-                                    .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
-
-                              IData data = getData(model, dataId);
-                              if (data != null && !isStructuredType(data))
+                              IEventAction action = (IEventAction) l.next();
+                              PluggableType type = action.getType();
+                              String instanceName = type
+                                    .getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
+                              String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
+                              Class classFromClassName = Reflect.getClassFromClassName(
+                                    excludeUserAction, false);
+                              if (classFromClassName != null)
                               {
-                                 dataPath = null;
+                                 excludeUserAction = classFromClassName.getName();
                               }
 
-                              Pair<String, String> dataKey = new Pair("{" + modelId + "}"
-                                    + dataId, dataPath);
-                              if (!distinctData.contains(dataKey))
+                              if (instanceName.equals(excludeUserAction))
                               {
-                                 distinctData.add(dataKey);
-                                 orderedPrefetchData.add(dataKey);
+                                 Map<String, Object> attributes = action
+                                       .getAllAttributes();
+                                 String dataId = (String) attributes
+                                       .get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
+                                 String dataPath = (String) attributes
+                                       .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
 
-                                 DataPrefetchHint filter = new DataPrefetchHint("{"
-                                       + modelId + "}" + dataId,
-                                       StringUtils.isEmpty(dataPath) ? null : dataPath);
-                                 if (trace.isDebugEnabled())
+                                 IData data = getData(model, dataId);
+                                 if (data != null && !isStructuredType(data))
                                  {
-                                    trace.debug("Adding prefetch filter: " + filter);
+                                    dataPath = null;
                                  }
 
-                                 if (!queryFilter.getParts().contains(filter))
+                                 Pair<String, String> dataKey = new Pair("{" + modelId
+                                       + "}" + dataId, dataPath);
+                                 if (!distinctData.contains(dataKey))
                                  {
-                                    queryFilter.and(filter);
-                                    dataPrefetchHintFilter.put(dataId, filter);
-                                 }
-                                 else
-                                 {
-                                    int idx = queryFilter.getParts().indexOf(filter);
-                                    filter = idx < 0
-                                          ? filter
-                                          : (DataPrefetchHint) queryFilter.getParts()
-                                                .get(idx);
-                                    dataPrefetchHintFilter.put(dataId, filter);
+                                    distinctData.add(dataKey);
+                                    orderedPrefetchData.add(dataKey);
+
+                                    DataPrefetchHint filter = new DataPrefetchHint("{"
+                                          + modelId + "}" + dataId,
+                                          StringUtils.isEmpty(dataPath) ? null : dataPath);
+                                    if (trace.isDebugEnabled())
+                                    {
+                                       trace.debug("Adding prefetch filter: " + filter);
+                                    }
+
+                                    if (!queryFilter.getParts().contains(filter))
+                                    {
+                                       queryFilter.and(filter);
+                                       dataPrefetchHintFilter.put(dataId, filter);
+                                    }
+                                    else
+                                    {
+                                       int idx = queryFilter.getParts().indexOf(filter);
+                                       filter = idx < 0
+                                             ? filter
+                                             : (DataPrefetchHint) queryFilter.getParts()
+                                                   .get(idx);
+                                       dataPrefetchHintFilter.put(dataId, filter);
+                                    }
                                  }
                               }
                            }
@@ -569,6 +575,12 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
             }
          }
       }
+   }
+   
+   boolean isExcludeUserEvaluationEnabled()
+   {
+      return Parameters.instance().getBoolean(
+            KernelTweakingProperties.ENGINE_EXCLUDE_USER_EVALUATION, false);
    }
 
    private IData getData(IModel model, String id)
@@ -603,94 +615,100 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    public boolean isExcludedUser(long activityRtOid, long processInstanceOID,
          long modelOid, Map<String, Long> dataValueOids)
    {
-      if (processInstanceOID == 0)
+      if (isExcludeUserEvaluationEnabled())
       {
-         return false;
-      }
-
-      long dataValueOid = 0;
-      IUser currentUser = SecurityProperties.getUser();
-      long currentPerformer = currentUser.getOID();
-
-      ModelManager mm = getModelManager();
-      IActivity activity = mm.findActivity(modelOid, activityRtOid);
-
-      if (activity.hasEventHandlers(PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
-      {
-         for (int k = 0; k < activity.getEventHandlers().size(); ++k)
+         if (processInstanceOID == 0)
          {
-            IEventHandler handler = (IEventHandler) activity.getEventHandlers().get(k);
-            if (((IEventConditionType) handler.getType()).getImplementation() != EventType.Pull)
+            return false;
+         }
+
+         long dataValueOid = 0;
+         IUser currentUser = SecurityProperties.getUser();
+         long currentPerformer = currentUser.getOID();
+
+         ModelManager mm = getModelManager();
+         IActivity activity = mm.findActivity(modelOid, activityRtOid);
+
+         if (activity
+               .hasEventHandlers(PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
+         {
+            for (int k = 0; k < activity.getEventHandlers().size(); ++k)
             {
-               for (Iterator l = handler.getAllEventActions(); l.hasNext();)
+               IEventHandler handler = (IEventHandler) activity.getEventHandlers().get(k);
+               if (((IEventConditionType) handler.getType()).getImplementation() != EventType.Pull)
                {
-                  IEventAction action = (IEventAction) l.next();
-                  PluggableType type = action.getType();
-                  String instanceName = type
-                        .getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
-                  String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
-                  Class classFromClassName = Reflect.getClassFromClassName(
-                        excludeUserAction, false);
-                  if (classFromClassName != null)
+                  for (Iterator l = handler.getAllEventActions(); l.hasNext();)
                   {
-                     excludeUserAction = classFromClassName.getName();
-                  }
-
-                  if (instanceName.equals(excludeUserAction))
-                  {
-                     Map<String, Object> attributes = action.getAllAttributes();
-                     String dataId = (String) attributes
-                           .get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
-                     String dataPath = (String) attributes
-                           .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
-                     IData data = ModelUtils.getData(activity.getProcessDefinition(),
-                           dataId);
-                     if (dataValueOids.containsKey(dataId))
+                     IEventAction action = (IEventAction) l.next();
+                     PluggableType type = action.getType();
+                     String instanceName = type
+                           .getStringAttribute(PredefinedConstants.ACTION_CLASS_ATT);
+                     String excludeUserAction = PredefinedConstants.EXCLUDE_USER_ACTION_CLASS;
+                     Class classFromClassName = Reflect.getClassFromClassName(
+                           excludeUserAction, false);
+                     if (classFromClassName != null)
                      {
-                        dataValueOid = dataValueOids.get(dataId);
-                     }
-                     if (PredefinedConstants.LAST_ACTIVITY_PERFORMER.equals(data.getId()))
-                     {
-                        IUser lastActivityPerformer = ActivityInstanceBean
-                              .getLastActivityPerformer(processInstanceOID);
-                        Object value = lastActivityPerformer != null
-                              ? lastActivityPerformer.getPrimaryKey()
-                              : null;
-                        dataValueOid = getDataValueOid(value);
-                     }
-                     if (PredefinedConstants.STARTING_USER.equals(data.getId()))
-                     {
-                        IProcessInstance processInstance = ProcessInstanceBean
-                              .findByOID(processInstanceOID);
-                        IDataValue dataValue = processInstance.getDataValue(data);
-                        Object value = dataValue.getValue();
-                        dataValueOid = getDataValueOid(value);
-                     }
-                     boolean isPrimitiveStructType = false;
-                     if (StructuredTypeRtUtils.isStructuredType(data.getType().getId()))
-                     {
-                        IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
-                        TypedXPath typedXPath = xPathMap.getXPath(dataPath);
-                        isPrimitiveStructType = StructuredDataXPathUtils
-                              .isPrimitiveType(typedXPath);
-                     }
-                     if (!isPrimitiveStructType && !StringUtils.isEmpty(dataPath))
-                     {
-                        IProcessInstance processInstance = ProcessInstanceBean
-                              .findByOID(processInstanceOID);
-                        IDataValue dataValue = processInstance.getDataValue(data);
-                        ExtendedAccessPathEvaluator evaluator = SpiUtils
-                              .createExtendedAccessPathEvaluator(data, dataPath);
-                        AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
-                              processInstance, null, null, null);
-                        Object value = evaluator.evaluate(data, dataValue.getValue(),
-                              dataPath, evaluationContext);
-                        dataValueOid = getDataValueOid(value);
+                        excludeUserAction = classFromClassName.getName();
                      }
 
-                     if (currentPerformer == dataValueOid)
+                     if (instanceName.equals(excludeUserAction))
                      {
-                        return true;
+                        Map<String, Object> attributes = action.getAllAttributes();
+                        String dataId = (String) attributes
+                              .get(PredefinedConstants.EXCLUDED_PERFORMER_DATA);
+                        String dataPath = (String) attributes
+                              .get(PredefinedConstants.EXCLUDED_PERFORMER_DATAPATH);
+                        IData data = ModelUtils.getData(activity.getProcessDefinition(),
+                              dataId);
+                        if (dataValueOids.containsKey(dataId))
+                        {
+                           dataValueOid = dataValueOids.get(dataId);
+                        }
+                        if (PredefinedConstants.LAST_ACTIVITY_PERFORMER.equals(data
+                              .getId()))
+                        {
+                           IUser lastActivityPerformer = ActivityInstanceBean
+                                 .getLastActivityPerformer(processInstanceOID);
+                           Object value = lastActivityPerformer != null
+                                 ? lastActivityPerformer.getPrimaryKey()
+                                 : null;
+                           dataValueOid = getDataValueOid(value);
+                        }
+                        if (PredefinedConstants.STARTING_USER.equals(data.getId()))
+                        {
+                           IProcessInstance processInstance = ProcessInstanceBean
+                                 .findByOID(processInstanceOID);
+                           IDataValue dataValue = processInstance.getDataValue(data);
+                           Object value = dataValue.getValue();
+                           dataValueOid = getDataValueOid(value);
+                        }
+                        boolean isPrimitiveStructType = false;
+                        if (StructuredTypeRtUtils
+                              .isStructuredType(data.getType().getId()))
+                        {
+                           IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
+                           TypedXPath typedXPath = xPathMap.getXPath(dataPath);
+                           isPrimitiveStructType = StructuredDataXPathUtils
+                                 .isPrimitiveType(typedXPath);
+                        }
+                        if (!isPrimitiveStructType && !StringUtils.isEmpty(dataPath))
+                        {
+                           IProcessInstance processInstance = ProcessInstanceBean
+                                 .findByOID(processInstanceOID);
+                           IDataValue dataValue = processInstance.getDataValue(data);
+                           ExtendedAccessPathEvaluator evaluator = SpiUtils
+                                 .createExtendedAccessPathEvaluator(data, dataPath);
+                           AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
+                                 processInstance, null, null, null);
+                           Object value = evaluator.evaluate(data, dataValue.getValue(),
+                                 dataPath, evaluationContext);
+                           dataValueOid = getDataValueOid(value);
+                        }
+
+                        if (currentPerformer == dataValueOid)
+                        {
+                           return true;
+                        }
                      }
                   }
                }

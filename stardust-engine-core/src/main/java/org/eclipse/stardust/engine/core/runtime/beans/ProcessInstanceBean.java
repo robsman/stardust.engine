@@ -457,6 +457,15 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          }
 
          this.state = state;
+
+         if (state == ProcessInstanceState.ABORTED)
+         {
+            MonitoringUtils.processExecutionMonitors().processAborted(this);
+         }
+         if (state == ProcessInstanceState.COMPLETED)
+         {
+            MonitoringUtils.processExecutionMonitors().processCompleted(this);
+         }
       }
    }
    

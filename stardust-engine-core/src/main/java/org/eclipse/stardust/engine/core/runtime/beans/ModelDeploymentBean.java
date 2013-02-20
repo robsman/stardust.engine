@@ -18,6 +18,7 @@ import java.util.Date;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.Functions;
@@ -162,7 +163,22 @@ public class ModelDeploymentBean extends IdentifiablePersistentBean implements S
 
    public String toString()
    {
-      return "Deployment: " + getDeployer().getAccount() + "@" + getDeploymentTime();
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("Deployment: ");
+      if(deployer != 0)
+      {
+         buffer.append(getDeployer().getAccount());
+         buffer.append("@");
+         buffer.append(getDeploymentTime());
+      }
+      else
+      {
+         buffer.append(PredefinedConstants.SYSTEM);
+         buffer.append("@");
+         buffer.append(new Date());
+      }
+      
+      return buffer.toString();
    }
    
    public static long getLastDeployment()

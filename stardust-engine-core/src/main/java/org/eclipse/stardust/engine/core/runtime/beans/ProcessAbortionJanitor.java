@@ -11,8 +11,10 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ConcurrencyException;
@@ -38,8 +40,8 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
 {
    public static final Logger trace = LogManager.getLogger(ProcessAbortionJanitor.class);
 
-   protected static final String PRP_RETRY_COUNT = "Infinity.Engine.ProcessAbortion.Failure.RetryCount";
-   protected static final String PRP_RETRY_PAUSE = "Infinity.Engine.ProcessAbortion.Failure.RetryPause";
+   public static final String PRP_RETRY_COUNT = "Infinity.Engine.ProcessAbortion.Failure.RetryCount";
+   public static final String PRP_RETRY_PAUSE = "Infinity.Engine.ProcessAbortion.Failure.RetryPause";
 
    private long processInstanceOid;
    private int triesLeft;
@@ -54,52 +56,67 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
 
    public Object execute()
    {
-      if (Parameters.instance().getBoolean(
-            KernelTweakingProperties.PREVENT_ABORTING_TO_ABORTED_STATE_CHANGE, false))
-      {
-         return Boolean.TRUE;
-      }
-
       triesLeft -= 1;
 
       boolean performed = false;
-      ProcessInstanceBean pi = ProcessInstanceBean.findByOID(processInstanceOid);
 
-      if ( !pi.isTerminated())
+      ProcessInstanceBean pi = null;
+      try
       {
-         try
+         if (Parameters.instance().getBoolean(
+               KernelTweakingProperties.PREVENT_ABORTING_TO_ABORTED_STATE_CHANGE, false))
+         {
+            return Boolean.TRUE;
+         }
+                                                      
+         pi = ProcessInstanceBean.findByOID(processInstanceOid);
+         if ( !pi.isTerminated())
          {
             List<IProcessInstance> pis = piLock.lockAllTransitions(pi);
 
             abortAllProcessInstances(pis);
             removePiFromAbortingList(pi);
             abortStartingActivityInstance(pi);
-
-            performed = true;
          }
-         catch (ConcurrencyException e)
-         {
-            BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-            if (triesLeft > 0 && rtEnv.getExecutionPlan() == null)
-            {
-               trace.info(MessageFormat.format(
-                     "Cannot run abortion janitor for {0} due to a locking conflict, scheduling a new one. Tries left: {1}.",
-                     new Object[] { pi, new Integer(triesLeft) }));
 
-               try
-               {
-                  Thread.sleep(Parameters.instance().getLong(PRP_RETRY_PAUSE, 500));
-               }
-               catch (InterruptedException x)
-               {
-               }
-               scheduleJanitor(new AbortionJanitorCarrier(processInstanceOid, triesLeft));
-            }
-            else
+         performed = true;
+      }
+      catch (ConcurrencyException e)
+      {
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         if (triesLeft > 0 && rtEnv.getExecutionPlan() == null)
+         {
+            trace.info(MessageFormat.format(
+                  "Cannot run abortion janitor for {0} due to a locking conflict, scheduling a new one. Tries left: {1}.",
+                  new Object[] {pi, new Integer(triesLeft)}));
+
+            try
             {
-               trace.warn(MessageFormat.format("Could not run abortion janitor for {0}.",
-                     new Object[] { pi }));
+               Thread.sleep(Parameters.instance().getLong(PRP_RETRY_PAUSE, 500));
             }
+            catch (InterruptedException x)
+            {
+            }
+            scheduleJanitor(new AbortionJanitorCarrier(processInstanceOid, triesLeft));
+         }
+         else
+         {
+            trace.warn(MessageFormat.format("Could not run abortion janitor for {0}.",
+                  new Object[] {pi}));
+         }
+      }
+      // catch exception and dont let the MultipleTryInterceptor retry
+      catch (Throwable t)
+      {
+         triesLeft = 0;
+         trace.warn("Unexpected exception during aborting process, cannot proceed.", t);
+      }
+      finally
+      {
+         if (performed || triesLeft <= 0)
+         {
+            ProcessAbortionJanitorMonitor monitor = ProcessAbortionJanitorMonitor.getInstance();
+            monitor.unregister(processInstanceOid);
          }
       }
 
@@ -173,19 +190,91 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
       rootPi.removeAbortingPiOid(processInstanceOid);
    }
 
-   public static void scheduleJanitor(ActionCarrier carrier)
+   public static void scheduleJanitor(AbortionJanitorCarrier carrier)
    {
-      ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(
-            EngineProperties.FORKING_SERVICE_HOME);
-      ForkingService service = null;
-      try
+      ProcessAbortionJanitorMonitor monitor = ProcessAbortionJanitorMonitor.getInstance();
+      // only one abortion thread allowed per process instance
+      if (monitor.register(carrier.getProcessInstanceOid()))
       {
-         service = factory.get();
-         service.fork(carrier, true);
+         ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance()
+               .get(EngineProperties.FORKING_SERVICE_HOME);
+         ForkingService service = null;
+         try
+         {
+            service = factory.get();
+            service.fork(carrier, false);
+         }
+         finally
+         {
+            factory.release(service);
+         }
+         ;
       }
-      finally
+
+   }
+
+   public static class ProcessAbortionJanitorMonitor
+   {
+      private static ProcessAbortionJanitorMonitor instance = null;
+
+      private HashMap<Long, Boolean> repository;
+
+      private final ReentrantLock lock = new ReentrantLock();
+
+      private ProcessAbortionJanitorMonitor()
       {
-         factory.release(service);
+
+         repository = new HashMap<Long, Boolean>();
+      }
+
+      public synchronized static ProcessAbortionJanitorMonitor getInstance()
+      {
+         if (instance == null)
+         {
+            instance = new ProcessAbortionJanitorMonitor();
+         }
+
+         return instance;
+      }
+
+      public boolean register(long processInstanceOid)
+      {
+         lock.lock();
+         try
+         {
+            if (repository.containsKey(processInstanceOid))
+            {
+               return false;
+            }
+            else
+            {
+               repository.put(processInstanceOid, true);
+               return true;
+            }
+         }
+         finally
+         {
+            lock.unlock();
+         }
+      }
+
+      public void unregister(long processInstanceOid)
+      {
+         lock.lock();
+         try
+         {
+            repository.remove(processInstanceOid);
+         }
+         finally
+         {
+            lock.unlock();
+         }
+      }
+
+      public HashMap<Long, Boolean> getRepository()
+      {
+         return repository;
       }
    }
+
 }

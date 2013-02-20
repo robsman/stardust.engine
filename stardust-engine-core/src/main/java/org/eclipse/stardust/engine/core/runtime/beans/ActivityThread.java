@@ -219,15 +219,13 @@ public class ActivityThread implements Runnable
    public void run()
    {
       if (isInAbortingPiHierarchy())
-      {
-         StringBuffer buffer = new StringBuffer();
-         
+      {         
          // TODO: trace the real state: aborted or aborting.
-         buffer.append(
-               "Scheduled activity thread will not be started because process instance ")
-               .append(processInstance).append(" is aborted.");
-         trace.info(buffer.toString());
-         return;
+         BpmRuntimeError error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE.raise(
+               activityInstance.getOID(), processInstance.getOID());
+         ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
+               this.processInstance.getOID()));
+         throw new IllegalOperationException(error);
       }
       
       if (trace.isDebugEnabled())

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.common;
 
-import org.eclipse.stardust.common.Money;
+import java.text.DecimalFormatSymbols;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -105,7 +105,10 @@ public class MoneyTest extends TestCase
 
    public void testToString()
    {
-      assertEquals("Test toString() for an Object representing 5 DM, should be \"5,00 DM\"", fiveMarks.toString(), "5,00 DM");
+      char decimalSeparator = DecimalFormatSymbols.getInstance().getDecimalSeparator();
+      assertEquals("Test toString() for an Object representing 5 DM, should be \"5"
+            + decimalSeparator + "00 DM\"", fiveMarks.toString(), "5" + decimalSeparator
+            + "00 DM");
    }
 
 }

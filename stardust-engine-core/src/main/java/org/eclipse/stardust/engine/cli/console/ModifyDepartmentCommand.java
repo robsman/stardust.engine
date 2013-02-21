@@ -13,14 +13,19 @@ package org.eclipse.stardust.engine.cli.console;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.Options;
+import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.ejb2.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.Participant;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
+import org.eclipse.stardust.engine.api.runtime.Models;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.cli.common.DepartmentClientUtils;
 
 
@@ -95,16 +100,34 @@ public abstract class ModifyDepartmentCommand extends DepartmentCommand
 
       ServiceFactory serviceFactory = ServiceFactoryLocator.get(config.getUserName(),
             config.getPassWord());
-      WorkflowService workflowService = serviceFactory.getWorkflowService();
+      QueryService queryService = serviceFactory.getQueryService();
 
-      DeployedModel model = workflowService.getModel();
-      Participant participant = model.getParticipant(participantId);
+      String namespace = null;
+      if (participantId.startsWith("{"))
+      {
+         QName qname = QName.valueOf(participantId);
+         namespace = qname.getNamespaceURI();
+         participantId = qname.getLocalPart();
+      }
+      Model model = null;
+      DeployedModelQuery query = namespace != null ? DeployedModelQuery
+            .findActiveForId(namespace) : DeployedModelQuery.findActive();
+      Models models = queryService.getModels(query);
+      if (!models.isEmpty())
+      {
+         DeployedModelDescriptionDetails details = (DeployedModelDescriptionDetails) models
+               .get(0);
+         model = queryService.getModel(details.getModelOID());
+      }
+
+      Participant participant = model != null
+            ? model.getParticipant(participantId)
+            : null;
       if (participant == null)
       {
-         throw new PublicException("Organisation: " + participantId + " no found");
+         throw new PublicException("Organisation: '" + participantId + "'  not found.");
       }
-      
-      
+
       DepartmentClientUtils dh = DepartmentClientUtils.getInstance(globalOptions);
       List<Organization> organizationHierarchy = dh.getOrganizationHierarchy(participant,
             true);

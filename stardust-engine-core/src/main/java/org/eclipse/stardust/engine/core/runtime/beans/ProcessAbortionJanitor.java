@@ -211,7 +211,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
          try
          {
             service = factory.get();
-            service.fork(carrier, false);
+            service.fork(carrier, true);
          }
          finally
          {

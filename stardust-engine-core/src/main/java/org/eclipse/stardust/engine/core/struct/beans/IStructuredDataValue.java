@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct.beans;
 
+import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 
 /**
  * Describes the value of a structured data entry  
  */
-public interface IStructuredDataValue
+public interface IStructuredDataValue extends ValueProvider<Object>
 {
 
    public static final String STRUCTURED_DATA_NAMESPACE = "uri:ag.carnot.structureddata";
@@ -37,8 +38,6 @@ public interface IStructuredDataValue
    public String getEntryKey();
 
    public long getXPathOID();
-
-   public Object getValue();
 
    public int getType();
    

@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.Serializable;
 
+import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.engine.api.model.IData;
 
 
@@ -19,17 +20,12 @@ import org.eclipse.stardust.engine.api.model.IData;
  * Describes workflow data values being created and modified during process
  * execution.
  */
-public interface IDataValue
+public interface IDataValue extends ValueProvider<Object>
 {
    /**
     *
     */
    public IData getData();
-
-   /**
-    *
-    */
-   public Object getValue();
 
    /**
     *

@@ -174,10 +174,14 @@ public class WSDLGenerator
 
       for (IProcessDefinition pd : pds)
       {
-         List<IFormalParameter> formalParameters = pd.getFormalParameters();
-         if (formalParameters != null)
+         if (PredefinedConstants.PROCESSINTERFACE_INVOCATION_SOAP.equals(pd.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE))
+               || PredefinedConstants.PROCESSINTERFACE_INVOCATION_BOTH.equals(pd.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE)))
          {
-            formalParametersPerProcess.put(pd.getId(), sortById(formalParameters));
+            List<IFormalParameter> formalParameters = pd.getFormalParameters();
+            if (formalParameters != null)
+            {
+               formalParametersPerProcess.put(pd.getId(), sortById(formalParameters));
+            }
          }
       }
       return formalParametersPerProcess;
@@ -297,7 +301,7 @@ public class WSDLGenerator
    private NSPrefixPair getNSPrefixPair(IFormalParameter f)
    {
 
-      return nsPairs.get(f.getId());
+      return nsPairs.get(f.getId()+f.getData().getId());
    }
 
    private void assembleWebServiceTemplate(
@@ -345,7 +349,7 @@ public class WSDLGenerator
                      .getAttribute("targetNamespace");
                final int nsIndex = NamespaceHolder.getNamespaceIndex(targetNamespace);
                String prefix = "ns" + nsIndex;
-               this.nsPairs.put(f.getId(), new NSPrefixPair(prefix, targetNamespace));
+               this.nsPairs.put(f.getId()+f.getData().getId(), new NSPrefixPair(prefix, targetNamespace));
                   
                // resolve schemas transitively
                resolveSchemaImports(schemaMap, unresolvedSchemaLocations, xsdSchema);

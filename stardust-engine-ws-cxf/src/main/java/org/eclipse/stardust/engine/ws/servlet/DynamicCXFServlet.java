@@ -487,7 +487,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
        */
       private final ReentrantReadWriteLock endpointConfigLock = new ReentrantReadWriteLock();
 
-      private GenericApplicationContext ctx;
+      private Map<String, GenericApplicationContext> currentEndpointContexts = CollectionUtils.newMap();
 
       private Map<String, EndpointConfiguration> currentEndpoints = CollectionUtils.newMap();
 
@@ -669,7 +669,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
       {
          final ApplicationContext parentCtx = loadCxfContext(servletCtx);
 
-         ctx = new GenericApplicationContext();
+         GenericApplicationContext ctx = new GenericApplicationContext();
          ctx.setParent(parentCtx);
 
          final Bus bus = retrieveBus(ctx);
@@ -677,6 +677,8 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          ctx.registerBeanDefinition(CONFIGURATION_ENDPOINT_ID, configurationEndpoint);
 
          ctx.refresh();
+         
+         currentEndpointContexts.put(CONFIGURATION_ENDPOINT_ID, ctx);
 
          return ctx;
       }
@@ -689,7 +691,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          final ConfigurableApplicationContext parentCtx = (ConfigurableApplicationContext) appCtx.getParent();
          parentCtx.close();
 
-         ctx = null;
+         currentEndpointContexts.clear();
       }
 
       @Override
@@ -704,11 +706,12 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
          if ((System.currentTimeMillis() - lastSync.get(partitionId).get()) > endpointSyncPeriod)
          {
+            endpointConfigLock.writeLock().lock();
+
             // loading endpoint names from configuration
             nameProvider.initEndpointNames(partitionId);
-
-            endpointConfigLock.writeLock().lock();
-            trace.info("Synchronizing dynamic endpoints.");
+            
+            trace.info("Synchronizing dynamic endpoints for partition: " + partitionId);
             try
             {
                if ((System.currentTimeMillis() - lastSync.get(partitionId).get()) > endpointSyncPeriod)
@@ -740,17 +743,15 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
       private void updateEndpoints(String servletPath, String partitionId)
       {
-         ApplicationContext parentCtx = ctx.getParent();
-         ctx.close();
-         ctx = new GenericApplicationContext();
-         ctx.setParent(parentCtx);
-
          final Set<EndpointConfiguration> endpoints2Add = EndpointConfigurationStorage.instance()
                .getEndpoints2Add();
 
          for (final EndpointConfiguration endpoint : endpoints2Add)
          {
-            trace.info("Endpoint to add: " + endpoint.id());
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Endpoint to add: " + endpoint.id());
+            }
             currentEndpoints.put(endpoint.id(), endpoint);
          }
 
@@ -759,22 +760,43 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
          for (String endpointId : endpoints2Remove)
          {
-            trace.info("Endpoint to remove: " + endpointId);
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Endpoint to remove: " + endpointId);
+            }
             currentEndpoints.remove(endpointId);
          }
 
+         updateEndpointSpringContext(partitionId);
+
+      }
+
+      private void updateEndpointSpringContext(String partitionId)
+      {
+         GenericApplicationContext configurationCtx = currentEndpointContexts.get(CONFIGURATION_ENDPOINT_ID);
+         ApplicationContext parentCtx = configurationCtx.getParent();
+
+         GenericApplicationContext ctx = currentEndpointContexts.get(partitionId);
+         if (ctx != null)
+         {
+            ctx.close();
+         }
+         ctx = new GenericApplicationContext();
+         ctx.setParent(parentCtx);
+
+         final Bus bus = retrieveBus(ctx);
          for (EndpointConfiguration endpoint : currentEndpoints.values())
          {
-            final Bus bus = retrieveBus(ctx);
-            final BeanDefinition dynamicWsProvider = createDynamicWsProviderBean(bus,
-                  endpoint);
-
-            ctx.registerBeanDefinition(endpoint.id(), dynamicWsProvider);
+            if (partitionId != null && partitionId.equals(endpoint.getPartitionId()))
+            {
+               final BeanDefinition dynamicWsProvider = createDynamicWsProviderBean(bus,
+                     endpoint);
+               ctx.registerBeanDefinition(endpoint.id(), dynamicWsProvider);
+            }
          }
-         // re-register configurationEndpoint
-         ctx.registerBeanDefinition(CONFIGURATION_ENDPOINT_ID, configurationEndpoint);
-
          ctx.refresh();
+
+         currentEndpointContexts.put(partitionId, ctx);
       }
 
       private ApplicationContext loadCxfContext(final ServletContext servletCtx)
@@ -803,6 +825,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
          String wsdlBeanId = "wsdl:" + endpoint.id();
          final WSDLManager wsdlManager = bus.getExtension(WSDLManager.class);
+         wsdlManager.removeDefinition(wsdl);
          wsdlManager.addDefinition(wsdlBeanId, wsdl);
 
          EndpointBeanDefinitionBuilder builder = null;

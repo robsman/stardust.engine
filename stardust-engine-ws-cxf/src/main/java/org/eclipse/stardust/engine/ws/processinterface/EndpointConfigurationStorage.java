@@ -25,7 +25,6 @@ import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.ws.WebServiceEnv;
 import org.w3c.dom.Document;
 
@@ -173,6 +172,7 @@ public class EndpointConfigurationStorage
             List<ProcessDefinition> pds = qs.getAllProcessDefinitions(md.getModelOID());
             for (ProcessDefinition processDefinition : pds)
             {
+               Pair<String, String> key = new Pair<String, String>(processDefinition.getPartitionId(), processDefinition.getQualifiedId());
                if (PredefinedConstants.PROCESSINTERFACE_INVOCATION_SOAP.equals(processDefinition.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE))
                      || PredefinedConstants.PROCESSINTERFACE_INVOCATION_BOTH.equals(processDefinition.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE)))
                {
@@ -186,9 +186,7 @@ public class EndpointConfigurationStorage
                                  processInterface.getFormalParameters()))
                      {
                         getProcessInterfacesMap().put(
-                              new Pair<String, String>(
-                                    processDefinition.getPartitionId(),
-                                    processDefinition.getQualifiedId()), processInterface);
+                              key, processInterface);
                         addModels.add(md);
                      }
                      // Did not change or was added; no removal needed.
@@ -198,14 +196,7 @@ public class EndpointConfigurationStorage
                }
                else
                {
-                  if (null == getProcessInterfacesMap().remove(
-                        new Pair<String, String>(processDefinition.getPartitionId(),
-                              processDefinition.getQualifiedId())))
-                  {
-                     // Is not a published ProcessInterface so no removal is needed.
-                     removeCandidateModels.remove(new Pair<String, String>(
-                           md.getPartitionId(), md.getId()));
-                  }
+                  getProcessInterfacesMap().remove(key);
                }
             }
          }
@@ -238,8 +229,9 @@ public class EndpointConfigurationStorage
             }
             if ( !keep)
             {
-               removeCandidateModels.add(key);
-               removalList.add(key);
+               Pair<String,String> partitionIdModelIdPair = new Pair<String,String>(partitionId,modelId);
+               removeCandidateModels.add(partitionIdModelIdPair);
+               removalList.add(partitionIdModelIdPair);
             }
          }
 
@@ -250,9 +242,7 @@ public class EndpointConfigurationStorage
 
          for (Pair<String, String> partitionModelIdPair : removeCandidateModels)
          {
-            String qualifiedProcessDefinitionId = partitionModelIdPair.getSecond();
-            QName qn = QName.valueOf(qualifiedProcessDefinitionId);
-            remove(partitionModelIdPair.getFirst(), qn.getNamespaceURI());
+            remove(partitionModelIdPair.getFirst(), partitionModelIdPair.getSecond());
          }
 
          for (DeployedModelDescription md : addModels)

@@ -93,6 +93,11 @@ public class DaemonHome
          throw new NullPointerException("Administration Service must not be null.");
       }
       
+      if (daemonType == null)
+      {
+         throw new NullPointerException("Daemon Type must not be null.");
+      }
+      
       startDaemonInternal(adminService, daemonType.id());
    }
    
@@ -110,10 +115,39 @@ public class DaemonHome
       {
          throw new NullPointerException("Administration Service must not be null.");
       }
+
+      if (daemonType == null)
+      {
+         throw new NullPointerException("Daemon Type must not be null.");
+      }
       
       stopDaemonInternal(adminService, daemonType.id());
    }
 
+   /**
+    * <p>
+    * Retrieves the specified daemon.
+    * </p>
+    * 
+    * @param adminService the service needed for retrieving the daemon
+    * @param daemonType the daemon to retrieve
+    * @return the specified daemon
+    */
+   public static Daemon getDaemon(final AdministrationService adminService, final DaemonType daemonType)
+   {
+      if (adminService == null)
+      {
+         throw new NullPointerException("Administration Service must not be null.");
+      }
+      
+      if (daemonType == null)
+      {
+         throw new NullPointerException("Daemon Type must not be null.");
+      }
+      
+      return adminService.getDaemon(daemonType.id(), true);
+   }
+   
    private static void startDaemonInternal(final AdministrationService adminService, final String daemonType)
    {
       final Daemon daemon = adminService.startDaemon(daemonType, true);

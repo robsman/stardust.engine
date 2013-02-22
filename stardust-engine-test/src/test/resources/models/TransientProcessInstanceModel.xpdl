@@ -5243,6 +5243,73 @@
             </ExtendedAttribute>
          </ExtendedAttributes>
       </WorkflowProcess>
+      <WorkflowProcess Id="TimerTriggerProcess" Name="Timer Trigger Process" AccessLevel="PUBLIC">
+         <ProcessHeader/>
+         <Activities>
+            <Activity Id="OneAndOnlyActivity" Name="One And Only Activity">
+               <Implementation>
+                  <No/>
+               </Implementation>
+               <Performer/>
+               <StartMode>
+                  <Automatic/>
+               </StartMode>
+               <FinishMode>
+                  <Manual/>
+               </FinishMode>
+               <ExtendedAttributes>
+                  <ExtendedAttribute Name="CarnotExt">
+                     <carnot:Activity Oid="10672">
+                        <carnot:EventHandlers/>
+                        <carnot:QualityCodes/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
+                        </carnot:Attributes>
+                     </carnot:Activity>
+                  </ExtendedAttribute>
+               </ExtendedAttributes>
+            </Activity>
+         </Activities>
+         <Transitions/>
+         <ExtendedAttributes>
+            <ExtendedAttribute Name="CarnotExt">
+               <carnot:WorkflowProcess Oid="10669">
+                  <carnot:Triggers>
+                     <carnot:Trigger Oid="10674" Id="TimerTrigger" Name="Timer Trigger" Type="timer">
+                        <carnot:AccessPoints/>
+                        <carnot:DataFlows/>
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:startTime" Value="1361487600000" Type="long"/>
+                           <carnot:Attribute Name="carnot:engine:periodicity" Value="000000:000000:000000:000000:000001:000000" Type="Period"/>
+                        </carnot:Attributes>
+                     </carnot:Trigger>
+                  </carnot:Triggers>
+                  <carnot:DataPaths/>
+                  <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
+                  </carnot:Attributes>
+                  <carnot:Diagrams>
+                     <carnot:Diagram Oid="10670" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
+                        <carnot:Symbols>
+                           <carnot:Symbol Kind="POOL" Oid="10671" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="-1" Height="-1">
+                              <carnot:Symbols>
+                                 <carnot:Symbol Kind="ACTIVITY" Oid="10673" X="395" Y="195" Width="141" Height="51" ModelElement="OneAndOnlyActivity"/>
+                                 <carnot:Symbol Kind="STARTEVENT" Oid="10675" X="395" Y="80" Width="140" Height="50" ModelElement="TimerTrigger"/>
+                              </carnot:Symbols>
+                              <carnot:Connections>
+                                 <carnot:Connection Kind="TRANSITION" Oid="10676" SourceSymbol="10675" TargetSymbol="10673" SourceAnchor="center" TargetAnchor="top"/>
+                              </carnot:Connections>
+                           </carnot:Symbol>
+                        </carnot:Symbols>
+                        <carnot:Connections/>
+                     </carnot:Diagram>
+                  </carnot:Diagrams>
+               </carnot:WorkflowProcess>
+            </ExtendedAttribute>
+         </ExtendedAttributes>
+      </WorkflowProcess>
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">

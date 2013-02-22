@@ -17,6 +17,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -68,11 +69,8 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
-import org.eclipse.stardust.test.api.util.JmsConstants;
-import org.eclipse.stardust.test.api.util.Log4jLogMessageBarrier;
-import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.api.util.WaitTimeout;
+import org.eclipse.stardust.test.api.util.*;
+import org.eclipse.stardust.test.api.util.DaemonHome.DaemonType;
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
@@ -2082,6 +2080,32 @@ public class TransientProcessInstanceTest
       
       pi.getStartingUser().isAdministrator();
       Assert.fail();
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * No timer trigger support for transient processes: ensures that the timer trigger daemon only logs a warning,
+    * if it discovers a transient process definition with an elapsed timer trigger.
+    * </p>
+    */
+   @Test
+   public void testTimerTriggerDaemonIgnoresTransientProcessDefinitions() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.WARN);
+      barrier.registerWithLog4j();
+      
+      DaemonHome.startDaemon(sf.getAdministrationService(), DaemonType.TIMER_TRIGGER_DAEMON);
+      final Daemon daemon = DaemonHome.getDaemon(sf.getAdministrationService(), DaemonType.TIMER_TRIGGER_DAEMON);
+      assertNotNull(daemon.getLastExecutionTime());
+      
+      final String logMsgRegex = ".* transient process definition '" + PROCESS_DEF_ID_TIMER_TRIGGER_PROCESS + "' will be ignored.";
+      barrier.waitForLogMessage(logMsgRegex, new WaitTimeout(10, TimeUnit.SECONDS));
    }
    
    private boolean hasEntryInDbForPi(final long oid) throws SQLException

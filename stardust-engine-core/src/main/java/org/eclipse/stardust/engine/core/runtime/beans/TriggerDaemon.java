@@ -15,20 +15,19 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.BatchedPullTriggerEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.PullTriggerEvaluator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.TriggerMatch;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
 
 /**
  * @author ubirkemeyer
@@ -123,9 +122,16 @@ public class TriggerDaemon implements IDaemon
                   //   isSync = Boolean.getBoolean(syncFlag);
                   //}
 
-                  daemonLogger.info("Trigger Daemon, process trigger '" + trigger.toString() + ", " + match.toString() + "'.");
-                  new WorkflowServiceImpl().startProcess(processDefinition.getId(),
-                        performParameterMapping(trigger, match.getData()), isSync);
+                  if (isTransientExecution(processDefinition))
+                  {
+                     daemonLogger.warn("Trigger Daemon, process trigger '" + trigger.toString() + "' for transient process definition '" + processDefinition.getId() + "' will be ignored.");
+                  }
+                  else
+                  {
+                     daemonLogger.info("Trigger Daemon, process trigger '" + trigger.toString() + ", " + match.toString() + "'.");
+                     new WorkflowServiceImpl().startProcess(processDefinition.getId(),
+                           performParameterMapping(trigger, match.getData()), isSync);
+                  }
                }
             }
             catch (PublicException e)
@@ -182,5 +188,35 @@ public class TriggerDaemon implements IDaemon
          }
       }
       return result;
+   }
+   
+   private boolean isTransientExecution(final IProcessDefinition processDef)
+   {
+      if ( !ProcessInstanceUtils.isTransientPiSupportEnabled())
+      {
+         return false;
+      }
+      
+      /* (1) process definition settings */
+      final String auditTrailPersistenceStr = (String) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_AUDIT_TRAIL_PERSISTENCE);
+      if (auditTrailPersistenceStr != null)
+      {
+         final AuditTrailPersistence auditTrailPersistence = AuditTrailPersistence.valueOf(auditTrailPersistenceStr);
+         final boolean transientExecution = AuditTrailPersistence.isTransientExecution(auditTrailPersistence);
+         if (transientExecution)
+         {
+            return true;
+         }
+      }
+      
+      /* (2) global settings */
+      final Parameters params = Parameters.instance();
+      final String globalSetting = params.getString(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
+      if (KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_TRANSIENT.equals(globalSetting) || KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED.equals(globalSetting))
+      {
+         return true;
+      }
+      
+      return false;
    }
 }

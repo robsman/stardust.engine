@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -26,6 +27,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
 
@@ -74,12 +76,12 @@ public class TriggerDaemon implements IDaemon
       Iterator processes = model.getAllProcessDefinitions();
       while ((nTriggers < batchSize) && processes.hasNext())
       {
-         IProcessDefinition processDefinition = (IProcessDefinition) processes.next();
+         final IProcessDefinition processDefinition = (IProcessDefinition) processes.next();
 
          Iterator processTriggers = processDefinition.getAllTriggers();
          while ((nTriggers < batchSize) && processTriggers.hasNext())
          {
-            ITrigger trigger = (ITrigger) processTriggers.next();
+            final ITrigger trigger = (ITrigger) processTriggers.next();
 
             if (!trigger.getType().getId().equals(triggerType.getId()))
             {
@@ -109,26 +111,45 @@ public class TriggerDaemon implements IDaemon
                   // (just in case trigger evaluation caused side-effects)
                   ++nTriggers;
 
-                  TriggerMatch match = (TriggerMatch) triggerMatches.next();
+                  final TriggerMatch match = (TriggerMatch) triggerMatches.next();
                   // @todo (france, ub): there should be are more general
                   // solution for runtime property overwriting
                   //String syncFlag = Parameters.instance().getString(
                   //      Modules.ENGINE + "." + trigger.getId() + "."
                   //      + EngineProperties.THREAD_MODE, "");
 
-                  boolean isSync = trigger.isSynchronous();
+                  final boolean isSync = trigger.isSynchronous();
                   //if (syncFlag.length() != 0)
                   //{
                   //   isSync = Boolean.getBoolean(syncFlag);
                   //}
 
+                  daemonLogger.info("Trigger Daemon, process trigger '" + trigger.toString() + ", " + match.toString() + "'.");
                   if (isTransientExecution(processDefinition))
                   {
-                     daemonLogger.warn("Trigger Daemon, process trigger '" + trigger.toString() + "' for transient process definition '" + processDefinition.getId() + "' will be ignored.");
+                     ForkingServiceFactory factory = (ForkingServiceFactory) Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
+                     ForkingService service = null;
+                     try
+                     {
+                        service = factory.get();
+                        service.isolate(new Action<Void>()
+                        {
+                           @Override
+                           public Void execute()
+                           {
+                              new WorkflowServiceImpl().startProcess(processDefinition.getId(),
+                                    performParameterMapping(trigger, match.getData()), isSync);
+                              return null;
+                           }
+                        });
+                     }
+                     finally
+                     {
+                        factory.release(service);
+                     }
                   }
                   else
                   {
-                     daemonLogger.info("Trigger Daemon, process trigger '" + trigger.toString() + ", " + match.toString() + "'.");
                      new WorkflowServiceImpl().startProcess(processDefinition.getId(),
                            performParameterMapping(trigger, match.getData()), isSync);
                   }

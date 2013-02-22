@@ -179,10 +179,11 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     */
    /* package-private */ static final String PROCESS_DEF_ID_RECOVERY = "Recovery";
 
+   
    /**
-    * the ID of the process definition started by a timer trigger
+    * the name of the process definition started by a timer trigger
     */
-   /* package-private */ static final String PROCESS_DEF_ID_TIMER_TRIGGER_PROCESS = "TimerTriggerProcess";
+   /* package-private */ static final String PROCESS_DEF_NAME_TIMER_TRIGGER = "Timer Trigger Process";
    
    
    /**

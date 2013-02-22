@@ -2088,8 +2088,7 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * <p>
-    * No timer trigger support for transient processes: ensures that the timer trigger daemon only logs a warning,
-    * if it discovers a transient process definition with an elapsed timer trigger.
+    * Ensure that timer triggers do also work for transient process definitions. 
     * </p>
     */
    @Test
@@ -2097,14 +2096,14 @@ public class TransientProcessInstanceTest
    {
       enableTransientProcessesSupport();
       
-      final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.WARN);
+      final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.INFO);
       barrier.registerWithLog4j();
       
       DaemonHome.startDaemon(sf.getAdministrationService(), DaemonType.TIMER_TRIGGER_DAEMON);
       final Daemon daemon = DaemonHome.getDaemon(sf.getAdministrationService(), DaemonType.TIMER_TRIGGER_DAEMON);
       assertNotNull(daemon.getLastExecutionTime());
       
-      final String logMsgRegex = ".* transient process definition '" + PROCESS_DEF_ID_TIMER_TRIGGER_PROCESS + "' will be ignored.";
+      final String logMsgRegex = "State change .*" + PROCESS_DEF_NAME_TIMER_TRIGGER + ".* Active-->Completed\\.";
       barrier.waitForLogMessage(logMsgRegex, new WaitTimeout(10, TimeUnit.SECONDS));
    }
    

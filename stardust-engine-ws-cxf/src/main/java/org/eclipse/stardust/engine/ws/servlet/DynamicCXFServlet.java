@@ -491,6 +491,8 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
       private Map<String, EndpointConfiguration> currentEndpoints = CollectionUtils.newMap();
 
+      private Map<String, EndpointConfigurationStorage> endpointConfigurationStoragePerPartition = CollectionUtils.newMap();
+
       public DynamicServletDelegate(final ServletConfig servletConfig)
       {
          super(servletConfig);
@@ -538,9 +540,10 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             // browser when requesting the /services listing and it should not update the default partition.
             return;
          }
-         else if (parameterMap.containsKey("wsdl") || pathInfo.endsWith("/services")
-               || pathInfo.endsWith("/services/"))
+         else if ("GET".equals(request.getMethod()))
          {
+            // WSDL or WSDL listing request. Determine partition and modelId if specified.
+            
             partitionId = request.getParameter("partition");
 
             modelId = request.getParameter("modelId");
@@ -565,7 +568,6 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
                   partitionId = null;
                }
             }
-            
          }
          else
          {
@@ -617,6 +619,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             return;
          }
 
+         // forward to CXF
          endpointConfigLock.readLock().lock();
          try
          {
@@ -628,7 +631,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
             AbstractHTTPDestination destination = null;
 
-            if (!StringUtils.isEmpty(modelId))
+            if ( !StringUtils.isEmpty(modelId))
             {
                destination = destinationRegistry.getDestinationForPath(WsUtils.encodeInternalEndpointPath(
                      "", partitionId, modelId, pathInfo.substring(1)));
@@ -648,6 +651,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          {
             endpointConfigLock.readLock().unlock();
          }
+
       }
 
       private HttpServletRequest doConfigurationRequest(HttpServletRequest request,
@@ -718,10 +722,11 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
                {
                   Set<Pair<AuthMode, String>> endpointNameSet = nameProvider.getEndpointNameSet(partitionId);
 
-                  EndpointConfigurationStorage.instance().syncProcessInterfaces(partitionId,
+                  EndpointConfigurationStorage endpointConfigurationStorage = getEndpointConfigurationStorage(partitionId);
+                  endpointConfigurationStorage.syncProcessInterfaces(partitionId,
                         servletPath, endpointNameSet);
-                  if (EndpointConfigurationStorage.instance()
-                        .hasEndpointConfigurationChanged())
+
+                  if (endpointConfigurationStorage.hasEndpointConfigurationChanged())
                   {
                      updateEndpoints(servletPath, partitionId);
                   }
@@ -743,8 +748,8 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
       private void updateEndpoints(String servletPath, String partitionId)
       {
-         final Set<EndpointConfiguration> endpoints2Add = EndpointConfigurationStorage.instance()
-               .getEndpoints2Add();
+         EndpointConfigurationStorage endpointConfigurationStorage = getEndpointConfigurationStorage(partitionId);
+         final Set<EndpointConfiguration> endpoints2Add = endpointConfigurationStorage.getEndpoints2Add();
 
          for (final EndpointConfiguration endpoint : endpoints2Add)
          {
@@ -755,8 +760,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             currentEndpoints.put(endpoint.id(), endpoint);
          }
 
-         final Set<String> endpoints2Remove = EndpointConfigurationStorage.instance()
-               .getEndpoints2Remove();
+         final Set<String> endpoints2Remove = endpointConfigurationStorage.getEndpoints2Remove();
 
          for (String endpointId : endpoints2Remove)
          {
@@ -765,10 +769,21 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
                trace.debug("Endpoint to remove: " + endpointId);
             }
             currentEndpoints.remove(endpointId);
+
          }
-
          updateEndpointSpringContext(partitionId);
+      }
 
+      private EndpointConfigurationStorage getEndpointConfigurationStorage(
+            String partitionId)
+      {
+         EndpointConfigurationStorage endpointConfigurationStorage = endpointConfigurationStoragePerPartition.get(partitionId);
+         if (endpointConfigurationStorage == null)
+         {
+            endpointConfigurationStorage = new EndpointConfigurationStorage();
+            endpointConfigurationStoragePerPartition.put(partitionId, endpointConfigurationStorage);
+         }
+         return endpointConfigurationStorage;
       }
 
       private void updateEndpointSpringContext(String partitionId)

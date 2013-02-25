@@ -37,8 +37,6 @@ import org.w3c.dom.Document;
  */
 public class EndpointConfigurationStorage
 {
-   private static EndpointConfigurationStorage instance;
-
    private Set<EndpointConfiguration> endpointConfs2Add = new HashSet<EndpointConfiguration>();
 
    private Set<String> endpointConfs2Remove = new HashSet<String>();
@@ -127,16 +125,7 @@ public class EndpointConfigurationStorage
    {
       return !endpointConfs2Add.isEmpty() || !endpointConfs2Remove.isEmpty();
    }
-
-   public static synchronized EndpointConfigurationStorage instance()
-   {
-      if (instance == null)
-      {
-         instance = new EndpointConfigurationStorage();
-      }
-      return instance;
-   }
-
+   
    public synchronized void syncProcessInterfaces(String syncPartitionId,
          String servletPath, Set<Pair<AuthMode, String>> endpointNameSet)
    {
@@ -352,10 +341,5 @@ public class EndpointConfigurationStorage
    public Map<Pair<String, String>, ProcessInterface> getProcessInterfaces()
    {
       return Collections.unmodifiableMap(getProcessInterfacesMap());
-   }
-
-   private EndpointConfigurationStorage()
-   {
-      /* Singleton */
    }
 }

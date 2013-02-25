@@ -179,7 +179,7 @@ public class UserDetails implements User
             isAdministrator = true;
          }
       }
-      else if (UserDetailsLevel.Minimal != detailsLevel)
+      if (UserDetailsLevel.Minimal != detailsLevel)
       {
          // respect SynchronizationService#TransientAdministratorDecorator
          if (user.hasRole(PredefinedConstants.ADMINISTRATOR_ROLE))

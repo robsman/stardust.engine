@@ -409,9 +409,11 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
       {
          Set<String> destinationsPaths = super.destinationRegistry.getDestinationsPaths();
          String pathInfo = request.getPathInfo();
-         if (pathInfo!= null)
+         if (pathInfo != null)
          {
-            return destinationsPaths.contains(pathInfo);            
+            return destinationsPaths.contains(pathInfo)
+                  || ((pathInfo.endsWith("/services") || pathInfo.endsWith("/services/")) && request.getParameterMap()
+                        .containsKey("static"));
          }
          return false;
       }
@@ -619,39 +621,49 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             return;
          }
 
-         // forward to CXF
-         endpointConfigLock.readLock().lock();
-         try
+         // handle WSDL listing
+         if (pathInfo.endsWith("/services") || pathInfo.endsWith("/services/"))
          {
-            HttpServletRequest internalRequest = request;
-            if (wrappedCloneRequest != null)
-            {
-               internalRequest = wrappedCloneRequest;
-            }
+            WsdlListingHandler.handleWsdlListingResponse(request, response, partitionId,
+                  destinationRegistry.getDestinationsPaths(), "/services");
 
-            AbstractHTTPDestination destination = null;
-
-            if ( !StringUtils.isEmpty(modelId))
-            {
-               destination = destinationRegistry.getDestinationForPath(WsUtils.encodeInternalEndpointPath(
-                     "", partitionId, modelId, pathInfo.substring(1)));
-            }
-
-            if (destination != null)
-            {
-               invokeInternalDestination(internalRequest, response, destination);
-            }
-            else
-            {
-               invokeInternal(internalRequest, response);
-            }
-
+            return;
          }
-         finally
+         else
          {
-            endpointConfigLock.readLock().unlock();
-         }
+            // forward to CXF
+            endpointConfigLock.readLock().lock();
+            try
+            {
+               HttpServletRequest internalRequest = request;
+               if (wrappedCloneRequest != null)
+               {
+                  internalRequest = wrappedCloneRequest;
+               }
 
+               AbstractHTTPDestination destination = null;
+
+               if ( !StringUtils.isEmpty(modelId))
+               {
+                  destination = destinationRegistry.getDestinationForPath(WsUtils.encodeInternalEndpointPath(
+                        "", partitionId, modelId, pathInfo.substring(1)));
+               }
+
+               if (destination != null)
+               {
+                  invokeInternalDestination(internalRequest, response, destination);
+               }
+               else
+               {
+                  invokeInternal(internalRequest, response);
+               }
+
+            }
+            finally
+            {
+               endpointConfigLock.readLock().unlock();
+            }
+         }
       }
 
       private HttpServletRequest doConfigurationRequest(HttpServletRequest request,

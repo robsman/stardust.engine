@@ -549,27 +549,6 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             partitionId = request.getParameter("partition");
 
             modelId = request.getParameter("modelId");
-
-            if (partitionId == null && modelId == null)
-            {
-               try
-               {
-                  String tempString = pathInfo.substring(pathInfo.indexOf("/") + 1);
-                  partitionId = tempString.substring(0, tempString.indexOf("/"));
-
-                  tempString = pathInfo.substring(pathInfo.indexOf(partitionId)
-                        + partitionId.length() + 1);
-                  modelId = tempString.substring(0, tempString.indexOf("/"));
-               }
-               catch (NullPointerException npe)
-               {
-                  partitionId = null;
-               }
-               catch (IndexOutOfBoundsException ie)
-               {
-                  partitionId = null;
-               }
-            }
          }
          else
          {
@@ -579,7 +558,18 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
             // partitionId is in WsAdressing header.
             partitionId = GenericWebServiceEnv.instance().getPartitionId();
-            modelId = GenericWebServiceEnv.instance().getModelId();
+            modelId = GenericWebServiceEnv.instance().getModelId();  
+         }
+         
+         // Fallback to partitionId and modelId in URL
+         if (partitionId == null && modelId == null)
+         {
+            Pair<String, String> extracted = extractFromUrl(pathInfo);
+            partitionId = extracted.getFirst();
+            modelId = extracted.getSecond();
+            
+            GenericWebServiceEnv.instance().setPartitionId(partitionId);
+            GenericWebServiceEnv.instance().setModelId(modelId);
          }
 
          if (StringUtils.isEmpty(partitionId))
@@ -664,6 +654,30 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
                endpointConfigLock.readLock().unlock();
             }
          }
+      }
+
+      private Pair<String,String> extractFromUrl(String pathInfo)
+      {
+         String partitionId = null;
+         String modelId = null;
+         try
+         {
+            String tempString = pathInfo.substring(pathInfo.indexOf("/") + 1);
+            partitionId = tempString.substring(0, tempString.indexOf("/"));
+
+            tempString = pathInfo.substring(pathInfo.indexOf(partitionId)
+                  + partitionId.length() + 1);
+            modelId = tempString.substring(0, tempString.indexOf("/"));
+         }
+         catch (NullPointerException npe)
+         {
+            partitionId = null;
+         }
+         catch (IndexOutOfBoundsException ie)
+         {
+            partitionId = null;
+         }
+         return new Pair<String,String>(partitionId, modelId);
       }
 
       private HttpServletRequest doConfigurationRequest(HttpServletRequest request,

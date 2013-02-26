@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
 
 package org.eclipse.stardust.engine.api.ws.interactions;
 
@@ -44,27 +34,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetInputParameters }
+     * Create an instance of {@link GetOwner }
      * 
      */
-    public GetInputParameters createGetInputParameters() {
-        return new GetInputParameters();
-    }
-
-    /**
-     * Create an instance of {@link GetOwnerResponse }
-     * 
-     */
-    public GetOwnerResponse createGetOwnerResponse() {
-        return new GetOwnerResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetDefinition }
-     * 
-     */
-    public GetDefinition createGetDefinition() {
-        return new GetDefinition();
+    public GetOwner createGetOwner() {
+        return new GetOwner();
     }
 
     /**
@@ -76,27 +50,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwner }
+     * Create an instance of {@link GetOwnerResponse }
      * 
      */
-    public GetOwner createGetOwner() {
-        return new GetOwner();
-    }
-
-    /**
-     * Create an instance of {@link GetInputParametersResponse }
-     * 
-     */
-    public GetInputParametersResponse createGetInputParametersResponse() {
-        return new GetInputParametersResponse();
-    }
-
-    /**
-     * Create an instance of {@link SetOutputParametersResponse }
-     * 
-     */
-    public SetOutputParametersResponse createSetOutputParametersResponse() {
-        return new SetOutputParametersResponse();
+    public GetOwnerResponse createGetOwnerResponse() {
+        return new GetOwnerResponse();
     }
 
     /**
@@ -113,6 +71,38 @@ public class ObjectFactory {
      */
     public GetDefinitionResponse createGetDefinitionResponse() {
         return new GetDefinitionResponse();
+    }
+
+    /**
+     * Create an instance of {@link SetOutputParametersResponse }
+     * 
+     */
+    public SetOutputParametersResponse createSetOutputParametersResponse() {
+        return new SetOutputParametersResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetDefinition }
+     * 
+     */
+    public GetDefinition createGetDefinition() {
+        return new GetDefinition();
+    }
+
+    /**
+     * Create an instance of {@link GetInputParametersResponse }
+     * 
+     */
+    public GetInputParametersResponse createGetInputParametersResponse() {
+        return new GetInputParametersResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetInputParameters }
+     * 
+     */
+    public GetInputParameters createGetInputParameters() {
+        return new GetInputParameters();
     }
 
     /**

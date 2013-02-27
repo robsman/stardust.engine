@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -75,7 +75,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
    private static final Logger trace = LogManager.getLogger(R6_0_0from5_2_0RuntimeJob.class);
 
-   private static final Version VERSION = new Version(6, 0, 0);
+   private static final Version VERSION = Version.createFixedVersion(6, 0, 0);
 
    private static final String P_TABLE_NAME = "preferences";
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,7 @@ import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.Fiel
  */
 public class R4_9_0from4_7_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
-   private static final Version VERSION = new Version(4, 9, 0);
+   private static final Version VERSION = Version.createFixedVersion(4, 9, 0);
    
    private static final String LOG_ENTRY_TABLE_NAME = "log_entry";
    private static final String LOG_ENTRY_AI_COLUMN = "activityInstance"; 

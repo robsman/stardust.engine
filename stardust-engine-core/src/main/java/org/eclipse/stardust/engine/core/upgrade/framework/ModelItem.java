@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ public class ModelItem implements UpgradableItem
 
    public static final String LEGACY_VERSION_ATT = "carnot_xml_version";
    public static final String VERSION_ATT = "carnotVersion";
+   public static final String VENDOR_ATT = "vendor";
 
    private String model;
    private Version version;
@@ -69,11 +70,12 @@ public class ModelItem implements UpgradableItem
       }
       if (versionString == null || versionString.equals(""))
       {
-         version = new Version(1, 0, 0);
+         version = Version.createFixedVersion(1, 0, 0);
       }
       else
       {
-         version = new Version(versionString);
+         String vendorString = modelElement.getAttribute(VENDOR_ATT);
+         version = Version.createModelVersion(versionString, vendorString);
       }
       return version;
    }
@@ -128,7 +130,7 @@ public class ModelItem implements UpgradableItem
    public void setVersion(Version version)
    {
       bootstrapDOM();
-      if (version.compareTo(new Version(3, 0, 0)) < 0)
+      if (version.compareTo(Version.createFixedVersion(3, 0, 0)) < 0)
       {
          modelElement.setAttribute(LEGACY_VERSION_ATT, version.toString());
       }

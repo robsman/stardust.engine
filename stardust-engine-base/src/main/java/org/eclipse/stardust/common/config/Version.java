@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,12 +25,76 @@ import org.eclipse.stardust.common.StringUtils;
  */
 public class Version implements Comparable<Version>, Serializable
 {
-   private static final long serialVersionUID = 1L;
+   private static final long serialVersionUID = 2L;
    
    private int major;
    private int minor;
    private int micro;
    private String build;
+   
+   // This product name flags special comparison treatment on Version
+   private static final String PRODUCT_NAME_STARDUST = "Eclipse Process Manager";
+   
+   // Diff between                                    IPP and Stardust
+   private static final int IPP_STARDUST_DIFF_MAJOR = 7 - Integer.parseInt(CurrentVersion.MAJOR_VERSION);
+   private static final int IPP_STARDUST_DIFF_MINOR = 1 - Integer.parseInt(CurrentVersion.MINOR_VERSION);
+   private static final int IPP_STARDUST_DIFF_MICRO = 0 - Integer.parseInt(CurrentVersion.MICRO_VERSION);
+   
+   // some Versions coded in product are fixed and are not allowed to be altered during compare 
+   private boolean fixed = false;
+   
+   /**
+    * This creates a Version instance and marks it to be fixed.
+    *  
+    * @param major
+    * @param minor
+    * @param micro
+    * 
+    * @return
+    */
+   public static Version createFixedVersion(int major, int minor, int micro)
+   {
+      return createFixedVersion(major, minor, micro, "");
+   }
+
+   /**
+    * This creates a Version instance and marks it to be fixed.
+    *  
+    * @param major
+    * @param minor
+    * @param micro
+    * @param build
+    * 
+    * @return
+    */
+   public static Version createFixedVersion(int major, int minor, int micro, String build)
+   {
+      Version fixedVersion = new Version(major, minor, micro, build);
+      fixedVersion.setFixed(true);
+      return fixedVersion;
+   }
+   
+   /**
+    * Returns version based on models version string. This depends on the content of vendorString as
+    * special comparison needs to be enabled for comparison of version from different vendors/products.
+    * 
+    * @param versionString
+    * @param vendorString
+    * 
+    * @return
+    */
+   public static Version createModelVersion(String versionString, String vendorString)
+   {
+      Version version = new Version(versionString);
+      if ( !vendorString.contains(PRODUCT_NAME_STARDUST))
+      {
+         // product name not EPM -> assumed to be created with IPP
+         version = Version.createFixedVersion(version.getMajor(), version.getMinor(),
+               version.getMicro());
+      }
+
+      return version;
+   }
 
    public Version(int major, int minor, int micro)
    {
@@ -85,19 +149,23 @@ public class Version implements Comparable<Version>, Serializable
    
    public int compareTo(Version otherVersion, boolean includeMicro) throws ClassCastException
    {
-      if ((major != 0 && otherVersion.major == 0)
-            || (major == 0 && otherVersion.major != 0))
+      if (PRODUCT_NAME_STARDUST.equals(CurrentVersion.PRODUCT_NAME)
+            && this.fixed != otherVersion.fixed)
       {
-         // special treatment for stardust incubation phase: version shift to left, filling micro with 0
-         // TODO: What about comaprison to micro version != 0 ?
-         if (major != 0)
+         if (this.fixed)
          {
-            return compareTo(new Version(otherVersion.minor, otherVersion.micro, 0),
-                  includeMicro);
+            return compareTo(Version.createFixedVersion( //
+                  otherVersion.major + IPP_STARDUST_DIFF_MAJOR, //
+                  otherVersion.minor + IPP_STARDUST_DIFF_MINOR, //
+                  otherVersion.micro + IPP_STARDUST_DIFF_MICRO), includeMicro);
          }
          else
+         // otherVersion.fixed
          {
-            return new Version(minor, micro, 0).compareTo(otherVersion, includeMicro);
+            return Version.createFixedVersion( //
+                  major + IPP_STARDUST_DIFF_MAJOR, //
+                  minor + IPP_STARDUST_DIFF_MINOR, //
+                  micro + IPP_STARDUST_DIFF_MICRO).compareTo(otherVersion, includeMicro);
          }
       }
       
@@ -176,5 +244,10 @@ public class Version implements Comparable<Version>, Serializable
       StringBuffer buffer = new StringBuffer();
       buffer.append(major).append('.').append(minor).append('.').append(micro);
       return buffer.toString();
+   }
+
+   private void setFixed(boolean fixed)
+   {
+      this.fixed = fixed;
    }
 }

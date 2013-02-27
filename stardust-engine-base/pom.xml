@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+    Copyright (c) 2011, 2013 SunGard CSA LLC and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -32,6 +32,8 @@
         {1}: will be replaced by CurrentVersion.COPYRIGHT_YEARS, e.g. 2000-2012
     -->
     <copyright.message>2012 SunGard CSA LLC and others, {0}</copyright.message>
+    <vendor.name>Eclipse.org</vendor.name>
+    <product.name>Eclipse Process Manager</product.name>
   </properties>
 
   <build>

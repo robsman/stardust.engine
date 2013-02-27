@@ -88,21 +88,22 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
                if (excludeUserPolicy)
                {
                   Map<String, Long> dataValueOids = CollectionUtils.newMap();
-                  try
+                  for (String dataId : dataPrefetchHintFilter.keySet())
                   {
-                     for (String dataId : dataPrefetchHintFilter.keySet())
+                     DataPrefetchHint dataPrefetchHint = dataPrefetchHintFilter
+                           .get(dataId);
+                     int colIdx = dataPrefetchHint.getPrefetchNumberValueColumnIdx();
+                     long dataValueOid = 0;
+                     try
                      {
-                        DataPrefetchHint dataPrefetchHint = dataPrefetchHintFilter
-                              .get(dataId);
-                        String columnName = dataPrefetchHint
-                              .getPrefetchNumberValueColumnName();
-                        long dataValueOid = rs.getLong(columnName);
-                        dataValueOids.put(dataId, dataValueOid);
+                        dataValueOid = rs.getLong(colIdx);
                      }
-                  }
-                  catch (SQLException x)
-                  {
-                     // leave it to 0 if column cannot be found
+                     catch (SQLException x)
+                     {
+                        // leave it to 0 if column cannot be found
+                        trace.warn("", x);
+                     }
+                     dataValueOids.put(dataId, dataValueOid);
                   }
                   if (isExcludedUser(activityRtOid, processInstanceOid, modelOid,
                         dataValueOids))

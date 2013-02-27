@@ -10,15 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
-import java.util.List;
-
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 
 public class DataPrefetchHint extends AbstractDataFilter
 {
    private static final long serialVersionUID = 1L;
-   private String prefetchNumberValueColumnName;
+   private int prefetchNumberValueColumnIdx;
 
    public DataPrefetchHint(String dataId)
    {
@@ -83,20 +79,13 @@ public class DataPrefetchHint extends AbstractDataFilter
       return true;
    }
 
-   public void setPrefetchSelectExtension(List<FieldRef> prefetchSelectExtension)
+   public int getPrefetchNumberValueColumnIdx()
    {
-      for (FieldRef fieldRef : prefetchSelectExtension)
-      {
-         String columnName = fieldRef.toString();
-         if (columnName.contains(DataValueBean.FIELD__NUMBER_VALUE))
-         {
-            prefetchNumberValueColumnName = columnName;
-         }
-      }
+      return prefetchNumberValueColumnIdx;
    }
 
-   public String getPrefetchNumberValueColumnName()
+   public void setPrefetchNumberValueColumnIdx(int colIdx)
    {
-      return prefetchNumberValueColumnName;
+      prefetchNumberValueColumnIdx = colIdx;
    }
 }

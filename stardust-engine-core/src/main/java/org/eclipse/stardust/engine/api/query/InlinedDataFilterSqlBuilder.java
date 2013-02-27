@@ -131,9 +131,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
       if (isPrefetchHint)
       {
          final List<FieldRef> selectExtension = context.getSelectExtension();
-         List<FieldRef> prefetchSelectExtension = dataFilterExtension.getPrefetchSelectExtension(dvJoin);
-         selectExtension.addAll(prefetchSelectExtension);
-         ((DataPrefetchHint) filter).setPrefetchSelectExtension(prefetchSelectExtension);
+         selectExtension.addAll(dataFilterExtension.getPrefetchSelectExtension(dvJoin));
 
          return NOTHING;
       }

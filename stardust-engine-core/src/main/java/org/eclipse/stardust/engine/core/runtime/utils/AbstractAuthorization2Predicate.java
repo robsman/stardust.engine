@@ -285,6 +285,8 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
                   String dataId = prefetchData.getFirst();
                   String dataPath = prefetchData.getSecond();
                   context.setPrefetchedDataValue(dataId, dataPath, value == null ? null : value.toString());
+                  
+                  addExcludeUserDataPrefetchColIdx(dataId, absExtIndex + i * 3 + 2);
                }
             }
             catch (SQLException e)
@@ -295,6 +297,17 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
          }
       }
       return true;
+   }
+
+   private void addExcludeUserDataPrefetchColIdx(String dataId, int colIdx)
+   {
+      int idx = dataId.indexOf("}");
+      dataId = dataId.substring(idx + 1);
+      DataPrefetchHint dataPrefetchHint = dataPrefetchHintFilter.get(dataId);
+      if (dataPrefetchHint != null)
+      {
+         dataPrefetchHint.setPrefetchNumberValueColumnIdx(colIdx);
+      }
    }
 
    private Map<Pair<String, String>, IOrganization> initTracing()

@@ -94,15 +94,15 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                   {
                      DataPrefetchHint dataPrefetchHint = dataPrefetchHintFilter
                            .get(dataId);
-                     String columnName = dataPrefetchHint
-                           .getPrefetchNumberValueColumnName();
-                     long dataValueOid = rs.getLong(columnName);
+                     int columnIdx = dataPrefetchHint.getPrefetchNumberValueColumnIdx();
+                     long dataValueOid = rs.getLong(columnIdx);
                      dataValueOids.put(dataId, dataValueOid);
                   }
                }
                catch (SQLException x)
                {
                   // leave it to 0 if column cannot be found
+                  trace.warn("", x);
                }
 
                long departmentOid = rs.getLong(WorkItemBean.FIELD__DEPARTMENT);

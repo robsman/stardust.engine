@@ -50,7 +50,9 @@
       <dependency org="org.apache.cxf" name="cxf-rt-core" rev="${cxf-rt-core.version}" conf="jax-ws-cxf-provider-compile->default" >
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
       </dependency>
-      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="jax-ws-cxf-provider-compile->default" />
+      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="jax-ws-cxf-provider-compile->default" >
+         <exclude org="xml-resolver" module="xml-resolver" />
+      </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="jax-ws-cxf-provider-compile->default" />
       <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="${cxf-rt-databinding-jaxb.version}" conf="jax-ws-cxf-provider-compile->default" />
       <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="${cxf-rt-transports-http.version}" conf="jax-ws-cxf-provider-compile->default" />

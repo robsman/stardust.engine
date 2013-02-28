@@ -1308,11 +1308,7 @@ public class ModelBean extends RootElementBean
 
    public Version getCarnotVersion()
    {
-      if (StringUtils.isEmpty(carnotVersion))
-      {
-         return null;
-      }
-      return new Version(carnotVersion);
+      return carnotVersion;
    }
 
    public IEventConditionType createEventConditionType(String id, String name,

@@ -1312,3 +1312,8 @@ public class ElementFactoryImpl implements ElementFactory
          }
       }
       else if(name.equals(PredefinedConstants.QUALITY_ASSURANCE_FORMULA_ATT))
+      {
+         activity.setQualityAssuranceFormula(reader.getChildValue(VALUE));
+      }
+   }
+}

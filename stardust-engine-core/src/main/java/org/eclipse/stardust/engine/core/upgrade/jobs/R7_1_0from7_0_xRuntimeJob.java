@@ -9,12 +9,15 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.Version;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
+import org.eclipse.stardust.engine.core.persistence.jdbc.OracleDbDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
@@ -25,6 +28,10 @@ import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
 public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
+   
+   private static final String IGNORE_XSD_ERRORS 
+      = R7_1_0from7_0_xRuntimeJob.class.getSimpleName()+"."+"IgnoreXsdErrors";
+   
    private static final Logger trace = LogManager
          .getLogger(R7_1_0from7_0_xRuntimeJob.class);
 
@@ -114,6 +121,26 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       upgradeTaskExecutor.addMigrateDataTask(migrateStringValueToDoubleValueTask());
    }
 
+   private void prepareMigrateStringValueToDoubleValue()
+   {
+      DBDescriptor dbDescriptor = item.getDbDescriptor();
+      if(dbDescriptor instanceof OracleDbDescriptor)
+      {
+         //set the decimal delemiter for number conversions
+         String setDelemiterStatement = 
+            "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='.,'";
+         try
+         {
+            DatabaseHelper.executeQuery(item, setDelemiterStatement);
+         }
+         catch (SQLException e1)
+         {
+            throw new PublicException("preparation of string to value migration failed", e1);
+         }
+      }
+      
+   }
+   
    private UpgradeTask migrateStringValueToDoubleValueTask()
    {
       return new UpgradeTask()
@@ -121,6 +148,8 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          @Override
          public void execute()
          {
+            prepareMigrateStringValueToDoubleValue();
+            
             runUpdateDataValueStmnt(DataValueBean.TABLE_NAME,
                   DataValueBean.FIELD__DOUBLE_VALUE, DataValueBean.FIELD__STRING_VALUE);
             runUpdateDataValueStmnt(StructuredDataValueBean.TABLE_NAME,
@@ -162,25 +191,12 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
                   String value = resultSet.getString(4);
                   long modelOid = ProcessInstanceBean.findByOID(piOid)
                         .getProcessDefinition().getModel().getModelOID();
-                  IData theData = modelManager.findDataForStructuredData(modelOid,
-                        xpathOid);
-                  IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
-                  TypedXPath typedXPath = xPathMap.getXPath(xpathOid);
-                  String xsdTypeName = typedXPath.getXsdTypeName();
-                  boolean tryParseDouble = "decimal".equals(xsdTypeName);
-                  if (tryParseDouble)
+                  
+                  IData theData = modelManager.findDataForStructuredData(modelOid, xpathOid);
+                  Double decimalValue = getDecimalValue(theData, xpathOid, value);
+                  if(decimalValue != null)
                   {
-                     try
-                     {
-                        // As xsd:decimal is stored as string it is tried to convert to
-                        // double
-                        structValMap.put(structValOid, Double.parseDouble(value));
-                     }
-                     catch (NumberFormatException x)
-                     {
-                        trace.debug("Cannot parse as a double: " + value, x);
-                        structValMap.put(structValOid, 0.0);
-                     }
+                     structValMap.put(structValOid, decimalValue);
                   }
                }
 
@@ -200,6 +216,49 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       };
    }
+   
+   private Double getDecimalValue(IData theData, long xpathOid, String value)
+   {
+      try 
+      {
+         IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
+         TypedXPath typedXPath = xPathMap.getXPath(xpathOid);
+         String xsdTypeName = typedXPath.getXsdTypeName();
+         boolean tryParseDouble = "decimal".equals(xsdTypeName); 
+         
+         if(tryParseDouble)
+         {
+            try
+            {
+               return Double.parseDouble(value);
+            }
+            catch (NumberFormatException x)
+            {} 
+         }
+      }
+      catch(Exception e)
+      {
+         boolean ignoreXsdErrors = Parameters.instance().getBoolean(IGNORE_XSD_ERRORS, false);
+         
+         StringBuffer errorMsg = new StringBuffer();
+         errorMsg.append("Could not analyse structured data: ");
+         errorMsg.append(theData.getId());
+         errorMsg.append(" for xpath oid ");
+         errorMsg.append(xpathOid);
+         if(ignoreXsdErrors)
+         {
+            errorMsg.append(" - ignoring record.");
+            trace.warn(errorMsg.toString());
+         }
+         else
+         {            
+            throw new PublicException(errorMsg.toString());
+         }
+      }
+            
+      return null;
+   }
+   
 
    protected String createUpdateDecStructValStmnt(Long structValOid, Double value)
    {
@@ -283,7 +342,8 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       StringBuilder updateDataValueStmt = new StringBuilder();
       updateDataValueStmt.append("UPDATE ")
             .append(DatabaseHelper.getQualifiedName(tableName)).append(" SET ")
-            .append(doubleFieldName).append("=").append(stringFieldName)
+            .append(doubleFieldName).append("=")
+            .append(stringFieldName)
             .append(" WHERE type_key=").append(BigData.DOUBLE).append(" OR type_key=")
             .append(BigData.FLOAT);
       try

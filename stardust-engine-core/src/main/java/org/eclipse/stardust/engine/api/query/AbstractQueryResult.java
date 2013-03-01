@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,14 +28,23 @@ public abstract class AbstractQueryResult<T> extends AbstractList<T>
    protected final boolean hasMore;
    
    private final Long totalCount;
+   private final long totalCountThreshold;
 
-   protected AbstractQueryResult(Query query, List<T> items, boolean hasMore, Long totalCount)
+   protected AbstractQueryResult(Query query, List<T> items, boolean hasMore,
+         Long totalCount)
+   {
+      this(query, items, hasMore, totalCount, Long.MAX_VALUE);
+   }
+
+   protected AbstractQueryResult(Query query, List<T> items, boolean hasMore,
+         Long totalCount, long totalCountThreshold)
    {
       this.query = query;
       this.items = items;
       this.hasMore = hasMore;
-      
+
       this.totalCount = totalCount;
+      this.totalCountThreshold = totalCountThreshold;
    }
 
    public T get(int index)
@@ -75,5 +84,10 @@ public abstract class AbstractQueryResult<T> extends AbstractList<T>
    public boolean hasMore()
    {
       return hasMore;
+   }
+   
+   public long getTotalCountThreshold()
+   {
+      return totalCountThreshold;
    }
 }

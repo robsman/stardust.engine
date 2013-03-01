@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,6 +108,20 @@ public interface Session
     */
    public long getCount(Class type, QueryExtension queryExtension,
          FetchPredicate fetchPredicate, int timeout);
+   
+   /**
+    * Counts all objects of a specified type which match the condition specified by the
+    * <tt>queryExtension</tt> argument.
+    * 
+    * @param type the type of objects which have to be counted
+    * @param queryExtension specification of additional relations, predicates, order etc.
+    * @param fetchPredicate optional predicate applied before rows are included into count
+    * @param timeout
+    * @param totalCountThreshold the maximum value of total count items
+    * @return the number of records of the specified type
+    */
+   public long getCount(Class type, QueryExtension queryExtension,
+         FetchPredicate fetchPredicate, int timeOut, long totalCountThreshold);
    
    /**
     * Fires a query against the database and returns an iterator containing all

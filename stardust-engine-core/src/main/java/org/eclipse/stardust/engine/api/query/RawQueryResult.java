@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,13 +25,19 @@ public final class RawQueryResult<T> extends AbstractQueryResult<T>
 
    public RawQueryResult(List<T> itemList, SubsetPolicy subset, boolean hasMore)
    {
-      this(itemList, subset, hasMore, null);
+      this(itemList, subset, hasMore, null, Long.MAX_VALUE);
    }
-
+   
    public RawQueryResult(List<T> itemList, SubsetPolicy subset, boolean hasMore,
          Long totalCount)
    {
-      super(null, new ArrayList<T>(itemList), hasMore, totalCount);
+      this(itemList, subset, hasMore, totalCount, Long.MAX_VALUE);
+   }
+
+   public RawQueryResult(List<T> itemList, SubsetPolicy subset, boolean hasMore,
+         Long totalCount, long totalCountThreshold)
+   {
+      super(null, new ArrayList<T>(itemList), hasMore, totalCount, totalCountThreshold);
 
       this.subset = subset;
       this.hasTotalCount = (null != totalCount);

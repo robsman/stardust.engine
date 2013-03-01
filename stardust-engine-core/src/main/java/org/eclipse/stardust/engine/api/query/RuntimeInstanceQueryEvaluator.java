@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -262,12 +262,15 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
             int size = isEmpty(selectExtension) ? 0 : -selectExtension.size();
             authPred.setSelectionExtension(size, selectExtension);
          }
+         
+         long totalCountThreshold = getTotalCountThreshold(fetchPredicate);
 
          final long totalCount = countImplicitly
                ? result.getTotalCount()
-               : getExplicitTotalCount(queryExtension, fetchPredicate, casePolicy != null);
+               : getExplicitTotalCount(queryExtension, fetchPredicate,
+                     casePolicy != null, totalCountThreshold);
 
-         return new TotalCountDecorator(totalCount, result);
+         return new TotalCountDecorator(totalCount, totalCountThreshold, result);
       }
       else
       {
@@ -282,17 +285,31 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       }
    }
 
-   private long getExplicitTotalCount(QueryExtension queryExtension,
-         FetchPredicate fetchPredicate, boolean useCasePolicy)
+   private long getTotalCountThreshold(FetchPredicate fetchPredicate)
    {
-      if (useCasePolicy || hasDataPrefetchHintFilter(fetchPredicate))
+      long totalCountThreshold = Long.MAX_VALUE;
+      if (Parameters.instance().getBoolean(
+            KernelTweakingProperties.ENGINE_EXCLUDE_USER_EVALUATION, false)
+            && hasDataPrefetchHintFilter(fetchPredicate))
+      {
+         totalCountThreshold = Parameters.instance().getLong(
+               KernelTweakingProperties.EXCLUDE_USER_MAX_WORKLIST_COUNT, 100);
+      }
+      return totalCountThreshold;
+   }
+
+   private long getExplicitTotalCount(QueryExtension queryExtension,
+         FetchPredicate fetchPredicate, boolean useCasePolicy, long totalCountThreshold)
+   {
+      if (useCasePolicy)
       {
          return Long.MAX_VALUE;
       }
       else
       {
          return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(type,
-               queryExtension, fetchPredicate, QueryUtils.getTimeOut(query));
+               queryExtension, fetchPredicate, QueryUtils.getTimeOut(query),
+               totalCountThreshold);
       }
    }
 

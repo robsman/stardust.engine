@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,12 +34,19 @@ public class UserWorklist extends Worklist
    UserWorklist(UserInfo owner, WorklistQuery query, SubsetPolicy subset, List items,
          boolean moreAvailable, List subDetails, Long totalCount)
    {
-      super(query, subset, items, moreAvailable, totalCount);
+      this(owner, query, subset, items, moreAvailable, subDetails, totalCount,
+            Long.MAX_VALUE);
+   }
+   
+   UserWorklist(UserInfo owner, WorklistQuery query, SubsetPolicy subset, List items,
+         boolean moreAvailable, List subDetails, Long totalCount, long totalCountThreshold)
+   {
+      super(query, subset, items, moreAvailable, totalCount, totalCountThreshold);
 
       this.owner = owner;
       this.subDetails = subDetails;
    }
-   
+
    /**
     * Retrieves the owning user of this worklist.
     * 

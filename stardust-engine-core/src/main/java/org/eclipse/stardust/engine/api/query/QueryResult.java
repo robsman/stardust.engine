@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,4 +63,12 @@ public interface QueryResult<T> extends  List<T>, Serializable
     * @see #getSubsetPolicy
     */
    public boolean hasMore();
+   
+   /**
+    * This returns the configured threshold up to which total count is counted exactly. If this value is
+    * exceeded then #getTotalCount() will return {Long.MAX_VALUE)
+    *
+    * @return {Long.MAX_VALUE} if no threshold value is configured. Otherwise configured value.
+    */
+   public long getTotalCountThreshold();
 }

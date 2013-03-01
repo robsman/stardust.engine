@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -323,8 +323,9 @@ public class WorklistQueryEvaluator
       final UserInfo owner = DetailsFactory.create(context.getUser(), IUser.class,
             UserInfoDetails.class);
       return new UserWorklist(owner, query, userWorklist.subset,
-            userWorklist.retrievedItems, userWorklist.hasMore, subWorklists, userWorklist
-                  .hasTotalCount() ? new Long(userWorklist.getTotalCount()) : null);
+            userWorklist.retrievedItems, userWorklist.hasMore, subWorklists,
+            userWorklist.hasTotalCount() ? new Long(userWorklist.getTotalCount()) : null,
+            userWorklist.getTotalCountThreshold());
    }
 
    /**
@@ -529,6 +530,7 @@ public class WorklistQueryEvaluator
          if (worklistItems.hasTotalCount())
          {
             worklist.setTotalCount(worklistItems.getTotalCount());
+            worklist.setTotalCountThreshold(worklistItems.getTotalCountThreshold());
          }
       }
       finally
@@ -608,14 +610,16 @@ public class WorklistQueryEvaluator
       if (null != owner)
       {
          return new ParticipantWorklist(owner, query, collector.subset,
-               collector.retrievedItems, collector.hasMore,
-               collector.hasTotalCount() ? new Long(collector.getTotalCount()) : null);
+               collector.retrievedItems, collector.hasMore, collector.hasTotalCount()
+                     ? new Long(collector.getTotalCount())
+                     : null, collector.getTotalCountThreshold());
       }
       else
       {
          return new ParticipantWorklist(participant.getId(), query, collector.subset,
-               collector.retrievedItems, collector.hasMore,
-               collector.hasTotalCount() ? new Long(collector.getTotalCount()) : null);
+               collector.retrievedItems, collector.hasMore, collector.hasTotalCount()
+                     ? new Long(collector.getTotalCount())
+                     : null, collector.getTotalCountThreshold());
       }
    }
 
@@ -674,6 +678,8 @@ public class WorklistQueryEvaluator
       private boolean hasMore;
 
       private Long totalCount;
+
+      private long totalCountThreshold;
 
       public String toString()
       {
@@ -760,6 +766,16 @@ public class WorklistQueryEvaluator
          {
             totalCount = new Long(totalCount.longValue() + count);
          }
+      }
+      
+      public void setTotalCountThreshold(long totalCountThreshold)
+      {
+         this.totalCountThreshold = totalCountThreshold;
+      }
+      
+      public long getTotalCountThreshold()
+      {
+         return totalCountThreshold;
       }
    }
 

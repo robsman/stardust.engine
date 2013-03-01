@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,11 +12,27 @@ package org.eclipse.stardust.engine.core.persistence.jdbc;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.*;
+import java.sql.BatchUpdateException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.MessageFormat;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.Vector;
 
 import javax.sql.DataSource;
 
@@ -56,9 +72,30 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenc
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceSupport;
-import org.eclipse.stardust.engine.core.persistence.jms.*;
+import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
+import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
+import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
+import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
+import org.eclipse.stardust.engine.core.persistence.jms.JmsBytesMessageBuilder;
+import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobAuditTrailPersistor;
+import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
+import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
+import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
@@ -1248,9 +1285,23 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
    {
       return getCount(type, queryExtension, false, fetchPredicate, timeout);
    }
-
+   
+   public long getCount(Class type, QueryExtension queryExtension,
+         FetchPredicate fetchPredicate, int timeout, long totalCountThreshold)
+   {
+      return getCount(type, queryExtension, false, fetchPredicate, timeout,
+            totalCountThreshold);
+   }
+   
    private long getCount(Class type, QueryExtension queryExtension, boolean mayFail,
          FetchPredicate fetchPredicate, int timeout)
+   {
+      return getCount(type, queryExtension, mayFail, fetchPredicate, timeout,
+            Long.MAX_VALUE);
+   }
+
+   public long getCount(Class type, QueryExtension queryExtension, boolean mayFail,
+         FetchPredicate fetchPredicate, int timeout, long totalCountThreshold)
    {
       boolean useTimeout = false;
       if ((mayFail && getDBDescriptor().useQueryTimeout()) || timeout > NO_TIMEOUT)
@@ -1352,6 +1403,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      long partialCount = resultSet.getLong(1);
                      count += partialCount;
                   }
+               }
+               if (count > totalCountThreshold)
+               {
+                  count = Long.MAX_VALUE;
+                  break;
                }
             }
 

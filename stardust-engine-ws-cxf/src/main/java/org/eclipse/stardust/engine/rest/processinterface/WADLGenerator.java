@@ -334,6 +334,15 @@ public class WADLGenerator
    {
       final StringBuilder sb = new StringBuilder();
       sb.append(uriInfo.getBaseUri().toString());
+      String baseUri = uriInfo.getBaseUri().toString();
+      
+      if (baseUri != null && !baseUri.endsWith("/") && uriInfo.getPath() != null
+            && !uriInfo.getPath().startsWith("/"))
+      {
+         baseUri = baseUri + "/";
+      }
+
+      sb.append(baseUri);
       sb.append("typeDeclarations/");
       sb.append(typeDeclId);
       if ( !PredefinedConstants.DEFAULT_PARTITION_ID.equals(partitionId))

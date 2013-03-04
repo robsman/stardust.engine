@@ -32,9 +32,13 @@
       <conf name="carnot-base-compile-optional" extends="stardust-engine-base-compile-optional" />
       <conf name="carnot-base-runtime" extends="stardust-engine-base-runtime" />
       
-      <conf name="compile" extends="stardust-engine-base-compile, stardust-engine-base-provided, stardust-engine-base-compile-optional" visibility="private" description="Compile Time Dependencies" />
-
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="provided" extends="stardust-engine-base-provided" visibility="private" />
+      <conf name="compile" extends="provided, stardust-engine-base-compile, stardust-engine-base-compile-optional" visibility="private" description="Compile Time Dependencies" />
+      <conf name="runtime" extends="stardust-engine-base-runtime" visibility="private" />
       <conf name="test" visibility="private" description="Test dependencies" />
+
+      <conf name="all" visibility="private" extends="provided, compile, runtime, test" />
 
       <conf name="pom" description="IPP Engine - Spring Module - POMs" />
    </configurations>

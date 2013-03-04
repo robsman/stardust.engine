@@ -43,8 +43,9 @@
    <target name="init" depends="initOnDevelopment, initOnProduction">
       <property name="build.dir" value="${project.dir}/build" />
       <property name="build.classes" value="${build.dir}/classes" />
-      <property name="build.lib" value="${build.dir}/lib" />
+      <property name="build.lib" location="${build.dir}/lib" />
       <property name="build.lib.src" value="${build.dir}/src" />
+      <property name="build.report" location="${build.dir}/report" />
    </target>
 
    <target name="clean" depends="init" description="removes all build results">
@@ -53,7 +54,7 @@
 
    <target name="initBuild" depends="init">
       <property name="carnot-spring.jarfile" value="carnot-spring.jar" />
-      <property name="carnot-spring.jar" value="${build.lib}/${carnot-spring.jarfile}" />
+      <property name="carnot-spring.jar" location="${build.lib}/${carnot-spring.jarfile}" />
       <property name="carnot-spring.src-jarfile" value="carnot-spring-sources.jar" />
       <property name="carnot-spring.src-jar" value="${build.lib.src}/${carnot-spring.src-jarfile}" />
    </target>
@@ -147,9 +148,9 @@
       <mkdir dir="${codegen.build.classes}" />
       <mkdir dir="${codegen.build.dir.src}" />
       
-      <ivy:cachepath pathid="qdox.deps" conf="qdox-module-compile" inline="true" organisation="com.infinity.bpm"
+      <ivy:cachepath pathid="qdox.deps" conf="qdox-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
          module="infinity-process-engine-module" revision="${ipp.version.full}"/>
-      <ivy:cachepath pathid="stardust-engine-spring.deps" conf="spring-module-compile" inline="true" organisation="com.infinity.bpm"
+      <ivy:cachepath pathid="stardust-engine-spring.deps" conf="spring-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
          module="carnot-spring-module" revision="${ipp.version.full}"/>
    </target>
    
@@ -219,7 +220,7 @@
       </copy>
 	</target>
 
-   <target name="deploy" depends="build" />
+   <target name="deploy" depends="build, dependencies:report" />
 
    <target name="install" if="maven.localRepository" depends="initBuild"
       description="installs the artifacts into a local Maven repository">
@@ -237,6 +238,11 @@
       <ipp:mvn-deploy file="${carnot-spring.jar}" pomFile="${build.lib}/carnot-spring.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/spring-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/client-spring-module.pom" />      
+   </target>
+
+   <target name="dependencies:report" depends="init,initIvy" xmlns:ivy="antlib:org.apache.ivy.ant">
+      <ivy-report ivyFile="${project.dir}/ivy.xml" outputDir="${build.report}" />
+      <ivy-report ivyFile="${project.dir}/module-ivy.xml" outputDir="${build.report}" />
    </target>
 	
 </project>

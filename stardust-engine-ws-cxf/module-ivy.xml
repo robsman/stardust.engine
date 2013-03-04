@@ -30,6 +30,16 @@
       <conf name="jax-rs-cxf-provider-compile" visibility="private" />
       <conf name="jax-rs-cxf-provider-runtime" visibility="private" />
 
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="provided" extends="jax-ws-cxf-module-provided" visibility="private" />
+      <conf name="compile" extends="jax-ws-cxf-module-compile,jax-ws-cxf-provider-compile,jax-rs-cxf-module-compile,jax-rs-cxf-provider-compile" 
+         visibility="private" />
+      <conf name="runtime" extends="jax-ws-cxf-module-runtime,jax-ws-cxf-provider-runtime,jax-rs-cxf-module-runtime,jax-rs-cxf-provider-runtime" 
+         visibility="private" />
+
+      <conf name="all" extends="compile, runtime, provided" visibility="private" />
+
+
       <conf name="module-pom" description="EPM Module POMs" />
    </configurations>
 
@@ -53,6 +63,7 @@
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="xml-resolver" module="xml-resolver" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
@@ -73,12 +84,14 @@
          <exclude org="org.apache.cxf" module="cxf-api" />
       	<exclude org="org.slf4j" module="slf4j-api" />
       	<exclude org="org.apache.santuario" module="xmlsec" />
+      	<exclude org="org.opensaml" module="opensaml" />
       </dependency>
       <dependency org="org.apache.santuario" name="xmlsec" rev="${xmlsec.version}" conf="jax-ws-cxf-provider-compile->default" />
 
       <!-- jax-ws-cxf-provider-runtime -->  
       <dependency org="com.sun.xml.messaging.saaj" name="saaj-impl" rev="${saaj-impl.version}" conf="jax-ws-cxf-provider-runtime->default" >
          <exclude org="activation" module="activation" />
+         <exclude org="javax.xml.soap" module="saaj-api" />
       </dependency>
       
       <!-- jax-rs-provider-compile -->
@@ -92,10 +105,12 @@
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
       </dependency>
 
-<!--
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
       <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
       <override org="com.sun.xml.bind" module="jaxb-impl" rev="${jaxb-impl.version}" />
-      <override org="org.apache.cxf" module="cxf-api" rev="${cxf-api.version}" />
--->
+      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
+      <override org="asm" module="asm" rev="${asm.version}" />
    </dependencies>
 </ivy-module>

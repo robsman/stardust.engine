@@ -15,7 +15,7 @@
 
    <info organisation="org.eclipse.stardust.engine" module="infinity-process-engine-module"
       revision="${ipp.version.full}">
-      <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="latest.integration"
+      <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="${ipp.version.full}"
          extendType="all" location="interface-ivy.xml"/>
    </info>
    
@@ -85,6 +85,20 @@
       <!--    POMs    -->
       <!-- ********** -->
       <conf name="module-pom" description="IPP Module POMs" />
+
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="provided" visibility="private" extends="web-client-module-provided" />
+      <conf name="compile" visibility="private" extends="client-module-compile, engine-module-compile, web-client-module-compile,
+         swing-client-module-compile, logging-slf4j-log4j-module-compile, jta-jencks-module-compile, jta-api-module-compile,
+         jcr-api-module-compile, jcr-vfs-module-compile, jms-activemq-module-compile, jms-api-module-compile, 
+         2nd-level-cache-hazelcast-module-compile, ejb21-module-compile, ejb30-module-compile, carnot-emf-xsd-module-compile,
+         ant-module-compile, qdox-module-compile" />
+      <conf name="runtime" visibility="private" extends="client-module-runtime, engine-module-runtime, web-client-module-runtime,
+         swing-client-module-runtime, logging-slf4j-log4j-module-runtime, jta-jencks-module-runtime, jta-api-module-runtime, 
+         jcr-api-module-runtime, jcr-jackrabbit-module-runtime, jcr-jackrabbit-webapp-module-runtime, jcr-vfs-module-runtime, 
+         jms-activemq-module-runtime, jms-api-module-runtime, 2nd-level-cache-hazelcast-module-runtime, ejb21-module-runtime, 
+         ejb30-module-runtime, carnot-emf-xsd-module-runtime, ant-module-runtime, xerces-module-runtime" />
+      <conf name="all" visibility="private" extends="provided, compile, runtime" />
       
    </configurations>
    
@@ -122,25 +136,14 @@
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->
-<!--
-      <override org="log4j" module="log4j" rev="${log4j.version}" />
-
-      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
-
-      <override org="commons-collections" module="commons-collections" rev="${commons-collections.version}" />
       <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
-      <override org="commons-pool" module="commons-pool" rev="${commons-pool.version}" />
-
-      <override org="org.apache.derby" module="derby" rev="${derby.version}" />
-
-      <override org="stax" module="stax-api" rev="${stax-api.version}" />
-      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" />
-      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="${geronimo-jta_1.1_spec.version}" />
-      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="${geronimo-transaction.version}" />
-      <override org="org.apache.geronimo.components" module="geronimo-connector" rev="${geronimo-connector.version}" />
-
-      <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
--->
+      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
+      <override org="org.slf4j" module="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" />
+      <override org="rome" module="rome" rev="${rome.version}" />
+      <override org="jdom" module="jdom" rev="${jdom.version}" />
+      <override org="de.l3s.boilerpipe" module="boilerpipe" rev="${boilerpipe.version}" />
+      <override org="org.apache.poi" module="poi-ooxml" rev="${poi-ooxml.version}" />
+      <override org="org.apache.poi" module="poi-scratchpad" rev="${poi-scratchpad.version}" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

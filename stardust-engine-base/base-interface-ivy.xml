@@ -17,6 +17,11 @@
 
    <configurations>
       <conf name="logging-log4j-provider-compile" visibility="private"/>
+
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="interface-compile" extends="logging-log4j-provider-compile" visibility="private" />
+      <conf name="interface-all" extends="interface-compile" visibility="private" />
+
    </configurations>
    
    <publications/>

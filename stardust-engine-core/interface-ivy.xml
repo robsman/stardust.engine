@@ -89,7 +89,19 @@
       <conf name="jackrabbit-core-without-full-text-search" visibility="private" />
       
       <conf name="jackrabbit-webapp-provider-runtime" visibility="private" />
-            
+
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="interface-provided" visibility="private" extends="web-client-interface-provided, j2ee-mgmt-interface-provided,
+         ejb21-interface-provided" />
+      <conf name="interface-compile" visibility="private" extends="jta-interface-compile, jcr-interface-compile, 
+         2nd-level-cache-interface-compile, ejb30-interface-compile, base-provider-compile, logging-slf4j-log4j-provider-compile,
+         swing-client-provider-compile, jcr-vfs-provider-compile, hazelcast-provider-compile, qdox-provider-compile" />
+      <conf name="interface-runtime" visibility="private" extends="jms-interface-runtime, base-provider-runtime, web-client-provider-runtime,
+         jencks-provider-runtime, activemq-provider-runtime, ant-provider-runtime, js-provider-runtime,
+         xerces-provider-runtime, jackrabbit-provider-runtime, jackrabbit-webapp-provider-runtime" />
+
+      <conf name="interface-all" visibility="private" extends="interface-provided, interface-compile, interface-runtime" />
+
    </configurations>
    
    <publications/>
@@ -159,6 +171,7 @@
       <!-- jencks-provider-runtime -->
       <dependency org="org.tranql" name="tranql-connector" rev="${tranql-connector.version}" conf="jencks-provider-runtime->default" />
       <dependency org="org.apache.geronimo.components" name="geronimo-connector" rev="${geronimo-connector.version}" conf="jencks-provider-runtime->default">
+         <exclude org="org.apache.geronimo.components" module="geronimo-transaction"/>
          <exclude org="org.slf4j" module="slf4j-api"/>
       </dependency>
       <dependency org="org.jencks" name="jencks" rev="${jencks.version}" conf="jencks-provider-runtime->default">
@@ -317,12 +330,25 @@
       <!-- force correct revision in POM -->
       <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}" conf="jackrabbit-webapp-provider-runtime->default"/>
 
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
+      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
+      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
+      <override org="org.slf4j" module="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" />
+      <override org="rome" module="rome" rev="${rome.version}" />
+      <override org="jdom" module="jdom" rev="${jdom.version}" />
+      <override org="de.l3s.boilerpipe" module="boilerpipe" rev="${boilerpipe.version}" />
+      <override org="org.apache.poi" module="poi-ooxml" rev="${poi-ooxml.version}" />
+      <override org="org.apache.poi" module="poi-scratchpad" rev="${poi-scratchpad.version}" />
+
       <!-- *************** -->
       <!--    Conflicts    -->
       <!-- *************** -->
       <conflict org="org.apache.geronimo.components" module="geronimo-transaction" manager="strict" />
       <conflict org="org.apache.geronimo.components" module="geronimo-connector" manager="strict" />
       <conflict org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" manager="strict" />
+
    </dependencies>
 </ivy-module>
 

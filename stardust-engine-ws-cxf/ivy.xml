@@ -25,12 +25,17 @@
       <conf name="stardust-engine-ws-cxf-sources" description="EPM Engine - WS CXF Module - Sources" />
 
       <conf name="stardust-engine-ws-cxf-codegen-runtime" visibility="private" description="Classpath for codegen tasks" />
-            <conf name="ws-api-templates" description="WS-API Templates" />      
-      <conf name="compile"
-         extends="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided"
-         visibility="private" description="Compile Time Dependencies" />
+            
+      <conf name="ws-api-templates" description="WS-API Templates" />      
 
       <conf name="test" visibility="private" description="Test dependencies" />
+
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="provided" extends="stardust-engine-ws-cxf-provided" visibility="private" />
+      <conf name="compile" extends="provided,stardust-engine-ws-cxf-compile" visibility="private" />
+      <conf name="runtime" extends="stardust-engine-ws-cxf-runtime,stardust-engine-ws-cxf-codegen-runtime" visibility="private" />
+
+      <conf name="all" extends="compile, runtime, provided, test" visibility="private" />
 
       <conf name="pom" description="EPM Engine - WS CXF Module - POMs" />
    </configurations>
@@ -41,7 +46,11 @@
 
       <artifact name="stardust-engine-ws-cxf" type="jar"
          conf="stardust-engine-ws-cxf-sources" m:classifier="sources" />
-            <artifact name="ws-api-templates" type="zip" conf="ws-api-templates" ext="zip" />      <artifact name="stardust-engine-ws-cxf" type="pom" conf="pom"     ext="pom" />      <artifact name="ws-api-templates" type="pom" conf="pom" ext="pom" />      
+      
+      <artifact name="ws-api-templates" type="zip" conf="ws-api-templates" ext="zip" />
+
+      <artifact name="stardust-engine-ws-cxf" type="pom" conf="pom"     ext="pom" />
+      <artifact name="ws-api-templates" type="pom" conf="pom" ext="pom" />      
    </publications>
 
    <dependencies>
@@ -64,8 +73,11 @@
       <dependency org="org.apache.cxf" name="cxf-tools-wsdlto-databinding-jaxb" rev="${cxf-tools-wsdlto-databinding-jaxb.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default" >
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
+         <exclude org="org.apache.cxf" module="cxf-api" />
       </dependency>
-      <dependency org="org.apache.cxf" name="cxf-tools-wsdlto-frontend-jaxws" rev="${cxf-tools-wsdlto-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default" />
+      <dependency org="org.apache.cxf" name="cxf-tools-wsdlto-frontend-jaxws" rev="${cxf-tools-wsdlto-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default">
+         <exclude org="xml-resolver" module="xml-resolver" />
+      </dependency>
 
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-ws-cxf-codegen-runtime->xerces-module-runtime" />
    
@@ -81,6 +93,7 @@
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="xml-resolver" module="xml-resolver" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="stardust-engine-ws-cxf-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
@@ -101,6 +114,7 @@
          <exclude org="org.apache.cxf" module="cxf-api" />
          <exclude org="org.slf4j" module="slf4j-api" />
          <exclude org="org.apache.santuario" module="xmlsec" />
+         <exclude org="org.opensaml" module="opensaml" />
       </dependency>
       <dependency org="org.apache.santuario" name="xmlsec" rev="${xmlsec.version}" conf="stardust-engine-ws-cxf-compile->default" />
       
@@ -133,6 +147,19 @@
       </dependency>
       <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}" conf="test->default" />
       <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
+
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
+      <override org="commons-collections" module="commons-collections" rev="${commons-collections.version}" />
+      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
+      <override org="wsdl4j" module="wsdl4j" rev="${wsdl4j.version}" />
+      <override org="commons-lang" module="commons-lang" rev="${commons-lang.version}" />
+      <override org="com.sun.xml.bind" module="jaxb-impl" rev="${jaxb-impl.version}" />
+      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
+      <override org="asm" module="asm" rev="${asm.version}" />
+      <override org="aopalliance" module="aopalliance" rev="${aopalliance.version}" />
+      <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
 
    </dependencies>
 </ivy-module>

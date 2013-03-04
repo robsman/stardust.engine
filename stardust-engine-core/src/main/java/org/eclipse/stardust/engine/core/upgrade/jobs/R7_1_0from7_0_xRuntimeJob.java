@@ -29,8 +29,8 @@ import org.eclipse.stardust.engine.core.upgrade.framework.*;
 public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
    
-   private static final String IGNORE_XSD_ERRORS 
-      = R7_1_0from7_0_xRuntimeJob.class.getSimpleName()+"."+"IgnoreXsdErrors";
+   private static final String IGNORE_MISSING_XPATH
+   = "Infinty.RTUpgrade.7_1_0.IgnoreMissingXPath";
    
    private static final Logger trace = LogManager
          .getLogger(R7_1_0from7_0_xRuntimeJob.class);
@@ -238,7 +238,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
       catch(Exception e)
       {
-         boolean ignoreXsdErrors = Parameters.instance().getBoolean(IGNORE_XSD_ERRORS, false);
+         boolean ignoreXsdErrors = Parameters.instance().getBoolean(IGNORE_MISSING_XPATH, false);
          
          StringBuffer errorMsg = new StringBuffer();
          errorMsg.append("Could not analyse structured data: ");

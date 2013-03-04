@@ -741,7 +741,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
          if (dataID.equals(PredefinedConstants.STARTING_USER))
          {
-            IUser startingUser = getStartingUser();
+            IUser startingUser = new UserBeanClientExtension(getStartingUser());
+            startingUser.setRealm(getStartingUser().getRealm());
             dataValue.setValue((null != startingUser)
                   ? startingUser.getPrimaryKey()
                   : null, false);
@@ -763,7 +764,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else if (dataID.equals(PredefinedConstants.LAST_ACTIVITY_PERFORMER))
       {
-         IUser lastActivityPerformer = getLastActivityPerformer();
+         IUser lastActivityPerformer = new UserBeanClientExtension(getLastActivityPerformer());
+         lastActivityPerformer.setRealm(getLastActivityPerformer().getRealm());
          dataValue.setValue((null != lastActivityPerformer)
                ? lastActivityPerformer.getPrimaryKey()
                : null, false);

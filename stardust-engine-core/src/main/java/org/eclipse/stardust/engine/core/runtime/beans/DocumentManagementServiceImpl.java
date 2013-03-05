@@ -60,8 +60,9 @@ import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
 public class DocumentManagementServiceImpl
       implements Serializable, DocumentManagementService
 {
-
    static final long serialVersionUID = 1L;
+
+   public static final String PROPERTY_CREATE_DMS_RESOURCE_IN_NESTED_TX = "Stardust.DocumentManagement.Resource.Create.inNestedTx";
 
    private static final Logger trace = LogManager.getLogger(DocumentManagementServiceImpl.class);
 
@@ -406,9 +407,24 @@ public class DocumentManagementServiceImpl
                {
                   checkValidDocumentType(document);
 
-                  return fromVfs(vfs.createFile(folderIdWithPrefix, toVfs(document),
-                        content, encoding), getPartitionPrefix());
-
+                  if (!isCreateInNextedTxEnabled())
+                  {
+                     return fromVfs(vfs.createFile(folderIdWithPrefix, toVfs(document),
+                           content, encoding), getPartitionPrefix());
+                  }
+                  else
+                  {
+                     return getVirtualFolderHandler().runIsolateAction(
+                           new Action<Document>()
+                           {
+                              public Document execute()
+                              {
+                                 return fromVfs(vfs.createFile(folderIdWithPrefix,
+                                       toVfs(document), content, encoding),
+                                       getPartitionPrefix());
+                              }
+                           });
+                  }
                }
                else
                {
@@ -780,9 +796,25 @@ public class DocumentManagementServiceImpl
                // folder does not exist, maybe it is a virtual folder
                ensureVirtualFolderExists(parentFolderIdWithPrefix);
 
-               return fromVfs(vfs.createFolder(parentFolderIdWithPrefix, toVfs(folder)),
-                     getPartitionPrefix());
+               if (!isCreateInNextedTxEnabled())
+               {
+                  return fromVfs(
+                        vfs.createFolder(parentFolderIdWithPrefix, toVfs(folder)),
+                        getPartitionPrefix());
 
+               }
+               else
+               {
+                  return getVirtualFolderHandler().runIsolateAction(new Action<Folder>()
+                  {
+                     public Folder execute()
+                     {
+                        return fromVfs(
+                              vfs.createFolder(parentFolderIdWithPrefix, toVfs(folder)),
+                              getPartitionPrefix());
+                     }
+                  });
+               }
             }
             else if (hasValidPartitionPrefix(parentFolder.getPath(),
                   getPartitionPrefix(), AccessMode.Write))
@@ -1033,7 +1065,21 @@ public class DocumentManagementServiceImpl
             {
                ensureVirtualFolderExists(decodedResourceId);
 
-               vfs.setPolicy(decodedResourceId, toVfs(policy));
+               if (!isCreateInNextedTxEnabled())
+               {
+                  vfs.setPolicy(decodedResourceId, toVfs(policy));
+               }
+               else
+               {
+                  getVirtualFolderHandler().runIsolateAction(new Action<Object>()
+                  {
+                     public Folder execute()
+                     {
+                        vfs.setPolicy(decodedResourceId, toVfs(policy));
+                        return null;
+                     }
+                  });
+               }
             }
             else
             {
@@ -1182,6 +1228,12 @@ public class DocumentManagementServiceImpl
          IDocumentRepositoryService vfs)
    {
       return EngineRepositoryMigrationManager.handleEngineMigration(batchSize, evaluateTotalCount, migrationReport, vfs, getPartitionPrefix());
+   }
+   
+   protected boolean isCreateInNextedTxEnabled()
+   {
+      return Parameters.instance().getBoolean(
+            PROPERTY_CREATE_DMS_RESOURCE_IN_NESTED_TX, false);
    }
 
    private List<String> addPrefixes(List<String> list)

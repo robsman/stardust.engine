@@ -568,8 +568,12 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             partitionId = extracted.getFirst();
             modelId = extracted.getSecond();
             
-            GenericWebServiceEnv.instance().setPartitionId(partitionId);
-            GenericWebServiceEnv.instance().setModelId(modelId);
+            // initialize environment for web service call
+            if ( !"GET".equals(request.getMethod()))
+            {
+               GenericWebServiceEnv.instance().setPartitionId(partitionId);
+               GenericWebServiceEnv.instance().setModelId(modelId);
+            }
          }
 
          if (StringUtils.isEmpty(partitionId))

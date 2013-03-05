@@ -1399,6 +1399,7 @@
 		<sequence>
 			<element name="totalCount" type="long" minOccurs="0" />
 			<element name="hasMore" type="boolean" />
+			<element name="totalCountThreshold" type="long" />
 		</sequence>
 	</complexType>
 

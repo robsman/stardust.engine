@@ -1240,7 +1240,8 @@ public class XmlAdapterUtils
    public static UserQueryResultXto toWs(Users users)
    {
       UserQueryResultXto ret = new UserQueryResultXto();
-      ret.setTotalCount(mapTotalCount(users));
+      ret.setTotalCount(mapTotalCount(users));      
+      ret.setTotalCountThreshold(users.getTotalCountThreshold());
 
       ret.setUsers(new UsersXto());
       for (Iterator< ? > iterator = users.iterator(); iterator.hasNext();)
@@ -1255,7 +1256,8 @@ public class XmlAdapterUtils
    {
       UserGroupQueryResultXto ret = new UserGroupQueryResultXto();
       ret.setTotalCount(mapTotalCount(userGroups));
-
+      ret.setTotalCountThreshold(userGroups.getTotalCountThreshold());
+      
       UserGroupsXto ug = new UserGroupsXto();
       for (Iterator< ? > iterator = userGroups.iterator(); iterator.hasNext();)
       {
@@ -1534,6 +1536,7 @@ public class XmlAdapterUtils
       ProcessInstanceQueryResultXto ret = new ProcessInstanceQueryResultXto();
       ret.setTotalCount(mapTotalCount(pis));
       ret.setHasMore(pis.hasMore());
+      ret.setTotalCountThreshold(pis.getTotalCountThreshold());
 
       ret.setProcessInstances(new ProcessInstancesXto());
       for (Iterator iterator = pis.iterator(); iterator.hasNext();)
@@ -1549,6 +1552,7 @@ public class XmlAdapterUtils
       ProcessDefinitionQueryResultXto ret = new ProcessDefinitionQueryResultXto();
       ret.setTotalCount(mapTotalCount(pds));
       ret.setHasMore(pds.hasMore());
+      ret.setTotalCountThreshold(pds.getTotalCountThreshold());
 
       ret.setProcessDefinitions(new ProcessDefinitionsXto());
       for (Iterator iterator = pds.iterator(); iterator.hasNext();)
@@ -1790,6 +1794,7 @@ public class XmlAdapterUtils
       ActivityQueryResultXto ret = new ActivityQueryResultXto();
       ret.setTotalCount(mapTotalCount(ais));
       ret.setHasMore(ais.hasMore());
+      ret.setTotalCountThreshold(ais.getTotalCountThreshold());
 
       ret.setActivityInstances(new ActivityInstancesXto());
       for (Iterator iterator = ais.iterator(); iterator.hasNext();)
@@ -1806,6 +1811,7 @@ public class XmlAdapterUtils
       LogEntryQueryResultXto ret = new LogEntryQueryResultXto();
       ret.setTotalCount(mapTotalCount(le));
       ret.setHasMore(le.hasMore());
+      ret.setTotalCountThreshold(le.getTotalCountThreshold());
 
       ret.setLogEntries(new LogEntriesXto());
       for (Iterator< ? > iterator = le.iterator(); iterator.hasNext();)
@@ -1956,6 +1962,7 @@ public class XmlAdapterUtils
       uwl.setOwner(marshalUserInfo(wl));
       uwl.setTotalCount(mapTotalCount(wl));
       uwl.setHasMore(wl.hasMore());
+      uwl.setTotalCountThreshold(wl.getTotalCountThreshold());
 
       uwl.setWorkItems(new ActivityInstancesXto());
 
@@ -1999,6 +2006,7 @@ public class XmlAdapterUtils
       swl.setOwner(marshalUserInfo(pwl));
       swl.setTotalCount(mapTotalCount(pwl));
       swl.setHasMore(pwl.hasMore());
+      swl.setTotalCountThreshold(pwl.getTotalCountThreshold());
 
       swl.setWorkItems(new ActivityInstancesXto());
 
@@ -2753,6 +2761,7 @@ public class XmlAdapterUtils
       DocumentQueryResultXto ret = new DocumentQueryResultXto();
       ret.setTotalCount(mapTotalCount(documents));
       ret.setHasMore(documents.hasMore());
+      ret.setTotalCountThreshold(documents.getTotalCountThreshold());
 
       ret.setDocuments(new DocumentsXto());
       for (Iterator iterator = documents.iterator(); iterator.hasNext();)
@@ -4531,6 +4540,7 @@ public class XmlAdapterUtils
 
       xto.setTotalCount(mapTotalCount(dataQueryResult));
       xto.setHasMore(dataQueryResult.hasMore());
+      xto.setTotalCountThreshold(dataQueryResult.getTotalCount());
 
       VariableDefinitionsXto varDefs = new VariableDefinitionsXto();
       for (Iterator iterator = dataQueryResult.iterator(); iterator.hasNext();)

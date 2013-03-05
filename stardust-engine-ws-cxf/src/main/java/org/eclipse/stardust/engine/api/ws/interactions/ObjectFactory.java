@@ -34,11 +34,27 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwner }
+     * Create an instance of {@link GetOwnerResponse }
      * 
      */
-    public GetOwner createGetOwner() {
-        return new GetOwner();
+    public GetOwnerResponse createGetOwnerResponse() {
+        return new GetOwnerResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetInputParametersResponse }
+     * 
+     */
+    public GetInputParametersResponse createGetInputParametersResponse() {
+        return new GetInputParametersResponse();
+    }
+
+    /**
+     * Create an instance of {@link SetOutputParametersResponse }
+     * 
+     */
+    public SetOutputParametersResponse createSetOutputParametersResponse() {
+        return new SetOutputParametersResponse();
     }
 
     /**
@@ -50,11 +66,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwnerResponse }
+     * Create an instance of {@link GetInputParameters }
      * 
      */
-    public GetOwnerResponse createGetOwnerResponse() {
-        return new GetOwnerResponse();
+    public GetInputParameters createGetInputParameters() {
+        return new GetInputParameters();
     }
 
     /**
@@ -74,11 +90,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SetOutputParametersResponse }
+     * Create an instance of {@link GetOwner }
      * 
      */
-    public SetOutputParametersResponse createSetOutputParametersResponse() {
-        return new SetOutputParametersResponse();
+    public GetOwner createGetOwner() {
+        return new GetOwner();
     }
 
     /**
@@ -87,22 +103,6 @@ public class ObjectFactory {
      */
     public GetDefinition createGetDefinition() {
         return new GetDefinition();
-    }
-
-    /**
-     * Create an instance of {@link GetInputParametersResponse }
-     * 
-     */
-    public GetInputParametersResponse createGetInputParametersResponse() {
-        return new GetInputParametersResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetInputParameters }
-     * 
-     */
-    public GetInputParameters createGetInputParameters() {
-        return new GetInputParameters();
     }
 
     /**

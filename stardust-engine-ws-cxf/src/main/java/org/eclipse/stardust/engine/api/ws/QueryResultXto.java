@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;element name="totalCount" type="{http://www.w3.org/2001/XMLSchema}long" minOccurs="0"/>
  *         &lt;element name="hasMore" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="totalCountThreshold" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -35,7 +36,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QueryResult", propOrder = {
     "totalCount",
-    "hasMore"
+    "hasMore",
+    "totalCountThreshold"
 })
 @XmlSeeAlso({
     UserQueryResultXto.class,
@@ -54,6 +56,7 @@ public class QueryResultXto {
 
     protected Long totalCount;
     protected boolean hasMore;
+    protected long totalCountThreshold;
 
     /**
      * Gets the value of the totalCount property.
@@ -93,6 +96,22 @@ public class QueryResultXto {
      */
     public void setHasMore(boolean value) {
         this.hasMore = value;
+    }
+
+    /**
+     * Gets the value of the totalCountThreshold property.
+     * 
+     */
+    public long getTotalCountThreshold() {
+        return totalCountThreshold;
+    }
+
+    /**
+     * Sets the value of the totalCountThreshold property.
+     * 
+     */
+    public void setTotalCountThreshold(long value) {
+        this.totalCountThreshold = value;
     }
 
 }

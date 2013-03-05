@@ -15,8 +15,8 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
    <info organisation="org.eclipse.stardust.engine" module="infinity-process-engine" revision="${ipp.version.full}">
-      <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="latest.integration"
-         extendType="all" location="interface-ivy.xml"/>
+      <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="${ipp.version.full}"
+         extendType="configurations,dependencies" location="interface-ivy.xml"/>
    </info>
 
    <configurations>
@@ -89,6 +89,13 @@
       <conf name="build-lib" visibility="private" />
       <conf name="ant-build-runtime" visibility="public" />
       <conf name="integration-jars" extends="js-provider-runtime" visibility="private" />
+
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="compile" extends="carnot-engine-compile, carnot-engine-compile-optional, carnot-client-compile, carnot-emf-xsd-integration-compile, compile-secret, integration-jars" visibility="private" />
+      <conf name="runtime" extends="carnot-engine-runtime, carnot-engine-runtime-optional, carnot-client-runtime, carnot-emf-xsd-integration-runtime,build-lib,ant-build-runtime" visibility="private" />
+      <conf name="provided" extends="carnot-engine-provided" visibility="private" />
+
+      <conf name="all" extends="compile, runtime, provided, test" visibility="private" />
    </configurations>
 
    <publications>
@@ -117,14 +124,18 @@
       <!--    Test    -->
       <!-- ********** -->
       <!-- JUnit -->
-      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default" />
+      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
 
       <!-- Hamcrest -->
       <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}" conf="test->default" />
       <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
 
       <!-- Mockito -->
-      <dependency org="org.mockito" name="mockito-core" rev="${mockito-core.version}" conf="test->default" />
+      <dependency org="org.mockito" name="mockito-core" rev="${mockito-core.version}" conf="test->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
 
       <!-- ************** -->
       <!--    Internal    -->
@@ -149,21 +160,15 @@
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->
-      <override org="log4j" module="log4j" rev="${log4j.version}" />
-
-      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
-
-      <override org="commons-collections" module="commons-collections" rev="${commons-collections.version}" />
       <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
-      <override org="commons-pool" module="commons-pool" rev="${commons-pool.version}" />
-
-      <override org="org.apache.derby" module="derby" rev="${derby.version}" />
-
-      <override org="org.apache.geronimo.specs" module="geronimo-j2ee-connector_1.5_spec" rev="${geronimo-j2ee-connector_1.5_spec.version}" />
-      <override org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" rev="${geronimo-jta_1.1_spec.version}" />
-      <override org="org.apache.geronimo.components" module="geronimo-transaction" rev="${geronimo-transaction.version}" />
-
+      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
+      <override org="org.slf4j" module="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" />
       <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
+      <override org="rome" module="rome" rev="${rome.version}" />
+      <override org="jdom" module="jdom" rev="${jdom.version}" />
+      <override org="de.l3s.boilerpipe" module="boilerpipe" rev="${boilerpipe.version}" />
+      <override org="org.apache.poi" module="poi-ooxml" rev="${poi-ooxml.version}" />
+      <override org="org.apache.poi" module="poi-scratchpad" rev="${poi-scratchpad.version}" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

@@ -51,10 +51,11 @@
    <target name="init">
       <property name="build.dir" value="${project.dir}/build" />
       <property name="build.classes" value="${build.dir}/classes" />
-      <property name="build.lib" value="${build.dir}/lib" />
+      <property name="build.lib" location="${build.dir}/lib" />
       <property name="build.lib.src" value="${build.dir}/src" />
       <property name="build.src" value="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
+      <property name="build.report" location="${build.dir}/report" />
    </target>
 
 	<target name="initCompile" depends="init, initOnDevelopment, initOnProduction, initClasspath" />
@@ -65,9 +66,9 @@
 
    <target name="initBuild" depends="init">
       <property name="carnot-base.jarfile" value="carnot-base.jar" />
-      <property name="carnot-base.jar" value="${build.lib}/${carnot-base.jarfile}" />
+      <property name="carnot-base.jar" location="${build.lib}/${carnot-base.jarfile}" />
       <property name="carnot-base.pomfile" value="carnot-base.pom" />
-      <property name="carnot-base.pom" value="${build.lib}/${carnot-base.pomfile}" />
+      <property name="carnot-base.pom" location="${build.lib}/${carnot-base.pomfile}" />
       <property name="carnot-base.src-jarfile" value="carnot-base-sources.jar" />
       <property name="carnot-base.src-jar" value="${build.lib.src}/${carnot-base.src-jarfile}" />
    </target>
@@ -214,7 +215,7 @@
       <copy file="${carnot-base.src-jar}" todir="${stardust.dir}/ide/engine/org.eclipse.stardust.ide.engine.base/lib" />
    </target>
 
-   <target name="deploy" depends="build" />
+   <target name="deploy" depends="build, dependencies:report" />
 
    <target name="install" if="maven.localRepository" depends="initBuild"
       description="installs the artifacts into a local Maven repository">
@@ -246,4 +247,11 @@
          </fileset>
       </copy>
    </target>
+
+   <target name="dependencies:report" depends="init,initIvy">
+      <ivy-report ivyFile="${project.dir}/base-interface-ivy.xml" conf="interface-all" outputDir="${build.report}" />
+      <ivy-report ivyFile="${project.dir}/ivy.xml" outputDir="${build.report}" />
+      <ivy-report ivyFile="${project.dir}/module-ivy.xml" outputDir="${build.report}" />
+   </target>
+
 </project>

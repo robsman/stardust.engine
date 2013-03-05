@@ -297,6 +297,7 @@
       <property name="build.lib.src" location="${build.dir}/src" />
       <property name="build.src" location="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
+      <property name="build.report" location="${build.dir}/report" />
 
       <property name="carnot.client.jarfile" value="carnot-client.jar" />
       <property name="carnot.client.jar" location="${build.lib}/${carnot.client.jarfile}" />
@@ -571,9 +572,9 @@
       <mkdir dir="${codegen.build.classes}" />
       <mkdir dir="${codegen.build.dir.src}" />
       
-      <ivy:cachepath pathid="qdox.deps" conf="qdox-module-compile" inline="true" organisation="com.infinity.bpm"
+      <ivy:cachepath pathid="qdox.deps" conf="qdox-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
          module="infinity-process-engine-module" revision="${ipp.version.full}"/>
-      <ivy:cachepath pathid="stardust-engine-core.deps" conf="engine-module-compile" inline="true" organisation="com.infinity.bpm"
+      <ivy:cachepath pathid="stardust-engine-core.deps" conf="engine-module-compile" inline="true" organisation="org.eclipse.stardust.engine"
          module="infinity-process-engine-module" revision="${ipp.version.full}"/>
    </target>
 
@@ -614,7 +615,7 @@
    <target name="build" depends="copyDatFiles, jar, jar.src, copyJars"
       description="make a usable version of the kernel" />
 
-   <target name="deploy" depends="build, deploy.src, deploy.classes"
+   <target name="deploy" depends="build, deploy.src, deploy.classes, dependencies:report"
       description="makes a deployable version of the kernel" />
 
    <target name="install" if="maven.localRepository" depends="initKernelBuild"
@@ -703,4 +704,5 @@
          </fileset>
       </copy>
    </target>
+
 </project>

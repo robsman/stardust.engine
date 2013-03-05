@@ -28,6 +28,11 @@
       <conf name="base-module-compile-optional" extends="logging-log4j-module-compile" description="IPP Base Module - (Optional) Compile Scope" />
       <conf name="base-module-runtime" description="IPP Base Module - Runtime Scope" extends="base-module-compile"/>
       <conf name="base-module-sources" description="IPP Base Module - Sources" />
+
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="compile" extends="logging-log4j-module-compile, base-module-compile, base-module-compile-optional" visibility="private" />
+      <conf name="runtime" extends="logging-log4j-module-runtime, base-module-runtime" visibility="private" />
+      <conf name="all" extends="compile, runtime" visibility="private" />
       
       <conf name="module-pom" description="IPP Base Module - POMs" />
    </configurations>

@@ -41,6 +41,7 @@
 		<property name="build.ws-api.dir" value="${build.dir}/webapps/ws-api" />
 		<property name="build.tests" value="${build.dir}/tests" />
 		<property name="build.tests.classes" value="${build.tests}/classes" />
+      <property name="build.report" location="${build.dir}/report" />
 	</target>
 
 
@@ -215,7 +216,7 @@
 
 	</target>
 	
-	<target name="deploy" depends="build" />
+	<target name="deploy" depends="build, dependencies:report" />
 
 	<target name="dist" depends="build">
 		<!-- TODO copy to which stardust plugin? -->
@@ -256,6 +257,11 @@
       </ipp:mvn-deploy>
       <ipp:mvn-deploy pomFile="${build.lib}/jax-ws-cxf-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/jax-rs-cxf-module.pom" />
+   </target>
+
+   <target name="dependencies:report" depends="init,init.ivy">
+      <ivy-report ivyFile="${project.dir}/ivy.xml" outputDir="${build.report}" />
+      <ivy-report ivyFile="${project.dir}/module-ivy.xml" outputDir="${build.report}" />
    </target>
 
 </project>

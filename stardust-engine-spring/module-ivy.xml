@@ -26,6 +26,12 @@
       
       <conf name="spring-provider-compile" visibility="private" />
       
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="provided" visibility="private" extends="spring-module-provided" />
+      <conf name="compile" visibility="private" extends="spring-module-compile,spring-provider-compile" />
+      <conf name="runtime" visibility="private" extends="spring-module-runtime,client-spring-module-runtime" />
+      <conf name="all" visibility="private" extends="provided, compile, runtime" />
+
       <conf name="module-pom" description="IPP Module POMs" />
    </configurations>
 
@@ -52,7 +58,7 @@
       <dependency org="org.springframework" name="spring-context-support" rev="${spring-context-support.version}" conf="spring-module-compile->default" />
       <dependency org="org.springframework" name="spring-tx" rev="${spring-tx.version}" conf="spring-module-compile->default" />
       <dependency org="org.springframework" name="spring-web" rev="${spring-web.version}" conf="spring-module-compile->default" />
-      
+
       <!-- spring-module-runtime -->
       <dependency org="org.springframework" name="spring-webmvc" rev="${spring-webmvc.version}" conf="spring-module-runtime->default" />
       
@@ -61,5 +67,11 @@
          <exclude org="rhino" module="js" />
       </dependency>
       <dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->logging-log4j-module-runtime"/>
+
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
+      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
+      <override org="aopalliance" module="aopalliance" rev="${aopalliance.version}" />
    </dependencies>
 </ivy-module>

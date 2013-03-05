@@ -11,118 +11,155 @@
  -->
 
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
-	<info organisation="org.eclipse.stardust.engine" module="stardust-engine-ws-cxf"
-		revision="${ipp.version.full}" />
+   <info organisation="org.eclipse.stardust.engine" module="stardust-engine-ws-cxf"
+      revision="${ipp.version.full}" />
 
-	<configurations>
-		<conf name="stardust-engine-ws-cxf-compile" description="EPM Engine - JAX-WS (CXF) - Compile Scope" />
-		<conf name="stardust-engine-ws-cxf-provided" description="EPM Engine - JAX-WS (CXF) - Provided Scope" />
-		<conf name="stardust-engine-ws-cxf-runtime" extends="stardust-engine-ws-cxf-compile" description="EPM Engine - JAX-WS (CXF) - Runtime Scope" />
+   <configurations>
+      <conf name="stardust-engine-ws-cxf-compile" description="EPM Engine - JAX-WS (CXF) - Compile Scope" />
+      <conf name="stardust-engine-ws-cxf-provided" description="EPM Engine - JAX-WS (CXF) - Provided Scope" />
+      <conf name="stardust-engine-ws-cxf-runtime" extends="stardust-engine-ws-cxf-compile" description="EPM Engine - JAX-WS (CXF) - Runtime Scope" />
 
-		<conf name="stardust-engine-ws-cxf-sources" description="EPM Engine - WS CXF Module - Sources" />
+      <conf name="stardust-engine-ws-cxf-sources" description="EPM Engine - WS CXF Module - Sources" />
 
-		<conf name="stardust-engine-ws-cxf-codegen-runtime" visibility="private" description="Classpath for codegen tasks" />
-            <conf name="ws-api-templates" description="WS-API Templates" />      
-		<conf name="compile"
-			extends="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided"
-			visibility="private" description="Compile Time Dependencies" />
+      <conf name="stardust-engine-ws-cxf-codegen-runtime" visibility="private" description="Classpath for codegen tasks" />
+            
+      <conf name="ws-api-templates" description="WS-API Templates" />      
 
-		<conf name="test" visibility="private" description="Test dependencies" />
+      <conf name="test" visibility="private" description="Test dependencies" />
 
-		<conf name="pom" description="EPM Engine - WS CXF Module - POMs" />
-	</configurations>
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="provided" extends="stardust-engine-ws-cxf-provided" visibility="private" />
+      <conf name="compile" extends="provided,stardust-engine-ws-cxf-compile" visibility="private" />
+      <conf name="runtime" extends="stardust-engine-ws-cxf-runtime,stardust-engine-ws-cxf-codegen-runtime" visibility="private" />
 
-	<publications>
-		<artifact name="stardust-engine-ws-cxf" type="jar"
-			conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-runtime" ext="jar" />
+      <conf name="all" extends="compile, runtime, provided, test" visibility="private" />
 
-		<artifact name="stardust-engine-ws-cxf" type="jar"
-			conf="stardust-engine-ws-cxf-sources" m:classifier="sources" />
-            <artifact name="ws-api-templates" type="zip" conf="ws-api-templates" ext="zip" />		<artifact name="stardust-engine-ws-cxf" type="pom" conf="pom"		ext="pom" />      <artifact name="ws-api-templates" type="pom" conf="pom" ext="pom" />      
-	</publications>
+      <conf name="pom" description="EPM Engine - WS CXF Module - POMs" />
+   </configurations>
 
-	<dependencies>
-		<!-- stardust-engine-ws-cxf-compile -->
-		
-		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}"
-			conf="stardust-engine-ws-cxf-compile->carnot-engine-compile">
-			<!-- carnot-engine embeds Rhino, so the original JAR is not needed anymore -->
-			<exclude org="rhino" module="js" />
-			<exclude org="org.codehaus.woodstox" module="wstx-asl" />
-			<exclude org="javax.xml.bind" module="jaxb-api" />
-			<exclude org="stax" module="stax-api" />
-			<exclude org="org.eclipse.stardust.engine" module="jcr-vfs" />
-		</dependency>
-			
+   <publications>
+      <artifact name="stardust-engine-ws-cxf" type="jar"
+         conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-runtime" ext="jar" />
+
+      <artifact name="stardust-engine-ws-cxf" type="jar"
+         conf="stardust-engine-ws-cxf-sources" m:classifier="sources" />
+      
+      <artifact name="ws-api-templates" type="zip" conf="ws-api-templates" ext="zip" />
+
+      <artifact name="stardust-engine-ws-cxf" type="pom" conf="pom"     ext="pom" />
+      <artifact name="ws-api-templates" type="pom" conf="pom" ext="pom" />      
+   </publications>
+
+   <dependencies>
+      <!-- stardust-engine-ws-cxf-compile -->
+      
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}"
+         conf="stardust-engine-ws-cxf-compile->carnot-engine-compile">
+         <!-- carnot-engine embeds Rhino, so the original JAR is not needed anymore -->
+         <exclude org="rhino" module="js" />
+         <exclude org="org.codehaus.woodstox" module="wstx-asl" />
+         <exclude org="javax.xml.bind" module="jaxb-api" />
+         <exclude org="stax" module="stax-api" />
+         <exclude org="org.eclipse.stardust.engine" module="jcr-vfs" />
+      </dependency>
+         
       <dependency org="org.springframework" name="spring-beans" rev="${spring-beans.version}" conf="stardust-engine-ws-cxf-compile->default" />
       <dependency org="org.springframework" name="spring-context" rev="${spring-context.version}" conf="stardust-engine-ws-cxf-compile->default" />
       <dependency org="org.springframework" name="spring-web" rev="${spring-web.version}" conf="stardust-engine-ws-cxf-compile->default" />
 
       <dependency org="org.apache.cxf" name="cxf-tools-wsdlto-databinding-jaxb" rev="${cxf-tools-wsdlto-databinding-jaxb.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default" >
-		   <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
-		   <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
-		</dependency>
-      <dependency org="org.apache.cxf" name="cxf-tools-wsdlto-frontend-jaxws" rev="${cxf-tools-wsdlto-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default" />
+         <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
+         <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
+         <exclude org="org.apache.cxf" module="cxf-api" />
+      </dependency>
+      <dependency org="org.apache.cxf" name="cxf-tools-wsdlto-frontend-jaxws" rev="${cxf-tools-wsdlto-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default">
+         <exclude org="xml-resolver" module="xml-resolver" />
+      </dependency>
 
-	    <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-ws-cxf-codegen-runtime->xerces-module-runtime" />
-	
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-ws-cxf-codegen-runtime->xerces-module-runtime" />
+   
       <dependency org="javax.servlet" name="servlet-api" rev="${servlet-api.version}" conf="stardust-engine-ws-cxf-provided->default" />
-	
+   
       <dependency org="org.apache.cxf" name="cxf-api" rev="${cxf-api.version}" conf="stardust-engine-ws-cxf-compile->default" >
-	       <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
-	       <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
-	    </dependency>
+         <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
+         <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
+       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-core" rev="${cxf-rt-core.version}" conf="stardust-engine-ws-cxf-compile->default" >
-	       <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
-	    </dependency>
-      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="stardust-engine-ws-cxf-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="${cxf-rt-databinding-jaxb.version}" conf="stardust-engine-ws-cxf-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="${cxf-rt-transports-http.version}" conf="stardust-engine-ws-cxf-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="${cxf-rt-ws-addr.version}" conf="stardust-engine-ws-cxf-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="${cxf-rt-ws-policy.version}" conf="stardust-engine-ws-cxf-compile->default" />
-      <dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="${cxf-rt-ws-security.version}" conf="stardust-engine-ws-cxf-compile->default" >
-		   <exclude org="org.slf4j" module="slf4j-api" />
-           <exclude org="org.apache.santuario" module="xmlsec" />
-        </dependency>
+         <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
+         <exclude org="org.apache.cxf" module="cxf-api" />
+      </dependency>
+      <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-compile->default">
+         <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="xml-resolver" module="xml-resolver" />
+      </dependency>
+      <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="stardust-engine-ws-cxf-compile->default">
+         <exclude org="org.apache.cxf" module="cxf-api" />
+      </dependency>
+      <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="${cxf-rt-databinding-jaxb.version}" conf="stardust-engine-ws-cxf-compile->default">
+         <exclude org="org.apache.cxf" module="cxf-api" />
+      </dependency>
+      <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="${cxf-rt-transports-http.version}" conf="stardust-engine-ws-cxf-compile->default">
+         <exclude org="org.apache.cxf" module="cxf-api" />
+      </dependency>
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="${cxf-rt-ws-addr.version}" conf="stardust-engine-ws-cxf-compile->default">
+         <exclude org="org.apache.cxf" module="cxf-api" />
+      </dependency>
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="${cxf-rt-ws-policy.version}" conf="stardust-engine-ws-cxf-compile->default">
+         <exclude org="org.apache.cxf" module="cxf-api" />
+      </dependency>
+      <dependency org="org.apache.cxf" name="cxf-rt-ws-security" rev="${cxf-rt-ws-security.version}" conf="stardust-engine-ws-cxf-compile->default">
+         <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="org.slf4j" module="slf4j-api" />
+         <exclude org="org.apache.santuario" module="xmlsec" />
+         <exclude org="org.opensaml" module="opensaml" />
+      </dependency>
       <dependency org="org.apache.santuario" name="xmlsec" rev="${xmlsec.version}" conf="stardust-engine-ws-cxf-compile->default" />
       
       <dependency org="javax.ws.rs" name="jsr311-api" rev="${jsr311-api.version}" conf="stardust-engine-ws-cxf-compile->default" />
       <dependency org="com.google.code.gson" name="gson" rev="${gson.version}" conf="stardust-engine-ws-cxf-compile->default" />
       <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxrs" rev="${cxf-rt-frontend-jaxrs.version}" conf="stardust-engine-ws-cxf-compile->default" >
-           <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
-           <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
-        </dependency>
+         <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
+         <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
+         <exclude org="javax.ws.rs" module="jsr311-api" />
+      </dependency>
 
         <!-- package org.eclipse.xsd is mapped to com.infinity.bpm.thirdparty.xsd which is repacked into carnot-engine.
            Therefore we doesn't need to include this artifact into the POM -->
       <dependency org="org.eclipse.xsd" name="xsd-runtime" rev="${xsd-runtime.version}" conf="compile->default">
-           <artifact name="org.eclipse.xsd" type="jar"/>
-        </dependency>
+         <artifact name="org.eclipse.xsd" type="jar"/>
+      </dependency>
       <dependency org="org.eclipse.emf" name="emf-runtime" rev="${emf-runtime.version}" transitive="false" conf="compile->default">
-           <artifact name="org.eclipse.emf.common" type="jar"/>
-           <artifact name="org.eclipse.emf.ecore" type="jar"/>
-           <artifact name="org.eclipse.emf.ecore.xmi" type="jar"/>
-        </dependency>
+         <artifact name="org.eclipse.emf.common" type="jar"/>
+         <artifact name="org.eclipse.emf.ecore" type="jar"/>
+         <artifact name="org.eclipse.emf.ecore.xmi" type="jar"/>
+      </dependency>
       
-		<!-- test -->
-      <dependency org="org.mockito" name="mockito-core" rev="${mockito-core.version}"
-			conf="test->default" />
-      <dependency org="junit" name="junit" rev="${junit.version}"
-			conf="test->default" />
-      <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}"
-			conf="test->default" />
-      <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}"
-			conf="test->default" />
+      <!-- test -->
+      <dependency org="org.mockito" name="mockito-core" rev="${mockito-core.version}" conf="test->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
+      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
+      <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}" conf="test->default" />
+      <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
 
-      <override org="javax.ws.rs" module="jsr311-api" rev="${jsr311-api.version}" />
-      <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
-      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
+      <override org="commons-collections" module="commons-collections" rev="${commons-collections.version}" />
+      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
+      <override org="wsdl4j" module="wsdl4j" rev="${wsdl4j.version}" />
+      <override org="commons-lang" module="commons-lang" rev="${commons-lang.version}" />
       <override org="com.sun.xml.bind" module="jaxb-impl" rev="${jaxb-impl.version}" />
-      <override org="org.apache.cxf" module="cxf-api" rev="${cxf-api.version}" />
+      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
+      <override org="asm" module="asm" rev="${asm.version}" />
+      <override org="aopalliance" module="aopalliance" rev="${aopalliance.version}" />
+      <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />
 
-	</dependencies>
+   </dependencies>
 </ivy-module>

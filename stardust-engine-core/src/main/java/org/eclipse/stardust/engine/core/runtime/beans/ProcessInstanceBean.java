@@ -50,9 +50,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
-import org.eclipse.stardust.engine.core.struct.DataXPathMap;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -182,7 +179,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    private transient Map<String,IDataValue> dataValueCache;
    
    private transient Map<Long, IStructuredDataValue> structuredDataValueCache;
-   private transient Map<Pair<String, String>, IStructuredDataValue> structuredDataValueCacheById;
 
    private transient PropertyIndexHandler propIndexHandler = new PropertyIndexHandler();
 
@@ -885,22 +881,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return structuredDataValueCache.get(xPathOid);
    }
 
-   public IStructuredDataValue getCachedStructuredDataValue(String dataId,
-         String attribute)
-   {
-      if (getOID() != getScopeProcessInstanceOID())
-      {
-         return ((ProcessInstanceBean) getScopeProcessInstance())
-               .getCachedStructuredDataValue(dataId, attribute);
-      }
-      if (structuredDataValueCacheById == null)
-      {
-         return null;
-      }
-
-      return structuredDataValueCacheById.get(new Pair(dataId, attribute));
-   }
-
    public Map getExistingDataValues(boolean includePredefined)
    {
       HashMap result = new HashMap();
@@ -1300,22 +1280,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       {
          this.structuredDataValueCache = CollectionUtils.newHashMap();
       }
-      if(structuredDataValueCacheById == null)
-      {
-         this.structuredDataValueCacheById = CollectionUtils.newHashMap();
-      }
           
       structuredDataValueCache.put(value.getXPathOID(), value);
       
-      ModelManager modelManager = ModelManagerFactory.getCurrent();
-      long modelOid = value.getProcessInstance().getProcessDefinition().getModel()
-            .getModelOID();
-      IData theData = modelManager.findDataForStructuredData(modelOid, value.getXPathOID());
-
-      IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
-      TypedXPath typedXPath = xPathMap.getXPath(value.getXPathOID());
-
-      structuredDataValueCacheById.put(new Pair(theData.getId(), typedXPath.getXPath()), value);
    }
 
    public AbstractProperty createProperty(String name, Serializable value)

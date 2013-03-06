@@ -219,43 +219,53 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    
    private Double getDecimalValue(IData theData, long xpathOid, String value)
    {
-      try 
+      try
       {
-         IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
-         TypedXPath typedXPath = xPathMap.getXPath(xpathOid);
-         String xsdTypeName = typedXPath.getXsdTypeName();
-         boolean tryParseDouble = "decimal".equals(xsdTypeName); 
-         
-         if(tryParseDouble)
+         boolean tryParseDouble = false;
+         if (theData != null)
+         {
+            IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
+            TypedXPath typedXPath = xPathMap.getXPath(xpathOid);
+            String xsdTypeName = typedXPath.getXsdTypeName();
+            tryParseDouble = "decimal".equals(xsdTypeName);
+         }
+         else
+         {
+            tryParseDouble = true;
+         }
+
+         if (tryParseDouble)
          {
             try
             {
                return Double.parseDouble(value);
             }
             catch (NumberFormatException x)
-            {} 
+            {
+            }
          }
       }
-      catch(Exception e)
+      catch (Exception e)
       {
-         boolean ignoreXsdErrors = Parameters.instance().getBoolean(IGNORE_MISSING_XPATH, false);
-         
+         boolean ignoreXsdErrors = Parameters.instance().getBoolean(IGNORE_MISSING_XPATH,
+               false);
+
          StringBuffer errorMsg = new StringBuffer();
          errorMsg.append("Could not analyse structured data: ");
          errorMsg.append(theData.getId());
          errorMsg.append(" for xpath oid ");
          errorMsg.append(xpathOid);
-         if(ignoreXsdErrors)
+         if (ignoreXsdErrors)
          {
             errorMsg.append(" - ignoring record.");
             trace.warn(errorMsg.toString());
          }
          else
-         {            
+         {
             throw new PublicException(errorMsg.toString());
          }
       }
-            
+
       return null;
    }
    

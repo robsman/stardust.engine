@@ -55,7 +55,7 @@
             excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*, model/**/*, cache/**/*, org/eclipse/xsd/doc-files/**/*" />
          <zipfileset src="${emf-xsd.jar}" includes="plugin.properties, cache/**" prefix="com/infinity/bpm/thirdparty/xsd" />
 
-         <zipfileset src="${js.jar}" />
+         <zipfileset src="${js.jar}" excludes="META-INF/**" />
 
          <fileset dir="${build.classes}" id="fileset.carnot.client.jar">
 
@@ -103,7 +103,7 @@
             excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*, model/**/*, cache/**/*, org/eclipse/xsd/doc-files/**/*" />
          <zipfileset src="${emf-xsd.jar}" includes="plugin.properties, cache/**" prefix="com/infinity/bpm/thirdparty/xsd" />
 
-         <zipfileset src="${js.jar}" />
+         <zipfileset src="${js.jar}" excludes="META-INF/**" />
 
          <fileset dir="${build.classes}" id="fileset.carnot.engine.jar">
 

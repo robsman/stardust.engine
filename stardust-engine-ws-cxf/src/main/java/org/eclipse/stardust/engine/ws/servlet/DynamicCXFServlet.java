@@ -115,6 +115,15 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
     * the servlet delegate for dynamic requests, i.e. requests targeting dynamic endpoints
     */
    private ServletDelegate dynamicServletDelegate;
+   
+   private static String CLIENT_CONTEXT_PARAM = "clientContext";
+   
+   private static String context = null;
+   
+   public static String getClientContext()
+   {
+      return context;
+   }
 
    /*
     * (non-Javadoc)
@@ -126,6 +135,9 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
    public void init(final ServletConfig servletConfig) throws ServletException
    {
       super.init(servletConfig);
+           
+      context = servletConfig.getInitParameter(CLIENT_CONTEXT_PARAM);
+      context = context != null ? context.toLowerCase() : null;
 
       staticServletDelegate = new StaticServletDelegate(servletConfig);
       staticServletDelegate.init();
@@ -597,9 +609,6 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
             }
          }
 
-         // Authorize technical user.
-         WsUtils.authorizeSynchronizationUser(partitionId);
-
          if (StringUtils.isEmpty(modelId))
          {
             modelId = WsUtils.getDefaultModelId(partitionId);
@@ -607,8 +616,6 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
 
          // servlet path must be empty for CXF
          ensureEndpointsAreUpToDate(partitionId, "");
-
-         WsUtils.removeSynchronizationUser();
 
          if ( !isEnabled())
          {

@@ -390,7 +390,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    {
       MultiPartPredicateTerm resultTerm = null;
       VisitationContext context = (VisitationContext) rawContext;
-
+      
       if (0 < filter.getParts().size())
       {
          try
@@ -407,8 +407,8 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
             for (Iterator itr = filter.getParts().iterator(); itr.hasNext();)
             {
-               final FilterCriterion part = (FilterCriterion) itr.next();
-
+               final FilterCriterion part = (FilterCriterion) itr.next();              
+               
                final PredicateTerm term = (PredicateTerm) part.accept(this, context);
                if (null != term)
                {
@@ -468,7 +468,12 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    private FieldRef processAttributedScopedFilter(AttributedScopedFilter filter,
          VisitationContext context)
    {
-      final FieldRef fieldRef;
+      final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());
+      final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());
+      
+      FieldRef fieldRef;
+      
+      
       if (filter instanceof IAttributeJoinDescriptor)
       {
          final IAttributeJoinDescriptor joinDescriptor = (IAttributeJoinDescriptor) filter;
@@ -479,7 +484,19 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       {
          TypeDescriptor typeDescriptor = TypeDescriptor.get(context.getType());
          fieldRef = typeDescriptor.fieldRef(filter.getAttribute());
+         if (isAiQuery || isAiQueryOnWorkItem)
+         {
+            if (isAiQueryOnWorkItem)
+            {
+               if (WorkitemKeyMap.isMapped(filter.getAttribute()))
+               {
+                  fieldRef = WorkitemKeyMap.getFieldRef(filter.getAttribute());
+                  
+               }
+            }
+         }
       }
+      
 
       return fieldRef;
    }
@@ -553,6 +570,9 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    public Object visit(BinaryOperatorFilter filter, Object rawContext)
    {
       VisitationContext context = (VisitationContext) rawContext;
+      
+      
+      
       FieldRef fieldRef = processAttributedScopedFilter(filter, context);
       return new ComparisonTerm(fieldRef, filter.getOperator(), filter.getValue());
    }

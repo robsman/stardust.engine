@@ -174,10 +174,14 @@ public class WSDLGenerator
 
       for (IProcessDefinition pd : pds)
       {
-         List<IFormalParameter> formalParameters = pd.getFormalParameters();
-         if (formalParameters != null)
+         if (PredefinedConstants.PROCESSINTERFACE_INVOCATION_SOAP.equals(pd.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE))
+               || PredefinedConstants.PROCESSINTERFACE_INVOCATION_BOTH.equals(pd.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE)))
          {
-            formalParametersPerProcess.put(pd.getId(), sortById(formalParameters));
+            List<IFormalParameter> formalParameters = pd.getFormalParameters();
+            if (formalParameters != null)
+            {
+               formalParametersPerProcess.put(pd.getId(), sortById(formalParameters));
+            }
          }
       }
       return formalParametersPerProcess;
@@ -297,7 +301,7 @@ public class WSDLGenerator
    private NSPrefixPair getNSPrefixPair(IFormalParameter f)
    {
 
-      return nsPairs.get(f.getId());
+      return nsPairs.get(f.getId()+f.getData().getId());
    }
 
    private void assembleWebServiceTemplate(
@@ -323,7 +327,6 @@ public class WSDLGenerator
    private void insertCustomTypeDefinitions(final Set<IFormalParameter> usedParameters)
    {
       TreeMap<String, XSDSchema> schemaMap = CollectionUtils.newTreeMap();
-      Map<String, IFormalParameter> formalParameterMap = CollectionUtils.newHashMap();
       Set<String> unresolvedSchemaLocations = CollectionUtils.newHashSet();
 
       for (final IFormalParameter f : usedParameters)
@@ -339,8 +342,15 @@ public class WSDLGenerator
             if (xsdSchema != null)
             {
                schemaMap.put(typeDeclarationId, xsdSchema);
-               formalParameterMap.put(typeDeclarationId, f);
 
+               // save namespace pairs for imports
+               final String targetNamespace = xsdSchema.getDocument()
+                     .getDocumentElement()
+                     .getAttribute("targetNamespace");
+               final int nsIndex = NamespaceHolder.getNamespaceIndex(targetNamespace);
+               String prefix = "ns" + nsIndex;
+               this.nsPairs.put(f.getId()+f.getData().getId(), new NSPrefixPair(prefix, targetNamespace));
+                  
                // resolve schemas transitively
                resolveSchemaImports(schemaMap, unresolvedSchemaLocations, xsdSchema);
             }
@@ -356,13 +366,12 @@ public class WSDLGenerator
          if (xsdSchema != null)
          {
             String typeDeclarationId = schemaEntry.getKey();
-            IFormalParameter f = formalParameterMap.get(typeDeclarationId);
             Element schemaW3CElement = xsdSchema.getDocument().getDocumentElement();
 
             // remove resolved schemaLocation attributes on xsd:import
             removeResolvedSchemaLocation(schemaW3CElement, unresolvedSchemaLocations);
 
-            insertElementDefinition(f, schemaW3CElement, typeDeclarationId);
+            insertElementDefinition(schemaW3CElement, typeDeclarationId);
             wsdlTypesNode.appendChild(wsdlTypesNode.getOwnerDocument().importNode(
                   schemaW3CElement, true));
          }
@@ -472,30 +481,11 @@ public class WSDLGenerator
       }
    }
 
-   private void insertElementDefinition(final IFormalParameter f,
-         final Element schemaElement, final String type)
+   private void insertElementDefinition(final Element schemaElement, final String type)
    {
-      final String targetNamespace = schemaElement.getAttribute("targetNamespace");
-
-      if (f != null)
-      {
-         final int nsIndex = NamespaceHolder.getNamespaceIndex(targetNamespace);
-         String prefix = "ns" + nsIndex;
-         this.nsPairs.put(f.getId(), new NSPrefixPair(prefix, targetNamespace));
-      }
-
-      // final Set<String> elementNames = new HashSet<String>();
-
-      // elementNames.add(type);
-
       final Element elementDefTemplate = DomUtils.getFirstChildElement(schemaElement);
-      // for (final String elementName : elementNames)
-      // {
       final Element element = (Element) elementDefTemplate.cloneNode(true);
-      // element.setAttribute("name", elementName);
-
       elementDefTemplate.getParentNode().insertBefore(element, elementDefTemplate);
-      // }
       elementDefTemplate.getParentNode().removeChild(elementDefTemplate);
    }
 

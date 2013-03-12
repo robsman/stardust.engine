@@ -35,6 +35,8 @@ public class DocumentRepositoryFolderNames
    public static final String CONTENT_FOLDER =  "content/";
 
    public static final String BUNDLES_FOLDER =  "bundles/";
+   
+   public static final String RULES_FOLDER = "rules/";
 
    public static final String PROCESS_ATTACHMENT_FOLDER = "process-instances/";
 

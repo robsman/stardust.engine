@@ -178,6 +178,12 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     * the ID of the process definition used for recovery testing
     */
    /* package-private */ static final String PROCESS_DEF_ID_RECOVERY = "Recovery";
+
+   
+   /**
+    * the name of the process definition started by a timer trigger
+    */
+   /* package-private */ static final String PROCESS_DEF_NAME_TIMER_TRIGGER = "Timer Trigger Process";
    
    
    /**

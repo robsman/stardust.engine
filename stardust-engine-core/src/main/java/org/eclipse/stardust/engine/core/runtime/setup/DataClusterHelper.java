@@ -19,7 +19,6 @@ import java.util.Set;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -119,9 +118,10 @@ public class DataClusterHelper
                         {
                            ProcessInstanceBean pi = (ProcessInstanceBean) rawPi;
                            
-                           // if  
-                           IStructuredDataValue cachedSdv = pi.getCachedStructuredDataValue(
-                                 dataValue.getData().getId(), dataSlot.getAttributeName());
+                           Long xPathOID = DataXPathMap.getXPathMap(dataValue.getData())
+                                 .getXPathOID(dataSlot.getAttributeName());
+                           IStructuredDataValue cachedSdv = pi
+                                 .getCachedStructuredDataValue(xPathOID);
 
                            // if cached value is available then it has been changed potentially
                            if (cachedSdv instanceof BigData)

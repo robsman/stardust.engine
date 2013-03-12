@@ -17,6 +17,7 @@ import java.io.PrintStream;
 import java.sql.SQLException;
 import java.util.Map;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -300,7 +301,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
          String partitionId = (String) options.get(PARTITION_DROP);
 
-         Utils.initCarnotEngine(partitionId);
+         Utils.initCarnotEngine(partitionId, getSysconsoleDBProperties());
          SchemaHelper.alterAuditTrailDropPartition(partitionId, password);
 
          print("Deletion of partition and contained data from AuditTrail done.");
@@ -329,6 +330,50 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
       return optionHandled;
    }
    
+   private Map getSysconsoleDBProperties()
+   {
+      Map properties = CollectionUtils.newHashMap();      
+      
+      if (globalOptions.containsKey("dbschema"))
+      {
+         properties.put(
+               SessionFactory.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+               globalOptions.get("dbschema"));
+      }
+      if (globalOptions.containsKey("dbuser"))
+      {
+         properties.put(
+               SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX,
+               globalOptions.get("dbuser"));
+      }
+      if (globalOptions.containsKey("dbpassword"))
+      {
+         properties.put(
+               SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_PASSWORD_SUFFIX,
+               globalOptions.get("dbpassword"));
+      }
+      if (globalOptions.containsKey("dburl"))
+      {
+         properties.put(
+               SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_URL_SUFFIX,
+               globalOptions.get("dburl"));
+      }
+      if (globalOptions.containsKey("dbdriver"))
+      {
+         properties.put(
+               SessionProperties.DS_NAME_AUDIT_TRAIL
+                     + SessionProperties.DS_DRIVER_CLASS_SUFFIX,
+               globalOptions.get("dbdriver"));
+      }
+      if (globalOptions.containsKey("dbtype"))
+      {
+         properties.put(
+               SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_TYPE_SUFFIX,
+               globalOptions.get("dbtype"));
+      }
+      return properties;        
+   }
+
    private boolean doRunCheckConsistencyOptions(Map options)
    {
       boolean optionHandled = false;

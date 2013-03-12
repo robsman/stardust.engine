@@ -46,6 +46,9 @@ public abstract class ModelElementBean extends AttributeHolderImpl implements Mo
 
    private static final String PREDEFINED_ATT = "Predefined";
    private boolean predefined = false;
+   
+   // property for property layer to define if model is revalidated after deployment
+   public static final String PRP_REVALIDATE_ELEMENTS = "PRP_REVALIDATE_ELEMENTS";
 
    private IAttributeManager runtimeAttributes;
 

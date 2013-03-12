@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,17 +39,25 @@ public abstract class Worklist extends AbstractList implements QueryResult
    private final boolean moreAvailable;
    
    private final Long totalCount;
-
+   private final long totalCountThreshold;
+   
    Worklist(WorklistQuery query, SubsetPolicy subset, List items, boolean moreAvailable,
          Long totalCount)
+   {
+      this(query, subset, items, moreAvailable, totalCount, Long.MAX_VALUE);
+   }
+
+   Worklist(WorklistQuery query, SubsetPolicy subset, List items, boolean moreAvailable,
+         Long totalCount, long totalCountThreshold)
    {
       this.query = query;
       this.subsetPolicy = subset;
 
       this.items = new ArrayList(items);
       this.moreAvailable = moreAvailable;
-      
+
       this.totalCount = totalCount;
+      this.totalCountThreshold = totalCountThreshold;
    }
    
    /**
@@ -249,5 +257,10 @@ public abstract class Worklist extends AbstractList implements QueryResult
       }
 
       return result;
+   }
+   
+   public long getTotalCountThreshold()
+   {
+      return totalCountThreshold;
    }
 }

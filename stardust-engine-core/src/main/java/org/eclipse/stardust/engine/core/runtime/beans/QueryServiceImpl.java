@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
+* Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+* SunGard CSA LLC - initial API and implementation and/or initial documentation
+*******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.ByteArrayOutputStream;
@@ -38,7 +38,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingP
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.runtime.utils.WorkItemAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
@@ -83,9 +85,22 @@ public class QueryServiceImpl implements QueryService, Serializable
             // evaluating custom query
             return CustomQueryUtils.evaluateCustomQuery((CustomActivityInstanceQuery) query);
          }
-
-         ResultIterator rawResult = new ActivityInstanceQueryEvaluator(query,
-               getDefaultEvaluationContext()).executeFetch();
+         
+         RuntimeInstanceQueryEvaluator queryEvaluator;
+         if(isFilteringWorkitemsOnly(query))
+         {
+            rte.setAuthorizationPredicate(new WorkItemAuthorization2Predicate(
+                  AuthorizationContext.create(QueryService.class,
+                        "getAllActivityInstances", ActivityInstanceQuery.class)));            
+            
+            queryEvaluator = new WorkItemQueryEvaluator(query, getDefaultEvaluationContext());
+         }
+         else
+         {
+            queryEvaluator = new ActivityInstanceQueryEvaluator(query,
+                  getDefaultEvaluationContext());
+         }
+         ResultIterator rawResult = queryEvaluator.executeFetch();
 
          try
          {
@@ -163,8 +178,7 @@ public class QueryServiceImpl implements QueryService, Serializable
          detailsFactory.setUsingCaches(true);
 
          if (query instanceof CustomProcessInstanceQuery)
-         {
-            // evaluating custom query
+         {   // evaluating custom query
             return CustomQueryUtils.evaluateCustomQuery((CustomProcessInstanceQuery) query);
          }
    
@@ -220,7 +234,22 @@ public class QueryServiceImpl implements QueryService, Serializable
 
    public long getActivityInstancesCount(ActivityInstanceQuery query)
    {
-      return new ActivityInstanceQueryEvaluator(query, getDefaultEvaluationContext()).executeCount();
+      RuntimeInstanceQueryEvaluator queryEvaluator;
+      if(isFilteringWorkitemsOnly(query))
+      {
+         final BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
+         runtimeEnvironment.setAuthorizationPredicate(new WorkItemAuthorization2Predicate(
+               AuthorizationContext.create(QueryService.class, "getActivityInstancesCount",
+                     ActivityInstanceQuery.class)));
+         // removal of state filters necessary before processing as WorkItemQuery??
+         queryEvaluator = new WorkItemQueryEvaluator(query, getDefaultEvaluationContext());
+      }
+      else
+      {
+         queryEvaluator = new ActivityInstanceQueryEvaluator(query,
+               getDefaultEvaluationContext());
+      }
+      return queryEvaluator.executeCount();
    }
 
    public LogEntry findFirstLogEntry(LogEntryQuery query) throws ObjectNotFoundException
@@ -909,4 +938,14 @@ public class QueryServiceImpl implements QueryService, Serializable
    {
       return new RuntimeEnvironmentInfoDetails();
    }
+   
+   private static boolean isFilteringWorkitemsOnly(ActivityInstanceQuery query)
+   {
+      if (query.getPolicy(EvaluateByWorkitemsPolicy.class) != null)
+      {
+         return true;
+      }
+      return false;
+   }   
+   
 }

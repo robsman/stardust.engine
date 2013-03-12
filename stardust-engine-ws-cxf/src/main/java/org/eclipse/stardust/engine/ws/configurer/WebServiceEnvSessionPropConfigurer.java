@@ -98,9 +98,16 @@ public class WebServiceEnvSessionPropConfigurer implements SOAPHandler<SOAPMessa
             {
                sessionProperties.put(key, e.getFirstChild().getTextContent());
             }
-            
          }
          
+         // No Addressing header but partition might already be set.
+         String partitionId = GenericWebServiceEnv.instance().getPartitionId();
+         if (sessionProperties.isEmpty() && null != partitionId)
+
+         {
+            sessionProperties.put(SecurityProperties.PARTITION, partitionId);
+         }
+
          WebServiceEnv.setCurrentSessionProperties(sessionProperties);
       }
       else

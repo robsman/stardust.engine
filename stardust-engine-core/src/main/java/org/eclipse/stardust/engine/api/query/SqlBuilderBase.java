@@ -49,6 +49,8 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.IScopedModelParticipant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -86,6 +88,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -387,7 +390,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    {
       MultiPartPredicateTerm resultTerm = null;
       VisitationContext context = (VisitationContext) rawContext;
-
+      
       if (0 < filter.getParts().size())
       {
          try
@@ -404,8 +407,8 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
             for (Iterator itr = filter.getParts().iterator(); itr.hasNext();)
             {
-               final FilterCriterion part = (FilterCriterion) itr.next();
-
+               final FilterCriterion part = (FilterCriterion) itr.next();              
+               
                final PredicateTerm term = (PredicateTerm) part.accept(this, context);
                if (null != term)
                {
@@ -465,7 +468,12 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    private FieldRef processAttributedScopedFilter(AttributedScopedFilter filter,
          VisitationContext context)
    {
-      final FieldRef fieldRef;
+      final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());
+      final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());
+      
+      FieldRef fieldRef;
+      
+      
       if (filter instanceof IAttributeJoinDescriptor)
       {
          final IAttributeJoinDescriptor joinDescriptor = (IAttributeJoinDescriptor) filter;
@@ -476,7 +484,19 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       {
          TypeDescriptor typeDescriptor = TypeDescriptor.get(context.getType());
          fieldRef = typeDescriptor.fieldRef(filter.getAttribute());
+         if (isAiQuery || isAiQueryOnWorkItem)
+         {
+            if (isAiQueryOnWorkItem)
+            {
+               if (WorkitemKeyMap.isMapped(filter.getAttribute()))
+               {
+                  fieldRef = WorkitemKeyMap.getFieldRef(filter.getAttribute());
+                  
+               }
+            }
+         }
       }
+      
 
       return fieldRef;
    }
@@ -550,6 +570,9 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    public Object visit(BinaryOperatorFilter filter, Object rawContext)
    {
       VisitationContext context = (VisitationContext) rawContext;
+      
+      
+      
       FieldRef fieldRef = processAttributedScopedFilter(filter, context);
       return new ComparisonTerm(fieldRef, filter.getOperator(), filter.getValue());
    }
@@ -1397,6 +1420,12 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
    public Object visit(PerformingOnBehalfOfFilter filter, Object rawContext)
    {
+      if ( !Parameters.instance().getBoolean(ChangeLogDigester.PRP_AIH_ENABLED, true))
+      {
+         throw new IllegalOperationException(
+               BpmRuntimeError.QUERY_FILTER_IS_NOT_AVAILABLE_WITH_DISABLED_AI_HISTORY.raise(PerformingOnBehalfOfFilter.class.getSimpleName()));
+      }
+      
       VisitationContext context = (VisitationContext) rawContext;
 
       Set<IParticipant> participants = QueryUtils.findContributingParticipants(
@@ -1731,6 +1760,9 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       final VisitationContext context = (VisitationContext) rawContext;
       Join useJoin = null;
 
+      final boolean isAiQuery = ActivityInstanceBean.class.equals(context.getType());
+      final boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(context.getType());      
+      
       if(context.getQuery().getClass().equals(ProcessInstanceQuery.class))
       {
          CasePolicy casePolicy = (CasePolicy) context.getQuery().getPolicy(CasePolicy.class);
@@ -1767,6 +1799,18 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          {
             fieldRef = TypeDescriptor.get(context.type).fieldRef(
                   criterion.getAttributeName());
+            
+            if (isAiQuery || isAiQueryOnWorkItem)
+            {
+               if (isAiQueryOnWorkItem)
+               {
+                  if (WorkitemKeyMap.isMapped(criterion.getAttributeName()))
+                  {
+                     fieldRef = WorkitemKeyMap.getFieldRef(criterion.getAttributeName());
+                     
+                  }
+               }
+            }
          }
       }
 
@@ -2507,5 +2551,45 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       {
          return SqlBuilderBase.this;
       }
+   }
+   
+   private static class WorkitemKeyMap 
+   {
+      private static final Map<String, FieldRef> keyMap = CollectionUtils.newMap();
+      private static final String ERROR_NO_VALID_ORDER_CRITERION = "no valid order criterion";
+      
+      static
+      {
+         keyMap.put(ActivityInstanceQuery.OID.getAttributeName(),
+               WorkItemBean.FR__ACTIVITY_INSTANCE);
+         
+         // Empty mappings will result in IllegalOperationExceptions as they are not supported
+         keyMap.put(ActivityInstanceQuery.PERFORMED_BY_OID.getAttributeName(), null);
+         keyMap.put(ActivityInstanceQuery.CURRENT_PERFORMER_OID.getAttributeName(), null);
+         keyMap.put(ActivityInstanceQuery.CURRENT_USER_PERFORMER_OID.getAttributeName(), null);
+      }
+      
+      public static FieldRef getFieldRef(String attributeName)
+      {         
+         if (keyMap.get(attributeName) != null)
+         {
+            return keyMap.get(attributeName);
+         }
+         else
+         {
+            throw new IllegalOperationException(
+                  BpmRuntimeError.QUERY_FILTER_IS_XXX_FOR_QUERY.raise(attributeName, ERROR_NO_VALID_ORDER_CRITERION));
+         }
+      }
+      
+      public static boolean isMapped(String attributeName)
+      {
+         if (keyMap.containsKey(attributeName))
+         {
+            return true;
+         }
+         return false;
+      }
+      
    }
 }

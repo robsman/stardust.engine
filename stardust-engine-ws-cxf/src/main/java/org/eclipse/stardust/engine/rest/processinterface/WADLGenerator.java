@@ -85,7 +85,7 @@ public class WADLGenerator
 
    public String generateWADL()
    {
-      final String baseUri = uriInfo.getBaseUri().toString();
+      String baseUri = uriInfo.getBaseUri().toString();      
       final String requestPath = uriInfo.getPath();
       final Map<String,List<String>> queryParameters = uriInfo.getQueryParameters();
       final String path;
@@ -97,6 +97,11 @@ public class WADLGenerator
       else
       {
          path = requestPath;
+      }
+      
+      if (baseUri != null && !baseUri.endsWith("/") && path != null && !path.startsWith("/"))
+      {
+         baseUri = baseUri + "/";
       }
 
       final StringBuilder sb = loadWADLTemplate();
@@ -329,6 +334,14 @@ public class WADLGenerator
    {
       final StringBuilder sb = new StringBuilder();
       sb.append(uriInfo.getBaseUri().toString());
+      String baseUri = uriInfo.getBaseUri().toString();
+      
+      if (baseUri != null && !baseUri.endsWith("/") && uriInfo.getPath() != null
+            && !uriInfo.getPath().startsWith("/"))
+      {
+         sb.append("/");
+      }
+
       sb.append("typeDeclarations/");
       sb.append(typeDeclId);
       if ( !PredefinedConstants.DEFAULT_PARTITION_ID.equals(partitionId))
@@ -375,21 +388,40 @@ public class WADLGenerator
       final Element typeElement = (Element) node;
       for (final Pair<String, FormalParameter> p : formalParameters)
       {
-         final Element element = doc.createElementNS(W3C_XML_SCHEMA, "xsd:element");
-         element.setAttribute("name", p.getSecond().getId());
          final StringBuilder type = new StringBuilder();
          type.append(p.getFirst()).append(":");
+         
+         final Element formalParameterElement = doc.createElementNS(W3C_XML_SCHEMA, "xsd:element");
+         formalParameterElement.setAttribute("name", p.getSecond().getId());
+
+         typeElement.appendChild(formalParameterElement);
+         typeElement.appendChild(doc.createTextNode("\n\t"));
+         
+
          if (isStructType(p.getSecond()))
          {
             type.append(getStructTypeDeclarationId(p.getSecond()));
+
+            final Element nestedComplexTypeElement = doc.createElementNS(W3C_XML_SCHEMA, "xsd:complexType");
+            formalParameterElement.appendChild(nestedComplexTypeElement);
+            
+            final Element nestedSequenceElement = doc.createElementNS(W3C_XML_SCHEMA, "xsd:sequence");
+            nestedComplexTypeElement.appendChild(nestedSequenceElement);
+            
+            final Element nestedStructElement = doc.createElementNS(W3C_XML_SCHEMA, "xsd:element");
+            nestedSequenceElement.appendChild(nestedStructElement);         
+             
+
+            nestedStructElement.setAttribute("name", getStructTypeDeclarationId(p.getSecond()));
+            nestedStructElement.setAttribute("type", type.toString());
          }
          else
          {
             type.append(getPrimitiveType(p.getSecond()).getId());
+            
+            formalParameterElement.setAttribute("type", type.toString());
          }
-         element.setAttribute("type", type.toString());
-         typeElement.appendChild(element);
-         typeElement.appendChild(doc.createTextNode("\n\t"));
+         
       }
    }
 

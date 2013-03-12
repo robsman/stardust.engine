@@ -12,9 +12,12 @@ package org.eclipse.stardust.engine.core.runtime.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.query.DataPrefetchHint;
 import org.eclipse.stardust.engine.api.query.ExcludeUserPolicy;
 import org.eclipse.stardust.engine.api.query.Query;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
@@ -82,10 +85,32 @@ public class ActivityInstanceAuthorization2Predicate extends AbstractAuthorizati
                long processInstanceOid = rs.getLong(ActivityInstanceBean.FIELD__PROCESS_INSTANCE);
                long departmentOid = rs.getLong(ActivityInstanceBean.FIELD__CURRENT_DEPARTMENT);
                
-               if(excludeUserPolicy && isExcludedUser(activityRtOid, processInstanceOid, modelOid))
+               if (excludeUserPolicy)
                {
-                  return false;
-               }               
+                  Map<String, Long> dataValueOids = CollectionUtils.newMap();
+                  for (String dataId : dataPrefetchHintFilter.keySet())
+                  {
+                     DataPrefetchHint dataPrefetchHint = dataPrefetchHintFilter
+                           .get(dataId);
+                     int colIdx = dataPrefetchHint.getPrefetchNumberValueColumnIdx();
+                     long dataValueOid = 0;
+                     try
+                     {
+                        dataValueOid = rs.getLong(colIdx);
+                     }
+                     catch (SQLException x)
+                     {
+                        // leave it to 0 if column cannot be found
+                        trace.warn("", x);
+                     }
+                     dataValueOids.put(dataId, dataValueOid);
+                  }
+                  if (isExcludedUser(activityRtOid, processInstanceOid, modelOid,
+                        dataValueOids))
+                  {
+                     return false;
+                  }
+               }
                
                context.setActivityData(processInstanceOid, activityRtOid, modelOid, currentPerformer,
                      currentUserPerformer, departmentOid);

@@ -25,6 +25,8 @@ public class RepositorySpaceKey extends StringKey
    
    public static final RepositorySpaceKey BUNDLES = new RepositorySpaceKey("bundles");
    
+   public static final RepositorySpaceKey RULES = new RepositorySpaceKey("rules");
+   
    private static final long serialVersionUID = 1L;
 
    public RepositorySpaceKey(String id)

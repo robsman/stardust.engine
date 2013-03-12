@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
+
 public class DataPrefetchHint extends AbstractDataFilter
 {
    private static final long serialVersionUID = 1L;
+   private int prefetchNumberValueColumnIdx;
 
    public DataPrefetchHint(String dataId)
    {
@@ -75,5 +77,15 @@ public class DataPrefetchHint extends AbstractDataFilter
       else if (!dataID.equals(other.getDataID()))
          return false;
       return true;
+   }
+
+   public int getPrefetchNumberValueColumnIdx()
+   {
+      return prefetchNumberValueColumnIdx;
+   }
+
+   public void setPrefetchNumberValueColumnIdx(int colIdx)
+   {
+      prefetchNumberValueColumnIdx = colIdx;
    }
 }

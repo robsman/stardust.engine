@@ -12,9 +12,12 @@ package org.eclipse.stardust.engine.core.runtime.utils;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.query.DataPrefetchHint;
 import org.eclipse.stardust.engine.api.query.FilterAndTerm;
 import org.eclipse.stardust.engine.api.query.Query;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
@@ -33,7 +36,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predicate
 {
    private static final Logger trace = LogManager.getLogger(WorkItemAuthorization2Predicate.class);
-      
+
    public boolean addPrefetchDataHints(Query query)
    {
       boolean returnValue = super.addPrefetchDataHints(query);
@@ -81,16 +84,27 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                int performerKind = rs.getInt(WorkItemBean.FIELD__PERFORMER_KIND);
                long performer = rs.getLong(WorkItemBean.FIELD__PERFORMER);
                
+               Map<String, Long> dataValueOids = CollectionUtils.newMap();
                long scopeProcessInstanceOid = 0;
                try
                {
-                  scopeProcessInstanceOid = rs.getLong(WorkItemBean.FIELD__SCOPE_PROCESS_INSTANCE);
+                  scopeProcessInstanceOid = rs
+                        .getLong(WorkItemBean.FIELD__SCOPE_PROCESS_INSTANCE);
+                  for (String dataId : dataPrefetchHintFilter.keySet())
+                  {
+                     DataPrefetchHint dataPrefetchHint = dataPrefetchHintFilter
+                           .get(dataId);
+                     int columnIdx = dataPrefetchHint.getPrefetchNumberValueColumnIdx();
+                     long dataValueOid = rs.getLong(columnIdx);
+                     dataValueOids.put(dataId, dataValueOid);
+                  }
                }
                catch (SQLException x)
                {
                   // leave it to 0 if column cannot be found
+                  trace.warn("", x);
                }
-               
+
                long departmentOid = rs.getLong(WorkItemBean.FIELD__DEPARTMENT);
 
                long currentUserPerformer;
@@ -118,7 +132,8 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                      return false;
                }
                
-               if(isExcludedUser(activityRtOid, scopeProcessInstanceOid, modelOid))
+               if (isExcludedUser(activityRtOid, scopeProcessInstanceOid, modelOid,
+                     dataValueOids))
                {
                   return false;
                }

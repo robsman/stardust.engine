@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -310,7 +310,7 @@ public class ProcessQueryPostprocessor
                queryResult.getSubsetPolicy(), queryResult.hasMore(),
                queryResult.hasTotalCount() //
                      ? new Long(queryResult.getTotalCount())
-                     : null));
+                     : null, queryResult.getTotalCountThreshold()));
       }
       finally
       {
@@ -503,9 +503,11 @@ public class ProcessQueryPostprocessor
          List activityDetails = DetailsFactory.createCollection(queryResult.iterator(),
                IActivityInstance.class, ActivityInstanceDetails.class);
 
-         return new ActivityInstances(query, new RawQueryResult(activityDetails,
-               queryResult.getSubsetPolicy(), queryResult.hasMore(),
-               queryResult.hasTotalCount() ? new Long(queryResult.getTotalCount()) : null));
+         return new ActivityInstances(query,
+               new RawQueryResult(activityDetails, queryResult.getSubsetPolicy(),
+                     queryResult.hasMore(), queryResult.hasTotalCount() ? new Long(
+                           queryResult.getTotalCount()) : null,
+                     queryResult.getTotalCountThreshold()));
       }
       finally
       {
@@ -591,7 +593,7 @@ public class ProcessQueryPostprocessor
 
       return new RawQueryResult(result, subset, hasMore, rawResult.hasTotalCount()
             ? new Long(rawResult.getTotalCount())
-            : null);
+            : null, rawResult.getTotalCountThreshold());
    }
 
    private static void prefetchStartingUsers(Iterator piItr, int timeout)

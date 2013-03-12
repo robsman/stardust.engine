@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,9 +41,11 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
+import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.ActivityInstanceAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
@@ -143,11 +145,13 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
    {
       final BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
+      boolean excludedUserEnabled = Parameters.instance().getBoolean(
+            KernelTweakingProperties.ENGINE_EXCLUDE_USER_EVALUATION, false);
       if (authorizationPredicate != null)
       {
          authorizationPredicate.addPrefetchDataHints(query);
       }
-      else if (query.getPolicy(ExcludeUserPolicy.class) != null
+      else if (excludedUserEnabled && query.getPolicy(ExcludeUserPolicy.class) != null
             && SecurityProperties.getUser().hasRole(
                   PredefinedConstants.ADMINISTRATOR_ROLE))
       {
@@ -258,12 +262,15 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
             int size = isEmpty(selectExtension) ? 0 : -selectExtension.size();
             authPred.setSelectionExtension(size, selectExtension);
          }
+         
+         long totalCountThreshold = getTotalCountThreshold(fetchPredicate);
 
          final long totalCount = countImplicitly
                ? result.getTotalCount()
-               : getExplicitTotalCount(queryExtension, fetchPredicate, casePolicy != null);
+               : getExplicitTotalCount(queryExtension, fetchPredicate,
+                     casePolicy != null, totalCountThreshold);
 
-         return new TotalCountDecorator(totalCount, result);
+         return new TotalCountDecorator(totalCount, totalCountThreshold, result);
       }
       else
       {
@@ -278,8 +285,21 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       }
    }
 
+   private long getTotalCountThreshold(FetchPredicate fetchPredicate)
+   {
+      long totalCountThreshold = Long.MAX_VALUE;
+      if (Parameters.instance().getBoolean(
+            KernelTweakingProperties.ENGINE_EXCLUDE_USER_EVALUATION, false)
+            && hasDataPrefetchHintFilter(fetchPredicate))
+      {
+         totalCountThreshold = Parameters.instance().getLong(
+               KernelTweakingProperties.EXCLUDE_USER_MAX_WORKLIST_COUNT, 100);
+      }
+      return totalCountThreshold;
+   }
+
    private long getExplicitTotalCount(QueryExtension queryExtension,
-         FetchPredicate fetchPredicate, boolean useCasePolicy)
+         FetchPredicate fetchPredicate, boolean useCasePolicy, long totalCountThreshold)
    {
       if (useCasePolicy)
       {
@@ -288,8 +308,21 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       else
       {
          return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getCount(type,
-               queryExtension, fetchPredicate, QueryUtils.getTimeOut(query));
+               queryExtension, fetchPredicate, QueryUtils.getTimeOut(query),
+               totalCountThreshold);
       }
+   }
+
+   private boolean hasDataPrefetchHintFilter(FetchPredicate fetchPredicate)
+   {
+      boolean hasDataPrefetchHints = false;
+      if ((fetchPredicate instanceof AbstractAuthorization2Predicate)
+            && ((AbstractAuthorization2Predicate) fetchPredicate)
+                  .hasDataPrefetchHintFilter())
+      {
+         hasDataPrefetchHints = true;
+      }
+      return hasDataPrefetchHints;
    }
 
    private static void applyDistinctOnQueryExtension(QueryExtension queryExtension,

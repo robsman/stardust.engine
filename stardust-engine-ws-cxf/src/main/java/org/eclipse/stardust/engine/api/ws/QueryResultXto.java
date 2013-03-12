@@ -1,13 +1,3 @@
-/*******************************************************************************
- * Copyright (c) 2012 SunGard CSA LLC and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
- *
- * Contributors:
- *    SunGard CSA LLC - initial API and implementation and/or initial documentation
- *******************************************************************************/
 
 package org.eclipse.stardust.engine.api.ws;
 
@@ -34,6 +24,7 @@ import javax.xml.bind.annotation.XmlType;
  *       &lt;sequence>
  *         &lt;element name="totalCount" type="{http://www.w3.org/2001/XMLSchema}long" minOccurs="0"/>
  *         &lt;element name="hasMore" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
+ *         &lt;element name="totalCountThreshold" type="{http://www.w3.org/2001/XMLSchema}long"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -45,7 +36,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "QueryResult", propOrder = {
     "totalCount",
-    "hasMore"
+    "hasMore",
+    "totalCountThreshold"
 })
 @XmlSeeAlso({
     UserQueryResultXto.class,
@@ -64,6 +56,7 @@ public class QueryResultXto {
 
     protected Long totalCount;
     protected boolean hasMore;
+    protected long totalCountThreshold;
 
     /**
      * Gets the value of the totalCount property.
@@ -103,6 +96,22 @@ public class QueryResultXto {
      */
     public void setHasMore(boolean value) {
         this.hasMore = value;
+    }
+
+    /**
+     * Gets the value of the totalCountThreshold property.
+     * 
+     */
+    public long getTotalCountThreshold() {
+        return totalCountThreshold;
+    }
+
+    /**
+     * Sets the value of the totalCountThreshold property.
+     * 
+     */
+    public void setTotalCountThreshold(long value) {
+        this.totalCountThreshold = value;
     }
 
 }

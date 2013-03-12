@@ -14,6 +14,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
+import org.eclipse.stardust.common.MapUtils;
 import org.eclipse.stardust.common.Period;
 import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -47,7 +48,8 @@ public class TimeStampBinder extends DefaultEventBinder
    {
       EventBindingBean binding = EventBindingBean.find(objectType, oid, handler,
             SecurityProperties.getPartitionOid());
-      return (null != binding) ? binding.getTargetStamp() : 0;
+      return (null != binding) ? binding.getTargetStamp() : getTargetTimestamp(
+            objectType, oid, handler.getAllAttributes());
    }
    
    public void bind(int objectType, long oid, IEventHandler handler, Map attributes)

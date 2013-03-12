@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,8 +38,15 @@ public class ParticipantWorklist extends Worklist
    ParticipantWorklist(ParticipantInfo owner, WorklistQuery query, SubsetPolicy subset,
          List items, boolean moreAvailable, Long totalCount)
    {
-      super(query, subset, items, moreAvailable, totalCount);
-      
+      this(owner, query, subset, items, moreAvailable, totalCount, Long.MAX_VALUE);
+   }
+   
+   public ParticipantWorklist(ParticipantInfo owner, WorklistQuery query,
+         SubsetPolicy subset, List items, boolean moreAvailable, Long totalCount,
+         long totalCountThreshold)
+   {
+      super(query, subset, items, moreAvailable, totalCount, totalCountThreshold);
+
       this.ownerID = owner.getId();
       this.owner = owner;
    }
@@ -47,8 +54,14 @@ public class ParticipantWorklist extends Worklist
    ParticipantWorklist(String ownerID, WorklistQuery query, SubsetPolicy subset,
          List items, boolean moreAvailable, Long totalCount)
    {
-      super(query, subset, items, moreAvailable, totalCount);
-      
+      this(ownerID, query, subset, items, moreAvailable, totalCount, Long.MAX_VALUE);
+   }
+
+   ParticipantWorklist(String ownerID, WorklistQuery query, SubsetPolicy subset,
+         List items, boolean moreAvailable, Long totalCount, long totalCountThreshold)
+   {
+      super(query, subset, items, moreAvailable, totalCount, totalCountThreshold);
+
       this.ownerID = ownerID;
       this.owner = null;
    }

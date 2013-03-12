@@ -173,30 +173,4 @@ public class WsUtils
       return partitions;
    }
    
-   public static void authorizeSynchronizationUser(String partitionId)
-   {
-      Parameters parameters = Parameters.instance();
-      String username = parameters.getString("WebService.ProcessService.Username", "motu");
-      String password = parameters.getString("WebService.ProcessService.Password", "motu");
-      String realm = parameters.getString("WebService.ProcessService.Realm", null);
-
-      Map<String, Serializable> properties = CollectionUtils.newMap();
-
-      if ( !isEmpty(realm))
-      {  
-         properties.put(SecurityProperties.REALM, realm);
-      }
-      if ( !isEmpty(partitionId))
-      {
-         properties.put(SecurityProperties.PARTITION, partitionId);
-      }
-      
-      WebServiceEnv.setCurrentCredentials(username, password);
-      WebServiceEnv.setCurrentSessionProperties(properties);
-   }
-
-   public static void removeSynchronizationUser()
-   {
-      WebServiceEnv.removeCurrent();      
-   }
 }

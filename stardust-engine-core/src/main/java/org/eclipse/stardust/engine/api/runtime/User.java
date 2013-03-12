@@ -51,6 +51,7 @@ public interface User extends DynamicParticipant, UserInfo
     * Returns if user is admin.
     * 
     * @return true if user is admin.
+    * @throws IllegalStateException if details level is {@link UserDetailsLevel#MINIMAL}
     */
    public boolean isAdministrator();   
    

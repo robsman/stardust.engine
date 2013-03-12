@@ -633,24 +633,37 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          if (data instanceof IStructuredDataValue)
          {
             boolean tryParseDouble = true;
-            
+
             StructuredDataValueBean sdv = (StructuredDataValueBean) data;
             ModelManager modelManager = ModelManagerFactory.getCurrent();
             long modelOid = sdv.getProcessInstance().getProcessDefinition().getModel()
                   .getModelOID();
-            IData theData = modelManager.findDataForStructuredData(modelOid, sdv.getXPathOID());
-
-            IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
-            TypedXPath typedXPath = xPathMap.getXPath(sdv.getXPathOID());
-            String xsdTypeName = typedXPath.getXsdTypeName();
-            tryParseDouble = "decimal".equals(xsdTypeName);
+            IData theData = modelManager.findDataForStructuredData(modelOid,
+                  sdv.getXPathOID());
+          
+            if (theData != null)
+            {
+               IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
+               TypedXPath typedXPath = xPathMap.getXPath(sdv.getXPathOID());
+               String xsdTypeName = typedXPath.getXsdTypeName();
+               tryParseDouble = "decimal".equals(xsdTypeName);
+            }
+            else
+            {
+               tryParseDouble = true;
+            }
 
             if (tryParseDouble)
             {
                try
                {
-                  // As xsd:decimal is stored as string it is tried to convert to double
-                  data.setDoubleValue(Double.parseDouble((String) value));
+                  // As xsd:decimal is stored as string it is tried to convert to
+                  // double
+                  double parsedDouble = Double.parseDouble((String) value);
+                  if (!Double.isNaN(parsedDouble))
+                  {
+                     data.setDoubleValue(parsedDouble);
+                  }
                }
                catch (NumberFormatException x)
                {

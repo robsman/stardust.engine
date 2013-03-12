@@ -666,6 +666,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
       cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__TYPE_KEY));
       cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE));
+      cols.add(descriptor.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE));
 
       return cols;
    }

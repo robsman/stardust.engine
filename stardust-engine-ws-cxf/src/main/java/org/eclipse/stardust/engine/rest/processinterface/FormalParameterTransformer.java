@@ -250,9 +250,24 @@ public class FormalParameterTransformer
       }
       else
       {
-         value = DataFlowUtils.unmarshalStructValue(model, typeDeclarationId, null, element);
+         value = DataFlowUtils.unmarshalStructValue(model, typeDeclarationId, null, getFirstChildElement(element));
       }
       return value;
+   }
+
+   private Element getFirstChildElement(Element element)
+   {
+      NodeList childNodes = element.getChildNodes();
+
+      for (int i = 0; i < childNodes.getLength(); i++ )
+      {
+         Node item = childNodes.item(i);
+         if (item instanceof Element)
+         {
+            return (Element) item;
+         }
+      }
+      return null;
    }
 
    private void addMarshalledValue(Element root, final FormalParameter fp, final Model model, final Serializable value)
@@ -267,10 +282,13 @@ public class FormalParameterTransformer
       }
       else
       {
+         final Element formalParameterElement = doc.createElementNS(WADLGenerator.W3C_XML_SCHEMA, fp.getId());
+         root.appendChild(formalParameterElement);         
+         
          final Element structElement = DataFlowUtils.marshalStructValue(model, typeDeclarationId, null, value).getAny().get(0);
          Node importNode = doc.importNode(structElement, true);
-         importNode = doc.renameNode(importNode, structElement.getNamespaceURI(), fp.getId());
-         root.appendChild(importNode);
+         formalParameterElement.appendChild(importNode);
+         formalParameterElement.appendChild(doc.createTextNode("\n"));
       }
       root.appendChild(doc.createTextNode("\n"));
    }

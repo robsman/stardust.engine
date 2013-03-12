@@ -269,10 +269,10 @@ public class ArchiveCommand extends AuditTrailCommand
       }
       
       //fix runtime oids which could be corrupted by the previous archive run
-      String fixCommandName = FixRuntimeOidCommand.COMMAND_NAME;
-      String[] args = { "-password", "sysop", "-force", "-dbschema", 
-            archiveSchema, fixCommandName, FixRuntimeOidCommand.NO_LOG_ARG};
-      SysconsoleCommandExecuter.main(args);
+//      String fixCommandName = FixRuntimeOidCommand.COMMAND_NAME;
+//      String[] args = { "-password", "sysop", "-force", "-dbschema", 
+//            archiveSchema, fixCommandName, FixRuntimeOidCommand.NO_LOG_ARG};
+//      SysconsoleCommandExecuter.main(args);
       
       return 0;
    }

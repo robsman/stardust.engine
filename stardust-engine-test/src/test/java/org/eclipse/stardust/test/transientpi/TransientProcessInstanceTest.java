@@ -10,12 +10,14 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.transientpi;
 
+import static java.lang.Boolean.TRUE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.*;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -48,6 +50,7 @@ import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
+import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
@@ -66,11 +69,8 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
-import org.eclipse.stardust.test.api.util.JmsConstants;
-import org.eclipse.stardust.test.api.util.Log4jLogMessageBarrier;
-import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
-import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.api.util.WaitTimeout;
+import org.eclipse.stardust.test.api.util.*;
+import org.eclipse.stardust.test.api.util.DaemonHome.DaemonType;
 import org.junit.*;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
@@ -2018,6 +2018,93 @@ public class TransientProcessInstanceTest
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Transient process execution: asserts that no preferences are fetched for the starting user.
+    * </p>
+    */
+   @Test
+   public void testNoPreferencesAreFetched() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      
+      final Map<String, Object> properties = pi.getStartingUser().getAllProperties();
+      assertThat(properties.isEmpty(), is(TRUE));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Transient process execution: asserts that the {@link UserDetailsLevel} of the starting user is 
+    * {@link UserDetailsLevel#Minimal}.
+    * </p>
+    */
+   @Test
+   public void testDetailsLevelIsMinimal() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      
+      final UserDetailsLevel userDetailsLevel = pi.getStartingUser().getDetailsLevel();
+      assertThat(userDetailsLevel, equalTo(UserDetailsLevel.Minimal));
+   }
+
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Transient process execution: asserts that the information whether the starting user is an administrator
+    * cannot be determined.
+    * </p>
+    */
+   @Test(expected = IllegalStateException.class)
+   public void testAdminCannotBeDetermined() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
+      
+      pi.getStartingUser().isAdministrator();
+      Assert.fail();
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Ensure that timer triggers do also work for transient process definitions. 
+    * </p>
+    */
+   @Test
+   public void testTimerTriggerDaemonIgnoresTransientProcessDefinitions() throws Exception
+   {
+      enableTransientProcessesSupport();
+      
+      final Log4jLogMessageBarrier barrier = new Log4jLogMessageBarrier(Level.INFO);
+      barrier.registerWithLog4j();
+      
+      DaemonHome.startDaemon(sf.getAdministrationService(), DaemonType.TIMER_TRIGGER_DAEMON);
+      final Daemon daemon = DaemonHome.getDaemon(sf.getAdministrationService(), DaemonType.TIMER_TRIGGER_DAEMON);
+      assertNotNull(daemon.getLastExecutionTime());
+      
+      final String logMsgRegex = "State change .*" + PROCESS_DEF_NAME_TIMER_TRIGGER + ".* Active-->Completed\\.";
+      barrier.waitForLogMessage(logMsgRegex, new WaitTimeout(10, TimeUnit.SECONDS));
    }
    
    private boolean hasEntryInDbForPi(final long oid) throws SQLException

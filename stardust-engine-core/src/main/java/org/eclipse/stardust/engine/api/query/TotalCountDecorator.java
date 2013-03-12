@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,10 +20,12 @@ public class TotalCountDecorator implements ResultIterator
 {
    private final long totalCount;
    private final ResultIterator target;
+   private final long totalCountThreshold;
 
-   public TotalCountDecorator(long totalCount, ResultIterator target)
+   public TotalCountDecorator(long totalCount, long totalCountThreshold, ResultIterator target)
    {
       this.totalCount = totalCount;
+      this.totalCountThreshold = totalCountThreshold;
       this.target = target;
    }
 
@@ -65,6 +67,11 @@ public class TotalCountDecorator implements ResultIterator
    public void remove()
    {
       target.remove();
+   }
+   
+   public long getTotalCountThreshold()
+   {
+      return totalCountThreshold;
    }
 
    public void close()

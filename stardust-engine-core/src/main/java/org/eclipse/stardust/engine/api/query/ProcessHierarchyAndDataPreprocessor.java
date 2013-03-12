@@ -28,6 +28,8 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
@@ -45,6 +47,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
 /**
@@ -284,10 +287,10 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
                   final long scopeProcessInstanceOid = piCandidates.getLong(
                         SCOPE_PROCESS_INSTANCE_OID_IDX);
 
-                  IDataValue value = getDataValue(session, scopeProcessInstanceOid,
-                        dataFilter.getDataID(), context);
+                  ValueProvider vp = getDataValueProvider(session,
+                        scopeProcessInstanceOid, dataFilter, context);
 
-                  isMatch &= isMatchingData(dataFilter, value);
+                  isMatch &= isMatchingData(dataFilter, vp);
                }
             }
 
@@ -343,13 +346,17 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
       return dataMap;
    }
 
-   private IDataValue getDataValue(Session session, long scopeProcessInstanceOid,
-         String dataID, VisitationContext context)
+   private ValueProvider getDataValueProvider(Session session,
+         long scopeProcessInstanceOid, AbstractDataFilter dataFilter,
+         VisitationContext context)
    {
+      ValueProvider valueProvider = null;
+      String dataID = dataFilter.getDataID();
+      String xpath = dataFilter.getAttributeName();
+      boolean isStructuredType = StringUtils.isNotEmpty(xpath);
+      
       ModelManager modelManager = context.getEvaluationContext().getModelManager();
 
-      IDataValue value = null;
-      
       Set dataRtOids = new HashSet();
       String namespace = null;
       if (dataID.startsWith("{"))
@@ -375,22 +382,44 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
          IData data = model.findData(dataID);
          if (null != data)
          {
-            dataRtOids.add(new Long(modelManager.getRuntimeOid(data)));
+            if (isStructuredType)
+            {
+               dataRtOids.add(new Long(modelManager.getRuntimeOid(data, xpath)));
+            }
+            else
+            {
+               dataRtOids.add(new Long(modelManager.getRuntimeOid(data)));
+            }
          }
       }
-
-      ResultIterator result = session.getIterator(
-            DataValueBean.class, QueryExtension.where(Predicates.andTerm(
-                  Predicates.isEqual(new FieldRef(DataValueBean.class, DataValueBean.FIELD__PROCESS_INSTANCE),
-                        scopeProcessInstanceOid),
-                  Predicates.inList(new FieldRef(DataValueBean.class, DataValueBean.FIELD__DATA),
-                        dataRtOids.iterator()))));
+           
+      ResultIterator result = null;
+      if (isStructuredType)
+      {
+         result = session.getIterator(
+               StructuredDataValueBean.class,
+               QueryExtension.where(Predicates.andTerm(Predicates.isEqual(new FieldRef(
+                     StructuredDataValueBean.class,
+                     StructuredDataValueBean.FIELD__PROCESS_INSTANCE),
+                     scopeProcessInstanceOid), Predicates.inList(
+                     new FieldRef(StructuredDataValueBean.class,
+                           StructuredDataValueBean.FIELD__XPATH), dataRtOids.iterator()))));
+      }
+      else
+      {
+         result = session.getIterator(DataValueBean.class,
+               QueryExtension.where(Predicates.andTerm(Predicates.isEqual(new FieldRef(
+                     DataValueBean.class, DataValueBean.FIELD__PROCESS_INSTANCE),
+                     scopeProcessInstanceOid), Predicates.inList(new FieldRef(
+                     DataValueBean.class, DataValueBean.FIELD__DATA),
+                     dataRtOids.iterator()))));
+      }
 
       try
       {
          if (result.hasNext())
          {
-            value = (IDataValue) result.next();
+            valueProvider = (ValueProvider) result.next();
          }
       }
       finally
@@ -398,14 +427,19 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
          result.close();
       }
 
-      return value;
+      return valueProvider;
    }
 
-   private boolean isMatchingData(AbstractDataFilter filter, IDataValue value)
+   private boolean isMatchingData(AbstractDataFilter filter, ValueProvider valueProvider)
    {
+      if (filter == null || valueProvider == null)
+      {
+         return false;
+      }                     
+      
       boolean isMatching;
 
-      Object lhsOperand = value.getValue();
+      Object lhsOperand = valueProvider.getValue();
       Serializable rhsOperand = filter.getOperand();
 
       if ( !EvaluationOptions.isCaseSensitive(filter))

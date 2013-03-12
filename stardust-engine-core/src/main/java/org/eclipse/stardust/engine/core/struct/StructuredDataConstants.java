@@ -29,6 +29,9 @@ public final class StructuredDataConstants
    
    // attribute that maps an ExternalReference location to a local file. 
    public static final String RESOURCE_MAPPING_SCOPE = PredefinedConstants.ENGINE_SCOPE + "resource:mapping:";
+   
+   // attribute that maps an ExternalReference location to a local file in the eclipse workspace. 
+   public static final String RESOURCE_MAPPING_ELIPSE_WORKSPACE_FILE = RESOURCE_MAPPING_SCOPE + "eclipseWorkspaceFile";
 
    public static final String RESOURCE_MAPPING_LOCAL_FILE = RESOURCE_MAPPING_SCOPE + "localFile";
 

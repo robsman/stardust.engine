@@ -17,8 +17,8 @@ import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.naming.Binding;
 import javax.naming.Context;
-import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 
 import org.eclipse.stardust.common.CollectionUtils;
@@ -27,14 +27,15 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
 
-
 /**
  * @author rsauer
  * @version $Revision$
  */
 public final class LogUtils
 {
-   private static final Logger bootstrapTrace = LogManager.getLogger("ag.carnot.bootstrap");
+   private static final String CAT_ROOT = LogUtils.class.getPackage().getName();
+
+   private static final Logger bootstrapTrace = LogManager.getLogger(CAT_ROOT + ".Bootstrap");
    
    private static final Logger trace = LogManager.getLogger(LogUtils.class);
 
@@ -79,7 +80,7 @@ public final class LogUtils
          if (showCallStack)
          {
             bootstrapTrace.debug(message);
-            Iterator stackTrace = getStackTrace(new Exception()).iterator();
+            Iterator<String> stackTrace = getStackTrace(new Exception()).iterator();
             if (stackTrace.hasNext())
             {
                bootstrapTrace.debug("Call stack (no error):");
@@ -105,25 +106,25 @@ public final class LogUtils
    {
       try
       {
-         for (NamingEnumeration names = context.list(""); names.hasMore();)
+         for (NamingEnumeration<Binding> bindings = context.listBindings(""); bindings.hasMore();)
          {
-            NameClassPair pair = (NameClassPair) names.next();
+            Binding binding = bindings.next();
             try
             {
-               Object value = context.lookup(pair.getName());
+               Object value = binding.getObject();
                if (value instanceof Context)
                {
-                  trace.info(prefix + pair.getName() + ":");
+                  trace.info(prefix + binding.getName() + ":");
                   listContext(prefix + "  ", (Context) value);
                }
                else
                {
-                  trace.info(prefix + pair.getName() + " = " + value);
+                  trace.info(prefix + binding.getName() + " = " + value);
                }
             }
             catch (Exception e)
             {
-               trace.info("Failed listing context " + prefix + pair.getName(), e);
+               trace.info("Failed listing context " + prefix + binding.getName(), e);
             }
          }
       }
@@ -133,7 +134,7 @@ public final class LogUtils
       }
    }
 
-   public static List getStackTrace(Throwable t)
+   public static List<String> getStackTrace(Throwable t)
    {
       VectorWriter writer = new VectorWriter();
       t.printStackTrace(writer);
@@ -194,7 +195,7 @@ public final class LogUtils
    
    static class VectorWriter extends PrintWriter
    {
-      private List vector = CollectionUtils.newList();
+      private List<String> vector = CollectionUtils.newList();
 
       VectorWriter()
       {
@@ -216,11 +217,10 @@ public final class LogUtils
          vector.add(s);
       }
 
-      public List getVector()
+      public List<String> getVector()
       {
          return vector;
       }
-
    }
 
    static class NullWriter extends Writer

@@ -10,12 +10,24 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.ws.processinterface;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Function;
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
+import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.engine.api.model.FormalParameter;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
@@ -24,8 +36,14 @@ import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.ws.WebServiceEnv;
+import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet.ExecutionServiceProvider;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.QueryServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.ws.servlet.DynamicCXFServlet;
 import org.w3c.dom.Document;
 
 
@@ -37,8 +55,6 @@ import org.w3c.dom.Document;
  */
 public class EndpointConfigurationStorage
 {
-   private static EndpointConfigurationStorage instance;
-
    private Set<EndpointConfiguration> endpointConfs2Add = new HashSet<EndpointConfiguration>();
 
    private Set<String> endpointConfs2Remove = new HashSet<String>();
@@ -127,170 +143,222 @@ public class EndpointConfigurationStorage
    {
       return !endpointConfs2Add.isEmpty() || !endpointConfs2Remove.isEmpty();
    }
-
-   public static synchronized EndpointConfigurationStorage instance()
-   {
-      if (instance == null)
-      {
-         instance = new EndpointConfigurationStorage();
-      }
-      return instance;
-   }
-
-   public synchronized void syncProcessInterfaces(String servletPath,
-         Set<Pair<AuthMode, String>> endpointNameSet)
+   
+   public synchronized void syncProcessInterfaces(final String syncPartitionId,
+         final String servletPath, final Set<Pair<AuthMode, String>> endpointNameSet)
    {
       try
-      {         
-         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-         ServiceFactory sf = wsEnv.getServiceFactory();
-         QueryService qs = sf.getQueryService();
-
-         Set<DeployedModelDescription> addModels = new HashSet<DeployedModelDescription>();
-         Set<Pair<String, String>> removeCandidateModels = new HashSet<Pair<String, String>>();
-         Models allActiveModels = qs.getModels(DeployedModelQuery.findActive());
-
-         List<DeployedModelDescription> modelsToUpdate = new LinkedList<DeployedModelDescription>();
-         for (DeployedModelDescription deployedModelDescription : allActiveModels)
+      {
+         getForkingService().isolate(new Function<Void>()
          {
-            DeployedModelDescription lastDeployedModel = lastDeployedModels.get(deployedModelDescription.getId());
-            if (lastDeployedModel == null
-                  || !lastDeployedModel.getDeploymentTime().equals(
-                        deployedModelDescription.getDeploymentTime()))
+            @Override
+            protected Void invoke()
             {
-               lastDeployedModels.put(deployedModelDescription.getId(),
-                     deployedModelDescription);
-               modelsToUpdate.add(deployedModelDescription);
-            }
-         }
-
-         for (DeployedModelDescription md : modelsToUpdate)
-         {
-            removeCandidateModels.add(new Pair<String, String>(md.getPartitionId(),
-                  md.getId()));
-
-            List<ProcessDefinition> pds = qs.getAllProcessDefinitions(md.getModelOID());
-            for (ProcessDefinition processDefinition : pds)
-            {
-               if (PredefinedConstants.PROCESSINTERFACE_INVOCATION_SOAP.equals(processDefinition.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE))
-                     || PredefinedConstants.PROCESSINTERFACE_INVOCATION_BOTH.equals(processDefinition.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE)))
+               try
                {
-                  ProcessInterface processInterface = processDefinition.getDeclaredProcessInterface();
-                  if (processInterface != null)
+                  ParametersFacade.pushLayer(Collections.singletonMap(
+                        SecurityProperties.CURRENT_PARTITION,
+                        AuditTrailPartitionBean.findById(syncPartitionId)));
+
+                  QueryService qs = new QueryServiceImpl();
+                  Models allActiveModels = qs.getModels(DeployedModelQuery.findActive());
+
+                  Set<DeployedModelDescription> addModels = new HashSet<DeployedModelDescription>();
+                  Set<Pair<String, String>> removeCandidateModels = new HashSet<Pair<String, String>>();
+                  List<DeployedModelDescription> modelsToUpdate = new LinkedList<DeployedModelDescription>();
+                  for (DeployedModelDescription deployedModelDescription : allActiveModels)
                   {
-                     ProcessInterface currentProcessInterface = getProcessInterfacesMap().get(
-                           processDefinition.getQualifiedId());
-                     if (currentProcessInterface == null
-                           || !isEqual(currentProcessInterface.getFormalParameters(),
-                                 processInterface.getFormalParameters()))
+                     DeployedModelDescription lastDeployedModel = lastDeployedModels.get(deployedModelDescription.getId());
+                     if (lastDeployedModel == null
+                           || !lastDeployedModel.getDeploymentTime().equals(
+                                 deployedModelDescription.getDeploymentTime()))
                      {
-                        getProcessInterfacesMap().put(
-                              new Pair<String, String>(
-                                    processDefinition.getPartitionId(),
-                                    processDefinition.getQualifiedId()), processInterface);
-                        addModels.add(md);
+                        lastDeployedModels.put(deployedModelDescription.getId(),
+                              deployedModelDescription);
+                        modelsToUpdate.add(deployedModelDescription);
                      }
-                     // Did not change or was added; no removal needed.
-                     removeCandidateModels.remove(new Pair<String, String>(
-                           md.getPartitionId(), md.getId()));
                   }
-               }
-               else
-               {
-                  if (null == getProcessInterfacesMap().remove(
-                        new Pair<String, String>(processDefinition.getPartitionId(),
-                              processDefinition.getQualifiedId())))
+
+                  for (DeployedModelDescription md : modelsToUpdate)
                   {
-                     // Is not a published ProcessInterface so no removal is needed.
-                     removeCandidateModels.remove(new Pair<String, String>(
+                     removeCandidateModels.add(new Pair<String, String>(
                            md.getPartitionId(), md.getId()));
+
+                     List<ProcessDefinition> pds = qs.getAllProcessDefinitions(md.getModelOID());
+                     for (ProcessDefinition processDefinition : pds)
+                     {
+                        Pair<String, String> key = new Pair<String, String>(
+                              processDefinition.getPartitionId(),
+                              processDefinition.getQualifiedId());
+                        if (PredefinedConstants.PROCESSINTERFACE_INVOCATION_SOAP.equals(processDefinition.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE))
+                              || PredefinedConstants.PROCESSINTERFACE_INVOCATION_BOTH.equals(processDefinition.getAttribute(PredefinedConstants.PROCESSINTERFACE_INVOCATION_TYPE)))
+                        {
+                           ProcessInterface processInterface = processDefinition.getDeclaredProcessInterface();
+                           if (processInterface != null)
+                           {
+                              ProcessInterface currentProcessInterface = getProcessInterfacesMap().get(
+                                    processDefinition.getQualifiedId());
+                              if (currentProcessInterface == null
+                                    || !isEqual(
+                                          currentProcessInterface.getFormalParameters(),
+                                          processInterface.getFormalParameters()))
+                              {
+                                 getProcessInterfacesMap().put(key, processInterface);
+                                 addModels.add(md);
+                              }
+                              // Did not change or was added; no removal needed.
+                              removeCandidateModels.remove(new Pair<String, String>(
+                                    md.getPartitionId(), md.getId()));
+                           }
+                        }
+                        else
+                        {
+                           getProcessInterfacesMap().remove(key);
+                        }
+                     }
                   }
+
+                  // Remove models that are not active or not existing anymore.
+                  List<Pair<String, String>> removalList = new LinkedList<Pair<String, String>>();
+                  Map<Pair<String, String>, ProcessInterface> processInterfacesMap = getProcessInterfacesMap();
+                  for (Pair<String, String> key : processInterfacesMap.keySet())
+                  {
+                     QName qn = QName.valueOf(key.getSecond());
+                     String modelId = qn.getNamespaceURI();
+                     String partitionId = key.getFirst();
+                     boolean keep = false;
+
+                     // keep if from different partition
+                     if (syncPartitionId == null || !syncPartitionId.equals(partitionId))
+                     {
+                        keep = true;
+                     }
+                     else
+                     {
+                        for (DeployedModelDescription md : allActiveModels)
+                        {
+                           // keep if active model exists
+                           if (md.getId().equals(modelId))
+                           {
+                              keep = true;
+                           }
+                        }
+                     }
+                     if ( !keep)
+                     {
+                        Pair<String, String> partitionIdModelIdPair = new Pair<String, String>(
+                              partitionId, modelId);
+                        removeCandidateModels.add(partitionIdModelIdPair);
+                        removalList.add(partitionIdModelIdPair);
+                     }
+                  }
+
+                  for (Pair<String, String> partitionModelIdPair : removalList)
+                  {
+                     getProcessInterfacesMap().remove(partitionModelIdPair);
+                  }
+
+                  for (Pair<String, String> partitionModelIdPair : removeCandidateModels)
+                  {
+                     remove(partitionModelIdPair.getFirst(),
+                           partitionModelIdPair.getSecond());
+                  }
+
+                  for (DeployedModelDescription md : addModels)
+                  {
+                     String modelString = qs.getModelAsXML(md.getModelOID());
+
+                     Document wsdl = new WSDLGenerator(modelString).generateDocument();
+
+                     for (Pair<AuthMode, String> pair : endpointNameSet)
+                     {
+                        AuthMode authMode = pair.getFirst();
+                        String endpointPath = pair.getSecond();
+                        String modelId = md.getId();
+
+                        String partitionId = md.getPartitionId();
+                        if (AuthMode.HttpBasicAuthSsl.equals(authMode))
+                        {
+                           add(new EndpointConfiguration(
+                                 new EndpointConfiguration.ModelIdUrlPair(md.getId(),
+                                       WsUtils.encodeInternalEndpointPath(servletPath,
+                                             partitionId, modelId, endpointPath)),
+                                 partitionId, wsdl,
+                                 GenericWebServiceProviderHttpBasicAuthSsl.class,
+                                 AuthMode.HttpBasicAuthSsl));
+
+                        }
+                        else if (AuthMode.HttpBasicAuth.equals(authMode))
+                        {
+                           add(new EndpointConfiguration(
+                                 new EndpointConfiguration.ModelIdUrlPair(md.getId(),
+                                       WsUtils.encodeInternalEndpointPath(servletPath,
+                                             partitionId, modelId, endpointPath)),
+                                 partitionId, wsdl,
+                                 GenericWebServiceProviderHttpBasicAuth.class,
+                                 AuthMode.HttpBasicAuth));
+
+                        }
+                        else if (AuthMode.WssUsernameToken.equals(authMode))
+                        {
+                           add(new EndpointConfiguration(
+                                 new EndpointConfiguration.ModelIdUrlPair(md.getId(),
+                                       WsUtils.encodeInternalEndpointPath(servletPath,
+                                             partitionId, modelId, endpointPath)),
+                                 partitionId, wsdl,
+                                 GenericWebServiceProviderWssUsernameToken.class,
+                                 AuthMode.WssUsernameToken));
+                        }
+                     }
+                  }
+                  return null;
+               }
+               finally
+               {
+                  ParametersFacade.popLayer();
                }
             }
-         }
 
-         // Remove models that are not active or not existing anymore.
-         List<Pair<String, String>> removalList = new LinkedList<Pair<String, String>>();
-         Map<Pair<String, String>, ProcessInterface> processInterfacesMap = getProcessInterfacesMap();
-         for (Pair<String, String> key : processInterfacesMap.keySet())
-         {
-            QName qn = QName.valueOf(key.getSecond());
-            String modelId = qn.getNamespaceURI();
-            String partitionId = key.getFirst();
-            boolean found = false;
-            for (DeployedModelDescription md : allActiveModels)
-            {
-               if (md.getId().equals(modelId) && md.getPartitionId().equals(partitionId))
-               {
-                  found = true;
-               }
-            }
-            if ( !found)
-            {
-               removeCandidateModels.add(key);
-               removalList.add(key);
-            }
-         }
-
-         for (Pair<String, String> partitionModelIdPair : removalList)
-         {
-            getProcessInterfacesMap().remove(partitionModelIdPair);
-         }
-
-         for (Pair<String, String> partitionModelIdPair : removeCandidateModels)
-         {
-            String qualifiedProcessDefinitionId = partitionModelIdPair.getSecond();
-            QName qn = QName.valueOf(qualifiedProcessDefinitionId);
-            remove(partitionModelIdPair.getFirst(), qn.getNamespaceURI());
-         }
-
-         for (DeployedModelDescription md : addModels)
-         {
-            String modelString = qs.getModelAsXML(md.getModelOID());
-
-            Document wsdl = new WSDLGenerator(modelString).generateDocument();
-
-            for (Pair<AuthMode, String> pair : endpointNameSet)
-            {
-               AuthMode authMode = pair.getFirst();
-               String endpointPath = pair.getSecond();
-               String modelId = md.getId();
-
-               String partitionId = md.getPartitionId();
-               if (AuthMode.HttpBasicAuthSsl.equals(authMode))
-               {
-                  add(new EndpointConfiguration(new EndpointConfiguration.ModelIdUrlPair(
-                        md.getId(), WsUtils.encodeInternalEndpointPath(servletPath,
-                              partitionId, modelId, endpointPath)), partitionId, wsdl,
-                        GenericWebServiceProviderHttpBasicAuthSsl.class,
-                        AuthMode.HttpBasicAuthSsl));
-
-               }
-               else if (AuthMode.HttpBasicAuth.equals(authMode))
-               {
-                  add(new EndpointConfiguration(new EndpointConfiguration.ModelIdUrlPair(
-                        md.getId(), WsUtils.encodeInternalEndpointPath(servletPath,
-                              partitionId, modelId, endpointPath)), partitionId, wsdl,
-                        GenericWebServiceProviderHttpBasicAuth.class,
-                        AuthMode.HttpBasicAuth));
-
-               }
-               else if (AuthMode.WssUsernameToken.equals(authMode))
-               {
-                  add(new EndpointConfiguration(new EndpointConfiguration.ModelIdUrlPair(
-                        md.getId(), WsUtils.encodeInternalEndpointPath(servletPath,
-                              partitionId, modelId, endpointPath)), partitionId, wsdl,
-                        GenericWebServiceProviderWssUsernameToken.class,
-                        AuthMode.WssUsernameToken));
-               }
-            }
-         }
+         });
       }
       catch (RuntimeException e)
       {
-         WebServiceEnv.removeCurrent();
          throw e;
       }
+   }
+   
+   private ForkingService getForkingService()
+   {
+      ForkingServiceFactory factory = null;
+      ForkingService forkingService = null;
+      factory = (ForkingServiceFactory) Parameters.instance().get(
+            EngineProperties.FORKING_SERVICE_HOME);
+      if (factory == null)
+      {
+         List<ExecutionServiceProvider> exProviderList = ExtensionProviderUtils.getExtensionProviders(ExecutionServiceProvider.class);
+         if (exProviderList.size() == 1)
+         {
+            ExecutionServiceProvider executionServiceProvider = exProviderList.get(0);
+
+            forkingService = executionServiceProvider.getExecutionService("ejb");
+         }
+         if (forkingService == null)
+         {
+            for (ExecutionServiceProvider executionServiceProvider : exProviderList)
+            {
+               forkingService = executionServiceProvider.getExecutionService(DynamicCXFServlet.getClientContext());
+               if (forkingService != null)
+               {
+                  break;
+               }
+            }
+         }
+      }
+      else
+      {
+         forkingService = factory.get();
+      }
+      return forkingService;
    }
 
    private boolean isEqual(List<FormalParameter> fp1, List<FormalParameter> fp2)
@@ -351,10 +419,5 @@ public class EndpointConfigurationStorage
    public Map<Pair<String, String>, ProcessInterface> getProcessInterfaces()
    {
       return Collections.unmodifiableMap(getProcessInterfacesMap());
-   }
-
-   private EndpointConfigurationStorage()
-   {
-      /* Singleton */
    }
 }

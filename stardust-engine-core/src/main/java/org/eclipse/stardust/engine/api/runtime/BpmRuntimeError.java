@@ -347,6 +347,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 BPMRT_ILLEGAL_AI_STATE_CHANGE = newArgs2("BPMRT03901", BpmRuntimeErrorMessages.getString("BPMRT03901")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args3 BPMRT_ILLEGAL_AI_STATE_CHANGE_FOR_AI = newArgs3("BPMRT03902", BpmRuntimeErrorMessages.getString("BPMRT03902")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args4 BPMRT_ILLEGAL_AI_STATE_CHANGE_FOR_AI_WITH_PI_STATE = newArgs4("BPMRT03903", BpmRuntimeErrorMessages.getString("BPMRT03903")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE = newArgs2("BPMRT03904", "Cannot run activity thread for activity instance {0} because process instance {1} is aborted.");
 
    public static final Args1 BPMRT_INCOMPATIBLE_TYPE_FOR_DATA = newArgs1("BPMRT04002", BpmRuntimeErrorMessages.getString("BPMRT04002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 BPMRT_INCOMPATIBLE_TYPE_FOR_DATA_WITH_PATH = newArgs2("BPMRT04003", BpmRuntimeErrorMessages.getString("BPMRT04003")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -388,6 +389,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 QUERY_XPATH_ON_STRUCT_DATA_ORDER_BY_MUST_POINT_TO_PRIMITIVE = newArgs2("QUERY01004", BpmRuntimeErrorMessages.getString("QUERY01004")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 QUERY_FILTER_IS_XXX_FOR_QUERY = newArgs2("QUERY02001", BpmRuntimeErrorMessages.getString("QUERY02001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 QUERY_FILTER_IS_NOT_AVAILABLE_WITH_DISABLED_AI_HISTORY = newArgs1("QUERY02010", BpmRuntimeErrorMessages.getString("QUERY02010")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    //// IPP WS related

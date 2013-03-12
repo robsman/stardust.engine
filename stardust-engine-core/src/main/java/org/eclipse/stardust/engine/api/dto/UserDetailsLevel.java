@@ -17,20 +17,43 @@ public class UserDetailsLevel extends IntKey
    private static final long serialVersionUID = 1L;
 
    /**
-   * The user details only contain first level attributes of UserBean.
-   */
+    * The user details only contain first level attributes of UserBean.
+    * <p>
+    * This details level provides the best performance by skipping any lookup besides
+    * retrieving the first level attributes of the UserBean.
+    * <p>
+    * <b>Note that User#isAdministrator() is not resolved at this level and will throw an
+    * {@link IllegalStateException}.</b>
+    * 
+    * @see org.eclipse.stardust.engine.api.runtime.User#isAdministrator()
+    */
+    public static final int MINIMAL = 0;
+
+   /**
+    * The user details contain same attributes as MINIMAL plus isAdmistrator and
+    * last-login evaluation.
+    * <p>
+    * This means in addition to the first level attributes the last-login of the user is evaluated
+    * via an additional lookup to the user sessions and the isAdministrator flag is
+    * determined by resolving the users assigned roles.<br>
+    */
    public static final int CORE = 1;
 
    /**
     * The user details contain same attributes as with CORE plus properties.
+    * <p>
+    * At this details level the user properties are retrieved as well.
     */
    public static final int WITH_PROPERTIES = 2;
 
    /**
     * The user details contain same attributes as with WITH_PROPERTIES plus all grants.
+    * <p>
+    * The FULL details level represents a fully resolved User.
     */
    public static final int FULL = 3;
 
+   public static final UserDetailsLevel Minimal = new UserDetailsLevel(MINIMAL, "Minimal");
    public static final UserDetailsLevel Core = new UserDetailsLevel(CORE, "Core");
    public static final UserDetailsLevel WithProperties = new UserDetailsLevel(
          WITH_PROPERTIES, "WithProperties");

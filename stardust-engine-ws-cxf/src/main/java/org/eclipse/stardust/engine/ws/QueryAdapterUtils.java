@@ -287,6 +287,14 @@ public class QueryAdapterUtils
          {
             query.setPolicy(unmarshalCasePolicy((CasePolicyXto) policy));
          }
+         else if (policy instanceof EvaluateByWorkitemsPolicyXto)
+         {
+            query.setPolicy(unmarshalEvaluateByWorkitemsPolicy((EvaluateByWorkitemsPolicyXto) policy));
+         }
+         else if (policy instanceof ExcludeUserPolicyXto)
+         {
+            query.setPolicy(unmarshalExcludeUserPolicy((ExcludeUserPolicyXto) policy));
+         }
          else
          {
             throw new UnsupportedOperationException("Unknown Evaluation Policy: " + policy);
@@ -294,6 +302,25 @@ public class QueryAdapterUtils
       }
 
       return query;
+   }
+
+   private static EvaluationPolicy unmarshalExcludeUserPolicy(ExcludeUserPolicyXto policy)
+   {
+      if (policy != null)
+      {
+         return ExcludeUserPolicy.EXCLUDE_USER;
+      }
+      return null;
+   }
+
+   private static EvaluationPolicy unmarshalEvaluateByWorkitemsPolicy(
+         EvaluateByWorkitemsPolicyXto policy)
+   {
+      if (policy != null)
+      {
+         return EvaluateByWorkitemsPolicy.WORKITEMS;
+      }
+      return null;
    }
 
    private static HistoricalEventPolicy unmarshalHistoricalEventPolicy(

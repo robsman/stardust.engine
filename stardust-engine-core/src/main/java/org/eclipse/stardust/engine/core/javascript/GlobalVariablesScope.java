@@ -17,11 +17,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataType;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.ISchemaType;
 import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
 import org.eclipse.stardust.engine.api.model.IXpdlType;
+import org.eclipse.stardust.engine.api.model.ModelElement;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
@@ -263,25 +265,28 @@ public class GlobalVariablesScope extends ScriptableObject
    }
    
    private List<XSDEnumerationFacet> checkEnumeration(AccessPoint data) {
-		Object type = data.getAttribute("carnot:engine:dataType");
-		  if (type != null) {                	  
-			  String typeString = type.toString();
-			  ITypeDeclaration decl = model.findTypeDeclaration(typeString);
-			  IXpdlType xpdlType = decl.getXpdlType();
-			  if (xpdlType instanceof ISchemaType) {
-				ISchemaType schema = (ISchemaType)xpdlType;
-				List<XSDSchemaContent> schemaContent = schema.getSchema().getContents();
-				if (!schemaContent.isEmpty()) {
-					if (schemaContent.get(0) instanceof XSDSimpleTypeDefinition) {
-						XSDSimpleTypeDefinition st = (XSDSimpleTypeDefinition) schemaContent.get(0);
-						if (!st.getEnumerationFacets().isEmpty()) {
-							return st.getEnumerationFacets();						
-						}
-					}
-				}
-			  }                	  
-		  }
-		  return null;
+      ITypeDeclaration decl = StructuredTypeRtUtils.getTypeDeclaration(data, model);
+      if (decl != null)
+      {
+         IXpdlType xpdlType = decl.getXpdlType();
+         if (xpdlType instanceof ISchemaType)
+         {
+            ISchemaType schema = (ISchemaType) xpdlType;
+            List<XSDSchemaContent> schemaContent = schema.getSchema().getContents();
+            if ( !schemaContent.isEmpty())
+            {
+               if (schemaContent.get(0) instanceof XSDSimpleTypeDefinition)
+               {
+                  XSDSimpleTypeDefinition st = (XSDSimpleTypeDefinition) schemaContent.get(0);
+                  if ( !st.getEnumerationFacets().isEmpty())
+                  {
+                     return st.getEnumerationFacets();
+                  }
+               }
+            }
+         }
+      }
+      return null;
 	}
 
 }

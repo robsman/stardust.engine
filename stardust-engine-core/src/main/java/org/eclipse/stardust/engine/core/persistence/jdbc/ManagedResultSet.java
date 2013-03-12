@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.persistence.jdbc;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.sql.ResultSet;
@@ -55,6 +56,18 @@ public final class ManagedResultSet
                   try
                   {
                      return method.invoke(resultSet, args);
+                  }
+                  catch (InvocationTargetException e)
+                  {
+                     Throwable targetException = e.getTargetException();
+                     if (targetException != null)
+                     {
+                        throw targetException;
+                     }
+                     else
+                     {
+                        throw e;
+                     }
                   }
                   finally
                   {

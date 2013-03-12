@@ -33,9 +33,11 @@
       description="copies the resources into a given folder">
       <ant target="copy-nls-resources" dir="${project.dir}/../stardust-engine-base" inheritall="false">
          <property name="build.nls.dir" value="${build.nls.dir}" />
+         <property name="ipp.default.ivy.settings.file" value="${ipp.default.ivy.settings.file}"/>
       </ant>
       <ant target="copy-nls-resources" dir="${project.dir}/../stardust-engine-core" inheritall="false">
          <property name="build.nls.dir" value="${build.nls.dir}" />
+         <property name="ipp.default.ivy.settings.file" value="${ipp.default.ivy.settings.file}"/>
       </ant>
    </target>
 

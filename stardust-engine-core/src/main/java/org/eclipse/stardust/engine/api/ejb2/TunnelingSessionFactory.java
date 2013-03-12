@@ -133,13 +133,9 @@ public class TunnelingSessionFactory
                         credentials.get(SecurityProperties.CRED_PASSWORD), properties});
          }
       }
-      catch (InvocationTargetException e)
+      catch (Throwable e)
       {
-         throw getRootException(e.getTargetException());
-      }
-      catch (Exception e)
-      {
-         throw new InternalException("Failed to create session bean.", e);
+         throw getRootException(e);
       }
 
       return new SecureSession(endpoint, tunneledContext);
@@ -147,6 +143,10 @@ public class TunnelingSessionFactory
 
    private ApplicationException getRootException(Throwable source)
    {
+      if (source instanceof InvocationTargetException)
+      {
+         source = ((InvocationTargetException) source).getTargetException();
+      }
       while (source instanceof RemoteException)
       {
          if (((RemoteException) source).detail == null)

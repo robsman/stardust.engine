@@ -470,6 +470,7 @@ public class TransientProcessInstanceStorageTest
       {
          if (op instanceof InsertOrUpdateOperation)
          {
+            /* force NullPointerException */
             return super.accessPiBlobs((TxAwareClusterSafeOperation<T>) null);
          }
          

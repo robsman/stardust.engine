@@ -388,9 +388,12 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          throw new IllegalStateChangeException(this.toString(), ActivityInstanceState.getState(state), this.getState());
       }
       ProcessInstanceState piState = getProcessInstance().getState();
-      if((piState.equals(ProcessInstanceState.Aborted) || piState.equals(ProcessInstanceState.Aborting)) &&
+      if(ProcessInstanceUtils.isInAbortingPiHierarchy(getProcessInstance()) && 
            !(state == ActivityInstanceState.ABORTED || state == ActivityInstanceState.ABORTING))
       {
+         //reshedule aborting
+         ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(getProcessInstanceOID()));         
+         
          ActivityInstanceState newState = ActivityInstanceState.getState(state);
          StringBuffer msg = new StringBuffer("Invalid state change from ");
          msg.append(ActivityInstanceState.getState(this.state)).append(" to ").append(newState);

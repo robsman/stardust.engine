@@ -30,6 +30,7 @@ import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.gui.AccessPointTemplate;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.jms.app.JMSDirection;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageAcceptor;
 import org.eclipse.stardust.engine.extensions.jms.app.MessageProvider;
@@ -93,6 +94,18 @@ public class DefaultModelBuilder implements ModelBuilder
 
    public static void createPredefinedDataTypes(IModel model)
    {
+      String[] dmsDataTypeKeys = {
+            DmsConstants.DATA_TYPE_DMS_DOCUMENT,
+            DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST, 
+            DmsConstants.DATA_TYPE_DMS_FOLDER,
+            DmsConstants.DATA_TYPE_DMS_FOLDER_LIST,
+      };
+      for(String dmsKey: dmsDataTypeKeys)
+      {
+         model.createDataType(dmsKey, dmsKey, true, 0);
+      }
+      
+      
       if (null == model.findDataType(PredefinedConstants.PRIMITIVE_DATA))
       {
          IDataType primitive = model.createDataType(PredefinedConstants.PRIMITIVE_DATA,

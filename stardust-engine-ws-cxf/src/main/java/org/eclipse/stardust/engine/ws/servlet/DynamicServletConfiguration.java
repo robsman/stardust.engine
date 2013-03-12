@@ -11,14 +11,26 @@
 package org.eclipse.stardust.engine.ws.servlet;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Function;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
+import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet.ExecutionServiceProvider;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
-import org.eclipse.stardust.engine.ws.WebServiceEnv;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.QueryServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.ws.processinterface.AuthMode;
 
 
@@ -49,16 +61,11 @@ public class DynamicServletConfiguration
 
    private static final ThreadLocal<DynamicServletConfiguration> INSTANCE = new ThreadLocal<DynamicServletConfiguration>();
 
-   private String currentPartitionId;
-
-   private Map<String, Serializable> mergedPreferenceMap;
-
    /**
     * ThreadLocal
     */
    private DynamicServletConfiguration()
    {
-      currentPartitionId = null;
    }
 
    /**
@@ -160,37 +167,51 @@ public class DynamicServletConfiguration
       return (String) preferenceMap.get("DynamicEndpoint.DefaultModelId");
    }
 
-   private Map<String, Serializable> getPreferenceMap(String partitionId)
+   private Map<String, Serializable> getPreferenceMap(final String partitionId)
    {
-      Preferences prefs = null;
-      Preferences defaultPrefs = null;
-      if (partitionId != null && !partitionId.equals(currentPartitionId))
-      {
-         // Precondition: Credentials and session properties are set.
-         try
-         {
+      @SuppressWarnings("unchecked")
+      Map<String, Serializable> mergedPreferenceMap = (Map<String, Serializable>) getForkingService().isolate(
+            new Function<Map<String, Serializable>>()
+            {
+               @Override
+               protected Map<String, Serializable> invoke()
+               {
+                  try
+                  {
+                     ParametersFacade.pushLayer(Collections.singletonMap(
+                           SecurityProperties.CURRENT_PARTITION,
+                           AuditTrailPartitionBean.findById(partitionId)));
 
-            ServiceFactory serviceFactory = WebServiceEnv.currentWebServiceEnvironment()
-                  .getServiceFactory();
-            prefs = serviceFactory.getQueryService().getPreferences(
-                  PreferenceScope.PARTITION, MODULE_ID_WEB_SERVICE,
-                  PREFERENCES_ID_PROCESS_INTERFACE);
-            defaultPrefs = serviceFactory.getQueryService().getPreferences(
-                  PreferenceScope.DEFAULT, MODULE_ID_WEB_SERVICE,
-                  PREFERENCES_ID_PROCESS_INTERFACE);
-         }
-         catch (RuntimeException e)
-         {
-            WebServiceEnv.removeCurrent();
-            throw e;
-         }
-         this.currentPartitionId = partitionId;
+                     Preferences prefs = null;
+                     Preferences defaultPrefs = null;
+                     // Precondition: Credentials and session properties are set.
+                     try
+                     {
 
-         this.mergedPreferenceMap = mergePreferences(defaultPrefs, prefs);
-      }
-      return this.mergedPreferenceMap;
+                        QueryService qs = new QueryServiceImpl();
+
+                        prefs = qs.getPreferences(PreferenceScope.PARTITION,
+                              MODULE_ID_WEB_SERVICE, PREFERENCES_ID_PROCESS_INTERFACE);
+                        defaultPrefs = qs.getPreferences(PreferenceScope.DEFAULT,
+                              MODULE_ID_WEB_SERVICE, PREFERENCES_ID_PROCESS_INTERFACE);
+                     }
+                     catch (RuntimeException e)
+                     {
+                        throw e;
+                     }
+
+                     return mergePreferences(defaultPrefs, prefs);
+                  }
+                  finally
+                  {
+                     ParametersFacade.popLayer();
+                  }
+               }
+            });
+      
+      return mergedPreferenceMap;
    }
-
+   
    private Map<String, Serializable> mergePreferences(Preferences defaultPrefs,
          Preferences prefs)
    {
@@ -205,6 +226,40 @@ public class DynamicServletConfiguration
          ret.putAll(prefs.getPreferences());
       }
       return ret;
+   }
+
+   private ForkingService getForkingService()
+   {
+      ForkingServiceFactory factory = null;
+      ForkingService forkingService = null;
+      factory = (ForkingServiceFactory) Parameters.instance().get(
+            EngineProperties.FORKING_SERVICE_HOME);
+      if (factory == null)
+      {
+         List<ExecutionServiceProvider> exProviderList = ExtensionProviderUtils.getExtensionProviders(ExecutionServiceProvider.class);
+         if (exProviderList.size() == 1)
+         {
+            ExecutionServiceProvider executionServiceProvider = exProviderList.get(0);
+
+            forkingService = executionServiceProvider.getExecutionService("ejb");
+         }
+         if (forkingService == null)
+         {
+            for (ExecutionServiceProvider executionServiceProvider : exProviderList)
+            {
+               forkingService = executionServiceProvider.getExecutionService(DynamicCXFServlet.getClientContext());
+               if (forkingService != null)
+               {
+                  break;
+               }
+            }
+         }
+      }
+      else
+      {
+         forkingService = factory.get();
+      }
+      return forkingService;
    }
 
 }

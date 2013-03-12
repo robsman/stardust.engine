@@ -969,6 +969,8 @@
             <element name="timeoutPolicy" type="tns:TimeoutPolicy" minOccurs="0" />
             <element name="userDetailsPolicy" type="tns:UserDetailsPolicy" minOccurs="0" />
             <element name="casePolicy" type="tns:CasePolicy" minOccurs="0" />
+            <element name="evaluateByWorkitemsPolicy" type="tns:EvaluateByWorkitemsPolicy" /> 
+   			<element name="excludeUserPolicy" type="tns:ExcludeUserPolicy" />                  
          </choice>
       </sequence>
     </complexType>
@@ -1309,5 +1311,35 @@
    </simpleType>
 
    <element name="userDetailsLevel" type="tns:UserDetailsLevel" />
+
+   <complexType name="EvaluateByWorkitemsPolicy">
+      <annotation>
+         <documentation>
+         Policy to advise QueryService to retrieve activtiy instance from Workitems only
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence />
+         </extension>
+      </complexContent>
+   </complexType>
+   
+   <element name="evaluateByWorkitemsPolicy" type="tns:EvaluateByWorkitemsPolicy" />   
+   
+   <complexType name="ExcludeUserPolicy">
+      <annotation>
+         <documentation>
+         Policy to exclude Activity Instances from excluded users in the result.
+         </documentation>
+      </annotation>
+      <complexContent>
+         <extension base="tns:EvaluationPolicy">
+            <sequence />
+         </extension>
+      </complexContent>
+   </complexType>   
+   
+   <element name="excludeUserPolicy" type="tns:ExcludeUserPolicy" />      
 
 </schema>

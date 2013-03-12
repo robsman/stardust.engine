@@ -11,23 +11,20 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                        http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
 
-	<jaxrs:server id="engine" address="/engine">
-		<jaxrs:serviceBeans>
-			<ref bean="uiInteractionsRestletBean" />
-			<ref bean="processesRestletBean" />
-			<ref bean="typeDeclarationsRestletBean" />
-		</jaxrs:serviceBeans>
+    <!-- The "beanNames" attribute needs to be used for the scope="prototype" to be considered. -->
+	<jaxrs:server id="engine" address="/engine"
+      beanNames="uiInteractionsRestletBean processesRestletBean typeDeclarationsRestletBean" >
 		<jaxrs:providers>
 			<ref bean="runtimeExceptionProviderBean" />
 		</jaxrs:providers>
 	</jaxrs:server>
 
 	<bean id="uiInteractionsRestletBean"
-		class="org.eclipse.stardust.engine.rest.interactions.UiInteractionsRestlet" />
+		class="org.eclipse.stardust.engine.rest.interactions.UiInteractionsRestlet" scope="prototype" />
 	<bean id="processesRestletBean"
-		class="org.eclipse.stardust.engine.rest.processinterface.ProcessesRestlet" />
+		class="org.eclipse.stardust.engine.rest.processinterface.ProcessesRestlet" scope="prototype" />
 	<bean id="typeDeclarationsRestletBean"
-		class="org.eclipse.stardust.engine.rest.processinterface.TypeDeclarationsRestlet" />
+		class="org.eclipse.stardust.engine.rest.processinterface.TypeDeclarationsRestlet" scope="prototype" />
 	<bean id="runtimeExceptionProviderBean"
 		class="org.eclipse.stardust.engine.rest.processinterface.RuntimeExceptionProvider" />
 

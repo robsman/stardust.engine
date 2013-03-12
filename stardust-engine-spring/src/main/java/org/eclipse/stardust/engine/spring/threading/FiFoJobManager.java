@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.spring.threading;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -42,6 +43,15 @@ public class FiFoJobManager implements IJobManager, ApplicationListener, Initial
    
    private Thread shutdownHook;
    
+   private String threadSuffix = "Thread";
+
+   private final AtomicLong threadSeqNumber = new AtomicLong();
+
+   private long nextThreadID()
+   {
+      return threadSeqNumber.incrementAndGet();
+   }
+   
    public FiFoJobManager()
    {
       this.dispatcher = new JobDispatcher();
@@ -60,9 +70,10 @@ public class FiFoJobManager implements IJobManager, ApplicationListener, Initial
    {
       try
       {
-         this.dispatcherThread = new Thread(dispatcher);
+         this.dispatcherThread = new Thread(dispatcher, getThreadSuffix() + nextThreadID());
          dispatcherThread.setDaemon(true);
-         trace.info("Starting dispatcher thread ...");
+         trace.warn("This configuration is not supported for productive use and a XA enabled messaging configuration should be used instead.");
+         trace.info("Starting dispatcher thread for " + getThreadSuffix() + "...");
          dispatcherThread.start();
       }
       catch (Throwable t)
@@ -111,12 +122,18 @@ public class FiFoJobManager implements IJobManager, ApplicationListener, Initial
          {
             if ((null == dispatcherThread) || !dispatcherThread.isAlive())
             {
-               this.dispatcherThread = new Thread(dispatcher);
-               trace.info("Starting new dispatcher thread ...");
+               this.dispatcherThread = new Thread(dispatcher, getThreadSuffix() + nextThreadID());
+               trace.info("Starting new dispatcher thread for " + getThreadSuffix()
+                     + "...");
                dispatcherThread.start();
             }
             
             scheduledJobs.add(job);
+            if (trace.isInfoEnabled())
+            {
+               trace.info("Enqueued job " + job + ". Scheduled queue length is now "
+                     + scheduledJobs.size());
+            }
             dispatcher.notify();
          }
       }
@@ -143,6 +160,11 @@ public class FiFoJobManager implements IJobManager, ApplicationListener, Initial
                }
                
                activeJobs.remove(job);
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug("Finished job " + job
+                        + ". Active jobs queue length is now " + activeJobs.size());
+               }
             }
          }
 
@@ -154,7 +176,7 @@ public class FiFoJobManager implements IJobManager, ApplicationListener, Initial
    {
       public void run()
       {
-         trace.info("Dispatcher thread was started ...");
+         trace.info("Dispatcher thread was started for "+getThreadSuffix()+"...");
 
          Job nextJob = null;
          do
@@ -174,16 +196,26 @@ public class FiFoJobManager implements IJobManager, ApplicationListener, Initial
                }
    
                nextJob = (Job) scheduledJobs.remove(0);
+               if (trace.isDebugEnabled())
+               {
+                  trace.debug("Dequened next job " + nextJob
+                        + ". Scheduled queue length is now " + scheduledJobs.size());
+               }
             }
    
             if (SHUTDOWN_REQUEST != nextJob)
             {
                try
                {
-                  Thread jobThread = new Thread(new JobRunner(nextJob));
+                  Thread jobThread = new Thread(new JobRunner(nextJob), getThreadSuffix() + nextThreadID());
                   synchronized (activeJobs)
                   {
                      activeJobs.add(nextJob);
+                     if (trace.isInfoEnabled())
+                     {
+                        trace.info("Adding job " + nextJob
+                              + ". Active jobs queue length is now " + activeJobs.size());
+                     }
                   }
                   jobThread.start();
                }
@@ -228,6 +260,10 @@ public class FiFoJobManager implements IJobManager, ApplicationListener, Initial
       {
          try
          {
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Executing job " + job);
+            }
             job.runnable.run();
 
             notifyJobCompleted(job, null);
@@ -240,5 +276,15 @@ public class FiFoJobManager implements IJobManager, ApplicationListener, Initial
          // terminate thread
       }
    }
-   
+
+   public String getThreadSuffix()
+   {
+      return threadSuffix;
+   }
+
+   public void setThreadSuffix(String threadSuffix)
+   {
+      this.threadSuffix = threadSuffix;
+   }
+
 }

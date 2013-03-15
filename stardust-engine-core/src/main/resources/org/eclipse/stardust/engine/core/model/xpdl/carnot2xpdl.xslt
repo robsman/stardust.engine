@@ -1096,6 +1096,7 @@
         </xsl:if>
     </xsl:template>
 
+
     <xsl:template name="external-reference">
 		<xsl:param name="ref" select="@proxy"/>
        	<ExternalReference xmlns="http://www.wfmc.org/2008/XPDL2.1">

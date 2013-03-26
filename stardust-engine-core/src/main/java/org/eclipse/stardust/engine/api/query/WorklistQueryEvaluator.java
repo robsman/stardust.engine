@@ -261,7 +261,11 @@ public class WorklistQueryEvaluator
                         : userGroupRtOids.get(new Long(performer)));
                   if (collector != null)
                   {
-                     if (count > totalCountThreshold)
+                     long currentTotalCount = collector.getTotalCount();
+                     long resultTotalCount = currentTotalCount == Long.MAX_VALUE
+                           ? currentTotalCount
+                           : currentTotalCount + count;
+                     if (resultTotalCount > totalCountThreshold)
                      {
                         count = Long.MAX_VALUE;
                         collector.setTotalCount(count);

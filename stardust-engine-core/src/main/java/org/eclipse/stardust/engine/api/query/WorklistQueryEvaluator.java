@@ -264,8 +264,12 @@ public class WorklistQueryEvaluator
                      if (count > totalCountThreshold)
                      {
                         count = Long.MAX_VALUE;
+                        collector.setTotalCount(count);
                      }
-                     collector.addToTotalCount(count);
+                     else
+                     {
+                        collector.addToTotalCount(count);
+                     }
                      collector.setTotalCountThreshold(totalCountThreshold);
                   }
                   else

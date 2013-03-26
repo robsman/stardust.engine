@@ -128,7 +128,7 @@ public class WorklistQueryEvaluator
             && query.getUserGroupContributions().isEmpty())
       {
          // no contributions, return empty worklist
-         return createUserWorklist(subsetPolicy, Collections.EMPTY_LIST, null);
+         return createUserWorklist(subsetPolicy, Collections.EMPTY_LIST, null, Long.MAX_VALUE);
       }
 
       collectParticipantInfos(modelParticipantInfos, userGroupRtOids, allCollectors);
@@ -233,6 +233,7 @@ public class WorklistQueryEvaluator
       // Read values for each worklist and ignore workitems whose activities are 
       // restricted for the current user.
 
+      long totalCountThreshold = QueryUtils.getTotalCountThreshold(authorizationPredicate);
       long totalCount = 0;
       try
       {
@@ -271,6 +272,11 @@ public class WorklistQueryEvaluator
                   }
                }
             }
+            if (totalCount > totalCountThreshold)
+            {
+               totalCount = Long.MAX_VALUE;
+               break;
+            }
          }
       }
       catch (SQLException e)
@@ -292,16 +298,16 @@ public class WorklistQueryEvaluator
          subWorklists.add(participantWorklist);
       }
 
-      return createUserWorklist(subsetPolicy, subWorklists, new Long(totalCount));
+      return createUserWorklist(subsetPolicy, subWorklists, new Long(totalCount), totalCountThreshold);
    }
    
    private UserWorklist createUserWorklist(SubsetPolicy subsetPolicy, List subWorklists,
-         Long totalCount)
+         Long totalCount, long totalCountThreshold)
    {
       final UserInfo owner = DetailsFactory.create(context.getUser(), IUser.class,
             UserInfoDetails.class);
       return new UserWorklist(owner, query, subsetPolicy, Collections.EMPTY_LIST, false,
-            subWorklists, totalCount);
+            subWorklists, totalCount, totalCountThreshold);
 
    }
 

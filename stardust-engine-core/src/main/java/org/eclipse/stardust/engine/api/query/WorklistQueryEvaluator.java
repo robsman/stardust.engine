@@ -261,7 +261,12 @@ public class WorklistQueryEvaluator
                         : userGroupRtOids.get(new Long(performer)));
                   if (collector != null)
                   {
+                     if (count > totalCountThreshold)
+                     {
+                        count = Long.MAX_VALUE;
+                     }
                      collector.addToTotalCount(count);
+                     collector.setTotalCountThreshold(totalCountThreshold);
                   }
                   else
                   {
@@ -272,11 +277,10 @@ public class WorklistQueryEvaluator
                   }
                }
             }
-            if (totalCount > totalCountThreshold)
-            {
-               totalCount = Long.MAX_VALUE;
-               break;
-            }
+         }
+         if (totalCount > totalCountThreshold)
+         {
+            totalCount = Long.MAX_VALUE;
          }
       }
       catch (SQLException e)

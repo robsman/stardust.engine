@@ -113,6 +113,7 @@ public class WebServiceEnvSessionPropConfigurer implements SOAPHandler<SOAPMessa
       else
       {
          WebServiceEnv.removeCurrent();
+         GenericWebServiceEnv.instance().removeEnv();
       }
       
       return continueAfterCall;
@@ -121,6 +122,7 @@ public class WebServiceEnvSessionPropConfigurer implements SOAPHandler<SOAPMessa
    public boolean handleFault(final SOAPMessageContext ctx)
    {
       WebServiceEnv.removeCurrent();
+      GenericWebServiceEnv.instance().removeEnv();
       return true;
    }
 

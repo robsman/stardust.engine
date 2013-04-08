@@ -124,10 +124,7 @@ public class FormalParameterConverter
          final Node node = nodes.item(i);
          if (node instanceof Element)
          {
-            final String localName = node.getLocalName();
-            final String fParameterId = localName.equals(processId)
-                  ? localName
-                  : localName.replaceFirst(processId, "");
+            final String fParameterId = node.getLocalName();
             final Element element = (Element) node.cloneNode(true);
             result.put(fParameterId, element);
          }

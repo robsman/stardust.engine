@@ -85,6 +85,9 @@
       <conf name="carnot-emf-xsd-integration-sources" />
       <conf name="carnot-engine-sources" />
       
+      <conf name="carnot-engine-javadoc" />
+      
+      
       <conf name="compile-secret" extends="swing-client-provider-compile" visibility="private" />
       <conf name="build-lib" visibility="private" />
       <conf name="ant-build-runtime" visibility="public" />
@@ -104,6 +107,7 @@
       <artifact name="carnot-engine" type="jar" ext="jar"
          conf="carnot-engine-compile, carnot-engine-runtime, carnot-engine-compile-optional, carnot-engine-runtime-optional, carnot-engine-provided, carnot-engine-jar" />
       <artifact name="carnot-engine" type="source" ext="jar" conf="carnot-engine-sources" m:classifier="sources" />
+      <artifact name="carnot-engine" type="javadoc" ext="jar" conf="carnot-engine-javadoc" m:classifier="javadoc" />
       <artifact name="carnot-emf-xsd-integration" type="jar" conf="carnot-emf-xsd-integration-compile, carnot-emf-xsd-integration-runtime" ext="jar" />
       <artifact name="carnot-emf-xsd-integration" type="source" ext="jar" conf="carnot-emf-xsd-integration-sources" m:classifier="sources" />
 

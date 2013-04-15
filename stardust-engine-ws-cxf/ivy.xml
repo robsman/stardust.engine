@@ -23,6 +23,7 @@
       <conf name="stardust-engine-ws-cxf-runtime" extends="stardust-engine-ws-cxf-compile" description="EPM Engine - JAX-WS (CXF) - Runtime Scope" />
 
       <conf name="stardust-engine-ws-cxf-sources" description="EPM Engine - WS CXF Module - Sources" />
+      <conf name="stardust-engine-ws-cxf-javadoc" description="EPM Engine - WS CXF Module - Javadoc" />
 
       <conf name="stardust-engine-ws-cxf-codegen-runtime" visibility="private" description="Classpath for codegen tasks" />
             
@@ -44,8 +45,10 @@
       <artifact name="stardust-engine-ws-cxf" type="jar"
          conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-runtime" ext="jar" />
 
-      <artifact name="stardust-engine-ws-cxf" type="jar"
+      <artifact name="stardust-engine-ws-cxf" type="source" ext="jar"
          conf="stardust-engine-ws-cxf-sources" m:classifier="sources" />
+      <artifact name="stardust-engine-ws-cxf" type="javadoc" ext="jar"
+         conf="stardust-engine-ws-cxf-javadoc" m:classifier="javadoc" />
       
       <artifact name="ws-api-templates" type="zip" conf="ws-api-templates" ext="zip" />
 

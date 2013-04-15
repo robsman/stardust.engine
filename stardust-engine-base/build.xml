@@ -11,9 +11,8 @@
 <!--
   To execute this build script, you have to configure your environment as follows:
   - Java property java.home must point to an existent JAVA_HOME (either via parameter
-    (e.g. antit.bat -Djava.home=C:/Programme/Java15) or create a private.properties file
+    (e.g. antit.bat -Djava.home=C:/Programme/Java16) or create a private.properties file
     in the etc folder of the project and put the property in there)
-  - you need an Infinity installation or you have to execute at least the latakia build file
 -->
 
 <project name="carnot-base" default="build" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
@@ -51,6 +50,7 @@
    <target name="init">
       <property name="build.dir" value="${project.dir}/build" />
       <property name="build.classes" value="${build.dir}/classes" />
+      <property name="build.javadoc" value="${build.dir}/javadoc" />
       <property name="build.lib" location="${build.dir}/lib" />
       <property name="build.lib.src" value="${build.dir}/src" />
       <property name="build.src" value="${build.dir}/src" />
@@ -69,6 +69,8 @@
       <property name="carnot-base.jar" location="${build.lib}/${carnot-base.jarfile}" />
       <property name="carnot-base.pomfile" value="carnot-base.pom" />
       <property name="carnot-base.pom" location="${build.lib}/${carnot-base.pomfile}" />
+      <property name="carnot-base-javadoc.jarfile" value="carnot-base-javadoc.jar" />
+      <property name="carnot-base-javadoc.jar" value="${build.lib}/${carnot-base-javadoc.jarfile}" />
       <property name="carnot-base.src-jarfile" value="carnot-base-sources.jar" />
       <property name="carnot-base.src-jar" value="${build.lib.src}/${carnot-base.src-jarfile}" />
    </target>
@@ -184,13 +186,59 @@
       </ipp:jar>
    </target>
 
-   <target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
+   <target name="javadoc" depends="initIvy">
+      <ipp:javadoc destdir="${build.javadoc}" scope="common" doctitle="${product.productnameonly} Common API" windowtitle="${artifactId}"
+         packagenames="org.eclipse.stardust.common, org.eclipse.stardust.common.log, org.eclipse.stardust.common.error, org.eclipse.stardust.common.security, org.eclipse.stardust.common.security.authentication">
+         <classpaths>
+            <classpath>
+               <path location="${build.classes}" />
+               <path refid="carnot-base.classpath" />
+            </classpath>
+         </classpaths>
+         <fileSets>
+            <fileset dir="${project.src}/org/eclipse/stardust">
+               <include name="common/DateUtils.java" />
+               <include name="common/Direction.java" />
+               <include name="common/Flushable.java" />
+               <include name="common/IntKey.java" />
+               <!-- todo: rework that class before including again to javadoc -->
+               <!--include name="base/Money.java"/ -->
+               <include name="common/Pair.java" />
+               <include name="common/Period.java" />
+               <include name="common/StringKey.java" />
+               <!-- to be clarified: <include name="common/log/Category.java" /> -->
+               <include name="common/log/LogManager.java" />
+               <include name="common/log/Logger.java" />
+               <include name="common/error/AccessForbiddenException.java" />
+               <include name="common/error/ApplicationException.java" />
+               <include name="common/error/ConcurrencyException.java" />
+               <include name="common/error/ErrorCase.java" />
+               <include name="common/error/InternalException.java" />
+               <include name="common/error/InvalidArgumentException.java" />
+               <include name="common/error/InvalidValueException.java" />
+               <include name="common/error/ObjectNotFoundException.java" />
+               <include name="common/error/PublicException.java" />
+               <include name="common/error/ServiceCommandException.java" />
+   
+               <include name="common/security/InvalidPasswordException.java" />
+               <include
+                  name="common/security/authentication/DefaultCallbackHandler.java" />
+               <include name="common/security/authentication/LoginFailedException.java" />
+            </fileset>
+         </fileSets>
+      </ipp:javadoc>
+      <ipp:jar jarfile="${carnot-base-javadoc.jar}" implementationTitle="${product.productnameshort} Process Base - Javadoc">
+         <fileset dir="${build.javadoc}" />
+      </ipp:jar>
+   </target>
+
+   <target name="build" depends="jar, jar.src, javadoc" xmlns:ivy="antlib:org.apache.ivy.ant">
       <ivy:resolve file="${project.dir}/base-interface-ivy.xml" />
       <ivy-publish-local ivyFile="${project.dir}/base-interface-ivy.xml" artifactId="base-artifacts" artifactDir="${build.lib}" publishPom="false" />
       
       <ivy:resolve file="${project.dir}/ivy.xml" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}" 
-         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional, stardust-engine-base-sources, logging-log4j-provider-compile" 
+         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional, stardust-engine-base-sources, stardust-engine-base-javadoc, logging-log4j-provider-compile" 
          publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
 

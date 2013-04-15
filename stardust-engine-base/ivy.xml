@@ -26,6 +26,7 @@
       <conf name="stardust-engine-base-provided" description="IPP Base - Provided Scope" />
       <conf name="stardust-engine-base-runtime" description="IPP Base - Runtime Scope" />
       <conf name="stardust-engine-base-sources" description="IPP Base - Sources" />
+      <conf name="stardust-engine-base-javadoc" description="IPP Base - Javadoc" />
       
       <!-- Map configurations for ivy:makepom task -->
       <conf name="carnot-base-compile" extends="stardust-engine-base-compile" />
@@ -46,6 +47,7 @@
    <publications>
       <artifact name="carnot-base" type="jar" conf="stardust-engine-base-compile, stardust-engine-base-compile-optional, stardust-engine-base-runtime" ext="jar" />
       <artifact name="carnot-base" type="source" ext="jar" conf="stardust-engine-base-sources" m:classifier="sources" />
+      <artifact name="carnot-base" type="javadoc" ext="jar" conf="stardust-engine-base-javadoc" m:classifier="javadoc" />
 
       <artifact name="carnot-base" type="pom" conf="pom" ext="pom" />
    </publications>

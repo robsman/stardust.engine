@@ -66,6 +66,11 @@
          <path refid="ant.build.deps" />
       </path>
       
+      <path id="cp.publicJavadoc">
+         <path refid="servlet.deps" />
+         <path refid="ejb.deps" />
+      </path>
+      
    </target>
 
 
@@ -92,6 +97,9 @@
       <ivy:cachepath pathid="ant.build.deps" conf="ant-build-runtime" />
 
       <ivy:cachepath pathid="qdox.deps" conf="qdox-provider-compile" />
+      
+      <ivy:cachepath pathid="servlet.deps" conf="web-client-interface-provided" />
+      <ivy:cachepath pathid="ejb.deps" conf="ejb21-interface-provided" />
 
       <ivy:retrieve pattern="${build.lib}/integration-jars/[artifact].[ext]"
                conf="integration-jars"/>

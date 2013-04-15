@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.User;
 
 
@@ -48,6 +49,8 @@ public class Interaction
 
    private Status status;
 
+   private ServiceFactory serviceFactory;
+
    public static String getInteractionId(ActivityInstance ai)
    {
       StringBuilder buffer = new StringBuilder();
@@ -66,12 +69,14 @@ public class Interaction
    }
 
    public Interaction(User owner, Model model, ActivityInstance activityInstance,
-         String contextId)
+         String contextId, ServiceFactory serviceFactory)
    {
       this.owner = owner;
       this.model = model;
       this.activityInstance = activityInstance;
       this.contextId = contextId;
+      this.serviceFactory = serviceFactory;
+
 
       this.id = getInteractionId(activityInstance);
 
@@ -101,6 +106,11 @@ public class Interaction
    public Map<String, ? extends Serializable> getInDataValues()
    {
       return inDataValues;
+   }
+
+   public ServiceFactory getServiceFactory()
+   {
+      return serviceFactory;
    }
 
    public Serializable getInDataValue(String parameterId)

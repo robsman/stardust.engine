@@ -34,7 +34,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.engine.api.model.AccessPoint;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
+import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.ws.ActivityDefinitionXto;
 import org.eclipse.stardust.engine.api.ws.InteractionContextXto;
 import org.eclipse.stardust.engine.api.ws.ParameterXto;
@@ -42,6 +44,7 @@ import org.eclipse.stardust.engine.api.ws.ParametersXto;
 import org.eclipse.stardust.engine.api.ws.UserXto;
 import org.eclipse.stardust.engine.core.interactions.Interaction;
 import org.eclipse.stardust.engine.core.interactions.InteractionRegistry;
+import org.eclipse.stardust.engine.ws.DataFlowUtils;
 
 
 
@@ -141,7 +144,7 @@ public abstract class AbstractUiInteractionsRestlet
    protected void setOutDataValues(OutDataValues outDataValues)
    {
       Interaction interaction = findInteraction();
-            
+
       interaction.setOutDataValues(InteractionDataFlowUtils.unmarshalDataValues(
             interaction.getModel(), interaction.getDefinition(), outDataValues));
 
@@ -185,7 +188,18 @@ public abstract class AbstractUiInteractionsRestlet
       UiInteractionsRestlet.trace.warn("Writing OUT data using data mapping ID \"" + parameterId
             + "\", this is only supported for a transition period.");
 
-      Serializable decodedValue = unmarshalOutDataValue(interaction.getModel(), dm, value);
+      Model model = interaction.getModel();
+      if (DataFlowUtils.isStructuredType(model, dm))
+      {
+         Data data = model.getData(dm.getDataId());
+         if (data.getModelOID() != model.getModelOID())
+         {
+            model = interaction.getServiceFactory()
+                  .getQueryService()
+                  .getModel(data.getModelOID());
+         }
+      }
+      Serializable decodedValue = unmarshalOutDataValue(model, dm, value);
       if (null != decodedValue)
       {
          String outParamId = dm.getApplicationAccessPoint().getId();
@@ -260,12 +274,12 @@ public abstract class AbstractUiInteractionsRestlet
             }
          }
       }
-      
+
       if (ret == null)
       {
          throw new WebApplicationException(Status.NOT_FOUND);
       }
-      
+
       return ret;
    }
 

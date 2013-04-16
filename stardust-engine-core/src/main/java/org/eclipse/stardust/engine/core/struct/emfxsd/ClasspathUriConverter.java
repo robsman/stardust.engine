@@ -12,15 +12,10 @@ package org.eclipse.stardust.engine.core.struct.emfxsd;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 import java.util.Map;
 
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.ContentHandler;
-import org.eclipse.emf.ecore.resource.URIConverter;
-import org.eclipse.emf.ecore.resource.URIHandler;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -28,38 +23,25 @@ import org.eclipse.stardust.common.log.Logger;
 /**
  * Supports URLs with scheme "classpath:/". Searches for resources in CLASSPATH
  */
-public class ClasspathUriConverter implements URIConverter
+public class ClasspathUriConverter extends CustomURIConverter
 {
    private static final Logger trace = LogManager.getLogger(ClasspathUriConverter.class);
 
    public static final String CLASSPATH_SCHEME = "classpath";
 
-   public OutputStream createOutputStream(URI uri) throws IOException
-   {
-      throw new RuntimeException("Not supported.");
-   }
-
-   public Map getURIMap()
-   {
-      return URIConverter.URI_MAP;
-   }
-
+   
+   @Override
    public URI normalize(URI uri)
    {
-      // no normalization implemented
-      return uri;
+      String uriPath = uri.path();
+      if(uriPath.startsWith("/"))
+      {
+         uriPath = uriPath.substring(1);
+      }
+      
+      return URI.createURI(CLASSPATH_SCHEME + ":/" + uriPath);
    }
-
-   public Map<String, ? > contentDescription(URI arg0, Map< ? , ? > arg1) throws IOException
-   {
-      return null;
-   }
-
-   public InputStream createInputStream(URI uri) throws IOException
-   {
-      return createInputStream(uri, null);
-   }
-
+   
    public InputStream createInputStream(URI uri, Map< ? , ? > arg1) throws IOException
    {
       URL resourceUrl = Thread.currentThread().getContextClassLoader().getResource(uri.path());
@@ -80,45 +62,5 @@ public class ClasspathUriConverter implements URIConverter
          trace.debug("Resolved '" + uri + "' to '" + resourceUrl + "'.");
       }
       return resourceUrl.openStream();
-   }
-
-   public OutputStream createOutputStream(URI arg0, Map< ? , ? > arg1) throws IOException
-   {
-      throw new RuntimeException("Not supported.");
-   }
-
-   public void delete(URI arg0, Map< ? , ? > arg1) throws IOException
-   {
-      throw new RuntimeException("Not supported.");
-   }
-
-   public boolean exists(URI arg0, Map< ? , ? > arg1)
-   {
-      throw new RuntimeException("Not supported.");
-   }
-
-   public Map<String, ? > getAttributes(URI arg0, Map< ? , ? > arg1)
-   {
-      throw new RuntimeException("Not supported.");
-   }
-
-   public EList<ContentHandler> getContentHandlers()
-   {
-      throw new RuntimeException("Not supported.");
-   }
-
-   public URIHandler getURIHandler(URI arg0)
-   {
-      throw new RuntimeException("Not supported.");
-   }
-
-   public EList<URIHandler> getURIHandlers()
-   {
-      throw new RuntimeException("Not supported.");
-   }
-
-   public void setAttributes(URI arg0, Map<String, ? > arg1, Map< ? , ? > arg2) throws IOException
-   {
-      throw new RuntimeException("Not supported.");
    }
 }

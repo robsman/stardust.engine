@@ -35,6 +35,7 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.emfxsd.ClasspathUriConverter;
+import org.eclipse.stardust.engine.core.struct.emfxsd.CustomURIConverter;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
@@ -52,7 +53,15 @@ public class StructuredTypeRtUtils
    private static final String EXTERNAL_SCHEMA_MAP = "com.infinity.bpm.rt.data.structured.ExternalSchemaMap";
 
    private static final XSDResourceFactoryImpl XSD_RESOURCE_FACTORY = new XSDResourceFactoryImpl();
-   private static final ClasspathUriConverter CLASSPATH_URI_CONVERTER = new ClasspathUriConverter();
+   
+   public static ThreadLocal<CustomURIConverter> uriConverters = new ThreadLocal<CustomURIConverter>()
+   {
+      @Override
+      protected CustomURIConverter initialValue()
+      {
+         return new ClasspathUriConverter();
+      }
+   };
 
    public static IXPathMap getXPathMap(IData data)
    {
@@ -673,13 +682,25 @@ public class StructuredTypeRtUtils
    {
       try
       {
-         return getSchema(schemaLocation, null);
+         return getSchema(schemaLocation, null, null);
       }
       catch (IOException e)
       {
          throw new RuntimeException(e);
       }
    }
+   
+   private static URI getURI(CustomURIConverter uriConverter, String path)
+   {
+      URI uri = URI.createURI(path);
+      //only normalize if its NOT an url(in this case it will have no scheme part)
+      if(uriConverter != null && uri.scheme() == null)
+      {
+         uri = uriConverter.normalize(uri);
+      }
+      
+      return uri;
+   }   
    
    /**
     * Returns the first schema in the document at the specified location that matches the namespaceURI.
@@ -688,10 +709,12 @@ public class StructuredTypeRtUtils
     * 
     * @param location the document location either as an absolute 
     * @param namespaceURI the namespace to match the schema agains or null if the first schema should be returned
+    * @param customMap - a map used for customizing the {@link CustomURIConverter}, it will be passed to the
+    * {@link CustomURIConverter} via {@link CustomURIConverter#setCustomMap(Map)}, can be null
     * @return the XSDSchema or null if no schema matches the criteria above.
     * @throws IOException
     */
-   public static XSDSchema getSchema(String location, String namespaceURI) throws IOException
+   public static XSDSchema getSchema(String location, String namespaceURI, Map customMap) throws IOException
    {
 	  Parameters parameters = Parameters.instance();
 	  Map loadedSchemas = null;
@@ -713,16 +736,15 @@ public class StructuredTypeRtUtils
 	  }
 	  
       ResourceSetImpl resourceSet = new ResourceSetImpl();
-      URI uri = URI.createURI(location);
-      if (uri.scheme() == null)
+      //prepare the uri converter
+      CustomURIConverter uriConverter = uriConverters.get();
+      if (uriConverter != null)
       {
-         resourceSet.setURIConverter(CLASSPATH_URI_CONVERTER);
-         if(location.startsWith("/"))
-         {
-            location = location.substring(1);
-         }
-         uri = URI.createURI(ClasspathUriConverter.CLASSPATH_SCHEME + ":/" + location);
+         uriConverter.setCustomMap(customMap);
+         resourceSet.setURIConverter(uriConverter);
       }
+      URI uri = getURI(uriConverter, location);
+      
       // (fh) register the resource factory directly with the resource set and do not tamper with the global registry.
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(uri.scheme(), XSD_RESOURCE_FACTORY);
       resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xsd", XSD_RESOURCE_FACTORY);

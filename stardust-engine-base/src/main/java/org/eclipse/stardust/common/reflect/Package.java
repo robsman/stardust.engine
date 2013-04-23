@@ -183,12 +183,9 @@ public class Package
          {
             try
             {
-               Class type = Class.forName(path + "." + files[n].getName().substring(0, files[n].getName().indexOf(".class")));
+               Class type = Reflect.getClassFromClassName(path + "." + files[n].getName().substring(0, files[n].getName().indexOf(".class")));
 
                classes.put(type.getName(), type);
-            }
-            catch (ClassNotFoundException x)
-            {
             }
             catch (NoClassDefFoundError x)
             {

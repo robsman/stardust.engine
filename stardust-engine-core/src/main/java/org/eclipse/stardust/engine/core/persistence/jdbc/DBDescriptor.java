@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 
 
 /**
@@ -101,7 +102,7 @@ public abstract class DBDescriptor
                      {
                         try
                         {
-                           descriptor = (DBDescriptor) Class.forName(descriptorClass)
+                           descriptor = (DBDescriptor) Reflect.getClassFromClassName(descriptorClass)
                                  .newInstance();
                         }
                         catch (Exception e)

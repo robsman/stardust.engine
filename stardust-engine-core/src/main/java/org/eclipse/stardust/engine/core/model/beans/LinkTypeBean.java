@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.model.beans;
 
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.CardinalityKey;
 import org.eclipse.stardust.engine.api.model.ILinkType;
 import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
@@ -152,14 +153,7 @@ public class LinkTypeBean extends IdentifiableElementBean
     */
    public Class getFirstClass()
    {
-      try
-      {
-         return Class.forName(firstClassName);
-      }
-      catch (Exception x)
-      {
-         throw new InternalException(x);
-      }
+      return Reflect.getClassFromClassName(firstClassName);
    }
 
    /**
@@ -179,7 +173,7 @@ public class LinkTypeBean extends IdentifiableElementBean
    {
       try
       {
-         return Class.forName(secondClassName);
+         return Reflect.getClassFromClassName(secondClassName);
       }
       catch (Exception x)
       {

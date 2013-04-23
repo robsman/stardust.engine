@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 
 
 
@@ -48,7 +49,7 @@ public class MessageProviderFactory
          MessageProvider provider = null;
          try
          {
-            Class type = Class.forName(className);
+            Class type = Reflect.getClassFromClassName(className);
             provider = (MessageProvider)type.newInstance();
          }
          catch (Exception e)

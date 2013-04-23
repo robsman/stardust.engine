@@ -50,7 +50,7 @@ public class SessionBeanValidator implements ApplicationValidator
       {
          try
          {
-            Class clz = Class.forName(SESSION_BEAN_3_0_APPLICATION_VALIDATOR);
+            Class clz = Reflect.getClassFromClassName(SESSION_BEAN_3_0_APPLICATION_VALIDATOR);
             delegate = (ApplicationValidator) clz.newInstance();
          }
          catch (Throwable t)

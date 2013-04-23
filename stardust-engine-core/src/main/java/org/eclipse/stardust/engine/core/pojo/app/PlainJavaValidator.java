@@ -50,7 +50,7 @@ public class PlainJavaValidator implements ApplicationValidator
       {
          try
          {
-            Class clazz = Class.forName(className);
+            Class clazz = Reflect.getClassFromClassName(className);
             String methodName = (String) attributes
                   .get(PredefinedConstants.METHOD_NAME_ATT);
 
@@ -95,7 +95,7 @@ public class PlainJavaValidator implements ApplicationValidator
                }
             }
          }
-         catch (ClassNotFoundException e)
+         catch (InternalException e)
          {
             inconsistencies.add(new Inconsistency("Class '" + className + "' not found.",
                   Inconsistency.WARNING));

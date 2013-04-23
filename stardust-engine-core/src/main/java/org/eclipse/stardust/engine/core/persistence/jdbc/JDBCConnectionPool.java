@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 
 
 /**
@@ -405,7 +406,7 @@ public class JDBCConnectionPool
       }
       try
       {
-         Driver driver = (Driver) Class.forName(driverClazz).newInstance();
+         Driver driver = (Driver) Reflect.getClassFromClassName(driverClazz).newInstance();
          if (JDBCConnectionPool.trace.isDebugEnabled())
          {
             JDBCConnectionPool.trace.debug("Succesfully loaded JDBC driver '"

@@ -27,6 +27,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
@@ -154,7 +155,7 @@ public class RuntimeItem implements UpgradableItem
          {
             trace.info("Connecting database '" + connectURL + "' as user '" + user + "'");
 
-            Class.forName(driverName);
+            Reflect.getClassFromClassName(driverName);
             connection = DriverManager.getConnection(connectURL, user, password);
             
             if (connection.getAutoCommit())

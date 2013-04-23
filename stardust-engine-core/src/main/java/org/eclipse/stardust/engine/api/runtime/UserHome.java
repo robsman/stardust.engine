@@ -37,7 +37,7 @@ public class UserHome
    {
       try
       {
-         Class _type = Class.forName(USER_BEAN_NAME);
+         Class _type = Reflect.getClassFromClassName(USER_BEAN_NAME);
          IUser _user = (IUser) _type.newInstance();
          Method _createMethod = _type.getMethod("ejbCreate", new Class[]{String.class, String.class,
                                                                          String.class});

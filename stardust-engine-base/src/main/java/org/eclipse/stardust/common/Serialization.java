@@ -14,8 +14,10 @@ import java.io.*;
 import java.util.HashMap;
 
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 
 
 /**
@@ -191,10 +193,10 @@ public class Serialization
          {
             try
             {
-               Class<?> clazz = Class.forName(line);
+               Class<?> clazz = Reflect.getClassFromClassName(line);
                declareCritical(clazz);
             }
-            catch (ClassNotFoundException e)
+            catch (InternalException e)
             {
                trace.warn("Mapped class not found: " + line);
             }

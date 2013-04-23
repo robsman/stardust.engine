@@ -152,7 +152,7 @@ public class EntityBeanEvaluator implements AccessPathEvaluator, Stateless
       {
          try
          {
-            Class clz = Class.forName(ENTITY_3_0_PK_EVALUATOR);
+            Class clz = Reflect.getClassFromClassName(ENTITY_3_0_PK_EVALUATOR);
             evaluator = (IEntityPKEvaluator) clz.newInstance();
          }
          catch (Throwable t)

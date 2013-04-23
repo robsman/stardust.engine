@@ -16,7 +16,9 @@ import java.util.Map;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -105,11 +107,11 @@ public abstract class AuditTrailCommand extends ConsoleCommand
                         + SessionProperties.DS_DRIVER_CLASS_SUFFIX));
       try
       {
-         Class.forName(Parameters.instance().getString(
+         Reflect.getClassFromClassName(Parameters.instance().getString(
                SessionProperties.DS_NAME_AUDIT_TRAIL
                      + SessionProperties.DS_DRIVER_CLASS_SUFFIX));
       }
-      catch (ClassNotFoundException e)
+      catch (InternalException e)
       {
          throw new PublicException("Driver not found.");
       }

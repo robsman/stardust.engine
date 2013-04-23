@@ -18,7 +18,9 @@ import java.util.Map;
 
 import javax.swing.*;
 
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ValidationException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.compatibility.gui.LabeledComponentsPanel;
 import org.eclipse.stardust.engine.core.compatibility.gui.TextEntry;
@@ -91,9 +93,9 @@ public class SerializablePropertiesEditor extends DataPropertiesPanel
    {
       try
       {
-         Class.forName(classEntry.getText());
+         Reflect.getClassFromClassName(classEntry.getText());
       }
-      catch (ClassNotFoundException e)
+      catch (InternalException e)
       {
          throw new ValidationException("Class " + classEntry.getText() +
                " could not be loaded.", true);

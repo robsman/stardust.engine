@@ -29,6 +29,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.upgrade.framework.ModelItem;
 import org.eclipse.stardust.engine.core.upgrade.framework.ModelUpgradeJob;
@@ -677,7 +678,7 @@ public class M2_5_0fromPre2_5_0Converter extends ModelUpgradeJob
       {
          try
          {
-            Class applicationClass = Class.forName(applicationClassName);
+            Class applicationClass = Reflect.getClassFromClassName(applicationClassName);
             Class dataClass = (Class) data.get(newMapping.getAttribute(DATA_ATT));
 
             newDataPath = convertInPath(dataClass, dataPath,
@@ -788,7 +789,7 @@ public class M2_5_0fromPre2_5_0Converter extends ModelUpgradeJob
             {
                throw new ClassNotFoundException();
             }
-            Class applicationClass = Class.forName(applicationClassName);
+            Class applicationClass = Reflect.getClassFromClassName(applicationClassName);
 
             Class dataClass = (Class) data.get(newMapping.getAttribute(DATA_ATT));
             String dataPath = oldMapping.getAttribute(OLD_DATA_IN_PATH);
@@ -1287,9 +1288,9 @@ public class M2_5_0fromPre2_5_0Converter extends ModelUpgradeJob
          {
             try
             {
-               dataType = Class.forName(oldData.getAttribute(CLASS_ATT));
+               dataType = Reflect.getClassFromClassName(oldData.getAttribute(CLASS_ATT));
             }
-            catch (ClassNotFoundException e)
+            catch (InternalException e)
             {
                warn("Class not found: " + e.getMessage(), DATA,
                      newData.getAttribute(ID_ATT));
@@ -1569,10 +1570,10 @@ public class M2_5_0fromPre2_5_0Converter extends ModelUpgradeJob
             }
             else
             {
-               _arrayList.add(Class.forName(_token.trim()));
+               _arrayList.add(Reflect.getClassFromClassName(_token.trim()));
             }
          }
-         catch (ClassNotFoundException e)
+         catch (InternalException e)
          {
             throw new InternalException(
                   "Class " + _token.trim() + " for parameter not found.(" + encodedMethod + ")");

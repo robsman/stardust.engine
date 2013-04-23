@@ -60,7 +60,7 @@ public class SessionBean20Validator implements ApplicationValidator
       {
          try
          {
-            Class clazz = Class.forName(clazzName);
+            Class clazz = Reflect.getClassFromClassName(clazzName);
             String methodName = (String) attributes.get(methodAttrNames[type]);
 
             if (methodName == null)
@@ -82,7 +82,7 @@ public class SessionBean20Validator implements ApplicationValidator
                }
             }
          }
-         catch (ClassNotFoundException e)
+         catch (InternalException e)
          {
             inconsistencies.add(new Inconsistency("Class '" + clazzName
                   + "' not found.", Inconsistency.WARNING));

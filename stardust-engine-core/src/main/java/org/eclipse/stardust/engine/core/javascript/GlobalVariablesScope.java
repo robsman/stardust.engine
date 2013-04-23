@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataType;
 import org.eclipse.stardust.engine.api.model.IModel;
@@ -142,7 +144,7 @@ public class GlobalVariablesScope extends ScriptableObject
             	String className = (String) data.getAttribute(PredefinedConstants.CLASS_NAME_ATT);
             	try {
 					if (className != null) {
-	            		Class clazz = Class.forName(className);
+	            		Class clazz = Reflect.getClassFromClassName(className);
 						if (clazz.isEnum()) {
 							Field[] fields = clazz.getFields();
 							Method[] methods = clazz.getMethods();							
@@ -150,7 +152,7 @@ public class GlobalVariablesScope extends ScriptableObject
 							return value;
 						}						
 					}
-				} catch (ClassNotFoundException e) {
+				} catch (InternalException e) {
 					e.printStackTrace();
 				}
             }            

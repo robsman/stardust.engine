@@ -16,6 +16,7 @@ import java.util.Set;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
@@ -57,7 +58,7 @@ public class SessionBeanApplicationInstance implements SynchronousApplicationIns
       {
          try
          {
-            Class clz = Class.forName(SESSION_BEAN_3_0_APPLICATION_INSTANCE);
+            Class clz = Reflect.getClassFromClassName(SESSION_BEAN_3_0_APPLICATION_INSTANCE);
             delegate = (SynchronousApplicationInstance) clz.newInstance();
          }
          catch (Throwable t)

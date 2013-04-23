@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.beans.removethis;
 
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.runtime.beans.NullWatcher;
 import org.eclipse.stardust.engine.core.spi.cluster.Watcher;
 
@@ -47,7 +48,7 @@ public class ItemDescription
    {
       try
       {
-         return (Watcher) Class.forName(watcher).newInstance();
+         return (Watcher) Reflect.getClassFromClassName(watcher).newInstance();
       }
       catch (Exception e)
       {

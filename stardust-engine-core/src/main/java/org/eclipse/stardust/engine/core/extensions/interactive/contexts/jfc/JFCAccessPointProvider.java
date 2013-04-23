@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -34,9 +35,9 @@ public class JFCAccessPointProvider implements AccessPointProvider
       Class clazz = null;
       try
       {
-         clazz = Class.forName(className);
+         clazz = Reflect.getClassFromClassName(className);
       }
-      catch (ClassNotFoundException e)
+      catch (InternalException e)
       {
          // just ignore if JFC class is not present on the server claspath;
          return Collections.emptyList().iterator();

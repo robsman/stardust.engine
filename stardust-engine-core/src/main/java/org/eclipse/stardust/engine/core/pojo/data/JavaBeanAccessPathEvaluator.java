@@ -72,7 +72,7 @@ public class JavaBeanAccessPathEvaluator implements AccessPathEvaluator, Statele
          try
          {
             String className = (String) data.get(PredefinedConstants.CLASS_NAME_ATT);
-            return Class.forName(className).newInstance();
+            return Reflect.getClassFromClassName(className).newInstance();
          }
          catch (Exception e)
          {

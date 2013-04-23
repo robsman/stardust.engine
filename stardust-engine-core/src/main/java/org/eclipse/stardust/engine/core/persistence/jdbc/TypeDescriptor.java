@@ -672,7 +672,7 @@ public class TypeDescriptor extends TableDescriptor implements ITypeDescriptor
 
             try
             {
-               vectorClass = Class.forName(vectorClassName);
+               vectorClass = Reflect.getClassFromClassName(vectorClassName);
             }
             catch (Exception x)
             {

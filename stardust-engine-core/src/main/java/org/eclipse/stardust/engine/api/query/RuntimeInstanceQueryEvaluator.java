@@ -263,7 +263,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
             authPred.setSelectionExtension(size, selectExtension);
          }
          
-         long totalCountThreshold = getTotalCountThreshold(fetchPredicate);
+         long totalCountThreshold = QueryUtils.getTotalCountThreshold(fetchPredicate);
 
          final long totalCount = countImplicitly
                ? result.getTotalCount()
@@ -285,19 +285,6 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       }
    }
 
-   private long getTotalCountThreshold(FetchPredicate fetchPredicate)
-   {
-      long totalCountThreshold = Long.MAX_VALUE;
-      if (Parameters.instance().getBoolean(
-            KernelTweakingProperties.ENGINE_EXCLUDE_USER_EVALUATION, false)
-            && hasDataPrefetchHintFilter(fetchPredicate))
-      {
-         totalCountThreshold = Parameters.instance().getLong(
-               KernelTweakingProperties.EXCLUDE_USER_MAX_WORKLIST_COUNT, 100);
-      }
-      return totalCountThreshold;
-   }
-
    private long getExplicitTotalCount(QueryExtension queryExtension,
          FetchPredicate fetchPredicate, boolean useCasePolicy, long totalCountThreshold)
    {
@@ -312,19 +299,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
                totalCountThreshold);
       }
    }
-
-   private boolean hasDataPrefetchHintFilter(FetchPredicate fetchPredicate)
-   {
-      boolean hasDataPrefetchHints = false;
-      if ((fetchPredicate instanceof AbstractAuthorization2Predicate)
-            && ((AbstractAuthorization2Predicate) fetchPredicate)
-                  .hasDataPrefetchHintFilter())
-      {
-         hasDataPrefetchHints = true;
-      }
-      return hasDataPrefetchHints;
-   }
-
+   
    private static void applyDistinctOnQueryExtension(QueryExtension queryExtension,
          SqlBuilder.ParsedQuery parsedQuery)
    {

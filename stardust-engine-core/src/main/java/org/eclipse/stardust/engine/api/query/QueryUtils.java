@@ -29,6 +29,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 
 
@@ -866,5 +867,30 @@ public class QueryUtils
             filter.add(new CurrentPartitionFilter(type));
          }
       }
+   }
+   
+   public static long getTotalCountThreshold(FetchPredicate fetchPredicate)
+   {
+      long totalCountThreshold = Long.MAX_VALUE;
+      if (Parameters.instance().getBoolean(
+            KernelTweakingProperties.ENGINE_EXCLUDE_USER_EVALUATION, false)
+            && hasDataPrefetchHintFilter(fetchPredicate))
+      {
+         totalCountThreshold = Parameters.instance().getLong(
+               KernelTweakingProperties.EXCLUDE_USER_MAX_WORKLIST_COUNT, 100);
+      }
+      return totalCountThreshold;
+   }
+
+   private static boolean hasDataPrefetchHintFilter(FetchPredicate fetchPredicate)
+   {
+      boolean hasDataPrefetchHints = false;
+      if ((fetchPredicate instanceof AbstractAuthorization2Predicate)
+            && ((AbstractAuthorization2Predicate) fetchPredicate)
+                  .hasDataPrefetchHintFilter())
+      {
+         hasDataPrefetchHints = true;
+      }
+      return hasDataPrefetchHints;
    }
 }

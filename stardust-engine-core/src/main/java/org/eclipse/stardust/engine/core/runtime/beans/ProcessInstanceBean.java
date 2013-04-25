@@ -737,11 +737,17 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
          if (dataID.equals(PredefinedConstants.STARTING_USER))
          {
-            IUser startingUser = new UserBeanClientExtension(getStartingUser());
-            startingUser.setRealm(getStartingUser().getRealm());
-            dataValue.setValue((null != startingUser)
-                  ? startingUser.getPrimaryKey()
-                  : null, false);
+            if (getStartingUser() != null)
+            {
+               IUser startingUser = new UserBeanClientExtension(getStartingUser());
+               startingUser.setRealm(getStartingUser().getRealm());
+               dataValue.setValue(startingUser.getPrimaryKey(), false);
+            }
+            else
+            {
+               dataValue.setValue(null, false);
+            }
+
          }
          else if (dataID.equals(PredefinedConstants.ROOT_PROCESS_ID))
          {
@@ -760,11 +766,17 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
       else if (dataID.equals(PredefinedConstants.LAST_ACTIVITY_PERFORMER))
       {
-         IUser lastActivityPerformer = new UserBeanClientExtension(getLastActivityPerformer());
-         lastActivityPerformer.setRealm(getLastActivityPerformer().getRealm());
-         dataValue.setValue((null != lastActivityPerformer)
-               ? lastActivityPerformer.getPrimaryKey()
-               : null, false);
+         if (getLastActivityPerformer() != null)
+         {
+            IUser lastActivityPerformer = new UserBeanClientExtension(getLastActivityPerformer());
+            lastActivityPerformer.setRealm(getStartingUser().getRealm());
+            dataValue.setValue(lastActivityPerformer.getPrimaryKey(), false);
+         }
+         else
+         {
+            dataValue.setValue(null, false);
+         }
+
       }
       else if (dataID.equals(PredefinedConstants.CURRENT_DATE))
       {

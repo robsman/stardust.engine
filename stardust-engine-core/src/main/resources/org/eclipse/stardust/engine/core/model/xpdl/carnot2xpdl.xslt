@@ -1096,9 +1096,10 @@
         </xsl:if>
     </xsl:template>
 
+
     <xsl:template name="external-reference">
 		<xsl:param name="ref" select="@proxy"/>
-       	<ExternalReference>
+       	<ExternalReference xmlns="http://www.wfmc.org/2008/XPDL2.1">
 		    <xsl:variable name="qname" select="substring-after($ref, '{')" />
 
 			<xsl:attribute name="location"><xsl:value-of select="substring-before($qname, '}')" /></xsl:attribute>
@@ -1543,7 +1544,7 @@
             </xsl:if>
 
             <xsl:call-template name="carnot-symbols-and-connections" />
-			<xsl:call-template name="carnot-attributes" />            
+			<xsl:call-template name="carnot-attributes" />
         </carnot:Symbol>
     </xsl:template>
 
@@ -1559,7 +1560,7 @@
             </xsl:if>
 
             <xsl:call-template name="carnot-symbols-and-connections" />
-			<xsl:call-template name="carnot-attributes" />            
+			<xsl:call-template name="carnot-attributes" />
         </carnot:Symbol>
     </xsl:template>
 
@@ -1811,7 +1812,7 @@
 		</xsl:if>
 		<xsl:if test="@participantReference">
 			<xsl:attribute name="ParticipantReference"><xsl:value-of select="@participantReference" /></xsl:attribute>
-		</xsl:if>		
+		</xsl:if>
 		<xsl:if test="@collapsed">
 			<xsl:attribute name="Collapsed"><xsl:value-of select="@collapsed" /></xsl:attribute>
 		</xsl:if>

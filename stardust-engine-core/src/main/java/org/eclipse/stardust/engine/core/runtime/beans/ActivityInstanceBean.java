@@ -1891,12 +1891,40 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       assertDelegationGranted();
 
       IModelParticipant performer = getActivity().getPerformer();
-
+      
       if (null == performer)
       {
          throw new PublicException(
                BpmRuntimeError.BPMRT_NON_INTERACTIVE_AI_CAN_NOT_BE_DELEGATED
                      .raise(getOID()));
+      }
+      
+      // check for conditional performer of type UserGroup if user is part of the group
+      if (performer instanceof IConditionalPerformer)
+      {
+         IParticipant participant = ((IConditionalPerformer) performer).retrievePerformer(getProcessInstance());         
+         {
+            if (participant instanceof IUserGroup)
+            {
+               boolean inGroup = false;
+               Iterator<IUserGroup> groups = user.getAllUserGroups(true);
+               while (groups.hasNext())
+               {
+                  IUserGroup group = groups.next();
+                  if (group.getId() == participant.getId())
+                  {
+                     inGroup = true;
+                     break;
+                  }
+               }
+               if (!inGroup)
+               {
+                  throw new AccessForbiddenException(
+                        BpmRuntimeError.BPMRT_USER_IS_NOT_AUTHORIZED_TO_PERFORM_AI.raise(
+                              user.getOID(), getOID()));
+               }   
+            }
+         }
       }
 
       if (performer.isAuthorized(user))

@@ -28,6 +28,7 @@
    <property name="build.classes.dir" value="${build.dir}/classes" />
    <property name="build.dep-report.dir" value="${build.dir}/dependency-report" />
    <property name="build.test-report.dir" value="${build.dir}/test-report" />
+   <property name="build.report" location="${build.dir}/ivy-report" />
    
    <property name="artifactId" value="stardust-engine-test" />
    <property name="artifact.jar" value="${artifactId}.jar" />
@@ -43,7 +44,7 @@
    </target>
    
    <!-- deploy -->
-   <target name="deploy" description="Builds the whole project, runs all tests, builds the project's artifacts and publishes them." depends="build, test, jar, publish" />
+   <target name="deploy" description="Builds the whole project, runs all tests, builds the project's artifacts and publishes them." depends="build, test, jar, publish, dependencies:report" />
    
    <!-- test -->
    <target name="test" description="Runs the functional tests." depends="build">
@@ -86,7 +87,7 @@
    </target>
    
    <!-- build -->
-   <target name="build" depends="build-main, build-test" />
+   <target name="build" depends="build-main, build-test" unless="skip.compile" />
    
    <!-- build-main -->
    <target name="build-main" depends="init, compile-main, copy-resources-main" />
@@ -186,4 +187,12 @@
    <target name="print-failure-if-appropriate" if="test.failure">
       <echo message="At least one test case failed." level="error" />
    </target>
+
+   <target name="dependencies:report" depends="init">
+      <ivy-report ivyFile="${basedir}/ivy.xml" outputDir="${build.report}" />
+   </target>
+
+   <!-- targets which are invoked by pom.xml -->
+   <target name="compile" depends="build" />
+
 </project>

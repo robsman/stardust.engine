@@ -22,6 +22,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.stardust.common.CompareHelper;
@@ -54,10 +55,10 @@ public class StructuredTypeRtUtils
 
    private static final XSDResourceFactoryImpl XSD_RESOURCE_FACTORY = new XSDResourceFactoryImpl();
    
-   public static ThreadLocal<CustomURIConverter> uriConverters = new ThreadLocal<CustomURIConverter>()
+   public static ThreadLocal<URIConverter> uriConverters = new ThreadLocal<URIConverter>()
    {
       @Override
-      protected CustomURIConverter initialValue()
+      protected URIConverter initialValue()
       {
          return new ClasspathUriConverter();
       }
@@ -690,18 +691,6 @@ public class StructuredTypeRtUtils
       }
    }
    
-   private static URI getURI(CustomURIConverter uriConverter, String path)
-   {
-      URI uri = URI.createURI(path);
-      //only normalize if its NOT an url(in this case it will have no scheme part)
-      if(uriConverter != null && uri.scheme() == null)
-      {
-         uri = uriConverter.normalize(uri);
-      }
-      
-      return uri;
-   }   
-   
    /**
     * Returns the first schema in the document at the specified location that matches the namespaceURI.
     * If there is no such schema, then it returns the first schema that has an import for the namespaceURI.
@@ -737,13 +726,17 @@ public class StructuredTypeRtUtils
 	  
       ResourceSetImpl resourceSet = new ResourceSetImpl();
       //prepare the uri converter
-      CustomURIConverter uriConverter = uriConverters.get();
+      URIConverter uriConverter = uriConverters.get();
       if (uriConverter != null)
       {
-         uriConverter.setCustomMap(customMap);
+         if (uriConverter instanceof CustomURIConverter)
+         {
+            ((CustomURIConverter) uriConverter).setCustomMap(customMap);
+         }
          resourceSet.setURIConverter(uriConverter);
       }
-      URI uri = getURI(uriConverter, location);
+      
+      URI uri = URI.createURI(location);
       
       // (fh) register the resource factory directly with the resource set and do not tamper with the global registry.
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(uri.scheme(), XSD_RESOURCE_FACTORY);

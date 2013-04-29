@@ -1013,7 +1013,7 @@ public class DDLManager
                      "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
                      + buildColumnsFragment(dbDescriptor, columns) 
                      + "SELECT " + "p.oid " 
-                     + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                     + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME))  + " p "
                      + "WHERE p.id = 'default'");
                ps.println(statementDelimiter);
             }
@@ -1028,7 +1028,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "domain_seq") + ", 'default', p.oid, NULL, NULL "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                  + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1040,7 +1040,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "domain_hierarchy_seq") + ", d.oid, d.oid "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME) + " d "
+                  + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME)) + " d "
                   + "WHERE d.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1054,7 +1054,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "wfuser_realm_seq") + ", 'carnot', p.oid, 'CARNOT', NULL "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                  + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1077,7 +1077,7 @@ public class DDLManager
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "user_seq") + ", 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
                   + new Date().getTime() + ", "
                   + "0, NULL, 0, 0, r.oid "
-                  + "FROM " + dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME) + " r "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) + " r "
                   + "WHERE r.id = 'carnot'");
             ps.println(statementDelimiter);
          }
@@ -1119,7 +1119,7 @@ public class DDLManager
                      "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
                      + buildColumnsFragment(dbDescriptor, columns) 
                      + "SELECT " + "p.oid " 
-                     + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                     + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                      + "WHERE p.id = 'default'");
                ps.println(statementDelimiter);
             }
@@ -1133,7 +1133,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT 'default', p.oid, NULL, NULL "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1144,7 +1144,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT d.oid, d.oid "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME) + " d "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME)) + " d "
                   + "WHERE d.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1158,7 +1158,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT 'carnot', p.oid, 'CARNOT', NULL "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1181,7 +1181,7 @@ public class DDLManager
                   + "SELECT 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
                   + new Date().getTime() + ", "
                   + "0, NULL, 0, 0, r.oid "
-                  + "FROM " + dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME) + " r "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) + " r "
                   + "WHERE r.id = 'carnot'");
             ps.println(statementDelimiter);
          }
@@ -1381,7 +1381,7 @@ public class DDLManager
       if (dbDescriptor.supportsSequences() || dbDescriptor.supportsIdentityColumns())
       {
          sb.append("p.oid FROM ");
-         sb.append(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME));
+         sb.append(getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)));
          sb.append(" p WHERE p.id = '" + partitionId + "'");
       }
       else

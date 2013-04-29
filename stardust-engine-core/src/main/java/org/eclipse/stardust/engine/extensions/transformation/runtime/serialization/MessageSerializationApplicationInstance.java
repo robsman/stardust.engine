@@ -61,6 +61,8 @@ public class MessageSerializationApplicationInstance implements
 
    private org.w3c.dom.DOMImplementation domImpl = null;
    private IXPathMap xPathMap;
+   
+   private String inDataPath;
 
    private Document schemaDocument;
 
@@ -82,6 +84,9 @@ public class MessageSerializationApplicationInstance implements
          throw new RuntimeException("Could not find IN data mapping");
       }
       DataMapping dataMapping = (DataMapping) allInDataMappings.iterator().next();
+      
+      inDataPath = dataMapping.getDataPath();
+      
       IData data = model.findData(dataMapping.getDataId());		
       xPathMap = getXPathMap(data);
       structuredDataConverter = newStructuredDataConverter(xPathMap);
@@ -242,7 +247,7 @@ public class MessageSerializationApplicationInstance implements
             trace.info("Setting access point " + name + " to value " + inputMessage + ".");
          }
 
-         Node[] nodes = structuredDataConverter.toDom(inputMessage, "", true);
+         Node[] nodes = structuredDataConverter.toDom(inputMessage, this.inDataPath, true);
 
          if (nodes == null || nodes.length == 0)
          {

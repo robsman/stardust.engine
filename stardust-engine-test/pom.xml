@@ -24,10 +24,6 @@
     <relativePath>../../org.eclipse.stardust/org.eclipse.stardust-parent/pom.xml</relativePath>
   </parent>
 
-  <properties>
-    <maven.test.skip>true</maven.test.skip>
-  </properties>
-
   <build>
     <plugins>
       <plugin>

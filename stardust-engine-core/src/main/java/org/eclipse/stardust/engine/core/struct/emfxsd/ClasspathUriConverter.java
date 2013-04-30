@@ -81,31 +81,34 @@ public class ClasspathUriConverter extends ExtensibleURIConverterImpl
          
          private InputStream createClasspathInputStream(URI uri) throws IOException
          {
-            URL resourceUrl = null;
             String path = uri.path();
-            if (path.startsWith("/")) // (fh) use context class loader only for absolute paths
+            boolean isAbsolute = path.startsWith("/");
+
+            // (fh) treat all paths as absolute paths
+            if (trace.isDebugEnabled())
             {
-               if (trace.isDebugEnabled())
-               {
-                  trace.debug("Getting resource from context class loader: " + path);
-               }
-               ClassLoader ctxCl = Thread.currentThread().getContextClassLoader();
-               // (fh) classloaders are considering all paths to be absolute
-               // a path starting with a "/" is incorect since first segment would then be empty 
-               resourceUrl = ctxCl.getResource(path.substring(1));
+               trace.debug("Getting resource from context class loader: " + path);
             }
+            ClassLoader ctxCl = Thread.currentThread().getContextClassLoader();
+            // (fh) classloaders are considering all paths to be absolute
+            // a path starting with a "/" is incorrect since first segment would then be empty 
+            URL resourceUrl = ctxCl.getResource(isAbsolute ? path.substring(1) : path);
+
             if (resourceUrl == null)
             {
                if (trace.isDebugEnabled())
                {
                   trace.debug("Getting resource from class: " + path);
                }
-               resourceUrl = ClasspathUriConverter.class.getResource(uri.path());
+               // (fh) classes are considering paths to be absolute only if they have a leading "/"
+               // otherwise they are relative to the class package.
+               resourceUrl = ClasspathUriConverter.class.getResource(isAbsolute ? path : "/" + path);
                if (resourceUrl == null)
                {
                   return null;
                }
             }
+            
             if (trace.isDebugEnabled())
             {
                trace.debug("Resolved '" + uri + "' to '" + resourceUrl + "'.");

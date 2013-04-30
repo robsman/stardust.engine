@@ -62,7 +62,7 @@ public class MessageSerializationApplicationInstance implements
    private org.w3c.dom.DOMImplementation domImpl = null;
    private IXPathMap xPathMap;
    
-   private String inDataPath;
+   private String inDataPath = "";
 
    private Document schemaDocument;
 
@@ -85,9 +85,13 @@ public class MessageSerializationApplicationInstance implements
       }
       DataMapping dataMapping = (DataMapping) allInDataMappings.iterator().next();
       
-      inDataPath = dataMapping.getDataPath();
+      if (dataMapping.getDataPath() != null)
+      {
+         inDataPath = dataMapping.getDataPath();
+      }
       
-      IData data = model.findData(dataMapping.getDataId());		
+      IData data = model.findData(dataMapping.getDataId());
+      
       xPathMap = getXPathMap(data);
       structuredDataConverter = newStructuredDataConverter(xPathMap);
 

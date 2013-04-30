@@ -16,6 +16,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eclipse.stardust.common.DateUtils;
+
 /**
  * <p>
  * This class contains constants related to the model
@@ -27,10 +31,22 @@ import java.util.Locale;
  */
 /* package-private */ class DataModelConstants
 {
+  private static final Log LOG = LogFactory.getLog(DataModelConstants.class);
+  
    static
    {
       final Calendar calendar = Calendar.getInstance();
-      calendar.setTimeInMillis(1334786400000L);
+      final String expectedDateTime = "2012/04/19 00:00:00:000";
+      //calendar.setTimeInMillis(1334786400000L);
+      try 
+      {
+         calendar.setTime(DateUtils.getNoninteractiveDateFormat().parse(expectedDateTime));
+      }
+      catch (ParseException e1) 
+      {
+         calendar.setTimeInMillis(1334786400000L);
+         LOG.error("Cannot parse " + expectedDateTime, e1);
+      }
       DEFAULT_VALUE_DEFAULT_CALENDAR = calendar;
 
       final DateFormat dateInstance = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US);

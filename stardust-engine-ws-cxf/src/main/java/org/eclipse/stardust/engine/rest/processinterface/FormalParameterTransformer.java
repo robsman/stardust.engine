@@ -116,15 +116,14 @@ public class FormalParameterTransformer
     * @param returnValues the map representation of the return values (formal parameter id |-> value)
     * @return the XML representation
     */
-   public Document marshalDocument(long piOID, final Map<String, Serializable> returnValues)
-   {
+   public Document marshalDocument(ProcessInstance processInstance, final Map<String, Serializable> returnValues)
+   { 
       Document doc = XmlUtils.newDocument();
 
       Element root = (Element) doc.appendChild(doc.createElementNS(ProcessesRestlet.TYPES_NS, ProcessesRestlet.RESULTS_ELEMENT_NAME));
 
       QName qualifiedProcessId = QName.valueOf(this.qualifiedProcessId);
 
-      ProcessInstance processInstance = sf.getWorkflowService().getProcessInstance(piOID);
       String processId = processInstance.getProcessID();
 
       DeployedModel implModel = sf.getQueryService().getModel(processInstance.getModelOID());
@@ -146,7 +145,7 @@ public class FormalParameterTransformer
       {
          final String errorMsg = "Target path incorrect. The target Process definition '"
                + qualifiedProcessId
-               + "' is not compatible with Process instance OID '" + piOID
+               + "' is not compatible with Process instance OID '" + processInstance.getOID()
                + "'. The correct Process definition is '" + resolvedProcessId
                + "'. Please correct the request path.";
          throw new WebApplicationException(Response.status(Status.BAD_REQUEST)

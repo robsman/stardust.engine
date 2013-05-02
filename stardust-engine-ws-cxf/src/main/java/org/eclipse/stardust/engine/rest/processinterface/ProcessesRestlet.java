@@ -33,6 +33,7 @@ import javax.ws.rs.core.Response.Status;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.ProcessInterfaceCommand;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
@@ -91,15 +92,28 @@ public class ProcessesRestlet extends EnvironmentAware
             serviceFactory(), qualifiedProcessId);
       final Map<String, Serializable> parameters = transformer.unmarshalParameters(in);
 
-      final ProcessInstance pi = startProcessInternal(qualifiedProcessId, parameters,
-            synchronously);
-
-      if (ProcessInstanceState.Completed.equals(pi.getState()))
+      ProcessInterfaceCommand command = 
+    	  new ProcessInterfaceCommand(qualifiedProcessId, parameters, synchronously);
+      
+      ProcessInterfaceCommand.Result result = null;
+      
+      try
+      { 
+	      result = (ProcessInterfaceCommand.Result) 
+	      		serviceFactory().getWorkflowService().execute(command);
+      }
+      catch(ObjectNotFoundException e)
       {
-         Map<String, Serializable> returnValues = getProcessResultsInternal(pi.getOID());
+    	  String errorMsg = "Error code: " + e.getError().getId(); // TODO
+    	  throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(errorMsg).build());
+      }
+
+      if (ProcessInstanceState.Completed.equals(result.getProcessInstance().getState()) && result.getProcessResults() != null)
+      {
+         Map<String, Serializable> returnValues = result.getProcessResults();
 
          return Response.ok(
-               XmlUtils.toString(transformer.marshalDocument(pi.getOID(), returnValues)),
+               XmlUtils.toString(transformer.marshalDocument(result.getProcessInstance(), returnValues)),
                APPLICATION_XML_TYPE).build();
       }
       else
@@ -114,7 +128,7 @@ public class ProcessesRestlet extends EnvironmentAware
 
          suffix += "&stardust-bpm-model=" + modelId;
 
-         String linkString = uriInfo.getAbsolutePath() + "?piOID=" + pi.getOID() + suffix;
+         String linkString = uriInfo.getAbsolutePath() + "?piOID=" + result.getProcessInstance().getOID() + suffix;
 
          return Response.ok(linkString, TEXT_PLAIN_TYPE).build();
       }
@@ -144,7 +158,11 @@ public class ProcessesRestlet extends EnvironmentAware
       final String qualifiedProcessId = createQualifiedProcessId(modelId, processId);
       final FormalParameterTransformer transformer = new FormalParameterTransformer(
             serviceFactory(), qualifiedProcessId);
-      return transformer.marshalDocument(piOID, returnValues);
+      
+      ProcessInstance processInstance = 
+    	  serviceFactory().getWorkflowService().getProcessInstance(piOID);
+      
+      return transformer.marshalDocument(processInstance, returnValues);
    }
 
    @OPTIONS
@@ -201,26 +219,6 @@ public class ProcessesRestlet extends EnvironmentAware
                .entity(errorMsg)
                .build());
       }
-   }
-
-   private ProcessInstance startProcessInternal(final String qualifiedProcessId,
-         final Map<String, Serializable> parameters, final boolean synchronously)
-   {
-      final ProcessInstance pi;
-      try
-      {
-         pi = serviceFactory().getWorkflowService().startProcess(qualifiedProcessId,
-               parameters, synchronously);
-      }
-      catch (final ObjectNotFoundException e)
-      {
-         final String errorMsg = "Process Definition '" + qualifiedProcessId
-               + "' not found.";
-         throw new WebApplicationException(Response.status(Status.NOT_FOUND)
-               .entity(errorMsg)
-               .build());
-      }
-      return pi;
    }
 
    private Map<String, Serializable> getProcessResultsInternal(final long piOID)

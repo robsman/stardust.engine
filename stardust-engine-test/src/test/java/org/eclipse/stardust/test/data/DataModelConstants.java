@@ -36,23 +36,15 @@ import org.eclipse.stardust.common.DateUtils;
    static
    {
       final Calendar calendar = Calendar.getInstance();
-      final String expectedDateTime = "2012/04/19 00:00:00:000";
-      //calendar.setTimeInMillis(1334786400000L);
-      try 
-      {
-         calendar.setTime(DateUtils.getNoninteractiveDateFormat().parse(expectedDateTime));
-      }
-      catch (ParseException e1) 
-      {
-         calendar.setTimeInMillis(1334786400000L);
-         LOG.error("Cannot parse " + expectedDateTime, e1);
-      }
-      DEFAULT_VALUE_DEFAULT_CALENDAR = calendar;
-
       final DateFormat dateInstance = DateFormat.getDateInstance(DateFormat.SHORT, Locale.US);
       try
       {
-         DEFAULT_VALUE_DEFAULT_TIMESTAMP = dateInstance.parse("4/19/12");
+         final Date date = dateInstance.parse("4/19/12");
+         
+         calendar.setTime(date);
+         DEFAULT_VALUE_DEFAULT_CALENDAR = calendar;
+
+         DEFAULT_VALUE_DEFAULT_TIMESTAMP = date;
       }
       catch (final ParseException e)
       {

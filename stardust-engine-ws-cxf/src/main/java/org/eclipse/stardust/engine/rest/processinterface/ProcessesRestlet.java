@@ -104,7 +104,7 @@ public class ProcessesRestlet extends EnvironmentAware
       }
       catch(ObjectNotFoundException e)
       {
-    	  String errorMsg = "Error code: " + e.getError().getId(); // TODO
+    	  String errorMsg = e.getMessage();
     	  throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(errorMsg).build());
       }
 

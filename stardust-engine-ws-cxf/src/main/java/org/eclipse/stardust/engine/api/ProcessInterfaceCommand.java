@@ -40,7 +40,7 @@ public class ProcessInterfaceCommand implements ServiceCommand,  Configurable{
 		
 		Map<String, Serializable> result = null;
 		
-		if (synchronous && pi.getState().equals(ProcessInstanceState.COMPLETED))
+		if (synchronous && pi.getState().equals(ProcessInstanceState.Completed))
 		{
 			result = sf.getWorkflowService().getProcessResults(pi.getOID());
 		}

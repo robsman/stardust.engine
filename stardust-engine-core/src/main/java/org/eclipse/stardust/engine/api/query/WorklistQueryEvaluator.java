@@ -135,13 +135,35 @@ public class WorklistQueryEvaluator
 
       OrTerm contributionsPredicate = new OrTerm();
 
-      final long userOid = context.getUser().getOID();
+      final IUser user = context.getUser();
       if (userContribution.isIncluded())
       {
-         // add user contribution
-         contributionsPredicate.add(Predicates.andTerm( //
-               Predicates.isEqual(WorkItemBean.FR__PERFORMER_KIND, PerformerType.USER), // 
-               Predicates.isEqual(WorkItemBean.FR__PERFORMER, userOid)));
+         OrTerm userOrTerm = new OrTerm();
+
+         // add the user itself
+         userOrTerm.add(Predicates.isEqual(WorkItemBean.FR__PERFORMER, user.getOID()));
+
+         // add the original users being deputy of
+         if (UserUtils.isDeputyOfAny(user))
+         {
+            Date now = new Date();
+            List<DeputyBean> deputies = UserUtils.getDeputies(user);
+            for (DeputyBean deputy : deputies)
+            {
+               if (deputy.isActive(now))
+               {
+                  userOrTerm.add(Predicates.isEqual(WorkItemBean.FR__PERFORMER,
+                        deputy.user));
+               }
+            }
+         }
+
+         // put all together:
+         // kind == UserType AND ( user1 OR user2 OR ...)
+         PredicateTerm userPredicate = Predicates.andTerm(
+               Predicates.isEqual(WorkItemBean.FR__PERFORMER_KIND, PerformerType.USER),
+               userOrTerm);
+         contributionsPredicate.add(userPredicate);
       }
 
       if ( !modelParticipantInfos.isEmpty())
@@ -325,25 +347,25 @@ public class WorklistQueryEvaluator
 
    private Worklist buildStandardWorklist()
    {
-      final WorklistCollector userWorklist = collectUserWorklist();
+      final boolean consolidatedUserWorklist = true;
 
-      final List participantWorklists = collectParticipantWorklists();
+      final WorklistCollector userWorklistCollector = collectUserWorklist();
+      // List<WorklistCollector> collectDeputyUserWorklistCollectors =
+      // collectDeputyUserWorklists(consolidatedUserWorklist);
 
-      final List subWorklists = new ArrayList();
-
-      for (Iterator itr = participantWorklists.iterator(); itr.hasNext();)
+      final List<WorklistCollector> participantWorklistCollectors = collectParticipantWorklists();
+      final List<Worklist> subWorklists = CollectionUtils.newArrayList();
+      for (WorklistCollector participantWorklistCollector : participantWorklistCollectors)
       {
-         WorklistCollector participantWorklist = (WorklistCollector) itr.next();
-
-         subWorklists.add(convertParticipantWorklist(participantWorklist));
+         subWorklists.add(convertParticipantWorklist(participantWorklistCollector));
       }
 
       final UserInfo owner = DetailsFactory.create(context.getUser(), IUser.class,
             UserInfoDetails.class);
-      return new UserWorklist(owner, query, userWorklist.subset,
-            userWorklist.retrievedItems, userWorklist.hasMore, subWorklists,
-            userWorklist.hasTotalCount() ? new Long(userWorklist.getTotalCount()) : null,
-            userWorklist.getTotalCountThreshold());
+      return new UserWorklist(owner, query, userWorklistCollector.subset,
+            userWorklistCollector.retrievedItems, userWorklistCollector.hasMore,
+            subWorklists, userWorklistCollector.hasTotalCount() ? new Long(
+                  userWorklistCollector.getTotalCount()) : null);
    }
 
    /**
@@ -426,7 +448,7 @@ public class WorklistQueryEvaluator
          }
       }
    }
-
+   
    private WorklistCollector collectUserWorklist()
    {
       final WorklistQuery.UserContribution userContribution = query.getUserContribution();
@@ -444,11 +466,93 @@ public class WorklistQueryEvaluator
       }
 
       return userWorklist;
+   }   
+
+   private WorklistCollector collectUserWorklist(boolean consolidated)
+      {
+         final WorklistQuery.UserContribution userContribution = query.getUserContribution();
+      final SubsetPolicy subset = getContributionSubset(userContribution);
+      UserInfo userInfo = new UserInfoDetails(context.getUser());
+      WorklistCollector userWorklist = new WorklistCollector(userInfo, subset);
+      if (userContribution.isIncluded())
+      {
+         ActivityInstanceQuery userWorklistQuery = userWorklistQuery = new ActivityInstanceQuery(
+               query);
+         FilterOrTerm perfUserOrTerm = userWorklistQuery.getFilter().addOrTerm();
+
+         perfUserOrTerm.add(PerformingUserFilter.CURRENT_USER);
+
+         if (consolidated)
+         {
+            final IUser deputyUser = context.getUser();
+            if (UserUtils.isDeputyOfAny(deputyUser))
+            {
+               Date now = new Date();
+
+               List<DeputyBean> deputies = UserUtils.getDeputies(deputyUser);
+               for (DeputyBean deputy : deputies)
+               {
+                  if (deputy.isActive(now))
+                  {
+                     UserInfo deputyForUserInfo = new UserInfoDetails(deputy.user);
+                     perfUserOrTerm.add(new PerformingUserFilter(
+                           deputyForUserInfo.getOID()));
+                  }
+               }
+            }
+         }
+         userWorklistQuery.setPolicy(subset);
+
+         collectWorklistItems(userWorklistQuery, userWorklist);
+      }
+
+      return userWorklist;
    }
 
-   private List collectParticipantWorklists()
+   /**
+    * Returns a list of WorklistConnectors for users the current user is and active deputy
+    * for.
+    * 
+    * @return
+    */
+   private List<WorklistCollector> collectDeputyUserWorklists(boolean consolidated)
    {
-      final List participantWorklists = new ArrayList();
+      final WorklistQuery.UserContribution userContribution = query.getUserContribution();
+      final SubsetPolicy subset = getContributionSubset(userContribution);
+
+      List<WorklistCollector> deputyWorklists = CollectionUtils.newArrayList();
+
+      final IUser deputyUser = context.getUser();
+      if (UserUtils.isDeputyOfAny(deputyUser))
+      {
+         Date now = new Date();
+
+         List<DeputyBean> deputies = UserUtils.getDeputies(deputyUser);
+         for (DeputyBean deputy : deputies)
+         {
+            if (deputy.isActive(now))
+            {
+               UserInfo deputyForUserInfo = new UserInfoDetails(deputy.user);
+               WorklistCollector userWorklist = new WorklistCollector(deputyForUserInfo,
+                     subset);
+               if (userContribution.isIncluded())
+               {
+                  ActivityInstanceQuery userWorklistQuery = new ActivityInstanceQuery(
+                        query, new PerformingUserFilter(deputyForUserInfo.getOID()));
+                  userWorklistQuery.setPolicy(subset);
+
+                  collectWorklistItems(userWorklistQuery, userWorklist);
+               }
+            }
+         }
+      }
+   
+      return deputyWorklists;
+   }
+
+   private List<WorklistCollector> collectParticipantWorklists()
+   {
+      final List<WorklistCollector> participantWorklists = CollectionUtils.newArrayList();
       final Set<IParticipant> participantClosure = QueryUtils
             .findScopedParticipantClosure(context.getUser());
 

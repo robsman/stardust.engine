@@ -19,7 +19,10 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetails.AddedGrant;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.persistence.ClosableIterator;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
@@ -250,24 +253,205 @@ public final class UserUtils
       deputyUserBean.removeProperty(IS_DEPUTY_OF, Long.valueOf(oid));
    }
 
-   static void updateDeputyGrants(UserBean deputyUserBean)
+   static void updateDeputyGrants(UserBean user)
    {
-      long now = new Date().getTime();
-      List<Attribute> existing = (List<Attribute>) deputyUserBean.getPropertyValue(IS_DEPUTY_OF);
-      for (Attribute attribute : existing)
+      Map<Long, Map<Long, Set<Long>>> participantMap = getParticipantsfromDeputees(user);
+
+      if (participantMap == null)
       {
-         String value = (String) attribute.getValue();
-         DeputyBean db = DeputyBean.fromString(value);
-         /*
-          * if (db.isActive()) { updateDeputyGrants(); }
-          */
+         Iterator<UserParticipantLink> links = user.getAllParticipantLinks();
+         while (links.hasNext())
+         {
+            UserParticipantLink link = links.next();
+            if (link.getOnBehalfOf() != 0)
+            {
+               user.removeFromParticipants(link.getParticipant(), link.getDepartment());
+            }
+         }
       }
+      else
+      {
+         // filter out user's own grants and already existing grants
+         Iterator<UserParticipantLink> links = user.getAllParticipantLinks();
+         while (links.hasNext())
+         {
+            UserParticipantLink link = links.next();
+            long runtimeParticipantOid = link.getRuntimeParticipantOid();
+            long departmentOid = link.getDepartmentOid();
+            long onBehalfOf = link.getOnBehalfOf();
+            Map<Long, Set<Long>> departmentMap = participantMap.get(runtimeParticipantOid);
+            Set<Long> users = departmentMap == null
+                  ? null
+                  : departmentMap.get(departmentOid);
+            if (onBehalfOf == 0)
+            {
+               // user has it's own grant, remove all inherited grants
+               if (departmentMap != null)
+               {
+                  departmentMap.remove(departmentOid);
+               }
+            }
+            else
+            {
+               // this inherited grant is no longer available, remove it
+               if (users == null || !users.remove(onBehalfOf))
+               {
+                  user.removeFromParticipants(link.getParticipant(), link.getDepartment());
+               }
+               if (users != null && users.isEmpty())
+               {
+                  departmentMap.remove(departmentOid);
+               }
+            }
+            if (departmentMap != null && departmentMap.isEmpty())
+            {
+               participantMap.remove(runtimeParticipantOid);
+            }
+         }
+
+         // now add grants left in the participant map, if any
+         if ( !participantMap.isEmpty())
+         {
+            for (long runtimeParticipantOid : participantMap.keySet())
+            {
+               Map<Long, Set<Long>> departmentMap = participantMap.get(runtimeParticipantOid);
+               for (long departmentOid : departmentMap.keySet())
+               {
+                  Set<Long> users = departmentMap.get(departmentOid);
+                  // create a grant only for the first user
+                  IModelParticipant participant = ModelManagerFactory.getCurrent()
+                        .findModelParticipant(PredefinedConstants.ANY_MODEL,
+                              runtimeParticipantOid);
+                  IDepartment department = departmentOid == 0
+                        ? null
+                        : DepartmentBean.findByOID(departmentOid);
+                  user.addToParticipants(participant, department, users.iterator().next());
+               }
+            }
+         }
+      }
+   }
+
+   private static Map<Long, Map<Long, Set<Long>>> getParticipantsfromDeputees(
+         UserBean user)
+   {
+      Map<Long/* participant */, Map<Long/* department */, Set<Long>/* onBehalfOf */>> participantMap = CollectionUtils.newMap();
+
+      long[] others = getUpdatedUserOids(user);
+      if (others == null)
+      {
+         return null;
+      }
+
+      // TODO: performance issue - this is fetching users too and we don't need that, only
+      // user oids
+      ClosableIterator<UserParticipantLink> itr = UserParticipantLink.findForUsers(others);
+      try
+      {
+         while (itr.hasNext())
+         {
+            UserParticipantLink link = itr.next();
+            long participantRuntimeOid = link.getRuntimeParticipantOid();
+            Map<Long/* department */, Set<Long>/* onBehalfOf */> departmentMap = participantMap.get(participantRuntimeOid);
+            if (departmentMap == null)
+            {
+               departmentMap = CollectionUtils.newMap();
+               participantMap.put(participantRuntimeOid, departmentMap);
+            }
+            long departmentOid = link.getDepartmentOid();
+            Set<Long> userSet = departmentMap.get(departmentOid);
+            if (userSet == null)
+            {
+               userSet = CollectionUtils.newSet();
+               departmentMap.put(departmentOid, userSet);
+            }
+            userSet.add(link.getUser().getOID());
+         }
+      }
+      finally
+      {
+         if (itr != null)
+         {
+            itr.close();
+         }
+      }
+
+      return participantMap;
+   }
+
+   /**
+    * @return the user OIDs for which the user is a deputy
+    */
+   private static long[] getUpdatedUserOids(UserBean user)
+   {
+      List<Attribute> existing = (List<Attribute>) user.getPropertyValue(IS_DEPUTY_OF);
+      if (existing == null || existing.isEmpty())
+      {
+         return null;
+      }
+      Date now = new Date();
+      long[] others = new long[existing.size()];
+      for (int i = 0; i < others.length; i++ )
+      {
+         String value = (String) existing.get(i).getValue();
+         DeputyBean db = DeputyBean.fromString(value);
+         if (db.isActive(now))
+         {
+            others[i] = db.user;
+         }
+         else if (db.isExpired(now))
+         {
+            // cleanup expired deputies
+            user.removeProperty(IS_DEPUTY_OF, value);
+         }
+      }
+      return others;
    }   
      
    public static boolean isDeputyOfAny(IUser user)
    {
       return user.isPropertyAvailable(UserBean.EXTENDED_STATE_FLAG_DEPUTY_OF_PROP);
    }   
+      
+   public static boolean isDeputyOf(IUser user, long otherOID)
+   {
+      if (isDeputyOfAny(user))
+      {
+         Date now = new Date();
 
+         List<UserProperty> propertyList = (List<UserProperty>) user.getPropertyValue(UserUtils.IS_DEPUTY_OF);
+
+         for (UserProperty userProperty : propertyList)
+         {
+            String stringValue = (String) userProperty.getValue();
+            DeputyBean deputyBean = DeputyBean.fromString(stringValue);
+            if (deputyBean.user == otherOID)
+            {
+               return deputyBean.isActive(now);
+            }
+         }
+      }
+      return false;
+   }   
+   
+   public static List<DeputyBean> getDeputies(IUser deputyUser)
+   {
+      List<DeputyBean> result = CollectionUtils.newArrayList();
+
+      if (isDeputyOfAny(deputyUser))
+      {
+         List<UserProperty> propertyList = (List<UserProperty>) deputyUser.getPropertyValue(UserUtils.IS_DEPUTY_OF);
+
+         for (UserProperty userProperty : propertyList)
+         {
+            String stringValue = (String) userProperty.getValue();
+            DeputyBean deputyBean = DeputyBean.fromString(stringValue);
+            result.add(deputyBean);
+         }
+      }
+
+      return result;
+   }
+   
    private UserUtils() {}
 }

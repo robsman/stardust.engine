@@ -29,9 +29,22 @@ import org.eclipse.stardust.engine.api.dto.DeputyDetails;
 import org.eclipse.stardust.engine.api.runtime.Deputy;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
 
+/**
+ * Internal class to help with creation and parsing of the deputy information.
+ * 
+ * The element names are intentionally 1 character long and no namespace and XML declaration
+ * to keep the serialized version as small as possible.
+ * 
+ * Top element ("d") must have no attributes and the user element ("u") must be the first child,
+ * i.e. the serialized form must have the format "&lt;d&gt;&lt;u&gt;user-oid&lt;/u&gt;...other
+ * children...&lt;/d&gt;".
+ * 
+ * @author Florin.Herinean
+ * @version $Revision: $
+ */
 @XmlRootElement(name="d")
 @XmlType(propOrder={"user", "from", "to"})
-class DeputyBean
+public class DeputyBean
 {
    private static class DateAdapter extends XmlAdapter<Long, Date>
    {
@@ -49,19 +62,20 @@ class DeputyBean
    }
 
    @XmlElement(name="u")
-   long user;
+   public long user;
    
    @XmlElement(name="f")
    @XmlJavaTypeAdapter(DateAdapter.class)
-   Date from;
+   public Date from;
    
    @XmlElement(name="t")
    @XmlJavaTypeAdapter(DateAdapter.class)
-   Date to;
+   public Date to;
    
+   // required default constructor   
    DeputyBean()
    {
-      // required default constructor
+
    }
    
    DeputyBean(long oid, Date fromDate, Date toDate)
@@ -122,8 +136,19 @@ class DeputyBean
       return null;
    }
    
-   public static void main(String[] args)
+   public boolean isActive(Date now)
+   {
+      return (from == null || now.compareTo(from) >= 0)
+            && (to == null || now.compareTo(to) <= 0);
+   }
+
+   public boolean isExpired(Date now)
+   {
+      return to != null && now.after(to);
+   }
+   
+   /*public static void main(String[] args)
    {
       System.out.println(new DeputyBean(12345, new Date(), null));
-   }
+   }*/
 }

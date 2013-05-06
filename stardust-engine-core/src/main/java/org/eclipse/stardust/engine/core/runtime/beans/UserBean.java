@@ -519,6 +519,12 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
 
    public void addToParticipants(IModelParticipant participant, IDepartment department)
    {
+      addToParticipants(participant, department, 0);
+   }
+
+   void addToParticipants(IModelParticipant participant, IDepartment department,
+         long onBehalfOf)
+   {      
       fetch();
 
       int cardinality = participant.getCardinality();
@@ -543,7 +549,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          markModified();
       }
 
-      UserParticipantLink link = new UserParticipantLink(this, participant, department);
+      UserParticipantLink link = new UserParticipantLink(this, participant, department, onBehalfOf);
 
       StringBuffer buffer = new StringBuffer();
       buffer.append("Granting ")//
@@ -555,6 +561,10 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          buffer.append(" in ")
                .append(department);
       }
+      if (onBehalfOf != 0)
+      {
+         buffer.append(" on behalf of ").append(onBehalfOf);
+      }      
       buffer.append(".");
       AuditTrailLogger.getInstance(LogCode.SECURITY, this).info(buffer.toString());
 
@@ -1120,6 +1130,8 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          }
       }
       
+      // TODO: (fh) user properties
+                  
       cis.close();
    }
 
@@ -1185,6 +1197,8 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          cos.writeLong(group == null ? 0 : group.getOID());
       }
       
+      // TODO: (fh) user properties
+                  
       cos.flush();
       byte[] bytes = cos.getBytes();
       cos.close();

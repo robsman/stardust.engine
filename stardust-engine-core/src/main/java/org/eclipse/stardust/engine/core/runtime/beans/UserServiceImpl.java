@@ -882,6 +882,11 @@ public class UserServiceImpl implements UserService, Serializable
    @Override
    public Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
    {
+      if (options == null)
+      {
+         options = DeputyOptions.DEFAULT;
+      }
+      
       List<Deputy> deputies = getUsersBeingDeputyFor(deputyUser);
       for (Deputy deputy : deputies)
       {
@@ -903,6 +908,7 @@ public class UserServiceImpl implements UserService, Serializable
       UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
       UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
       
+      UserUtils.updateDeputyGrants(deputyUserBean);
    }
 
 	@Override
@@ -949,17 +955,11 @@ public class UserServiceImpl implements UserService, Serializable
       List<Deputy> result = CollectionUtils.newArrayList();
 
       UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
-   
-      if (UserUtils.isDeputyOfAny(deputyUserBean))
-      {
-         List<UserProperty> propertyList = (List<UserProperty>) deputyUserBean.getPropertyValue(UserUtils.IS_DEPUTY_OF);
+      List<DeputyBean> deputies = UserUtils.getDeputies(deputyUserBean);
 
-         for (UserProperty userProperty : propertyList)
-         {
-            String stringValue = (String) userProperty.getValue();
-            DeputyBean deputyBean = DeputyBean.fromString(stringValue);
-            result.add(deputyBean.createDeputyDetails(deputyUser));
-         }
+      for (DeputyBean deputy : deputies)
+      {
+         result.add(deputy.createDeputyDetails(deputyUser));
       }
 
       return result;

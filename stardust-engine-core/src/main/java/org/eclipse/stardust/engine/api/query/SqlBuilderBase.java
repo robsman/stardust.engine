@@ -11,20 +11,8 @@
 package org.eclipse.stardust.engine.api.query;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
@@ -68,25 +56,7 @@ import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkTypeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
@@ -1120,15 +1090,28 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    {
       VisitationContext context = (VisitationContext) rawContext;
 
-      final long userOID;
+      List<Long> userOidList = CollectionUtils.newArrayList();
       if (PerformingUserFilter.CURRENT_USER.equals(filter)
             && (null != context.getEvaluationContext().getUser()))
       {
-         userOID = context.getEvaluationContext().getUser().getOID();
+         // add current user
+         userOidList.add(context.getEvaluationContext().getUser().getOID());
+
+         // if current user is deputy for other user add them as well
+         Date now = new Date();
+         IUser user = context.getEvaluationContext().getUser();
+         List<DeputyBean> deputies = UserUtils.getDeputies(user);
+         for (DeputyBean deputy : deputies)
+         {
+            if (deputy.isActive(now))
+            {
+               userOidList.add(deputy.user);
+            }
+         }
       }
       else
       {
-         userOID = filter.getUserOID();
+         userOidList.add(filter.getUserOID());
       }
 
       PredicateTerm term;
@@ -1136,12 +1119,12 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       {
          term = Predicates.andTerm( //
                Predicates.isEqual(WorkItemBean.FR__PERFORMER_KIND, PerformerType.USER), //
-               Predicates.isEqual(WorkItemBean.FR__PERFORMER, userOID));
+               Predicates.inList(WorkItemBean.FR__PERFORMER, userOidList));
       }
       else
       {
-         term = Predicates.isEqual(ActivityInstanceBean.FR__CURRENT_USER_PERFORMER,
-               userOID);
+         term = Predicates.inList(ActivityInstanceBean.FR__CURRENT_USER_PERFORMER,
+               userOidList);
       }
 
       return term;

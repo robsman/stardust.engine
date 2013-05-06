@@ -855,19 +855,20 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    {
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
-      ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
+      //ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
       ActivityInstanceUtils.assertNoSubprocess(activityInstance);
       ActivityInstanceUtils.assertNotOnOtherUserWorklist(activityInstance, false);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
 
-      if (activityInstance.getState() == ActivityInstanceState.Application)
+      IUser currentUser = SecurityProperties.getUser();
+      if (activityInstance.getActivity().isInteractive() && currentUser != null
+            && currentUser.getOID() != 0
+            && activityInstance.getCurrentUserPerformerOID() != currentUser.getOID())
       {
-         return;
+         activityInstance.delegateToUser(currentUser);
       }
 
-      IUser currentUser = SecurityProperties.getUser();
-      if (activityInstance.getActivity().isInteractive() && null != currentUser
-            && 0 != currentUser.getOID())
+      if (activityInstance.getState() != ActivityInstanceState.Application)
       {
          if (activityInstance instanceof ActivityInstanceBean)
          {
@@ -876,11 +877,9 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
          else
          {
-            activityInstance.delegateToUser(currentUser);
+            activityInstance.activate();
          }
       }
-
-      activityInstance.activate();
    }
 
    private void complete(IActivityInstance activityInstance, String context,
@@ -944,6 +943,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       IParticipant participant = null;
       IDepartment department = null;
+      long currentUser = activityInstance.getCurrentUserPerformerOID();
 
       Iterator<ActivityInstanceHistoryBean> history = ActivityInstanceHistoryBean.getAllForActivityInstance(
             activityInstance, false);
@@ -952,9 +952,17 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          ActivityInstanceHistoryBean aih = history.next();
          if (ActivityInstanceState.Application == aih.getState())
          {
-            continue;
+            IParticipant performer = aih.getPerformer();
+            if (performer instanceof IUser && ((IUser) performer).getOID() != currentUser)
+            {
+               participant = performer;
+            }
+            else
+            {
+               continue;
+            }
          }
-         if (ActivityInstanceState.Suspended == aih.getState())
+         else if (ActivityInstanceState.Suspended == aih.getState())
          {
             participant = aih.getPerformer();
             department = aih.getDepartment();

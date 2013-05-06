@@ -575,7 +575,8 @@ public class AuthorizationContext
       }
       else if (currentUserPerformer != 0)
       {
-         return getUser() == null || getUser().getOID() == currentUserPerformer;
+         return getUser() == null || getUser().getOID() == currentUserPerformer
+               || UserUtils.isDeputyOf(getUser(), currentUserPerformer);
       }
       return false;
    }

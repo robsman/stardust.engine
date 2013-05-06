@@ -2151,12 +2151,18 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    private void assertDelegationGranted() throws AccessForbiddenException
    {
-      if (getState() != ActivityInstanceState.Suspended
-            && getState() != ActivityInstanceState.Hibernated)
+      fetch();
+      switch (state)
       {
-         throw new AccessForbiddenException(
-               BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_DELEGATED_IN_CURRENT_STATE.raise(
-                     Long.valueOf(getOID()), getState()));
+         case ActivityInstanceState.SUSPENDED:
+         case ActivityInstanceState.HIBERNATED:
+         case ActivityInstanceState.APPLICATION:
+            // do nothing
+            break;
+         default:
+            throw new AccessForbiddenException(
+                  BpmRuntimeError.BPMRT_AI_CAN_NOT_BE_DELEGATED_IN_CURRENT_STATE.raise(
+                        Long.valueOf(getOID()), getState()));
       }
    }
 

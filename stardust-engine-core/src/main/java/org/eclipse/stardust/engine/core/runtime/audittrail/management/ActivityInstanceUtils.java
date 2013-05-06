@@ -133,11 +133,12 @@ public class ActivityInstanceUtils
       {
          long current = ai.getCurrentUserPerformerOID();
          if (current != SecurityProperties.getUserOID()
-               && ai.getState() == ActivityInstanceState.Application)
+               && ai.getState() == ActivityInstanceState.Application
+               && !UserUtils.isDeputyOf(SecurityProperties.getUser(), current))
          {
             throw new AccessForbiddenException(
-                  BpmRuntimeError.BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER.raise(new Long(ai
-                        .getOID()), new Long(current)));
+                  BpmRuntimeError.BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER.raise(
+                        ai.getOID(), current));
          }
       }
    }
@@ -245,7 +246,8 @@ public class ActivityInstanceUtils
 
       long currentUserPerformerOid = activityInstance.getCurrentUserPerformerOID();
 
-      if (0 != currentUserPerformerOid && currentUserPerformerOid != currentUser.getOID())
+      if (0 != currentUserPerformerOid && currentUserPerformerOid != currentUser.getOID()
+            && !UserUtils.isDeputyOf(currentUser, currentUserPerformerOid))
       {
          boolean isAdmin = false;
          if (allowAdmin)

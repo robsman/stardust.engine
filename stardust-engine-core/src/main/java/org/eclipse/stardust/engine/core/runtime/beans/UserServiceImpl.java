@@ -26,6 +26,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.security.InvalidPasswordException;
+import org.eclipse.stardust.engine.api.dto.DeputyDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.UserGroupDetailsLevel;
@@ -854,4 +855,48 @@ public class UserServiceImpl implements UserService, Serializable
    {
       return UserGroupDetailsLevel.Full == changes.getDetailsLevel();
    }
+   
+	@Override
+	public Deputy addDeputy(User user, User deputyUser, Date fromDate,
+			Date toDate) {
+		UserBean userBean = UserBean.findByOid(user.getOID());
+		UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
+
+		// TODO: check if this deputy definition already exists
+
+		String propertyValue = MessageFormat.format("{0}({1},{2})'{'*'}",
+				new Object[] { userBean.getOID(), fromDate.getTime(),
+						toDate == null ? -1 : toDate.getTime() });
+
+		deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, propertyValue);
+
+		return new DeputyDetails(userBean, deputyUserBean, fromDate, toDate);
+	}
+
+	@Override
+	public Deputy modifyDeputy(User user, User deputyUser, Date fromDate,
+			Date toDate) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void removeDeputy(User user, User deputyUser) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public List<Deputy> getDeputies(User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<User> getUsersBeingDeputyFor(User deputyUser) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+   
+   
 }

@@ -19,14 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.TransformingIterator;
-import org.eclipse.stardust.common.Unknown;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -979,11 +972,18 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       for (Iterator iterator = allProperties.entrySet().iterator(); iterator.hasNext();)
       {
          Map.Entry entry = (Map.Entry) iterator.next();
-         UserProperty property = (UserProperty) entry.getValue();
-         if (StringUtils.isEmpty(property.getScope()))
+         Attribute rawProperty = (Attribute) entry.getValue();
+         if (rawProperty instanceof MultiAttribute)
          {
+        	 propsWithNoScope.put(entry.getKey(), rawProperty);
+         }
+         else {
+         UserProperty property = (UserProperty) entry.getValue();
+				if (StringUtils.isEmpty(property.getScope())) {
             propsWithNoScope.put(entry.getKey(), property);
          }
+      }
+
       }
 
       return propsWithNoScope;
@@ -1239,4 +1239,9 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       
       return qualityAssurancePropability;
    }
+   
+	@Override
+	protected String[] supportedMultiAttributes() {
+		return new String[] { UserUtils.IS_DEPUTY_OF };
+	}   
 }

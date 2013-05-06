@@ -26,9 +26,11 @@ import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 public final class UserUtils
 {
+   public static final String IS_DEPUTY_OF = "Infinity.Deputy.IsDeputyOf"; 
    public static final List<String> PROTECTED_ATTRIBUTES = Arrays.asList(new String[] {
          SecurityUtils.LAST_PASSWORDS, 
-         QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY
+         QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY,
+         IS_DEPUTY_OF
    });
 
    /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -164,6 +164,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 ATDB_UNKNOWN_USER_ID = newArgs2("ATDB02113", BpmRuntimeErrorMessages.getString("ATDB02113")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 ATDB_USER_ID_EXISTS = newArgs2("ATDB02114", BpmRuntimeErrorMessages.getString("ATDB02114")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args2 ATDB_DEPUTY_EXISTS = newArgs2("ATDB02115", BpmRuntimeErrorMessages.getString("ATDB02115")); //$NON-NLS-1$ //$NON-NLS-2$
+   
    public static final Args0 ATDB_NO_MATCHING_USER_DOMAIN = newArgs0("ATDB02121", BpmRuntimeErrorMessages.getString("ATDB02121")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_OID = newArgs1("ATDB02122", BpmRuntimeErrorMessages.getString("ATDB02122")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_ID = newArgs1("ATDB02123", BpmRuntimeErrorMessages.getString("ATDB02123")); //$NON-NLS-1$ //$NON-NLS-2$

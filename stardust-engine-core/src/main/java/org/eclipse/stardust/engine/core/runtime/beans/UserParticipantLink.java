@@ -55,11 +55,13 @@ public class UserParticipantLink extends IdentifiablePersistentBean
    public static final String FIELD__USER = "workflowUser";
    public static final String FIELD__PARTICIPANT = "participant";
    public static final String FIELD__DEPARTMENT = "department";
+   public static final String FIELD__ON_BEHALF_OF = "onBehalfOf";
 
    public static final FieldRef FR__OID = new FieldRef(UserParticipantLink.class, FIELD__OID);
    public static final FieldRef FR__USER = new FieldRef(UserParticipantLink.class, FIELD__USER);
    public static final FieldRef FR__PARTICIPANT = new FieldRef(UserParticipantLink.class, FIELD__PARTICIPANT);
    public static final FieldRef FR__DEPARTMENT = new FieldRef(UserParticipantLink.class, FIELD__DEPARTMENT);
+   public static final FieldRef FR__ON_BEHALF_OF = new FieldRef(UserParticipantLink.class, FIELD__ON_BEHALF_OF);
 
    public static final String TABLE_NAME = "user_participant";
    public static final String DEFAULT_ALIAS = "ump";
@@ -77,6 +79,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
 
    private long participant;
    private long department;
+   private long onBehalfOf;
    
    private transient IModelParticipant cachedParticipant;
 

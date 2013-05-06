@@ -13,13 +13,10 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -27,31 +24,14 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.security.HMAC;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.ITrigger;
-import org.eclipse.stardust.engine.api.model.PWHConstants;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
 import org.eclipse.stardust.engine.api.runtime.UserPK;
-import org.eclipse.stardust.engine.core.cache.CacheHelper;
-import org.eclipse.stardust.engine.core.cache.CacheInputStream;
-import org.eclipse.stardust.engine.core.cache.CacheOutputStream;
-import org.eclipse.stardust.engine.core.cache.Cacheable;
-import org.eclipse.stardust.engine.core.cache.UsersCache;
+import org.eclipse.stardust.engine.core.cache.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.PersistenceController;
-import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.PersistentVector;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -70,6 +50,11 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
 
    private static final int EXTENDED_STATE_PASSWORD_EXPIRED = 1;  // first bit
    private static final int EXTENDED_STATE_QUALITY_CODE_SIZE = 2; // 2nd bit
+
+   public static final int EXTENDED_STATE_FLAG_DEPUTY_OF_PROP = 4; // 3rd bit
+
+   @SuppressWarnings("unused")
+   private static final int EXTENDED_STATE_FLAG_ALL = ~0; // all bits   
    
    
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
@@ -145,6 +130,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    private UserRealmBean realm;
    
    private transient Integer qualityAssurancePropability = null;
+   private transient PropertyIndexHandler propIndexHandler = new PropertyIndexHandler();   
    
    /**
     * Holds a cached version of profile
@@ -1208,20 +1194,16 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    public void setQualityAssuranceProbability(Integer probability)
    {
       if(probability != null)
-      {
-         extendedState = extendedState | EXTENDED_STATE_QUALITY_CODE_SIZE;   
+      {           
          qualityAssurancePropability = probability;      
          
-         setPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY, probability);         
-         markModified(FIELD__EXTENDED_STATE); 
+         setPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY, probability);          
       } 
       else
       {
-         extendedState = extendedState & ~EXTENDED_STATE_QUALITY_CODE_SIZE;
          qualityAssurancePropability = probability;      
          
-         removeProperty(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);
-         markModified(FIELD__EXTENDED_STATE);          
+         removeProperty(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);         
       }
    }   
    
@@ -1240,8 +1222,141 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       return qualityAssurancePropability;
    }
    
+   private boolean isQualityAssuranceProbabilitySet()
+   {
+      Attribute property = (Attribute) getAllProperties().get(
+            QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);
+      return propertyExists(property);
+   }
+
+   private boolean isDeputyOfAny()
+   {
+      Attribute property = (Attribute) getAllProperties().get(UserUtils.IS_DEPUTY_OF);
+      return propertyExists(property);
+   }
+
+   public boolean isPropertyAvailable(int pattern)
+   {
+      fetch();
+      return (extendedState & pattern) == pattern ? true : false;
+   }
+   
+         
 	@Override
 	protected String[] supportedMultiAttributes() {
 		return new String[] { UserUtils.IS_DEPUTY_OF };
 	}   
+	
+	   
+   @Override
+   public void addPropertyValues(Map attributes)
+   {
+      super.addPropertyValues(attributes);
+
+      propIndexHandler.handleIndexForQAProperty(isQualityAssuranceProbabilitySet());
+      propIndexHandler.handleIndexForDeputyOfProperty(isDeputyOfAny());
+   }
+
+   @Override
+   public void setPropertyValue(String name, Serializable value)
+   {
+      super.setPropertyValue(name, value);
+
+      propIndexHandler.handleIndexForQAProperty(isQualityAssuranceProbabilitySet());
+      propIndexHandler.handleIndexForDeputyOfProperty(isDeputyOfAny());
+   }
+
+   @Override
+   public void removeProperty(String name)
+   {
+      super.removeProperty(name);
+
+      propIndexHandler.handleIndexForQAProperty(isQualityAssuranceProbabilitySet());
+      propIndexHandler.handleIndexForDeputyOfProperty(isDeputyOfAny());
+   }
+
+   @Override
+   public void removeProperty(String name, Serializable value)
+   {
+      if (UserUtils.IS_DEPUTY_OF.equals(name) && value instanceof Long)
+      {
+         if (UserUtils.isDeputyOfAny(this))
+         {
+            List<Attribute> existing = (List<Attribute>) getPropertyValue(UserUtils.IS_DEPUTY_OF);
+            if (existing != null)
+            {
+               long originalUserOid = (Long) value;
+               for (Iterator<Attribute> attributes = existing.iterator(); attributes.hasNext();)
+               {
+                  Attribute attribute = attributes.next();
+                  String attributeValue = (String) attribute.getValue();
+                  DeputyBean db = DeputyBean.fromString(attributeValue);
+                  if (db.user == originalUserOid)
+                  {
+                     super.removeProperty(name, attributeValue);
+                     break;
+                  }
+               }
+            }
+         }
+      }
+      else
+      {
+         super.removeProperty(name, value);
+      }
+
+      propIndexHandler.handleIndexForQAProperty(isQualityAssuranceProbabilitySet());
+      propIndexHandler.handleIndexForDeputyOfProperty(isDeputyOfAny());
+   }
+
+   private class PropertyIndexHandler
+   {
+      public void handleIndexForQAProperty(boolean qualityAssuranceAvailable)
+      {
+         if (qualityAssuranceAvailable)
+         {
+            markPropertyAsAvailable(EXTENDED_STATE_QUALITY_CODE_SIZE);
+         }
+         else
+         {
+            unmarkPropertyAsAvailable(EXTENDED_STATE_QUALITY_CODE_SIZE);
+         }
+      }
+
+      public void handleIndexForDeputyOfProperty(boolean isDeputyOfAny)
+      {
+         if (isDeputyOfAny)
+         {
+            markPropertyAsAvailable(EXTENDED_STATE_FLAG_DEPUTY_OF_PROP);
+         }
+         else
+         {
+            unmarkPropertyAsAvailable(EXTENDED_STATE_FLAG_DEPUTY_OF_PROP);
+         }
+      }
+
+      private void markPropertyAsAvailable(int pattern)
+      {
+         fetch();
+
+         int tempPropsAvailable = extendedState | pattern;
+         if (extendedState != tempPropsAvailable)
+         {
+            extendedState = tempPropsAvailable;
+            markModified(FIELD__EXTENDED_STATE);
+         }
+      }
+
+      private void unmarkPropertyAsAvailable(int pattern)
+      {
+         fetch();
+
+         int tempPropsAvailable = extendedState & ~pattern;
+         if (extendedState != tempPropsAvailable)
+         {
+            extendedState = tempPropsAvailable;
+            markModified(FIELD__EXTENDED_STATE);
+         }
+      }
+   }	
 }

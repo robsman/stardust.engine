@@ -524,85 +524,77 @@ public interface UserService extends Service
          defaults={ExecutionPermission.Default.ALL})
    List getUserRealms() throws ConcurrencyException, IllegalOperationException;
    
-	/**
-	 * Adds a new deputy user for a given user. This deputy user inherits for
-	 * the defined time frame all grants from given user. The deputy user has to
-	 * login again before the inherited grants become active.
-	 * 
-	 * @param user
-	 *            the user to which a deputy user shall be added.
-	 * @param deputyUser
-	 *            the deputy user.
-	 * @param fromDate
-	 *            date from when deputy user inherits all grants of user. not
-	 *            allowed to be null.
-	 * @param toDate
-	 *            date when inherited grants are revoked from deputy user. If
-	 *            date is null then no upper limit exists.
-	 * 
-	 * @return the created deputy.
-	 * @throws DeputyExistsException
-	 *             if the requested deputy already exists.
-	 */
-	Deputy addDeputy(User user, User deputyUser, Date fromDate, Date toDate);
+   /**
+    * Adds a new deputy user for a given user. This deputy user inherits for the defined
+    * time frame all grants from given user. The deputy user has to login again before the
+    * inherited grants become active.
+    * 
+    * @param user
+    *           the user to which a deputy user shall be added.
+    * @param deputyUser
+    *           the deputy user.
+    * @param options TODO
+    * @return the created deputy.
+    * @throws DeputyExistsException
+    *            if the requested deputy already exists.
+    */
+    Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options);
 
-	/**
-	 * Modifies an existing deputy user for a given user. This deputy user
-	 * inherits for the defined time frame all grants from given user. The
-	 * deputy user has to login again before changes become active.
-	 * 
-	 * @param user
-	 *            the user for which a deputy user shall be modified.
-	 * @param deputyUser
-	 *            the deputy user.
-	 * @param fromDate
-	 *            date from when deputy user inherits all grants of user. not
-	 *            allowed to be null.
-	 * @param toDate
-	 *            date when inherited grants are revoked from deputy user. If
-	 *            date is null then no upper limit exists.
-	 * 
-	 * @return the created deputy.
-	 * @throws ObjectNotFoundException
-	 *             if the requested deputy does not exists.
-	 */
-	Deputy modifyDeputy(User user, User deputyUser, Date fromDate, Date toDate)
-			throws ObjectNotFoundException;
+   /**
+    * Modifies an existing deputy user for a given user. This deputy user inherits for the
+    * defined time frame all grants from given user. The deputy user has to login again
+    * before changes become active.
+    * 
+    * @param user
+    *           the user for which a deputy user shall be modified.
+    * @param deputyUser
+    *           the deputy user.
+    * @param fromDate
+    *           date from when deputy user inherits all grants of user. not allowed to be
+    *           null.
+    * @param toDate
+    *           date when inherited grants are revoked from deputy user. If date is null
+    *           then no upper limit exists.
+    * 
+    * @return the created deputy.
+    * @throws ObjectNotFoundException
+    *            if the requested deputy does not exists.
+    */
+    Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws ObjectNotFoundException;
 
-	/**
-	 * Removes an existing deputy user for a given user. All inherited grants
-	 * from user are revoked from deputy user. The deputy user has to login
-	 * again before changes become active.
-	 * 
-	 * @param user
-	 *            the user for which a deputy user shall be removed.
-	 * @param deputyUser
-	 *            the deputy user.
-	 * 
-	 * @throws ObjectNotFoundException
-	 *             if the requested deputy does not exists.
-	 */
-	void removeDeputy(User user, User deputyUser)
-			throws ObjectNotFoundException;
+   /**
+    * Removes an existing deputy user for a given user. All inherited grants from user are
+    * revoked from deputy user. The deputy user has to login again before changes become
+    * active.
+    * 
+    * @param user
+    *           the user for which a deputy user shall be removed.
+    * @param deputyUser
+    *           the deputy user.
+    * 
+    * @throws ObjectNotFoundException
+    *            if the requested deputy does not exists.
+    */
+    void removeDeputy(UserInfo user, UserInfo deputyUser) throws ObjectNotFoundException;
 
-	/**
-	 * Returns a list of all deputy users for the given user.
-	 * 
-	 * @param user
-	 *            the user whose deputy users shall be returned.
-	 * 
-	 * @return List of deputy users for given user.
-	 */
-	List<Deputy> getDeputies(User user);
+   /**
+    * Returns a list of all deputy users for the given user.
+    * 
+    * @param user
+    *           the user whose deputy users shall be returned.
+    * 
+    * @return List of deputy users for given user.
+    */
+    List<Deputy> getDeputies(UserInfo user);
 
-	/**
-	 * Returns a list of all users for which the given user is an deputy user.
-	 * 
-	 * @param deputyUser
-	 *            the deputy user whose users shall be returned.
-	 * 
-	 * @return List of users for given deputy user.
-	 */
-	List<User> getUsersBeingDeputyFor(User deputyUser);
-         
+   /**
+    * Returns a list of all users for which the given user is an deputy user.
+    * 
+    * @param deputyUser
+    *           the deputy user whose users shall be returned.
+    * 
+    * @return List of users for given deputy user.
+    */
+    List<Deputy> getUsersBeingDeputyFor(UserInfo deputyUser);
+
 }

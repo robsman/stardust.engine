@@ -15,8 +15,6 @@ import java.util.Date;
 
 import org.eclipse.stardust.engine.api.runtime.Deputy;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 
 public class DeputyDetails implements Deputy
 {
@@ -25,12 +23,12 @@ public class DeputyDetails implements Deputy
    private Date fromDate;
    private Date toDate;
    
-   private static final long serialVersionUID = 6191254357079939981L;
+   private static final long serialVersionUID = 1L;
 
-   public DeputyDetails(IUser user, IUser deputyUser, Date fromDate, Date toDate)
+   public DeputyDetails(UserInfo user, UserInfo deputyUser, Date fromDate, Date toDate)
    {
-      this.user = DetailsFactory.create(user);
-      this.deputyUser = DetailsFactory.create(deputyUser);
+      this.user = user;
+      this.deputyUser = deputyUser;
       this.fromDate = fromDate;
       this.toDate = toDate;
    }

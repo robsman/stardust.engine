@@ -1632,26 +1632,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return AuditTrailPersistence.valueOf(auditTrailPersistence);
    }
    
-   private static boolean propertyExists(Attribute properties)
-   {
-      boolean result = false;
-
-      if (null != properties)
-      {
-         if (properties instanceof MultiAttribute)
-         {
-            MultiAttribute container = (MultiAttribute) properties;
-            result = !((List) container.getValue()).isEmpty();
-         }
-         else
-         {
-            result = true;
-         }
-      }
-
-      return result;
-   }
-
    /**
     * @throws ObjectNotFoundException
     * @throws InvalidValueException

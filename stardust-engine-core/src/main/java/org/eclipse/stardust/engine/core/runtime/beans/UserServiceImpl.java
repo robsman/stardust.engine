@@ -16,6 +16,7 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -26,7 +27,6 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.security.InvalidPasswordException;
-import org.eclipse.stardust.engine.api.dto.DeputyDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.UserGroupDetailsLevel;
@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
@@ -857,46 +858,111 @@ public class UserServiceImpl implements UserService, Serializable
    }
    
 	@Override
-	public Deputy addDeputy(User user, User deputyUser, Date fromDate,
-			Date toDate) {
+	public Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
+	{
+		if (options == null)
+		{
+			options = DeputyOptions.DEFAULT;
+		}	
 		UserBean userBean = UserBean.findByOid(user.getOID());
 		UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
 
-		// TODO: check if this deputy definition already exists
+      UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
 
-		String propertyValue = MessageFormat.format("{0}({1},{2})'{'*'}",
-				new Object[] { userBean.getOID(), fromDate.getTime(),
-						toDate == null ? -1 : toDate.getTime() });
+      DeputyBean db = new DeputyBean(userBean.getOID(), options.getFromDate(),
+            options.getToDate());
 
-		deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, propertyValue);
+      deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, db.toString());
 
-		return new DeputyDetails(userBean, deputyUserBean, fromDate, toDate);
+      UserUtils.updateDeputyGrants(deputyUserBean);
+
+      return db.createDeputyDetails(deputyUser);
+	}
+
+   @Override
+   public Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
+   {
+      List<Deputy> deputies = getUsersBeingDeputyFor(deputyUser);
+      for (Deputy deputy : deputies)
+      {
+         if (deputy.getUser().equals(user))
+         {
+            removeDeputy(user, deputyUser);
+            return addDeputy(user, deputyUser, options);
+         }
+      }
+
+      throw new ObjectNotFoundException(
+            BpmRuntimeError.ATDB_DEPUTY_DOES_NOT_EXISTS.raise(deputyUser.getOID(),
+                  user.getOID()));
+   }
+
+   @Override
+   public void removeDeputy(UserInfo user, UserInfo deputyUser)
+   {
+      UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
+      UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
+      
+   }
+
+	@Override
+	public List<Deputy> getDeputies(UserInfo user)
+	{
+      UserBean userBean = UserBean.findByOid(user.getOID());
+      
+      String likeOpPattern = MessageFormat.format(
+            UserUtils.IS_DEPUTY_OF_PROP_PREFIX_PATTERN,
+            new Object[] {Long.valueOf(userBean.getOID()).toString()});
+
+      ResultIterator<UserProperty> iterator = SessionFactory.getSession(
+            SessionFactory.AUDIT_TRAIL).getIterator(
+            UserProperty.class,
+            QueryExtension.where(Predicates.andTerm(
+                  Predicates.isEqual(UserProperty.FR__NAME, UserUtils.IS_DEPUTY_OF),
+                  Predicates.isLike(UserProperty.FR__STRING_VALUE, likeOpPattern))));
+
+      Map<Long, Deputy> deputyMap = CollectionUtils.newHashMap();
+      while (iterator.hasNext())
+      {
+         UserProperty userProperty = iterator.next();
+
+         final long deputyUserOid = userProperty.getObjectOID();
+         if ( !deputyMap.containsKey(deputyUserOid))
+         {
+            String stringValue = (String) userProperty.getValue();
+            DeputyBean deputyBean = DeputyBean.fromString(stringValue);
+
+            UserInfo deputyUserInfo = DetailsFactory.create(UserBean.findByOid(deputyUserOid));
+
+            deputyMap.put(deputyUserOid, deputyBean.createDeputyDetails(deputyUserInfo));
+         }
+
+      }
+
+		return CollectionUtils.newArrayList(deputyMap.values());
+
 	}
 
 	@Override
-	public Deputy modifyDeputy(User user, User deputyUser, Date fromDate,
-			Date toDate) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	public List<Deputy> getUsersBeingDeputyFor(UserInfo deputyUser)
+	{
+      List<Deputy> result = CollectionUtils.newArrayList();
 
-	@Override
-	public void removeDeputy(User user, User deputyUser) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public List<Deputy> getDeputies(User user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<User> getUsersBeingDeputyFor(User deputyUser) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+      UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
    
-   
+      if (UserUtils.isDeputyOfAny(deputyUserBean))
+      {
+         List<UserProperty> propertyList = (List<UserProperty>) deputyUserBean.getPropertyValue(UserUtils.IS_DEPUTY_OF);
+
+         for (UserProperty userProperty : propertyList)
+         {
+            String stringValue = (String) userProperty.getValue();
+            DeputyBean deputyBean = DeputyBean.fromString(stringValue);
+            result.add(deputyBean.createDeputyDetails(deputyUser));
+         }
+      }
+
+      return result;
+	}
+      
 }

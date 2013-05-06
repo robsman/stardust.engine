@@ -17,8 +17,8 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
-import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.UserDetails.AddedGrant;
+import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
@@ -26,7 +26,9 @@ import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
 public final class UserUtils
 {
-   public static final String IS_DEPUTY_OF = "Infinity.Deputy.IsDeputyOf"; 
+   public static final String IS_DEPUTY_OF = "Infinity.Deputy.IsDeputyOf";
+   public static final String IS_DEPUTY_OF_PROP_PREFIX_PATTERN = "<d><u>{0}</u>%";
+   
    public static final List<String> PROTECTED_ATTRIBUTES = Arrays.asList(new String[] {
          SecurityUtils.LAST_PASSWORDS, 
          QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY,
@@ -242,6 +244,30 @@ public final class UserUtils
          return "GrantKey [id=" + id + ", dptmtOid=" + dptmtOid + "]";
       }
    }
+   
+   static void removeExistingDeputy(long oid, UserBean deputyUserBean)
+   {
+      deputyUserBean.removeProperty(IS_DEPUTY_OF, Long.valueOf(oid));
+   }
+
+   static void updateDeputyGrants(UserBean deputyUserBean)
+   {
+      long now = new Date().getTime();
+      List<Attribute> existing = (List<Attribute>) deputyUserBean.getPropertyValue(IS_DEPUTY_OF);
+      for (Attribute attribute : existing)
+      {
+         String value = (String) attribute.getValue();
+         DeputyBean db = DeputyBean.fromString(value);
+         /*
+          * if (db.isActive()) { updateDeputyGrants(); }
+          */
+      }
+   }   
+     
+   public static boolean isDeputyOfAny(IUser user)
+   {
+      return user.isPropertyAvailable(UserBean.EXTENDED_STATE_FLAG_DEPUTY_OF_PROP);
+   }   
 
    private UserUtils() {}
 }

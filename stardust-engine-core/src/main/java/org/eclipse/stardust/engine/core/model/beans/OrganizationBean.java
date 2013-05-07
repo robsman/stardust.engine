@@ -27,10 +27,7 @@ import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IRole;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 
 
 /**
@@ -40,6 +37,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 public class OrganizationBean extends ModelParticipantBean
       implements IOrganization
 {
+   private static final long serialVersionUID = 1L;
+   
    private List participants = null;
 
    private IRole teamLead = null;
@@ -200,24 +199,15 @@ public class OrganizationBean extends ModelParticipantBean
          return false;
       }
 
-      ModelManager manager = ModelManagerFactory.getCurrent();
-      
-      for (Iterator<IRole> roles = user.getAllRoles(); roles.hasNext();)
+      final ModelManager manager = ModelManagerFactory.getCurrent();
+      return UserUtils.isAuthorized(user, new Predicate<IModelParticipant>()
       {
-         if (isAuthorized(roles.next(), manager))
+         @Override
+         public boolean accept(IModelParticipant participant)
          {
-            return true;
+            return isAuthorized(participant, manager);
          }
-      }
-
-      for (Iterator<IOrganization> organizations = user.getAllOrganizations(); organizations.hasNext();)
-      {
-         if (isAuthorized(organizations.next(), manager))
-         {
-            return true;
-         }
-      }
-      return false;
+      });
    }
 
    public boolean isAuthorized(IUserGroup userGroup)

@@ -14,19 +14,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.SplicingIterator;
-import org.eclipse.stardust.common.Unknown;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IRole;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 
 /**
  * @author mgille
@@ -36,7 +29,6 @@ public class RoleBean extends ModelParticipantBean implements IRole
 {
    private static final long serialVersionUID = 1L;
 
-   private static final String CARDINALITY_ATT = "Cardinality";
    private int cardinality = Unknown.INT;
    
    private List teams = null;
@@ -113,11 +105,7 @@ public class RoleBean extends ModelParticipantBean implements IRole
    
    private boolean isAuthorized(IModelParticipant participant, ModelManager manager)
    {
-      if (participant == this || manager.getRuntimeOid(participant) == manager.getRuntimeOid(this))
-      {
-         return true;
-      }
-      return false;
+      return participant == this || manager.getRuntimeOid(participant) == manager.getRuntimeOid(this);
    }
 
    public boolean isAuthorized(IUser user)
@@ -127,16 +115,15 @@ public class RoleBean extends ModelParticipantBean implements IRole
          return false;
       }
 
-      ModelManager manager = ModelManagerFactory.getCurrent();
-      
-      for (Iterator<IRole> roles = user.getAllRoles(); roles.hasNext();)
+      final ModelManager manager = ModelManagerFactory.getCurrent();
+      return UserUtils.isAuthorized(user, new Predicate<IModelParticipant>()
       {
-         if (isAuthorized(roles.next(), manager))
+         @Override
+         public boolean accept(IModelParticipant participant)
          {
-            return true;
+            return isAuthorized(participant, manager);
          }
-      }
-      return false;
+      });
    }
 
    public boolean isAuthorized(IUserGroup userGroup)

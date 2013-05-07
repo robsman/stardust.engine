@@ -11,8 +11,12 @@
 
 package org.eclipse.stardust.engine.api.dto;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.Set;
 
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.runtime.Deputy;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
 
@@ -22,15 +26,18 @@ public class DeputyDetails implements Deputy
    private UserInfo deputyUser;
    private Date fromDate;
    private Date toDate;
+   private Set<ModelParticipantInfo> participints;
    
    private static final long serialVersionUID = 1L;
 
-   public DeputyDetails(UserInfo user, UserInfo deputyUser, Date fromDate, Date toDate)
+   public DeputyDetails(UserInfo user, UserInfo deputyUser, Date fromDate, Date toDate,
+         Set<ModelParticipantInfo> participints)
    {
       this.user = user;
       this.deputyUser = deputyUser;
       this.fromDate = fromDate;
       this.toDate = toDate;
+      this.participints =  CollectionUtils.copySet(participints);
    }
 
    @Override
@@ -62,6 +69,12 @@ public class DeputyDetails implements Deputy
    {
       return "Deputy " + deputyUser + " for user " + user + ". Active in timeframe from "
             + fromDate + " until " + toDate;
+   }
+   
+   @Override
+   public Set<ModelParticipantInfo> getParticipints()
+   {
+      return Collections.unmodifiableSet(participints);
    }
 
 }

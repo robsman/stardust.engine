@@ -97,6 +97,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private ExecutionPlan executionPlan;
    
    private boolean deploymentBeanCreated = false;
+   
+   private long authorizedOnBehalfOf = 0;
 
    private EventBindingRecords eventBindingRecords;
    
@@ -127,6 +129,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       this.session = session;
    }
 
+   public long getAuthorizedOnBehalfOf()
+   {
+      return authorizedOnBehalfOf;
+   }
+
+   public void setAuthorizedOnBehalfOf(long authorizedOnBehalfOf)
+   {
+      this.authorizedOnBehalfOf = authorizedOnBehalfOf;
+   }      
+   
    public IDocumentRepositoryService getDocumentRepositoryService()
    {
       return documentRepositoryService;

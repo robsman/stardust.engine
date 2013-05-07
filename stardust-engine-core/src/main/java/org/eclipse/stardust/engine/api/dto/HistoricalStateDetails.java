@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserInfo;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
@@ -54,6 +55,7 @@ public class HistoricalStateDetails implements HistoricalState
    private final Participant onBehalfOf;
    private final ParticipantInfo participant;
    private final ParticipantInfo onBehalfOfParticipant;
+   private final UserInfo onBehalfOfUser;   
    private final User user;
    
    public String toString()
@@ -72,6 +74,11 @@ public class HistoricalStateDetails implements HistoricalState
       builder.append(participant == null ? "none" : participant);
       builder.append('(');
       builder.append(user == null ? "none" : user.getAccount());
+      if (onBehalfOfUser != null)
+      {
+         builder.append(", on behalf of ");
+         builder.append(onBehalfOfUser.getId());
+      }      
       builder.append(')');
       return builder.toString();
    }
@@ -107,8 +114,9 @@ public class HistoricalStateDetails implements HistoricalState
          this.onBehalfOfParticipant = getParticipantInfo(historicalState.getOnBehalfOf(),
                historicalState.getOnBehalfOfDepartment());
          
-         this.user = (User) DetailsFactory.createParticipantDetails(historicalState
-               .getUser());
+         this.onBehalfOfUser = DetailsFactory.create(historicalState.getOnBehalfOfUser());
+
+         this.user = DetailsFactory.createUser(historicalState.getUser());
       }
       finally
       {
@@ -178,6 +186,11 @@ public class HistoricalStateDetails implements HistoricalState
    {
       return user;
    }
+   
+   public UserInfo getOnBehalfOfUser()
+   {
+      return onBehalfOfUser;
+   }      
 
    private static Participant getParticipant(IParticipant participant,
          IDepartment department)

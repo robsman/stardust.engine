@@ -12,27 +12,11 @@ package org.eclipse.stardust.engine.core.persistence.jdbc;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
-import java.sql.BatchUpdateException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.Vector;
+import java.util.Date;
 
 import javax.sql.DataSource;
 
@@ -43,11 +27,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ValueProvider;
-import org.eclipse.stardust.common.error.ApplicationException;
-import org.eclipse.stardust.common.error.ConcurrencyException;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
+import org.eclipse.stardust.common.error.*;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
@@ -72,44 +52,17 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenc
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.SequenceGenerator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceSupport;
-import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.BlobReader;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ByteArrayBlobReader;
-import org.eclipse.stardust.engine.core.persistence.jms.JmsBytesMessageBuilder;
-import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobAuditTrailPersistor;
-import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
-import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.persistence.jms.*;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLogUtils;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterInstance;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
-import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
+import org.eclipse.stardust.engine.core.runtime.setup.*;import org.eclipse.stardust.engine.core.runtime.utils.PerformerUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.IActivityExecutionStrategy;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListener;
-
+import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 
 /**
  * Serves as an adapter for EJB integration.
@@ -4109,7 +4062,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          ActivityInstanceBean ai = (ActivityInstanceBean) dpc.getPersistent();
 
          List historicStates = ai.getHistoricStates();
-         if ( !historicStates.isEmpty())
+         if (!historicStates.isEmpty())
          {
             // append current state with open interval
             historicStates.add(new ChangeLogDigester.HistoricState(
@@ -4119,10 +4072,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             historicStates = digester.digestChangeLog(ai, historicStates);
 
             Date predecessor = null;
-            if ( !historicStates.isEmpty())
+            if (!historicStates.isEmpty())
             {
                // persist digested change log
                PerformerUtils.EncodedPerformer performedOnBehalfOf = null;
+               long onBehalfOfUserOid = UserUtils.getOnBehalfOf();
 
                // first state may be a follow up to the last persisted one
                ChangeLogDigester.HistoricState initialState = (ChangeLogDigester.HistoricState) historicStates.get(0);
@@ -4144,6 +4098,10 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                      predecessor = initialState.getUntil();
 
                      performedOnBehalfOf = updatedRecord.getEncodedOnBehalfOf();
+                     if (onBehalfOfUserOid == 0)
+                     {
+                        onBehalfOfUserOid = updatedRecord.getOnBehalfOfUserOid();
+                     }                     
                   }
                   else
                   {
@@ -4160,27 +4118,41 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                {
                   ChangeLogDigester.HistoricState state = (ChangeLogDigester.HistoricState) historicStates.get(i);
 
-                  if ( !state.isUpdatedRecord())
+                  if (!state.isUpdatedRecord())
                   {
-                     // TODO propagate onBehalfOf
 
                      IParticipant performer = state.getPerformer();
                      IDepartment department = state.getDepartment();
-                     if (null != performer && !(performer instanceof IUser))
+                     
+                     if (performer != null)
                      {
-                        // replace with new non-user performer
-                        performedOnBehalfOf = PerformerUtils.encodeParticipant(performer,
-                              department);
+                        if (performer instanceof IUser)
+                        {
+                           if (((IUser) performer).getOID() == onBehalfOfUserOid)
+                           {
+                              onBehalfOfUserOid = 0;
+                           }
+                        }
+                        else
+                        {
+                           // replace with new non-user performer
+                           performedOnBehalfOf = PerformerUtils.encodeParticipant(
+                                 performer, department);
+                        }
                      }
 
-                     new ActivityInstanceHistoryBean(ai, state.getFrom(), state
-                           .getUntil(), state.getState(), performer, department,
-                           performedOnBehalfOf);
-                     if ((null != predecessor) && !predecessor.equals(state.getFrom()))
+                     if ( !isTerminatedState(state.getState()) || onBehalfOfUserOid != 0)
                      {
-                        trace.error("Broken AI history link: " + ai.getOID() + ", " + predecessor + " vs. " + state.getFrom().getTime());
+                        new ActivityInstanceHistoryBean(ai, state.getFrom(),
+                              state.getUntil(), state.getState(), performer, department,
+                              performedOnBehalfOf, onBehalfOfUserOid);
+                        if ((null != predecessor) && !predecessor.equals(state.getFrom()))
+                        {
+                           trace.error("Broken AI history link: " + ai.getOID() + ", "
+                                 + predecessor + " vs. " + state.getFrom().getTime());
+                        }
+                        predecessor = state.getUntil();
                      }
-                     predecessor = state.getUntil();
                   }
                }
             }
@@ -4188,6 +4160,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
    }
 
+   private boolean isTerminatedState(ActivityInstanceState state)
+   {
+      return ActivityInstanceState.Completed.equals(state)
+            || ActivityInstanceState.Aborted.equals(state);
+   }   
+   
    /**
     * This method adds a provided connection hook. All added hooks
     * will be called arbitrarily.

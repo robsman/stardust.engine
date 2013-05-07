@@ -17,6 +17,7 @@ import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserInfo;
 
 
 /**
@@ -117,6 +118,13 @@ public interface HistoricalState extends Serializable
     * @return the participant of the worklist before the activity instance was activated.
     */
    ParticipantInfo getOnBehalfOfParticipant();
+   
+   /**
+    * Gets the user on behalf of which the activity state changed.
+    * 
+    * @return the user on behalf of which the activity state changed.
+    */
+   UserInfo getOnBehalfOfUser();            
    
    /**
     * Gets the workflow user who changed the state or worklist of the activity instance.

@@ -868,9 +868,9 @@ public class UserServiceImpl implements UserService, Serializable
 		UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
 
       UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
-
+      
       DeputyBean db = new DeputyBean(userBean.getOID(), options.getFromDate(),
-            options.getToDate());
+            options.getToDate(), options.getParticipints());
 
       deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, db.toString());
 

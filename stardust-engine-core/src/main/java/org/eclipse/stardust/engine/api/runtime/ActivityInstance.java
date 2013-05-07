@@ -208,13 +208,22 @@ public interface ActivityInstance extends RuntimeObject
    String getPerformedByName();
 
    /**
-    * Returns the user who completed this activity instance.
+    * Returns the user who performed this activity instance.
     *
-    * @return The user who completed this activity instance.
+    * @return The user who performed this activity instance or null if the activity instance is not completed.
     */
    UserInfo getPerformedBy();
 
    /**
+    * Returns the user on behalf of this activity instance was performed.
+    * 
+    * @return The user on behalf of this activity instance was performed or null if the
+    *         activity instance is not completed or if it was not performed on behalf of
+    *         another user.
+    */
+   UserInfo getPerformedOnBehalfOf();
+
+   /** 
     * Gets the current value of a descriptor with the specified ID.
     *
     * @param id the id of the descriptor.

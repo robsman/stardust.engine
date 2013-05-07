@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
-import org.eclipse.stardust.engine.api.model.ParticipantInfo;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 
 /**
  * Container class for the deputy description options.
@@ -34,7 +34,7 @@ public class DeputyOptions implements Serializable
 
    private Date fromDate;
    private Date toDate;
-   private Set<ParticipantInfo> participints;
+   private Set<ModelParticipantInfo> participints;
 
    public DeputyOptions()
    {
@@ -43,10 +43,10 @@ public class DeputyOptions implements Serializable
 
    public DeputyOptions(Date fromDate, Date toDate)
    {
-      this(fromDate, toDate, Collections.<ParticipantInfo> emptySet());
+      this(fromDate, toDate, Collections.<ModelParticipantInfo> emptySet());
    }
 
-   public DeputyOptions(Date fromDate, Date toDate, Set<ParticipantInfo> participints)
+   public DeputyOptions(Date fromDate, Date toDate, Set<ModelParticipantInfo> participints)
    {
       super();
 
@@ -85,12 +85,12 @@ public class DeputyOptions implements Serializable
       this.toDate = toDate;
    }
 
-   public Set<ParticipantInfo> getParticipints()
+   public Set<ModelParticipantInfo> getParticipints()
    {
       return participints;
    }
 
-   public void setParticipints(Set<ParticipantInfo> participints)
+   public void setParticipints(Set<ModelParticipantInfo> participints)
    {
       if (participints == null)
       {

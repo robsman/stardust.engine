@@ -12,6 +12,9 @@ package org.eclipse.stardust.engine.api.runtime;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Set;
+
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 
 /**
  * The <code>Deputy</code> represents a snapshot of the deputy user association.
@@ -47,4 +50,12 @@ public interface Deputy extends Serializable
     * @return the deactivation date. null means that no deactivation date is set.
     */
    Date getUntilDate();
+   
+   /**
+    * Return the participant which are used to restrict the grants inherited by deputy
+    * user from user.
+    * 
+    * @return Set of participants used for restricting grant inheritance.
+    */
+   public Set<ModelParticipantInfo> getParticipints();
 }

@@ -25,7 +25,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.spi.IChangeLogDigestionStrategy;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.spi.IChangeLogDigestionStrategyFactory;
 
-
 /**
  * @author rsauer
  * @version $Revision$
@@ -271,6 +270,5 @@ public class ChangeLogDigester
       {
          return department;
       }
-   }
-   
+   }   
 }

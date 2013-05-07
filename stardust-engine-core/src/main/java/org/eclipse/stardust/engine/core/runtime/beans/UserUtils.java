@@ -12,10 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.*;
 
-import org.eclipse.stardust.common.Attribute;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetails.AddedGrant;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
@@ -23,6 +20,7 @@ import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.ClosableIterator;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 
@@ -247,6 +245,60 @@ public final class UserUtils
          return "GrantKey [id=" + id + ", dptmtOid=" + dptmtOid + "]";
       }
    }
+   
+   public static boolean isAuthorized(IUser user, Predicate<IModelParticipant> predicate)
+   {
+      Set<IModelParticipant> visited = CollectionUtils.newHashSet();
+      Iterator<UserParticipantLink> source = user.getAllParticipantLinks();
+      while (source.hasNext())
+      {
+         UserParticipantLink link = source.next();
+         IModelParticipant participant = link.getParticipant();
+         if ( !visited.contains(participant))
+         {
+            if (predicate.accept(participant))
+            {
+               setOnBehalfOf(link.getOnBehalfOf());
+               return true;
+            }
+            visited.add(participant);
+         }
+      }
+      return false;
+   }
+
+   public static boolean isOnBehalfOf()
+   {
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      return rtEnv == null ? false : rtEnv.getAuthorizedOnBehalfOf() != 0;
+   }
+
+   public static void clearOnBehalfOf()
+   {
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      if (rtEnv != null)
+      {
+         rtEnv.setAuthorizedOnBehalfOf(0);
+      }
+   }
+
+   public static void setOnBehalfOf(long onBehalfOf)
+   {
+      if (onBehalfOf != 0)
+      {
+         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         if (rtEnv != null)
+         {
+            rtEnv.setAuthorizedOnBehalfOf(onBehalfOf);
+         }
+      }
+   }
+
+   public static long getOnBehalfOf()
+   {
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      return rtEnv == null ? 0 : rtEnv.getAuthorizedOnBehalfOf();
+   }      
    
    static void removeExistingDeputy(long oid, IUser deputyUser)
    {

@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
@@ -116,6 +117,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    private ParticipantInfo performer;
    private UserInfo performedBy;
+   private UserInfo performedOnBehalfOf;   
    private User userPerformer;
 
    private List<HistoricalState> historicalStates = Collections.emptyList();
@@ -233,33 +235,47 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       switch (historicalStatesPolicy)
       {
       case WITH_HIST_STATES:
-         Iterator histStatesIterator = ActivityInstanceHistoryBean
+         Iterator<ActivityInstanceHistoryBean> histStatesIterator = ActivityInstanceHistoryBean
                .getAllForActivityInstance(activityInstance, false);
          if (histStatesIterator.hasNext())
          {
-         historicalStates = Collections.<HistoricalState>unmodifiableList(DetailsFactory.createCollection(
-                  histStatesIterator, ActivityInstanceHistoryBean.class, HistoricalStateDetails.class));
+            List<HistoricalStateDetails> states = DetailsFactory.createCollection(
+                  histStatesIterator, ActivityInstanceHistoryBean.class,
+                  HistoricalStateDetails.class);
+            if (activityInstance.isTerminated())
+            {
+               HistoricalStateDetails first = states.get(0);
+               performedOnBehalfOf = first.getOnBehalfOfUser();
+               if (performedOnBehalfOf != null)
+               {
+                  states.remove(0);
+               }
+            }
+            historicalStates = Collections.<HistoricalState> unmodifiableList(states);
          }
          break;
       case WITH_LAST_HIST_STATE:
-         ActivityInstanceHistoryBean last = ActivityInstanceHistoryBean
+         Pair<ActivityInstanceHistoryBean, IUser> pair = ActivityInstanceHistoryBean
                .getLastForActivityInstance(activityInstance);
+         performedOnBehalfOf = DetailsFactory.create(pair.getSecond());
+         ActivityInstanceHistoryBean last = pair.getFirst();
          if (last != null)
          {
             historicalStates = Collections.<HistoricalState>singletonList(DetailsFactory.create(
-                  last, ActivityInstanceHistoryBean.class,
-               HistoricalStateDetails.class));
-      }
+                  pair, ActivityInstanceHistoryBean.class, HistoricalStateDetails.class));
+         }
          break;
       case WITH_LAST_USER_PERFORMER:
-         ActivityInstanceHistoryBean lastUserPerformer = ActivityInstanceHistoryBean
+         pair = ActivityInstanceHistoryBean
                .getLastUserPerformerForActivityInstance(activityInstance);
+         performedOnBehalfOf = DetailsFactory.create(pair.getSecond());
+         ActivityInstanceHistoryBean lastUserPerformer = pair.getFirst();         
          if (lastUserPerformer != null)
-      {
-            historicalStates = Collections.<HistoricalState>singletonList(DetailsFactory.create(
+         {
+            historicalStates = Collections.<HistoricalState> singletonList(DetailsFactory.create(
                   lastUserPerformer, ActivityInstanceHistoryBean.class,
                   HistoricalStateDetails.class));
-      }
+         }
          break;
       }
 
@@ -497,6 +513,11 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       return performedBy;
    }
 
+   public UserInfo getPerformedOnBehalfOf()
+   {
+      return performedOnBehalfOf;
+   }    
+   
    public Object getDescriptorValue(String id)
    {
       return processInstance instanceof IDescriptorProvider ? ((IDescriptorProvider) processInstance).getDescriptorValue(id) : null;

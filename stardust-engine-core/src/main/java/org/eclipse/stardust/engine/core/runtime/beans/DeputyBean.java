@@ -13,6 +13,9 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -24,10 +27,17 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.dto.DeputyDetails;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.QualifiedModelParticipantInfo;
 import org.eclipse.stardust.engine.api.runtime.Deputy;
+import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
+import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 
 /**
  * Internal class to help with creation and parsing of the deputy information.
@@ -42,10 +52,31 @@ import org.eclipse.stardust.engine.api.runtime.UserInfo;
  * @author Florin.Herinean
  * @version $Revision: $
  */
-@XmlRootElement(name="d")
-@XmlType(propOrder={"user", "from", "to"})
+@XmlRootElement(name = "d")
+@XmlType(propOrder = { "user", "from", "to", "grants" })
 public class DeputyBean
 {
+   public static class GrantBean
+   {
+      @XmlElement(name = "p")
+      public long participant;
+
+      @XmlElement(name = "d")
+      public long department;
+      
+      public GrantBean()
+      {
+         super();
+      }
+
+      public GrantBean(long participant, long department)
+      {
+         super();
+         this.participant = participant;
+         this.department = department;
+      }
+   }
+      
    private static class DateAdapter extends XmlAdapter<Long, Date>
    {
       @Override
@@ -61,34 +92,67 @@ public class DeputyBean
       }
    }
 
-   @XmlElement(name="u")
+   @XmlElement(name = "u")
    public long user;
    
-   @XmlElement(name="f")
+   @XmlElement(name = "f")
    @XmlJavaTypeAdapter(DateAdapter.class)
    public Date from;
    
-   @XmlElement(name="t")
+   @XmlElement(name = "t")
    @XmlJavaTypeAdapter(DateAdapter.class)
    public Date to;
    
+   @XmlElement(name = "g")
+   public List<GrantBean> grants;
+
    // required default constructor   
    DeputyBean()
    {
 
    }
    
-   DeputyBean(long oid, Date fromDate, Date toDate)
+   DeputyBean(long oid, Date fromDate, Date toDate, Set<ModelParticipantInfo> participants)
    {
       user = oid;
       from = fromDate;
       to = toDate;
+      grants = CollectionUtils.newArrayList(participants.size());
+
+      ModelManager current = ModelManagerFactory.getCurrent();
+      for (ModelParticipantInfo participant : participants)
+      {
+         String qualifiedId = participant instanceof QualifiedModelParticipantInfo
+               ? ((QualifiedModelParticipantInfo) participant).getQualifiedId()
+               : participant.getId();
+
+         Iterator<IModelParticipant> participantsForID = current.getParticipantsForID(qualifiedId);
+         if (participantsForID.hasNext())
+         {
+            IModelParticipant modelParticipant = participantsForID.next();
+            IDepartment department = DepartmentUtils.getDepartment(participant.getDepartment());
+            this.grants.add(new GrantBean(current.getRuntimeOid(modelParticipant),
+                  department == null ? 0 : department.getOID()));
+         }
+      }
+
    }
 
    public Deputy createDeputyDetails(UserInfo deputyUser)
    {
       UserInfo userInfo = DetailsFactory.create(UserBean.findByOid(user));
-      return new DeputyDetails(userInfo, deputyUser, from, to);
+      Set<ModelParticipantInfo> grants = CollectionUtils.newHashSet();
+      if (this.grants != null)
+      {
+         for (GrantBean grantBean : this.grants)
+         {
+            ModelParticipantInfo participantInfo = (ModelParticipantInfo) DepartmentUtils.getParticipantInfo(
+                  PerformerType.ModelParticipant, grantBean.participant,
+                  grantBean.department, PredefinedConstants.ANY_MODEL);
+            grants.add(participantInfo);
+         }
+      }
+      return new DeputyDetails(userInfo, deputyUser, from, to, grants);
    }   
    
    public String toString()

@@ -34,7 +34,7 @@ public class DeputyOptions implements Serializable
 
    private Date fromDate;
    private Date toDate;
-   private Set<ModelParticipantInfo> participints;
+   private Set<ModelParticipantInfo> participants;
 
    public DeputyOptions()
    {
@@ -62,7 +62,7 @@ public class DeputyOptions implements Serializable
 
       this.fromDate = fromDate;
       this.toDate = toDate;
-      this.participints = participints;
+      this.participants = participints;
    }
 
    public Date getFromDate()
@@ -85,18 +85,18 @@ public class DeputyOptions implements Serializable
       this.toDate = toDate;
    }
 
-   public Set<ModelParticipantInfo> getParticipints()
+   public Set<ModelParticipantInfo> getParticipants()
    {
-      return participints;
+      return participants;
    }
 
-   public void setParticipints(Set<ModelParticipantInfo> participints)
+   public void setParticipants(Set<ModelParticipantInfo> participants)
    {
-      if (participints == null)
+      if (participants == null)
       {
          new IllegalArgumentException();
       }
 
-      this.participints = participints;
+      this.participants = participants;
    }
 }

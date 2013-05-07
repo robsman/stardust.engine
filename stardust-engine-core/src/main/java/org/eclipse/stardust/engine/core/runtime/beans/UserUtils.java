@@ -20,6 +20,7 @@ import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.ClosableIterator;
+import org.eclipse.stardust.engine.core.runtime.beans.DeputyBean.GrantBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
@@ -307,7 +308,7 @@ public final class UserUtils
 
    public static void updateDeputyGrants(IUser user)
    {
-      Map<Long, Map<Long, Set<Long>>> participantMap = getParticipantsfromDeputees(user);
+      Map<Long, Map<Long, Set<Long>>> participantMap = getParticipantsFromDeputees(user);
 
       if (participantMap == null)
       {
@@ -384,41 +385,52 @@ public final class UserUtils
       }
    }
 
-   private static Map<Long, Map<Long, Set<Long>>> getParticipantsfromDeputees(
+   private static Map<Long/*participant*/, Map<Long/*department*/, Set<Long/*onBehalfOf*/>>> getParticipantsFromDeputees(
          IUser user)
    {
       
-      long[] others = getUpdatedUserOids(user);
-      if (others == null)
+      Map<Long/*user*/, Map<Long/*participant*/, Set<Long/*department*/>>> others = getUpdatedUserOids(user);
+      if (others == null || others.isEmpty())
       {
          return null;
       }
 
-      Map<Long/*participant*/, Map<Long/*department*/, Set<Long>/*onBehalfOf*/>> participantMap = CollectionUtils.newMap();
+      Map<Long/*participant*/, Map<Long/*department*/, Set<Long/*onBehalfOf*/>>> participantMap = CollectionUtils.newMap();
       
+      int i = 0;
+      long[] oids = new long[others.size()];
+      for (Long oid : others.keySet())
+      {
+         oids[i++ ] = oid;
+      }
       // TODO: performance issue - this is fetching users too and we don't need that, only
       // user oids
-      ClosableIterator<UserParticipantLink> itr = UserParticipantLink.findForUsers(others);
+      ClosableIterator<UserParticipantLink> itr = UserParticipantLink.findForUsers(oids);
       try
       {
          while (itr.hasNext())
          {
             UserParticipantLink link = itr.next();
             long participantRuntimeOid = link.getRuntimeParticipantOid();
-            Map<Long/* department */, Set<Long>/* onBehalfOf */> departmentMap = participantMap.get(participantRuntimeOid);
-            if (departmentMap == null)
-            {
-               departmentMap = CollectionUtils.newMap();
-               participantMap.put(participantRuntimeOid, departmentMap);
-            }
             long departmentOid = link.getDepartmentOid();
-            Set<Long> userSet = departmentMap.get(departmentOid);
-            if (userSet == null)
+            Map<Long/* participant */, Set<Long/* department */>> allowed = others.get(link.getUser()
+                  .getOID());
+            if (isAllowed(participantRuntimeOid, departmentOid, allowed))
             {
-               userSet = CollectionUtils.newSet();
-               departmentMap.put(departmentOid, userSet);
+               Map<Long/* department */, Set<Long/* onBehalfOf */>> departmentMap = participantMap.get(participantRuntimeOid);
+               if (departmentMap == null)
+               {
+                  departmentMap = CollectionUtils.newMap();
+                  participantMap.put(participantRuntimeOid, departmentMap);
+               }
+               Set<Long/* onBehalfOf */> userSet = departmentMap.get(departmentOid);
+               if (userSet == null)
+               {
+                  userSet = CollectionUtils.newSet();
+                  departmentMap.put(departmentOid, userSet);
+               }
+               userSet.add(link.getUser().getOID());
             }
-            userSet.add(link.getUser().getOID());
          }
       }
       finally
@@ -432,29 +444,57 @@ public final class UserUtils
       return participantMap;
    }
 
+   private static boolean isAllowed(long participantRuntimeOid, long departmentOid,
+         Map<Long/* participant */, Set<Long/* department */>> allowed)
+   {
+      if (allowed.isEmpty())
+      {
+         return true;
+      }
+      Set<Long> depts = allowed.get(participantRuntimeOid);
+      return depts != null && depts.contains(departmentOid);
+   }            
+   
    /**
     * @return the user OIDs for which the user is a deputy
     */
-   private static long[] getUpdatedUserOids(IUser user)
+   private static Map<Long/* user */, Map<Long/* participant */, Set<Long/* department */>>> getUpdatedUserOids(
+         IUser user)
    {
+      if ( !isDeputyOfAny(user))
+      {
+         return null;
+      }
       List<Attribute> existing = (List<Attribute>) user.getPropertyValue(IS_DEPUTY_OF);
       if (existing == null || existing.isEmpty())
       {
          return null;
       }
+      List<String> toRemove = null;      
       Date now = new Date();
-      long[] others = new long[existing.size()];
-      for (int i = 0; i < others.length; i++ )
+      Map<Long/* user */, Map<Long/* participant */, Set<Long/* department */>>> others = CollectionUtils.newMap();
+      for (Attribute attr : existing)
       {
-         String value = (String) existing.get(i).getValue();
+         String value = (String) attr.getValue();
          DeputyBean db = DeputyBean.fromString(value);
          if (db.isActive(now))
          {
-            others[i] = db.user;
+            others.put(db.user, collectGrants(db.grants));
          }
          else if (db.isExpired(now))
          {
             // cleanup expired deputies
+            if (toRemove == null)
+            {
+               toRemove = CollectionUtils.newList();
+            }
+            toRemove.add(value);
+         }
+      }
+      if (toRemove != null)
+      {
+         for (String value : toRemove)
+         {
             user.removeProperty(IS_DEPUTY_OF, value);
          }
       }
@@ -465,7 +505,28 @@ public final class UserUtils
    {
       return user.isPropertyAvailable(UserBean.EXTENDED_STATE_FLAG_DEPUTY_OF_PROP);
    }   
-      
+   
+   private static Map<Long/* participant */, Set<Long/* department */>> collectGrants(
+         List<GrantBean> grants)
+   {
+      if (grants == null || grants.isEmpty())
+      {
+         return Collections.emptyMap();
+      }
+      Map<Long/* participant */, Set<Long/* department */>> result = CollectionUtils.newMap();
+      for (GrantBean grant : grants)
+      {
+         Set<Long/* department */> depts = result.get(grant.participant);
+         if (depts == null)
+         {
+            depts = CollectionUtils.newSet();
+            result.put(grant.participant, depts);
+         }
+         depts.add(grant.department);
+      }
+      return result;
+   }
+   
    public static boolean isDeputyOf(IUser user, long otherOID)
    {
       if (isDeputyOfAny(user))

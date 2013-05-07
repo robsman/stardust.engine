@@ -32,6 +32,7 @@ import org.eclipse.stardust.engine.core.compatibility.el.EvaluationError;
 import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
 import org.eclipse.stardust.engine.core.compatibility.el.Result;
 import org.eclipse.stardust.engine.core.compatibility.el.SyntaxError;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
@@ -384,7 +385,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public String toString()
    {
-      return "Process instance = " + getOID() + " (" + getProcessDefinition() + ")";
+      ModelBean model = (ModelBean) getProcessDefinition().getModel();
+
+      return "Process instance = " + getOID() + " (" + getProcessDefinition() + ") "
+            + ModelUtils.getExtendedVersionString(model);
    }
 
    public Date getStartTime()

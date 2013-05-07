@@ -146,6 +146,20 @@ public class ModelUtils
       return new HashMap<K, V>(map);
    }
 
+   public static String getExtendedVersionString(IModel model)
+   {
+      if (model == null)
+      {
+         return "";
+      }
+
+      String version = model.getStringAttribute(PredefinedConstants.VERSION_ATT);
+      int revision = model.getIntegerAttribute(PredefinedConstants.REVISION_ATT);
+
+      return "(model oid = " + model.getModelOID() + ", version = " + version
+            + ", revision = " + revision + ")";
+   }      
+   
    public static String getQualifiedId(IdentifiableElement element)
    {
       if (element == null)

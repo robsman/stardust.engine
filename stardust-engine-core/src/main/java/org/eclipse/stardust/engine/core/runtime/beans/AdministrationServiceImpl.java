@@ -78,8 +78,12 @@ import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 public class AdministrationServiceImpl
       implements Serializable, AdministrationService
 {
-   private static final String DEPLOY_MODEL_MESSAGE = "Deployed model ''{0}'' (oid: {1})";
-   private static final String OVERWRITE_MODEL_MESSAGE = "Overwritten model ''{0}'' (oid: {1})";
+   private static final String DELETE_MODEL_MESSAGE = "Deleted model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
+
+   private static final String DEPLOY_MODEL_MESSAGE = "Deployed model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
+
+   private static final String OVERWRITE_MODEL_MESSAGE = "Overwritten model ''{0}'' (oid: {1}, version: {2}, revision: {3})";
+
    private static final String DUPLICATE_MODEL_ID = "Duplicate model id ''{0}''.";
 
    private static final long serialVersionUID = 1L;
@@ -396,10 +400,11 @@ public class AdministrationServiceImpl
 
    public DeploymentInfo deleteModel(long modelOid)
    {
+      IModel model = null;
       try
       {
          checkDaemonStopState(false);
-         IModel model = ModelManagerFactory.getCurrent().findModel(modelOid);
+         model = ModelManagerFactory.getCurrent().findModel(modelOid);
          assertNotPredefinedModel(model);
          
          MonitoringUtils.partitionMonitors().modelDeleted(model);         
@@ -421,7 +426,10 @@ public class AdministrationServiceImpl
             deploymentError(e, null);
          }
          
-         return deleteModelModelingPart(modelOid);
+         final DeploymentInfo deleteModelModelingPart = deleteModelModelingPart(modelOid);
+         logModelOperation(DELETE_MODEL_MESSAGE, model);
+
+         return deleteModelModelingPart;
       }
       finally
       {
@@ -1604,6 +1612,19 @@ public class AdministrationServiceImpl
       }
    }
 
+   private static void logModelOperation(String pattern, IModel model)
+   {
+      final String logMessage = MessageFormat.format(pattern, model.getName(),
+            model.getModelOID(),
+            model.getStringAttribute(PredefinedConstants.VERSION_ATT),
+            model.getIntegerAttribute(PredefinedConstants.REVISION_ATT));
+      AuditTrailLogger.getInstance(LogCode.ENGINE).info(logMessage);
+      if (trace.isInfoEnabled())
+      {
+         trace.info(logMessage);
+      }
+   }
+      
    private String getMessage(List<DeploymentInfo> infos)
    {
       for (DeploymentInfo info : infos)
@@ -1678,8 +1699,7 @@ public class AdministrationServiceImpl
          {
             throw new DeploymentException(null, Collections.singletonList(info));
          }
-         AuditTrailLogger.getInstance(LogCode.ENGINE).info(MessageFormat.format(OVERWRITE_MODEL_MESSAGE,
-               model.getName(), info.getModelOID()));
+         logModelOperation(DEPLOY_MODEL_MESSAGE, model);
          return info;
       }
       finally

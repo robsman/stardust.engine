@@ -248,12 +248,12 @@ public final class UserUtils
       }
    }
    
-   static void removeExistingDeputy(long oid, UserBean deputyUserBean)
+   static void removeExistingDeputy(long oid, IUser deputyUser)
    {
-      deputyUserBean.removeProperty(IS_DEPUTY_OF, Long.valueOf(oid));
+      deputyUser.removeProperty(IS_DEPUTY_OF, Long.valueOf(oid));
    }
 
-   static void updateDeputyGrants(UserBean user)
+   public static void updateDeputyGrants(IUser user)
    {
       Map<Long, Map<Long, Set<Long>>> participantMap = getParticipantsfromDeputees(user);
 
@@ -333,16 +333,17 @@ public final class UserUtils
    }
 
    private static Map<Long, Map<Long, Set<Long>>> getParticipantsfromDeputees(
-         UserBean user)
+         IUser user)
    {
-      Map<Long/* participant */, Map<Long/* department */, Set<Long>/* onBehalfOf */>> participantMap = CollectionUtils.newMap();
-
+      
       long[] others = getUpdatedUserOids(user);
       if (others == null)
       {
          return null;
       }
 
+      Map<Long/*participant*/, Map<Long/*department*/, Set<Long>/*onBehalfOf*/>> participantMap = CollectionUtils.newMap();
+      
       // TODO: performance issue - this is fetching users too and we don't need that, only
       // user oids
       ClosableIterator<UserParticipantLink> itr = UserParticipantLink.findForUsers(others);
@@ -382,7 +383,7 @@ public final class UserUtils
    /**
     * @return the user OIDs for which the user is a deputy
     */
-   private static long[] getUpdatedUserOids(UserBean user)
+   private static long[] getUpdatedUserOids(IUser user)
    {
       List<Attribute> existing = (List<Attribute>) user.getPropertyValue(IS_DEPUTY_OF);
       if (existing == null || existing.isEmpty())

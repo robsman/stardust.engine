@@ -196,6 +196,8 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
 
    void addToParticipants(IModelParticipant participant, IDepartment department);
 
+   void addToParticipants(IModelParticipant participant, IDepartment department, long onBehalfOf);
+   
    void removeFromParticipants(IModelParticipant participant, IDepartment department);
 
    boolean hasRole(String name);

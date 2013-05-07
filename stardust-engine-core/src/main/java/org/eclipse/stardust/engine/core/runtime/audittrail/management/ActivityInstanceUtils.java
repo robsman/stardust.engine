@@ -134,7 +134,7 @@ public class ActivityInstanceUtils
          long current = ai.getCurrentUserPerformerOID();
          if (current != SecurityProperties.getUserOID()
                && ai.getState() == ActivityInstanceState.Application
-               && !UserUtils.isDeputyOf(SecurityProperties.getUser(), current))
+         /* && !UserUtils.isDeputyOf(SecurityProperties.getUser(), current) */)
          {
             throw new AccessForbiddenException(
                   BpmRuntimeError.BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER.raise(

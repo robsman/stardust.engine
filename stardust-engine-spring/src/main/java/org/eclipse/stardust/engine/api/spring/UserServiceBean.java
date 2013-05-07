@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 56264 
+ * Generated from Revision: 64706 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 56264
+ * @version 64706
  */
 public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IUserService
 {
@@ -348,6 +348,66 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    {
       return ((org.eclipse.stardust.engine.api.runtime.UserService)
             serviceProxy).getUserRealms();
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#addDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser, org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+    */
+   public org.eclipse.stardust.engine.api.runtime.Deputy
+         addDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.UserService)
+            serviceProxy).addDeputy(user, deputyUser, options);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser, org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+    */
+   public org.eclipse.stardust.engine.api.runtime.Deputy
+         modifyDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+         throws org.eclipse.stardust.common.error.ObjectNotFoundException
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.UserService)
+            serviceProxy).modifyDeputy(user, deputyUser, options);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#removeDeputy(org.eclipse.stardust.engine.api.runtime.UserInfo user, org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+    */
+   public void removeDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+         throws org.eclipse.stardust.common.error.ObjectNotFoundException
+   {
+      ((org.eclipse.stardust.engine.api.runtime.UserService)
+            serviceProxy).removeDeputy(user, deputyUser);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#getDeputies(org.eclipse.stardust.engine.api.runtime.UserInfo user)
+    */
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Deputy>
+         getDeputies(org.eclipse.stardust.engine.api.runtime.UserInfo user)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.UserService)
+            serviceProxy).getDeputies(user);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#getUsersBeingDeputyFor(org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+    */
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Deputy>
+         getUsersBeingDeputyFor(
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.UserService)
+            serviceProxy).getUsersBeingDeputyFor(deputyUser);
    }
 
 	public UserServiceBean()

@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 56264 
+ * Generated from  Revision: 64706 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 56264
+ * @version 64706
  */
 public interface RemoteUserService extends javax.ejb.EJBObject
 {
@@ -792,6 +792,146 @@ public interface RemoteUserService extends javax.ejb.EJBObject
      * @see org.eclipse.stardust.engine.api.runtime.UserService#getUserRealms()
      */
     public java.util.List getUserRealms()
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Adds a new deputy user for a given user. This deputy user inherits for the defined
+     * time frame all grants from given user. The deputy user has to login again before the
+     * inherited grants become active.
+     *
+     * @param user
+     *               the user to which a deputy user shall be added.
+     * @param deputyUser
+     *               the deputy user.
+     * @param options TODO
+     *
+     * @return the created deputy.
+     *
+     * @throws DeputyExistsException
+     *                if the requested deputy already exists.
+     *     <em>Instances of {@link DeputyExistsException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.UserService#addDeputy(
+     *     org.eclipse.stardust.engine.api.runtime.UserInfo user,
+     *     org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+     *     org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+     */
+    public org.eclipse.stardust.engine.api.runtime.Deputy
+         addDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Modifies an existing deputy user for a given user. This deputy user inherits for the
+     * defined time frame all grants from given user. The deputy user has to login again
+     * before changes become active.
+     *
+     * @param user
+     *               the user for which a deputy user shall be modified.
+     * @param deputyUser
+     *               the deputy user.
+     * @param fromDate
+     *               date from when deputy user inherits all grants of user. not allowed to be
+     *               null.
+     * @param toDate
+     *               date when inherited grants are revoked from deputy user. If date is null
+     *               then no upper limit exists.
+     *
+     * @return the created deputy.
+     *
+     * @throws ObjectNotFoundException
+     *                if the requested deputy does not exists.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.UserService#modifyDeputy(
+     *     org.eclipse.stardust.engine.api.runtime.UserInfo user,
+     *     org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+     *     org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+     */
+    public org.eclipse.stardust.engine.api.runtime.Deputy
+         modifyDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser,
+         org.eclipse.stardust.engine.api.runtime.DeputyOptions options)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Removes an existing deputy user for a given user. All inherited grants from user are
+     * revoked from deputy user. The deputy user has to login again before changes become
+     * active.
+     *
+     * @param user
+     *               the user for which a deputy user shall be removed.
+     * @param deputyUser
+     *               the deputy user.
+     *
+     * @throws ObjectNotFoundException
+     *                if the requested deputy does not exists.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.UserService#removeDeputy(
+     *     org.eclipse.stardust.engine.api.runtime.UserInfo user,
+     *     org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+     */
+    public void removeDeputy(
+         org.eclipse.stardust.engine.api.runtime.UserInfo user,
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Returns a list of all deputy users for the given user.
+     *
+     * @param user
+     *               the user whose deputy users shall be returned.
+     *
+     * @return List of deputy users for given user.
+     *
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.UserService#getDeputies(
+     *     org.eclipse.stardust.engine.api.runtime.UserInfo user)
+     */
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Deputy>
+         getDeputies(org.eclipse.stardust.engine.api.runtime.UserInfo user)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * Returns a list of all users for which the given user is an deputy user.
+     *
+     * @param deputyUser
+     *               the deputy user whose users shall be returned.
+     *
+     * @return List of users for given deputy user.
+     *
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.UserService#getUsersBeingDeputyFor(
+     *     org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
+     */
+    public java.util.List<org.eclipse.stardust.engine.api.runtime.Deputy>
+         getUsersBeingDeputyFor(
+         org.eclipse.stardust.engine.api.runtime.UserInfo deputyUser)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
          java.rmi.RemoteException;
          

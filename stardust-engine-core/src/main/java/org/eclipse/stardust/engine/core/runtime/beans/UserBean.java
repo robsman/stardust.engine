@@ -522,8 +522,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       addToParticipants(participant, department, 0);
    }
 
-   void addToParticipants(IModelParticipant participant, IDepartment department,
-         long onBehalfOf)
+   public void addToParticipants(IModelParticipant participant, IDepartment department, long onBehalfOf)
    {      
       fetch();
 

@@ -290,6 +290,11 @@ public class TransientUser implements IUser
    {
    }
 
+   public void addToParticipants(IModelParticipant participant, IDepartment department,
+         long onBehalfOf)
+   {
+   }
+   
    public void removeFromParticipants(IModelParticipant participant,
          IDepartment department)
    {

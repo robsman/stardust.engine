@@ -161,6 +161,10 @@ public abstract class DBDescriptor
       {
          descriptor = new MsSql8DbDescriptor();
       }
+      else if (DBMSKey.MSSQL.getId().equalsIgnoreCase(databaseType))
+      {
+         descriptor = new MsSqlDbDescriptor();
+      }
       else if (DBMSKey.MYSQL.getId().equalsIgnoreCase(databaseType))
       {
          descriptor = new MySqlDbDescriptor();

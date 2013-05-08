@@ -604,15 +604,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       String processId = qname.getLocalPart();
       if (processId.equals(originatingProcessDefinition.getId()))
       {
-         if (model == originatingProcessDefinition.getModel())
+         /*if (model == originatingProcessDefinition.getModel())
          {
             throw new IllegalOperationException(
                   BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
          }
          else
-         {
+         {*/ 
             linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
-         }
+         /*}*/
       }
 
       IProcessDefinition processDefinition = model.findProcessDefinition(processId);

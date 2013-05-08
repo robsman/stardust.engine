@@ -126,31 +126,6 @@ public class DmsUtils
          documents.remove(doc);
       }
    }
-
-   public static long getProcessInstanceOID(String path)
-   {
-      path = path.charAt(0) == '/' ? path.substring(1) : path;
-      if(path.startsWith(DocumentRepositoryFolderNames.PROCESS_ATTACHMENT_FOLDER))
-      {
-         String[] segments = path.split("/");
-         String pid = segments[5];
-         if(!pid.startsWith(PI_OID_PREFIX))
-         {
-            // seems that the default process attachment path is not used;
-            // try to find the OID by iterating the segments
-            for (int i = 0; i < segments.length && (i != 5); i++)
-            {
-               if(segments[i].startsWith(PI_OID_PREFIX))
-               {
-                  pid = segments[i];
-                  break;
-               }
-            }
-         }
-         return Long.parseLong(pid.substring(PI_OID_PREFIX.length()));
-      }
-      return 0l;
-   }   
    
    /**
     * Initialize default path based on the scope process instance OID and its start time.

@@ -896,7 +896,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IUser user = SecurityProperties.getUser();
       if (null != user && 0 != user.getOID())
       {
-         ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
+         ActivityInstanceUtils.assertNotActivatedByOther(activityInstance, true);
       }
 
       if (activityInstance.getState() == ActivityInstanceState.Application)
@@ -2359,7 +2359,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IUser user = SecurityProperties.getUser();
       if (null != user && 0 != user.getOID())
       {
-         ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
+         ActivityInstanceUtils.assertNotActivatedByOther(activityInstance, complete);
       }
 
       boolean interactive = activityInstance.getActivity().isInteractive();

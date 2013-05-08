@@ -75,6 +75,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    // TODO: property name "NOTE" is too simple.
    private static final String PI_NOTE = "NOTE";
    protected static final String ABORTING_PI_OID = "Infinity.RootProcessInstance.AbortingPiOid";
+   public static final String ABORTING_USER_OID = "Infinity.RootProcessInstance.AbortingUserOid";
    public static final String PI_NOTE_CONTEXT_PREFIX_PATTERN = "<context kind=\"{0}\" oid=\"{1}\" />";
 
    private static final int PI_PROPERTY_FLAG_ANY = 1;          // first bit
@@ -1485,6 +1486,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return attributes;
    }
 
+   public void addAbortingUserOid(long oid)
+   {
+      setPropertyValue(ABORTING_USER_OID, new Long(oid));
+   }
+   
    public void addPropertyValues(Map attributes)
    {
       super.addPropertyValues(attributes);

@@ -71,6 +71,7 @@ import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
@@ -248,8 +249,9 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    {
       if (!accept(o))
       {
+         IUser user = context.getUser();
          throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
-               context.getUser().getOID(), String.valueOf(context.getPermission())));
+               user.getOID(), String.valueOf(context.getPermission()), user.getAccount()));
       }
    }
 

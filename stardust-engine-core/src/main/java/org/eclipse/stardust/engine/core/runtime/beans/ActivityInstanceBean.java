@@ -182,6 +182,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    private transient EncodedPerformer originalPerformer;
 
    private transient List<ChangeLogDigester.HistoricState> historicStates;
+   
+   private transient Long lastModifyingUser;
 
    private int state;
 
@@ -421,10 +423,15 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       return ActivityInstanceState.getState(state);
    }
 
+   public final void setState(int state)
+   {
+      setState(state, SecurityProperties.getUserOID());
+   }
+   
    /**
     * Sets the state of the activity instance.
     */
-   public final void setState(int state) throws IllegalStateChangeException
+   public final void setState(int state, long workflowUserOid) throws IllegalStateChangeException
    {
       fetch();
 
@@ -459,7 +466,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       {
          // reshedule aborting
          ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
-               getProcessInstanceOID()));
+               getProcessInstanceOID(), workflowUserOid));
 
          ActivityInstanceState newState = ActivityInstanceState.getState(state);
          StringBuffer msg = new StringBuffer("Invalid state change from ");
@@ -480,7 +487,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                ActivityInstanceState.getState(state), this.getState(), piState);
       }
 
-      recordHistoricState();
+      recordHistoricState(workflowUserOid);
 
       int oldState = this.state;
       markModified(FIELD__STATE);
@@ -489,6 +496,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          // original state is needed to keep workitem table in sync
          this.originalState = ActivityInstanceState.getState(oldState);
       }
+      this.lastModifyingUser = workflowUserOid;
       this.state = state;
 
       if (getActivity().hasEventHandlers(
@@ -2295,6 +2303,11 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    private ChangeLogDigester.HistoricState recordHistoricState()
    {
+      return recordHistoricState(SecurityProperties.getUserOID());
+   }
+
+   private ChangeLogDigester.HistoricState recordHistoricState(long workflowUserOid)
+   {
       ChangeLogDigester.HistoricState state = null;
 
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
@@ -2319,7 +2332,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
          state = new ChangeLogDigester.HistoricState( //
                tsFrom, tsUntil, //
-               getState(), getPerformer(), getCurrentDepartment());
+               getState(), getPerformer(), getCurrentDepartment(), workflowUserOid);     
 
          if (null == historicStates)
          {
@@ -2378,5 +2391,17 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    {
       fetch();
       return propertiesAvailable != 0 ? true : false;
+   }
+   
+   public long getLastModifyingUser()
+   {
+      if (this.lastModifyingUser != null)
+      {
+         return this.lastModifyingUser;
+      }
+      else
+      {
+         return SecurityProperties.getUserOID();
+      }
    }
 }

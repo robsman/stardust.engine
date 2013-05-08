@@ -205,18 +205,21 @@ public class ChangeLogDigester
       private final IParticipant performer;
       private final IDepartment department;
    
+      private final long workflowUserOid;
+      
       public HistoricState(Date from, ActivityInstanceState state,
-            IParticipant performer, IDepartment department)
+            IParticipant performer, IDepartment department, long workflowUserOid)
       {
          this.from = from;
    
          this.state = state;
          this.performer = performer;
          this.department = department;
+         this.workflowUserOid = workflowUserOid;
       }
    
       public HistoricState(Date from, Date until, ActivityInstanceState state,
-            IParticipant performer, IDepartment department)
+            IParticipant performer, IDepartment department, long workflowUserOid)
       {
          this.from = from;
          this.until = until;
@@ -224,6 +227,7 @@ public class ChangeLogDigester
          this.state = state;
          this.performer = performer;
          this.department = department;
+         this.workflowUserOid = workflowUserOid;
       }
    
       public boolean isNewRecord()
@@ -269,6 +273,11 @@ public class ChangeLogDigester
       public IDepartment getDepartment()
       {
          return department;
+      }
+      
+      public long getWorkflowUserOid()
+      {
+         return workflowUserOid;
       }
    }   
 }

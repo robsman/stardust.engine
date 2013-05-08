@@ -226,10 +226,11 @@ public final class Authorization
       // oops, no matching permission.
       if (roles != null && roles.length > 0 || isAuthorizationMandatory)
       {
-         throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
-               user.getOID(), isEmpty(roles)
-                     ? PredefinedConstants.ADMINISTRATOR_ROLE
-                     : getObjectId(roles[0])));
+         throw new AccessForbiddenException(
+               BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(user.getOID(),
+                     isEmpty(roles)
+                           ? PredefinedConstants.ADMINISTRATOR_ROLE
+                           : getObjectId(roles[0]), user.getAccount()));
       }
    }
 

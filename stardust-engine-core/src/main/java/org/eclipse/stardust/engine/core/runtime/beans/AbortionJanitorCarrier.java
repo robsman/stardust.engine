@@ -29,9 +29,11 @@ public class AbortionJanitorCarrier extends ActionCarrier
 
    private long processInstanceOid;
    private int triesLeft;
+   private long abortingUserOid;
 
    private static final String PI_OID_KEY = "piOid";
    private static final String TRIES_LEFT_KEY = "triesLeft";
+   private static final String ABORTING_USER_OID_KEY = "userOid";
 
    /**
     * Default constructor, needed for creating instances via reflection.
@@ -42,18 +44,19 @@ public class AbortionJanitorCarrier extends ActionCarrier
       super(SYSTEM_MESSAGE_TYPE_ID);
    }
 
-   public AbortionJanitorCarrier(long processInstanceOid)
+   public AbortionJanitorCarrier(long activityInstanceOid, long abortingUserOid)
    {
-      this(processInstanceOid, Parameters.instance().getInteger(
+      this(activityInstanceOid,  abortingUserOid, Parameters.instance().getInteger(
             ProcessAbortionJanitor.PRP_RETRY_COUNT, 10));
    }
    
-   public AbortionJanitorCarrier(long processInstanceOid, int triesLeft)
+   public AbortionJanitorCarrier(long activityInstanceOid, long abortingUserOid, int triesLeft)
    {
       this();
 
       this.processInstanceOid = processInstanceOid;
       this.triesLeft = triesLeft;
+      this.abortingUserOid = abortingUserOid;
    }
 
    public Action doCreateAction()
@@ -77,6 +80,11 @@ public class AbortionJanitorCarrier extends ActionCarrier
       return triesLeft;
    }
 
+   public long getAbortingUserOid()
+   {
+      return abortingUserOid;
+   }   
+   
    protected void doFillMessage(Message message) throws JMSException
    {
       if (message instanceof MapMessage)
@@ -85,6 +93,7 @@ public class AbortionJanitorCarrier extends ActionCarrier
 
          mapMessage.setLong(PI_OID_KEY, processInstanceOid);
          mapMessage.setInt(TRIES_LEFT_KEY, triesLeft);
+         mapMessage.setLong(ABORTING_USER_OID_KEY, abortingUserOid);
       }
    }
 
@@ -96,6 +105,7 @@ public class AbortionJanitorCarrier extends ActionCarrier
 
          processInstanceOid = mapMessage.getLong(PI_OID_KEY);
          triesLeft = mapMessage.getInt(TRIES_LEFT_KEY);
+         abortingUserOid = mapMessage.getLong(ABORTING_USER_OID_KEY);
       }
    }
 }

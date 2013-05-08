@@ -226,7 +226,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args2 AUTHx_SYNC_FAILED_IMPORTING_DEPARTMENT = newArgs2("AUTHx00585", BpmRuntimeErrorMessages.getString("AUTHx00585")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 AUTHx_AUTH_MISSING_GRANTS = newArgs2("AUTHx01000", BpmRuntimeErrorMessages.getString("AUTHx01000")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args AUTHx_AUTH_MISSING_GRANTS = newArgs("AUTHx01000"); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 AUTHx_AUTH_INVALID_GRANT = newArgs2("AUTHx01100", BpmRuntimeErrorMessages.getString("AUTHx01100")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -260,7 +260,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_AI_CURRENTLY_ACTIVATED_BY_SELF = newArgs1("BPMRT03101", BpmRuntimeErrorMessages.getString("BPMRT03101")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER = newArgs2("CONC03102", BpmRuntimeErrorMessages.getString("CONC03102")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER = newArgs("CONC03102"); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_AI_IS_ALREADY_TERMINATED = newArgs1("BPMRT03103", BpmRuntimeErrorMessages.getString("BPMRT03103")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -601,6 +601,24 @@ public class BpmRuntimeError extends ErrorCase
          return buildError(new Object[] { new Long(arg1), new Long(arg2), new Long(arg3), new Long(arg4) });
       }
    }
+   
+   public static Args newArgs(String errorCode)
+   {
+      return new Args(errorCode, BpmRuntimeErrorMessages.getString(errorCode));
+   }
+
+   public static class Args extends AbstractErrorFactory
+   {
+      private Args(String errorCode, String defaultMessage)
+      {
+         super(errorCode, defaultMessage);
+      }
+
+      public BpmRuntimeError raise(Object ... arg)
+      {
+         return buildError(arg);
+      }
+   }   
 
    static abstract class AbstractErrorFactory
    {

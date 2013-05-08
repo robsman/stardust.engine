@@ -825,6 +825,7 @@ public class AdministrationServiceImpl
             .get(EngineProperties.FORKING_SERVICE_HOME);
 
       final long piOid = processInstance.getOID();
+      final long userOid = SecurityProperties.getUserOID();      
       ForkingService service = null;
 
       try
@@ -835,7 +836,7 @@ public class AdministrationServiceImpl
 
             // first try is synchronous.
             service
-                  .isolate(new ProcessAbortionJanitor(new AbortionJanitorCarrier(piOid)));
+            .isolate(new ProcessAbortionJanitor(new AbortionJanitorCarrier(piOid, userOid)));
          }
          else if ( !processInstance.isCompleted())
          {

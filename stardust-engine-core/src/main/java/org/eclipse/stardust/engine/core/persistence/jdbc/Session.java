@@ -56,6 +56,7 @@ import org.eclipse.stardust.engine.core.persistence.jms.*;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLogUtils;
@@ -4066,7 +4067,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             // append current state with open interval
             historicStates.add(new ChangeLogDigester.HistoricState(
-                  ai.getLastModificationTime(), ai.getState(), ai.getPerformer(), ai.getCurrentDepartment()));
+                  ai.getLastModificationTime(), ai.getState(), ai.getPerformer(), ai.getCurrentDepartment(), ai.getLastModifyingUser()));
 
             // apply (optional) post processing
             historicStates = digester.digestChangeLog(ai, historicStates);
@@ -4141,11 +4142,11 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
                         }
                      }
 
-                     if ( !isTerminatedState(state.getState()) || onBehalfOfUserOid != 0)
+                     if (!isTerminatedState(state.getState()) || onBehalfOfUserOid != 0 || state.getWorkflowUserOid() != 0)
                      {
                         new ActivityInstanceHistoryBean(ai, state.getFrom(),
                               state.getUntil(), state.getState(), performer, department,
-                              performedOnBehalfOf, onBehalfOfUserOid);
+                              performedOnBehalfOf, onBehalfOfUserOid, state.getWorkflowUserOid());
                         if ((null != predecessor) && !predecessor.equals(state.getFrom()))
                         {
                            trace.error("Broken AI history link: " + ai.getOID() + ", "

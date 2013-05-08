@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.DataPath;
@@ -587,6 +588,27 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             }
          }
       }
+            
+      if (isEventTypeSet(eventTypes, HistoricalEventType.STATE_CHANGE))
+      {
+         Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
+         if (oid != null)
+         {
+            User userDetails = null;
+            try
+            {
+               UserBean user = UserBean.findByOid(oid);
+               userDetails = (User) DetailsFactory.createParticipantDetails(user);
+            }
+            catch (ObjectNotFoundException x)
+            {
+               // left empty intentionally.
+            }
+            historicalEvents.add(new HistoricalEventDetails(
+                  HistoricalEventType.StateChange, processInstance.getTerminationTime(),
+                  userDetails, ProcessInstanceState.Aborted));
+         }
+      }      
    }
 
    private static boolean isEventTypeSet(int eventTypes, int eventType)

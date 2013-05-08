@@ -682,7 +682,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    {
       if (histState.getState() == ActivityInstanceState.Suspended
             && histState.getParticipant() != null
-            && prevHistState.getParticipant() != null)
+            && histState.getParticipant() != null && prevHistState.getParticipant() != null)
       {
 
          if ( !(histState.getParticipant()).equals(prevHistState.getParticipant())

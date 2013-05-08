@@ -66,7 +66,7 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
             {
                hs = new ChangeLogDigester.HistoricState(candidateHs.getFrom(), hs
                      .getUntil(), candidateHs.getState(), candidateHs.getPerformer(),
-                     candidateHs.getDepartment());
+                     candidateHs.getDepartment(), candidateHs.getWorkflowUserOid());
                result.remove(idxMergeCandidate);
             }
             else if (candidateHs.isNewRecord())
@@ -78,7 +78,7 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
                   predecessorHs.setUntil(candidateHs.getUntil());
 
                   hs = new ChangeLogDigester.HistoricState(hs.getFrom(), hs.getUntil(),
-                        candidateHs.getState(), hs.getPerformer(), hs.getDepartment());
+                        candidateHs.getState(), hs.getPerformer(), hs.getDepartment(), candidateHs.getWorkflowUserOid());
                   result.remove(idxMergeCandidate);
                }
                else if (isActivationSequence(candidateHs, hs))
@@ -88,7 +88,7 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
 
                   hs = new ChangeLogDigester.HistoricState(hs.getFrom(), hs.getUntil(),
                         hs.getState(), candidateHs.getPerformer(), candidateHs
-                              .getDepartment());
+                        .getDepartment(), candidateHs.getWorkflowUserOid());
                   result.remove(idxMergeCandidate);
                }
             }

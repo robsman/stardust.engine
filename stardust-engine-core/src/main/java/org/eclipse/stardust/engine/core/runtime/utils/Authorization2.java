@@ -55,21 +55,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
-import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
-import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -332,8 +318,9 @@ public class Authorization2
          }
          if (requiredGrant != null)
          {
+            IUser user = context.getUser();
             throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
-                  context.getUser().getOID(), String.valueOf(permission)));
+                  user.getOID(), String.valueOf(permission), user.getAccount()));
          }
       }
    }

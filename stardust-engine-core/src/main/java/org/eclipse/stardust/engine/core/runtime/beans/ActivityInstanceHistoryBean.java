@@ -243,7 +243,8 @@ public class ActivityInstanceHistoryBean extends PersistentBean
 
    public ActivityInstanceHistoryBean(IActivityInstance activityInstance, Date from,
          Date until, ActivityInstanceState state, IParticipant performer,
-         IDepartment department, EncodedPerformer encodedOnBehalfOf, long onBehalfOfUser)
+         IDepartment department, EncodedPerformer encodedOnBehalfOf, long onBehalfOfUser,
+         long workflowUser)
    {
       this.processInstance = activityInstance.getProcessInstanceOID();
       this.activityInstance = activityInstance.getOID();
@@ -270,7 +271,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       this.onBehalfOfDepartment = encodedOnBehalfOf.departmentOid;
       this.onBehalfOfUser = onBehalfOfUser;      
       
-      this.workflowUser = SecurityProperties.getUserOID();
+      this.workflowUser = workflowUser;
 
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }

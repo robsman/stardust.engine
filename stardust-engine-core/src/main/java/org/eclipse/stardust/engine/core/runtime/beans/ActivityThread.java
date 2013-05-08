@@ -221,11 +221,12 @@ public class ActivityThread implements Runnable
    {
       if (isInAbortingPiHierarchy())
       {         
+         Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
          // TODO: trace the real state: aborted or aborting.
          BpmRuntimeError error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE.raise(
                activityInstance.getOID(), processInstance.getOID());
          ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
-               this.processInstance.getOID()));
+               this.processInstance.getOID(),oid));
          throw new IllegalOperationException(error);
       }
       

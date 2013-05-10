@@ -44,13 +44,13 @@ public class AbortionJanitorCarrier extends ActionCarrier
       super(SYSTEM_MESSAGE_TYPE_ID);
    }
 
-   public AbortionJanitorCarrier(long activityInstanceOid, long abortingUserOid)
+   public AbortionJanitorCarrier(long processInstanceOid, long abortingUserOid)
    {
-      this(activityInstanceOid,  abortingUserOid, Parameters.instance().getInteger(
+      this(processInstanceOid,  abortingUserOid, Parameters.instance().getInteger(
             ProcessAbortionJanitor.PRP_RETRY_COUNT, 10));
    }
    
-   public AbortionJanitorCarrier(long activityInstanceOid, long abortingUserOid, int triesLeft)
+   public AbortionJanitorCarrier(long processInstanceOid, long abortingUserOid, int triesLeft)
    {
       this();
 

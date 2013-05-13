@@ -584,9 +584,22 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
     */
    public long getStartingUserOID()
    {
-      fetchLink(FIELD__STARTING_USER);
+      fetch();
 
-      return startingUser == null ? 0 : startingUser.getOID();
+      if (null != startingUser)
+      {
+         return startingUser.getOID();
+      }
+      else if (isPersistent())
+      {
+         DefaultPersistenceController controller = (DefaultPersistenceController) getPersistenceController();
+
+         return ((Long) controller.getLinkFk(FIELD__STARTING_USER)).longValue();
+      }
+      else
+      {
+         return 0;
+      }
    }
 
    /**

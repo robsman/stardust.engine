@@ -598,10 +598,28 @@ public class ProcessQueryPostprocessor
 
    private static void prefetchStartingUsers(Iterator piItr, int timeout)
    {
-      Set piSet = new HashSet();
+      Set<Long> piSet = new HashSet<Long>();
       while (piItr.hasNext())
       {
          piSet.add(new Long(((ProcessInstanceBean) piItr.next()).getStartingUserOID()));
+      }
+      
+      int instancesBatchSize = Parameters.instance().getInteger(
+            KernelTweakingProperties.USER_PREFETCH_N_PARALLEL_INSTANCES,
+            Parameters.instance().getInteger(
+                  KernelTweakingProperties.DESCRIPTOR_PREFETCH_BATCH_SIZE,
+                  PREFETCH_BATCH_SIZE));
+      Set<Long> prefetchStartingUsers = new HashSet<Long>();
+      for (Long startingUserOid : piSet)
+      {
+         if (startingUserOid > 0)
+         {
+            prefetchStartingUsers.add(startingUserOid);
+         }
+         if (prefetchStartingUsers.size() == instancesBatchSize)
+         {
+            break;
+         }
       }
 
       // This term reference will be used for later modification of its value expression
@@ -611,15 +629,10 @@ public class ProcessQueryPostprocessor
 
       if (trace.isDebugEnabled())
       {
-         trace.debug("Prefetching " + piSet.size() + " user(s)");
+         trace.debug("Prefetching " + prefetchStartingUsers.size() + " user(s)");
       }
 
-      int instancesBatchSize = Parameters.instance().getInteger(
-            KernelTweakingProperties.USER_PREFETCH_N_PARALLEL_INSTANCES,
-            Parameters.instance().getInteger(
-                  KernelTweakingProperties.DESCRIPTOR_PREFETCH_BATCH_SIZE,
-                  PREFETCH_BATCH_SIZE));
-      performPrefetch(UserBean.class, queryExtension, termTemplate, piSet, true, timeout,
+      performPrefetch(UserBean.class, queryExtension, termTemplate, prefetchStartingUsers, true, timeout,
             instancesBatchSize);
    }
 

@@ -3654,7 +3654,8 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
          if (trace.isDebugEnabled())
          {
-            trace.debug(this + " has returned JDBC connection " + jdbcConnection + ".");
+            trace.debug(this + " has returned JDBC connection " 
+                  + LogUtils.instanceInfo(jdbcConnection) + ".");
          }
 
          jdbcConnection = null;

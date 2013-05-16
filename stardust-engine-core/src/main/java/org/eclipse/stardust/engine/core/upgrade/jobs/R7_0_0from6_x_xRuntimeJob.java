@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,8 +18,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
@@ -40,10 +37,27 @@ import org.eclipse.stardust.engine.api.runtime.IModelPersistor;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
+import org.eclipse.stardust.engine.core.runtime.beans.RuntimeModelLoader;
+import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidRegistry;
+import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataLoader;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
@@ -52,7 +66,14 @@ import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
-import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgradeTaskExecutor;
+import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgrader;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
+import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeTask;
 
 /**
  *
@@ -549,19 +570,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void upgradeDataTypesByPartition(String partition)
    {
-      Map props = CollectionUtils.newHashMap();
-      props.put("jdbc/" + SessionProperties.DS_NAME_AUDIT_TRAIL
-            + SessionProperties.DS_DATA_SOURCE_SUFFIX,
-            new ConnectionWrapper(item.getConnection()));
-      props.put(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, Boolean.TRUE);
-
-      Utils.initCarnotEngine(partition, props);
+      Utils.initCarnotEngine(partition, getRtJobEngineProperties());
 
       Map<Long, AuditTrailDataBean> dataDefRecords = loadModelElementDefinitions(1,
             AuditTrailDataBean.class, AuditTrailDataBean.FR__MODEL);
-
-      Session driver = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-
 
       Short partitionOid = (Short) Parameters.instance().get(
             SecurityProperties.CURRENT_PARTITION_OID);
@@ -818,61 +830,6 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          warn("Failed rolling back transaction.", e1);
       }
       error("Failed migrating runtime item tables.", sqle);
-   }
-
-   private static class ConnectionWrapper implements DataSource
-   {
-      Connection connection;
-
-      private ConnectionWrapper(Connection connection)
-      {
-         this.connection = connection;
-      }
-
-      public Connection getConnection() throws SQLException
-      {
-         return connection;
-      }
-
-      public Connection getConnection(String username, String password)
-            throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public int getLoginTimeout() throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public PrintWriter getLogWriter() throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public void setLoginTimeout(int seconds) throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public void setLogWriter(PrintWriter out) throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean isWrapperFor(Class< ? > iface) throws SQLException
-      {
-         // TODO Auto-generated method stub
-         return false;
-      }
-
-      @Override
-      public <T> T unwrap(Class<T> iface) throws SQLException
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
    }
 
    private static <T extends IdentifiablePersistent> Map<Long, T> loadModelElementDefinitions(

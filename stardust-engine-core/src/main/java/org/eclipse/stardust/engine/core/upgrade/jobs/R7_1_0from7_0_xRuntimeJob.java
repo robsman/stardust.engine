@@ -169,7 +169,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             String partition = ParametersFacade.instance().getString(
                   SecurityProperties.DEFAULT_PARTITION,
                   PredefinedConstants.DEFAULT_PARTITION_ID);
-            Utils.initCarnotEngine(partition);
+            Utils.initCarnotEngine(partition, getRtJobEngineProperties());
 
             StringBuilder structOidStmnt = new StringBuilder();
             structOidStmnt

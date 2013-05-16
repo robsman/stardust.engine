@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.core.upgrade.jobs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -25,8 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
-import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
@@ -43,10 +40,8 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentB
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.preferences.XmlPreferenceWriter;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelDeploymentBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
@@ -372,7 +367,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       for (Pair<Long, String> info : fetchListOfPartitionInfo())
       {
          String partitionId = info.getSecond();
-         Utils.initCarnotEngine(partitionId);
+         Utils.initCarnotEngine(partitionId, getRtJobEngineProperties());
          IModel model = ModelManagerFactory.getCurrent().findActiveModel();
          if (model == null)
          {
@@ -550,12 +545,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          // any partition is OK for that migration step - get the first one
          Pair<Long, String> info = partitionInfo.iterator().next();
-         Map props = CollectionUtils.newHashMap();
-         props.put("jdbc/" + SessionProperties.DS_NAME_AUDIT_TRAIL
-               + SessionProperties.DS_DATA_SOURCE_SUFFIX,
-               new ConnectionWrapper(item.getConnection()));
-         props.put(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, Boolean.TRUE);
-         Utils.initCarnotEngine(info.getSecond(), props);
+         Utils.initCarnotEngine(info.getSecond(), getRtJobEngineProperties());
 
          PropertyPersistor prop = PropertyPersistor
                .findByName(RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
@@ -640,7 +630,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private void migratePermissions(String partitionId)
    {
       // init engine
-      Utils.initCarnotEngine(partitionId);
+      Utils.initCarnotEngine(partitionId, getRtJobEngineProperties());
 
       IModel model = ModelManagerFactory.getCurrent().findActiveModel();
 
@@ -894,61 +884,6 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          warn("Failed rolling back transaction.", e1);
       }
       error("Failed migrating runtime item tables.", sqle);
-   }
-
-   private static class ConnectionWrapper implements DataSource
-   {
-      Connection connection;
-
-      private ConnectionWrapper(Connection connection)
-      {
-         this.connection = connection;
-      }
-
-      public Connection getConnection() throws SQLException
-      {
-         return connection;
-      }
-
-      public Connection getConnection(String username, String password)
-            throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public int getLoginTimeout() throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public PrintWriter getLogWriter() throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public void setLoginTimeout(int seconds) throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public void setLogWriter(PrintWriter out) throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean isWrapperFor(Class< ? > iface) throws SQLException
-      {
-         // TODO Auto-generated method stub
-         return false;
-      }
-
-      @Override
-      public <T> T unwrap(Class<T> iface) throws SQLException
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
    }
 
    @Override

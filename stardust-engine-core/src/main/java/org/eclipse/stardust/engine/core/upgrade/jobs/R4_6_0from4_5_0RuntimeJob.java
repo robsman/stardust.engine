@@ -205,6 +205,7 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          private final FieldInfo FIELD_LAST_MOD = new FieldInfo(PROP_FIELD_LAST_MOD,
                Long.TYPE);
+
          private final FieldInfo FIELD_USER = new FieldInfo(PROP_FIELD_USER, Long.TYPE);
 
          public FieldInfo[] getAddedFields()
@@ -262,8 +263,8 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             return new IndexInfo[] {// 
                   // new names: conform with createschema and do not exceed 18 characters.
                   new IndexInfo("wfusr_session_idx1", true, new FieldInfo[] { OID }),
-                  new IndexInfo("wfusr_session_idx2", false, new FieldInfo[] { USER,
-                        START_TIME }) };
+                  new IndexInfo("wfusr_session_idx2", false, new FieldInfo[] {
+                        USER, START_TIME})};
          }
 
          public IndexInfo[] getDroppedIndexes()
@@ -284,11 +285,13 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          private final FieldInfo OBJECTOID = new FieldInfo(PIP_FIELD_OBJECTOID,
                Long.TYPE, 0);
+
          private final FieldInfo NAME = new FieldInfo(PIP_FIELD_NAME, String.class, 0);
 
          public IndexInfo[] getAddedIndexes()
          {
-            // This temporary index is only used for the upgrade job. It will be dropped afterwards.
+            // This temporary index is only used for the upgrade job. It will be dropped
+            // afterwards.
             return new IndexInfo[] { new IndexInfo(PIP_TMP_INDEX, true, new FieldInfo[] {
                   OBJECTOID, NAME }) };
          }
@@ -342,14 +345,17 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
          buffer.append(SD_TABLE_NAME);
          item.executeDdlStatement(buffer.toString(), false);
-//         item.executeDdlStatement("DELETE FROM " + SD_TABLE_NAME, false);
+         // item.executeDdlStatement("DELETE FROM " SD_TABLE_NAME, false);
       }
       catch (SQLException sqle)
       {
          reportExeption(sqle, "Failed copying " + SD_TABLE_NAME + " table (nested exception).");
       }
       
-      DatabaseHelper.dropTable(item, new DropTableInfo(SD_TABLE_NAME, item.isArchiveAuditTrail() ? null : SD_PK_SEQUENCE), this);
+      DatabaseHelper.dropTable(item,
+            new DropTableInfo(SD_TABLE_NAME, item.isArchiveAuditTrail()
+                  ? null
+                  : SD_PK_SEQUENCE), this);
 
       DatabaseHelper.createTable(item, new CreateTableInfo(SD_TABLE_NAME)
       {
@@ -439,8 +445,8 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       PreparedStatement selectRowsStmt = null;
       try
       {
-         String partitionTableName 
-            = DatabaseHelper.getQualifiedName(AuditTrailPartitionBean.TABLE_NAME);
+         String partitionTableName = DatabaseHelper
+               .getQualifiedName(AuditTrailPartitionBean.TABLE_NAME);
          
          StringBuffer selectCmd = new StringBuffer() //
                .append(SELECT).append(AuditTrailPartitionBean.FIELD__ID) //
@@ -473,17 +479,19 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void updateProcessInstanceNoteStorage(String partition) throws SQLException
    {
-      Utils.initCarnotEngine(partition);
+      Utils.initCarnotEngine(partition, getRtJobEngineProperties());
       HashMap registries = new HashMap(); //<partition>,<runtime registry>
       
       Short partitionOid = (Short) Parameters.instance().get(
             SecurityProperties.CURRENT_PARTITION_OID);
       RuntimeOidRegistry registry = getRuntimeOidRegistry(registries, partitionOid);
       
-      for (Iterator modelIter = ModelPersistorBean.findAll(partitionOid.shortValue()); modelIter.hasNext();)
+      for (Iterator modelIter = ModelPersistorBean.findAll(partitionOid.shortValue()); modelIter
+            .hasNext();)
       {
          IModelPersistor currentModel = (IModelPersistor) modelIter.next();
-         IModel model = ModelManagerFactory.getCurrent().findModel(currentModel.getModelOID());
+         IModel model = ModelManagerFactory.getCurrent().findModel(
+               currentModel.getModelOID());
          for (Iterator iter = model.getAllProcessDefinitions(); iter.hasNext();)
          {
             IProcessDefinition pd = (IProcessDefinition) iter.next();
@@ -507,15 +515,16 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                   }
                   else
                   {
-                     warn(
-                           MessageFormat
+                     warn(MessageFormat
                                  .format(
                                        "DataPath with ID 'Note' for process definition {0} found. "
                                              + "But the assigned data is not of type String (current: {1}) "
                                              + "or its access path is not empty (current: {2}). "
                                              + "Its values will be ignored!",
-                                       new Object[] { pd.getId(), dataType.getId(),
-                                             dataPath.getAccessPath() }), null);
+                                 new Object[] {
+                                       pd.getId(), dataType.getId(),
+                                       dataPath.getAccessPath()}),
+                           null);
                   }
                }
             }
@@ -539,64 +548,58 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          DBDescriptor dbDescriptor = session.getDBDescriptor();
 
          /*
-         -- type_key =  8 --> value complete in string_value
-         -- type_key = 11 --> value complete in string_data (concatenate!)
-         select dv.STRING_VALUE, dv.TYPE_KEY, pi.oid pi_oid
-         from 
-            DATA_VALUE dv
-            inner join PROCESS_INSTANCE pi on (dv.PROCESSINSTANCE = pi.OID)
-            inner join PROCESS_DEFINITION pd on (pi.PROCESSDEFINITION = pd.oid and pi.model = pd.model)
-         where 
-            dv.DATA = 7 and
-            dv.model = 601 and
-            pi.PROPERTIESAVAILABLE != 3
+          * -- type_key = 8 --> value complete in string_value -- type_key = 11 --> value
+          * complete in string_data (concatenate!) select dv.STRING_VALUE, dv.TYPE_KEY,
+          * pi.oid pi_oid from DATA_VALUE dv inner join PROCESS_INSTANCE pi on
+          * (dv.PROCESSINSTANCE = pi.OID) inner join PROCESS_DEFINITION pd on
+          * (pi.PROCESSDEFINITION = pd.oid and pi.model = pd.model) where dv.DATA = 7 and
+          * dv.model = 601 and pi.PROPERTIESAVAILABLE != 3
        */
-         StringBuffer piJoinPredicate = new StringBuffer()
-               .append(DV_ALIAS).append(DOT).append(DV_FIELD__PROCESS_INSTANCE).append(EQUALS)
-               .append(PI_ALIAS).append(DOT).append(PI_FIELD_OID);
+         StringBuffer piJoinPredicate = new StringBuffer().append(DV_ALIAS).append(DOT)
+               .append(DV_FIELD__PROCESS_INSTANCE).append(EQUALS).append(PI_ALIAS)
+               .append(DOT).append(PI_FIELD_OID);
    
-         StringBuffer pdJoinPredicate = new StringBuffer()
-               .append(PI_ALIAS).append(DOT).append(PI_FIELD_PROCESS_DEFINITION).append(EQUALS)
-               .append(PD_ALIAS).append(DOT).append(PD_FIELD_OID).append(AND)
-               .append(PI_ALIAS).append(DOT).append(PI_FIELD_MODEL).append(EQUALS)
-               .append(PD_ALIAS).append(DOT).append(PD_FIELD_MODEL);
+         StringBuffer pdJoinPredicate = new StringBuffer().append(PI_ALIAS).append(DOT)
+               .append(PI_FIELD_PROCESS_DEFINITION).append(EQUALS).append(PD_ALIAS)
+               .append(DOT).append(PD_FIELD_OID).append(AND).append(PI_ALIAS).append(DOT)
+               .append(PI_FIELD_MODEL).append(EQUALS).append(PD_ALIAS).append(DOT)
+               .append(PD_FIELD_MODEL);
    
-         String dvTableName 
-            = DatabaseHelper.getQualifiedName(DV_TABLE_NAME);
-         String piTableName
-            = DatabaseHelper.getQualifiedName(PI_TABLE_NAME); 
-         String pdTableName 
-            = DatabaseHelper.getQualifiedName(PD_TABLE_NAME);  
+         String dvTableName = DatabaseHelper.getQualifiedName(DV_TABLE_NAME);
+         String piTableName = DatabaseHelper.getQualifiedName(PI_TABLE_NAME);
+         String pdTableName = DatabaseHelper.getQualifiedName(PD_TABLE_NAME);
                      
-         
-         StringBuffer selectCmd = new StringBuffer()
-               .append(SELECT).append(DV_ALIAS).append(DOT).append(DV_FIELD__OID)
-                  .append(COMMA).append(DV_ALIAS).append(DOT).append(DV_FIELD__STRING_VALUE)
-                  .append(COMMA).append(DV_ALIAS).append(DOT).append(DV_FIELD__TYPE_KEY)
-                  .append(COMMA).append(PI_ALIAS).append(DOT).append(PI_FIELD_OID)
-               .append(FROM).append(dvTableName).append(SPACE).append(DV_ALIAS)
-               .append(INNER_JOIN).append(piTableName).append(SPACE).append(PI_ALIAS)
-                  .append(onFragment(piJoinPredicate))
+         StringBuffer selectCmd = new StringBuffer().append(SELECT).append(DV_ALIAS)
+               .append(DOT).append(DV_FIELD__OID).append(COMMA).append(DV_ALIAS)
+               .append(DOT).append(DV_FIELD__STRING_VALUE).append(COMMA).append(DV_ALIAS)
+               .append(DOT).append(DV_FIELD__TYPE_KEY).append(COMMA).append(PI_ALIAS)
+               .append(DOT).append(PI_FIELD_OID).append(FROM).append(dvTableName)
+               .append(SPACE).append(DV_ALIAS).append(INNER_JOIN).append(piTableName)
+               .append(SPACE).append(PI_ALIAS).append(onFragment(piJoinPredicate))
                .append(INNER_JOIN).append(pdTableName).append(SPACE).append(PD_ALIAS)
-                  .append(onFragment(pdJoinPredicate))
-               .append(WHERE).append(DV_ALIAS).append(DOT).append(DV_FIELD__DATA).append(EQUAL_PLACEHOLDER)
-               .append(AND).append(DV_ALIAS).append(DOT).append(DV_FIELD__MODEL).append(EQUAL_PLACEHOLDER)
-               .append(AND).append(PI_ALIAS).append(DOT).append(PI_FIELD_PROPERTIES_AVAILABLE).append(NOT_EQUAL_PLACEHOLDER)
-               .append(AND).append(DV_ALIAS).append(DOT).append(DV_FIELD__TYPE_KEY).append(" != ").append(-1l);
+               .append(onFragment(pdJoinPredicate)).append(WHERE).append(DV_ALIAS)
+               .append(DOT).append(DV_FIELD__DATA).append(EQUAL_PLACEHOLDER).append(AND)
+               .append(DV_ALIAS).append(DOT).append(DV_FIELD__MODEL)
+               .append(EQUAL_PLACEHOLDER).append(AND).append(PI_ALIAS).append(DOT)
+               .append(PI_FIELD_PROPERTIES_AVAILABLE).append(NOT_EQUAL_PLACEHOLDER)
+               .append(AND).append(DV_ALIAS).append(DOT).append(DV_FIELD__TYPE_KEY)
+               .append(" != ").append(-1l);
          
          String[] insertCols;
          String oidValue;
          if (dbDescriptor.supportsSequences())
          {
-            insertCols = new String[] { PIP_FIELD_OID, PIP_FIELD_OBJECTOID,
-                  PIP_FIELD_NAME, PIP_FIELD_TYPE_KEY, PIP_FIELD_STRING_VALUE };
-            oidValue = dbDescriptor
-                  .getNextValForSeqString(schemaName, "proc_inst_property_seq");
+            insertCols = new String[] {
+                  PIP_FIELD_OID, PIP_FIELD_OBJECTOID, PIP_FIELD_NAME, PIP_FIELD_TYPE_KEY,
+                  PIP_FIELD_STRING_VALUE};
+            oidValue = dbDescriptor.getNextValForSeqString(schemaName,
+                  "proc_inst_property_seq");
          }
          else if (dbDescriptor.supportsIdentityColumns())
          {
-            insertCols = new String[] { PIP_FIELD_OBJECTOID, PIP_FIELD_NAME,
-                  PIP_FIELD_TYPE_KEY, PIP_FIELD_STRING_VALUE };
+            insertCols = new String[] {
+                  PIP_FIELD_OBJECTOID, PIP_FIELD_NAME, PIP_FIELD_TYPE_KEY,
+                  PIP_FIELD_STRING_VALUE};
             oidValue = "";
          }
          else
@@ -606,23 +609,24 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                   "Database does neither support sequences nor identity columns.");
          }
          
-         String piPropertyTableName
-            = DatabaseHelper.getQualifiedName(PI_PROP_TABLE);
-         StringBuffer insertPropCmd = new StringBuffer()
-               .append(INSERT_INTO).append(piPropertyTableName)
-               .append("(").append(StringUtils.join(Arrays.asList(insertCols).iterator(), COMMA)).append(")")
-               .append(valuesFragment(oidValue, insertCols.length));
+         String piPropertyTableName = DatabaseHelper.getQualifiedName(PI_PROP_TABLE);
+         StringBuffer insertPropCmd = new StringBuffer().append(INSERT_INTO)
+               .append(piPropertyTableName).append("(")
+               .append(StringUtils.join(Arrays.asList(insertCols).iterator(), COMMA))
+               .append(")").append(valuesFragment(oidValue, insertCols.length));
    
          if (dbDescriptor.supportsSequences())
          {
-            insertCols = new String[] { LSH_FIELD__OID, LSH_FIELD__OBJECTID,
-                  LSH_FIELD__DATA_TYPE, LSH_FIELD__DATA };
-            oidValue = dbDescriptor.getNextValForSeqString(schemaName, LSH_SEQUENCE) + COMMA;
+            insertCols = new String[] {
+                  LSH_FIELD__OID, LSH_FIELD__OBJECTID, LSH_FIELD__DATA_TYPE,
+                  LSH_FIELD__DATA};
+            oidValue = dbDescriptor.getNextValForSeqString(schemaName, LSH_SEQUENCE)
+                  + COMMA;
          }
          else if (dbDescriptor.supportsIdentityColumns())
          {
-            insertCols = new String[] { LSH_FIELD__OBJECTID, LSH_FIELD__DATA_TYPE,
-                  LSH_FIELD__DATA };
+            insertCols = new String[] {
+                  LSH_FIELD__OBJECTID, LSH_FIELD__DATA_TYPE, LSH_FIELD__DATA};
             oidValue = "";
          }
          else
@@ -632,47 +636,39 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                   "Database does neither support sequences nor identity columns.");
          }
          
-         String lshTableName
-            = DatabaseHelper.getQualifiedName(LSH_TABLE_NAME);
+         String lshTableName = DatabaseHelper.getQualifiedName(LSH_TABLE_NAME);
             
-         StringBuffer insertSubStringDataCmd = new StringBuffer()
-               .append(SELECT).append(PIP_ALIAS).append(DOT).append(PIP_FIELD_OID)
-                  .append(COMMA).append(quoted(PI_PROP_TABLE))
-                  .append(COMMA).append(LSH_ALIAS).append(DOT).append(LSH_FIELD__DATA)
-               .append(FROM).append(lshTableName).append(SPACE).append(LSH_ALIAS)
-                  .append(COMMA).append(piPropertyTableName).append(SPACE).append(PIP_ALIAS)
-               .append(WHERE).append(LSH_ALIAS).append(DOT).append(LSH_FIELD__OBJECTID).append(EQUAL_PLACEHOLDER)
-                  .append(AND).append(LSH_ALIAS).append(DOT).append(LSH_FIELD__DATA_TYPE).append(EQUALS).append(quoted(DV_TABLE_NAME))
-                  .append(AND).append(PIP_ALIAS).append(DOT).append(PIP_FIELD_OBJECTOID).append(EQUAL_PLACEHOLDER)
-                  .append(AND).append(PIP_ALIAS).append(DOT).append(PIP_FIELD_NAME).append(EQUALS).append(quoted(NOTE))
-               .append(ORDER_BY).append(LSH_ALIAS).append(DOT).append(LSH_FIELD__OID);
+         StringBuffer insertSubStringDataCmd = new StringBuffer().append(SELECT)
+               .append(PIP_ALIAS).append(DOT).append(PIP_FIELD_OID).append(COMMA)
+               .append(quoted(PI_PROP_TABLE)).append(COMMA).append(LSH_ALIAS).append(DOT)
+               .append(LSH_FIELD__DATA).append(FROM).append(lshTableName).append(SPACE)
+               .append(LSH_ALIAS).append(COMMA).append(piPropertyTableName).append(SPACE)
+               .append(PIP_ALIAS).append(WHERE).append(LSH_ALIAS).append(DOT)
+               .append(LSH_FIELD__OBJECTID).append(EQUAL_PLACEHOLDER).append(AND)
+               .append(LSH_ALIAS).append(DOT).append(LSH_FIELD__DATA_TYPE).append(EQUALS)
+               .append(quoted(DV_TABLE_NAME)).append(AND).append(PIP_ALIAS).append(DOT)
+               .append(PIP_FIELD_OBJECTOID).append(EQUAL_PLACEHOLDER).append(AND)
+               .append(PIP_ALIAS).append(DOT).append(PIP_FIELD_NAME).append(EQUALS)
+               .append(quoted(NOTE)).append(ORDER_BY).append(LSH_ALIAS).append(DOT)
+               .append(LSH_FIELD__OID);
          
-         StringBuffer insertStringDataCmd = new StringBuffer()
-               .append(INSERT_INTO).append(lshTableName)
-               .append("(").append(StringUtils.join(Arrays.asList(insertCols).iterator(), COMMA)).append(")")
-               .append(SELECT).append(oidValue).append("sub.*")
-               .append(FROM).append("(").append(insertSubStringDataCmd).append(") sub");
+         StringBuffer insertStringDataCmd = new StringBuffer().append(INSERT_INTO)
+               .append(lshTableName).append("(")
+               .append(StringUtils.join(Arrays.asList(insertCols).iterator(), COMMA))
+               .append(")").append(SELECT).append(oidValue).append("sub.*").append(FROM)
+               .append("(").append(insertSubStringDataCmd).append(") sub");
    
-         
          /*
-            SELECT STRING_DATA_SEQ.NEXTVAL,
-                   SUB.*
-            FROM   (SELECT   PIP.OID,
-                             'proc_inst_property',
-                             LSH.DATA
-                    FROM     STRING_DATA LSH,
-                             PROC_INST_PROPERTY PIP
-                    WHERE    LSH.OBJECTID = 302 AND -- DV_oid
-                             LSH.DATA_TYPE = 'data_value' AND 
-                             PIP.OBJECTOID = 302 AND -- PI_oid
-                             PIP.NAME = 'Note'
-                    ORDER BY LSH.OID) SUB
+          * SELECT STRING_DATA_SEQ.NEXTVAL, SUB.* FROM (SELECT PIP.OID,
+          * 'proc_inst_property', LSH.DATA FROM STRING_DATA LSH, PROC_INST_PROPERTY PIP
+          * WHERE LSH.OBJECTID = 302 AND -- DV_oid LSH.DATA_TYPE = 'data_value' AND
+          * PIP.OBJECTOID = 302 AND -- PI_oid PIP.NAME = 'Note' ORDER BY LSH.OID) SUB
           */
                
-         StringBuffer updateCmd = new StringBuffer()
-               .append(UPDATE).append(piTableName)
-               .append(SET).append(PI_FIELD_PROPERTIES_AVAILABLE).append(EQUAL_PLACEHOLDER)
-               .append(WHERE).append(PI_FIELD_OID).append(EQUAL_PLACEHOLDER);
+         StringBuffer updateCmd = new StringBuffer().append(UPDATE).append(piTableName)
+               .append(SET).append(PI_FIELD_PROPERTIES_AVAILABLE)
+               .append(EQUAL_PLACEHOLDER).append(WHERE).append(PI_FIELD_OID)
+               .append(EQUAL_PLACEHOLDER);
 
          Connection connection = item.getConnection();
          
@@ -684,7 +680,8 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          selectRowsStmt.setInt(3, ANY_PROPERTY_AVAILABLE | NOTE_PROPERTY_AVAILABLE);
 
          insertPropRowsStmt = connection.prepareStatement(insertPropCmd.toString());
-         insertStringDataRowsStmt = connection.prepareStatement(insertStringDataCmd.toString());
+         insertStringDataRowsStmt = connection.prepareStatement(insertStringDataCmd
+               .toString());
          updateRowsStmt = connection.prepareStatement(updateCmd.toString());
 
          ResultSet pendingRows = null;
@@ -729,7 +726,8 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                         insertStringDataRowsStmt.addBatch();
                      }
 
-                     updateRowsStmt.setInt(1, ANY_PROPERTY_AVAILABLE | NOTE_PROPERTY_AVAILABLE);
+                     updateRowsStmt.setInt(1, ANY_PROPERTY_AVAILABLE
+                           | NOTE_PROPERTY_AVAILABLE);
                      updateRowsStmt.setLong(2, piOid);
                      updateRowsStmt.addBatch();
 
@@ -752,15 +750,15 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                }
 
                insertPropRowsStmt.executeBatch();
-               // inserts into data_string-table have to be done after inserts into PI-property table.
+               // inserts into data_string-table have to be done after inserts into
+               // PI-property table.
                insertStringDataRowsStmt.executeBatch();
                updateRowsStmt.executeBatch();
                
                connection.commit();
 
                info(MessageFormat.format("Committing updates of field {1} on table {0}"
-                     + " and inserts into table {2}"
-                     + " after {3} rows.", new Object[] {
+                     + " and inserts into table {2}" + " after {3} rows.", new Object[] {
                      PI_TABLE_NAME, PI_FIELD_PROPERTIES_AVAILABLE, PI_PROP_TABLE,
                      new Integer(rowCounter) }));
             }
@@ -789,45 +787,34 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       PreparedStatement updateRowsStmt = null;
       try
       {
-         String sdBackupTableName 
-            = DatabaseHelper.getQualifiedName(SD_BACKUP_TABLE_NAME);
-         String dataTableName
-            = DatabaseHelper.getQualifiedName(DATA_TABLE_NAME);
-         String modelTableName
-            = DatabaseHelper.getQualifiedName(MODEL_TABLE_NAME);
+         String sdBackupTableName = DatabaseHelper.getQualifiedName(SD_BACKUP_TABLE_NAME);
+         String dataTableName = DatabaseHelper.getQualifiedName(DATA_TABLE_NAME);
+         String modelTableName = DatabaseHelper.getQualifiedName(MODEL_TABLE_NAME);
          
-         StringBuffer selectCmd = new StringBuffer()
-            .append("SELECT sd.").append(SD_FIELD__OID)
-                  .append(",sd.").append(SD_FIELD__DATA)
-                  .append(",sd.").append(SD_FIELD__MODEL)
-                  .append(",sd.").append(SD_FIELD__XPATH)
-                   .append(",d.").append(DATA_FIELD__ID)
-                   .append(",m.").append(MODEL_FIELD__PARTITION)
-                   .append(",m.").append(MODEL_FIELD__ID)
-            .append(FROM).append(sdBackupTableName).append(" sd,")
-                             .append(dataTableName)     .append(" d,")
-                             .append(modelTableName)    .append(" m")
-            .append(" WHERE sd.").append(SD_FIELD__DATA) .append(" = d.").append(DATA_FIELD__OID).append(AND)
-                   .append("sd.").append(SD_FIELD__MODEL).append(" = d.").append(DATA_FIELD__MODEL).append(AND)
-                   .append("sd.").append(SD_FIELD__MODEL).append(" = m.").append(MODEL_FIELD__OID);
+         StringBuffer selectCmd = new StringBuffer().append("SELECT sd.")
+               .append(SD_FIELD__OID).append(",sd.").append(SD_FIELD__DATA)
+               .append(",sd.").append(SD_FIELD__MODEL).append(",sd.")
+               .append(SD_FIELD__XPATH).append(",d.").append(DATA_FIELD__ID)
+               .append(",m.").append(MODEL_FIELD__PARTITION).append(",m.")
+               .append(MODEL_FIELD__ID).append(FROM).append(sdBackupTableName)
+               .append(" sd,").append(dataTableName).append(" d,").append(modelTableName)
+               .append(" m").append(" WHERE sd.").append(SD_FIELD__DATA).append(" = d.")
+               .append(DATA_FIELD__OID).append(AND).append("sd.").append(SD_FIELD__MODEL)
+               .append(" = d.").append(DATA_FIELD__MODEL).append(AND).append("sd.")
+               .append(SD_FIELD__MODEL).append(" = m.").append(MODEL_FIELD__OID);
 
-         String sdTableName 
-            = DatabaseHelper.getQualifiedName(SD_TABLE_NAME);
-         String sdValueTableName 
-            = DatabaseHelper.getQualifiedName(SD_VALUE_TABLE_NAME);
+         String sdTableName = DatabaseHelper.getQualifiedName(SD_TABLE_NAME);
+         String sdValueTableName = DatabaseHelper.getQualifiedName(SD_VALUE_TABLE_NAME);
          
-         StringBuffer insertCmd = new StringBuffer()
-               .append(INSERT_INTO).append(sdTableName)
-               .append(" (").append(SD_FIELD__OID).append(',')
-                            .append(SD_FIELD__DATA).append(',')
-                            .append(SD_FIELD__MODEL).append(',')
-                            .append(SD_FIELD__XPATH).append(')')
-               .append(" VALUES (?,?,?,?)");
+         StringBuffer insertCmd = new StringBuffer().append(INSERT_INTO)
+               .append(sdTableName).append(" (").append(SD_FIELD__OID).append(',')
+               .append(SD_FIELD__DATA).append(',').append(SD_FIELD__MODEL).append(',')
+               .append(SD_FIELD__XPATH).append(')').append(" VALUES (?,?,?,?)");
 
-         StringBuffer updateCmd = new StringBuffer()
-               .append(UPDATE).append(sdValueTableName)
-                 .append(SET).append(SD_VALUE_FIELD__XPATH).append(EQUAL_PLACEHOLDER)
-               .append(WHERE).append(SD_VALUE_FIELD__XPATH).append(EQUAL_PLACEHOLDER);
+         StringBuffer updateCmd = new StringBuffer().append(UPDATE)
+               .append(sdValueTableName).append(SET).append(SD_VALUE_FIELD__XPATH)
+               .append(EQUAL_PLACEHOLDER).append(WHERE).append(SD_VALUE_FIELD__XPATH)
+               .append(EQUAL_PLACEHOLDER);
 
          Connection connection = item.getConnection();
 
@@ -851,9 +838,11 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                   Short partition = new Short(pendingRows.getShort(6));
                   String modelId = pendingRows.getString(7);
                   
-                  RuntimeOidRegistry registry = getRuntimeOidRegistry(registries, partition);
+                  RuntimeOidRegistry registry = getRuntimeOidRegistry(registries,
+                        partition);
                   String[] fqId = new String[] {modelId, dataId, xpath};
-                  Long rtOid = new Long(registry.getRuntimeOid(RuntimeOidRegistry.STRUCTURED_DATA_XPATH, fqId));
+                  Long rtOid = new Long(registry.getRuntimeOid(
+                        RuntimeOidRegistry.STRUCTURED_DATA_XPATH, fqId));
                   if (rtOid.longValue() == 0)
                   {
                      // first occurrence of the xpath
@@ -871,14 +860,16 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
                   {
                      Long newOid = getOid(oids, registry, rtOid);
 
-                     // insert into STRUCTURED_DATA, but take the OID from the existing entry
+                     // insert into STRUCTURED_DATA, but take the OID from the existing
+                     // entry
                      insertRowsStmt.setLong(1, newOid.longValue());
                      insertRowsStmt.setLong(2, data);
                      insertRowsStmt.setLong(3, model);
                      insertRowsStmt.setString(4, xpath);
                      insertRowsStmt.addBatch();
                      
-                     // update references in STRUCTURED_DATA_VALUE to point to the common OID 
+                     // update references in STRUCTURED_DATA_VALUE to point to the common
+                     // OID
                      updateRowsStmt.setLong(1, newOid.longValue());
                      updateRowsStmt.setLong(2, oid.longValue());
                      updateRowsStmt.addBatch();
@@ -933,7 +924,8 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       if (registry == null)
       {
          registry = new RuntimeOidRegistry(partition.shortValue());
-         RuntimeModelLoader runtimeModelLoader = new RuntimeModelLoader(partition.shortValue());
+         RuntimeModelLoader runtimeModelLoader = new RuntimeModelLoader(
+               partition.shortValue());
          runtimeModelLoader.loadRuntimeOidRegistry(registry);
          
          registries.put(partition, registry);
@@ -1037,35 +1029,29 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       PreparedStatement updateRowsStmt = null;
       try
       {
-         String piPropertyTableName 
-            = DatabaseHelper.getQualifiedName(PI_PROP_TABLE);
-         String piTableName
-            = DatabaseHelper.getQualifiedName(PI_TABLE_NAME);
+         String piPropertyTableName = DatabaseHelper.getQualifiedName(PI_PROP_TABLE);
+         String piTableName = DatabaseHelper.getQualifiedName(PI_TABLE_NAME);
          
-         StringBuffer subselectPiPropCmd = new StringBuffer()
-               .append(SELECT).append(PIP_FIELD_OBJECTOID)
-               .append(FROM).append(piPropertyTableName)
-               .append(WHERE)
-               .append(PIP_FIELD_OBJECTOID).append(EQUALS)
+         StringBuffer subselectPiPropCmd = new StringBuffer().append(SELECT)
+               .append(PIP_FIELD_OBJECTOID).append(FROM).append(piPropertyTableName)
+               .append(WHERE).append(PIP_FIELD_OBJECTOID).append(EQUALS)
                .append(PI_TABLE_NAME).append(DOT).append(PI_FIELD_OID);
          
          // All PIs which have any properties
-         StringBuffer selectPiWithPropCmd = new StringBuffer()
-               .append(SELECT).append(PI_FIELD_OID)
-               .append(FROM).append(piTableName)
-               .append(WHERE).append(PI_FIELD_PROPERTIES_AVAILABLE).append(IS_NULL)
-               .append(AND).append(existsFragment(subselectPiPropCmd));
+         StringBuffer selectPiWithPropCmd = new StringBuffer().append(SELECT)
+               .append(PI_FIELD_OID).append(FROM).append(piTableName).append(WHERE)
+               .append(PI_FIELD_PROPERTIES_AVAILABLE).append(IS_NULL).append(AND)
+               .append(existsFragment(subselectPiPropCmd));
    
          // All PIs which still containing NULL
-         StringBuffer selectPiWithoutPropCmd = new StringBuffer()
-               .append(SELECT).append(PI_FIELD_OID)
-               .append(FROM).append(piTableName)
-               .append(WHERE).append(PI_FIELD_PROPERTIES_AVAILABLE).append(IS_NULL);
+         StringBuffer selectPiWithoutPropCmd = new StringBuffer().append(SELECT)
+               .append(PI_FIELD_OID).append(FROM).append(piTableName).append(WHERE)
+               .append(PI_FIELD_PROPERTIES_AVAILABLE).append(IS_NULL);
    
-         StringBuffer updateCmd = new StringBuffer()
-               .append(UPDATE).append(piTableName)
-               .append(SET).append(PI_FIELD_PROPERTIES_AVAILABLE).append(EQUAL_PLACEHOLDER)
-               .append(WHERE).append(PI_FIELD_OID).append(EQUAL_PLACEHOLDER);
+         StringBuffer updateCmd = new StringBuffer().append(UPDATE).append(piTableName)
+               .append(SET).append(PI_FIELD_PROPERTIES_AVAILABLE)
+               .append(EQUAL_PLACEHOLDER).append(WHERE).append(PI_FIELD_OID)
+               .append(EQUAL_PLACEHOLDER);
 
          Connection connection = item.getConnection();
 
@@ -1147,8 +1133,8 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             connection.commit();
 
             info(MessageFormat.format("Committing updates of field {1} on table {0}"
-                  + " after {2} rows.", new Object[] { PI_TABLE_NAME,
-                  PI_FIELD_PROPERTIES_AVAILABLE, new Integer(rowCounter) }));
+                  + " after {2} rows.", new Object[] {
+                  PI_TABLE_NAME, PI_FIELD_PROPERTIES_AVAILABLE, new Integer(rowCounter)}));
          }
       }
       finally
@@ -1180,3 +1166,4 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       
    }
 }
+   

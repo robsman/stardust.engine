@@ -150,16 +150,21 @@ public interface UserService extends Service
 
    /**
     * Resets the password of specified user by generated password according to configured
-    * password rules.
+    * password rules. On synchronization with external repository the specified user will
+    * be created in audit trail if it is not already present there but exists in external
+    * repository. If the user exists in audit trail it will be updated on synchronization
+    * if there are any changes.
     * 
-    * @param account the user account to be modified.
-    * @param properties Map providing further login properties.
+    * @param account
+    *           the user account to be modified.
+    * @param properties
+    *           Map providing further login properties.
     * 
-    * @throws ConcurrencyException 
+    * @throws ConcurrencyException
     *            if another user operates on the specified one.
-    * @throws ObjectNotFoundException 
+    * @throws ObjectNotFoundException
     *            if the user or a given grant is not found.
-    * @throws IllegalOperationException 
+    * @throws IllegalOperationException
     *            if the authentication is not internal.
     */
    @ExecutionPermission(
@@ -260,14 +265,17 @@ public interface UserService extends Service
          throws UserExistsException, IllegalOperationException, InvalidPasswordException;
 
    /**
-    * Retrieves the user associated with the given account.
+    * Retrieves the user associated with the given account. On synchronization with
+    * external repository the specified user will be created in audit trail if it is not
+    * already present there but exists in external repository. If the user exists in audit
+    * trail it will be updated on synchronization if there are any changes.
     * 
     * @param account
     *           the account name of the user to retrieve.
     * 
     * @return the user.
     * 
-    * @throws ObjectNotFoundException 
+    * @throws ObjectNotFoundException
     *            if there is no user with the specified account.
     */
    @ExecutionPermission(
@@ -276,7 +284,10 @@ public interface UserService extends Service
    User getUser(String account) throws ObjectNotFoundException, IllegalOperationException;
 
    /**
-    * Retrieves the user associated with the given account.
+    * Retrieves the user associated with the given account. On synchronization with
+    * external repository the specified user will be created in audit trail if it is not
+    * already present there but exists in external repository. If the user exists in audit
+    * trail it will be updated on synchronization if there are any changes.
     * 
     * @param realm
     *           the realm ID of the user to retrieve.
@@ -294,14 +305,17 @@ public interface UserService extends Service
    User getUser(String realm, String account) throws ObjectNotFoundException;
 
    /**
-    * Retrieves the specified user.
+    * Retrieves the specified user. On synchronization the user with specified oid will be
+    * updated if this user exists in audit trail and there are any changes. If this user
+    * does not exist in audit trail but is present in external repository it will not be
+    * created in audit trail on synchronization with external repository.
     * 
     * @param userOID
     *           the OID of the user to retrieve.
     * 
     * @return the user.
     * 
-    * @throws ObjectNotFoundException 
+    * @throws ObjectNotFoundException
     *            if there is no user with the specified oid.
     */
    @ExecutionPermission(
@@ -383,7 +397,10 @@ public interface UserService extends Service
          InvalidPasswordException, InvalidArgumentException;
 
    /**
-    * Retrieves the user group associated with the given ID.
+    * Retrieves the user group associated with the given ID. On synchronization with
+    * external repository the specified user group will be created in audit trail if it is not
+    * already present there but exists in external repository. If the user group exists in audit
+    * trail it will be updated on synchronization if there are any changes.
     * 
     * @param id
     *           the id of the user group to retrieve.
@@ -399,15 +416,19 @@ public interface UserService extends Service
    UserGroup getUserGroup(String id) throws ObjectNotFoundException;
    
    /**
-    * Retrieves the specified user group.
+    * Retrieves the specified user group. On synchronization the user group with specified
+    * oid will be updated if this user group exists in audit trail and there are any
+    * changes. If this user group does not exist in audit trail but is present in external
+    * repository it will not be created in audit trail on synchronization with external
+    * repository.
     * 
     * @param oid
     *           the OID of the user group to retrieve.
     * 
     * @return the user group.
     * 
-    * @throws ObjectNotFoundException 
-    *           if there is no user group with the specified OID.
+    * @throws ObjectNotFoundException
+    *            if there is no user group with the specified OID.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readUserData,

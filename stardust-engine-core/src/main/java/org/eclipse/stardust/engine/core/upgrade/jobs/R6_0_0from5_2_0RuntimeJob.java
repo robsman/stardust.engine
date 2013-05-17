@@ -348,7 +348,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       try
       {
-         migrateDeployedModels();
+         migrateDeployedModels(recover);
          consolidateGrants();
          migratePermissions();
          migrateDataClusterDefinition();
@@ -357,7 +357,6 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          reportExeption(sqle, "Failed migrating runtime item tables (nested exception).");
       }
-
    }
 
    private void consolidateGrants() throws SQLException
@@ -436,7 +435,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return sql.toString();
    }
 
-   private void migrateDeployedModels() throws SQLException
+   private void migrateDeployedModels(boolean recover) throws SQLException
    {
       Connection connection = item.getConnection();
 
@@ -451,6 +450,14 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       PreparedStatement selectStatement = connection.prepareStatement(selectCmd.toString());
       ResultSet rs = selectStatement.executeQuery();
 
+      if(recover)
+      {
+         Statement delStmt = item.getConnection().createStatement();      
+         StringBuffer deleteCmd = new StringBuffer();
+         deleteCmd.append("DELETE FROM ").append(ModelDeploymentBean.TABLE_NAME);
+         delStmt.execute(deleteCmd.toString());
+      }      
+      
       StringBuffer insertCmd = new StringBuffer();
       if (item.getDbDescriptor().supportsSequences()) {
          String nextOid = item.getDbDescriptor().getNextValForSeqString(null, ModelDeploymentBean.PK_SEQUENCE);
@@ -493,6 +500,14 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       selectStatement = connection.prepareStatement(selectCmd.toString());
       rs = selectStatement.executeQuery();
 
+      if(recover)
+      {
+         Statement delStmt = item.getConnection().createStatement();      
+         StringBuffer deleteCmd = new StringBuffer();
+         deleteCmd.append("DELETE FROM ").append(ModelRefBean.TABLE_NAME);
+         delStmt.execute(deleteCmd.toString());
+      }
+      
       insertCmd = new StringBuffer();
       insertCmd.append("INSERT INTO ").append(ModelRefBean.TABLE_NAME).append(" (");
       insertCmd.append(MODEL_REF_FIELD__CODE).append(',');

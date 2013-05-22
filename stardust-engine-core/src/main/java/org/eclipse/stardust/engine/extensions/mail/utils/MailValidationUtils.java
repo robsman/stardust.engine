@@ -33,13 +33,14 @@ public class MailValidationUtils
     * @param outputValue output value string, <code>null</code> will be handled as empty string
     * @return Arguments will be concatenated with delimiter '|'. Result is value of <code>String.hashCode()</code> on resulting string.
     */
-   public static int getQueryParametersHashCode(long piOid, long aiOid,
+   public static int getQueryParametersHashCode(long piOid, long aiOid, String partition,
          boolean investigate, String outputValue)
    {
       StringBuffer buffer = new StringBuffer(200);
       
       buffer.append(piOid).append("|")
             .append(aiOid).append("|")
+            .append(partition).append("|")
             .append(Boolean.toString(investigate)).append("|")
             .append(outputValue == null ? "" : outputValue);
       

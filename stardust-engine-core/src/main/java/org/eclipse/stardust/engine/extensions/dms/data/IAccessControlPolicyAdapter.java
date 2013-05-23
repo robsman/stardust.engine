@@ -38,6 +38,11 @@ public class IAccessControlPolicyAdapter implements IAccessControlPolicy
    {
       throw new RuntimeException("Not implemented.");
    }
+   
+   public void addAccessControlEntry(Principal principal, Set<IPrivilege> privileges, EntryType type)
+   {
+      throw new RuntimeException("Not implemented.");
+   }
 
    public void addAccessControlEntry(Principal principal, Set<IPrivilege> privileges,
          EntryType type)

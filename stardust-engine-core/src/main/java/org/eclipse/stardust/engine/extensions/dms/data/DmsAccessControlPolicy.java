@@ -75,6 +75,11 @@ public class DmsAccessControlPolicy implements AccessControlPolicy, Serializable
    {
       this.aces.add(new DmsAccessControlEntry(principal, privileges));
    }
+   
+   public void addAccessControlEntry(Principal principal, Set<Privilege> privileges, EntryType type)
+   {
+      this.aces.add(new DmsAccessControlEntry(principal, privileges, type));
+   }
 
    public void removeAccessControlEntry(AccessControlEntry ace)
    {

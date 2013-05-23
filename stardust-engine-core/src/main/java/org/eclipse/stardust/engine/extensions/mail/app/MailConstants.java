@@ -27,6 +27,7 @@ public interface MailConstants
 	final String HTML_TEMPLATE = MailConstants.SCOPE_MAIL_RT + ":htmlTemplate"; //$NON-NLS-1$
 	final String HTML_FOOTER = MailConstants.SCOPE_MAIL_RT + ":htmlFooter"; //$NON-NLS-1$
 	final String DEFAULT_MAIL_SERVER = MailConstants.SCOPE_MAIL_RT + ":defaultMailServer"; //$NON-NLS-1$
+   final String DEFAULT_JNDI_SESSION = MailConstants.SCOPE_MAIL_RT + ":defaultJNDISession"; //$NON-NLS-1$
 	final String URL_PREFIX = MailConstants.SCOPE_MAIL_RT + ":urlPrefix"; //$NON-NLS-1$
 	final String DEFAULT_MAIL_FROM = MailConstants.SCOPE_MAIL_RT + ":defaultMailFrom"; //$NON-NLS-1$
 	final String DEFAULT_MAIL_TO = MailConstants.SCOPE_MAIL_RT + ":defaultMailTo"; //$NON-NLS-1$

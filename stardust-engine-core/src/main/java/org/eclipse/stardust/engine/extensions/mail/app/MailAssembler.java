@@ -34,6 +34,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -49,6 +51,7 @@ public class MailAssembler
    private static final Logger trace = LogManager.getLogger(MailAssembler.class);
    
    private String mailHost;
+   private String jndiSession;
    private String fromSpec;
    private String toSpec;
    private String ccSpec;
@@ -70,7 +73,7 @@ public class MailAssembler
    private List attachmentList;
    private MimeMessage msg;
 
-   public MailAssembler(String mailHost, String from, String to,
+   public MailAssembler(String mailHost, String jndiSession, String from, String to,
          String cc, String bcc, String priority,
          String subject, String plainTextTemplate, boolean useHTML,
          String htmlHeader, String htmlTemplate, String htmlFooter,
@@ -81,6 +84,7 @@ public class MailAssembler
       super();
 
       this.mailHost = mailHost;
+      this.jndiSession = jndiSession;      
       this.fromSpec = from;
       this.toSpec = to;
       this.ccSpec = cc;
@@ -138,19 +142,44 @@ public class MailAssembler
       Transport.send(msg);
    }
 
+   /**
+    * Loads the mail session from JNFI (if {@link #jndiSession} is set)
+    * or based on the {@link #mailHost}.
+    */
+   private Session createSession() throws NamingException {
+      Session retValue;
+      if (StringUtils.isNotEmpty(jndiSession)) {
+           InitialContext context = new InitialContext();
+           String jndiSessionPath = "java:comp/env/" + jndiSession;
+      Object session = context.lookup(jndiSessionPath);
+           if (session instanceof Session) {
+            retValue = (Session) session;
+           } else {
+            throw new NamingException(jndiSessionPath + " returned " + session + " but " + Session.class + " is expected!");
+           }
+      } else {
+         Properties props = new Properties();
+
+         props.put("mail.smtp.host", mailHost);
+         props.put("mail.debug", Boolean.getBoolean("mail.debug"));
+         retValue= Session.getInstance(props, null);
+      }
+      return retValue;
+   } 
    /** Sets smtp host, target mail adresses, priority, subject
     * @throws MessagingException
     */
    private void prepareMsg() throws MessagingException
    {
-      Properties props = new Properties();
-
-      props.put("mail.smtp.host", mailHost);
-      props.put("mail.debug", "true");
-      Session session = Session.getInstance(props, null);
+      Session session;
+      try {
+          session = createSession();
+      } catch (NamingException e) {
+          throw new MessagingException(e.getMessage(), e);
+      }
 
       msg = new MimeMessage(session);
-
+      
       InternetAddress fromAddress = new InternetAddress(fromSpec);
 
       // split multiple receivers

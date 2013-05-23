@@ -26,6 +26,8 @@ import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Version;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
@@ -39,6 +41,7 @@ import org.w3c.dom.NodeList;
  */
 public class R3_2_0from3_0_6RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
+   private static final Logger trace = LogManager.getLogger(R3_2_0from3_0_6RuntimeJob.class);
    private static final Version VERSION = Version.createFixedVersion(3, 2, 0);
 
    private static final String PROP_3_2_0_MODEL_TABLE_MIGRATION = "carnot.upgrade.3.2.0.modelTableMigration";
@@ -1993,4 +1996,10 @@ public class R3_2_0from3_0_6RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       // TODO Auto-generated method stub
       
    }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
+}
 }

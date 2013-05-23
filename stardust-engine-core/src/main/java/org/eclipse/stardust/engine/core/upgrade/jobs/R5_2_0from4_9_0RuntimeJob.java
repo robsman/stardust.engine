@@ -327,26 +327,6 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       item.executeDdlStatement(buffer.toString(), false);
    }
    
-   private void reportExeption(SQLException sqle, String message)
-   {
-      SQLException ne = sqle;
-      do
-      {
-         trace.error(message, ne);
-      }
-      while (null != (ne = ne.getNextException()));
-
-      try
-      {
-         item.rollback();
-      }
-      catch (SQLException e1)
-      {
-         warn("Failed rolling back transaction.", e1);
-      }
-      error("Failed migrating runtime item tables.", sqle);
-   }
-
    @Override
    protected void printUpgradeSchemaInfo()
    {
@@ -374,5 +354,11 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    @Override
    protected void printFinalizeSchemaInfo()
    {
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
    }
 }

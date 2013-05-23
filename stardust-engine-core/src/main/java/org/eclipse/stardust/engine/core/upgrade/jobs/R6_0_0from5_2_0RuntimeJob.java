@@ -88,8 +88,6 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String P_IDX1 = "preferences_idx1";
 
-   private static final String COMMA = ",";
-
    private static final String PREFERENCES_MODULE_ID_PERMISSIONS = "permissions";
 
    private static final String PREFERENCES_PARTITION_SCOPE_TYPE = "PARTITION";
@@ -881,26 +879,6 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
    }
 
-   private void reportExeption(SQLException sqle, String message)
-   {
-      SQLException ne = sqle;
-      do
-      {
-         trace.error(message, ne);
-      }
-      while (null != (ne = ne.getNextException()));
-
-      try
-      {
-         item.rollback();
-      }
-      catch (SQLException e1)
-      {
-         warn("Failed rolling back transaction.", e1);
-      }
-      error("Failed migrating runtime item tables.", sqle);
-   }
-
    @Override
    protected void printUpgradeSchemaInfo()
    {
@@ -937,5 +915,11 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected void printFinalizeSchemaInfo()
    {
       
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
    }
 }

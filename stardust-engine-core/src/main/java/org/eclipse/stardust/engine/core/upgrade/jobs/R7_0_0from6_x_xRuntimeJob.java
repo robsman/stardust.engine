@@ -134,11 +134,6 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String WORK_ITEM_FIELD_CRITICALITY = "criticality";
 
-   // Constants for SQL building
-   private static final String SELECT = "SELECT ";
-
-   private static final String FROM = " FROM ";
-
    private static final Version VERSION = Version.createFixedVersion(7, 0, 0);
 
    private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";
@@ -812,26 +807,6 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       upgradeTaskExecutor.executeFinalizeSchemaTasks();
    }
 
-   private void reportExeption(SQLException sqle, String message)
-   {
-      SQLException ne = sqle;
-      do
-      {
-         trace.error(message, ne);
-      }
-      while (null != (ne = ne.getNextException()));
-
-      try
-      {
-         item.rollback();
-      }
-      catch (SQLException e1)
-      {
-         warn("Failed rolling back transaction.", e1);
-      }
-      error("Failed migrating runtime item tables.", sqle);
-   }
-
    private static <T extends IdentifiablePersistent> Map<Long, T> loadModelElementDefinitions(
          int modelOid, Class<T> type, FieldRef frModel)
    {
@@ -1010,5 +985,11 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
 
       return result;
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
    }
 }

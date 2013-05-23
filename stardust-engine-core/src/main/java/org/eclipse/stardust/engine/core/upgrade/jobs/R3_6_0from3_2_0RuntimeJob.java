@@ -560,4 +560,10 @@ public class R3_6_0from3_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       // TODO Auto-generated method stub
       
    }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
+}
 }

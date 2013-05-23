@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Version;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
@@ -33,6 +35,8 @@ import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
  */
 public class R4_9_0from4_7_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
+   private static final Logger trace = LogManager.getLogger(R4_9_0from4_7_0RuntimeJob.class);
+
    private static final Version VERSION = Version.createFixedVersion(4, 9, 0);
    
    private static final String LOG_ENTRY_TABLE_NAME = "log_entry";
@@ -152,5 +156,11 @@ public class R4_9_0from4_7_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       // TODO Auto-generated method stub
       
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
    }
 }

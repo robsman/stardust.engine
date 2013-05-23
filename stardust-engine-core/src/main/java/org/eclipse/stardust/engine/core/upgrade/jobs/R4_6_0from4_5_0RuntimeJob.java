@@ -49,29 +49,6 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    
    private static final Version VERSION = Version.createFixedVersion(4, 6, 0);
 
-   // Constants for SQL building
-   private static final String SELECT = "SELECT ";
-   private static final String UPDATE = "UPDATE ";
-   private static final String INSERT_INTO = "INSERT INTO ";
-   private static final String SET = " SET ";
-   private static final String FROM = " FROM ";
-   private static final String WHERE = " WHERE ";
-   private static final String EXISTS = " EXISTS ";
-   private static final String IS_NULL = " IS NULL";
-   private static final String PLACEHOLDER = "?";
-   private static final String EQUAL_PLACEHOLDER = " = " + PLACEHOLDER;
-   private static final String NOT_EQUAL_PLACEHOLDER = " != " + PLACEHOLDER;
-   private static final String EQUALS = " = ";
-   private static final String AND = " AND ";
-   private static final String DOT = ".";
-   private static final String COMMA = ",";
-   private static final String SPACE = " ";
-   private static final String INNER_JOIN = " INNER JOIN ";
-   private static final String ON = " ON ";
-   private static final String VALUES = " VALUES ";
-   private static final String QUOTE = "'";
-   private static final Object ORDER_BY = " ORDER BY ";
-
    // Property flags
    private static final int NO_PROPERTY_AVAILABLE = 0;
    private static final int ANY_PROPERTY_AVAILABLE = 1;
@@ -933,26 +910,6 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return registry;
    }
 
-   private void reportExeption(SQLException sqle, String message)
-   {
-      SQLException ne = sqle;
-      do
-      {
-         trace.error(message, ne);
-      }
-      while (null != (ne = ne.getNextException()));
-
-      try
-      {
-         item.rollback();
-      }
-      catch (SQLException e1)
-      {
-         warn("Failed rolling back transaction.", e1);
-      }
-      error("Failed migrating runtime item tables.", sqle);
-   }
-
    protected void finalizeSchema(boolean recover) throws UpgradeException
    {
       DatabaseHelper.dropTable(item, new DropTableInfo(SD_BACKUP_TABLE_NAME, null), this);
@@ -1165,5 +1122,10 @@ public class R4_6_0from4_5_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       // TODO Auto-generated method stub
       
    }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
 }
    

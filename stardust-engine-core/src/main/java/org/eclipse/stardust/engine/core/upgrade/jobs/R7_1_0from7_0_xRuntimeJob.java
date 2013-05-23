@@ -10,35 +10,55 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.OracleDbDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
-import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
 public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
    
+   // Structured Data Value Table
+   private static final String SDV_TABLE = "structured_data_value";
+   private static final String SDV_OID = "oid";
+   private static final String SDV_TYPE_KEY = "type_key";
+   private static final String SDV_PROCESS_INSTANCE = "processInstance";
+   private static final String SDV_XPATH = "xpath";
+   private static final String SDV_STRING_VALUE = "string_value";
+   private static final String SDV_DOUBLE_VALUE = "double_value";
+
+   // Data Value Table
+   private static final String DV_TABLE = "data_value";
+   private static final String DV_STRING_VALUE = "string_value";
+   private static final String DV_DOUBLE_VALUE = "double_value";
+
+   // Model Table
+   private static final String M_TABLE = "model";
+
+   // Process Instance Table
+   private static final String PI_TABLE = "process_instance";
+
    private static final String IGNORE_MISSING_XPATH
    = "Infinty.RTUpgrade.7_1_0.IgnoreMissingXPath";
    
@@ -80,12 +100,11 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private void initUpgradeSchemaTasks(RuntimeItem item)
    {
       upgradeTaskExecutor
-            .addUpgradeSchemaTask(addDoubleValueColumnToDataValueUpgradeTask(
-                  DataValueBean.TABLE_NAME, DataValueBean.FIELD__DOUBLE_VALUE));
+            .addUpgradeSchemaTask(addDoubleValueColumnToDataValueUpgradeTask(DV_TABLE,
+                  DV_DOUBLE_VALUE));
       upgradeTaskExecutor
-            .addUpgradeSchemaTask(addDoubleValueColumnToDataValueUpgradeTask(
-                  StructuredDataValueBean.TABLE_NAME,
-                  StructuredDataValueBean.FIELD__DOUBLE_VALUE));
+            .addUpgradeSchemaTask(addDoubleValueColumnToDataValueUpgradeTask(SDV_TABLE,
+                  SDV_DOUBLE_VALUE));
    }
 
    private UpgradeTask addDoubleValueColumnToDataValueUpgradeTask(final String tableName,
@@ -136,7 +155,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       DBDescriptor dbDescriptor = item.getDbDescriptor();
       if(dbDescriptor instanceof OracleDbDescriptor)
       {
-         //set the decimal delemiter for number conversions
+         //set the decimal delimiter for number conversions
          String setDelemiterStatement = 
             "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='.,'";
          try
@@ -160,70 +179,12 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             prepareMigrateStringValueToDoubleValue();
             
-            runUpdateDataValueStmnt(DataValueBean.TABLE_NAME,
-                  DataValueBean.FIELD__DOUBLE_VALUE, DataValueBean.FIELD__STRING_VALUE);
-            runUpdateDataValueStmnt(StructuredDataValueBean.TABLE_NAME,
-                  StructuredDataValueBean.FIELD__DOUBLE_VALUE,
-                  StructuredDataValueBean.FIELD__STRING_VALUE);
-
-            String partition = ParametersFacade.instance().getString(
-                  SecurityProperties.DEFAULT_PARTITION,
-                  PredefinedConstants.DEFAULT_PARTITION_ID);
-            Utils.initCarnotEngine(partition, getRtJobEngineProperties());
-
-            StringBuilder structOidStmnt = new StringBuilder();
-            structOidStmnt
-                  .append("SELECT ")
-                  .append(StructuredDataValueBean.FIELD__OID)
-                  .append(", ")
-                  .append(StructuredDataValueBean.FIELD__XPATH)
-                  .append(", ")
-                  .append(StructuredDataValueBean.FIELD__PROCESS_INSTANCE)
-                  .append(", ")
-                  .append(StructuredDataValueBean.FIELD__STRING_VALUE)
-                  .append(" FROM ")
-                  .append(
-                        DatabaseHelper
-                              .getQualifiedName(StructuredDataValueBean.TABLE_NAME))
-                  .append(" WHERE ").append(StructuredDataValueBean.FIELD__TYPE_KEY)
-                  .append("=").append(BigData.STRING);
-            ModelManager modelManager = ModelManagerFactory.getCurrent();
-            Map<Long, Double> structValMap = CollectionUtils.newMap();
-            try
+            Set<PartitionInfo> partitions = getPartitionsFromDb();
+            for (PartitionInfo partitionInfo : partitions)
             {
-               ResultSet resultSet = DatabaseHelper.executeQuery(item,
-                     structOidStmnt.toString());
-               while (resultSet.next())
-               {
-                  long structValOid = resultSet.getLong(1);
-                  long xpathOid = resultSet.getLong(2);
-                  long piOid = resultSet.getLong(3);
-                  String value = resultSet.getString(4);
-                  long modelOid = ProcessInstanceBean.findByOID(piOid)
-                        .getProcessDefinition().getModel().getModelOID();
-                  
-                  IData theData = modelManager.findDataForStructuredData(modelOid, xpathOid);
-                  Double decimalValue = getDecimalValue(theData, xpathOid, value);
-                  if(decimalValue != null)
-                  {
-                     structValMap.put(structValOid, decimalValue);
+               upgradeDoubleValuesByPartition(partitionInfo);
                   }
                }
-
-               Statement updateStmnt = item.getConnection().createStatement();
-               for (Long structValOid : structValMap.keySet())
-               {
-                  updateStmnt.addBatch(createUpdateDecStructValStmnt(structValOid,
-                        structValMap.get(structValOid)));
-               }
-               updateStmnt.executeBatch();
-               updateStmnt.close();
-            }
-            catch (SQLException e)
-            {
-               reportExeption(e, "Could not update double value.");
-            }
-         }
       };
    }
    
@@ -272,7 +233,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
          else
          {
-            throw new PublicException(errorMsg.toString());
+            throw new PublicException(errorMsg.toString(), e);
          }
       }
 
@@ -280,15 +241,14 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    }
    
 
-   protected String createUpdateDecStructValStmnt(Long structValOid, Double value)
+   private String createUpdateDecStructValStmnt()
    {
       StringBuilder updateSql = new StringBuilder();
-      updateSql.append("UPDATE ")
-            .append(DatabaseHelper.getQualifiedName(StructuredDataValueBean.TABLE_NAME))
-            .append(" SET ").append(StructuredDataValueBean.FIELD__DOUBLE_VALUE)
-            .append(" = ").append(value).append(" WHERE ")
-            .append(StructuredDataValueBean.FIELD__OID).append(" = ")
-            .append(structValOid);
+      updateSql.append(UPDATE)
+            .append(DatabaseHelper.getQualifiedName(SDV_TABLE))
+            .append(SET).append(SDV_DOUBLE_VALUE).append(EQUAL_PLACEHOLDER)
+            .append(WHERE)
+            .append(SDV_OID).append(EQUAL_PLACEHOLDER);
       return updateSql.toString();
    }
 
@@ -336,36 +296,27 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return VERSION;
    }
 
-   private void reportExeption(SQLException sqle, String message)
-   {
-      SQLException ne = sqle;
-      do
-      {
-         trace.error(message, ne);
-      }
-      while (null != (ne = ne.getNextException()));
-
-      try
-      {
-         item.rollback();
-      }
-      catch (SQLException e1)
-      {
-         warn("Failed rolling back transaction.", e1);
-      }
-      error("Failed migrating runtime item tables.", sqle);
-   }
-
    private void runUpdateDataValueStmnt(String tableName, String doubleFieldName,
-         String stringFieldName)
+         String stringFieldName, final PartitionInfo partitionInfo)
    {
       StringBuilder updateDataValueStmt = new StringBuilder();
-      updateDataValueStmt.append("UPDATE ")
-            .append(DatabaseHelper.getQualifiedName(tableName)).append(" SET ")
-            .append(doubleFieldName).append("=")
-            .append(stringFieldName)
-            .append(" WHERE type_key=").append(BigData.DOUBLE).append(" OR type_key=")
-            .append(BigData.FLOAT);
+      updateDataValueStmt
+            .append(UPDATE)
+               .append(DatabaseHelper.getQualifiedName(tableName))
+            .append(SET)
+               .append(doubleFieldName).append(EQUALS).append(stringFieldName)
+            .append(WHERE)
+               .append("(type_key").append(EQUALS).append(BigData.DOUBLE)
+               .append(OR)
+               .append("type_key").append(EQUALS).append(BigData.FLOAT).append(")")
+            .append(AND).append(EXISTS)
+            .append("(SELECT 0")
+            .append(FROM).append(DatabaseHelper.getQualifiedName(PI_TABLE, "pi"))
+            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(M_TABLE, "m"))
+            .append(ON).append("(m.oid = pi.model)")
+            .append(WHERE)
+            .append("pi.oid").append(EQUALS).append(DatabaseHelper.getQualifiedName(tableName)).append(DOT).append("processInstance")
+            .append(AND).append("m.partition").append(EQUALS).append(partitionInfo.getOid()).append(")");
       try
       {
          item.executeDdlStatement(updateDataValueStmt.toString(), false);
@@ -377,4 +328,77 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
    }
 
+   private void upgradeDoubleValuesByPartition(final PartitionInfo partitionInfo)
+   {
+      runUpdateDataValueStmnt(DV_TABLE,
+            DV_DOUBLE_VALUE, DV_STRING_VALUE,
+            partitionInfo);
+      runUpdateDataValueStmnt(SDV_TABLE,
+            SDV_DOUBLE_VALUE,
+            SDV_STRING_VALUE, partitionInfo);
+
+      Utils.initCarnotEngine(partitionInfo.getId());
+
+      StringBuilder structOidStmnt = new StringBuilder();
+      structOidStmnt
+            .append(SELECT)
+               .append("sdv.").append(SDV_OID).append(COMMA)
+               .append(SDV_XPATH).append(COMMA)
+               .append(SDV_PROCESS_INSTANCE).append(COMMA)
+               .append(SDV_STRING_VALUE)
+            .append(FROM)
+               .append(DatabaseHelper.getQualifiedName(SDV_TABLE, "sdv"))
+            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(PI_TABLE, "pi"))
+               .append(ON).append("(sdv.processInstance = pi.oid)")
+            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(M_TABLE, "m"))
+               .append(ON).append("(m.oid = pi.model)")
+            .append(WHERE)
+               .append(SDV_TYPE_KEY).append(EQUALS).append(BigData.STRING)
+               .append(AND).append("m.partition").append(EQUALS).append(partitionInfo.getOid());
+      ModelManager modelManager = ModelManagerFactory.getCurrent();
+      Map<Long, Double> structValMap = CollectionUtils.newMap();
+      try
+      {
+         ResultSet resultSet = DatabaseHelper.executeQuery(item,
+               structOidStmnt.toString());
+         while (resultSet.next())
+         {
+            long structValOid = resultSet.getLong(1);
+            long xpathOid = resultSet.getLong(2);
+            long piOid = resultSet.getLong(3);
+            String value = resultSet.getString(4);
+            long modelOid = ProcessInstanceBean.findByOID(piOid)
+                  .getProcessDefinition().getModel().getModelOID();
+
+            IData theData = modelManager.findDataForStructuredData(modelOid, xpathOid);
+            Double decimalValue = getDecimalValue(theData, xpathOid, value);
+            if(decimalValue != null)
+            {
+               structValMap.put(structValOid, decimalValue);
+      }
+         }
+
+         PreparedStatement updateStmnt = item.getConnection().prepareStatement(
+               createUpdateDecStructValStmnt());
+         for (Long structValOid : structValMap.keySet())
+         {
+            updateStmnt.setDouble(1, structValMap.get(structValOid));
+            updateStmnt.setLong(2, structValOid);
+            updateStmnt.addBatch();
+         }
+
+         updateStmnt.executeBatch();
+         updateStmnt.close();
+      }
+      catch (SQLException e)
+      {
+         reportExeption(e, "Could not update double value.");
+      }
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
+}
 }

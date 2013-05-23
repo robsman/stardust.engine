@@ -11,6 +11,8 @@
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
 import org.eclipse.stardust.common.config.Version;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
@@ -23,6 +25,8 @@ import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
  */
 public class R4_7_0from4_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
+   private static final Logger trace = LogManager.getLogger(R4_7_0from4_6_0RuntimeJob.class);
+
    private static final Version VERSION = Version.createFixedVersion(4, 7, 0);
 
    // UserSession table.
@@ -100,5 +104,11 @@ public class R4_7_0from4_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       // TODO Auto-generated method stub
       
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
    }
 }

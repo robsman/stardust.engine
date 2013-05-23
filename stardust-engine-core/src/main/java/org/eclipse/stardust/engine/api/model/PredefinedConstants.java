@@ -29,7 +29,7 @@ public final class PredefinedConstants
    public static final String WEBEX_SCOPE = "carnot:webex:";
    public static final String ENGINE_SCOPE = "carnot:engine:";
    public static final String PWH_SCOPE = "carnot:pwh:";
-
+      
    // predefined application type IDs
    public static final String SESSIONBEAN_APPLICATION = "sessionBean";
    public static final String PLAINJAVA_APPLICATION = "plainJava";
@@ -292,6 +292,7 @@ public final class PredefinedConstants
    public static final String RETURN_VALUE = "returnValue";
    public static final String RESPONSE_MAIL = "responseMail";
    public static final String ATTACHMENTS = "Attachments";
+   public static final String JNDI_SESSION = "jndiSession";
 
    // @todo (france, ub): should be converted to a period
    public static final String TIMER_TRIGGER_START_TIMESTAMP_ATT = ENGINE_SCOPE + "startTime";

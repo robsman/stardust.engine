@@ -323,7 +323,7 @@ public class MailApplicationInstanceTest
    {
       return new MailApplicationInstance()
       {
-         /* package-private */ MailAssembler newMailAssembler(final String actualMailServer, final String actualFromAddress, final String actualToAddress, 
+         /* package-private */ MailAssembler newMailAssembler(final String actualMailServer, final String actualJndiSession, final String actualFromAddress, final String actualToAddress, 
                                                               final String actualCC, final String actualBCC, final String actualPriority, final String actualSubject,
                                                               final Object[] inValues, final List<?> attList)
          {

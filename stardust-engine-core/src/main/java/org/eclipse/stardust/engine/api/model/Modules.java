@@ -33,7 +33,6 @@ public enum Modules
    REPORT_DESIGNER ("ReportDesigner"),
    REPORT_RUNTIME ("ReportingRuntime"),
 
-   ARIS_IMPORT ("ARISImport"),
    TOPEASE_IMPORT ("TopEaseImport"),
    INCOME_IMPORT ("IncomeImport"),
 

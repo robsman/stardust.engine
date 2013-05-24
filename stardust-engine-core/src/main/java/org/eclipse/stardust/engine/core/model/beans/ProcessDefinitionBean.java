@@ -23,7 +23,6 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
@@ -188,6 +187,19 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          // Check Implementation of Interface only if it is not a revalidation
          if (!isRevalidation) {
             checkImplementation(inconsistencies);
+            if(declaresInterface)
+            {
+               for(IFormalParameter formalParameter : formalParameters)
+               {
+                  IData data = formalParameter.getData();
+                  if(data == null)
+                  {
+                     inconsistencies.add(new Inconsistency("Invalid Formal Parameter: "
+                           + formalParameter + " has no data set.",
+                           this, Inconsistency.ERROR));                     
+                  }
+               }
+            }
          }
 
          // check Rules for Activities

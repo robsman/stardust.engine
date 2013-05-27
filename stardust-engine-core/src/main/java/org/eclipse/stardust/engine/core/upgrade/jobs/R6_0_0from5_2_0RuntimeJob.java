@@ -61,8 +61,6 @@ import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
 import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
 
 
-
-
 /**
  * @author roland.stamm
  */
@@ -348,7 +346,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          migrateDeployedModels(recover);
          consolidateGrants();
-         migratePermissions();
+         migratePermissions(recover);
          migrateDataClusterDefinition();
       }
       catch (SQLException sqle)
@@ -591,14 +589,14 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
    }
 
-   private void migratePermissions() throws SQLException
+   private void migratePermissions(boolean recover) throws SQLException
    {
       Set<Pair<Long, String>> partitionInfo = CollectionUtils.newSet();
       partitionInfo = fetchListOfPartitionInfo();
 
       for (Pair<Long, String> info : partitionInfo)
       {
-         migratePermissions(info.getSecond());
+         migratePermissions(info.getSecond(), recover);
       }
    }
 
@@ -640,7 +638,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return partitionInfo;
    }
 
-   private void migratePermissions(String partitionId)
+   private void migratePermissions(String partitionId, boolean recover)
    {
       // init engine
       Utils.initCarnotEngine(partitionId, getRtJobEngineProperties());
@@ -662,6 +660,14 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
             if ( !allPermissions.isEmpty())
             {
+               if(recover)
+               {
+                  Statement delStmt = item.getConnection().createStatement();      
+                  StringBuffer deleteCmd = new StringBuffer();
+                  deleteCmd.append("DELETE FROM ").append(P_TABLE_NAME);
+                  delStmt.execute(deleteCmd.toString());                  
+               }
+               
                String preferencesId = "global";
                insertPermissions(preferencesId, allPermissions);
 

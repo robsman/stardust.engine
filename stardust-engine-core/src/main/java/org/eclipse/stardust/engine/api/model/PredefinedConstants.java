@@ -62,7 +62,7 @@ public final class PredefinedConstants
    public static final String DOCUMENT_DATA = "dmsDocument"; //$NON-NLS-1$
    public static final String DOCUMENT_LIST_DATA = "dmsDocumentList"; //$NON-NLS-1$
    public static final String FOLDER_DATA = "dmsFolder";    //$NON-NLS-1$
-   
+
    // predefined context type IDs
    public static final String DEFAULT_CONTEXT = "default";
    public static final String ENGINE_CONTEXT = "engine";
@@ -139,7 +139,7 @@ public final class PredefinedConstants
 
    public static final String ACTIVITY_IS_AUXILIARY_ATT = "isAuxiliaryActivity";
    public static final String PROCESS_IS_AUXILIARY_ATT = "isAuxiliaryProcess";
-   
+
    // Forward and Rewind
    public static final String ACTIVITY_IS_RELOCATE_SOURCE_ATT = ENGINE_SCOPE + "relocate:source";
    public static final String ACTIVITY_IS_RELOCATE_TARGET_ATT = ENGINE_SCOPE + "relocate:target";
@@ -583,7 +583,7 @@ public final class PredefinedConstants
    public static final String PWH_TARGET_QUEUE_DEPTH = PWH_SCOPE + "targetQueueDepth";
    public static final String PWH_TARGET_COST_PER_EXECUTION = PWH_SCOPE + "targetCostPerExecution";
    public static final String PWH_TARGET_COST_PER_SECOND = PWH_SCOPE + "targetCostPerSecond";
-   public static final String PWH_INCLUDE_TIME = PWH_SCOPE + "includeTime";   
+   public static final String PWH_INCLUDE_TIME = PWH_SCOPE + "includeTime";
    public static final String PWH_COST_DRIVER = PWH_SCOPE + "costDriver";
    public static final String PWH_TARGET_COST_DRIVER_QUANTITY = PWH_SCOPE + "costDriverQuantity";
 //   public static final String PWH_PROCESS_CATEGORY = PWH_SCOPE + "processCategory";
@@ -627,7 +627,10 @@ public final class PredefinedConstants
 
    // transient process
    public static final String TRANSIENT_PROCESS_AUDIT_TRAIL_PERSISTENCE = ENGINE_SCOPE + "auditTrailPersistence";
-   
+
+   // web modeler - hash attribute (read only models)
+   public static final String READ_ONLY_HASH = "stardust:security:hash";
+
    private PredefinedConstants() {
       //disallow instance creation
    }

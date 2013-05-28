@@ -118,7 +118,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
       else
       {
          // data value is in accessPointInstance
-         Node [] nodes = converter.toDom(accessPointInstance, "", true);
+         Node [] nodes = converter.toDom(accessPointInstance, outPath, true);
          Assert.condition(nodes.length == 1);
          document = new Document((Element)nodes[0]);
       }

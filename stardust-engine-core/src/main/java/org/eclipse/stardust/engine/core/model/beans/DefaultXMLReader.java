@@ -1895,12 +1895,30 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          if (!StringUtils.isEmpty(rawSchemaLocationURI) && rawSchemaLocationURI.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
          {
             String typeId = rawSchemaLocationURI.substring(StructuredDataConstants.URN_INTERNAL_PREFIX.length());
-            ITypeDeclaration declaration = model.findTypeDeclaration(typeId);
-            if (declaration != null)
+            if (typeId != null && typeId.length() > 0)
             {
-               IXpdlType type = declaration.getXpdlType();
-               return type instanceof SchemaTypeBean
-                  ? ((SchemaTypeBean) type).getSchema() : null;
+               IModel model = this.model;
+               QName qname = QName.valueOf(typeId);
+               String refModelId = qname.getNamespaceURI();
+               if (refModelId != null && refModelId.length() > 0 && !refModelId.equals(model.getId()))
+               {
+                  IExternalPackage pkg = model.findExternalPackage(refModelId);
+                  if (pkg != null)
+                  {
+                     IModel refModel = pkg.getReferencedModel();
+                     if (refModel != null)
+                     {
+                        model = refModel;
+                     }
+                  }
+               }
+               ITypeDeclaration declaration = model.findTypeDeclaration(qname.getLocalPart());
+               if (declaration != null)
+               {
+                  IXpdlType type = declaration.getXpdlType();
+                  return type instanceof SchemaTypeBean
+                     ? ((SchemaTypeBean) type).getSchema() : null;
+               }
             }
          }
          return null;

@@ -52,7 +52,7 @@
 	<target name="initBuild" depends="init">
 		<property name="build.classes" value="${build.dir}/classes" />
 		<property name="build.lib" value="${build.dir}/lib" />
-		<property name="build.javadoc" value="${build.dir}/javadoc" />
+		<property name="build.javadoc" location="${build.dir}/javadoc" />
 		<property name="build.lib.src" value="${build.dir}/src" />
 		<property name="build.src" value="${build.dir}/src" />
 
@@ -165,15 +165,15 @@
             </classpath>
          </classpaths>
          <fileSets>
-            <fileset dir="${project.src}/org/eclipse/stardust">
-               <include name="engine/api/ws/BpmFault.java" />
-               <include name="engine/api/ws/IAdministrationService.java" />
-               <include name="engine/api/ws/IDocumentManagementService.java" />
-               <include name="engine/api/ws/IQueryService.java" />
-               <include name="engine/api/ws/IUserService.java" />
-               <include name="engine/api/ws/IWorkflowService.java" />
-               <include name="engine/api/ws/*Xto.java" />
-               <include name="engine/api/ws/query/*Xto.java" />
+            <fileset dir="${project.src}">
+               <include name="org/eclipse/stardust/engine/api/ws/BpmFault.java" />
+               <include name="org/eclipse/stardust/engine/api/ws/IAdministrationService.java" />
+               <include name="org/eclipse/stardust/engine/api/ws/IDocumentManagementService.java" />
+               <include name="org/eclipse/stardust/engine/api/ws/IQueryService.java" />
+               <include name="org/eclipse/stardust/engine/api/ws/IUserService.java" />
+               <include name="org/eclipse/stardust/engine/api/ws/IWorkflowService.java" />
+               <include name="org/eclipse/stardust/engine/api/ws/*Xto.java" />
+               <include name="org/eclipse/stardust/engine/api/ws/query/*Xto.java" />
             </fileset>
          </fileSets>
       </ipp:javadoc>
@@ -212,8 +212,8 @@
 	<target name="build.ivy" if="dependencies.mode.ivy" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
 		<ivy-make-artifact-pom moduleName="ws-api-templates" packaging="zip" pomfilepath="${build.ws-api.dir}/../" />
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}"
-			conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided, stardust-engine-ws-cxf-runtime, 
-		     stardust-engine-ws-cxf-sources, stardust-engine-ws-cxf-javadoc, ws-api-templates" publishIvy="true">
+			conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided, stardust-engine-ws-cxf-runtime,
+           stardust-engine-ws-cxf-sources, stardust-engine-ws-cxf-javadoc, ws-api-templates" publishIvy="true">
          <additional-artifacts>
             <artifacts pattern="${build.ws-api.dir}/../ws-api-templates(-[classifier]).[ext]" />
          </additional-artifacts>

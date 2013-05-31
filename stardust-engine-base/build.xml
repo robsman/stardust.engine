@@ -50,7 +50,7 @@
    <target name="init">
       <property name="build.dir" value="${project.dir}/build" />
       <property name="build.classes" value="${build.dir}/classes" />
-      <property name="build.javadoc" value="${build.dir}/javadoc" />
+      <property name="build.javadoc" location="${build.dir}/javadoc" />
       <property name="build.lib" location="${build.dir}/lib" />
       <property name="build.lib.src" value="${build.dir}/src" />
       <property name="build.src" value="${build.dir}/src" />
@@ -196,34 +196,34 @@
             </classpath>
          </classpaths>
          <fileSets>
-            <fileset dir="${project.src}/org/eclipse/stardust">
-               <include name="common/DateUtils.java" />
-               <include name="common/Direction.java" />
-               <include name="common/Flushable.java" />
-               <include name="common/IntKey.java" />
+            <fileset dir="${project.src}">
+               <include name="org/eclipse/stardust/common/DateUtils.java" />
+               <include name="org/eclipse/stardust/common/Direction.java" />
+               <include name="org/eclipse/stardust/common/Flushable.java" />
+               <include name="org/eclipse/stardust/common/IntKey.java" />
                <!-- todo: rework that class before including again to javadoc -->
                <!--include name="base/Money.java"/ -->
-               <include name="common/Pair.java" />
-               <include name="common/Period.java" />
-               <include name="common/StringKey.java" />
-               <!-- to be clarified: <include name="common/log/Category.java" /> -->
-               <include name="common/log/LogManager.java" />
-               <include name="common/log/Logger.java" />
-               <include name="common/error/AccessForbiddenException.java" />
-               <include name="common/error/ApplicationException.java" />
-               <include name="common/error/ConcurrencyException.java" />
-               <include name="common/error/ErrorCase.java" />
-               <include name="common/error/InternalException.java" />
-               <include name="common/error/InvalidArgumentException.java" />
-               <include name="common/error/InvalidValueException.java" />
-               <include name="common/error/ObjectNotFoundException.java" />
-               <include name="common/error/PublicException.java" />
-               <include name="common/error/ServiceCommandException.java" />
+               <include name="org/eclipse/stardust/common/Pair.java" />
+               <include name="org/eclipse/stardust/common/Period.java" />
+               <include name="org/eclipse/stardust/common/StringKey.java" />
+               <!-- to be clarified: <include name="org/eclipse/stardust/common/log/Category.java" /> -->
+               <include name="org/eclipse/stardust/common/log/LogManager.java" />
+               <include name="org/eclipse/stardust/common/log/Logger.java" />
+               <include name="org/eclipse/stardust/common/error/AccessForbiddenException.java" />
+               <include name="org/eclipse/stardust/common/error/ApplicationException.java" />
+               <include name="org/eclipse/stardust/common/error/ConcurrencyException.java" />
+               <include name="org/eclipse/stardust/common/error/ErrorCase.java" />
+               <include name="org/eclipse/stardust/common/error/InternalException.java" />
+               <include name="org/eclipse/stardust/common/error/InvalidArgumentException.java" />
+               <include name="org/eclipse/stardust/common/error/InvalidValueException.java" />
+               <include name="org/eclipse/stardust/common/error/ObjectNotFoundException.java" />
+               <include name="org/eclipse/stardust/common/error/PublicException.java" />
+               <include name="org/eclipse/stardust/common/error/ServiceCommandException.java" />
    
-               <include name="common/security/InvalidPasswordException.java" />
+               <include name="org/eclipse/stardust/common/security/InvalidPasswordException.java" />
                <include
-                  name="common/security/authentication/DefaultCallbackHandler.java" />
-               <include name="common/security/authentication/LoginFailedException.java" />
+                  name="org/eclipse/stardust/common/security/authentication/DefaultCallbackHandler.java" />
+               <include name="org/eclipse/stardust/common/security/authentication/LoginFailedException.java" />
             </fileset>
          </fileSets>
       </ipp:javadoc>

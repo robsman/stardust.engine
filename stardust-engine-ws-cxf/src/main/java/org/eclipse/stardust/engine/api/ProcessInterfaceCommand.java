@@ -1,9 +1,12 @@
 package org.eclipse.stardust.engine.api;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -36,16 +39,40 @@ public class ProcessInterfaceCommand implements ServiceCommand,  Configurable{
 	@Override
 	public Serializable execute(ServiceFactory sf) {
 
-		ProcessInstance pi = sf.getWorkflowService().startProcess(this.processId, this.parameters, synchronous);
-		
-		Map<String, Serializable> result = null;
-		
-		if (synchronous && pi.getState().equals(ProcessInstanceState.Completed))
-		{
-			result = sf.getWorkflowService().getProcessResults(pi.getOID());
-		}
-		
-		return new Result(pi, result);
+	   try
+	   {
+         ProcessInstance pi = sf.getWorkflowService().startProcess(this.processId,
+               this.parameters, synchronous);
+
+         Map<String, Serializable> result = null;
+
+         if (synchronous && pi.getState().equals(ProcessInstanceState.Completed))
+         {
+            result = sf.getWorkflowService().getProcessResults(pi.getOID());
+         }
+
+         return new Result(pi, result);
+	   }
+      catch (Exception f)
+      {
+         if (f instanceof UndeclaredThrowableException)
+         {
+            Throwable undeclaredThrowable = ((UndeclaredThrowableException) f).getUndeclaredThrowable();
+            if (undeclaredThrowable instanceof InvocationTargetException)
+            {
+               Throwable targetException = ((InvocationTargetException) undeclaredThrowable).getTargetException();
+               throw new ServiceCommandException((String) null, targetException);
+            }
+            else
+            {
+               throw new ServiceCommandException((String) null, f);
+            }
+         }
+         else
+         {
+            throw new ServiceCommandException((String) null, f);
+         }
+      }
 	}
 	
 	public class Result implements Serializable {

@@ -77,6 +77,8 @@ public class WSDLGenerator
 
    private Map<String, NSPrefixPair> nsPairs = CollectionUtils.newMap();
 
+   private ISchemaResolver schemaResolver;
+
    static
    {
       StaticNamespaceContext staticNamespaceContext = new StaticNamespaceContext();
@@ -116,6 +118,12 @@ public class WSDLGenerator
    public WSDLGenerator(final byte[] modelBytes)
    {
       this(new String(modelBytes));
+   }
+
+   public WSDLGenerator(String modelString, ISchemaResolver schemaResolver)
+   {
+      this(modelString);
+      this.schemaResolver = schemaResolver;
    }
 
    public byte[] generate()
@@ -427,16 +435,34 @@ public class WSDLGenerator
             if (schemaLocation != null
                   && schemaLocation.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
             {
+               
                String toResolveTypeDeclarationId = schemaLocation.substring(StructuredDataConstants.URN_INTERNAL_PREFIX.length());
-
+               QName uriRef = QName.valueOf(toResolveTypeDeclarationId);
+               uriRef.getLocalPart();
+               uriRef.getNamespaceURI();
+               
+               XSDSchema resolvedXsdSchema = null;
                if ( !schemaMap.containsKey(toResolveTypeDeclarationId))
                {
                   // remove schemaLocation not handled here because eclipse XSD hangs
                   // 60sec at xsdImport.setSchemaLocation(null);
 
-                  ITypeDeclaration toResolveTypeDef = this.model.findTypeDeclaration(toResolveTypeDeclarationId);
-                  XSDSchema resolvedXsdSchema = StructuredTypeRtUtils.getXSDSchema(
-                        this.model, toResolveTypeDef);
+
+                  if (uriRef.getNamespaceURI().isEmpty())
+                  {
+                     ITypeDeclaration toResolveTypeDef = this.model.findTypeDeclaration(toResolveTypeDeclarationId);
+                     resolvedXsdSchema = StructuredTypeRtUtils.getXSDSchema(this.model,
+                           toResolveTypeDef);
+                  }
+                  else
+                  {
+                     if (this.schemaResolver != null)
+                     {
+                        resolvedXsdSchema = this.schemaResolver.resolveSchema(
+                              uriRef.getNamespaceURI(), uriRef.getLocalPart());
+                     }
+                  }
+
                   if (resolvedXsdSchema != null)
                   {
 

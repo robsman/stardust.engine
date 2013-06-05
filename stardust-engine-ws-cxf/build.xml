@@ -137,7 +137,7 @@
 
          <!-- Resources need to be available for com.infinity.bpm.ide.wst.facet.portal.webservices -->
          <fileset dir="${project.resources}" includes="META-INF/jax-ws-cxf-context.xml" />
-	     <fileset dir="${project.resources}" includes="META-INF/spring/cxf/jax-rs-cxf-context.xml" />
+	     <fileset dir="${project.resources}" includes="META-INF/spring/jax-rs-cxf-context.xml" />
 	     <fileset dir="${project.resources}" includes="META-INF/spring/postprocessor-context.xml" />
          <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmService.wsdl" />
          <fileset dir="${project.resources}" includes="META-INF/wsdl/StardustBpmService.xsd" />

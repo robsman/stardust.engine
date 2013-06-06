@@ -38,10 +38,12 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.mail.MailConstants;
 import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtils;
 
@@ -480,8 +482,15 @@ public class MailAssembler
    {
       StringBuffer buffer = new StringBuffer(200);
 
+     String partition = Parameters.instance().getString(SecurityProperties.DEFAULT_PARTITION, "default");
+      
+      if (SecurityProperties.getPartition() != null)
+	  {
+    	  partition = SecurityProperties.getPartition().getId();
+	  }
+      
       final int hashCode = MailValidationUtils.getQueryParametersHashCode(processInstanceOID,
-            activityInstanceOID, investigate, outputValue);
+            activityInstanceOID, partition, investigate, outputValue);
       
       buffer.append("?").append(MailConstants.PROCESS_INSTANCE_OID).append("=").append(processInstanceOID)
             .append("&").append(MailConstants.ACTIVITY_INSTANCE_OID).append("=").append(activityInstanceOID);

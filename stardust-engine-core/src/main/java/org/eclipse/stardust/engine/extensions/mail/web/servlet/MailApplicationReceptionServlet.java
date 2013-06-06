@@ -22,9 +22,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.mail.MailConstants;
 import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtils;
 
@@ -48,6 +50,7 @@ public class MailApplicationReceptionServlet extends HttpServlet
       String outputValue = request.getParameter(MailConstants.OUTPUT_VALUE);
       String investigateString = request.getParameter(MailConstants.INVESTIGATE);
       String requestHashCodeString = request.getParameter(MailConstants.HASH_CODE);
+      String partition = request.getParameter(MailConstants.PARTITION);
       
       long processInstanceOID = Long.parseLong(processInstanceOIDString);
       long activityInstanceOID = Long.parseLong(activityInstanceOIDString);
@@ -55,7 +58,8 @@ public class MailApplicationReceptionServlet extends HttpServlet
       
       // compare hashCode retrieved from request with own computed hashCode and handle error if not equal
       int computedHashCode = MailValidationUtils.getQueryParametersHashCode(processInstanceOID,
-            activityInstanceOID, investigate, outputValue);
+            activityInstanceOID, partition, investigate, outputValue);
+      
       if ( !Integer.toString(computedHashCode).equals(requestHashCodeString))
       {
          error(request, response, new Exception("provided hashCode not valid: "
@@ -68,10 +72,19 @@ public class MailApplicationReceptionServlet extends HttpServlet
 
       try
       {
+         if (StringUtils.isEmpty(partition))
+         {
+            partition = Parameters.instance().getString(
+                  SecurityProperties.DEFAULT_PARTITION, "default");
+         }
+         
+    	  Map<String, Object> properties = new HashMap<String, Object>();
+    	  properties.put(SecurityProperties.PARTITION, partition);
+    	  
          String user = getInitParameter("user");
          String password = getInitParameter("password");
 
-         serviceFactory = ServiceFactoryLocator.get(user, password);
+    	  serviceFactory = ServiceFactoryLocator.get(user, password, properties);
       }
       catch (Exception e)
       {

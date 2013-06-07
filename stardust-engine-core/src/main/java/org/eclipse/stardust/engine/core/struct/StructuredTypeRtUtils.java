@@ -952,6 +952,11 @@ public class StructuredTypeRtUtils
    
    public static ITypeDeclaration getTypeDeclaration(AccessPoint data, IModel model)
    {
+      return getTypeDeclaration(data, model, StructuredDataConstants.TYPE_DECLARATION_ATT);
+   }
+
+   public static ITypeDeclaration getTypeDeclaration(AccessPoint data, IModel model, String typeDeclarationAtt)
+   {
       ITypeDeclaration decl = null;
 
       if (data instanceof IData)
@@ -960,7 +965,6 @@ public class StructuredTypeRtUtils
          if (ref != null)
          {
             IExternalPackage pkg = ref.getExternalPackage();
-
             if (pkg != null)
             {
                // handle UnresolvedExternalReference               
@@ -968,13 +972,13 @@ public class StructuredTypeRtUtils
                decl = otherModel.findTypeDeclaration(ref.getId());
             }
          }         
-         
       }
 
       if (decl == null)
       {         
-         Object type = data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-         if (type != null) {                    
+         Object type = data.getAttribute(typeDeclarationAtt);
+         if (type != null)
+         {                    
             String typeString = type.toString();    
             if (data instanceof IData)
             {

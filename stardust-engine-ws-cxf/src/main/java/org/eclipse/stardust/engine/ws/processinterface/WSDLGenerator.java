@@ -14,8 +14,17 @@ import static org.eclipse.stardust.engine.api.model.PredefinedConstants.TYPE_ATT
 
 import java.io.InputStream;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.NamespaceContext;
@@ -27,7 +36,13 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.utils.xml.StaticNamespaceContext;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IFormalParameter;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
@@ -341,12 +356,28 @@ public class WSDLGenerator
       {
          if (StructuredTypeRtUtils.isStructuredType(f.getData().getType().getId()))
          {
-            String typeDeclarationId = (String) f.getData().getAttribute(
-                  StructuredDataConstants.TYPE_DECLARATION_ATT);
+            
+            String typeDeclarationId = null;
+            XSDSchema xsdSchema = null;
+            
+            IReference extReference = f.getData().getExternalReference();
+            if (extReference != null && this.schemaResolver != null)
+            {               
+               typeDeclarationId = (String) extReference.getId();
+               
+               xsdSchema = this.schemaResolver.resolveSchema(
+                     extReference.getExternalPackage().getHref(),
+                     typeDeclarationId);
+            }
+            else
+            {
+               typeDeclarationId = (String) f.getData().getAttribute(
+                     StructuredDataConstants.TYPE_DECLARATION_ATT);
 
-            ITypeDeclaration typeDef = this.model.findTypeDeclaration(typeDeclarationId);
-            XSDSchema xsdSchema = StructuredTypeRtUtils.getXSDSchema(this.model, typeDef);
-
+               ITypeDeclaration typeDef = this.model.findTypeDeclaration(typeDeclarationId);
+               xsdSchema = StructuredTypeRtUtils.getXSDSchema(this.model, typeDef);
+            }
+            
             if (xsdSchema != null)
             {
                schemaMap.put(typeDeclarationId, xsdSchema);

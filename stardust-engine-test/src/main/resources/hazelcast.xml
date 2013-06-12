@@ -20,7 +20,7 @@
    </group>
 
    <network>
-      <port auto-increment="true">5720</port>
+      <port auto-increment="true">5711</port>
       
       <join>
          <tcp-ip enabled="true">

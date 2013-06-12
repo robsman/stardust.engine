@@ -56,7 +56,9 @@
       
       <!-- 'test' configuration -->
       <dependency org="com.hazelcast" name="hazelcast" rev="${hazelcast.version}" conf="test->default" />
-      <dependency org="com.hazelcast" name="hazelcast-ra" rev="${hazelcast-ra.version}" conf="test->default" />
+      <dependency org="com.hazelcast" name="hazelcast-ra" rev="${hazelcast-ra.version}" conf="test->default">
+         <artifact name="hazelcast-ra" type="jar"/>
+      </dependency>
       <dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="test->logging-log4j-module-runtime" />
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jta-jencks-module-runtime" />
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jcr-vfs-module-runtime" />

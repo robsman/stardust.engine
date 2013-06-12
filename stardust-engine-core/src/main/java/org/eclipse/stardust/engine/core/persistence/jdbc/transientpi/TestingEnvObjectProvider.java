@@ -14,7 +14,9 @@ import java.util.Map;
 
 import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
 
+import com.hazelcast.config.XmlConfigBuilder;
 import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Transaction;
 
 /**
@@ -28,13 +30,20 @@ import com.hazelcast.core.Transaction;
  */
 public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
 {
+   private static final HazelcastInstance hzInstance;
+   
+   static
+   {
+      hzInstance = Hazelcast.newHazelcastInstance(new XmlConfigBuilder().build());
+   }
+   
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#clusterSafeMap(java.lang.String)
     */
    @Override
    public <K, V> Map<K, V> clusterSafeMap(final String mapId)
    {
-      return Hazelcast.getMap(mapId);
+      return hzInstance.getMap(mapId);
    }
    
    /* (non-Javadoc)
@@ -43,7 +52,7 @@ public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
    @Override
    public void beforeAccess()
    {
-      Hazelcast.getTransaction().begin();
+      hzInstance.getTransaction().begin();
    }
    
    /* (non-Javadoc)
@@ -52,7 +61,7 @@ public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
    @Override
    public void exception(final Exception ignored)
    {
-      Hazelcast.getTransaction().rollback();
+      hzInstance.getTransaction().rollback();
    }
    
    /* (non-Javadoc)
@@ -61,9 +70,9 @@ public class TestingEnvObjectProvider implements ClusterSafeObjectProvider
    @Override
    public void afterAccess()
    {
-      if (Hazelcast.getTransaction().getStatus() == Transaction.TXN_STATUS_ACTIVE)
+      if (hzInstance.getTransaction().getStatus() == Transaction.TXN_STATUS_ACTIVE)
       {
-         Hazelcast.getTransaction().commit();
+         hzInstance.getTransaction().commit();
       }
    }
 }

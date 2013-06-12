@@ -20,10 +20,16 @@
    </group>
 
    <network>
-      <port auto-increment="true">5711</port>
+      <port auto-increment="true">5720</port>
+      
+      <join>
+         <tcp-ip enabled="true">
+            <interface>127.0.0.1</interface>
+         </tcp-ip>
+      </join>
+      
       <interfaces>
          <interface>127.0.0.1</interface>
       </interfaces>
    </network>
-   
 </hazelcast>

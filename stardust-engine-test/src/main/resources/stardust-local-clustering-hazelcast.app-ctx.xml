@@ -19,7 +19,7 @@
       <property name="connectionManager">
          <bean id="connectionManagerFactory" class="org.jencks.factory.ConnectionManagerFactoryBean">
             <property name="transactionManager" ref="xaTransactionManager" />
-            <property name="transaction" value="xa" />
+            <property name="transaction" value="local" />
             <property name="poolingSupport" ref="hzPoolingSupport" />
          </bean>
       </property>

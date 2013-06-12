@@ -583,7 +583,7 @@ public final class DocumentTypeUtils
       }
    }
 
-   private static DocumentType getDocumentType(String typeDeclarationId,
+   public static DocumentType getDocumentType(String typeDeclarationId,
          Model model)
    {
       DocumentType result = null;
@@ -618,7 +618,7 @@ public final class DocumentTypeUtils
             || DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId);
    }
 
-   private static String getMetaDataTypeDeclarationId(Data data)
+   public static String getMetaDataTypeDeclarationId(Data data)
    {
       return (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
    }

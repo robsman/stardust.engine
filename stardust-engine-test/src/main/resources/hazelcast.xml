@@ -25,10 +25,7 @@
       <join>
          <aws enabled="false" />
          <multicast enabled="false" />
-      
-         <tcp-ip enabled="true">
-            <interface>127.0.0.1</interface>
-         </tcp-ip>
+         <tcp-ip enabled="false" />
       </join>
       
       <interfaces>

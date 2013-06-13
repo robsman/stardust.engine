@@ -95,7 +95,8 @@ public class DefaultJmsResourceResolver
    public void afterPropertiesSet() throws Exception
    {
       // automatically discover queue connection factory bindings
-      Map qcfBindings = appContext.getBeansOfType(JmsResourceRefBinding.class);
+      // allowEagerInit=false: do not pre-instantiate factory beans defined to be initialized lazily
+      Map qcfBindings = appContext.getBeansOfType(JmsResourceRefBinding.class, true, false);
       if ( !CollectionUtils.isEmpty(qcfBindings))
       {
          if (null == queueConnectionFactories)
@@ -118,7 +119,8 @@ public class DefaultJmsResourceResolver
       }
 
       // automatically discover queue bindings
-      Map queueBindings = appContext.getBeansOfType(JmsResourceBinding.class);
+      // allowEagerInit=false: do not pre-instantiate factory beans defined to be initialized lazily
+      Map queueBindings = appContext.getBeansOfType(JmsResourceBinding.class, true, false);
       if ( !CollectionUtils.isEmpty(queueBindings))
       {
          if (null == queues)

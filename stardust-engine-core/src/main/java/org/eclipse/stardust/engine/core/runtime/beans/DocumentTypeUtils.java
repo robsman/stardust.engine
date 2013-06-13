@@ -314,6 +314,13 @@ public final class DocumentTypeUtils
       IModel model = (IModel) data.getModel();
 
       String typeDeclarationId = (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
+      IReference ref = data.getExternalReference();
+      if (ref != null)
+      {
+         model = ref.getExternalPackage().getReferencedModel();
+         typeDeclarationId = ref.getId();
+      }
+
       if (typeDeclarationId != null)
       {
          ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);

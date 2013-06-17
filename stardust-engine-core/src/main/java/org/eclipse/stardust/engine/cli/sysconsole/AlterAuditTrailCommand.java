@@ -54,7 +54,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    private static final String PARTITION_CREATE = "createPartition";
    private static final String PARTITIONS_LIST = "listPartitions";
    private static final String PARTITION_DROP = "dropPartition";
-
+   
+   private static final String DATACLUSTER_UPGRADE = "updateDataClusters";
    private static final String DATACLUSTER_ENABLE = "enableDataClusters";
    private static final String DATACLUSTER_VERIFY = "verifyDataClusters";
    private static final String DATACLUSTER_DROP = "dropDataClusters";
@@ -96,6 +97,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
       argTypes.register("-" + DATACLUSTER_ENABLE, "-edc", DATACLUSTER_ENABLE,
             "Creates missing data cluster tables and synchronizes table content.", false);
+      
+      argTypes.register("-" + DATACLUSTER_UPGRADE, "-udc", DATACLUSTER_UPGRADE,
+            "Upgrades data cluster tables and synchronizes table content.", false);
+      
       argTypes.register("-" + DATACLUSTER_VERIFY, "-vdc", DATACLUSTER_VERIFY,
             "Verifies existence of data cluster tables and their consistency.", false);
       argTypes.register("-" + DATACLUSTER_DROP, "-ddc", DATACLUSTER_DROP,
@@ -206,13 +211,14 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          print("Creating missing data cluster tables and synchronizing their table content for Infinity schema.");
 
          String configFileName = (String) options.get(DATACLUSTER_CONFIG_FILE);
+         boolean upgrade = options.containsKey(DATACLUSTER_UPGRADE);
          boolean skipDdl = options.containsKey(AUDITTRAIL_SKIPDDL);
          boolean skipDml = options.containsKey(AUDITTRAIL_SKIPDML);
-
+         
          try
          {
-            SchemaHelper.alterAuditTrailCreateDataClusterTables(password, configFileName,
-                  skipDdl, skipDml, spoolDevice, statementDelimiter);
+            SchemaHelper.alterAuditTrailDataClusterTables(password, configFileName,
+                  upgrade, skipDdl, skipDml, spoolDevice, statementDelimiter);
          }
          catch (SQLException e)
          {

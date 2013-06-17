@@ -48,6 +48,8 @@ public class DataCluster extends TableDescriptor
       for (int i = 0; i < slots.length; i++ )
       {
          DataSlot slot = slots[i];
+         slot.setParent(this);
+         
          this.slots.add(slot);
          
          Map<String, DataSlot> slotsByAttribute = this.slotsByDataAndAttribute.get(slot.getQualifiedDataId());
@@ -128,4 +130,6 @@ public class DataCluster extends TableDescriptor
    {
       return Collections.unmodifiableMap(indexes);
    }
+   
+   
 }

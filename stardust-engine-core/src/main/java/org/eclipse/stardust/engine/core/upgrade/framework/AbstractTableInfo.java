@@ -11,6 +11,9 @@
 package org.eclipse.stardust.engine.core.upgrade.framework;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Sebastian Woelk
@@ -18,7 +21,9 @@ import java.sql.SQLException;
  */
 public abstract class AbstractTableInfo
 {
-
+   private List<FieldInfo> fields = new ArrayList<FieldInfo>();
+   private List<IndexInfo> indexes = new ArrayList<IndexInfo>();
+   
    /**
     * The name of the table this info object belongs to.
     */
@@ -38,6 +43,16 @@ public abstract class AbstractTableInfo
       this(tableName, false);
    }
 
+   public FieldInfo[] getFields()
+   {
+      return fields.toArray(new FieldInfo[fields.size()]);
+   }
+
+   public IndexInfo[] getIndexes()
+   {
+      return indexes.toArray(new IndexInfo[indexes.size()]);
+   }
+   
    /**
     *
     */
@@ -125,8 +140,50 @@ public abstract class AbstractTableInfo
          this.name = name;
          this.type = type;
          this.size = size;
-         
          this.isPK = isPK;
+      }
+
+      @Override
+      public int hashCode()
+      {
+         final int prime = 31;
+         int result = 1;
+         result = prime * result + (isPK ? 1231 : 1237);
+         result = prime * result + ((name == null) ? 0 : name.hashCode());
+         result = prime * result + size;
+         result = prime * result + ((type == null) ? 0 : type.hashCode());
+         return result;
+      }
+
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (obj == null)
+            return false;
+         if (getClass() != obj.getClass())
+            return false;
+         FieldInfo other = (FieldInfo) obj;
+         if (isPK != other.isPK)
+            return false;
+         if (name == null)
+         {
+            if (other.name != null)
+               return false;
+         }
+         else if (!name.equals(other.name))
+            return false;
+         if (size != other.size)
+            return false;
+         if (type == null)
+         {
+            if (other.type != null)
+               return false;
+         }
+         else if (!type.equals(other.type))
+            return false;
+         return true;
       }
    }
    
@@ -148,6 +205,59 @@ public abstract class AbstractTableInfo
          this.fields = fields;
          
          this.unique = unique;
+      }
+
+      public String getName()
+      {
+         return name;
+      }
+
+      public FieldInfo[] getFields()
+      {
+         return fields;
+      }
+
+      public boolean isUnique()
+      {
+         return unique;
+      }
+   }
+   
+   public void addField(FieldInfo info)
+   {
+      fields.add(info);
+   }
+   
+   public void removeField(FieldInfo info)
+   {
+      Iterator<FieldInfo> fieldIterator = fields.iterator();
+      while(fieldIterator.hasNext())
+      {
+         FieldInfo tmp = fieldIterator.next();
+         if(tmp.equals(info))
+         {
+            fieldIterator.remove();
+            return;
+         }
+      }
+   }
+   
+   public void addIndex(IndexInfo info)
+   {
+      indexes.add(info);
+   }
+   
+   public void removeIndex(IndexInfo info)
+   {
+      Iterator<IndexInfo> indexIterator = indexes.iterator();
+      while(indexIterator.hasNext())
+      {
+         IndexInfo tmp = indexIterator.next();
+         if(tmp.equals(info))
+         {
+            indexIterator.remove();
+            return;
+         }
       }
    }
 }

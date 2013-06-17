@@ -24,9 +24,9 @@ public class DataClusterIndex
    private final String tableName;
    private final String indexName;
    private final boolean isUnique;
-   private final List columnNames;
+   private final List<String> columnNames;
    
-   public DataClusterIndex(String tableName, String indexName, boolean isUnique, List columnNames)
+   public DataClusterIndex(String tableName, String indexName, boolean isUnique, List<String> columnNames)
    {
       this.tableName = tableName;
       this.indexName = indexName;
@@ -34,7 +34,7 @@ public class DataClusterIndex
       this.columnNames = new ArrayList(columnNames);
    }
 
-   public List getColumnNames()
+   public List<String> getColumnNames()
    {
       return Collections.unmodifiableList(columnNames);
    }
@@ -53,4 +53,54 @@ public class DataClusterIndex
    {
       return tableName;
    }
+
+   @Override
+   public int hashCode()
+   {
+      final int prime = 31;
+      int result = 1;
+      result = prime * result + ((columnNames == null) ? 0 : columnNames.hashCode());
+      result = prime * result + ((indexName == null) ? 0 : indexName.hashCode());
+      result = prime * result + (isUnique ? 1231 : 1237);
+      result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
+      return result;
+   }
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      DataClusterIndex other = (DataClusterIndex) obj;
+      if (columnNames == null)
+      {
+         if (other.columnNames != null)
+            return false;
+      }
+      else if (!columnNames.equals(other.columnNames))
+         return false;
+      if (indexName == null)
+      {
+         if (other.indexName != null)
+            return false;
+      }
+      else if (!indexName.equals(other.indexName))
+         return false;
+      if (isUnique != other.isUnique)
+         return false;
+      if (tableName == null)
+      {
+         if (other.tableName != null)
+            return false;
+      }
+      else if (!tableName.equals(other.tableName))
+         return false;
+      return true;
+   }
+   
+   
 }

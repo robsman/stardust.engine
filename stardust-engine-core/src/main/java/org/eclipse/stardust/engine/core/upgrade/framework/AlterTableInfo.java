@@ -11,6 +11,8 @@
 package org.eclipse.stardust.engine.core.upgrade.framework;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author rsauer
@@ -20,35 +22,43 @@ public abstract class AlterTableInfo extends AbstractTableInfo
 {
    public static final FieldInfo[] NO_FIELDS = new FieldInfo[0];
    public static final IndexInfo[] NO_INDEXES = new IndexInfo[0];
+   
+   private List<FieldInfo> addedFields = new ArrayList<FieldInfo>();
+   private List<FieldInfo> droppedFields = new ArrayList<FieldInfo>();
+   private List<FieldInfo> modifiedFields = new ArrayList<FieldInfo>();
+   
+   private List<IndexInfo> addedIndexes = new ArrayList<IndexInfo>();
+   private List<IndexInfo> droppedIndexes = new ArrayList<IndexInfo>();
+   private List<IndexInfo> alteredIndexes = new ArrayList<IndexInfo>();
 
    public FieldInfo[] getAddedFields()
    {
-      return NO_FIELDS;
+      return addedFields.toArray(new FieldInfo[addedFields.size()]);
    }
    
    public FieldInfo[] getDroppedFields()
    {
-      return NO_FIELDS;
+      return droppedFields.toArray(new FieldInfo[droppedFields.size()]);
    }
 
    public FieldInfo[] getModifiedFields()
    {
-      return NO_FIELDS;
+      return modifiedFields.toArray(new FieldInfo[modifiedFields.size()]);
    }
 
    public IndexInfo[] getAlteredIndexes()
    {
-      return NO_INDEXES;
+      return alteredIndexes.toArray(new IndexInfo[alteredIndexes.size()]);
    }
 
    public IndexInfo[] getDroppedIndexes()
    {
-      return NO_INDEXES;
+      return droppedIndexes.toArray(new IndexInfo[droppedIndexes.size()]);
    }
 
    public IndexInfo[] getAddedIndexes()
    {
-      return NO_INDEXES;
+      return addedIndexes.toArray(new IndexInfo[addedIndexes.size()]);
    }
    
    public AlterTableInfo(String tableName)
@@ -89,5 +99,33 @@ public abstract class AlterTableInfo extends AbstractTableInfo
     */
    public void executeDmlBeforeIndexCreation(RuntimeItem item) throws SQLException
    {
+   }
+
+   @Override
+   public void addField(FieldInfo info)
+   {
+      super.addField(info);
+      addedFields.add(info);
+   }
+
+   @Override
+   public void removeField(FieldInfo info)
+   {
+      super.removeField(info);
+      droppedFields.add(info);
+   }
+
+   @Override
+   public void addIndex(IndexInfo info)
+   {
+      super.addIndex(info);
+      addedIndexes.add(info);
+   }
+
+   @Override
+   public void removeIndex(IndexInfo info)
+   {
+      super.removeIndex(info);
+      droppedIndexes.add(info);
    }
 }

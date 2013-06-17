@@ -18,10 +18,6 @@ import java.sql.SQLException;
  */
 public abstract class CreateTableInfo extends AbstractTableInfo
 {
-   public abstract FieldInfo[] getFields();
-   
-   public abstract IndexInfo[] getIndexes();
-   
    public abstract String getSequenceName();
    
    public CreateTableInfo(String tableName)

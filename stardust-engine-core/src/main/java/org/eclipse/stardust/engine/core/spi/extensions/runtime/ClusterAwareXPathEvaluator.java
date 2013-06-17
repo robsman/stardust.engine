@@ -94,8 +94,10 @@ public class ClusterAwareXPathEvaluator implements ExtendedAccessPathEvaluator, 
          ProcessInstanceBean dataSource = (ProcessInstanceBean) processInstance;         
          long xPathOid = xPathMap.getXPathOID(typedXPath.getXPath());
          StructuredDataValueBean valueHolder = (StructuredDataValueBean) dataSource.getCachedStructuredDataValue(xPathOid);
-         
-         return valueHolder.getValue();
+         if(valueHolder != null)
+         {
+            return valueHolder.getValue();
+         }
       }
       
       if(StructuredDataXPathUtils.isMapType(typedXPath))

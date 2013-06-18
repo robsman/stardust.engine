@@ -58,9 +58,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterIndex;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataSlotFieldInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.IClusterChangeObserver;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
+import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 

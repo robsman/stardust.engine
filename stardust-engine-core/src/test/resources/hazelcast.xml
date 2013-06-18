@@ -20,10 +20,17 @@
    </group>
 
    <network>
-      <port auto-increment="true">5711</port>
+      <port auto-increment="false">5720</port>
+      
+      <join>
+         <multicast enabled="false" />
+         <tcp-ip enabled="false" />
+         <aws enabled="false" />
+      </join>
       
       <interfaces>
          <interface>127.0.0.1</interface>
       </interfaces>
    </network>
+   
 </hazelcast>

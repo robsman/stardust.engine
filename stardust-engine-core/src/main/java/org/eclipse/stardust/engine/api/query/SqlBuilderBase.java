@@ -1879,7 +1879,9 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       final String criterionFieldName = criterion.getFieldName();
       final Class queryResultType = context.getType();
       FieldRef fieldRef = null;
-
+      
+      Join piJoin = (Join) context.getPredicateJoins().get(ProcessInstanceBean.class);
+      
       boolean isAiQuery = ActivityInstanceBean.class.equals(queryResultType);
       boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(queryResultType);
       if (isAiQuery || isAiQueryOnWorkItem)
@@ -1909,23 +1911,28 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
                fieldProcessInstance = WorkItemBean.FIELD__PROCESS_INSTANCE;
             }
 
-            AttributeJoinDescriptor joinDescr = new AttributeJoinDescriptor(
-                  ProcessInstanceBean.class, //
-                  fieldProcessInstance,
-                  ProcessInstanceBean.FIELD__OID, ProcessInstanceBean.FIELD__OID);
-            Join piJoin = (Join) processAttributeJoinDescriptor(joinDescr, context, false)
-                  .getType();
+               AttributeJoinDescriptor joinDescr = new AttributeJoinDescriptor(
+                     ProcessInstanceBean.class, //
+                     fieldProcessInstance, ProcessInstanceBean.FIELD__OID,
+                     ProcessInstanceBean.FIELD__OID);
+               
+               if (piJoin == null)
+               {
+                  piJoin = (Join) processAttributeJoinDescriptor(joinDescr, context, false).getType();
+               }
 
-            joinDescr = new AttributeJoinDescriptor(
-                  AuditTrailProcessDefinitionBean.class, //
-                  new Pair(ProcessInstanceBean.FIELD__PROCESS_DEFINITION,
-                        AuditTrailProcessDefinitionBean.FIELD__OID), //
-                  new Pair(ProcessInstanceBean.FIELD__MODEL,
-                        AuditTrailProcessDefinitionBean.FIELD__MODEL), criterionFieldName);
-            fieldRef = processAttributeJoinDescriptor(joinDescr, context, piJoin, false);
+               joinDescr = new AttributeJoinDescriptor(
+                     AuditTrailProcessDefinitionBean.class, //
+                     new Pair(ProcessInstanceBean.FIELD__PROCESS_DEFINITION,
+                           AuditTrailProcessDefinitionBean.FIELD__OID), //
+                     new Pair(ProcessInstanceBean.FIELD__MODEL,
+                           AuditTrailProcessDefinitionBean.FIELD__MODEL),
+                     criterionFieldName);
+               fieldRef = processAttributeJoinDescriptor(joinDescr, context, piJoin,
+                     false);
 
-            Join pdJoin = (Join) fieldRef.getType();
-            pdJoin.setDependency(piJoin);
+               Join pdJoin = (Join) fieldRef.getType();
+               pdJoin.setDependency(piJoin);            
          }
          else if (UserBean.class.equals(criterionType))
          {

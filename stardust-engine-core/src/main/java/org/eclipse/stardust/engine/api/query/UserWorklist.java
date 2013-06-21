@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2011 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.stardust.engine.api.runtime.UserInfo;
-
 
 /**
  * Specialization of a {@link org.eclipse.stardust.engine.api.query.Worklist Worklist} being owned by a
@@ -46,7 +45,7 @@ public class UserWorklist extends Worklist
       this.owner = owner;
       this.subDetails = subDetails;
    }
-
+   
    /**
     * Retrieves the owning user of this worklist.
     * 
@@ -80,5 +79,10 @@ public class UserWorklist extends Worklist
    public Iterator getSubWorklists()
    {
       return subDetails.iterator();
+   }
+   
+   public List getSubDetails()
+   {
+      return subDetails;
    }
 }

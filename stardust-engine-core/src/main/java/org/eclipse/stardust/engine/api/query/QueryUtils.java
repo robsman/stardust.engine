@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -305,6 +306,7 @@ public class QueryUtils
    {
       Set<IParticipant> participants = new HashSet();
 
+      // TODO: change together with deputy worklist changes?
       if (PerformingParticipantFilter.FILTER_KIND_ANY_FOR_USER.equals(filter.getFilterKind())
             && (null != context.getUser()))
       {
@@ -533,30 +535,34 @@ public class QueryUtils
       return organizations;
    }
    
-   public static Set<IParticipant> findScopedParticipantClosure(IUser user)
+   public static Set<IParticipant> findScopedParticipantClosure(IUser user, boolean merged)
    {
       Set<IParticipant> participants = CollectionUtils.newHashSet();
-      for (Iterator<UserParticipantLink> i = user.getAllParticipantLinks(); i.hasNext();)
+      for (Iterator<UserParticipantLink> iterator = user.getAllParticipantLinks(); iterator.hasNext();)
       {
-         UserParticipantLink next = i.next();
-         
-         if(isPredefinedParticipant(next.getParticipant().getId()))
+         UserParticipantLink upLink = iterator.next();
+
+         // if merged == true then add all links, otherwise only own links
+         if (merged || upLink.getOnBehalfOf() == 0)
          {
-            IParticipant administrator = getPredefinedParticipant(participants, 
-                  next.getParticipant().getId());
-            if(administrator == null)
-            {            
-               IScopedModelParticipant participant = new ScopedModelParticipant(next
-                     .getParticipant(), next.getDepartment());
-               addScopedParticipant(participants, participant, true);            
+            if (isPredefinedParticipant(upLink.getParticipant().getId()))
+            {
+               IParticipant administrator = getPredefinedParticipant(participants, upLink
+                     .getParticipant().getId());
+               if (administrator == null)
+               {
+                  IScopedModelParticipant participant = new ScopedModelParticipant(
+                        upLink.getParticipant(), upLink.getDepartment());
+                  addScopedParticipant(participants, participant, true);
+               }
+            }
+            else
+            {
+               IScopedModelParticipant participant = new ScopedModelParticipant(
+                     upLink.getParticipant(), upLink.getDepartment());
+               addScopedParticipant(participants, participant, true);
             }
          }
-         else
-         {
-            IScopedModelParticipant participant = new ScopedModelParticipant(next
-                  .getParticipant(), next.getDepartment());
-            addScopedParticipant(participants, participant, true);
-         }         
       }
       for (Iterator i = user.getAllUserGroups(true); i.hasNext();)
       {
@@ -565,6 +571,41 @@ public class QueryUtils
       return participants;
    }
 
+   public static boolean participantClosureContainsParticipant(Set<IParticipant> participantClosure, ModelParticipantInfo filterParticipant)
+   {
+      for (IParticipant contributor : participantClosure)
+      {
+         // do contributors match the the filter and supported types?  
+         IParticipant rawParticipant = contributor;
+         IDepartment department = null;
+         if(rawParticipant instanceof IScopedModelParticipant)
+         {
+            IScopedModelParticipant scopedModelParticipant = (IScopedModelParticipant) rawParticipant;
+            rawParticipant = scopedModelParticipant.getModelParticipant();
+            department = scopedModelParticipant.getDepartment();
+         }
+         
+         if (rawParticipant instanceof IModelParticipant)
+         {
+            IModelParticipant participant = (IModelParticipant) rawParticipant;            
+            if (CompareHelper.areEqual((participant).getQualifiedId(), filterParticipant.getQualifiedId())
+                  && DepartmentUtils.areEqual(department, filterParticipant.getDepartment()))
+            {
+               return true;
+            }
+         }
+         else if (rawParticipant instanceof IUserGroup)
+         {
+            IUserGroup userGroup = (IUserGroup) rawParticipant;
+            if (CompareHelper.areEqual((userGroup).getId(), filterParticipant.getId()))
+            {
+               return true;
+            }
+         }
+      }            
+      return false;
+   }   
+   
    public static boolean isPredefinedParticipant(String id)
    {
       if(PredefinedConstants.ADMINISTRATOR_ROLE.equals(id))

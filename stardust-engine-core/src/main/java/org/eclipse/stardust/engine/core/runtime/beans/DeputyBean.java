@@ -63,7 +63,7 @@ public class DeputyBean
 
       @XmlElement(name = "d")
       public long department;
-      
+
       public GrantBean()
       {
          super();
@@ -76,7 +76,7 @@ public class DeputyBean
          this.department = department;
       }
    }
-      
+
    private static class DateAdapter extends XmlAdapter<Long, Date>
    {
       @Override
@@ -94,24 +94,23 @@ public class DeputyBean
 
    @XmlElement(name = "u")
    public long user;
-   
+
    @XmlElement(name = "f")
    @XmlJavaTypeAdapter(DateAdapter.class)
    public Date from;
-   
+
    @XmlElement(name = "t")
    @XmlJavaTypeAdapter(DateAdapter.class)
    public Date to;
-   
+
    @XmlElement(name = "g")
    public List<GrantBean> grants;
 
-   // required default constructor   
+   // required default constructor
    DeputyBean()
    {
-
    }
-   
+
    DeputyBean(long oid, Date fromDate, Date toDate, Set<ModelParticipantInfo> participants)
    {
       user = oid;
@@ -122,20 +121,20 @@ public class DeputyBean
       ModelManager current = ModelManagerFactory.getCurrent();
       for (ModelParticipantInfo participant : participants)
       {
-         String qualifiedId = participant instanceof QualifiedModelParticipantInfo
-               ? ((QualifiedModelParticipantInfo) participant).getQualifiedId()
-               : participant.getId();
+         String qualifiedId = participant instanceof QualifiedModelParticipantInfo ? ((QualifiedModelParticipantInfo) participant)
+               .getQualifiedId() : participant.getId();
 
-         Iterator<IModelParticipant> participantsForID = current.getParticipantsForID(qualifiedId);
+         Iterator<IModelParticipant> participantsForID = current
+               .getParticipantsForID(qualifiedId);
          if (participantsForID.hasNext())
          {
             IModelParticipant modelParticipant = participantsForID.next();
-            IDepartment department = DepartmentUtils.getDepartment(participant.getDepartment());
+            IDepartment department = DepartmentUtils.getDepartment(participant
+                  .getDepartment());
             this.grants.add(new GrantBean(current.getRuntimeOid(modelParticipant),
                   department == null ? 0 : department.getOID()));
          }
       }
-
    }
 
    public Deputy createDeputyDetails(UserInfo deputyUser)
@@ -146,15 +145,16 @@ public class DeputyBean
       {
          for (GrantBean grantBean : this.grants)
          {
-            ModelParticipantInfo participantInfo = (ModelParticipantInfo) DepartmentUtils.getParticipantInfo(
-                  PerformerType.ModelParticipant, grantBean.participant,
-                  grantBean.department, PredefinedConstants.ANY_MODEL);
+            ModelParticipantInfo participantInfo = (ModelParticipantInfo) DepartmentUtils
+                  .getParticipantInfo(PerformerType.ModelParticipant,
+                        grantBean.participant, grantBean.department,
+                        PredefinedConstants.ANY_MODEL);
             grants.add(participantInfo);
          }
       }
       return new DeputyDetails(userInfo, deputyUser, from, to, grants);
-   }   
-   
+   }
+
    public String toString()
    {
       try
@@ -180,12 +180,13 @@ public class DeputyBean
       }
       catch (JAXBException e)
       {
-         throw new InternalException("Unable to parse deputy info from '" + value + "'.", e);
+         throw new InternalException("Unable to parse deputy info from '" + value + "'.",
+               e);
       }
    }
-   
+
    private static final JAXBContext context = initContext();
-   
+
    private static JAXBContext initContext()
    {
       try
@@ -199,18 +200,28 @@ public class DeputyBean
       }
       return null;
    }
-   
+
+   public boolean isActive()
+   {
+      return isActive(new Date());
+   }
+
    public boolean isActive(Date now)
    {
       return (from == null || now.compareTo(from) >= 0)
             && (to == null || now.compareTo(to) <= 0);
    }
 
+   public boolean isExpired()
+   {
+      return isExpired(new Date());
+   }
+
    public boolean isExpired(Date now)
    {
       return to != null && now.after(to);
    }
-   
+
    /*public static void main(String[] args)
    {
       System.out.println(new DeputyBean(12345, new Date(), null));

@@ -36,5 +36,12 @@ public interface AccessControlEntry extends Serializable
     * @return set of privileges assigned to the principal
     */
    public Set<Privilege> getPrivileges();
+   
+   public EntryType getType();
+
+   public static enum EntryType 
+   {
+      ALLOW, DENY;
+   }
   
 }

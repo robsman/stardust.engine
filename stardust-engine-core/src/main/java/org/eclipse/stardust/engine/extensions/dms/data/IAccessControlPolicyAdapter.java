@@ -15,9 +15,8 @@ import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.runtime.AccessControlEntry;
-
-
 import org.eclipse.stardust.vfs.IAccessControlEntry;
+import org.eclipse.stardust.vfs.IAccessControlEntry.EntryType;
 import org.eclipse.stardust.vfs.IAccessControlPolicy;
 import org.eclipse.stardust.vfs.IPrivilege;
 
@@ -40,6 +39,12 @@ public class IAccessControlPolicyAdapter implements IAccessControlPolicy
       throw new RuntimeException("Not implemented.");
    }
 
+   public void addAccessControlEntry(Principal principal, Set<IPrivilege> privileges,
+         EntryType type)
+   {
+      throw new RuntimeException("Not implemented.");
+   }
+   
    public Set<IAccessControlEntry> getAccessControlEntries()
    {
       Set<IAccessControlEntry> result = CollectionUtils.newSet();
@@ -76,6 +81,7 @@ public class IAccessControlPolicyAdapter implements IAccessControlPolicy
       throw new RuntimeException("Not implemented.");
    }
 
+   
    public void removeAllAccessControlEntries()
    {
       throw new RuntimeException("Not implemented.");

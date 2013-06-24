@@ -12,7 +12,10 @@ package org.eclipse.stardust.engine.api.runtime;
 
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -20,15 +23,31 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.AccessControlEntry.EntryType;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentToIFileAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.FolderToIFolderAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-import org.eclipse.stardust.engine.extensions.dms.data.*;
-
-import org.eclipse.stardust.vfs.*;
+import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsAccessControlEntry;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsAccessControlPolicy;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsPrivilege;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
+import org.eclipse.stardust.engine.extensions.dms.data.IAccessControlPolicyAdapter;
+import org.eclipse.stardust.vfs.IAccessControlEntry;
+import org.eclipse.stardust.vfs.IAccessControlPolicy;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IFile;
+import org.eclipse.stardust.vfs.IFileInfo;
+import org.eclipse.stardust.vfs.IFolder;
+import org.eclipse.stardust.vfs.IFolderInfo;
+import org.eclipse.stardust.vfs.IPrivilege;
+import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
+import org.eclipse.stardust.vfs.VfsUtils;
 
 
 
@@ -263,7 +282,7 @@ public class DmsVfsConversionUtils
          for (IAccessControlEntry vfsAce : vfsPolicy.getAccessControlEntries())
          {
             aces.add(new DmsAccessControlEntry(vfsAce.getPrincipal(),
-                  fromVfsPrivileges(vfsAce.getPrivileges())));
+                  fromVfsPrivileges(vfsAce.getPrivileges()), (vfsAce.getType() == IAccessControlEntry.EntryType.DENY) ? EntryType.DENY : EntryType.ALLOW));
          }
          return new DmsAccessControlPolicy(aces, vfsPolicy.isNew(),
                vfsPolicy.isReadonly());

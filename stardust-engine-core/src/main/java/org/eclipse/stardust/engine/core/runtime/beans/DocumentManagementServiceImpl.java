@@ -21,9 +21,22 @@ import static org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.toVf
 
 import java.io.Serializable;
 import java.security.Principal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import javax.jcr.*;
+import javax.jcr.AccessDeniedException;
+import javax.jcr.Credentials;
+import javax.jcr.ItemExistsException;
+import javax.jcr.ItemNotFoundException;
+import javax.jcr.PathNotFoundException;
+import javax.jcr.ReferentialIntegrityException;
+import javax.jcr.Repository;
+import javax.jcr.RepositoryException;
+import javax.jcr.Session;
+import javax.jcr.SimpleCredentials;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -36,8 +49,18 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.Modules;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils;
 import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils.AccessMode;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
+import org.eclipse.stardust.engine.api.runtime.Folder;
+import org.eclipse.stardust.engine.api.runtime.FolderInfo;
+import org.eclipse.stardust.engine.api.runtime.Privilege;
+import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
 import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
@@ -46,9 +69,28 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
-import org.eclipse.stardust.engine.extensions.dms.data.*;
-import org.eclipse.stardust.vfs.*;
-import org.eclipse.stardust.vfs.impl.jcr.*;
+import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsPrivilege;
+import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
+import org.eclipse.stardust.engine.extensions.dms.data.IPrivilegeAdapter;
+import org.eclipse.stardust.engine.extensions.dms.data.VirtualFolderKey;
+import org.eclipse.stardust.vfs.IAccessControlEntry;
+import org.eclipse.stardust.vfs.IAccessControlEntry.EntryType;
+import org.eclipse.stardust.vfs.IAccessControlPolicy;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.IFile;
+import org.eclipse.stardust.vfs.IFolder;
+import org.eclipse.stardust.vfs.IMigrationReport;
+import org.eclipse.stardust.vfs.IPrivilege;
+import org.eclipse.stardust.vfs.MetaDataLocation;
+import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
+import org.eclipse.stardust.vfs.VfsUtils;
+import org.eclipse.stardust.vfs.impl.jcr.AuthorizableOrganizationDetails;
+import org.eclipse.stardust.vfs.impl.jcr.JcrDocumentRepositoryService;
+import org.eclipse.stardust.vfs.impl.jcr.JcrVfsAccessControlEntry;
+import org.eclipse.stardust.vfs.impl.jcr.JcrVfsAccessControlPolicy;
+import org.eclipse.stardust.vfs.impl.jcr.JcrVfsPrincipal;
 import org.eclipse.stardust.vfs.jcr.ISessionFactory;
 import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
 
@@ -1527,13 +1569,13 @@ public class DocumentManagementServiceImpl
          IAccessControlEntry everyoneAce = new JcrVfsAccessControlEntry(
                new JcrVfsPrincipal(EVERYONE_PRINCIPAL),
                Collections.<IPrivilege> singleton(new IPrivilegeAdapter(
-                     DmsPrivilege.READ_PRIVILEGE)));
+                     DmsPrivilege.READ_PRIVILEGE)), EntryType.ALLOW);
          aces.add(everyoneAce);
 
          IAccessControlEntry adminAce = new JcrVfsAccessControlEntry(new JcrVfsPrincipal(
                ADMIN_PRINCIPAL),
                Collections.<IPrivilege> singleton(new IPrivilegeAdapter(
-                     DmsPrivilege.ALL_PRIVILEGES)));
+                     DmsPrivilege.ALL_PRIVILEGES)), EntryType.ALLOW);
          aces.add(adminAce);
          return new JcrVfsAccessControlPolicy(aces, false);
       }
@@ -1595,7 +1637,7 @@ public class DocumentManagementServiceImpl
             if (userFolderPath != null)
             {
                virtualFolderPermissions.put(userFolderPath, createSingleEntryPolicy(
-                     EVERYONE_PRINCIPAL, DmsPrivilege.ALL_PRIVILEGES));
+                     EVERYONE_PRINCIPAL, DmsPrivilege.ALL_PRIVILEGES, EntryType.ALLOW));
             }
 
             String partitionProcessInstancesFolder = virtualFolderPaths.get(VirtualFolderKey.PARTITION_PROCESS_INSTANCES_FOLDER);
@@ -1603,7 +1645,7 @@ public class DocumentManagementServiceImpl
             {
                virtualFolderPermissions.put(partitionProcessInstancesFolder,
                      createSingleEntryPolicy(EVERYONE_PRINCIPAL,
-                           DmsPrivilege.ALL_PRIVILEGES));
+                           DmsPrivilege.ALL_PRIVILEGES, EntryType.ALLOW));
             }
             ret = virtualFolderPermissions;
          }
@@ -1625,13 +1667,13 @@ public class DocumentManagementServiceImpl
       }
 
       private IAccessControlPolicy createSingleEntryPolicy(String principalName,
-            Privilege privilege)
+            Privilege privilege, EntryType type)
       {
          Principal prin = new JcrVfsPrincipal(principalName);
          Set<IPrivilege> priv = Collections.<IPrivilege> singleton(new IPrivilegeAdapter(
                privilege));
          Set<IAccessControlEntry> aces = Collections.<IAccessControlEntry> singleton(new JcrVfsAccessControlEntry(
-               prin, priv));
+               prin, priv, type));
          IAccessControlPolicy acp = new JcrVfsAccessControlPolicy(aces, true);
 
          return acp;
@@ -1951,7 +1993,7 @@ public class DocumentManagementServiceImpl
 
             for (IAccessControlEntry ace : policy.getAccessControlEntries())
             {
-               acp.addAccessControlEntry(ace.getPrincipal(), ace.getPrivileges());
+               acp.addAccessControlEntry(ace.getPrincipal(), ace.getPrivileges(), ace.getType());
             }
             vfs.setPolicy(folderPath, acp);
 

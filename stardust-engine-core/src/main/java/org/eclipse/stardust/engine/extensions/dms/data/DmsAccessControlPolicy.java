@@ -16,9 +16,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.stardust.engine.api.runtime.AccessControlEntry;
+import org.eclipse.stardust.engine.api.runtime.AccessControlEntry.EntryType;
 import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
 import org.eclipse.stardust.engine.api.runtime.Privilege;
-
 import org.eclipse.stardust.vfs.impl.utils.CollectionUtils;
 
 
@@ -51,7 +51,7 @@ public class DmsAccessControlPolicy implements AccessControlPolicy, Serializable
       Set<AccessControlEntry> result = CollectionUtils.newSet();
       for (AccessControlEntry ace : this.aces)
       {
-         result.add(new DmsAccessControlEntry(ace.getPrincipal(), new HashSet<Privilege>(ace.getPrivileges())));
+         result.add(new DmsAccessControlEntry(ace.getPrincipal(), new HashSet<Privilege>(ace.getPrivileges()), ace.getType()));
       }
       return result;
    }
@@ -92,7 +92,13 @@ public class DmsAccessControlPolicy implements AccessControlPolicy, Serializable
       }
       return sb.toString();
    }
-
+   
+   public void addAccessControlEntry(Principal principal, Set<Privilege> privileges,
+         EntryType type)
+   {
+      this.aces.add(new DmsAccessControlEntry(principal, privileges, type));
+   }
+   
    public void removeAllAccessControlEntries()
    {
       this.aces.clear();

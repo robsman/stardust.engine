@@ -30,12 +30,19 @@ public class DmsAccessControlEntry implements AccessControlEntry, Serializable
    
    private final Principal principal;
    private final Set<Privilege> privileges;
+   private final EntryType type;
    
    public DmsAccessControlEntry(Principal principal, Set<Privilege> privileges)
+   {
+        this(principal, privileges, null);
+   }
+      
+   public DmsAccessControlEntry(Principal principal, Set<Privilege> privileges, EntryType type)
    {
       super();
       this.principal = principal;
       this.privileges = privileges;
+      this.type = (type != null ? type : EntryType.ALLOW);
    }
 
    public Principal getPrincipal()
@@ -48,6 +55,11 @@ public class DmsAccessControlEntry implements AccessControlEntry, Serializable
       return privileges;
    }
  
+   public EntryType getType()
+   {
+      return type;
+   }
+   
    @Override
    public String toString()
    {
@@ -55,6 +67,7 @@ public class DmsAccessControlEntry implements AccessControlEntry, Serializable
       sb.append(this.principal);
       sb.append(": ");
       sb.append(this.privileges);
+      sb.append(" (" + type + ")");
       
       return sb.toString();
    }
@@ -66,6 +79,7 @@ public class DmsAccessControlEntry implements AccessControlEntry, Serializable
       int result = 1;
       result = prime * result + ((principal == null) ? 0 : principal.hashCode());
       result = prime * result + ((privileges == null) ? 0 : privileges.hashCode());
+      result = prime * result + type.hashCode();      
       return result;
    }
 
@@ -92,6 +106,8 @@ public class DmsAccessControlEntry implements AccessControlEntry, Serializable
             return false;
       }
       else if ( !privileges.equals(other.privileges))
+         return false;
+      if ( !type.equals(other.type))
          return false;
       return true;
    }

@@ -53,6 +53,13 @@ public class IAccessControlEntryAdapter implements IAccessControlEntry, Serializ
       return result;
    }
    
+   public EntryType getType()
+   {
+      return (ace.getType() == AccessControlEntry.EntryType.DENY)
+            ? EntryType.DENY
+            : EntryType.ALLOW;
+   }
+   
    @Override
    public int hashCode()
    {

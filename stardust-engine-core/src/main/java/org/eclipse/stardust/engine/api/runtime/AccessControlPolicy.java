@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.security.Principal;
 import java.util.Set;
 
+import org.eclipse.stardust.engine.api.runtime.AccessControlEntry.EntryType;
+
 
 /**
  * AccessControlPolicy represents an access control list containing
@@ -31,6 +33,15 @@ public interface AccessControlPolicy
     * @param privileges
     */
    void addAccessControlEntry(Principal principal, Set<Privilege> privileges);
+   
+   /**
+    * Creates a new access control entry and fills it with the principal and privileges 
+    * passed.
+    * @param principal
+    * @param privileges
+    * @param type
+    */
+   void addAccessControlEntry(Principal principal, Set<Privilege> privileges, EntryType type);
    
    /**
     * Removes a access control entry from this policy.

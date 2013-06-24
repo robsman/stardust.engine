@@ -581,8 +581,19 @@ public class WSDLGenerator
       }
       else if (StructuredTypeRtUtils.isStructuredType(f.getData().getType().getId()))
       {
-         String typeDeclarationId = (String) f.getData().getAttribute(
-               StructuredDataConstants.TYPE_DECLARATION_ATT);
+         
+         String typeDeclarationId = null;
+         
+         IReference extReference = f.getData().getExternalReference();
+         if (extReference != null && this.schemaResolver != null)
+         {     
+            typeDeclarationId = (String) extReference.getId();
+         }
+         else
+         {            
+            typeDeclarationId = (String) f.getData().getAttribute(
+                  StructuredDataConstants.TYPE_DECLARATION_ATT);
+         }
 
          final Element reference = doc.createElementNS(XSD_SCHEMA_URL, "xsd:element");
          reference.setAttribute("ref", nsPrefixPair.prefix() + ":" + typeDeclarationId);

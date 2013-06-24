@@ -239,7 +239,7 @@ public class FormalParameterTransformer
    {
       final Serializable value;
       String typeDeclarationId = getStructTypeDeclarationId(fp);
-      Model resolvedModel = null;
+      Model resolvedModel = model;
       if (typeDeclarationId == null)
       {
          // resolve external reference
@@ -249,16 +249,9 @@ public class FormalParameterTransformer
          {
             Reference reference = data.getReference();
             resolvedModel = sf.getQueryService().getModel(reference.getModelOid());
-            Data resolvedData = resolvedModel.getData(reference.getId());
-            typeDeclarationId = (String) resolvedData.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+            typeDeclarationId = reference.getId();
          }
       }
-      else
-      {
-         // data is in the same model
-         resolvedModel = model;
-      }
-      
       
       if (typeDeclarationId == null)
       {
@@ -294,7 +287,21 @@ public class FormalParameterTransformer
 
    private void addMarshalledValue(Element root, final FormalParameter fp, final Model model, final Serializable value)
    {
-      final String typeDeclarationId = getStructTypeDeclarationId(fp);
+      String typeDeclarationId = getStructTypeDeclarationId(fp);
+      Model resolvedModel = model;
+      if (typeDeclarationId == null)
+      {
+         // resolve external reference
+         Data data = model.getData(fp.getDataId());
+         
+         if (data != null && data.getReference() != null)
+         {
+            Reference reference = data.getReference();
+            resolvedModel = sf.getQueryService().getModel(reference.getModelOid());
+            typeDeclarationId = reference.getId();
+         }
+      }
+      
       Document doc = root.getOwnerDocument();
       if (typeDeclarationId == null)
       {
@@ -307,7 +314,7 @@ public class FormalParameterTransformer
          final Element formalParameterElement = doc.createElementNS(WADLGenerator.W3C_XML_SCHEMA, fp.getId());
          root.appendChild(formalParameterElement);         
          
-         final Element structElement = DataFlowUtils.marshalStructValue(model, typeDeclarationId, null, value).getAny().get(0);
+         final Element structElement = DataFlowUtils.marshalStructValue(resolvedModel, typeDeclarationId, null, value).getAny().get(0);
          Node importNode = doc.importNode(structElement, true);
          formalParameterElement.appendChild(importNode);
          formalParameterElement.appendChild(doc.createTextNode("\n"));

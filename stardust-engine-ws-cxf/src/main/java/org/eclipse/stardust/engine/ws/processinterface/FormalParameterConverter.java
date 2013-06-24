@@ -21,11 +21,13 @@ import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.FormalParameter;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ProcessInterface;
+import org.eclipse.stardust.engine.api.model.Reference;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
@@ -171,6 +173,22 @@ public class FormalParameterConverter
       if (StructuredTypeRtUtils.isStructuredType(typeId))
       {
          String typeDeclarationId = (String) mapping.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+         Model resolvedModel = getActiveModelForId(modelId);
+         if (typeDeclarationId == null)
+         {
+            // try to resolve external reference
+            String dataId = mapping.getDataId();
+            Data resolvedData = resolvedModel.getData(dataId);
+            if (resolvedData != null)
+            {
+               Reference reference = resolvedData.getReference();
+               if (reference != null)
+               {
+                  typeDeclarationId = reference.getId();
+                  resolvedModel = getModelForOid(reference.getModelOid());                  
+               }
+            }
+         }
 
          Element structuredDataElement = null;
          NodeList childNodes = element.getChildNodes();
@@ -183,7 +201,7 @@ public class FormalParameterConverter
             }
          }
          
-         value = DataFlowUtils.unmarshalStructValue(getActiveModelForId(modelId),
+         value = DataFlowUtils.unmarshalStructValue(resolvedModel,
                typeDeclarationId, "", structuredDataElement);
       }
       else if (PredefinedConstants.PRIMITIVE_DATA.equals(typeId))
@@ -199,6 +217,13 @@ public class FormalParameterConverter
                + "'.");
       }
       return value;
+   }
+   private static Model getModelForOid(long modelOid)
+   {
+      WebServiceEnv currentWebServiceEnvironment = WebServiceEnv.currentWebServiceEnvironment();
+      QueryService queryService = currentWebServiceEnvironment.getServiceFactory()
+            .getQueryService();
+      return queryService.getModel(modelOid);
    }
 
    private static Model getActiveModelForId(String modelId)
@@ -254,9 +279,25 @@ public class FormalParameterConverter
       if (StructuredTypeRtUtils.isStructuredType(typeId))
       {
          String typeDeclarationId = (String) mapping.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-
+         Model resolvedModel = getActiveModelForId(modelId);
+         if (typeDeclarationId == null)
+         {
+            // try to resolve external reference
+            String dataId = mapping.getDataId();
+            Data resolvedData = resolvedModel.getData(dataId);
+            if (resolvedData != null)
+            {
+               Reference reference = resolvedData.getReference();
+               if (reference != null)
+               {
+                  typeDeclarationId = reference.getId();
+                  resolvedModel = getModelForOid(reference.getModelOid());                  
+               }
+            }
+         }
+         
          XmlValueXto marshalStructValue = DataFlowUtils.marshalStructValue(
-               getActiveModelForId(modelId), typeDeclarationId, "", value);
+               resolvedModel, typeDeclarationId, "", value);
          Element structParameterElement = marshalStructValue.getAny().get(0);
          Node structNode = targetDoc.importNode(structParameterElement, true);
          

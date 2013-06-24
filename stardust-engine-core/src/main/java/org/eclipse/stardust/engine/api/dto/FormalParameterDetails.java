@@ -33,6 +33,8 @@ public class FormalParameterDetails implements FormalParameter
    private String typeId;
 
    private Map<String, Object> attributes;
+
+   private String dataId;
    
    public FormalParameterDetails(IFormalParameter parameter)
    {
@@ -42,6 +44,7 @@ public class FormalParameterDetails implements FormalParameter
       IData data = parameter.getData();
       if (data != null)
       {
+         dataId = data.getId();
          IDataType type = (IDataType) data.getType();
          if (type != null)
          {
@@ -69,6 +72,11 @@ public class FormalParameterDetails implements FormalParameter
    public String getTypeId()
    {
       return typeId;
+   }
+   
+   public String getDataId()
+   {
+      return dataId;
    }
 
    public Map getAllAttributes()

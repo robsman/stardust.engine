@@ -53,6 +53,13 @@ public interface FormalParameter extends Identifiable, Nameable, Serializable
     * @return a string representing the type of the parameter
     */
    String getTypeId();
+   
+  /**
+   * Retrieves the dataId of the data used.
+   * 
+   * @return the dataId.
+   */
+  String getDataId();
 
    /**
     * Gets all the attributes defined for this model element.

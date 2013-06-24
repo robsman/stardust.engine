@@ -27,11 +27,13 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.FormalParameter;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ProcessInterface;
+import org.eclipse.stardust.engine.api.model.Reference;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
@@ -235,8 +237,29 @@ public class FormalParameterTransformer
 
    private Serializable getUnmarshalledValue(final FormalParameter fp, final Model model, final Element element)
    {
-      final String typeDeclarationId = getStructTypeDeclarationId(fp);
       final Serializable value;
+      String typeDeclarationId = getStructTypeDeclarationId(fp);
+      Model resolvedModel = null;
+      if (typeDeclarationId == null)
+      {
+         // resolve external reference
+         Data data = model.getData(fp.getDataId());
+         
+         if (data != null && data.getReference() != null)
+         {
+            Reference reference = data.getReference();
+            resolvedModel = sf.getQueryService().getModel(reference.getModelOid());
+            Data resolvedData = resolvedModel.getData(reference.getId());
+            typeDeclarationId = (String) resolvedData.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+         }
+      }
+      else
+      {
+         // data is in the same model
+         resolvedModel = model;
+      }
+      
+      
       if (typeDeclarationId == null)
       {
          final Type type = getPrimitiveType(fp);
@@ -249,7 +272,7 @@ public class FormalParameterTransformer
       }
       else
       {
-         value = DataFlowUtils.unmarshalStructValue(model, typeDeclarationId, null, getFirstChildElement(element));
+         value = DataFlowUtils.unmarshalStructValue(resolvedModel, typeDeclarationId, null, getFirstChildElement(element));
       }
       return value;
    }

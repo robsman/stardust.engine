@@ -38,7 +38,7 @@ import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
 public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
-   
+
    // Structured Data Value Table
    private static final String SDV_TABLE = "structured_data_value";
    private static final String SDV_OID = "oid";
@@ -61,7 +61,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String IGNORE_MISSING_XPATH
    = "Infinty.RTUpgrade.7_1_0.IgnoreMissingXPath";
-   
+
    private static final Logger trace = LogManager
          .getLogger(R7_1_0from7_0_xRuntimeJob.class);
 
@@ -156,7 +156,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       if(dbDescriptor instanceof OracleDbDescriptor)
       {
          //set the decimal delimiter for number conversions
-         String setDelemiterStatement = 
+         String setDelemiterStatement =
             "ALTER SESSION SET NLS_NUMERIC_CHARACTERS='.,'";
          try
          {
@@ -167,9 +167,9 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             throw new PublicException("preparation of string to value migration failed", e1);
          }
       }
-      
+
    }
-   
+
    private UpgradeTask migrateStringValueToDoubleValueTask()
    {
       return new UpgradeTask()
@@ -178,16 +178,16 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          public void execute()
          {
             prepareMigrateStringValueToDoubleValue();
-            
+
             Set<PartitionInfo> partitions = getPartitionsFromDb();
             for (PartitionInfo partitionInfo : partitions)
             {
                upgradeDoubleValuesByPartition(partitionInfo);
-                  }
-               }
+            }
+         }
       };
    }
-   
+
    private Double getDecimalValue(IData theData, long xpathOid, String value)
    {
       try
@@ -239,7 +239,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       return null;
    }
-   
+
 
    private String createUpdateDecStructValStmnt()
    {
@@ -313,10 +313,10 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             .append("(SELECT 0")
             .append(FROM).append(DatabaseHelper.getQualifiedName(PI_TABLE, "pi"))
             .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(M_TABLE, "m"))
-            .append(ON).append("(m.oid = pi.model)")
+               .append(ON).append("(m.oid = pi.model)")
             .append(WHERE)
-            .append("pi.oid").append(EQUALS).append(DatabaseHelper.getQualifiedName(tableName)).append(DOT).append("processInstance")
-            .append(AND).append("m.partition").append(EQUALS).append(partitionInfo.getOid()).append(")");
+               .append("pi.oid").append(EQUALS).append(DatabaseHelper.getQualifiedName(tableName)).append(DOT).append("processInstance")
+               .append(AND).append("m.partition").append(EQUALS).append(partitionInfo.getOid()).append(")");
       try
       {
          item.executeDdlStatement(updateDataValueStmt.toString(), false);
@@ -337,7 +337,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             SDV_DOUBLE_VALUE,
             SDV_STRING_VALUE, partitionInfo);
 
-      Utils.initCarnotEngine(partitionInfo.getId());
+      Utils.initCarnotEngine(partitionInfo.getId(), getRtJobEngineProperties());
 
       StringBuilder structOidStmnt = new StringBuilder();
       structOidStmnt
@@ -375,7 +375,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             if(decimalValue != null)
             {
                structValMap.put(structValOid, decimalValue);
-      }
+            }
          }
 
          PreparedStatement updateStmnt = item.getConnection().prepareStatement(
@@ -400,5 +400,5 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected Logger getLogger()
    {
       return trace;
-}
+   }
 }

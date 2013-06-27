@@ -60,7 +60,7 @@ public class MailApplicationReceptionServlet extends HttpServlet
       int computedHashCode = MailValidationUtils.getQueryParametersHashCode(processInstanceOID,
             activityInstanceOID, partition, investigate, outputValue);
       
-      if ( !Integer.toString(computedHashCode).equals(requestHashCodeString))
+      if (!Integer.toString(computedHashCode).equals(requestHashCodeString))
       {
          error(request, response, new Exception("provided hashCode not valid: "
                + requestHashCodeString), null, null, null);
@@ -81,8 +81,8 @@ public class MailApplicationReceptionServlet extends HttpServlet
     	  Map<String, Object> properties = new HashMap<String, Object>();
     	  properties.put(SecurityProperties.PARTITION, partition);
     	  
-         String user = getInitParameter("user");
-         String password = getInitParameter("password");
+    	  String user = getInitParameter("user");
+    	  String password = getInitParameter("password");
 
     	  serviceFactory = ServiceFactoryLocator.get(user, password, properties);
       }

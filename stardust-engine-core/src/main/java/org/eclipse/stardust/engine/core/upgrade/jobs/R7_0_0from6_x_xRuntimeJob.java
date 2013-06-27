@@ -139,7 +139,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";
    private static final String P_LCK_TABLE_NAME = "partition_lck";
    private static final String P_LCK_FIELD__OID = "oid";
-   
+
    private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
 
 
@@ -150,7 +150,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8});
       initUpgradeTasks();
    }
-   
+
    public Version getVersion()
    {
       return VERSION;
@@ -168,7 +168,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private void initUpgradeSchemaTasks()
    {
       final R7_0_0from6_x_xRuntimeJob runtimeJob = this;
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -226,7 +226,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -255,10 +255,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             {
                reportExeption(e, "Could not update new column " + WORK_ITEM_TABLE_NAME + "."
                      + WORK_ITEM_FIELD_CRITICALITY + " to -1.");
-            }    
+            }
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -309,7 +309,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }, runtimeJob);
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -355,7 +355,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }, runtimeJob);
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -384,7 +384,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -421,7 +421,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       });
    }
-   
+
    private void initMigrateDataTasks()
    {
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
@@ -440,7 +440,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
          }
       });
-      
+
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
          @Override
@@ -498,16 +498,16 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          info("A new table 'partition_lck' with column 'oid' and index 'partition_lck_idx' will be created.");
       }
    }
-   
+
    @Override
    protected void printMigrateDataInfo()
    {
       info("Initializes the field 'propertiesAvailable' in table 'activity_instance'.");
       info("Missing XPaths which are needed to store the revisionComment will be created for Structured Datatypes.");
    }
-   
+
    @Override
-   protected void printFinalizeSchemaInfo() 
+   protected void printFinalizeSchemaInfo()
    {
       info("Default link types will be added.");
    }

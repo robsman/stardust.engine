@@ -1084,5 +1084,5 @@ public class R4_0_0from3_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected Logger getLogger()
    {
       return trace;
-}
+   }
 }

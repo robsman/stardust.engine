@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
+
+import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Functor;
@@ -24,11 +28,12 @@ import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
 import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgradeJob;
 import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
-
 
 
 
@@ -61,6 +66,61 @@ public abstract class DbmsAwareRuntimeUpgradeJob extends RuntimeUpgradeJob
    protected static final String SPACE = " ";
    protected static final String QUOTE = "'";
    protected static final Object ORDER_BY = " ORDER BY ";
+
+   protected static class ConnectionWrapper implements DataSource
+   {
+      Connection connection;
+
+      protected ConnectionWrapper(Connection connection)
+      {
+         this.connection = connection;
+      }
+
+      public Connection getConnection() throws SQLException
+      {
+         return connection;
+      }
+
+      public Connection getConnection(String username, String password)
+            throws SQLException
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      public int getLoginTimeout() throws SQLException
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      public PrintWriter getLogWriter() throws SQLException
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      public void setLoginTimeout(int seconds) throws SQLException
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      public void setLogWriter(PrintWriter out) throws SQLException
+      {
+         throw new UnsupportedOperationException();
+      }
+
+      @Override
+      public boolean isWrapperFor(Class< ? > iface) throws SQLException
+      {
+         // TODO Auto-generated method stub
+         return false;
+      }
+
+      @Override
+      public <T> T unwrap(Class<T> iface) throws SQLException
+      {
+         // TODO Auto-generated method stub
+         return null;
+      }
+   }
 
    private final DBMSKey[] supportedDbms;
 
@@ -165,7 +225,7 @@ public abstract class DbmsAwareRuntimeUpgradeJob extends RuntimeUpgradeJob
    protected void assertCompatibility() throws UpgradeException
    {
       boolean isSupported = false;
-      for (int i = 0; i < supportedDbms.length; i++ )
+      for (int i = 0; i < supportedDbms.length; i++)
       {
          isSupported |= supportedDbms[i].equals(item.getDbDescriptor().getDbmsKey());
       }
@@ -212,5 +272,15 @@ public abstract class DbmsAwareRuntimeUpgradeJob extends RuntimeUpgradeJob
          warn("Failed rolling back transaction.", e1);
       }
       error("Failed migrating runtime item tables.", sqle);
+   }
+
+   protected Map getRtJobEngineProperties()
+   {
+      Map props = CollectionUtils.newHashMap();
+      props.put("jdbc/" + SessionProperties.DS_NAME_AUDIT_TRAIL
+            + SessionProperties.DS_DATA_SOURCE_SUFFIX,
+            new ConnectionWrapper(item.getConnection()));
+      props.put(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, Boolean.TRUE);
+      return props;
    }
 }

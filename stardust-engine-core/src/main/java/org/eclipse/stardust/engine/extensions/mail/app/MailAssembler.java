@@ -481,7 +481,7 @@ public class MailAssembler
    private StringBuffer getHtmlQuery(final boolean investigate, final String outputValue)
    {
       StringBuffer buffer = new StringBuffer(200);
-
+      
      String partition = Parameters.instance().getString(SecurityProperties.DEFAULT_PARTITION, "default");
       
       if (SecurityProperties.getPartition() != null)

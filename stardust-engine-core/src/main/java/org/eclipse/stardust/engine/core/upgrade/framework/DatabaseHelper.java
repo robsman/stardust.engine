@@ -111,7 +111,7 @@ public final class DatabaseHelper
       String schema = getSchemaName();
       StringBuffer buffer = new StringBuffer(500);
       DBDescriptor dbDescriptor = item.getDbDescriptor();
-      
+
       buffer.append("CREATE TABLE ");
       if (StringUtils.isNotEmpty(schema))
       {
@@ -125,23 +125,23 @@ public final class DatabaseHelper
          FieldInfo field = tableInfo.getFields()[i];
          buffer.append(delimiter).append(getColumnName(dbDescriptor, field)).append(" ");
          buffer.append(dbDescriptor.getSQLType(field.type, field.size));
-         
+
          if (field.isPK && dbDescriptor.supportsIdentityColumns()
                && !StringUtils.isEmpty(tableInfo.getSequenceName()))
          {
             buffer.append(" ")
                   .append(dbDescriptor.getIdentityColumnQualifier());
          }
-         
+
          if(!field.isPK && !dbDescriptor.isColumnNullableByDefault())
          {
             buffer.append(" NULL");
          }
-         
+
          delimiter = ", ";
       }
       buffer.append(")");
-      
+
       try
       {
          executeDdlStatement(item, buffer.toString());
@@ -151,7 +151,7 @@ public final class DatabaseHelper
          // TODO handle DBMS specific error codes
          observer.warn("Couldn't create " + tableInfo.getTableName() + " table.", e);
       }
-      
+
       if (null != tableInfo.getIndexes())
       {
          // creating indexes
@@ -170,7 +170,7 @@ public final class DatabaseHelper
             }
          }
       }
-      
+
       // optionally creating the PK sequence on databases requiring it
       if (dbDescriptor.supportsSequences()
             && !StringUtils.isEmpty(tableInfo.getSequenceName()))
@@ -225,7 +225,7 @@ public final class DatabaseHelper
             buffer.append(tableInfo.getTableName()).append(" ADD ").append(
                   getColumnName(dbDescriptor, field)).append(" ").append(
                   dbDescriptor.getSQLType(field.type, field.size));
-            
+
             if(!field.isPK && !dbDescriptor.isColumnNullableByDefault())
             {
                buffer.append(" NULL");
@@ -303,7 +303,7 @@ public final class DatabaseHelper
             }
          }
       }
-      
+
       boolean performedDmlBeforeIndexCreation = false;
       // alter indexes
       if ((null != tableInfo.getAlteredIndexes())
@@ -327,8 +327,8 @@ public final class DatabaseHelper
                      + tableInfo.getTableName() + ".", e);
             }
          }
-         
-         // second step: do some necessary DML which for performance reasons has better to 
+
+         // second step: do some necessary DML which for performance reasons has better to
          // be done before the to be altered indexes get recreated.
          try
          {
@@ -360,7 +360,7 @@ public final class DatabaseHelper
             }
          }
       }
-      
+
       if ( !performedDmlBeforeIndexCreation)
       {
          try
@@ -517,7 +517,7 @@ public final class DatabaseHelper
       }
    }
 
-   public static String getSchemaName() 
+   public static String getSchemaName()
    {
       return (String) Parameters.instance().get(
             SessionFactory.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX);
@@ -566,7 +566,7 @@ public final class DatabaseHelper
          throws SQLException
    {
       executeDdlStatement(
-            item, "create sequence " + getQualifiedName(tableInfo.getSequenceName())); 
+            item, "create sequence " + getQualifiedName(tableInfo.getSequenceName()));
    }
 
    /**
@@ -660,7 +660,7 @@ public final class DatabaseHelper
       }
    }
 
-   public static String getQualifiedName(String name) 
+   public static String getQualifiedName(String name)
    {
       return getQualifiedName(name, null);
    }
@@ -681,7 +681,7 @@ public final class DatabaseHelper
       }
       return buffer.toString();
    }
-   
+
    /**
     *
     */
@@ -720,14 +720,14 @@ public final class DatabaseHelper
       {
          fieldNames[i] = getColumnName(dbDescriptor, index.fields[i]);
       }
-      
+
       IndexDescriptor idxDesc = new IndexDescriptor(index.name, fieldNames, index.unique);
 
       // TODO schema name
       executeDdlStatement(item, dbDescriptor.getCreateIndexStatement(schema,
             table.getTableName(), idxDesc));
    }
-   
+
    protected static String getColumnName(DBDescriptor dbDescriptor, FieldInfo field)
    {
       if(columnNameModificationMode == ColumnNameModificationMode.UPPER_CASE)

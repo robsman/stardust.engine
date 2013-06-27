@@ -35,7 +35,7 @@ public class R4_7_0from4_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String AI_FIELD_CURRENT_PERFORMER = "currentPerformer";
    private static final String AI_FIELD_ACTIVITY = "activity";
    private static final String AI_FIELD_PROCESS_INSTANCE = "processInstance";
-   
+
    R4_7_0from4_6_0RuntimeJob()
    {
       super(new DBMSKey[] {
@@ -47,7 +47,7 @@ public class R4_7_0from4_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       return VERSION;
    }
-   
+
    protected void upgradeSchema(boolean recover) throws UpgradeException
    {
       DatabaseHelper.alterTable(item, new AlterTableInfo(AI_TABLE_NAME)
@@ -63,14 +63,14 @@ public class R4_7_0from4_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
          public IndexInfo[] getAlteredIndexes()
          {
-            return new IndexInfo[] {// 
+            return new IndexInfo[] {//
                   new IndexInfo("activity_inst_idx3", false, new FieldInfo[] {
                         CURRENT_USER_PERFORMER, CURRENT_PERFORMER }) };
          }
-         
+
          public IndexInfo[] getAddedIndexes()
          {
-            return new IndexInfo[] {// 
+            return new IndexInfo[] {//
                   new IndexInfo("activity_inst_idx8", false, new FieldInfo[] { ACTIVITY,
                         PROCESS_INSTANCE }) };
          }
@@ -80,7 +80,7 @@ public class R4_7_0from4_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected void migrateData(boolean recover) throws UpgradeException
    {
    }
-   
+
    protected void finalizeSchema(boolean recover) throws UpgradeException
    {
    }
@@ -89,21 +89,21 @@ public class R4_7_0from4_6_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected void printUpgradeSchemaInfo()
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    protected void printMigrateDataInfo()
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    protected void printFinalizeSchemaInfo()
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override

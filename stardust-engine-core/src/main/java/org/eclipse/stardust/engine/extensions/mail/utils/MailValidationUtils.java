@@ -27,7 +27,7 @@ public class MailValidationUtils
       Matcher matcher = p.matcher(mailAddress);
       return matcher.find();
    }
-   
+
    /**
     * @param piOid
     *           process instance OID

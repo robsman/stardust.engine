@@ -590,9 +590,9 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          if (idRef.getNamespaceURI().isEmpty())
          {
             performer = ((IModel) processInstance.getProcessDefinition().getModel()).findParticipant(id);
-      }
-      else
-      {
+         }
+         else
+         {
             IModel model = ModelManagerFactory.getCurrent().findActiveModel(
                   idRef.getNamespaceURI());
                   

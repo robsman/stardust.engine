@@ -38,9 +38,9 @@ public class R4_9_0from4_7_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final Logger trace = LogManager.getLogger(R4_9_0from4_7_0RuntimeJob.class);
 
    private static final Version VERSION = Version.createFixedVersion(4, 9, 0);
-   
+
    private static final String LOG_ENTRY_TABLE_NAME = "log_entry";
-   private static final String LOG_ENTRY_AI_COLUMN = "activityInstance"; 
+   private static final String LOG_ENTRY_AI_COLUMN = "activityInstance";
    private static final String LOG_ENTRY_PI_COLUMN = "processInstance";
 
    R4_9_0from4_7_0RuntimeJob()
@@ -141,21 +141,21 @@ public class R4_9_0from4_7_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected void printUpgradeSchemaInfo()
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    protected void printMigrateDataInfo()
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override
    protected void printFinalizeSchemaInfo()
    {
       // TODO Auto-generated method stub
-      
+
    }
 
    @Override

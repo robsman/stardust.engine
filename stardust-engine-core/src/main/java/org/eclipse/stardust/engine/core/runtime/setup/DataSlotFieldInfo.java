@@ -66,28 +66,4 @@ public class DataSlotFieldInfo extends FieldInfo
    {
       return dataSlot;
    }
-
-   @Override
-   public int hashCode()
-   {
-      final int prime = 31;
-      int result = super.hashCode();
-      result = prime * result + ((slotType == null) ? 0 : slotType.hashCode());
-      return result;
-   }
-
-   @Override
-   public boolean equals(Object obj)
-   {
-      if (this == obj)
-         return true;
-      if (!super.equals(obj))
-         return false;
-      if (getClass() != obj.getClass())
-         return false;
-      DataSlotFieldInfo other = (DataSlotFieldInfo) obj;
-      if (slotType != other.slotType)
-         return false;
-      return true;
-   }
 }

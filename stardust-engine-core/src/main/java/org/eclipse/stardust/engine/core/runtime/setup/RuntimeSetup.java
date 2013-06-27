@@ -14,10 +14,12 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 import javax.xml.parsers.DocumentBuilder;
-
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -27,6 +29,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -46,6 +49,8 @@ public class RuntimeSetup implements XMLConstants
    
    public static final String PRE_STARDUST_RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION = "ag.carnot.workflow.runtime.setup_definition";
    public static final String RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION = "org.eclipse.stardust.engine.core.runtime.setup_definition";
+   public static final String ENABLED_FOR_PI_STATE = "";
+   
    
    public static RuntimeSetup instance()
    {
@@ -60,6 +65,11 @@ public class RuntimeSetup implements XMLConstants
       }
 
       return setup;
+   }
+   
+   public boolean hasDataClusterSetup()
+   {
+      return clusters != null && clusters.length > 0;
    }
    
    public DataCluster[] getDataClusterSetup()
@@ -241,11 +251,11 @@ public class RuntimeSetup implements XMLConstants
 
                      Parameters params = Parameters.instance();
                      String schemaName = params.getString(Session.KEY_AUDIT_TRAIL_SCHEMA);
-
+                     
                      parsedClusters.add(new DataCluster(schemaName, dcTableName, dcNode
                            .getAttribute(DATA_CLUSTER_PICOLUMN_ATT), (DataSlot[]) slots
                            .toArray(new DataSlot[0]), (DataClusterIndex[]) indexes
-                           .toArray(new DataClusterIndex[0])));
+                           .toArray(new DataClusterIndex[0]), getEnableStates(dcNode)));
                   }
                }
             }
@@ -262,5 +272,46 @@ public class RuntimeSetup implements XMLConstants
          throw new InternalException(
                "Cannot read runtime setup configuration from String.", e);
       }
+   }
+      
+   private Set<DataClusterEnableState> getEnableStates(Element dcNode)
+   {
+      Set<DataClusterEnableState> enableStates = new HashSet<DataClusterEnableState>();
+      try 
+      {
+         String attribute = dcNode.getAttribute(DATA_CLUSTER_ENABLED_PI_STATE);      
+         StringTokenizer st = new StringTokenizer(attribute, ",");
+         while(st.hasMoreTokens())
+         {
+            String token = st.nextToken();
+            DataClusterEnableState enableState = getEnableState(token);
+            if(enableState != null)
+            {
+               enableStates.add(enableState);
+            }
+         }
+      }
+      catch(Exception ignored)
+      {}
+      
+      if(enableStates.isEmpty())
+      {
+         enableStates.add(DataClusterEnableState.ALL);
+      }
+      return enableStates;
+   }
+   
+   private DataClusterEnableState getEnableState(String s)
+   {
+      try
+      {
+         String enableString = s.trim().replace(" ", "");
+         enableString = enableString.toUpperCase();
+         return DataClusterEnableState.valueOf(enableString);
+      }
+      catch(Exception ignored)
+      {}
+      
+      return null;
    }
 }

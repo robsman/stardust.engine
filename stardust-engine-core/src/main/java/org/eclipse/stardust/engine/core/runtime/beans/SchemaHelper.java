@@ -1358,7 +1358,7 @@ public class SchemaHelper
                      .println("/* DML-statements for synchronization of cluster tables */");
             }
 
-            ddlManager.synchronizeDataCluster(changeObserver, consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter);         
+            ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter);         
          }
 
          if (null != spoolFile)

@@ -11,7 +11,11 @@
 package org.eclipse.stardust.engine.core.runtime.setup;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,13 +27,23 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler.Representation;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterMetaInfoRetriever;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
@@ -40,6 +54,177 @@ import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
 public class DataClusterHelper
 {
    private static final Logger trace = LogManager.getLogger(DataClusterHelper.class);
+
+   public static void synchronizeDataCluster(IProcessInstance scopeProcessInstance)
+   {
+      RuntimeSetup setup = RuntimeSetup.instance();
+      if (setup.hasDataClusterSetup())
+      {
+         org.eclipse.stardust.engine.core.persistence.Session auditTrailSession = SessionFactory
+               .getSession(SessionFactory.AUDIT_TRAIL);
+         if (auditTrailSession instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+         {
+            org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) auditTrailSession;
+            long scopePiOid = scopeProcessInstance.getOID();
+            ProcessInstanceState scopePiState = scopeProcessInstance.getState();
+            DataCluster[] clusters = setup.getDataClusterSetup();
+            for (DataCluster dc : clusters)
+            {
+               if (dc.isEnabledFor(scopePiState))
+               {
+                  if (!clusterHasProcessInstance(dc, scopePiOid))
+                  {
+                     // create the missing entry for scope pi
+                     new DataClusterInstance(dc, scopePiOid);
+                     // update that entry with the data values
+                     DataClusterSynchronizationInfo syncInfo = getDataClusterSynchronizationInfo(
+                           dc, scopeProcessInstance);
+                     synchronizeDataCluster(syncInfo, jdbcSession);
+                  }
+               }
+               else
+               {
+                  deleteFromCluster(dc, scopePiOid);
+               }
+            }
+         }
+      }
+   }
+   
+   private static DataClusterSynchronizationInfo getDataClusterSynchronizationInfo(
+         DataCluster clusterToSynchronize, 
+         IProcessInstance scopeProcessInstance)
+   {
+      Map<DataClusterKey, Set<DataSlot>> clusterToSlotMapping = new HashMap<DataClusterKey, Set<DataSlot>>();
+      Map<DataSlotKey, Set<DataSlotFieldInfo>> slotToColumnMapping = new HashMap<DataSlotKey, Set<DataSlotFieldInfo>>();
+
+      DataClusterKey clusterKey = new DataClusterKey(clusterToSynchronize);
+      for (DataSlot ds : clusterToSynchronize.getAllSlots())
+      {
+         DataSlotKey slotKey = new DataSlotKey(ds);
+         Set<DataSlot> slots = clusterToSlotMapping.get(clusterKey);
+         if (slots == null)
+         {
+            slots = new HashSet<DataSlot>();
+            clusterToSlotMapping.put(clusterKey, slots);
+         }
+         slots.add(ds);
+
+         List<DataSlotFieldInfo> slotColumnFields = DataClusterMetaInfoRetriever
+               .getDataSlotFields(ds);
+         slotToColumnMapping.put(slotKey, new HashSet<DataSlotFieldInfo>(slotColumnFields));
+      }
+
+      DataClusterSynchronizationInfo syncInfo = new DataClusterSynchronizationInfo(
+            clusterToSlotMapping, slotToColumnMapping, null);
+      return syncInfo;
+   }
+   
+   private static void synchronizeDataCluster(DataClusterSynchronizationInfo synchronizationInfo, org.eclipse.stardust.engine.core.persistence.jdbc.Session session)
+   {
+      DBDescriptor dbDescriptor = session.getDBDescriptor();
+      DDLManager ddlManager = new DDLManager(dbDescriptor);
+      String schemaName = session.getSchemaName();  
+      try
+      {
+         ddlManager.synchronizeDataCluster(false, synchronizationInfo, session.getConnection(), schemaName, null, null);
+      }
+      catch (SQLException e)
+      {
+         String errorMsg = "Error while synchronizing data cluster: ";
+         trace.error(errorMsg, e);
+         throw new InternalException(errorMsg, e);
+      }
+   }
+    
+   private static boolean clusterHasProcessInstance(DataCluster dc, long piOid)
+   {
+      org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory
+            .getSession(SessionFactory.AUDIT_TRAIL);
+      if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+      {
+         org.eclipse.stardust.engine.core.persistence.jdbc.Session sessionImpl = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;
+         StringBuilder builder = new StringBuilder();
+         builder.append("SELECT");
+         builder.append(" COUNT(");
+         builder.append(dc.getProcessInstanceColumn());
+         builder.append(") FROM ");
+         builder.append(dc.getQualifiedTableName());
+         builder.append(" WHERE ");
+         builder.append(dc.getProcessInstanceColumn());
+         builder.append(" = ");
+         builder.append(piOid);
+
+         String sqlString = builder.toString();
+         Statement stmt = null;
+         try
+         {
+            stmt = sessionImpl.getConnection().createStatement();
+            long startTime = System.currentTimeMillis();
+            
+            ResultSet rs = stmt.executeQuery(sqlString);
+            rs.next();
+            int count = rs.getInt(1);
+            if(count > 0)
+            {
+               return true;
+            }
+            
+            long stopTime = System.currentTimeMillis();
+            sessionImpl.monitorSqlExecution(sqlString, startTime, stopTime);
+         }
+         catch (SQLException x)
+         {
+            trace.warn("Error while executing statement: " + sqlString, x);
+            throw new InternalException("Error while executing statement: " + sqlString,
+                  x);
+         }
+         finally
+         {
+            QueryUtils.closeStatement(stmt);
+         }
+      }
+      
+      return false;
+   }
+   
+   public static void deleteFromCluster(DataCluster dc, long piOid)
+   {
+      org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory
+            .getSession(SessionFactory.AUDIT_TRAIL);
+      if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+      {
+         org.eclipse.stardust.engine.core.persistence.jdbc.Session sessionImpl = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;
+         StringBuilder builder = new StringBuilder();
+         builder.append("DELETE FROM ");
+         builder.append(dc.getQualifiedTableName());
+         builder.append(" WHERE ");
+         builder.append(dc.getProcessInstanceColumn());
+         builder.append(" = ");
+         builder.append(piOid);
+
+         String sqlString = builder.toString();
+         Statement stmt = null;
+         try
+         {
+            stmt = sessionImpl.getConnection().createStatement();
+            long startTime = System.currentTimeMillis();
+            stmt.executeUpdate(sqlString);
+            long stopTime = System.currentTimeMillis();
+            sessionImpl.monitorSqlExecution(sqlString, startTime, stopTime);
+         }
+         catch (SQLException x)
+         {
+            trace.warn("Error while executing statement: " + sqlString, x);
+            throw new InternalException("Error while executing statement: " + sqlString,
+                  x);
+         }
+         finally
+         {
+            QueryUtils.closeStatement(stmt);
+         }
+      }
+   }
    
    private static void completeDataValueModification(
          Map<Pair<Long, DataCluster>, List<Pair<PersistenceController, DataSlot>>> piToDv,
@@ -244,10 +429,17 @@ public class DataClusterHelper
       {
          DataValueBean dataValue = (DataValueBean) dpc.getPersistent();
          IData dataDefinition = dataValue.getData();
+         ProcessInstanceState scopePiState 
+            = dataValue.getProcessInstance().getScopeProcessInstance().getState();
          DataCluster[] clusterSetup = RuntimeSetup.instance().getDataClusterSetup();
 
          for (DataCluster dataCluster : clusterSetup)
          {
+            if(!dataCluster.isEnabledFor(scopePiState))
+            {
+               continue;
+            }
+            
             // there can be several data slots for one data (e.g. in case of structured data)
             String qualifiedDataId = ModelUtils.getQualifiedId(dataDefinition);
             for (DataSlot slot : dataCluster.getSlots(qualifiedDataId).values())

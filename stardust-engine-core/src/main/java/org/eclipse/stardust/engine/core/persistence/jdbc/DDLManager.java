@@ -41,6 +41,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
@@ -56,11 +57,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterIndex;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.IClusterChangeObserver;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
@@ -151,12 +152,26 @@ public class DDLManager
    {
       if (null == spoolFile)
       {
+         org.eclipse.stardust.engine.core.persistence.Session auditTrailSession 
+            = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = null;
+         if (auditTrailSession instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+         {
+            jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) auditTrailSession;
+         }
+         
          Statement stmt = null;
-
          try
          {
             stmt = connection.createStatement();
+            
+            long start = System.currentTimeMillis();
             stmt.executeUpdate(statement);
+            long stop = System.currentTimeMillis();
+            if(jdbcSession != null)
+            {
+               jdbcSession.monitorSqlExecution(statement, start, stop);
+            }
          }
          finally
          {
@@ -2028,17 +2043,37 @@ public class DDLManager
 
    }
    
-   public void synchronizeDataCluster(IClusterChangeObserver clusterChanges, Connection connection,
-         String schemaName, PrintStream spoolFile, String statementDelimiter)
+   private static String getStateListValues(DataCluster dataCluster)
    {
-      DataClusterSynchronizationInfo synchInfo 
-         = clusterChanges.getDataClusterSynchronizationInfo();
-      for(DataCluster dataCluster : synchInfo.getClusters())
+      StringBuilder stateListBuilder = new StringBuilder();
+      Set<DataClusterEnableState> enableStates = dataCluster.getEnableStates();
+      for(DataClusterEnableState enableState:enableStates)
+      {
+         ProcessInstanceState[] piStates = enableState.getPiStates();
+         for(int i=0; i< piStates.length; i++)
+         {
+            ProcessInstanceState piState = piStates[i];
+            int stateValue = piState.getValue();        
+            stateListBuilder.append(stateValue);
+            if(i + 1 < piStates.length)
+            {
+               stateListBuilder.append(", ");
+            } 
+         }
+      }
+      
+      return stateListBuilder.toString();
+   }
+      
+   public void synchronizeDataCluster(boolean performDeleteOrInsert, DataClusterSynchronizationInfo syncInfo, Connection connection,
+         String schemaName, PrintStream spoolFile, String statementDelimiter)
+   {     
+      for(DataCluster dataCluster : syncInfo.getClusters())
       {
          final String processInstanceScopeTable = getQualifiedName(schemaName,
                TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
          final String processInstanceTable = getQualifiedName(schemaName, TypeDescriptor.get(
-               ProcessInstanceBean.class).getTableName());
+               ProcessInstanceBean.class).getTableName());         
          final String dataValueTable = getQualifiedName(schemaName, TypeDescriptor.get(
                DataValueBean.class).getTableName());
          final String dataTable = getQualifiedName(schemaName, TypeDescriptor.get(
@@ -2052,43 +2087,60 @@ public class DDLManager
          final String clusterTable = getQualifiedName(schemaName, dataCluster.getTableName());
 
          try
-         {
-            // Deleting obsolete entries
-            String syncDelSql = MessageFormat.format(
-                    "DELETE FROM {0}"
-                  + " WHERE NOT EXISTS ("
-                  + "  SELECT ''x'' "
-                  + "    FROM {2} PIS "
-                  + "   WHERE PIS.{3} = {0}.{1}"
-                  +"  )",
-                  new Object[] {
-                        clusterTable,
-                        dataCluster.getProcessInstanceColumn(),
-                        processInstanceScopeTable,
-                        ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE});
-
-            executeOrSpoolStatement(syncDelSql, connection, spoolFile);
-            
-            // inserting rows for new process instances
-            String syncInsSql = MessageFormat.format(
-                    "INSERT INTO {0} ({1}) "
-                  + "SELECT DISTINCT {3} "
-                  + "  FROM {2} PIS "
-                  + " WHERE NOT EXISTS ("
-                  + "  SELECT ''x'' "
-                  + "    FROM {0} DC "
-                  + "   WHERE PIS.{3} = DC.{1}"
-                  + " )",
-                  new Object[] {
-                        clusterTable,
-                        dataCluster.getProcessInstanceColumn(),
-                        processInstanceScopeTable,
-                        ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE});
-
-            executeOrSpoolStatement(syncInsSql, connection, spoolFile);
-
+         {       
+            if(performDeleteOrInsert)
+            {
+               String syncDelSql = MessageFormat.format(
+                     "DELETE FROM {0}"
+                   + " WHERE NOT EXISTS ("
+                   + "  SELECT ''x'' "
+                   + "   FROM {2} PIS "
+                   + "    INNER JOIN {4} PI ON(" 
+                   + "     PI.{5} = PIS.{3}   " 
+                   + "      AND PI.{6} IN({7})    "
+                   + "    )"
+                   + "   WHERE PIS.{3} = {0}.{1}"
+                   +"  )",
+                   new Object[] {
+                         clusterTable,
+                         dataCluster.getProcessInstanceColumn(),
+                         processInstanceScopeTable,
+                         ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE,
+                         processInstanceTable,
+                         ProcessInstanceBean.FIELD__OID,
+                         ProcessInstanceBean.FIELD__STATE,
+                         getStateListValues(dataCluster)
+                   });
+               syncDelSql = syncDelSql.trim();
+               executeOrSpoolStatement(syncDelSql, connection, spoolFile);
+                         
+               String syncInsSql = MessageFormat.format(
+                     "INSERT INTO {0} ({1}) "
+                   + "SELECT DISTINCT PIS.{3} "
+                   + "  FROM {2} PIS "
+                   + "   INNER JOIN {4} PI ON("
+                   + "    PI.{5} = PIS.{3}"
+                   + "      AND PI.{6} IN({7})" 
+                   + "   )                    "                  
+                   + " WHERE NOT EXISTS ("
+                   + "  SELECT ''x'' "
+                   + "    FROM {0} DC "
+                   + "   WHERE PIS.{3} = DC.{1}"
+                   + " )",
+                   new Object[] {
+                         clusterTable,
+                         dataCluster.getProcessInstanceColumn(),
+                         processInstanceScopeTable,
+                         ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE,
+                         processInstanceTable,
+                         ProcessInstanceBean.FIELD__OID,
+                         ProcessInstanceBean.FIELD__STATE,
+                         getStateListValues(dataCluster)});
+               executeOrSpoolStatement(syncInsSql, connection, spoolFile);
+            }
+                        
             // synchronizing slot values
-            for (DataSlot dataSlot : synchInfo.getDataSlots(dataCluster))
+            for (DataSlot dataSlot : syncInfo.getDataSlots(dataCluster))
             {
                String subselectSql;
                String dataValuePrefix;
@@ -2147,7 +2199,7 @@ public class DDLManager
                }
    
                Collection<DataSlotFieldInfo> 
-                  dataSlotColumnsToSynch = synchInfo.getDataSlotColumns(dataSlot);
+                  dataSlotColumnsToSynch = syncInfo.getDataSlotColumns(dataSlot);
                if(dataSlotColumnsToSynch.size() != 0)
                {              
                   StringBuffer buffer = new StringBuffer(1000);
@@ -2230,7 +2282,6 @@ public class DDLManager
       }
 
       buffer.append(StringUtils.join(columnList.iterator(), ",")).append(")");
-
       final String tableOptions = dbDescriptor.getCreateTableOptions();
       if ( !StringUtils.isEmpty(tableOptions))
       {

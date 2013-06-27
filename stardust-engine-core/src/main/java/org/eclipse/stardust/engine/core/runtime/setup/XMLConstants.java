@@ -40,6 +40,7 @@ public interface XMLConstants
    // Attribute names
    String DATA_CLUSTER_TABNAME_ATT = "tableName";
    String DATA_CLUSTER_PICOLUMN_ATT = "processInstanceColumn";
+   String DATA_CLUSTER_ENABLED_PI_STATE = "enabledForProcessInstanceState";
    
    String DATA_SLOT_MODELID_ATT = "modelId";
    String DATA_SLOT_DATAID_ATT = "dataId";

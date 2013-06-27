@@ -159,8 +159,10 @@ public class DataClusterSetupAnalyzer
    protected void computeChanges(FieldInfo columnA, FieldInfo columnB)
    {
       if(columnA != null)
-      {
-         if(!CompareHelper.areEqual(columnA, columnB))
+      {         
+         FieldInfoKey columnAKey = new FieldInfoKey(columnA);
+         FieldInfoKey columnBKey = new FieldInfoKey(columnB);
+         if(!CompareHelper.areEqual(columnAKey, columnBKey))
          {            
             if(compareBehaviour.getEntityNotFoundAction() == EntityNotFoundAction.ADD_ACTION)
             {
@@ -419,10 +421,19 @@ public class DataClusterSetupAnalyzer
          return alterInfos;
       }
       
+      private void addColumnToSynchronize(DataSlotFieldInfo dataSlotFieldInfo, Set<DataSlotFieldInfo> slotColumnsToSynchronize)
+      {
+         DataSlotFieldInfoKey key = new DataSlotFieldInfoKey(dataSlotFieldInfo);
+         if(!slotColumnsToSynchronize.contains(key))
+         {
+            slotColumnsToSynchronize.add(dataSlotFieldInfo);
+         } 
+      }
+      
       @Override
       public DataClusterSynchronizationInfo getDataClusterSynchronizationInfo()
       {
-         
+         //collect all modified fields
          Set<DataSlotFieldInfo> slotColumnsToSynchronize = new HashSet<DataSlotFieldInfo>();
          Collection<AlterTableInfo> modifiedClusterTables = getAlterInfos();
          for(AlterTableInfo alterInfo: modifiedClusterTables)
@@ -432,7 +443,7 @@ public class DataClusterSetupAnalyzer
             {
                if(addedField instanceof DataSlotFieldInfo)
                {
-                  slotColumnsToSynchronize.add((DataSlotFieldInfo)addedField);
+                  addColumnToSynchronize((DataSlotFieldInfo)addedField, slotColumnsToSynchronize);
                }
             }
          }
@@ -445,21 +456,22 @@ public class DataClusterSetupAnalyzer
             {
                if(createdField instanceof DataSlotFieldInfo)
                {
-                  slotColumnsToSynchronize.add((DataSlotFieldInfo)createdField);
+                  addColumnToSynchronize((DataSlotFieldInfo)createdField, slotColumnsToSynchronize);
                }
             }
          }
          
          Map<DataClusterKey, Set<DataSlot>> clusterToSlotMapping 
             = new HashMap<DataClusterKey, Set<DataSlot>>();
+         Map<DataSlotKey, Set<DataSlotFieldInfo>> slotToColumnMapping
+            = new HashMap<DataSlotKey, Set<DataSlotFieldInfo>>();
          
-         Map<DataSlot, Set<DataSlotFieldInfo>> slotToColumnMapping
-            = new HashMap<DataSlot, Set<DataSlotFieldInfo>>();
          for(DataSlotFieldInfo slotColumn: slotColumnsToSynchronize)
          {
             DataSlot ds = slotColumn.getDataSlot();
             DataCluster dc = ds.getParent();
             DataClusterKey dcKey = new DataClusterKey(dc);
+            DataSlotKey dsKey = new DataSlotKey(ds);
             
             Set<DataSlot> dataSlots = clusterToSlotMapping.get(dcKey);
             if(dataSlots == null)
@@ -469,17 +481,14 @@ public class DataClusterSetupAnalyzer
             }
             dataSlots.add(ds);
             
-            Set<DataSlotFieldInfo> dataSlotColumns = slotToColumnMapping.get(ds);
+            Set<DataSlotFieldInfo> dataSlotColumns = slotToColumnMapping.get(dsKey);
             if(dataSlotColumns == null)
             {
                dataSlotColumns = new HashSet<DataSlotFieldInfo>();
-               slotToColumnMapping.put(ds, dataSlotColumns);
+               slotToColumnMapping.put(dsKey, dataSlotColumns);
             }
             dataSlotColumns.add(slotColumn);
          }
-         
-         
-         
          
          return new DataClusterSynchronizationInfo(clusterToSlotMapping, slotToColumnMapping, columnRenames);
       }
@@ -630,73 +639,21 @@ public class DataClusterSetupAnalyzer
    
    public static class ProcessInstanceFieldInfo extends FieldInfo
    {
-
       public ProcessInstanceFieldInfo(String name, Class type)
       {
          super(name, type);
       }
    }
    
-   class DataClusterKey
-   {
-      private final String tableName;
-      private final DataCluster cluster;
-      public DataClusterKey(DataCluster cluster)
-      {
-         this.cluster = cluster;
-         if(cluster != null)
-         {
-            tableName = cluster.getTableName();
-         }
-         else
-         {
-            tableName = null;
-         }
-      }
-      @Override
-      public int hashCode()
-      {
-         final int prime = 31;
-         int result = 1;
-         result = prime * result + ((tableName == null) ? 0 : tableName.hashCode());
-         return result;
-      }
-      
-      @Override
-      public boolean equals(Object obj)
-      {
-         if (this == obj)
-            return true;
-         if (obj == null)
-            return false;
-         if (getClass() != obj.getClass())
-            return false;
-         DataClusterKey other = (DataClusterKey) obj;
-         if (tableName == null)
-         {
-            if (other.tableName != null)
-               return false;
-         }
-         else if (!tableName.equals(other.tableName))
-            return false;
-         return true;
-      }
-      
-      public DataCluster getCluster()
-      {
-         return cluster;
-      }
-   }
-   
-   public class DataClusterSynchronizationInfo
+   public static class DataClusterSynchronizationInfo
    {
       private final Map<DataClusterKey, Set<DataSlot>> clusterToSlotMapping;
-      private final Map<DataSlot, Set<DataSlotFieldInfo>> slotToColumnMapping;
       private final Map<String, Map<FieldInfo, FieldInfo>> columnRenames;
+      private final Map<DataSlotKey, Set<DataSlotFieldInfo>> slotToColumnMapping;
 
       public DataClusterSynchronizationInfo(
             Map<DataClusterKey, Set<DataSlot>> clusterToSlotMapping,
-            Map<DataSlot, Set<DataSlotFieldInfo>> slotToColumnMapping, 
+            Map<DataSlotKey, Set<DataSlotFieldInfo>> slotToColumnMapping, 
             Map<String, Map<FieldInfo, FieldInfo>> columnRenames)
       {
          this.clusterToSlotMapping = clusterToSlotMapping;
@@ -709,7 +666,7 @@ public class DataClusterSetupAnalyzer
          Set<DataCluster> clusterToSynch = new HashSet<DataCluster>();
          for(DataClusterKey key: clusterToSlotMapping.keySet())
          {
-            clusterToSynch.add(key.getCluster());
+            clusterToSynch.add(key.getDataCluster());
          }
          
          return clusterToSynch;
@@ -730,9 +687,10 @@ public class DataClusterSetupAnalyzer
       
       public Collection<DataSlotFieldInfo> getDataSlotColumns(DataSlot dataSlot)
       {
-         if(slotToColumnMapping.containsKey(dataSlot))
+         DataSlotKey key = new DataSlotKey(dataSlot);
+         if(slotToColumnMapping.containsKey(key))
          {
-            return slotToColumnMapping.get(dataSlot);
+            return slotToColumnMapping.get(key);
          }
          else
          {

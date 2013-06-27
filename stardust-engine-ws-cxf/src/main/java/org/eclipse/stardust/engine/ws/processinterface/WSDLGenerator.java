@@ -375,7 +375,10 @@ public class WSDLGenerator
                      StructuredDataConstants.TYPE_DECLARATION_ATT);
 
                ITypeDeclaration typeDef = this.model.findTypeDeclaration(typeDeclarationId);
-               xsdSchema = StructuredTypeRtUtils.getXSDSchema(this.model, typeDef);
+               if (typeDef != null)
+               {
+                  xsdSchema = StructuredTypeRtUtils.getXSDSchema(this.model, typeDef);
+               }
             }
             
             if (xsdSchema != null)
@@ -449,6 +452,8 @@ public class WSDLGenerator
     * @param schemaMap
     *           After execution this map holds resolved schemas by typeDeclarationId.
     * @param unresolvedSchemaLocations
+    *           The schemaLocation's which could not be resolved but should not be
+    *           removed.
     * @param xsdSchema
     *           The schema to resolve urn:internal imports in.
     */
@@ -482,8 +487,11 @@ public class WSDLGenerator
                   if (uriRef.getNamespaceURI().isEmpty())
                   {
                      ITypeDeclaration toResolveTypeDef = this.model.findTypeDeclaration(toResolveTypeDeclarationId);
-                     resolvedXsdSchema = StructuredTypeRtUtils.getXSDSchema(this.model,
-                           toResolveTypeDef);
+                     if (toResolveTypeDef != null)
+                     {
+                        resolvedXsdSchema = StructuredTypeRtUtils.getXSDSchema(
+                              this.model, toResolveTypeDef);
+                     }
                   }
                   else
                   {
@@ -505,8 +513,7 @@ public class WSDLGenerator
                   }
                   else
                   {
-                     // could not resolve schema
-                     unresolvedSchemaLocations.add(schemaLocation);
+                     // could not resolve urn:internal: schema but urn:internal: schema location still needs to be removed for a valid WSDL.
                   }
                }
             }

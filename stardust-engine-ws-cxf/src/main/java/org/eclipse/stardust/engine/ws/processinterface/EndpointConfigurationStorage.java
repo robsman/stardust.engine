@@ -284,13 +284,12 @@ public class EndpointConfigurationStorage
                               int modelOID = models.get(0).getModelOID();
                               Model model = qs.getModel(modelOID);
                               TypeDeclaration toResolveTypeDef = model.getTypeDeclaration(typeDecId);
-                              return StructuredTypeRtUtils.getXSDSchema(model, toResolveTypeDef);
+                              if (toResolveTypeDef != null)
+                              {
+                                 return StructuredTypeRtUtils.getXSDSchema(model, toResolveTypeDef);
+                              }
                            }
-                           else
-                           {
-                              return null;
-                           }
-                           
+                           return null; 
                         }
                      };
                      

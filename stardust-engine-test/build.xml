@@ -149,6 +149,8 @@
       
       <init-ivy/>
       <init-ivy-classpath/>
+      
+      <property name="javac.debuglevel" value="lines,vars,source" />
    </target>
    
    <!-- execute-all-test-suites (macro) -->

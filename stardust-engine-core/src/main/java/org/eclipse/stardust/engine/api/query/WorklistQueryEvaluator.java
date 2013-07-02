@@ -592,17 +592,15 @@ public class WorklistQueryEvaluator
                new PerformingParticipantFilter(contributors));
          worklistQuery.setPolicy(subset);
 
-         WorklistCollector participantWorklist = new WorklistCollector(filter, subset);
-
-         collectWorklistItems(worklistQuery, participantWorklist);
+         WorklistCollector participantWorklistCollector = new WorklistCollector(filter, subset);
+         collectWorklistItems(worklistQuery, participantWorklistCollector);
          
-         if(participantWorklist.hasTotalCount() && participantWorklist.getTotalCount() > 0)
+         if(participantWorklistCollector.hasTotalCount() && participantWorklistCollector.getTotalCount() > 0)
          {
-            ModelParticipantInfo participant = (ModelParticipantInfo) participantWorklist.getParticipant();            
-            
-            if(merged || QueryUtils.participantClosureContainsParticipant(participantClosure, participant))
+            ParticipantInfo participantInfo = participantWorklistCollector.getParticipant();
+            if(merged || QueryUtils.participantClosureContainsParticipant(participantClosure, participantInfo))
             {
-               participantWorklists.add(participantWorklist);
+               participantWorklists.add(participantWorklistCollector);
             }
          }
       }

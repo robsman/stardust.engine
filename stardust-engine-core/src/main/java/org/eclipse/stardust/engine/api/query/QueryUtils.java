@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
@@ -571,25 +572,30 @@ public class QueryUtils
       return participants;
    }
 
-   public static boolean participantClosureContainsParticipant(Set<IParticipant> participantClosure, ModelParticipantInfo filterParticipant)
+   public static boolean participantClosureContainsParticipant(Set<IParticipant> participantClosure, ParticipantInfo filterParticipant)
    {
       for (IParticipant contributor : participantClosure)
       {
          // do contributors match the the filter and supported types?  
          IParticipant rawParticipant = contributor;
          IDepartment department = null;
+         DepartmentInfo filterDepartment = null;
          if(rawParticipant instanceof IScopedModelParticipant)
          {
             IScopedModelParticipant scopedModelParticipant = (IScopedModelParticipant) rawParticipant;
             rawParticipant = scopedModelParticipant.getModelParticipant();
             department = scopedModelParticipant.getDepartment();
          }
+         if(filterParticipant instanceof ModelParticipantInfo)
+         {
+            filterDepartment = ((ModelParticipantInfo) filterParticipant).getDepartment();
+         }
          
          if (rawParticipant instanceof IModelParticipant)
          {
-            IModelParticipant participant = (IModelParticipant) rawParticipant;            
+            IModelParticipant participant = (IModelParticipant) rawParticipant;                      
             if (CompareHelper.areEqual((participant).getQualifiedId(), filterParticipant.getQualifiedId())
-                  && DepartmentUtils.areEqual(department, filterParticipant.getDepartment()))
+                  && DepartmentUtils.areEqual(department, filterDepartment))
             {
                return true;
             }

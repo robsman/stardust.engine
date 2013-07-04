@@ -5,8 +5,7 @@
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=stardust-engine-core&amp;ivyXmlPath=interface-ivy.xml&amp;confs=*"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jcr-vfs"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=stardust-engine-core&amp;ivyXmlPath=interface-ivy.xml&amp;confs=web-client-interface-provided%2Cjta-interface-compile%2Cjcr-interface-compile%2Cjms-interface-runtime%2C2nd-level-cache-interface-compile%2Cj2ee-mgmt-interface-provided%2Cejb21-interface-provided%2Cejb30-interface-compile%2Cbase-provider-compile%2Cbase-provider-runtime%2Clogging-slf4j-log4j-provider-compile%2Cweb-client-provider-runtime%2Cswing-client-provider-compile%2Cjencks-provider-runtime%2Cjcr-vfs-provider-compile%2Cactivemq-provider-runtime%2Chazelcast-provider-compile%2Cant-provider-runtime%2Cqdox-provider-compile%2Cjs-provider-runtime%2Cxerces-provider-runtime%2Cjackrabbit-provider-runtime%2Cjackrabbit-core-with-full-text-search%2Cjackrabbit-webapp-provider-runtime%2Cinterface-provided%2Cinterface-compile%2Cinterface-runtime%2Cinterface-all"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=stardust-engine-core&amp;ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=stardust-engine-core&amp;ivyXmlPath=module-ivy.xml&amp;confs=*"/>
 	<classpathentry kind="output" path=".eclipse/bin"/>

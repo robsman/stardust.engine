@@ -149,6 +149,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 DMS_SECURITY_ERROR_DMS_READONLY_FOR_PREFERENCES = newArgs0("DMS02002", BpmRuntimeErrorMessages.getString("DMS02002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_SECURITY_ERROR_WRITE_IN_ARCHIVE_MODE = newArgs0("DMS02003", BpmRuntimeErrorMessages.getString("DMS02003")); //$NON-NLS-1$ //$NON-NLS-2$
    
+   public static final Args1 DMS_SECURITY_ERROR_ACCESS_DENIED_ON_FOLDER = newArgs1("DMS02101", BpmRuntimeErrorMessages.getString("DMS02101")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_SECURITY_ERROR_ACCESS_DENIED_ON_DOCUMENT = newArgs1("DMS02102", BpmRuntimeErrorMessages.getString("DMS02102")); //$NON-NLS-1$ //$NON-NLS-2$
+   
    public static final Args1 DMS_ANNOTATIONS_ID_PRESENT = newArgs1("DMS03001", BpmRuntimeErrorMessages.getString("DMS03001")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Audittrail related

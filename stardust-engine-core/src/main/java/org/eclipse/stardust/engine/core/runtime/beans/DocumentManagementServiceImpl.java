@@ -91,6 +91,7 @@ import org.eclipse.stardust.vfs.impl.jcr.JcrDocumentRepositoryService;
 import org.eclipse.stardust.vfs.impl.jcr.JcrVfsAccessControlEntry;
 import org.eclipse.stardust.vfs.impl.jcr.JcrVfsAccessControlPolicy;
 import org.eclipse.stardust.vfs.impl.jcr.JcrVfsPrincipal;
+import org.eclipse.stardust.vfs.impl.jcr.JcrVfsPrivilege;
 import org.eclipse.stardust.vfs.jcr.ISessionFactory;
 import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
 
@@ -833,11 +834,14 @@ public class DocumentManagementServiceImpl
             IFolder parentFolder = vfs.getFolder(parentFolderIdWithPrefix,
                   IFolder.LOD_NO_MEMBERS);
 
+                        
             if (parentFolder == null)
             {
                // folder does not exist, maybe it is a virtual folder
                ensureVirtualFolderExists(parentFolderIdWithPrefix);
 
+               checkCreatePrivileges(vfs, parentFolderIdWithPrefix);
+               
                if (!isCreateInNextedTxEnabled())
                {
                   return fromVfs(
@@ -871,6 +875,8 @@ public class DocumentManagementServiceImpl
                }
                else
                {
+                  checkCreatePrivileges(vfs, parentFolderIdWithPrefix);
+                  
                   return fromVfs(
                         vfs.createFolder(parentFolderIdWithPrefix, toVfs(folder)),
                         getPartitionPrefix());
@@ -884,6 +890,23 @@ public class DocumentManagementServiceImpl
       });
    }
 
+   private void checkCreatePrivileges(IDocumentRepositoryService vfs,
+         String parentFolderId) throws DocumentManagementServiceException
+   {
+      
+      Set<IPrivilege> privileges = vfs.getPrivileges(decodeResourceName(parentFolderId));
+
+    if ( !privileges.isEmpty()
+          && !privileges.contains(new JcrVfsPrivilege(JcrVfsPrivilege.ALL_PRIVILEGE))
+          && !privileges.contains(new JcrVfsPrivilege(JcrVfsPrivilege.CREATE_PRIVILEGE)))
+
+    {               
+       throw new DocumentManagementServiceException(
+             BpmRuntimeError.DMS_SECURITY_ERROR_ACCESS_DENIED_ON_FOLDER.raise(parentFolderId));
+    }
+      
+   }
+   
    public Folder updateFolder(final Folder folder)
          throws DocumentManagementServiceException
    {

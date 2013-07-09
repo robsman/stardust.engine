@@ -54,6 +54,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.IClusterChangeObserver;
@@ -1138,18 +1139,7 @@ public class SchemaHelper
       }
    }
    
-   private static PropertyPersistor getDataClusterPersistor()
-   {
-      PropertyPersistor prop = PropertyPersistor
-         .findByName(RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
-      //try to load old style definition as fallback
-      if(prop == null)
-      {
-         prop = PropertyPersistor.findByName(RuntimeSetup.PRE_STARDUST_RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
-      }
 
-      return prop;
-   }
    
    private static void applyClusterChanges(Session session, IClusterChangeObserver clusterChanges, TransientRuntimeSetup newSetup, PrintStream sqlRecorder)
    {
@@ -1243,14 +1233,7 @@ public class SchemaHelper
          }
                            
          //delete old setup
-         PropertyPersistor oldSetupPersistor 
-            = getDataClusterPersistor();
-         if(oldSetupPersistor != null)
-         {
-            LargeStringHolder.deleteAllForOID(oldSetupPersistor.getOID(), PropertyPersistor.class);
-            oldSetupPersistor.delete(true);
-            session.save();
-         }
+         DataClusterHelper.deleteDataClusterSetup();
          
          //insert new setup
          PropertyPersistor newSetupPersistor 
@@ -1272,7 +1255,6 @@ public class SchemaHelper
          handClusterUpgradeException(session, e, false);
          throw e;
       }
-      
       finally
       {
          //clear old setup from memory
@@ -1284,14 +1266,7 @@ public class SchemaHelper
    {
       trace.error("Error during manipulating datacluster, removing invalid cluster setup: ", e);
       //try to clear invalid setup from database
-      PropertyPersistor setupPersistor 
-         = getDataClusterPersistor();
-      if(setupPersistor != null)
-      {
-         LargeStringHolder.deleteAllForOID(setupPersistor.getOID(), PropertyPersistor.class);
-         setupPersistor.delete(true);
-         session.save();
-      } 
+      DataClusterHelper.deleteDataClusterSetup();
       
       if(propagate)
       {

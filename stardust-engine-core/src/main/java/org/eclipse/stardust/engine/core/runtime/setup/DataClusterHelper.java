@@ -23,6 +23,7 @@ import java.util.Set;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -39,7 +40,9 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
+import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler.Representation;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterMetaInfoRetriever;
@@ -55,6 +58,42 @@ public class DataClusterHelper
 {
    private static final Logger trace = LogManager.getLogger(DataClusterHelper.class);
 
+   
+   public static void deleteDataClusterSetup()
+   {
+      try
+      {
+         org.eclipse.stardust.engine.core.persistence.Session session 
+            = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         
+         PropertyPersistor setupPersistor 
+            = getDataClusterPersistor();
+         if(setupPersistor != null)
+         {
+            LargeStringHolder.deleteAllForOID(setupPersistor.getOID(), PropertyPersistor.class);
+            setupPersistor.delete(true);
+            session.save();
+         }   
+      }
+      finally
+      {
+         Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);
+      }
+   }
+   
+   private static PropertyPersistor getDataClusterPersistor()
+   {
+      PropertyPersistor prop = PropertyPersistor
+         .findByName(RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
+      //try to load old style definition as fallback
+      if(prop == null)
+      {
+         prop = PropertyPersistor.findByName(RuntimeSetup.PRE_STARDUST_RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
+      }
+
+      return prop;
+   }
+   
    public static void synchronizeDataCluster(IProcessInstance scopeProcessInstance)
    {
       RuntimeSetup setup = RuntimeSetup.instance();

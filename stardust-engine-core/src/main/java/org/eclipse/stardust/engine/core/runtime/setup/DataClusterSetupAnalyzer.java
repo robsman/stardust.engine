@@ -368,7 +368,7 @@ public class DataClusterSetupAnalyzer
 
       @Override
       public void clusterModified(DataCluster cluster)
-      {
+      { 
          if(!dbStructureChanges.containsKey(cluster.getTableName()))
          {
             this.currentClusterTable = new AlterTableInfo(cluster.getTableName())
@@ -376,6 +376,10 @@ public class DataClusterSetupAnalyzer
             };
             
             dbStructureChanges.put(cluster.getTableName(), currentClusterTable);
+         }
+         else
+         {
+            this.currentClusterTable = dbStructureChanges.get(cluster.getTableName());
          }
       }
       

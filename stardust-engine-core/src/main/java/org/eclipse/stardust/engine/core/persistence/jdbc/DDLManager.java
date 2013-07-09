@@ -57,6 +57,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterIndex;
@@ -2251,8 +2252,8 @@ public class DDLManager
                   + "'. Reason: " + x.getMessage();
             System.out.println(message);
             trace.warn(message, x);
+            DataClusterHelper.deleteDataClusterSetup();
          }
-
          try
          {
             connection.commit();

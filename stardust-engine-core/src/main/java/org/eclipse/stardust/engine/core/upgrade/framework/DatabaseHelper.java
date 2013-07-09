@@ -202,14 +202,24 @@ public final class DatabaseHelper
       alterTable(item, tableInfo, observer, AlterMode.ALL);
    }
    
+   private static boolean canAddFields(AlterMode alterMode, AlterTableInfo tableInfo)
+   {
+      FieldInfo[] addedFields = tableInfo.getAddedFields();
+      if(alterMode != AlterMode.ADDED_COLUMNS_IGNORED && addedFields != null
+            && addedFields.length > 0)
+      {
+         return true;
+      }
+      
+      return false;
+   }
    
    public static void alterTable(RuntimeItem item, AlterTableInfo tableInfo,
          UpgradeObserver observer, AlterMode alterMode)
    {
       String schema = getSchemaName();
       DBDescriptor dbDescriptor = item.getDbDescriptor();
-      if ((null != tableInfo.getAddedFields()) && (0 < tableInfo.getAddedFields().length)
-            && alterMode != AlterMode.ADDED_COLUMNS_IGNORED)
+      if (canAddFields(alterMode, tableInfo))
       {
          for (int i = 0; i < tableInfo.getAddedFields().length; i++)
          {
@@ -242,11 +252,11 @@ public final class DatabaseHelper
                      + tableInfo.getTableName() + ".", e);
             }
          }
-         
-         if(alterMode == AlterMode.ADDED_COLUMNS_ONLY)
-         {
-            return;
-         }
+      }
+      
+      if(alterMode == AlterMode.ADDED_COLUMNS_ONLY)
+      {
+         return;
       }
       
       if ((null != tableInfo.getModifiedFields()) && (0 < tableInfo.getModifiedFields().length))

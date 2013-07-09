@@ -80,9 +80,11 @@ public class DataClusterSetupAnalyzer
          ProcessInstanceFieldInfo oldPiColumn = DataClusterMetaInfoRetriever.getProcessInstanceColumn(oldCluster);
          ProcessInstanceFieldInfo newPiColumn = DataClusterMetaInfoRetriever.getProcessInstanceColumn(newCluster);
          
-         if (oldPiColumn != null && newPiColumn != null
-               && !newPiColumn.equals(oldPiColumn))
-         {
+         FieldInfoKey oldPiColumnKey = new FieldInfoKey(oldPiColumn);
+         FieldInfoKey newPiColumnKey = new FieldInfoKey(newPiColumn);
+         if(!CompareHelper.areEqual(oldPiColumnKey, newPiColumnKey))
+         {     
+            //record if the pi column changes for saving pi column value(s)
             observer.columnRenamed(newClusterTableName, oldPiColumn, newPiColumn);
          }
       }

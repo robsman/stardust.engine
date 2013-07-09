@@ -595,13 +595,10 @@ public class WorklistQueryEvaluator
          WorklistCollector participantWorklistCollector = new WorklistCollector(filter, subset);
          collectWorklistItems(worklistQuery, participantWorklistCollector);
          
-         if(participantWorklistCollector.hasTotalCount() && participantWorklistCollector.getTotalCount() > 0)
+         ParticipantInfo participantInfo = participantWorklistCollector.getParticipant();
+         if(merged || QueryUtils.participantClosureContainsParticipant(participantClosure, participantInfo))
          {
-            ParticipantInfo participantInfo = participantWorklistCollector.getParticipant();
-            if(merged || QueryUtils.participantClosureContainsParticipant(participantClosure, participantInfo))
-            {
-               participantWorklists.add(participantWorklistCollector);
-            }
+            participantWorklists.add(participantWorklistCollector);
          }
       }
 

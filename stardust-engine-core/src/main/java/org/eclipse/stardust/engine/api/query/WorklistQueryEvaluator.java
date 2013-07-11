@@ -366,7 +366,7 @@ public class WorklistQueryEvaluator
       {
          WorklistCollector collector = (WorklistCollector) iterator.next();
          Worklist participantWorklist = convertParticipantWorklist(collector);
-         ModelParticipantInfo participant = (ModelParticipantInfo) collector.getParticipant();            
+         ParticipantInfo participant = (ParticipantInfo) collector.getParticipant();            
          
          if(merged || QueryUtils.participantClosureContainsParticipant(participantClosure, participant))
          {         

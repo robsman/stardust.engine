@@ -509,9 +509,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }
 
-      if (this.equals(scopeProcessInstance))
+      IProcessInstance scopePi = getScopeProcessInstance();
+      if (this == scopePi)
       {
-         DataClusterHelper.synchronizeDataCluster(scopeProcessInstance);
+         DataClusterHelper.synchronizeDataCluster(scopePi);
       }
    }
    

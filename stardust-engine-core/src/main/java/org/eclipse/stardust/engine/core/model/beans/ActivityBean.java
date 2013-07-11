@@ -83,9 +83,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    private IApplication application = null;
 
-   private List inTransitions = null;
+   private List<ITransition> inTransitions = null;
 
-   private List outTransitions = null;
+   private List<ITransition> outTransitions = null;
+   
+   private List<ITransition> exceptionTransitions = null;
 
    private List dataMappings = null;
    
@@ -349,6 +351,29 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       return ModelUtils.getModelElementList(outTransitions);
    }
 
+   public ITransition getExceptionTransition(final String eventHandlerId)
+   {
+      if (exceptionTransitions == null)
+      {
+         return null;
+      }
+      
+      final String condition = TransitionBean.ON_BOUNDARY_EVENT_PREDICATE + "(" + eventHandlerId + ")";
+      for (final ITransition t : exceptionTransitions)
+      {
+         if (condition.equals(t.getCondition()))
+         {
+            return t;
+         }
+      }
+      return null;
+   }
+   
+   public boolean hasExceptionTransitions()
+   {
+      return exceptionTransitions != null && !exceptionTransitions.isEmpty();
+   }
+   
    public IModelParticipant getPerformer()
    {
       return performer;

@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
 import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
 import org.eclipse.stardust.engine.api.model.JoinSplitType;
 import org.eclipse.stardust.engine.api.model.LoopType;
@@ -418,6 +419,16 @@ public class QualityAssuranceActivityBean implements IActivity
       return delegate.getOutTransitions();
    }
 
+   public ITransition getExceptionTransition(String eventHandlerId)
+   {
+      return delegate.getExceptionTransition(eventHandlerId);
+   }
+   
+   public boolean hasExceptionTransitions()
+   {
+      return delegate.hasExceptionTransitions();
+   }
+   
    public IModelParticipant getPerformer()
    {
       return delegate.getQualityAssurancePerformer();

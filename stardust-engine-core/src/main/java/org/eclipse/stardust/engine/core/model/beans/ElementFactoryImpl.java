@@ -551,13 +551,14 @@ public class ElementFactoryImpl implements ElementFactory
 
    public ITransition createTransition(Node node, IProcessDefinition process)
    {
+      final String conditionExp = reader.getChildValue(EXPRESSION);
       ITransition transition = process.createTransition(id, name, description,
             process.findActivity(reader.getRawAttribute(FROM_ATT)),
             process.findActivity(reader.getRawAttribute(TO)),
-            elementOID);
+            elementOID,
+            conditionExp);
 
       String condition = reader.getAttribute(CONDITION);
-
       if (condition != null && !CONDITION_VALUE.equals(condition))
       {
          transition.setCondition(condition);

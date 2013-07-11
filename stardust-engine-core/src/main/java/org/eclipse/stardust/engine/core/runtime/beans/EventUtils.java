@@ -10,10 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.MapUtils;
+import org.eclipse.stardust.common.Procedure;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -25,6 +31,7 @@ import org.eclipse.stardust.engine.api.dto.EventBindingDetails;
 import org.eclipse.stardust.engine.api.model.EventHandlerOwner;
 import org.eclipse.stardust.engine.api.model.EventType;
 import org.eclipse.stardust.engine.api.model.IAction;
+import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IBindAction;
 import org.eclipse.stardust.engine.api.model.IEventAction;
 import org.eclipse.stardust.engine.api.model.IEventActionType;
@@ -159,6 +166,7 @@ public class EventUtils
                AuditTrailLogger.getInstance(LogCode.EVENT, context).info(
                      "Processing event " + event + " for handler " + handler);
             }
+            storeHandlerIdIfNecessary(handler.getId(), context);
             for (Iterator j = handler.getAllEventActions(); j.hasNext();)
             {
                IEventAction action = (IEventAction) j.next();
@@ -252,6 +260,7 @@ public class EventUtils
                AuditTrailLogger.getInstance(LogCode.EVENT, context).info(
                      "Processing event " + event + "for handler " + handler);
             }
+            storeHandlerIdIfNecessary(handler.getId(), context);
             for (Iterator l = handler.getAllEventActions(); l.hasNext();)
             {
                IEventAction action = (IEventAction) l.next();
@@ -337,6 +346,21 @@ public class EventUtils
       });
    }
 
+   private static void storeHandlerIdIfNecessary(final String eventHandlerId, final AttributedIdentifiablePersistent source)
+   {
+      if (!(source instanceof IActivityInstance))
+      {
+         return;
+      }
+      
+      final IActivityInstance ai = (IActivityInstance) source;
+      final IActivity activity = ai.getActivity();
+      if (activity.getExceptionTransition(eventHandlerId) != null)
+      {
+         ai.setPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY, eventHandlerId);
+      }
+   }
+   
    public static void bind(AttributedIdentifiablePersistent runtimeObject,
          IEventHandler handler, EventHandlerBinding bindParams)
    {

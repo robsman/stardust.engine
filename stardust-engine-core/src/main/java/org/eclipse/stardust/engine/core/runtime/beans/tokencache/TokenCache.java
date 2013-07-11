@@ -216,18 +216,18 @@ public class TokenCache
       }
    }
 
-   public List<TransitionTokenBean> getFreeOutTokens(IActivity sourceActivity)
+   public List<TransitionTokenBean> getFreeOutTokens(List<ITransition> enabledOutTransitions)
    {
+      // TODO (nw) is it ok to only pass the enabled transitions?
       List<TransitionTokenBean> result = null;
 
-      ModelElementList outTransitions = sourceActivity.getOutTransitions();
-      for (int i = 0; i < outTransitions.size(); ++i)
+      for (int i = 0; i < enabledOutTransitions.size(); ++i)
       {
-         ITransition transition = (ITransition) outTransitions.get(i);
+         ITransition transition = (ITransition) enabledOutTransitions.get(i);
          TransitionTokenBean token = lockFreeToken(transition);
          if (token != null)
          {
-            if (1 == outTransitions.size())
+            if (1 == enabledOutTransitions.size())
             {
                result = Collections.singletonList(token);
             }
@@ -235,7 +235,7 @@ public class TokenCache
             {
                if (null == result)
                {
-                  result = CollectionUtils.newList(outTransitions.size());
+                  result = CollectionUtils.newList(enabledOutTransitions.size());
                }
                result.add(token);
             }

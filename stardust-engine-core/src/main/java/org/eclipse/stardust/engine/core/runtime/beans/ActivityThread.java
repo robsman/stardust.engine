@@ -13,10 +13,13 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 
 import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.Attribute;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ExpectedFailureException;
@@ -26,7 +29,6 @@ import org.eclipse.stardust.common.error.ServiceException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.rt.ITransactionStatus;
 import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
@@ -36,15 +38,18 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.JoinSplitType;
 import org.eclipse.stardust.engine.api.model.LoopType;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
@@ -478,6 +483,7 @@ public class ActivityThread implements Runnable
          
          List<ITransition> enabledTransitions = Collections.emptyList();
          List<ITransition> otherwiseTransitions = Collections.emptyList();
+         ITransition exceptionTransition = null;
          
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          ExecutionPlan plan = rtEnv.getExecutionPlan();
@@ -520,51 +526,78 @@ public class ActivityThread implements Runnable
          }
          else
          {
-            // find traversable transitions and separate between enabled and otherwise ones
-            ModelElementList outTransitions = activity.getOutTransitions();
-            SymbolTable symbolTable = SymbolTableFactory.create(activityInstance, activity);
-            for (int i = 0; i < outTransitions.size(); ++i)
+            final String eventHandlerId;
+            if (activity.hasExceptionTransitions())
             {
-               ITransition transition = (ITransition) outTransitions.get(i);
-               if (transition.isEnabled(symbolTable))
+               eventHandlerId = (String) activityInstance.getPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY);
+               exceptionTransition = eventHandlerId != null ? activity.getExceptionTransition(eventHandlerId) : null;
+            }
+            if (exceptionTransition == null || TransitionBean.BOUNDARY_EVENT_TYPE_NON_INTERRUPTING_VALUE.equals(exceptionTransition.getAttribute(TransitionBean.BOUNDARY_EVENT_TYPE_KEY)))
+            {
+               // find traversable transitions and separate between enabled and otherwise ones
+               ModelElementList outTransitions = activity.getOutTransitions();
+               SymbolTable symbolTable = SymbolTableFactory.create(activityInstance, activity);
+               for (int i = 0; i < outTransitions.size(); ++i)
                {
-                  if ((1 == outTransitions.size())
-                        || (JoinSplitType.Xor == activity.getSplitType()))
+                  ITransition transition = (ITransition) outTransitions.get(i);
+                  if (transition.isEnabled(symbolTable))
                   {
-                     enabledTransitions = Collections.singletonList(transition);
-                     break;
-                  }
-                  else
-                  {
-                     if (enabledTransitions.isEmpty())
+                     if ((1 == outTransitions.size())
+                           || (JoinSplitType.Xor == activity.getSplitType()))
                      {
-                        enabledTransitions = CollectionUtils.newList(outTransitions.size());
+                        enabledTransitions = Collections.singletonList(transition);
+                        break;
                      }
-                     enabledTransitions.add(transition);
-                  }
-               }
-               else if (transition.isOtherwiseEnabled(symbolTable))
-               {
-                  if (1 == outTransitions.size())
-                  {
-                     otherwiseTransitions = Collections.singletonList(transition);
-                  }
-                  else
-                  {
-                     if (otherwiseTransitions.isEmpty())
+                     else
                      {
-                        otherwiseTransitions = CollectionUtils.newList(outTransitions.size());
+                        if (enabledTransitions.isEmpty())
+                        {
+                           enabledTransitions = CollectionUtils.newList(outTransitions.size());
+                        }
+                        enabledTransitions.add(transition);
                      }
-                     otherwiseTransitions.add(transition);
+                  }
+                  else if (transition.isOtherwiseEnabled(symbolTable))
+                  {
+                     if (1 == outTransitions.size())
+                     {
+                        otherwiseTransitions = Collections.singletonList(transition);
+                     }
+                     else
+                     {
+                        if (otherwiseTransitions.isEmpty())
+                        {
+                           otherwiseTransitions = CollectionUtils.newList(outTransitions.size());
+                        }
+                        otherwiseTransitions.add(transition);
+                     }
                   }
                }
             }
          }
          
-         final List<ITransition> enabledOutTransitions = enabledTransitions.isEmpty()
-               ? otherwiseTransitions
-               : enabledTransitions;
-
+         final List<ITransition> enabledOutTransitions;
+         if (!enabledTransitions.isEmpty())
+         {
+            enabledOutTransitions = exceptionTransition != null
+                  ? CollectionUtils.union(Collections.singletonList(exceptionTransition), enabledTransitions)
+                  : enabledTransitions;
+         }
+         else if (!otherwiseTransitions.isEmpty())
+         {
+            enabledOutTransitions = exceptionTransition != null
+                  ? CollectionUtils.union(Collections.singletonList(exceptionTransition), otherwiseTransitions)
+                  : otherwiseTransitions;            
+         }
+         else if (exceptionTransition != null)
+         {
+            enabledOutTransitions = Collections.singletonList(exceptionTransition);
+         }
+         else
+         {
+            enabledOutTransitions = Collections.emptyList();
+         }
+         
          for (int i = 0; i < enabledOutTransitions.size(); ++i)
          {
             ITransition transition = enabledOutTransitions.get(i);
@@ -577,7 +610,7 @@ public class ActivityThread implements Runnable
 
             getCurrentActivityThreadContext().enteringTransition(token);
 
-            if (JoinSplitType.Xor == activity.getSplitType())
+            if (JoinSplitType.Xor == activity.getSplitType() && exceptionTransition == null)
             {
                break;
             }
@@ -606,7 +639,7 @@ public class ActivityThread implements Runnable
             }
             else
             {
-               freeOutTokens = tokenCache.getFreeOutTokens(activity);
+               freeOutTokens = tokenCache.getFreeOutTokens(enabledOutTransitions);
             }
 
             boolean foundSynchronousSuccessor = false;

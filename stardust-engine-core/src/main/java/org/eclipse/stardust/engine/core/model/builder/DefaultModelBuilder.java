@@ -1073,7 +1073,7 @@ public class DefaultModelBuilder implements ModelBuilder
          IActivity target, String condition)
    {
       ITransition result = source.getProcessDefinition().createTransition(id, name, null,
-            source, target, 0);
+            source, target, 0, condition);
       if (!StringUtils.isEmpty(condition))
       {
          result.setCondition(condition);

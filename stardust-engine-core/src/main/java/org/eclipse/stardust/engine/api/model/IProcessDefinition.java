@@ -32,7 +32,7 @@ public interface IProcessDefinition
    /**
     * Add the transition to this process definition
     */
-   void addToTransitions(ITransition transition);
+   void addToTransitions(ITransition transition, String condition);
 
    /**
     * Retrieves a vector with all inconsistencies of the model.
@@ -57,7 +57,7 @@ public interface IProcessDefinition
          IActivity previous, IActivity next);
 
    ITransition createTransition(String id, String name, String description,
-         IActivity previous, IActivity next, int elementOID);
+         IActivity previous, IActivity next, int elementOID, String condition);
 
    IActivity findActivity(String id);
 

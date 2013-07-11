@@ -173,6 +173,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
    public static final String[] activity_inst_idx9_INDEX = new String[] {
          FIELD__CRITICALITY, FIELD__PROCESS_INSTANCE};
 
+   public static final String BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY = "Infinity.Engine.BoundaryEventHandler.Activated";
+   
    static final boolean state_USE_LITERALS = true;
 
    static final boolean currentUserPerformer_USE_LITERALS = true;

@@ -246,31 +246,31 @@ public class BoundaryEventTest
    @Test
    public void testNonInterruptingTimerEventOccurring() throws Exception
    {
-      // TODO ...
+      // TODO (nw) implement test
    }
 
    @Test
    public void testNonInterruptingTimerEventOccurringWithActivityHavingAndSplit() throws Exception
    {
-      // TODO ...
+      // TODO (nw) implement test
    }
    
    @Test
    public void testNonInterruptingTimerEventOccurringWithActivityHavingXorSplit() throws Exception
    {
-      // TODO ...
+      // TODO (nw) implement test
    }
    
    @Test
    public void testNonInterruptingTimerEventNotOccurring() throws Exception
    {
-      // TODO ...
+      // TODO (nw) implement test
    }
 
    
    /**
     * <p>
-    * TODO javadoc
+    * TODO (nw) javadoc
     * </p>
     * 
     * @author Nicolas.Werlein

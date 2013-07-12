@@ -1,19 +1,27 @@
 package org.eclipse.stardust.test.boundaryevent;
 
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.APP_ACTIVITY_ID;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.DISABLED_NORMAL_FLOW_ACTIVITY_ID;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.ENABLED_NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_DATA_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_FLOW_1_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_FLOW_2_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_FLOW_ACTIVITY_ID;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.FIRST_NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.FAIL_FLAG_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_ERROR_EVENT;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_MULTIPLE_ERROR_EVENTS;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_INTERRUPTING;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.SECOND_NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.SLEEPING_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.TIMEOUT_DATA_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
@@ -23,6 +31,7 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.Daemon;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
@@ -197,11 +206,10 @@ public class BoundaryEventTest
    @Test
    public void testInterruptingTimerEventOccurring() throws Exception
    {
-      DaemonHome.startDaemon(sf.getAdministrationService(), DaemonType.EVENT_DAEMON);
-      
       final Map<String, ?> timeoutData = Collections.singletonMap(TIMEOUT_DATA_ID, Long.valueOf(1));
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_TIMER_EVENT_INTERRUPTING, timeoutData, true);
+      doOneEventDaemonRun();
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Aborted));
@@ -220,11 +228,10 @@ public class BoundaryEventTest
    @Test
    public void testInterruptingTimerEventNotOccurring() throws Exception
    {
-      DaemonHome.startDaemon(sf.getAdministrationService(), DaemonType.EVENT_DAEMON);
-      
       final Map<String, ?> timeoutData = Collections.singletonMap(TIMEOUT_DATA_ID, Long.MAX_VALUE);
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_TIMER_EVENT_INTERRUPTING, timeoutData, true);
+      doOneEventDaemonRun();
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Hibernated));
       sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
@@ -246,27 +253,93 @@ public class BoundaryEventTest
    @Test
    public void testNonInterruptingTimerEventOccurring() throws Exception
    {
-      // TODO (nw) implement test
+      final Map<String, ?> timeoutData = Collections.singletonMap(TIMEOUT_DATA_ID, Long.valueOf(1));
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, timeoutData, true);
+      doOneEventDaemonRun();
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Hibernated));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Completed));
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, NORMAL_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
 
    @Test
    public void testNonInterruptingTimerEventOccurringWithActivityHavingAndSplit() throws Exception
    {
-      // TODO (nw) implement test
+      final Map<String, ?> timeoutData = Collections.singletonMap(TIMEOUT_DATA_ID, Long.valueOf(1));
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND, timeoutData, true);
+      doOneEventDaemonRun();
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Hibernated));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Completed));
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND, FIRST_NORMAL_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND, SECOND_NORMAL_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
    
    @Test
    public void testNonInterruptingTimerEventOccurringWithActivityHavingXorSplit() throws Exception
    {
-      // TODO (nw) implement test
+      final Map<String, ?> timeoutData = Collections.singletonMap(TIMEOUT_DATA_ID, Long.valueOf(1));
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR, timeoutData, true);
+      doOneEventDaemonRun();
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Hibernated));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Completed));
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR, ENABLED_NORMAL_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
+      try
+      {
+         sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR, DISABLED_NORMAL_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
+         fail();
+      }
+      catch (final Exception ignored)
+      {
+         /* expected */
+      }
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
    
    @Test
    public void testNonInterruptingTimerEventNotOccurring() throws Exception
    {
-      // TODO (nw) implement test
+      final Map<String, ?> timeoutData = Collections.singletonMap(TIMEOUT_DATA_ID, Long.MAX_VALUE);
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, timeoutData, true);
+      doOneEventDaemonRun();
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Hibernated));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Completed));
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, NORMAL_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
+      try
+      {
+         sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
+         fail();
+      }
+      catch (final ObjectNotFoundException ignored)
+      {
+         /* expected */
+      }
    }
 
+   
+   private void doOneEventDaemonRun()
+   {
+      DaemonHome.startDaemon(sf.getAdministrationService(), DaemonType.EVENT_DAEMON);
+      final Daemon daemon = DaemonHome.getDaemon(sf.getAdministrationService(), DaemonType.EVENT_DAEMON);
+      assertNotNull(daemon.getLastExecutionTime());
+   }
+   
    
    /**
     * <p>

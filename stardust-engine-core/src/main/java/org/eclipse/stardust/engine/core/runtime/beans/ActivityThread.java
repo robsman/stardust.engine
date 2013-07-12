@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.common.CollectionUtils.union;
 import static org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils.isSerialExecutionScenario;
 
 import java.text.MessageFormat;
@@ -580,13 +581,13 @@ public class ActivityThread implements Runnable
          if (!enabledTransitions.isEmpty())
          {
             enabledOutTransitions = exceptionTransition != null
-                  ? CollectionUtils.union(Collections.singletonList(exceptionTransition), enabledTransitions)
+                  ? union(Collections.singletonList(exceptionTransition), enabledTransitions, false)
                   : enabledTransitions;
          }
          else if (!otherwiseTransitions.isEmpty())
          {
             enabledOutTransitions = exceptionTransition != null
-                  ? CollectionUtils.union(Collections.singletonList(exceptionTransition), otherwiseTransitions)
+                  ? union(Collections.singletonList(exceptionTransition), otherwiseTransitions, false)
                   : otherwiseTransitions;            
          }
          else if (exceptionTransition != null)

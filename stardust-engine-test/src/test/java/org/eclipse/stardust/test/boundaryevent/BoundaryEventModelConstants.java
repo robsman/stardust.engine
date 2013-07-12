@@ -30,6 +30,21 @@ package org.eclipse.stardust.test.boundaryevent;
     * the ID of the process definition containing an interrupting timer event
     */
    /* package-private */ static final String PROCESS_ID_TIMER_EVENT_INTERRUPTING = "ProcessDefinition_Timer_Interrupting";
+   
+   /**
+    * the ID of the process definition containing an non-interrupting timer event
+    */
+   /* package-private */ static final String PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING = "ProcessDefinition_Timer_Non_interrupting";
+   
+   /**
+    * the ID of the process definition containing an non-interrupting timer event and an XOR split gateway on the "normal" flow
+    */
+   /* package-private */ static final String PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR = "ProcessDefinition_Timer_Non_interrupting_XOR";
+   
+   /**
+    * the ID of the process definition containing an non-interrupting timer event and an AND split gateway on the "normal" flow
+    */
+   /* package-private */ static final String PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND = "ProcessDefinition_Timer_Non_interrupting_AND";
 
    
    /**
@@ -43,22 +58,42 @@ package org.eclipse.stardust.test.boundaryevent;
    /* package-private */ static final String SLEEPING_ACTIVITY_ID = "SleepingActivity";
    
    /**
-    * the ID of the activity enabled in the "normal flow"
+    * the ID of the activity enabled on the "normal flow"
     */
    /* package-private */ static final String NORMAL_FLOW_ACTIVITY_ID = "NormalFlow";
    
    /**
-    * the ID of the activity enabled in the "exception flow"
+    * the ID of the activity enabled on the XOR split "normal flow"
+    */
+   /* package-private */ static final String ENABLED_NORMAL_FLOW_ACTIVITY_ID = "EnabledNormalFlow";
+   
+   /**
+    * the ID of the activity disabled on the XOR split "normal flow"
+    */
+   /* package-private */ static final String DISABLED_NORMAL_FLOW_ACTIVITY_ID = "DisabledNormalFlow";
+   
+   /**
+    * the ID of the first activity enabled on the AND split "normal flow"
+    */
+   /* package-private */ static final String FIRST_NORMAL_FLOW_ACTIVITY_ID = "FirstNormalFlow";
+   
+   /**
+    * the ID of the second activity enabled on the AND split "normal flow"
+    */
+   /* package-private */ static final String SECOND_NORMAL_FLOW_ACTIVITY_ID = "SecondNormalFlow";
+   
+   /**
+    * the ID of the activity enabled on the "exception flow"
     */
    /* package-private */ static final String EXCEPTION_FLOW_ACTIVITY_ID = "ExceptionFlow";
    
    /**
-    * the ID of the activity enabled in the "exception flow 1"
+    * the ID of the activity enabled on the "exception flow 1"
     */
    /* package-private */ static final String EXCEPTION_FLOW_1_ACTIVITY_ID = "ExceptionFlow1";
    
    /**
-    * the ID of the activity enabled in the "exception flow 2"
+    * the ID of the activity enabled on the "exception flow 2"
     */
    /* package-private */ static final String EXCEPTION_FLOW_2_ACTIVITY_ID = "ExceptionFlow2";
    

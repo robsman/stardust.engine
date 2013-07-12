@@ -375,7 +375,34 @@ public class CollectionUtils
 
       return result;
    }
+   
+   public static <E> List<E> union(List<E> lhs, List<E> rhs, boolean addToLhs)
+   {
+      if (addToLhs)
+      {
+         return union(lhs, rhs);
+      }
+      
+      List<E> result;
 
+      if (Collections.emptyList().equals(lhs))
+      {
+         result = rhs;
+      }
+      else if (Collections.emptyList().equals(rhs))
+      {
+         result = lhs;
+      }
+      else
+      {
+         result = newArrayList();
+         result.addAll(lhs);
+         result.addAll(rhs);
+      }
+
+      return result;
+   }   
+   
    private CollectionUtils()
    {
       // utility class

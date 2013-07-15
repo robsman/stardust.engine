@@ -150,7 +150,7 @@ public class MailAssembler
     */
    private Session createSession() throws NamingException {
       Session retValue;
-      if (StringUtils.isNotEmpty(jndiSession)) {
+      if (StringUtils.isNotEmpty(jndiSession) && !jndiSession.equals("null")) {
            InitialContext context = new InitialContext();
            String jndiSessionPath = "java:comp/env/" + jndiSession;
       Object session = context.lookup(jndiSessionPath);

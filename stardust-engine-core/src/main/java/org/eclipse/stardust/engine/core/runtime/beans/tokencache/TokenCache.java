@@ -218,7 +218,6 @@ public class TokenCache
 
    public List<TransitionTokenBean> getFreeOutTokens(List<ITransition> enabledOutTransitions)
    {
-      // TODO (nw) is it ok to only pass the enabled transitions?
       List<TransitionTokenBean> result = null;
 
       for (int i = 0; i < enabledOutTransitions.size(); ++i)

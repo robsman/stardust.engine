@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,6 @@ import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
 import org.eclipse.stardust.engine.api.dto.HistoricalState;
 import org.eclipse.stardust.engine.api.dto.QualityAssuranceInfo;
 import org.eclipse.stardust.engine.api.model.Activity;
-import org.eclipse.stardust.engine.api.model.DataPath;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
@@ -34,27 +33,27 @@ import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssu
  * @author ubirkemeyer
  * @version $Revision$
  */
-public interface ActivityInstance extends RuntimeObject
-{     
+public interface ActivityInstance extends RuntimeObject, IDescriptorProvider
+{
    /**
     * Gets information about the performed quality assurance workflow
     * @return information about the performed quality assurance workflow
     *         or null if this is a not quality assurance enabled instance
     */
    QualityAssuranceInfo getQualityAssuranceInfo();
-   
+
    /**
     * Gets the state of this activity instance regarding quality assurance
     * @return the {@link QualityAssuranceState} this instance is in
     */
-   QualityAssuranceState getQualityAssuranceState();   
-   
+   QualityAssuranceState getQualityAssuranceState();
+
    /**
     * Get the {@link ActivityInstanceAttributes}
     * @return the {@link ActivityInstanceAttributes} for this activity instance
     */
    ActivityInstanceAttributes getAttributes();
-   
+
    /**
     * Gets the current state of this activity instance.
     *
@@ -127,12 +126,12 @@ public interface ActivityInstance extends RuntimeObject
     * @see #isAssignedToUser
     */
    String getUserPerformerName();
-   
+
    /**
     * Gets the current <code>User</code> Object of this activity instance.
-    * 
+    *
     * @return the <code>User</code> object or null if not assigned to a user.
-    * 
+    *
     * @see #isAssignedToUser
     */
    User getUserPerformer();
@@ -216,27 +215,12 @@ public interface ActivityInstance extends RuntimeObject
 
    /**
     * Returns the user on behalf of this activity instance was performed.
-    * 
+    *
     * @return The user on behalf of this activity instance was performed or null if the
     *         activity instance is not completed or if it was not performed on behalf of
     *         another user.
     */
    UserInfo getPerformedOnBehalfOf();
-
-   /** 
-    * Gets the current value of a descriptor with the specified ID.
-    *
-    * @param id the id of the descriptor.
-    *
-    * @return the value of the descriptor.
-    */
-   Object getDescriptorValue(String id);
-
-   /**
-    * Retrieves definitions for available descriptors.
-    * @return the descriptor definitions that are available.
-    */
-   List<DataPath> getDescriptorDefinitions();
 
    /**
     * Gets whether a note for the scope process instance of this activity instance is available.
@@ -257,10 +241,10 @@ public interface ActivityInstance extends RuntimeObject
     * Gets a list of requested additional data like notes, delegations, state changes and exceptions.
     * This list is sorted in ascending order (oldest first).
     * <br>
-    * The list will be populated depending on {@link HistoricalEventPolicy} applied to 
+    * The list will be populated depending on {@link HistoricalEventPolicy} applied to
     * {@link ActivityInstanceQuery} and {@link WorklistQuery}. By default this list will be empty as
     * retrieval might degrade query performance.
-    * 
+    *
     * @return list of all historical events
     * @see org.eclipse.stardust.engine.api.runtime.HistoricalEvent
     * @see org.eclipse.stardust.engine.api.query.HistoricalEventPolicy

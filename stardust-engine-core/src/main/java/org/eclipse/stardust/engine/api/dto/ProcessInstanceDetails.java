@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -56,7 +56,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
  * @version $Revision$
  */
 public class ProcessInstanceDetails extends RuntimeObjectDetails
-      implements ProcessInstance, IDescriptorProvider
+      implements ProcessInstance
 {
    private static final long serialVersionUID = 2L;
 
@@ -85,7 +85,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    private Map<String, PermissionState> permissions;
 
    private ProcessInstanceAttributes attributes;
-   
+
    private final Map<String, Object> rtAttributes;
 
    private final List<HistoricalEvent> historicalEvents = CollectionUtils.newList();
@@ -257,7 +257,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       ctx.setProcessInstance(processInstance);
       ps = Authorization2.hasPermission(ctx) ? PermissionState.Granted : PermissionState.Denied;
       permissions.put(ctx.getPermissionId(), ps);
-      
+
       if (isCase)
       {
          ctx = AuthorizationContext.create(WorkflowService.class, "joinCase", long.class, long[].class);
@@ -284,7 +284,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             ParametersFacade.popLayer();
          }
       }
-      
+
       rtAttributes = initRtAttributes(processInstance);
    }
 
@@ -372,7 +372,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       // create descriptor definitions
       this.descriptorDefinitions.addAll(ProcessInstanceGroupUtils.getDescriptorDefinitions(processInstance));
    }
-   
+
    public void loadDescriptors(IProcessInstance processInstance)
    {
       final IProcessDefinition processDefinition = processInstance.getProcessDefinition();
@@ -475,7 +475,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
    {
       return rtAttributes;
    }
-   
+
    public List<HistoricalEvent> getHistoricalEvents()
    {
       return historicalEvents;
@@ -588,7 +588,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
             }
          }
       }
-            
+
       if (isEventTypeSet(eventTypes, HistoricalEventType.STATE_CHANGE))
       {
          Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
@@ -608,7 +608,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
                   HistoricalEventType.StateChange, processInstance.getTerminationTime(),
                   userDetails, ProcessInstanceState.Aborted));
          }
-      }      
+      }
    }
 
    private static boolean isEventTypeSet(int eventTypes, int eventType)
@@ -621,25 +621,25 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
       PermissionState ps = (PermissionState) permissions.get(permissionId);
       return ps == null ? PermissionState.Unknown : ps;
    }
-   
+
    private Map<String, Object> initRtAttributes(final IProcessInstance pi)
    {
       final Map<String, Object> rtAttributes = newHashMap();
-      
+
       rtAttributes.put(AuditTrailPersistence.class.getName(), pi.getAuditTrailPersistence());
-      
+
       return rtAttributes;
    }
-   
+
    private static enum ScopeProcessInstanceDetailsOptions
    {
       DEFAULT(false, false),
       WITH_NOTES(true, false),
       WITH_DESCRIPTORS(false, true),
       WITH_NOTES_AND_DESCRIPTORS(true, true);
-      
+
       private final Map<String, Object> props;
-      
+
       private ScopeProcessInstanceDetailsOptions(boolean withNotes, boolean withDescriptors)
       {
          Map<String, Object> props = CollectionUtils.newHashMap();
@@ -652,7 +652,7 @@ public class ProcessInstanceDetails extends RuntimeObjectDetails
          props.put(HistoricalStatesPolicy.PRP_PROPVIDE_HIST_STATES, HistoricalStatesPolicy.NO_HIST_STATES);
          this.props = Collections.unmodifiableMap(props);
       }
-      
+
       private static Map<String, Object> getOptions(boolean withNotes, boolean withDescriptors)
       {
          ScopeProcessInstanceDetailsOptions options = withNotes

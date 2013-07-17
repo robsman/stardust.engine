@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -95,7 +95,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
  * @see org.eclipse.stardust.engine.api.dto.DataMappingDetails
  */
 public class ActivityInstanceDetails extends RuntimeObjectDetails
-      implements ActivityInstance, IDescriptorProvider
+      implements ActivityInstance
 {
    private static final long serialVersionUID = 2L;
 
@@ -117,17 +117,17 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    private ParticipantInfo performer;
    private UserInfo performedBy;
-   private UserInfo performedOnBehalfOf;   
+   private UserInfo performedOnBehalfOf;
    private User userPerformer;
 
    private List<HistoricalState> historicalStates = Collections.emptyList();
 
    private final List<HistoricalEvent> historicalEvents = CollectionUtils.newList();
-   
+
    private ActivityInstanceAttributes attributes;
    private QualityAssuranceState qualityAssuranceState = QualityAssuranceState.NO_QUALITY_ASSURANCE;
    private QualityAssuranceInfo qcInfo;
-   
+
    public ActivityInstanceDetails(final IWorkItem workItem)
    {
       this(new WorkItemAdapter(workItem));
@@ -269,7 +269,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          pair = ActivityInstanceHistoryBean
                .getLastUserPerformerForActivityInstance(activityInstance);
          performedOnBehalfOf = DetailsFactory.create(pair.getSecond());
-         ActivityInstanceHistoryBean lastUserPerformer = pair.getFirst();         
+         ActivityInstanceHistoryBean lastUserPerformer = pair.getFirst();
          if (lastUserPerformer != null)
          {
             historicalStates = Collections.<HistoricalState> singletonList(DetailsFactory.create(
@@ -305,7 +305,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       permissions.put(ctx.getPermissionId(), ps);
 
       try
-      {         
+      {
          // Skip process authorization check here, since it was already checked for the activity instance
          // Do overwrite level explicitly. Otherwise we would end in an infinity loop AI / PI / AI / ...
          Map<String, Object> props = CollectionUtils.newMap();
@@ -315,7 +315,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, true);
          }
          layer = ParametersFacade.pushLayer(props);
-         this.processInstance = DetailsFactory.create(processInstance);         
+         this.processInstance = DetailsFactory.create(processInstance);
       }
       finally
       {
@@ -324,7 +324,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             ParametersFacade.popLayer();
          }
       }
-      
+
       layer = null;
       try
       {
@@ -344,22 +344,22 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             ParametersFacade.popLayer();
          }
       }
-      
+
       if (QualityAssuranceUtils.isQualityAssuranceEnabled(activityInstance))
       {
          qualityAssuranceState = activityInstance.getQualityAssuranceState();
          attributes = QualityAssuranceUtils.getActivityInstanceAttributes(activityInstance);
          //build info object regarding qa workflow
-         if(qualityAssuranceState == QualityAssuranceState.IS_QUALITY_ASSURANCE 
+         if(qualityAssuranceState == QualityAssuranceState.IS_QUALITY_ASSURANCE
                || qualityAssuranceState == QualityAssuranceState.IS_REVISED)
          {
             qcInfo = QualityAssuranceUtils.getQualityAssuranceInfo(activityInstance);
          }
       }
-      
+
       //if note for the process instance exists, - potentially notes for this activity instance exists
       //load and set these note
-      final IProcessInstance scopeProcessInstance 
+      final IProcessInstance scopeProcessInstance
          = activityInstance.getProcessInstance().getScopeProcessInstance();
       if(ProcessInstanceUtils.isLoadNotesEnabled()
             && ProcessInstanceUtils.hasNotes(scopeProcessInstance))
@@ -372,7 +372,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             {
                attributes = new ActivityInstanceAttributesImpl(activityInstance.getOID());
             }
-            
+
             attributes.setNotes(aiNotes);
          }
       }
@@ -454,7 +454,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    {
       return performer instanceof UserInfo ? performer.getName() : null;
    }
-   
+
    public User getUserPerformer()
    {
       return userPerformer;
@@ -516,8 +516,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    public UserInfo getPerformedOnBehalfOf()
    {
       return performedOnBehalfOf;
-   }    
-   
+   }
+
    public Object getDescriptorValue(String id)
    {
       return processInstance instanceof IDescriptorProvider ? ((IDescriptorProvider) processInstance).getDescriptorValue(id) : null;
@@ -608,7 +608,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          if (null != prevHistState
                && prevHistState.getState() != state
                && activityInstance.isTerminated())
-         {          
+         {
             UserDetails performedByDetails = null;
             IUser performedBy = activityInstance.getPerformedBy();
             if(performedBy != null)
@@ -616,7 +616,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                performedByDetails = (UserDetails) DetailsFactory.create(performedBy,
                      IUser.class, UserDetails.class);
             }
-            
+
             historicalEvents.add(new HistoricalEventDetails( //
                   HistoricalEventType.StateChange, //
                   activityInstance.getLastModificationTime(), //
@@ -653,7 +653,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       {
          final IProcessInstance scopeProcessInstance = activityInstance
                .getProcessInstance().getScopeProcessInstance();
-         List<Note> aiNotes = ProcessInstanceUtils.getNotes(scopeProcessInstance, this); 
+         List<Note> aiNotes = ProcessInstanceUtils.getNotes(scopeProcessInstance, this);
          for (Note note: aiNotes)
          {
             historicalEvents.add(new HistoricalEventDetails(note));
@@ -697,8 +697,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
       return false;
    }
-   
-   
+
+
 
    public PermissionState getPermission(String permissionId)
    {

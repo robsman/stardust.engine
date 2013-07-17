@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,7 +32,7 @@ import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
  * @author ubirkemeyer
  * @version $Revision$
  */
-public interface ProcessInstance extends RuntimeObject
+public interface ProcessInstance extends RuntimeObject, IDescriptorProvider
 {
    /**
     * This will be returned if the OID is not known.
@@ -142,7 +142,7 @@ public interface ProcessInstance extends RuntimeObject
     * @return custom runtime attributes not necessarily reflected in the database
     */
    Map<String, Object> getRuntimeAttributes();
-   
+
    /**
     * Gets a list of requested additional data like notes, delegations, state changes and exceptions.
     * This list is sorted in ascending order (oldest first).

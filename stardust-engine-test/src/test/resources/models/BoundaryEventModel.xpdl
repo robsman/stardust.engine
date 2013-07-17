@@ -360,6 +360,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:exceptionName" Value="java.lang.RuntimeException"/>
+                                 <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Interrupting" />
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -433,11 +434,7 @@
                <Condition Type="CONDITION">ON_BOUNDARY_EVENT(OnException)</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="82">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Interrupting" />
-                        </carnot:Attributes>
-                     </carnot:Transition>
+                     <carnot:Transition Oid="82" />
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -544,6 +541,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:exceptionName" Value="java.lang.NullPointerException"/>
+                                 <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Interrupting" />
                               </carnot:Attributes>
                            </carnot:EventHandler>
                            <carnot:EventHandler Oid="183" Id="OnIllegalArgumentException" Name="OnIllegalArgumentException" Type="exception">
@@ -556,6 +554,7 @@
                               </carnot:EventActions>
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:exceptionName" Value="java.lang.IllegalArgumentException"/>
+                                 <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Interrupting" />
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -677,11 +676,7 @@
                <Condition Type="CONDITION">ON_BOUNDARY_EVENT(OnNullPointerException)</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="177">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Interrupting" />
-                        </carnot:Attributes>
-                     </carnot:Transition>
+                     <carnot:Transition Oid="177" />
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -689,11 +684,7 @@
                <Condition Type="CONDITION">ON_BOUNDARY_EVENT(OnIllegalArgumentException)</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="179">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Interrupting" />
-                        </carnot:Attributes>
-                     </carnot:Transition>
+                     <carnot:Transition Oid="179" />
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -787,6 +778,7 @@
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:useData" Value="true" Type="boolean"/>
                                  <carnot:Attribute Name="carnot:engine:data" Value="Timeout"/>
+                                 <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Interrupting" />
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -878,11 +870,7 @@
                <Condition Type="CONDITION">ON_BOUNDARY_EVENT(Timer)</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="209">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Interrupting" />
-                        </carnot:Attributes>
-                     </carnot:Transition>
+                     <carnot:Transition Oid="209" />
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -965,6 +953,7 @@
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:useData" Value="true" Type="boolean"/>
                                  <carnot:Attribute Name="carnot:engine:data" Value="Timeout"/>
+                                 <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Non-interrupting" />
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -1056,11 +1045,7 @@
                <Condition Type="CONDITION">ON_BOUNDARY_EVENT(Timer)</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="231" IsForkingOnTraversal="true">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Non-interrupting" />
-                        </carnot:Attributes>
-                     </carnot:Transition>
+                     <carnot:Transition Oid="231" IsForkingOnTraversal="true" />
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -1153,6 +1138,7 @@
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:useData" Value="true" Type="boolean"/>
                                  <carnot:Attribute Name="carnot:engine:data" Value="Timeout"/>
+                                 <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Non-interrupting" />
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -1276,11 +1262,7 @@
                <Condition Type="CONDITION">ON_BOUNDARY_EVENT(Timer)</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="1001" IsForkingOnTraversal="true">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Non-interrupting" />
-                        </carnot:Attributes>
-                     </carnot:Transition>
+                     <carnot:Transition Oid="1001" IsForkingOnTraversal="true" />
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>
@@ -1376,6 +1358,7 @@
                               <carnot:Attributes>
                                  <carnot:Attribute Name="carnot:engine:useData" Value="true" Type="boolean"/>
                                  <carnot:Attribute Name="carnot:engine:data" Value="Timeout"/>
+                                 <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Non-interrupting" />
                               </carnot:Attributes>
                            </carnot:EventHandler>
                         </carnot:EventHandlers>
@@ -1499,11 +1482,7 @@
                <Condition Type="CONDITION">ON_BOUNDARY_EVENT(Timer)</Condition>
                <ExtendedAttributes>
                   <ExtendedAttribute Name="CarnotExt">
-                     <carnot:Transition Oid="1002" IsForkingOnTraversal="true">
-                        <carnot:Attributes>
-                           <carnot:Attribute Name="carnot:engine:event:boundaryEventType" Value="Non-interrupting" />
-                        </carnot:Attributes>
-                     </carnot:Transition>
+                     <carnot:Transition Oid="1002" IsForkingOnTraversal="true" />
                   </ExtendedAttribute>
                </ExtendedAttributes>
             </Transition>

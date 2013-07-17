@@ -40,10 +40,6 @@ public class TransitionBean extends ConnectionBean implements ITransition
  
    public static final String ON_BOUNDARY_EVENT_PREDICATE = "ON_BOUNDARY_EVENT";
    
-   public static final String BOUNDARY_EVENT_TYPE_KEY = "carnot:engine:event:boundaryEventType";
-   public static final String BOUNDARY_EVENT_TYPE_INTERRUPTING_VALUE = "Interrupting";
-   public static final String BOUNDARY_EVENT_TYPE_NON_INTERRUPTING_VALUE = "Non-interrupting";
-   
    private static final String PARSED_EL_EXPRESSION = "ParsedElExpression";
 
    private static final String ID_ATT = "Id";

@@ -2,11 +2,12 @@ package org.eclipse.stardust.test.boundaryevent;
 
 /**
  * <p>
- * TODO (nw) javadoc
+ * This class contains constants related to the model used for tests
+ * dealing with the <i>Boundary Event</i> functionality.
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 /* package-private */ class BoundaryEventModelConstants
 {
@@ -96,7 +97,6 @@ package org.eclipse.stardust.test.boundaryevent;
     * the ID of the activity enabled on the "exception flow 2"
     */
    /* package-private */ static final String EXCEPTION_FLOW_2_ACTIVITY_ID = "ExceptionFlow2";
-   
    
    /**
     * the ID of the end activity

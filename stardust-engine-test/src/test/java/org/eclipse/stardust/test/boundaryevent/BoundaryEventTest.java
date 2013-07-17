@@ -50,11 +50,18 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * TODO (nw) javadoc
+ * This class contains test cases making sure the <i>Boundary Event</i> functionality, i.e.
+ * interpretation of <i>BPMN 2.x</i> boundary events works correctly. The tests cover the
+ * following boundary event types
+ *   <ul>
+ *     <li>Error (always interrupting according to the <i>BPMN 2.x</i> specification)</li>
+ *     <li>Timer &mdash; Interrupting</li>
+ *     <li>Timer &mdash; Non-interrupting</li>
+ *   </ul>
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class BoundaryEventTest
 {
@@ -70,6 +77,16 @@ public class BoundaryEventTest
    public final TestRule chain = RuleChain.outerRule(sf)
                                           .around(testMethodSetup);
    
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Error</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the exception flow is traversed <b>instead of</b> the normal flow,
+    * if the boundary event has been fired.
+    * </p>
+    */
    @Test
    public void testInterruptingErrorEventOccurring() throws Exception
    {
@@ -91,6 +108,16 @@ public class BoundaryEventTest
       sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_ERROR_EVENT, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
    
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Error</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the normal flow is traversed <b>instead of</b> the exception flow,
+    * if the boundary event has <b>not</b> been fired.
+    * </p>
+    */
    @Test
    public void testInterruptingErrorEventNotOccurring() throws Exception
    {
@@ -112,6 +139,16 @@ public class BoundaryEventTest
       }
    }
    
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Error</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the normal flow is traversed <b>instead of</b> the various exception flows,
+    * if the boundary event has <b>not</b> been fired.
+    * </p>
+    */
    @Test
    public void testMultipleInterruptingErrorEventNotOccurring() throws Exception
    {
@@ -142,6 +179,16 @@ public class BoundaryEventTest
       }
    }
    
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Error</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the correct exception flow is traversed <b>instead of</b> the normal flow or the other exception flow,
+    * if the corresponding boundary event has been fired. In this case it's the first exception flow.
+    * </p>
+    */
    @Test
    public void testMultipleInterruptingErrorEventOccurringExceptionFlow1() throws Exception
    {
@@ -172,6 +219,16 @@ public class BoundaryEventTest
       }
    }
    
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Error</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the correct exception flow is traversed <b>instead of</b> the normal flow or the other exception flow,
+    * if the corresponding boundary event has been fired. In this case it's the second exception flow.
+    * </p>
+    */
    @Test
    public void testMultipleInterruptingErrorEventOccurringExceptionFlow2() throws Exception
    {
@@ -202,7 +259,16 @@ public class BoundaryEventTest
       sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_MULTIPLE_ERROR_EVENTS, EXCEPTION_FLOW_2_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
    
-   
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Timer &mdash; Interrupting</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the exception flow is traversed <b>instead of</b> the normal flow,
+    * if the corresponding boundary event has been fired.
+    * </p>
+    */
    @Test
    public void testInterruptingTimerEventOccurring() throws Exception
    {
@@ -225,6 +291,16 @@ public class BoundaryEventTest
       sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_INTERRUPTING, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
    
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Timer &mdash; Interrupting</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the normal flow is traversed <b>instead of</b> the exception flow,
+    * if the corresponding boundary event has <b>not</b> been fired.
+    * </p>
+    */
    @Test
    public void testInterruptingTimerEventNotOccurring() throws Exception
    {
@@ -249,7 +325,16 @@ public class BoundaryEventTest
       }
    }
    
-   
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Timer &mdash; Non-interrupting</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the exception flow is traversed <b>in addition</b> to the normal flow,
+    * if the corresponding boundary event has been fired.
+    * </p>
+    */
    @Test
    public void testNonInterruptingTimerEventOccurring() throws Exception
    {
@@ -266,6 +351,16 @@ public class BoundaryEventTest
       sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
 
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Timer &mdash; Non-interrupting</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the exception flow is traversed <b>in addition</b> to the various AND split normal flows,
+    * if the corresponding boundary event has been fired.
+    * </p>
+    */
    @Test
    public void testNonInterruptingTimerEventOccurringWithActivityHavingAndSplit() throws Exception
    {
@@ -283,6 +378,16 @@ public class BoundaryEventTest
       sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
    
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Timer &mdash; Non-interrupting</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the exception flow is traversed <b>in addition</b> to the conditional normal flow (XOR),
+    * if the corresponding boundary event has been fired.
+    * </p>
+    */
    @Test
    public void testNonInterruptingTimerEventOccurringWithActivityHavingXorSplit() throws Exception
    {
@@ -308,6 +413,16 @@ public class BoundaryEventTest
       sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
    
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Timer &mdash; Non-interrupting</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the normal flow is traversed <b>without</b> enabling the exception flow,
+    * if the corresponding boundary event has <b>not</b> been fired.
+    * </p>
+    */
    @Test
    public void testNonInterruptingTimerEventNotOccurring() throws Exception
    {
@@ -331,7 +446,6 @@ public class BoundaryEventTest
          /* expected */
       }
    }
-
    
    private void doOneEventDaemonRun()
    {
@@ -340,14 +454,14 @@ public class BoundaryEventTest
       assertNotNull(daemon.getLastExecutionTime());
    }
    
-   
    /**
     * <p>
-    * TODO (nw) javadoc
+    * This is the application used in the model that causes the process instance to fail
+    * in order to investigate the behavior in case of failures triggering the exception flow.
     * </p>
     * 
     * @author Nicolas.Werlein
-    * @version $Revision: $
+    * @version $Revision$
     */
    public static final class FailingApp
    {

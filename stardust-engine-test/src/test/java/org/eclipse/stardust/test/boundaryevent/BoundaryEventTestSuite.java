@@ -13,11 +13,13 @@ import org.junit.runners.Suite.SuiteClasses;
 
 /**
  * <p>
- * TODO (nw) javadoc
+ * This test suite bundles tests for the <i>Boundary Event</i> functionality, which
+ * allows for interpreting modeled <i>BPMN 2.x</i> boundary events (refer to the Stardust
+ * documentation for details about <i>Boundary Events</i>).
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 @RunWith(Suite.class)
 @SuiteClasses({ BoundaryEventTest.class })

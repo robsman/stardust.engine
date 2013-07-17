@@ -53,11 +53,11 @@ import org.junit.rules.TestRule;
  * This class contains test cases making sure the <i>Boundary Event</i> functionality, i.e.
  * interpretation of <i>BPMN 2.x</i> boundary events works correctly. The tests cover the
  * following boundary event types
- *   <ul>
- *     <li>Error (always interrupting according to the <i>BPMN 2.x</i> specification)</li>
- *     <li>Timer &mdash; Interrupting</li>
- *     <li>Timer &mdash; Non-interrupting</li>
- *   </ul>
+ * <ul>
+ *    <li>Error (always interrupting according to the <i>BPMN 2.x</i> specification)</li>
+ *    <li>Timer &mdash; Interrupting</li>
+ *    <li>Timer &mdash; Non-interrupting</li>
+ * </ul>
  * </p>
  * 
  * @author Nicolas.Werlein

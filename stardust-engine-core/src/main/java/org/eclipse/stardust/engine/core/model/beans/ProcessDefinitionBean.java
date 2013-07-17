@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -19,6 +18,7 @@ import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 
+import org.apache.commons.collections.IteratorUtils;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
@@ -52,7 +52,6 @@ import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.model.utils.ModelElementListAdapter;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
@@ -560,53 +559,42 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
     */
    public Iterator getAllTransitions()
    {
-      return new Iterator<ITransition>()
-      {
-         final Iterator<ITransition> iter1 = transitions.iterator();
-         final Iterator<ITransition> iter2 = exceptionTransitions.iterator();
-         
-         @Override
-         public boolean hasNext()
-         {
-            if (iter1.hasNext())
-            {
-               return true;
-            }
-            return iter2.hasNext();
-         }
-         
-         @Override
-         public ITransition next()
-         {
-            if (iter1.hasNext())
-            {
-               return iter1.next();
-            }
-            return iter2.next();
-         }
-         
-         @Override
-         public void remove()
-         {
-            throw new UnsupportedOperationException();
-         }
-      };
+      return IteratorUtils.chainedIterator(transitions.iterator(), exceptionTransitions.iterator());
    }
 
    public ModelElementList<ITransition> getTransitions()
    {
-      // TODO (nw) improve performance: do not iterate over lists to create a new one, but create a new one just proxying both existing
-      
-      final List<ITransition> list = new ArrayList<ITransition>();
-      for (final Object o : transitions)
+      return new ModelElementList<ITransition>()
       {
-         list.add((ITransition) o);
-      }
-      for (final Object o : exceptionTransitions)
-      {
-         list.add((ITransition) o);
-      }
-      return new ModelElementListAdapter<ITransition>(list);
+         @Override
+         public ITransition get(final int index)
+         {
+            if (index < transitions.size())
+            {
+               return (ITransition) transitions.get(index);
+            }
+            
+            return (ITransition) exceptionTransitions.get(index - transitions.size());
+         }
+         
+         @Override
+         public boolean isEmpty()
+         {
+            return transitions.isEmpty() && exceptionTransitions.isEmpty();
+         }
+         
+         @Override
+         public Iterator<ITransition> iterator()
+         {
+            return IteratorUtils.chainedIterator(transitions.iterator(), exceptionTransitions.iterator());
+         }
+         
+         @Override
+         public int size()
+         {
+            return transitions.size() + exceptionTransitions.size();
+         }
+      };
    }
 
    public Iterator getAllTriggers()

@@ -730,6 +730,8 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          IEventHandler eventHandler = (IEventHandler) iterator.next();
          eventHandler.checkConsistency(inconsistencies);
+         
+         checkBoundaryEventConsistency(eventHandler, inconsistencies);
       }
 
       // @todo laokoon (ub): temporarily disabled, leads to stack overflow in cycles
@@ -749,6 +751,21 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       */
    }
 
+   /**
+    * if it's a boundary event, there MUST be a corresponding exception flow transition
+    */
+   private void checkBoundaryEventConsistency(final IEventHandler eventHandler, final List<Inconsistency> inconsitencies)
+   {
+      if (eventHandler.getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY) != null)
+      {
+         final ITransition exceptionTransition = getExceptionTransition(eventHandler.getId());
+         if (exceptionTransition == null)
+         {
+            inconsitencies.add(new Inconsistency("No exception flow transition for event handler with ID '" + eventHandler.getId() + "'.", eventHandler, Inconsistency.ERROR));
+         }
+      }
+   }
+   
    /**
     * Checks, wether there is a path from <tt>startActivity</tt> to an activity
     * with AND join and another path back to <tt>startActivity</tt>.

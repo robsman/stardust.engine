@@ -7,21 +7,24 @@ import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstant
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_FLOW_1_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_FLOW_2_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_FLOW_ACTIVITY_ID;
-import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.FIRST_NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.FAIL_FLAG_ID;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.FIRST_NORMAL_FLOW_ACTIVITY_ID;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.INVALID_MODEL_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_ERROR_EVENT;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_MULTIPLE_ERROR_EVENTS;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_INTERRUPTING;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING;
-import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_XOR;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.SECOND_NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.SLEEPING_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.TIMEOUT_DATA_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
@@ -32,10 +35,12 @@ import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.Daemon;
+import org.eclipse.stardust.engine.api.runtime.DeploymentException;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.DaemonHome;
@@ -444,6 +449,21 @@ public class BoundaryEventTest
       catch (final ObjectNotFoundException ignored)
       {
          /* expected */
+      }
+   }
+   
+   @Test
+   public void testDeploymentOfModelWithMissingExceptionFlowTransitionsFails()
+   {
+      try
+      {
+         RtEnvHome.deploy(sf.getAdministrationService(), INVALID_MODEL_ID);
+         fail();
+      }
+      catch (final DeploymentException e)
+      {
+         final String errorMsg = e.getMessage();
+         assertThat(errorMsg, startsWith("No exception flow transition"));
       }
    }
    

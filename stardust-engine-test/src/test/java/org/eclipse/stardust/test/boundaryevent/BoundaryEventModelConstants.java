@@ -12,9 +12,14 @@ package org.eclipse.stardust.test.boundaryevent;
 /* package-private */ class BoundaryEventModelConstants
 {
    /**
-    * the ID of the model
+    * the ID of the valid model
     */
    /* package-private */ static final String MODEL_ID = "BoundaryEventModel";
+   
+   /**
+    * the ID of the invalid model
+    */
+   /* package-private */ static final String INVALID_MODEL_ID = "InvalidBoundaryEventModel";
    
    
    /**

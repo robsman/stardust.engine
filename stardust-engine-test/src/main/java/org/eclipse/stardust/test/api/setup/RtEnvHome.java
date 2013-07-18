@@ -77,10 +77,12 @@ public class RtEnvHome
     * @param adminService an administration service of a user authorized to deploy models
     * @param modelNames the names of the models without extension (which will be assumed to be <code>xpdl</code>)
     * 
+    * @return deployment information, including possible errors or warnings, one {@link DeploymentInfo} per {@link DeploymentElement}
+    * 
     * @throws ModelIOException if an exception occurs while reading the model from the file system
     * @throws DeploymentException if an exception occurs during model deployment
     */
-   public static void deploy(final AdministrationService adminService, final String ... modelNames) throws ModelIOException, DeploymentException
+   public static List<DeploymentInfo> deploy(final AdministrationService adminService, final String ... modelNames) throws ModelIOException, DeploymentException
    {
       if (adminService == null)
       {
@@ -102,7 +104,7 @@ public class RtEnvHome
          deploymentElements.add(deploymentElement);
       }
       
-      adminService.deployModel(deploymentElements, DeploymentOptions.DEFAULT);
+      return adminService.deployModel(deploymentElements, DeploymentOptions.DEFAULT);
    }
    
    /**

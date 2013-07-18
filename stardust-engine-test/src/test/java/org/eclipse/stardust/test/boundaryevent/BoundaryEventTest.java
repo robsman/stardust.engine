@@ -458,6 +458,10 @@ public class BoundaryEventTest
    
    /**
     * <p>
+    * This test focuses on deployment validation of models containing boundary events.
+    * </p>
+    * 
+    * <p>
     * This test makes sure that a boundary event without a corresponding exception flow transition issues a warning
     * during model deployment.
     * </p>

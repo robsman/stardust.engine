@@ -2391,7 +2391,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (useQueryTimeout)
             {
-               statement.setQueryTimeout(1);
+               statement.setQueryTimeout(getLockQueryTimeout());
             }
 
             startTime = System.currentTimeMillis();
@@ -2428,7 +2428,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (useQueryTimeout)
             {
-               statement.setQueryTimeout(1);
+               statement.setQueryTimeout(getLockQueryTimeout());
             }
 
             startTime = System.currentTimeMillis();
@@ -2483,7 +2483,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (useQueryTimeout)
             {
-               statement.setQueryTimeout(1);
+               statement.setQueryTimeout(getLockQueryTimeout());
             }
 
             startTime = System.currentTimeMillis();
@@ -2504,7 +2504,7 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
             if (useQueryTimeout)
             {
-               statement.setQueryTimeout(1);
+               statement.setQueryTimeout(getLockQueryTimeout());
             }
 
             startTime = System.currentTimeMillis();
@@ -2522,7 +2522,12 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
       }
    }
 
-
+   private int getLockQueryTimeout()
+   {
+      return Parameters.instance().getInteger(
+            KernelTweakingProperties.QUERY_LOCK_TIMEOUT, 1);
+   }
+   
    public ResultSet executeQuery(Class type, QueryExtension queryExtension)
    {
       return executeQuery(type, queryExtension, NO_TIMEOUT);

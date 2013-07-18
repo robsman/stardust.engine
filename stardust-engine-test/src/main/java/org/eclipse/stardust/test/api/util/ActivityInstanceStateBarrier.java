@@ -121,7 +121,7 @@ public class ActivityInstanceStateBarrier
    
    /**
     * <p>
-    * Waits until the there's an alive activity instance for the given process instance or the timeout has exceeded. It's only
+    * Waits until there's an alive activity instance for the given process instance or the timeout has exceeded. It's only
     * allowed to wait for one condition at a time.
     * </p>
     * 

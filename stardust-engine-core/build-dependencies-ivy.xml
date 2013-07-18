@@ -206,6 +206,7 @@
             <include name="js-*.jar"/>
          </fileset>
       </delete>
+      <move file="${build.lib}/jcr-vfs-${ipp.version.full}.jar" tofile="${build.lib}/jcr-vfs.jar" />
       <move file="${build.lib}/spring/tranql-connector-${common.tranql-connector.version}.jar" todir="${build.lib}" failonerror="false" />
       <move file="${build.lib}/commons-httpclient-${common.commons-httpclient.version}.jar" todir="${build.lib}/dms" failonerror="false" />
       <move todir="${build.lib}/spring" failonerror="false">

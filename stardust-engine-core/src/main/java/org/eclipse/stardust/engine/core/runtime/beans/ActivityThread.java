@@ -527,10 +527,9 @@ public class ActivityThread implements Runnable
          }
          else
          {
-            final String eventHandlerId;
             if (activity.hasExceptionTransitions())
             {
-               eventHandlerId = (String) activityInstance.getPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY);
+               final String eventHandlerId = (String) activityInstance.getPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY);
                exceptionTransition = eventHandlerId != null ? activity.getExceptionTransition(eventHandlerId) : null;
             }
             if (exceptionTransition == null)

@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DerbyDbDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.OracleDbDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
@@ -296,6 +297,28 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return VERSION;
    }
 
+   private String getStringToDoubleValueStmt(String doubleFieldName, String stringFieldName)
+   {
+      DBDescriptor dbDescriptor = item.getDbDescriptor();
+      StringBuilder builder = new StringBuilder(); 
+      builder.append(doubleFieldName);
+      builder.append(EQUALS);
+      //derby needs special handling when converting from varchar to double
+      //convert to decimal explicit and the to double implicit
+      if(dbDescriptor instanceof DerbyDbDescriptor)
+      {
+         builder.append("CAST(");
+         builder.append(stringFieldName);
+         builder.append(" AS DECIMAL)");
+      }
+      else
+      {
+         builder.append(stringFieldName);
+      }
+      
+      return builder.toString();
+   }
+   
    private void runUpdateDataValueStmnt(String tableName, String doubleFieldName,
          String stringFieldName, final PartitionInfo partitionInfo)
    {
@@ -304,7 +327,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             .append(UPDATE)
                .append(DatabaseHelper.getQualifiedName(tableName))
             .append(SET)
-               .append(doubleFieldName).append(EQUALS).append(stringFieldName)
+               .append(getStringToDoubleValueStmt(doubleFieldName, stringFieldName))
             .append(WHERE)
                .append("(type_key").append(EQUALS).append(BigData.DOUBLE)
                .append(OR)

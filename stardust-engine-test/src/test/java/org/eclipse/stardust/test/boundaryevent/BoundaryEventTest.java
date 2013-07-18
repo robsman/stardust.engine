@@ -22,20 +22,24 @@ import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstant
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.SLEEPING_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.TIMEOUT_DATA_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.Daemon;
-import org.eclipse.stardust.engine.api.runtime.DeploymentException;
+import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
+import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
@@ -452,19 +456,28 @@ public class BoundaryEventTest
       }
    }
    
+   /**
+    * <p>
+    * This test makes sure that a boundary event without a corresponding exception flow transition issues a warning
+    * during model deployment.
+    * </p>
+    */
    @Test
-   public void testDeploymentOfModelWithMissingExceptionFlowTransitionsFails()
+   public void testDeploymentOfModelWithMissingExceptionFlowTransitionsIssuesWarning()
    {
-      try
-      {
-         RtEnvHome.deploy(sf.getAdministrationService(), INVALID_MODEL_ID);
-         fail();
-      }
-      catch (final DeploymentException e)
-      {
-         final String errorMsg = e.getMessage();
-         assertThat(errorMsg, startsWith("No exception flow transition"));
-      }
+      final DeploymentOptions deploymentOptions = new DeploymentOptions();
+      deploymentOptions.setIgnoreWarnings(true);
+      
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, INVALID_MODEL_ID);
+      assertThat(deploymentInfos.size(), is(1));
+      
+      final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
+      final List<Inconsistency> warnings = deploymentInfo.getWarnings();
+      assertThat(warnings.size(), is(1));
+      
+      final Inconsistency inconsistency = warnings.get(0);
+      final String errorMsg = inconsistency.getMessage();
+      assertThat(errorMsg, startsWith("No exception flow transition"));
    }
    
    private void doOneEventDaemonRun()

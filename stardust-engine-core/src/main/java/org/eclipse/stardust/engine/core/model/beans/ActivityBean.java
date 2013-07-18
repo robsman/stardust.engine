@@ -752,7 +752,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    }
 
    /**
-    * if it's a boundary event, there MUST be a corresponding exception flow transition
+    * if it's a boundary event, there SHOULD be a corresponding exception flow transition
     */
    private void checkBoundaryEventConsistency(final IEventHandler eventHandler, final List<Inconsistency> inconsitencies)
    {
@@ -761,7 +761,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          final ITransition exceptionTransition = getExceptionTransition(eventHandler.getId());
          if (exceptionTransition == null)
          {
-            inconsitencies.add(new Inconsistency("No exception flow transition for event handler with ID '" + eventHandler.getId() + "'.", eventHandler, Inconsistency.ERROR));
+            inconsitencies.add(new Inconsistency("No exception flow transition for event handler with ID '" + eventHandler.getId() + "'.", eventHandler, Inconsistency.WARNING));
          }
       }
    }

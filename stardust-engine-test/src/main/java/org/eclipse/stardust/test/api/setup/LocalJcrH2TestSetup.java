@@ -138,7 +138,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
       if (modelNames.length > 0)
       {
          LOG.debug("Trying to deploy model(s) '" + Arrays.asList(modelNames) + "'.");
-         RtEnvHome.deploy(sf.getAdministrationService(), modelNames);
+         RtEnvHome.deploy(sf.getAdministrationService(), null, modelNames);
       }
       
       LOG.info("<--- ... setup of test environment done.");

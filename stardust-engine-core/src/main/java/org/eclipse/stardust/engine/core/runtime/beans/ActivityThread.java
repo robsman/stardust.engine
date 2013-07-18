@@ -48,7 +48,6 @@ import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
-import org.eclipse.stardust.engine.core.model.beans.EventHandlerBean;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
@@ -529,21 +528,12 @@ public class ActivityThread implements Runnable
          else
          {
             final String eventHandlerId;
-            boolean isNonInterrupting = false;
             if (activity.hasExceptionTransitions())
             {
                eventHandlerId = (String) activityInstance.getPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY);
-               if (eventHandlerId != null)
-               {
-                  exceptionTransition = activity.getExceptionTransition(eventHandlerId);
-                  final Object boundaryEventType = activity.findHandlerById(eventHandlerId).getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY);
-                  if (EventHandlerBean.BOUNDARY_EVENT_TYPE_NON_INTERRUPTING_VALUE.equals(boundaryEventType))
-                  {
-                     isNonInterrupting = true;
-                  }
-               }
+               exceptionTransition = eventHandlerId != null ? activity.getExceptionTransition(eventHandlerId) : null;
             }
-            if (exceptionTransition == null || isNonInterrupting)
+            if (exceptionTransition == null)
             {
                // find traversable transitions and separate between enabled and otherwise ones
                ModelElementList outTransitions = activity.getOutTransitions();

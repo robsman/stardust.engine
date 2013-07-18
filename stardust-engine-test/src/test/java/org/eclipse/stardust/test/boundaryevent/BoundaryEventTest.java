@@ -47,6 +47,7 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMod
 import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DaemonHome;
 import org.eclipse.stardust.test.api.util.DaemonHome.DaemonType;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
@@ -454,6 +455,35 @@ public class BoundaryEventTest
       {
          /* expected */
       }
+   }
+   
+   /**
+    * <p>
+    * This test focuses on the boundary event type <b><i>Timer &mdash; Non-interrupting</i></b>.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that the exception flow is traversed immediately during event handling,
+    * if the corresponding boundary event has <b>not</b> been fired.
+    * </p>
+    */
+   @Test
+   public void testNonInterruptingTimerEventOccurringAndProcessedAtOnce() throws Exception
+   {
+      final Map<String, ?> timeoutData = Collections.singletonMap(TIMEOUT_DATA_ID, Long.valueOf(1));
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, timeoutData, true);
+      doOneEventDaemonRun();
+
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
+      
+      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Hibernated));
+      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Completed));
+      sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, NORMAL_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
    }
    
    /**

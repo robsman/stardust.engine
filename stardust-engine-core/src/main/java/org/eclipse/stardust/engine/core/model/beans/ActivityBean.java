@@ -53,6 +53,8 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 {
    private static final long serialVersionUID = 1L;
    
+   private static final String TAG_INTERMEDIATE_EVENT_HOST = "stardust:bpmnIntermediateEventHost";
+   
    public static final String IMPLEMENTATION_TYPE_ATT = "Implementation Type";
    private ImplementationType implementationType;
 
@@ -735,6 +737,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          checkBoundaryEventConsistency(eventHandler, inconsistencies);
       }
       checkBoundaryEventsConsistency(eventHandlers, inconsistencies);
+      checkIntermediateEventConsistency(inconsistencies);
       
       // @todo laokoon (ub): temporarily disabled, leads to stack overflow in cycles
 
@@ -828,6 +831,21 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       }
       
       return true;
+   }
+   
+   /**
+    * if it's an intermediate event, it SHOULD have one inbound and one outbound sequence flow
+    */
+   private void checkIntermediateEventConsistency(final List<Inconsistency> inconsistencies)
+   {
+      final Boolean isIntermediateEvent = (Boolean) getAttribute(TAG_INTERMEDIATE_EVENT_HOST);
+      if (isIntermediateEvent != null && isIntermediateEvent.booleanValue())
+      {
+         if (getInTransitions().size() != 1 || getOutTransitions().size() != 1)
+         {
+            inconsistencies.add(new Inconsistency("Intermediate events must have one inbound and one outbound sequence flow.", this, Inconsistency.WARNING));
+         }
+      }
    }
    
    /**

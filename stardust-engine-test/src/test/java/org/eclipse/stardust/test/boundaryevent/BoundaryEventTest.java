@@ -23,7 +23,6 @@ import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstant
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.TIMEOUT_DATA_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -507,11 +506,31 @@ public class BoundaryEventTest
       
       final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
       final List<Inconsistency> warnings = deploymentInfo.getWarnings();
-      assertThat(warnings.size(), is(1));
+      assertWarningsContain("No exception flow transition", warnings);
+   }
+   
+   /**
+    * <p>
+    * This test focuses on deployment validation of models containing boundary events.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that having multiple error boundary events for exceptions not having disjunct type hierarchies issues a warning
+    * during model deployment.
+    * </p>
+    */
+   @Test
+   public void testDeploymentOfModelWithNonDisjuctExceptionHandlersIssuesWarning()
+   {
+      final DeploymentOptions deploymentOptions = new DeploymentOptions();
+      deploymentOptions.setIgnoreWarnings(true);
       
-      final Inconsistency inconsistency = warnings.get(0);
-      final String errorMsg = inconsistency.getMessage();
-      assertThat(errorMsg, startsWith("No exception flow transition"));
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, INVALID_MODEL_ID);
+      assertThat(deploymentInfos.size(), is(1));
+      
+      final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
+      final List<Inconsistency> warnings = deploymentInfo.getWarnings();
+      assertWarningsContain("Multiple boundary events for exceptions not having disjunct type hierarchies", warnings);
    }
    
    private void doOneEventDaemonRun()
@@ -519,6 +538,25 @@ public class BoundaryEventTest
       DaemonHome.startDaemon(sf.getAdministrationService(), DaemonType.EVENT_DAEMON);
       final Daemon daemon = DaemonHome.getDaemon(sf.getAdministrationService(), DaemonType.EVENT_DAEMON);
       assertNotNull(daemon.getLastExecutionTime());
+   }
+   
+   private void assertWarningsContain(final String warningPrefix, final List<Inconsistency> warnings)
+   {
+      boolean found = false;
+      
+      for (final Inconsistency i : warnings)
+      {
+         if (i.getMessage().startsWith(warningPrefix))
+         {
+            found = true;
+            break;
+         }
+      }
+      
+      if ( !found)
+      {
+         fail("Warning prefix '" + warningPrefix + "' not present in the list of deployment warnings.");
+      }
    }
    
    /**

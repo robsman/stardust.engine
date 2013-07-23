@@ -33,6 +33,11 @@ package org.eclipse.stardust.test.boundaryevent;
    /* package-private */ static final String PROCESS_ID_MULTIPLE_ERROR_EVENTS = "ProcessDefinition_Error_Multiple";
    
    /**
+    * the ID of the process definition containing multiple non-disjunct error boundary events, both being enabled at the same time
+    */
+   /* package-private */ static final String PROCESS_ID_MULTIPLE_ERROR_EVENTS_ENABLED = "ProcessDefinition_Error_MultipleNon_disjunct";
+   
+   /**
     * the ID of the process definition containing an interrupting timer event
     */
    /* package-private */ static final String PROCESS_ID_TIMER_EVENT_INTERRUPTING = "ProcessDefinition_Timer_Interrupting";

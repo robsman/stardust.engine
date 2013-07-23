@@ -28,6 +28,7 @@ import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
@@ -733,7 +734,8 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          
          checkBoundaryEventConsistency(eventHandler, inconsistencies);
       }
-
+      checkBoundaryEventsConsistency(eventHandlers, inconsistencies);
+      
       // @todo laokoon (ub): temporarily disabled, leads to stack overflow in cycles
 
       // Rule: Activity network may not form a XOR-AND block
@@ -764,6 +766,68 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             inconsitencies.add(new Inconsistency("No exception flow transition for event handler with ID '" + eventHandler.getId() + "'.", eventHandler, Inconsistency.WARNING));
          }
       }
+   }
+
+   /**
+    * if there are multiple error boundary events, the exception hierarchies SHOULD be disjunct
+    */
+   private void checkBoundaryEventsConsistency(final Link eventHandlers, final List<Inconsistency> inconsistencies)
+   {
+      for (int i=0; i<eventHandlers.size(); i++)
+      {
+         final IEventHandler x = (IEventHandler) eventHandlers.get(i);
+         if ( !isErrorBoundaryEvent(x))
+         {
+            continue;
+         }
+         
+         for (int j=i+1; j<eventHandlers.size(); j++)
+         {
+            final IEventHandler y = (IEventHandler) eventHandlers.get(j);
+            if ( !isErrorBoundaryEvent(y))
+            {
+               continue;
+            }
+            
+            if ( !exceptionHierarchiesAreDisjunct(x, y))
+            {
+               inconsistencies.add(new Inconsistency("Multiple boundary events for exceptions not having disjunct type hierarchies ('"
+                                                      + x.getId() + "' and '" + y.getId() + "'). Only one will be processed during event handling.", 
+                                                      this, Inconsistency.WARNING));
+            }
+         }
+      }
+   }
+   
+   private boolean isErrorBoundaryEvent(final IEventHandler eventHandler)
+   {
+      if (eventHandler.getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY) == null)
+      {
+         return false;
+      }
+      
+      if ( !PredefinedConstants.EXCEPTION_CONDITION.equals(eventHandler.getType().getId()))
+      {
+         return false;
+      }
+      
+      return true;
+   }
+   
+   private boolean exceptionHierarchiesAreDisjunct(final IEventHandler x, final IEventHandler y)
+   {
+      final String xExceptionName = (String) x.getAttribute(PredefinedConstants.EXCEPTION_CLASS_ATT);
+      final String yExceptionName = (String) y.getAttribute(PredefinedConstants.EXCEPTION_CLASS_ATT);
+      
+      final Class<?> xException = Reflect.getClassFromClassName(xExceptionName);
+      final Class<?> yException = Reflect.getClassFromClassName(yExceptionName);
+      
+      if (xException.isAssignableFrom(yException) || yException.isAssignableFrom(xException))
+      {
+         return false;
+      }
+      
+      return true;
    }
    
    /**

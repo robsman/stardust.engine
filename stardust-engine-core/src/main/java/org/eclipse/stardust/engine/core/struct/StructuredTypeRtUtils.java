@@ -735,8 +735,16 @@ public class StructuredTypeRtUtils
          }
          resourceSet.setURIConverter(uriConverter);
       }
-      
+            
       URI uri = URI.createURI(location);
+      if (uri.scheme() == null)
+      {
+         if(location.startsWith("/"))
+         {
+            location = location.substring(1);
+         }
+         uri = URI.createURI(ClasspathUriConverter.CLASSPATH_SCHEME + ":/" + location);
+      }
       
       // (fh) register the resource factory directly with the resource set and do not tamper with the global registry.
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(uri.scheme(), XSD_RESOURCE_FACTORY);

@@ -230,7 +230,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -278,7 +278,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not interrupted.", pi.getState(), is(ProcessInstanceState.Interrupted));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Interrupted));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -350,7 +350,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -398,7 +398,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not interrupted.", pi.getState(), is(ProcessInstanceState.Interrupted));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Interrupted));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -548,7 +548,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -576,7 +576,7 @@ public class TransientProcessInstanceTest
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi.getProcessID()));
       final ActivityInstance completedAi = sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
-      assertThat(testName.getMethodName() + ": PI is not completed.", completedAi.getProcessInstance().getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + "- process instance state check", completedAi.getProcessInstance().getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -629,7 +629,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -1345,7 +1345,7 @@ public class TransientProcessInstanceTest
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -1442,7 +1442,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_TRIGGER, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(pi.getStartingUser().getAccount(), equalTo(MOTU));
       
@@ -1467,7 +1467,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + "- process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       final AuditTrailPersistence persistence = (AuditTrailPersistence) pi.getRuntimeAttributes().get(AuditTrailPersistence.class.getName());
       assertThat(persistence, is(AuditTrailPersistence.TRANSIENT));

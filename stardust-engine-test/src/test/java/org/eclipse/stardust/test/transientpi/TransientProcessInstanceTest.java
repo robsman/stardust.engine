@@ -1469,7 +1469,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       final AuditTrailPersistence persistence = (AuditTrailPersistence) pi.getRuntimeAttributes().get(AuditTrailPersistence.class.getName());
-      assertThat(persistence, is(AuditTrailPersistence.TRANSIENT));
+      assertThat(testName.getMethodName() + " - audit trail persistence check", persistence, is(AuditTrailPersistence.TRANSIENT));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
@@ -1528,7 +1528,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final Parameters params = Parameters.instance();
@@ -1567,7 +1567,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final Parameters params = Parameters.instance();
@@ -1603,7 +1603,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
@@ -1639,7 +1639,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final Parameters params = Parameters.instance();
@@ -1676,7 +1676,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
@@ -1713,7 +1713,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final Parameters params = Parameters.instance();
@@ -1748,7 +1748,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final Parameters params = Parameters.instance();
@@ -1785,7 +1785,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
 
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
@@ -1828,7 +1828,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
@@ -1869,7 +1869,7 @@ public class TransientProcessInstanceTest
       }
       catch (final IllegalOperationException e)
       {
-         assertThat(e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
+         assertThat(testName.getMethodName() + " - exception ID check", e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
       
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
@@ -2079,7 +2079,7 @@ public class TransientProcessInstanceTest
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
       final Map<String, Object> properties = pi.getStartingUser().getAllProperties();
-      assertThat(properties.isEmpty(), is(TRUE));
+      assertThat(testName.getMethodName() + " - starting user properties are empty", properties.isEmpty(), is(TRUE));
    }
 
    /**
@@ -2100,7 +2100,7 @@ public class TransientProcessInstanceTest
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
       final UserDetailsLevel userDetailsLevel = pi.getStartingUser().getDetailsLevel();
-      assertThat(userDetailsLevel, equalTo(UserDetailsLevel.Minimal));
+      assertThat(testName.getMethodName() + " - user details level check", userDetailsLevel, equalTo(UserDetailsLevel.Minimal));
    }
 
    /**

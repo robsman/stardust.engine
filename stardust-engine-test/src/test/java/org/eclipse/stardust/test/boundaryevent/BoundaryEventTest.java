@@ -1,6 +1,7 @@
 package org.eclipse.stardust.test.boundaryevent;
 
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.APP_ACTIVITY_ID;
+import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.DEPLOYMENT_VALIDATION_MODEL_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.DISABLED_NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.ENABLED_NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_DATA_ID;
@@ -9,7 +10,6 @@ import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstant
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.EXCEPTION_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.FAIL_FLAG_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.FIRST_NORMAL_FLOW_ACTIVITY_ID;
-import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.INVALID_MODEL_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.MODEL_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.NORMAL_FLOW_ACTIVITY_ID;
 import static org.eclipse.stardust.test.boundaryevent.BoundaryEventModelConstants.PROCESS_ID_ERROR_EVENT;
@@ -501,7 +501,7 @@ public class BoundaryEventTest
       final DeploymentOptions deploymentOptions = new DeploymentOptions();
       deploymentOptions.setIgnoreWarnings(true);
       
-      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, INVALID_MODEL_ID);
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
       
       final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
@@ -525,13 +525,61 @@ public class BoundaryEventTest
       final DeploymentOptions deploymentOptions = new DeploymentOptions();
       deploymentOptions.setIgnoreWarnings(true);
       
-      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, INVALID_MODEL_ID);
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
       
       final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
       final List<Inconsistency> warnings = deploymentInfo.getWarnings();
       assertWarningsContain("Multiple boundary events for exceptions not having disjunct type hierarchies", warnings);
    }
+
+   /**
+    * <p>
+    * This test focuses on deployment validation of models containing boundary events.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that models containing boundary event handlers having a generated ID (e.g. ec0e3dbc-6ee5-4292-b948-b5353af72758)
+    * are not checked by the <i>JavaScript</i> interpreter and therefore can be deployed without any warnings.
+    * </p>
+    */
+   @Test
+   public void testDeployModelWithGeneratedEventHandlerId()
+   {
+      final DeploymentOptions deploymentOptions = new DeploymentOptions();
+      deploymentOptions.setIgnoreWarnings(true);
+      
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
+      assertThat(deploymentInfos.size(), is(1));
+      
+      final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
+      final List<Inconsistency> warnings = deploymentInfo.getWarnings();
+      assertWarningsDoNotContain("EvaluatorException: missing exponent", warnings);
+   }
+   
+   /**
+    * <p>
+    * This test focuses on deployment validation of models containing boundary events.
+    * </p>
+    * 
+    * <p>
+    * This test makes sure that exception transition conditions refer to a valid boundary event handler. Otherwise a warning
+    * is issued.
+    * </p>
+    */
+   @Test
+   public void testDeployModelExceptionTransitionWithMissingBoundaryEvent()
+   {
+      final DeploymentOptions deploymentOptions = new DeploymentOptions();
+      deploymentOptions.setIgnoreWarnings(true);
+      
+      final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
+      assertThat(deploymentInfos.size(), is(1));
+      
+      final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
+      final List<Inconsistency> warnings = deploymentInfo.getWarnings();
+      assertWarningsContain("No boundary event handler with ID", warnings);
+   }   
    
    private void doOneEventDaemonRun()
    {
@@ -542,21 +590,33 @@ public class BoundaryEventTest
    
    private void assertWarningsContain(final String warningPrefix, final List<Inconsistency> warnings)
    {
-      boolean found = false;
-      
-      for (final Inconsistency i : warnings)
-      {
-         if (i.getMessage().startsWith(warningPrefix))
-         {
-            found = true;
-            break;
-         }
-      }
-      
+      final boolean found = warningsContain(warningPrefix, warnings);
       if ( !found)
       {
          fail("Warning prefix '" + warningPrefix + "' not present in the list of deployment warnings.");
       }
+   }
+
+   private void assertWarningsDoNotContain(final String warningPrefix, final List<Inconsistency> warnings)
+   {
+      final boolean found = warningsContain(warningPrefix, warnings);
+      if (found)
+      {
+         fail("Warning prefix '" + warningPrefix + "' must not be present in the list of deployment warnings.");
+      }
+   }
+   
+   private boolean warningsContain(final String warningPrefix, final List<Inconsistency> warnings)
+   {
+      for (final Inconsistency i : warnings)
+      {
+         if (i.getMessage().startsWith(warningPrefix))
+         {
+            return true;
+         }
+      }
+      
+      return false;
    }
    
    /**

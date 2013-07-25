@@ -66,8 +66,6 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 {
    private static final String PROCESS_INTERFACE_NOT_RESOLVED = "Unresolved reference to process interface ''{0}''.";
 
-   private static final Pattern ON_BOUNDARY_EVENT_CONDITION = Pattern.compile(TransitionBean.ON_BOUNDARY_EVENT_PREDICATE + "\\(.+\\)");
-   
    private static final long serialVersionUID = 1L;
 
    private static final Logger trace = LogManager.getLogger(ProcessDefinitionBean.class);
@@ -126,7 +124,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       final Iterator iter2 = exceptionTransitions.iterator();
       checkForDuplicateTransition(iter2, transition);
       
-      if (condition != null && ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
+      if (condition != null && TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
       {
          exceptionTransitions.add(transition);
       }
@@ -476,7 +474,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    
          if (fromActivity.getSplitType().equals(JoinSplitType.None) &&
                !fromActivity.getOutTransitions().isEmpty() &&
-               !ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
+               !TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
          {
             throw new PublicException("Multiple outgoing transitions are only allowed for "
                   + "AND or XOR activity splits. Transition OID: " + elementOID

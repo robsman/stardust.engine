@@ -12,14 +12,14 @@ package org.eclipse.stardust.test.boundaryevent;
 /* package-private */ class BoundaryEventModelConstants
 {
    /**
-    * the ID of the valid model
+    * the ID of the model used for testing the runtime functionality
     */
    /* package-private */ static final String MODEL_ID = "BoundaryEventModel";
    
    /**
-    * the ID of the invalid model
+    * the ID of the model used for testing model deployment validation functionality
     */
-   /* package-private */ static final String INVALID_MODEL_ID = "InvalidBoundaryEventModel";
+   /* package-private */ static final String DEPLOYMENT_VALIDATION_MODEL_ID = "BoundaryEventDeploymentValidationModel";
    
    
    /**
@@ -56,7 +56,7 @@ package org.eclipse.stardust.test.boundaryevent;
     * the ID of the process definition containing an non-interrupting timer event and an AND split gateway on the "normal" flow
     */
    /* package-private */ static final String PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING_AND = "ProcessDefinition_Timer_Non_interrupting_AND";
-
+   
    
    /**
     * the ID of the application activity having the event handler attached

@@ -11,7 +11,40 @@
 package org.eclipse.stardust.test.transientpi;
 
 import static java.lang.Boolean.TRUE;
-import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.*;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.DATA_ID_TRANSIENT_ROUTE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.MODEL_ID;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.OUT_DATA_PATH_FAIL;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ABORT_PROCESS;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_DEFERRED;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_ENGINE_DEFAULT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_IMMEDIATE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_TRANSIENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED_FAIL;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FROM_TRANSIENT_TO_NON_TRANSIENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_IMPLICIT_AND_JOIN;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ISOLATED_QUERY_PROCESS;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_MANUAL_ACTIVITY;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_MANUAL_TRIGGER;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_NON_FORKED;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_NON_FORKED_FAIL;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_PULL_EVENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_RECOVERY;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_REPEAT_LOOP;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ROLLBACK;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_DEFAULT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_DEFERRED;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_IMMEDIATE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_SPLIT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_TRANSIENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SPLIT_XOR_JOIN;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_SUB_SUB_PROCESS;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRANSIENT_VIA_JMS;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_TRIGGER_PROCESS_EVENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_WAITING_PROCESS;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_WHILE_LOOP;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_NAME_TIMER_TRIGGER;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -54,11 +87,25 @@ import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.Daemon;
+import org.eclipse.stardust.engine.api.runtime.DataCopyOptions;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
+import org.eclipse.stardust.engine.api.runtime.SubprocessSpawnInfo;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadData;
+import org.eclipse.stardust.engine.core.runtime.beans.SerialActivityThreadWorkerCarrier;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -69,10 +116,22 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
-import org.eclipse.stardust.test.api.util.*;
+import org.eclipse.stardust.test.api.util.DaemonHome;
 import org.eclipse.stardust.test.api.util.DaemonHome.DaemonType;
-import org.junit.*;
+import org.eclipse.stardust.test.api.util.JmsConstants;
+import org.eclipse.stardust.test.api.util.Log4jLogMessageBarrier;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.api.util.WaitTimeout;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.RuleChain;
+import org.junit.rules.TestName;
 import org.junit.rules.TestRule;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.core.MessageCreator;
@@ -128,6 +187,9 @@ public class TransientProcessInstanceTest
    public final TestRule chain = RuleChain.outerRule(sf)
                                           .around(testMethodSetup);
    
+   @Rule
+   public final TestName testName = new TestName();
+   
    @BeforeClass
    public static void setUpOnce()
    {
@@ -168,7 +230,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -216,7 +278,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Interrupted));
+      assertThat(testName.getMethodName() + ": PI is not interrupted.", pi.getState(), is(ProcessInstanceState.Interrupted));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -288,7 +350,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -336,7 +398,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED_FAIL, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Interrupted));
+      assertThat(testName.getMethodName() + ": PI is not interrupted.", pi.getState(), is(ProcessInstanceState.Interrupted));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -486,7 +548,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_TRANSIENT_NON_TRANSIENT_ROUTE, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -514,7 +576,7 @@ public class TransientProcessInstanceTest
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive(pi.getProcessID()));
       final ActivityInstance completedAi = sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
       
-      assertThat(completedAi.getProcessInstance().getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + ": PI is not completed.", completedAi.getProcessInstance().getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -567,7 +629,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -1283,7 +1345,7 @@ public class TransientProcessInstanceTest
 
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(noSerialActivityThreadQueues(), is(true));
@@ -1380,7 +1442,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_TRIGGER, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(pi.getStartingUser().getAccount(), equalTo(MOTU));
       
@@ -1405,7 +1467,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
-      assertThat(pi.getState(), is(ProcessInstanceState.Completed));
+      assertThat(testName.getMethodName() + ": PI is not completed.", pi.getState(), is(ProcessInstanceState.Completed));
       
       final AuditTrailPersistence persistence = (AuditTrailPersistence) pi.getRuntimeAttributes().get(AuditTrailPersistence.class.getName());
       assertThat(persistence, is(AuditTrailPersistence.TRANSIENT));

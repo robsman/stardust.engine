@@ -233,7 +233,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -257,7 +257,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -281,7 +281,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", pi.getState(), is(ProcessInstanceState.Interrupted));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -305,7 +305,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -329,7 +329,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -353,7 +353,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -377,7 +377,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -401,7 +401,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", pi.getState(), is(ProcessInstanceState.Interrupted));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -425,7 +425,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Interrupted);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -449,7 +449,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -473,7 +473,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -502,7 +502,7 @@ public class TransientProcessInstanceTest
          /* expected */
       }
 
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -526,7 +526,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -551,7 +551,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -579,7 +579,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", completedAi.getProcessInstance().getState(), is(ProcessInstanceState.Completed));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -608,7 +608,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -632,7 +632,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -655,7 +655,7 @@ public class TransientProcessInstanceTest
       final long piOid = receiveProcessInstanceCompletedMessage();
 
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(piOid), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -680,7 +680,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -704,7 +704,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -728,7 +728,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -752,7 +752,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -776,7 +776,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -800,7 +800,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -824,7 +824,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -848,7 +848,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -872,7 +872,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -896,7 +896,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -920,7 +920,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -944,7 +944,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -968,7 +968,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -992,7 +992,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1016,7 +1016,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1040,7 +1040,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1064,7 +1064,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1087,7 +1087,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1110,7 +1110,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1133,7 +1133,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1156,7 +1156,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1184,7 +1184,7 @@ public class TransientProcessInstanceTest
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(subPiOid), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1212,7 +1212,7 @@ public class TransientProcessInstanceTest
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(subPiOid), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1240,7 +1240,7 @@ public class TransientProcessInstanceTest
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(subPiOid), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1268,7 +1268,7 @@ public class TransientProcessInstanceTest
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(subPiOid), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1300,7 +1300,7 @@ public class TransientProcessInstanceTest
          assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(f.get()), is(false));
       }
 
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1324,7 +1324,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Aborted);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1348,7 +1348,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance state check", pi.getState(), is(ProcessInstanceState.Completed));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
       
       sf.getQueryService().getAllProcessInstances(ProcessInstanceQuery.findAll());
@@ -1374,7 +1374,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1397,7 +1397,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1422,7 +1422,7 @@ public class TransientProcessInstanceTest
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(triggeredPiOid), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1447,7 +1447,7 @@ public class TransientProcessInstanceTest
       assertThat(pi.getStartingUser().getAccount(), equalTo(MOTU));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1473,7 +1473,7 @@ public class TransientProcessInstanceTest
       assertThat(persistence, is(AuditTrailPersistence.TRANSIENT));
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1496,7 +1496,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1537,7 +1537,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1576,7 +1576,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1612,7 +1612,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1648,7 +1648,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1685,7 +1685,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1722,7 +1722,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1757,7 +1757,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1801,7 +1801,7 @@ public class TransientProcessInstanceTest
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(casePi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(transientPi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1842,7 +1842,7 @@ public class TransientProcessInstanceTest
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(transientPi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1883,7 +1883,7 @@ public class TransientProcessInstanceTest
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(transientPi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1930,7 +1930,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(false));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -1960,7 +1960,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -1992,7 +1992,7 @@ public class TransientProcessInstanceTest
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    
@@ -2025,7 +2025,7 @@ public class TransientProcessInstanceTest
       }
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
 
@@ -2059,7 +2059,7 @@ public class TransientProcessInstanceTest
       }
       
       assertThat(testName.getMethodName() + " - process instance entry in database", hasEntryInDbForPi(pi.getOID()), is(true));
-      assertThat(noSerialActivityThreadQueues(), is(true));
+      assertThat(testName.getMethodName() + " - no serial activity thread queues", noSerialActivityThreadQueues(), is(true));
       assertThat(isTransientProcessInstanceStorageEmpty(), is(true));
    }
    

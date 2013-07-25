@@ -101,8 +101,6 @@ public class TransientProcessInstanceTest
    
    private static final String ROOT_PI_TO_PI_BLOB_FIELD_NAME = "rootPiToPiBlob";
    
-   private static final String PROCESS_EXECUTION_STATE = "Process.Execution.State";
-
    private static final String PI_IS_TRANSIENT_BPM_RT_ERROR_ID = "BPMRT03840";
    
    private static final String APP_MAY_COMPLETE = "APP_MAY_COMPLETE";
@@ -146,7 +144,6 @@ public class TransientProcessInstanceTest
    public void setUp()
    {
       final Parameters params = Parameters.instance();
-      params.set(PROCESS_EXECUTION_STATE, ProcessExecutionState.NOT_STARTED);
       params.set(APP_MAY_COMPLETE, false);
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
       params.set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
@@ -2297,9 +2294,7 @@ public class TransientProcessInstanceTest
    /**
     * <p>
     * This is the application used in the model that causes the process instance to fail
-    * in order to investigate the behavior in case of failures. In addition,
-    * it sets a property so that one can determine that the process instance
-    * is interrupted.
+    * in order to investigate the behavior in case of failures.
     * </p>
     * 
     * @author Nicolas.Werlein
@@ -2309,9 +2304,6 @@ public class TransientProcessInstanceTest
    {
       public void fail()
       {
-         final Parameters params = Parameters.instance();
-         params.set(PROCESS_EXECUTION_STATE, ProcessExecutionState.INTERRUPTED);
-         
          /* always throws an exception to test behavior in case of failures */
          throw new RuntimeException("expected");
       }
@@ -2319,8 +2311,7 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
-    * This is the application used in the test model that simply succeeds. In addition, 
-    * it sets a property so that one can determine that the process instance is completed.
+    * This is the application used in the test model that simply succeeds.
     * </p>
     * 
     * @author Nicolas.Werlein
@@ -2330,8 +2321,7 @@ public class TransientProcessInstanceTest
    {
       public void success()
       {
-         final Parameters params = Parameters.instance();
-         params.set(PROCESS_EXECUTION_STATE, ProcessExecutionState.COMPLETED);
+         /* nothing to do */
       }
    }
    
@@ -2421,8 +2411,6 @@ public class TransientProcessInstanceTest
          }
       }
    }
-   
-   private static enum ProcessExecutionState { NOT_STARTED, COMPLETED, INTERRUPTED }
    
    /* package-private */ static final class ProcessExecutor implements Callable<Long>
    {

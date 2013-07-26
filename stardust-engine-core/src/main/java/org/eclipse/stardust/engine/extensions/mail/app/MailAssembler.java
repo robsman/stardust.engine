@@ -466,13 +466,13 @@ public class MailAssembler
    }
    
    /**
-    * This will return HTML query parameters. Always fields for process instance OID and activity instance OID
-    * will be added. If argument <code>investigate</code> is set to <code>true</code> then
-    * it will be added, <code>outputValue</code> will be ignored. 
-    * Otherwise if argument <code>investigate</code> is set to <code>false</code> then
-    * it will be ignored, but <code>outputValue</code> will be added.
-    * At the end field hashCode will be added which encodes all previous fields.   
-    *    
+    * This will return HTML query parameters. Always fields for process instance OID and
+    * activity instance OID will be added. If argument <code>investigate</code> is set to
+    * <code>true</code> then it will be added, <code>outputValue</code> will be ignored.
+    * Otherwise if argument <code>investigate</code> is set to <code>false</code> then it
+    * will be ignored, but <code>outputValue</code> will be added. At the end field
+    * hashCode will be added which encodes all previous fields.
+    * 
     * @param investigate
     * @param outputValue
     * 
@@ -481,31 +481,34 @@ public class MailAssembler
    private StringBuffer getHtmlQuery(final boolean investigate, final String outputValue)
    {
       StringBuffer buffer = new StringBuffer(200);
-      
-     String partition = Parameters.instance().getString(SecurityProperties.DEFAULT_PARTITION, "default");
-      
+      String partition = Parameters.instance().getString(
+            SecurityProperties.DEFAULT_PARTITION, "default");
       if (SecurityProperties.getPartition() != null)
-	  {
-    	  partition = SecurityProperties.getPartition().getId();
-	  }
-      
-      final int hashCode = MailValidationUtils.getQueryParametersHashCode(processInstanceOID,
-            activityInstanceOID, partition, investigate, outputValue);
-      
-      buffer.append("?").append(MailConstants.PROCESS_INSTANCE_OID).append("=").append(processInstanceOID)
-            .append("&").append(MailConstants.ACTIVITY_INSTANCE_OID).append("=").append(activityInstanceOID);
-      
+      {
+         partition = SecurityProperties.getPartition().getId();
+      }
+
+      final int hashCode = MailValidationUtils.getQueryParametersHashCode(
+            processInstanceOID, activityInstanceOID, partition, investigate, outputValue);
+
+      buffer.append("?").append(MailConstants.PROCESS_INSTANCE_OID).append("=")
+            .append(processInstanceOID).append("&")
+            .append(MailConstants.ACTIVITY_INSTANCE_OID).append("=")
+            .append(activityInstanceOID);
+
       if (investigate)
       {
-         buffer.append("&").append(MailConstants.INVESTIGATE).append("=").append(investigate);
+         buffer.append("&").append(MailConstants.INVESTIGATE).append("=")
+               .append(investigate);
       }
       else
       {
-         buffer.append("&").append(MailConstants.OUTPUT_VALUE).append("=").append(outputValue);
+         buffer.append("&").append(MailConstants.OUTPUT_VALUE).append("=")
+               .append(outputValue);
       }
-      
-      buffer.append("&").append(MailConstants.HASH_CODE).append("=").append(hashCode);
 
+      buffer.append("&").append(MailConstants.PARTITION).append("=").append(partition);
+      buffer.append("&").append(MailConstants.HASH_CODE).append("=").append(hashCode);
       return buffer;
    }
 

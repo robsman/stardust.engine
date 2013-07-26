@@ -44,20 +44,18 @@ public class MailValidationUtils
          boolean investigate, String outputValue)
    {
       StringBuffer buffer = new StringBuffer(200);
-      
-      buffer.append(piOid).append("|")
-            .append(aiOid).append("|");
-       
-            //ensure backwards compatibility, if partition is not present existing hash codes must still be valid.
-            if (StringUtils.isEmpty(partition))
-                  {
-               buffer.append(partition).append("|");
-                  }
-            
-            buffer
-            .append(Boolean.toString(investigate)).append("|")
+      buffer.append(piOid).append("|").append(aiOid).append("|");
+
+      // ensure backwards compatibility, if partition is not present existing hash codes
+      // must still be valid.
+      if (StringUtils.isNotEmpty(partition))
+      {
+         buffer.append(partition).append("|");
+      }
+
+      buffer.append(Boolean.toString(investigate)).append("|")
             .append(outputValue == null ? "" : outputValue);
-      
+
       return buffer.toString().hashCode();
    }
 }

@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,12 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.query.ActivityStateFilter;
+import org.eclipse.stardust.engine.api.query.FilterCriterion;
+import org.eclipse.stardust.engine.api.query.FilterTerm;
+import org.eclipse.stardust.engine.api.query.ProcessStateFilter;
+import org.eclipse.stardust.engine.api.query.Query;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
@@ -38,12 +45,14 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
 import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler.Representation;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterMetaInfoRetriever;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
@@ -57,7 +66,152 @@ import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
 public class DataClusterHelper
 {
    private static final Logger trace = LogManager.getLogger(DataClusterHelper.class);
+ 
+   private static Set<ProcessInstanceState> getRequiredPiStates(ProcessStateFilter stateFilter)
+   {
+      Set<ProcessInstanceState> restrictedStates = new HashSet<ProcessInstanceState>();
+      Set<ProcessInstanceState> allStates = ProcessInstanceState.getAllStates();
+      Set<ProcessInstanceState> filterStates = new HashSet<ProcessInstanceState>(
+            Arrays.asList(stateFilter.getStates())); 
+      
+      if(stateFilter.isInclusive())
+      {
+         restrictedStates.addAll(filterStates);
+      }
+      else
+      {
+         restrictedStates.addAll(allStates);
+         restrictedStates.removeAll(filterStates);
+      }
+      
+      if(restrictedStates.isEmpty())
+      {
+         restrictedStates.addAll(ProcessInstanceState.getAllStates());
+      }
+      
+      return restrictedStates;
+   }
+   
+   private static Set<ProcessInstanceState> getRequiredPiStates(ActivityInstanceState state)
+   {
+      Set<ProcessInstanceState> restrictedStates 
+         = new HashSet<ProcessInstanceState>();
+      switch (state.getValue())
+      {
+         case ActivityInstanceState.CREATED:
+         case ActivityInstanceState.APPLICATION:
+         case ActivityInstanceState.INTERRUPTED:
+         case ActivityInstanceState.SUSPENDED:
+         case ActivityInstanceState.HIBERNATED:
+            restrictedStates.add(ProcessInstanceState.Active);
+            restrictedStates.add(ProcessInstanceState.Interrupted);
+            break;
 
+         default:
+            restrictedStates.addAll(ProcessInstanceState.getAllStates());
+            break;
+      }
+       
+      return restrictedStates;
+   }
+   
+   private static void collectRequiredClusterPiStates(FilterTerm filterTerm, Set<ProcessInstanceState> restrictions)
+   {
+      for(Object part: filterTerm.getParts())
+      {
+         FilterCriterion criterion = (FilterCriterion) part;
+         if(criterion instanceof FilterTerm)
+         {
+            FilterTerm tmpFilterTerm = (FilterTerm) criterion;
+            collectRequiredClusterPiStates(tmpFilterTerm, restrictions);
+         }
+         
+         if(criterion instanceof ProcessStateFilter)
+         {
+            ProcessStateFilter stateFilter = (ProcessStateFilter) criterion;    
+            restrictions.addAll(getRequiredPiStates(stateFilter));
+         }
+         
+         if(criterion instanceof ActivityStateFilter)
+         {
+            ActivityStateFilter stateFilter = (ActivityStateFilter) criterion;
+            for(ActivityInstanceState aiState: stateFilter.getStates())
+            {
+               restrictions.addAll(getRequiredPiStates(aiState));
+            }
+         }
+      } 
+   }
+   
+   private static Set<ProcessInstanceState> getRequiredClusterPiStates(Query query)
+   {
+      Set<ProcessInstanceState> requiredPiStates = new HashSet<ProcessInstanceState>();
+      collectRequiredClusterPiStates(query.getFilter(), requiredPiStates);   
+      return requiredPiStates;
+   }
+   
+   public static void setRequiredClusterPiStates(Query query)
+   {
+      DataClusterRuntimeInfo clusterRuntimeInfo = DataClusterHelper.getDataClusterRuntimeInfo();
+      if (clusterRuntimeInfo != null && !clusterRuntimeInfo.isRequiredClusterPiStatesSet())
+      {
+         Set<ProcessInstanceState> requiredPiStates = DataClusterHelper.getRequiredClusterPiStates(query);
+         clusterRuntimeInfo.setRequiredClusterPiStates(requiredPiStates);
+      }
+   }
+   
+   /**
+    * Returns a Set of {@link ProcessInstanceState} which needs to be supported by a {@link DataCluster}
+    * to be able to fetch data value from it
+    * 
+    * @param query - the query to be analyized
+    * @return a Set of {@link ProcessInstanceState} which needs to be supported by a {@link DataCluster}
+    * to be able to fetch data value from it
+    */
+   public static Set<ProcessInstanceState> getRequiredClusterPiStates()
+   {
+      Set<ProcessInstanceState> requiredClusterPiStates = null;
+      DataClusterRuntimeInfo clusterRuntimeInfo = DataClusterHelper.getDataClusterRuntimeInfo(); 
+      if(clusterRuntimeInfo != null)
+      {
+         requiredClusterPiStates = clusterRuntimeInfo.getRequiredClusterPiStates(); 
+      }
+      else
+      {
+         requiredClusterPiStates = ProcessInstanceState.getAllStates();
+      }
+      
+      return requiredClusterPiStates; 
+   }
+   
+   public static DataClusterRuntimeInfo getDataClusterRuntimeInfo()
+   {
+      if(DataClusterHelper.isDataClusterPresent())
+      {
+         final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+         DataClusterRuntimeInfo rtEnvClusterInfo = rtEnv.getDataClusterRuntimeInfo();
+         if(rtEnvClusterInfo == null)
+         {
+            rtEnvClusterInfo = new DataClusterRuntimeInfo();
+            rtEnv.setDataClusterRuntimeInfo(rtEnvClusterInfo);
+         }
+         
+         return rtEnvClusterInfo;
+      }
+      
+      return null;
+   }
+   
+   public static boolean isDataClusterPresent()
+   {
+      RuntimeSetup setup = RuntimeSetup.instance();
+      if(setup != null && setup.hasDataClusterSetup())
+      {
+         return true;
+      }
+      
+      return false;
+   }
    
    public static void deleteDataClusterSetup()
    {

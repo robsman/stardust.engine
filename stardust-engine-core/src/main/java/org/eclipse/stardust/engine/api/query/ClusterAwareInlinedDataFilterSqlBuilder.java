@@ -59,6 +59,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBe
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
@@ -87,12 +88,12 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
     * The set of {@link ProcessInstanceState} the DataCluster must support 
     * for fetching data values - see {@link DataCluster#getEnableStates()} 
     */
-   private final Set<ProcessInstanceState> piFilterStates;
+   private final Set<ProcessInstanceState> requiredClusterPiStates;
 
-   public ClusterAwareInlinedDataFilterSqlBuilder(Set<ProcessInstanceState> piFilterStates)
+   public ClusterAwareInlinedDataFilterSqlBuilder()
    {
-      this.piFilterStates = piFilterStates;
       this.clusterSetup = RuntimeSetup.instance().getDataClusterSetup();
+      this.requiredClusterPiStates = DataClusterHelper.getRequiredClusterPiStates();
    }
 
    public ParsedQuery buildSql(Query query, Class type,
@@ -100,7 +101,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
    {
       // advise data cluster candidates
       final Map<DataCluster, Set<DataAttributeKey>> clusterCandidates = CollectionUtils.newHashMap();
-      final ClusterAdvisor clusterAdvisor = new ClusterAdvisor(clusterSetup, piFilterStates);
+      final ClusterAdvisor clusterAdvisor = new ClusterAdvisor(clusterSetup, requiredClusterPiStates);
       final ClusterAdvisor.Context clusterAdvisorContext = new ClusterAdvisor.Context(
             clusterCandidates, NO_DATA_ATTIBUTE_KEYS, evaluationContext.getModelManager());
       query.evaluateFilter(clusterAdvisor, clusterAdvisorContext);

@@ -17,20 +17,15 @@ import static org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTw
 import static org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties.QUERY_EVALUATION_PROFILE_LEGACY;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.core.persistence.EmptyResultSetIterator;
 import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
@@ -48,9 +43,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
-import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.utils.ActivityInstanceAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
@@ -73,7 +66,6 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
    protected final Query query;
    private final Class type;
    private final EvaluationContext evaluationContext;
-   private final DataCluster[] dataClusterSetup;
 
    protected RuntimeInstanceQueryEvaluator(Query query, Class type,
          EvaluationContext context)
@@ -81,7 +73,12 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       this.query = query;
       this.type = type;
       this.evaluationContext = context;
-      dataClusterSetup = RuntimeSetup.instance().getDataClusterSetup();
+      //set pi cluster restrictions - only cluster that supports that states can be used for fetching
+      //do this only once so the information don't gets modified/lost for subqueries
+      if(DataClusterHelper.isDataClusterPresent())
+      {
+         DataClusterHelper.setRequiredClusterPiStates(query);
+      } 
    }
 
    public Class getQueriedType()
@@ -336,79 +333,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       return false;
    }
 
-   protected Set<ProcessInstanceState> getFullProcessStateSet()
-   {
-      Set<ProcessInstanceState> result = new HashSet<ProcessInstanceState>();
 
-      result.add(ProcessInstanceState.Active);
-      result.add(ProcessInstanceState.Aborted);
-      result.add(ProcessInstanceState.Completed);
-      result.add(ProcessInstanceState.Interrupted);
-
-      return result;
-   }
-   
-   private Set<ProcessInstanceState> getPossiblePiStates(ActivityInstanceState state)
-   {
-      Set<ProcessInstanceState> possibleStates 
-         = new HashSet<ProcessInstanceState>();
-      switch (state.getValue())
-      {
-         case ActivityInstanceState.CREATED:
-         case ActivityInstanceState.APPLICATION:
-         case ActivityInstanceState.INTERRUPTED:
-         case ActivityInstanceState.SUSPENDED:
-         case ActivityInstanceState.HIBERNATED:
-            possibleStates.add(ProcessInstanceState.Active);
-            possibleStates.add(ProcessInstanceState.Interrupted);
-            break;
-
-         default:
-            possibleStates.addAll(getFullProcessStateSet());
-            break;
-      }
-       
-      return possibleStates;
-   }
-   
-   private void collectRestrictedProcessInstanceStates(FilterTerm filterTerm, Set<ProcessInstanceState> restrictions)
-   {
-      for(Object part: filterTerm.getParts())
-      {
-         FilterCriterion criterion = (FilterCriterion) part;
-         if(criterion instanceof FilterTerm)
-         {
-            FilterTerm tmpFilterTerm = (FilterTerm) criterion;
-            collectRestrictedProcessInstanceStates(tmpFilterTerm, restrictions);
-         }
-         
-         if(criterion instanceof ProcessStateFilter)
-         {
-            ProcessStateFilter stateFilter = (ProcessStateFilter) criterion;
-            for(ProcessInstanceState piState: stateFilter.getStates())
-            {
-               restrictions.add(piState);
-            }
-         }
-         
-         if(criterion instanceof ActivityStateFilter)
-         {
-            ActivityStateFilter stateFilter = (ActivityStateFilter) criterion;
-            for(ActivityInstanceState aiState: stateFilter.getStates())
-            {
-               restrictions.addAll(getPossiblePiStates(aiState));
-            }
-         }
-      } 
-   }
-   
-   private Set<ProcessInstanceState> getRestrictedProcessInstanceStates()
-   {
-      Set<ProcessInstanceState> restrictions = new HashSet<ProcessInstanceState>();
-      collectRestrictedProcessInstanceStates(query.getFilter(), restrictions);
-      return restrictions;
-   }
-   
    /**
     * Factory method allowing for varying SQL building strategies.
     *
@@ -426,9 +351,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       }
       else if (QUERY_EVALUATION_PROFILE_CLUSTERED.equals(profile))
       {
-         Set<ProcessInstanceState> piStateRestrictions 
-            = getRestrictedProcessInstanceStates();
-         sqlBuilder = new ClusterAwareInlinedDataFilterSqlBuilder(piStateRestrictions);
+         sqlBuilder = new ClusterAwareInlinedDataFilterSqlBuilder();
       }
       else if (QUERY_EVALUATION_PROFILE_LEGACY.equals(profile))
       {

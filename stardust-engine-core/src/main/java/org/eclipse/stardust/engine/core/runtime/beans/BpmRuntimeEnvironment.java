@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterRuntimeInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
@@ -103,6 +104,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private EventBindingRecords eventBindingRecords;
    
    private ExtendedAccessPathEvaluatorRegistry evaluatorRegistry;
+   
+   private DataClusterRuntimeInfo dataClusterRuntimeInfo; 
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
@@ -650,5 +653,15 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          eventBindingRecords = new EventBindingRecords();
       }
       return eventBindingRecords;
+   }
+
+   public DataClusterRuntimeInfo getDataClusterRuntimeInfo()
+   {
+      return dataClusterRuntimeInfo;
+   }
+
+   public void setDataClusterRuntimeInfo(DataClusterRuntimeInfo dataClusterRuntimeInfo)
+   {
+      this.dataClusterRuntimeInfo = dataClusterRuntimeInfo;
    }
 }

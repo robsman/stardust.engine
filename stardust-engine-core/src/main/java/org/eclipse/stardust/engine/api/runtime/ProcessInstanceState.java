@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.runtime;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.stardust.common.IntKey;
 
 /**
@@ -83,6 +86,21 @@ public class ProcessInstanceState extends IntKey
             Aborting
          };
 
+   /**
+    * 
+    * @return returns all possible {@link ProcessInstanceState}
+    */
+   public static Set<ProcessInstanceState> getAllStates()
+   {
+      Set<ProcessInstanceState> allStates = new HashSet<ProcessInstanceState>();
+      for(ProcessInstanceState key: KEYS)
+      {
+         allStates.add(key);
+      }
+      
+      return allStates;
+   }
+   
    /**
     * Factory method to get the ProcessInstanceState corresponding to the given code.
     *

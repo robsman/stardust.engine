@@ -212,7 +212,8 @@ public class CaseProcessInstanceTest
       assertHierarchy(casePi, caseProcess2, true);
 
       wfService.abortProcessInstance(caseProcess1.getOID(), AbortScope.SubHierarchy);
-
+      ProcessInstanceStateBarrier.instance().await(caseProcess1.getOID(), ProcessInstanceState.Aborted);
+      
       ActivityInstance ai = wfService.activateNextActivityInstanceForProcessInstance(caseProcess2.getOID());
       wfService.complete(ai.getOID(), null, null);
 

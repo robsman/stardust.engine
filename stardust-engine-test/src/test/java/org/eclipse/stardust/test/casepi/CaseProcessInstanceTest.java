@@ -20,6 +20,8 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
@@ -29,16 +31,39 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.query.*;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.CasePolicy;
+import org.eclipse.stardust.engine.api.query.DataFilter;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
+import org.eclipse.stardust.engine.api.query.HierarchyDataFilter;
+import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceFilter;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceHierarchyFilter;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstances;
+import org.eclipse.stardust.engine.api.query.SubProcessDataFilter;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.Department;
+import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
+import org.eclipse.stardust.engine.api.runtime.Models;
+import org.eclipse.stardust.engine.api.runtime.PermissionState;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
@@ -61,6 +86,8 @@ import org.junit.rules.TestRule;
  */
 public class CaseProcessInstanceTest
 {
+   private static final Log LOG = LogFactory.getLog(CaseProcessInstanceTest.class);
+   
    /* package-private */ static final String MODEL_NAME = "CaseModel";
 
    private static final String U1 = "u1";
@@ -625,13 +652,13 @@ public class CaseProcessInstanceTest
       final String MANAGECASE = Permissions.PREFIX + "processDefinition" + '.' + ExecutionPermission.Id.modifyCase ;
 
       PermissionState permDelegatged = delegatedPi.getPermission(MANAGECASE);
-      System.out.println("permDelegated from motu to Org1 as motu - " + permDelegatged.getValue() + "  "  + permDelegatged.getName());
+      LOG.info("permDelegated from motu to Org1 as motu - " + permDelegatged.getValue() + "  "  + permDelegatged.getName());
 
       ServiceFactory sfU1 = ServiceFactoryLocator.get(U1, U1);
       ProcessInstance processInstanceU1 = sfU1.getWorkflowService().getProcessInstance(delegatedPi.getOID());
 
       PermissionState permDelegatged2 = processInstanceU1.getPermission(MANAGECASE);
-      System.out.println("permDelegated from motu to Org1 as user1 - " + permDelegatged2.getValue() + "  "  + permDelegatged2.getName());
+      LOG.info("permDelegated from motu to Org1 as user1 - " + permDelegatged2.getValue() + "  "  + permDelegatged2.getName());
 
       // DELEGATE to ScopedOrg1
       Organization scopedOrg = getTestModel().getOrganization("{CaseModel}ScopedOrg1");
@@ -641,13 +668,13 @@ public class CaseProcessInstanceTest
       sfU1.close();
 
       PermissionState permDelegatged3 = delegatedPi2.getPermission(MANAGECASE);
-      System.out.println("permDelegated from Org1 to ScopedOrg1 as user1 - " + permDelegatged3.getValue() + "  "  + permDelegatged3.getName());
+      LOG.info("permDelegated from Org1 to ScopedOrg1 as user1 - " + permDelegatged3.getValue() + "  "  + permDelegatged3.getName());
 
       ServiceFactory sfU2 = ServiceFactoryLocator.get(U2, U2);
       ProcessInstance processInstanceU2 = sfU2.getWorkflowService().getProcessInstance(delegatedPi.getOID());
 
       PermissionState permDelegatged4 = processInstanceU2.getPermission(MANAGECASE);
-      System.out.println("permDelegated from Org1 to ScopedOrg1 as user2 - " + permDelegatged4.getValue() + "  "  + permDelegatged4.getName());
+      LOG.info("permDelegated from Org1 to ScopedOrg1 as user2 - " + permDelegatged4.getValue() + "  "  + permDelegatged4.getName());
       sfU2.close();
    }
 

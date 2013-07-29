@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.query.FilterOrTerm;
 import org.eclipse.stardust.engine.api.query.SubsetPolicy;
@@ -28,10 +30,10 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -50,6 +52,8 @@ import org.junit.rules.TestRule;
  */
 public class DmsDocumentSearchTest
 {
+   private static final Log LOG = LogFactory.getLog(DmsDocumentSearchTest.class);
+   
    // doc 1
    private static final String DOC_NAME1 = "test.txt";
 
@@ -195,10 +199,10 @@ public class DmsDocumentSearchTest
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.DATE, -1);
       Date date = cal.getTime();
-      System.out.println(date);
+      LOG.info(date);
       cal.add(Calendar.DATE, 2);
       Date date2 = cal.getTime();
-      System.out.println(date2);
+      LOG.info(date2);
 
       DocumentQuery query = DocumentQuery.findAll();
       query.where(DocumentQuery.DATE_CREATED.between(date.getTime(), date2.getTime()));

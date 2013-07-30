@@ -11,7 +11,14 @@
 package org.eclipse.stardust.test.workflow;
 
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
-import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.*;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.DEFAULT_ROLE_ID;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MANUAL_ACTIVITY_1_ID;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MANUAL_ACTIVITY_2_ID;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MY_STRING_DATA_ID;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.MY_STRING_IN_DATA_PATH_ID;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.PD_1_ID;
+import static org.eclipse.stardust.test.workflow.BasicWorkflowModelConstants.PD_3_ID;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -21,6 +28,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.Map;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.InvalidValueException;
@@ -32,12 +40,20 @@ import org.eclipse.stardust.engine.api.model.ContextData;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
@@ -805,6 +821,9 @@ public class ActivityInstanceWorkflowTest
    @Test
    public void testActivateNextActivityInstanceByAiOid()
    {
+      // TODO (nw) remove as soon as CRNT-29836 has been resolved
+      Parameters.instance().set(KernelTweakingProperties.LAST_MODIFIED_TIMESTAMP_EPSILON, 20);
+      
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);
       userSf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);

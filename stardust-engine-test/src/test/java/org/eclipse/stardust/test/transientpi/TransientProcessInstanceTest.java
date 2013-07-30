@@ -1790,7 +1790,7 @@ public class TransientProcessInstanceTest
       
       final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
       final ProcessInstance casePi = sf.getWorkflowService().createCase(CASE_PI_NAME, CASE_PI_DESCRIPTION, new long[] { nonTransientPi.getOID() });
-      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
+      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
       
       try
       {
@@ -1833,7 +1833,7 @@ public class TransientProcessInstanceTest
       enableTransientProcessesSupport();
       
       final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
-      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
+      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
       
       try
       {
@@ -1874,7 +1874,7 @@ public class TransientProcessInstanceTest
       enableTransientProcessesSupport();
       
       final ProcessInstance nonTransientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MANUAL_ACTIVITY, null, true);
-      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_FORKED, null, true);
+      final ProcessInstance transientPi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_WAITING_PROCESS, null, true);
       
       try
       {

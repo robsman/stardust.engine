@@ -442,6 +442,7 @@
                <include name="org/eclipse/stardust/engine/api/query/UserWorklist.java" />
                <include name="org/eclipse/stardust/engine/api/query/Users.java" />
                <include name="org/eclipse/stardust/engine/api/query/Worklist.java" />
+               <include name="org/eclipse/stardust/engine/api/query/WorklistLayoutPolicy.java" />
                <include name="org/eclipse/stardust/engine/api/query/WorklistQuery.java" />
 
                <include name="org/eclipse/stardust/engine/core/spi/extensions/model/AccessPoint.java" />

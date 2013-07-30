@@ -50,22 +50,22 @@
    <bean id="xaAuditTrailConnectionFactory" class="org.springframework.jca.support.LocalConnectionFactoryBean">
       <property name="managedConnectionFactory">
          <bean id="xaDataSourceMcf" class="org.eclipse.stardust.engine.core.persistence.jca.XaDataSourceMCF">
-            <constructor-arg index="0" ref="carnotXaAuditTrailDataSource" />
+            <constructor-arg index="0" ref="auditTrailDataSource" />
          </bean>
       </property>
-      <property name="connectionManager" ref="jencksConnectionManager" />
+      <property name="connectionManager" ref="auditTrailConnectionManager" />
    </bean>
-   <bean id="carnotXaAuditTrailDataSource" class="org.h2.jdbcx.JdbcDataSource" lazy-init="true">
+   <bean id="auditTrailDataSource" class="org.h2.jdbcx.JdbcDataSource" lazy-init="true">
       <property name="URL" value="${AuditTrail.URL}" />
       <property name="user" value="${AuditTrail.User}" />
       <property name="password" value="${AuditTrail.Password}" />
    </bean>
-   <bean id="jencksConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
+   <bean id="auditTrailConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
       <property name="transactionManager" ref="xaTransactionManager" />
       <property name="transaction" value="xa" />
-      <property name="poolingSupport" ref="dsPoolingSupport" />
+      <property name="poolingSupport" ref="auditTrailPoolingSupport" />
    </bean>
-   <bean id="dsPoolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean">
+   <bean id="auditTrailPoolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean">
       <property name="poolMinSize" value="100" />
       <property name="poolMaxSize" value="200" />
       <property name="connectionMaxWaitMilliseconds" value="5000" />

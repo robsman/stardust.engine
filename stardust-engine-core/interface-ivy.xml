@@ -281,9 +281,6 @@
          <exclude org="org.slf4j" module="jcl-over-slf4j"/>         
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-with-full-text-search->default"/>
-      <dependency org="com.drewnoakes" name="metadata-extractor" rev="${metadata-extractor.version}" conf="jackrabbit-core-with-full-text-search->default">
-         <exclude org="xerces" module="xercesImpl"/>
-      </dependency>
             
       <!-- jackrabbit-core-without-full-text-search -->
       <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="${jackrabbit-core.version}" conf="jackrabbit-core-without-full-text-search->default">

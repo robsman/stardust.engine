@@ -277,6 +277,8 @@
          <exclude org="commons-collections" module="commons-collections"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec"/>
          <exclude org="xerces" module="xercesImpl"/>
+         <exclude org="org.slf4j" module="slf4j-api"/>
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>         
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-with-full-text-search->default"/>
       <dependency org="com.drewnoakes" name="metadata-extractor" rev="${metadata-extractor.version}" conf="jackrabbit-core-with-full-text-search->default">
@@ -303,6 +305,8 @@
          <exclude org="commons-pool" module="commons-pool"/>
          <exclude org="commons-collections" module="commons-collections"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec"/>
+         <exclude org="org.slf4j" module="slf4j-api"/>
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>   
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-without-full-text-search->default"/>
       

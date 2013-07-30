@@ -326,8 +326,7 @@ public class DmsDocumentSearchTest
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
       
-      // should find 1 valid content of text/plain because XML and PDF contents are malformed.
-      assertEquals("Documents", 1, docs.size());
+      assertEquals("Documents", 3, docs.size());
       assertEquals("text/plain", docs.get(0).getContentType());
    }
 

@@ -57,7 +57,7 @@ public class SpringAppContext
          System.setProperty(FORKING_SERVICE_MODE_PROPERTY_KEY, forkingServiceModeValue);
          
          /* causes the Spring Application Context to be initialized */
-         appCtx().refresh();
+         appCtx();
          
          System.clearProperty(FORKING_SERVICE_MODE_PROPERTY_KEY);
       }

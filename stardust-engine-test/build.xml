@@ -143,12 +143,12 @@
    
    <!-- init -->
    <target name="init">
-      <mkdir dir="${build.classes.dir}"/>
-      <mkdir dir="${build.dep-report.dir}"/>
-      <mkdir dir="${build.test-report.dir}"/>
+      <mkdir dir="${build.classes.dir}" />
+      <mkdir dir="${build.dep-report.dir}" />
+      <mkdir dir="${build.test-report.dir}" />
       
       <init-ivy/>
-      <init-ivy-classpath/>
+      <init-ivy-classpath conf="compile,test" />
       
       <property name="javac.debuglevel" value="lines,vars,source" />
    </target>

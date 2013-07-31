@@ -47,8 +47,7 @@
       <LoginModule class="org.apache.jackrabbit.core.security.simple.SimpleLoginModule">
          <!-- anonymous user name ('anonymous' is the default value) -->
          <param name="anonymousId" value="anonymous" />
-         <!-- administrator user id (default value if param is missing is 
-            'admin') -->
+         <!-- administrator user id (default value if param is missing is 'admin') -->
          <param name="adminId" value="admin" />
       </LoginModule>
    </Security>
@@ -63,9 +62,7 @@
       <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
       
       <!-- persistence manager of the workspace -->
-      <!-- Please note: 'InMemPersistenceManager' has been deprecated, but replacement -->
-      <!-- 'InMemBundlePersistenceManager' is not available until Jackrabbit v2.3.6    -->
-      <PersistenceManager class="org.apache.jackrabbit.core.persistence.mem.InMemPersistenceManager">
+      <PersistenceManager class="org.apache.jackrabbit.core.persistence.mem.InMemBundlePersistenceManager">
          <param name="persistent" value="false" />
       </PersistenceManager>
       
@@ -83,9 +80,7 @@
       <FileSystem class="org.apache.jackrabbit.core.fs.mem.MemoryFileSystem" />
 
       <!-- Configures the persistence manager to be used for persisting version state  -->
-      <!-- Please note: 'InMemPersistenceManager' has been deprecated, but replacement -->
-      <!-- 'InMemBundlePersistenceManager' is not available until Jackrabbit v2.3.6    -->
-      <PersistenceManager class="org.apache.jackrabbit.core.persistence.mem.InMemPersistenceManager">
+      <PersistenceManager class="org.apache.jackrabbit.core.persistence.mem.InMemBundlePersistenceManager">
          <param name="persistent" value="false" />
       </PersistenceManager>
    </Versioning>

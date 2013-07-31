@@ -12,6 +12,8 @@ package org.eclipse.stardust.test.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.engine.api.spring.SpringConstants;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException;
@@ -42,24 +44,24 @@ public class SpringAppContext
 {
    private static final Log LOG = LogFactory.getLog(SpringAppContext.class);
    
-   private static final String FORKING_SERVICE_MODE_PROPERTY_KEY = "forking.service.mode";
+   private static final String APP_CTX_NAME_PREFIX = "stardust-local.";
+   private static final String APP_CTX_NAME_SUFFIX = ".app-ctx.xml";
    
-   private static final String FORKING_SERVICE_MODE_PROPERTY_VALUE_JMS = "jms-activemq";
-   private static final String FORKING_SERVICE_MODE_PROPERTY_VALUE_NATIVE_THREADING = "native-threading";
+   private static final String APP_CTX_NAME_JMS_FORKING = APP_CTX_NAME_PREFIX + "jms-forking" + APP_CTX_NAME_SUFFIX;
+   private static final String APP_CTX_NAME_NATIVE_THREADING = APP_CTX_NAME_PREFIX + "native-threading" + APP_CTX_NAME_SUFFIX;
    
    public void bootstrap(final ForkingServiceMode forkingServiceMode) throws TestRtEnvException
    {
       try
       {
-         final String forkingServiceModeValue = (forkingServiceMode == ForkingServiceMode.JMS) 
-                                                   ? FORKING_SERVICE_MODE_PROPERTY_VALUE_JMS
-                                                   : FORKING_SERVICE_MODE_PROPERTY_VALUE_NATIVE_THREADING;
-         System.setProperty(FORKING_SERVICE_MODE_PROPERTY_KEY, forkingServiceModeValue);
-         
+         final String appCtxName = (forkingServiceMode == ForkingServiceMode.JMS) 
+                                                   ? APP_CTX_NAME_JMS_FORKING
+                                                   : APP_CTX_NAME_NATIVE_THREADING;
+         final Parameters params = Parameters.instance();
+         params.set(SpringConstants.PRP_APPLICATION_CONTEXT_FILE, appCtxName);
+
          /* causes the Spring Application Context to be initialized */
          appCtx();
-         
-         System.clearProperty(FORKING_SERVICE_MODE_PROPERTY_KEY);
       }
       catch (final Exception e)
       {

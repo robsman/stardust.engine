@@ -21,9 +21,6 @@
    <!-- Clustering Support -->
    <import resource="classpath:stardust-local-clustering-hazelcast.app-ctx.xml" />
 
-   <!-- Forking Service Mode -->
-   <import resource="classpath:stardust-local-forking-${forking.service.mode}.app-ctx.xml" />
-
    <!-- Stardust Engine Services -->   
    <bean id="abstractCarnotService" abstract="true" class="org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean">
       <property name="transactionManager" ref="jtaTxManager" />

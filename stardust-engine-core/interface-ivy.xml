@@ -281,6 +281,8 @@
          <exclude org="org.slf4j" module="jcl-over-slf4j"/>         
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-with-full-text-search->default"/>
+      <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="jackrabbit-core-with-full-text-search->default" />
+      <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-with-full-text-search->default" />
             
       <!-- jackrabbit-core-without-full-text-search -->
       <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="${jackrabbit-core.version}" conf="jackrabbit-core-without-full-text-search->default">
@@ -306,6 +308,8 @@
          <exclude org="org.slf4j" module="jcl-over-slf4j"/>   
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-without-full-text-search->default"/>
+      <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="jackrabbit-core-without-full-text-search->default" />
+      <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-without-full-text-search->default" />
       
       <!-- jackrabbit-provider-runtime -->
       <dependency org="commons-httpclient" name="commons-httpclient" rev="${commons-httpclient.version}" conf="jackrabbit-provider-runtime->default">

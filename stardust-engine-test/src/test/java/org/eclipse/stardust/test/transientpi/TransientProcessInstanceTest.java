@@ -2148,7 +2148,7 @@ public class TransientProcessInstanceTest
     * </p>
     */
    @Test
-   public void testTimerTriggerDaemonIgnoresTransientProcessDefinitions() throws Exception
+   public void testTimerTriggerDaemonAlsoConsidersTransientProcessDefinitions() throws Exception
    {
       enableTransientProcessesSupport();
       

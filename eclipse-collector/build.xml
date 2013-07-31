@@ -9,7 +9,7 @@
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
 
-<project name="eclipse-collector" default="deply" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
+<project name="eclipse-collector" default="deploy" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
 
    <property name="project.dir" value="." />
    <property name="project.etc" value="${project.dir}/etc" />
@@ -34,7 +34,7 @@
       <property name="build.src.none" location="${build.dir}/src-none" />
    </target>
 
-   <target name="initIvy">
+	<target name="initIvy">
       <echo message="Using Ivy for dependency management." />
       <init-ivy />
    </target>
@@ -60,7 +60,7 @@
      <download-eclipse-artifact name="org.eclipse.equinox.common" version="${common.org.eclipse.equinox.common.version}" />
      <download-eclipse-artifact name="org.eclipse.equinox.registry" version="${common.org.eclipse.equinox.registry.version}" />
    </target>
-
+   
    <target name="deploy" depends="retrieve-eclipse-artifacts" />
 
    <macrodef name="install-artifact">
@@ -87,7 +87,7 @@
       <install-artifact groupId="org.eclipse.equinox" artifactId="org.eclipse.equinox.common" version="${common.org.eclipse.equinox.common.version}" />
       <install-artifact groupId="org.eclipse.equinox" artifactId="org.eclipse.equinox.registry" version="${common.org.eclipse.equinox.registry.version}" />
    </target>
-
+	
    <macrodef name="publish-artifact">
       <attribute name="groupId" />
       <attribute name="artifactId" />
@@ -112,5 +112,5 @@
       <publish-artifact groupId="org.eclipse.equinox" artifactId="org.eclipse.equinox.common" version="${common.org.eclipse.equinox.common.version}" />
       <publish-artifact groupId="org.eclipse.equinox" artifactId="org.eclipse.equinox.registry" version="${common.org.eclipse.equinox.registry.version}" />
    </target>
-
+   
 </project>

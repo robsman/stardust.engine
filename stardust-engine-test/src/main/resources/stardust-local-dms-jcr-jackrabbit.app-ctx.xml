@@ -52,15 +52,18 @@
    
    <bean id="carnotJackrabbitRepository" class="org.apache.jackrabbit.core.TransientRepository" lazy-init="true" depends-on="jcrRepoConfigFile, jcrWorkspace">
       <constructor-arg index="0">
-         <bean factory-bean="jcrRepoConfigFile" factory-method="getFile" />
+         <bean factory-bean="jcrRepoConfigFile" factory-method="file" />
       </constructor-arg>
       <constructor-arg index="1">
          <bean factory-bean="jcrWorkspace" factory-method="file" />
       </constructor-arg>
    </bean>
    
-   <bean id="jcrRepoConfigFile" class="org.springframework.core.io.ClassPathResource">
-      <constructor-arg index="0" value="repository.xml" />
+   <bean id="jcrRepoConfigFile" class="org.eclipse.stardust.test.impl.ClassPathFile">
+      <constructor-arg index="0" ref="jcrRepoConfigResource" />
+   </bean>
+   <bean id="jcrRepoConfigResource" class="org.springframework.core.io.ClassPathResource">
+      <constructor-arg index="0" value="test-repo.xml" />
    </bean>
    
    <bean id="jcrWorkspace" class="org.eclipse.stardust.test.impl.Workspace" init-method="create" destroy-method="remove">

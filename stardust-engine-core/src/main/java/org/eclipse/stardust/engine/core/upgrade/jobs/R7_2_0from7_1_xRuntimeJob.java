@@ -22,6 +22,8 @@ public class R7_2_0from7_1_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
    private static final String UPL_TABLE_NAME = "user_participant";
    public static final String UPL_FIELD_ON_BEHALF_OF = "onBehalfOf";
+   private static final String AIH_TABLE_NAME = "act_inst_history";
+   public static final String AIH_FIELD_ON_BEHALF_OF_USER = "onBehalfOfUser";
    
    private static final Logger trace = LogManager.getLogger(R7_2_0from7_1_xRuntimeJob.class);
 
@@ -64,7 +66,31 @@ public class R7_2_0from7_1_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       catch (SQLException e)
       {
          reportExeption(e, "Could not update new column " + UPL_TABLE_NAME
-               + "." + UPL_FIELD_ON_BEHALF_OF + " to -1.");
+               + "." + UPL_FIELD_ON_BEHALF_OF + " to 0.");
+      }
+      
+      DatabaseHelper.alterTable(item, new AlterTableInfo(AIH_TABLE_NAME)
+      {
+         private final FieldInfo ON_BEHALF_OF = new FieldInfo(AIH_FIELD_ON_BEHALF_OF_USER,
+               Long.TYPE);
+
+         @Override
+         public FieldInfo[] getAddedFields()
+         {
+            return new FieldInfo[] { ON_BEHALF_OF };
+         }
+
+      }, this);
+      
+      try
+      {
+         setColumnDefaultValue(item, AIH_TABLE_NAME,
+               AIH_FIELD_ON_BEHALF_OF_USER, 0);
+      }
+      catch (SQLException e)
+      {
+         reportExeption(e, "Could not update new column " + AIH_TABLE_NAME
+               + "." + AIH_FIELD_ON_BEHALF_OF_USER + " to 0.");
       }
    }
    

@@ -11,14 +11,9 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -26,51 +21,18 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
-import org.eclipse.stardust.engine.api.model.Activity;
-import org.eclipse.stardust.engine.api.model.DataPath;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
-import org.eclipse.stardust.engine.api.model.ParticipantInfo;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEvent;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
-import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.LogType;
-import org.eclipse.stardust.engine.api.runtime.PermissionState;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
-import org.eclipse.stardust.engine.api.runtime.UserInfo;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.model.utils.ModelElement;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ILogEntry;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
-import org.eclipse.stardust.engine.core.runtime.beans.IWorkItem;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
@@ -99,7 +61,11 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 {
    private static final long serialVersionUID = 2L;
 
-   private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+
+   // this pattern does define a group which will contain a long value: the handler oid
+   private static final Pattern handlerOidPattern = Pattern.compile("handlerOID *= *([0-9]+)");
+
 
    private ActivityInstanceState state;
    private Date startTime;
@@ -626,24 +592,44 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          }
       }
 
-      if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION))
+      if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION)
+            || isEventTypeSet(eventTypes, HistoricalEventType.EVENT_EXECUTION))
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          Iterator lIter = null;
+
+         // LogEntry has been already fetched in prefetch phase of query execution - take it from cache
          if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
          {
-            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(LogEntryBean.class)
-                  .iterator();
+            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session)
+                  .getCache(LogEntryBean.class).iterator();
          }
+
+         ModelElementList eventHandlers = null;
          while (lIter != null && lIter.hasNext())
          {
             PersistenceController pc = (PersistenceController) lIter.next();
             ILogEntry logEntry = (ILogEntry) pc.getPersistent();
-            LogType logtype = LogType.getKey(logEntry.getType());
-            if (logEntry.getActivityInstanceOID() == getOID()
-                  && !LogType.Debug.equals(logtype) && !LogType.Info.equals(logtype))
+
+            if (logEntry.getActivityInstanceOID() == getOID())
             {
-               historicalEvents.add(new HistoricalEventDetails(logEntry));
+               LogType logtype = LogType.getKey(logEntry.getType());
+               LogCode logCode = LogCode.getKey(logEntry.getCode());
+
+               if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION)
+                     // exceptions are represented by log entries logged with WARN, ERROR or even higher level
+                     && !LogType.Debug.equals(logtype) && !LogType.Info.equals(logtype))
+               {
+                  historicalEvents.add(new HistoricalEventDetails(logEntry));
+               }
+
+               if (isEventTypeSet(eventTypes, HistoricalEventType.EVENT_EXECUTION)
+                     // event execution is currently logged at INFO level
+                     && LogType.Info.equals(logtype) && LogCode.EVENT.equals(logCode))
+               {
+                  eventHandlers = addHistoricalEventExecution(activityInstance,
+                        eventHandlers, logEntry);
+               }
             }
          }
       }
@@ -670,6 +656,53 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             }
          });
       }
+   }
+
+   /**
+    * @param activityInstance the AI for which event execution will be added
+    * @param eventHandlers this will contain a list of event handlers for the current activity.
+    *          If null it will be initialized in the method call, otherwise its content will be used.
+    * @param logEntry the LogEntry which currently is inspected
+    * @return
+    */
+   private ModelElementList addHistoricalEventExecution(
+         IActivityInstance activityInstance, ModelElementList eventHandlers,
+         ILogEntry logEntry)
+   {
+      // extract event handler oid from log entry subject
+      String subject = logEntry.getSubject();
+      Matcher matcher = handlerOidPattern.matcher(subject);
+
+      long eventHandlerOid = 0;
+      if (matcher.find())
+      {
+         eventHandlerOid = Long.valueOf(matcher.group(1));
+      }
+
+      // retrieve event handlers for current AI once in this loop
+      if (eventHandlers == null)
+      {
+         eventHandlers = activityInstance.getActivity().getEventHandlers();
+      }
+
+      // find matching event handler and add to list of historical events
+      // (why does "foreach" give compilation issues? Using old style iteration)
+      for (Iterator iterator = eventHandlers.iterator(); iterator.hasNext();)
+      {
+         ModelElement type = (ModelElement) iterator.next();
+         if (eventHandlerOid == type.getOID())
+         {
+            EventHandler eventHandlerBindingDetails = new EventHandlerDetails(
+                  (IEventHandler) type);
+
+            HistoricalEvent histEvent = new HistoricalEventDetails(
+                  HistoricalEventType.EventExecution, logEntry.getTimeStamp(),
+                  HistoricalEventDetails.getUser(logEntry.getUserOID()),
+                  eventHandlerBindingDetails);
+            historicalEvents.add(histEvent);
+         }
+      }
+      return eventHandlers;
    }
 
    private static boolean isEventTypeSet(int eventTypes, int eventType)

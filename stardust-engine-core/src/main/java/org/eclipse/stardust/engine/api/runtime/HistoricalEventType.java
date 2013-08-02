@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,10 +43,16 @@ public class HistoricalEventType extends IntKey
     */
    public final static int DELEGATION = 8;
    
+   /**
+    * The HistoricalEvent describes a delegation event.
+    */
+   public final static int EVENT_EXECUTION = 16;
+   
    public final static HistoricalEventType Note = new HistoricalEventType(NOTE, "Note");
    public final static HistoricalEventType Exception = new HistoricalEventType(EXCEPTION, "Exception");
    public final static HistoricalEventType StateChange = new HistoricalEventType(STATE_CHANGE, "State Change");
    public final static HistoricalEventType Delegation = new HistoricalEventType(DELEGATION, "Delegation");
+   public final static HistoricalEventType EventExecution = new HistoricalEventType(EVENT_EXECUTION, "EventExecution");
    
    /**
     * Factory method to get the HistoricalEventType object corresponding to the numerical code.

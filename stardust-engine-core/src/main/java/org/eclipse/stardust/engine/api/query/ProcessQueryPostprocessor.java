@@ -32,10 +32,7 @@ import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.DataClusterPrefetchUtil.StructuredDataPrefetchInfo;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
-import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.LogType;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
@@ -174,7 +171,7 @@ public class ProcessQueryPostprocessor
             if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION))
             {
                prefetchLogEntries(new OneElementIterator(process), QueryUtils
-                     .getTimeOut(query));
+                     .getTimeOut(query), eventPolicy);
             }
          }
          props.setProperty(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS,
@@ -263,7 +260,7 @@ public class ProcessQueryPostprocessor
             props.setProperty(HistoricalEventPolicy.PRP_PROPVIDE_EVENT_TYPES, new Integer(eventTypes));
             if(isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION))
             {
-               prefetchLogEntries(queryResult.iterator(), QueryUtils.getTimeOut(query));
+               prefetchLogEntries(queryResult.iterator(), QueryUtils.getTimeOut(query), eventPolicy);
             }
          }
          props.setProperty(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS,
@@ -419,10 +416,11 @@ public class ProcessQueryPostprocessor
                {
                   statesPolicy = HistoricalStatesPolicy.WITH_HIST_STATES;
                }
-               if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION))
+               if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION)
+                     || isEventTypeSet(eventTypes, HistoricalEventType.EVENT_EXECUTION))
                {
-                  prefetchLogEntries(new OneElementIterator(activity), QueryUtils
-                        .getTimeOut(query));
+                  prefetchLogEntries(new OneElementIterator(activity),
+                        QueryUtils.getTimeOut(query), eventPolicy);
                }
             }
             props.setProperty(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, Boolean
@@ -488,9 +486,11 @@ public class ProcessQueryPostprocessor
             {
                statesPolicy = HistoricalStatesPolicy.WITH_HIST_STATES;
             }
-            if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION))
+            if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION)
+                  || isEventTypeSet(eventTypes, HistoricalEventType.EVENT_EXECUTION))
             {
-               prefetchLogEntries(queryResult.iterator(), QueryUtils.getTimeOut(query));
+               prefetchLogEntries(queryResult.iterator(), QueryUtils.getTimeOut(query),
+                     eventPolicy);
             }
          }
          props.setProperty(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, Boolean
@@ -718,7 +718,8 @@ public class ProcessQueryPostprocessor
       }
    }
 
-   private static void prefetchLogEntries(Iterator instanceItr, int timeout)
+   private static void prefetchLogEntries(Iterator instanceItr,
+         int timeout, HistoricalEventPolicy eventPolicy)
    {
       ComparisonTerm piTermTemplate = Predicates.inList(
             LogEntryBean.FR__PROCESS_INSTANCE, Collections.EMPTY_LIST);
@@ -757,14 +758,25 @@ public class ProcessQueryPostprocessor
          }
       }
 
-      // Reduce log entries to those not DEBUG and not INFO, not necessary for HistoricalEventType.Exception.
-      final ComparisonTerm notDebugAndInfo = Predicates.notInList(LogEntryBean.FR__TYPE,
-            new int[] { LogType.DEBUG, LogType.INFO });
+      OrTerm logCodeTypePredicate = new OrTerm();
+      if (isEventTypeSet(eventPolicy.getEventTypes(), HistoricalEventType.EXCEPTION))
+      {
+         // fetch items for TYPE being not DEBUG and not INFO for any CODE, not necessary for HistoricalEventType.Exception.
+         logCodeTypePredicate.add(Predicates.notInList(LogEntryBean.FR__TYPE, new int[] {
+               LogType.DEBUG, LogType.INFO }));
+      }
+      if (isEventTypeSet(eventPolicy.getEventTypes(), HistoricalEventType.EVENT_EXECUTION))
+      {
+         // Only fetch INFO for EVENTS which are written on event execution
+         logCodeTypePredicate.add(Predicates.andTerm(
+               Predicates.isEqual(LogEntryBean.FR__CODE, LogCode.EVENT.getValue()), 
+               Predicates.isEqual(LogEntryBean.FR__TYPE, LogType.INFO)));
+      }
       performPrefetch(LogEntryBean.class, //
-            QueryExtension.where(Predicates.andTerm(piTermTemplate, notDebugAndInfo)), //
+            QueryExtension.where(Predicates.andTerm(piTermTemplate, logCodeTypePredicate)), //
             piTermTemplate, piSet, false, timeout, PREFETCH_BATCH_SIZE);
       performPrefetch(LogEntryBean.class, //
-            QueryExtension.where(Predicates.andTerm(aiTermTemplate, notDebugAndInfo)), //
+            QueryExtension.where(Predicates.andTerm(aiTermTemplate, logCodeTypePredicate)), //
             aiTermTemplate, aiSet, false, timeout, PREFETCH_BATCH_SIZE);
    }
 

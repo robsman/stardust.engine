@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.cache.hazelcast;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.resource.ResourceException;
 import javax.resource.cci.ConnectionFactory;
@@ -24,9 +23,8 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.spi.cache.CacheAdapterBase;
+import org.eclipse.stardust.engine.runtime.utils.HazelcastUtils;
 
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 
 
@@ -56,7 +54,7 @@ public class HazelcastCacheAdapter extends CacheAdapterBase<IMap<Object, Object>
          cacheName = (String) config.get("name");
       }
 
-      this.delegate = getHazelcastInstance().getMap(cacheName);
+      this.delegate = HazelcastUtils.getHazelcastInstance().getMap(cacheName);
       
       if (trace.isDebugEnabled())
       {
@@ -83,20 +81,5 @@ public class HazelcastCacheAdapter extends CacheAdapterBase<IMap<Object, Object>
             throw new PublicException("Failed enlisting Hazelcast cache in the current transaction.", e);
          }
       }
-   }
-   
-   private HazelcastInstance getHazelcastInstance()
-   {
-      final Set<HazelcastInstance> instances = Hazelcast.getAllHazelcastInstances();
-      if (instances.isEmpty())
-      {
-         throw new IllegalStateException("No running Hazelcast instance found.");
-      }
-      if (instances.size() > 1)
-      {
-         throw new IllegalStateException("More than one Hazelcast instance is running on this JVM: " + instances);
-      }
-      
-      return instances.iterator().next();
    }
 }

@@ -11,7 +11,6 @@
 package org.eclipse.stardust.engine.core.persistence.jdbc.transientpi;
 
 import java.util.Map;
-import java.util.Set;
 
 import javax.resource.ResourceException;
 import javax.resource.cci.ConnectionFactory;
@@ -23,8 +22,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
 import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider;
+import org.eclipse.stardust.engine.runtime.utils.HazelcastUtils;
 
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Transaction;
 
@@ -53,7 +52,7 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       }
       HZ_CONNECTION_FACTORY = cfProvider.connectionFactory();
       
-      HZ_INSTANCE = getHazelcastInstance();
+      HZ_INSTANCE = HazelcastUtils.getHazelcastInstance();
    }
    
    /* (non-Javadoc)
@@ -109,20 +108,5 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
    public void afterAccess()
    {
       /* nothing to do */
-   }
-   
-   private static HazelcastInstance getHazelcastInstance()
-   {
-      final Set<HazelcastInstance> instances = Hazelcast.getAllHazelcastInstances();
-      if (instances.isEmpty())
-      {
-         throw new IllegalStateException("No running Hazelcast instance found.");
-      }
-      if (instances.size() > 1)
-      {
-         throw new IllegalStateException("More than one Hazelcast instance is running on this JVM: " + instances);
-      }
-      
-      return instances.iterator().next();
    }
 }

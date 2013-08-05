@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="lastModificationTime" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *         &lt;element name="currentPerformer" type="{http://eclipse.org/stardust/ws/v2012a/api}ParticipantInfo" minOccurs="0"/>
  *         &lt;element name="performedBy" type="{http://eclipse.org/stardust/ws/v2012a/api}UserInfo" minOccurs="0"/>
+ *         &lt;element name="performedOnBehalfOf" type="{http://eclipse.org/stardust/ws/v2012a/api}UserInfo" minOccurs="0"/>
  *         &lt;element name="userPerformer" type="{http://eclipse.org/stardust/ws/v2012a/api}User" minOccurs="0"/>
  *         &lt;element name="assignedToModelParticipant" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="assignedToUser" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
@@ -77,6 +78,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "lastModificationTime",
     "currentPerformer",
     "performedBy",
+    "performedOnBehalfOf",
     "userPerformer",
     "assignedToModelParticipant",
     "assignedToUser",
@@ -118,6 +120,7 @@ public class ActivityInstanceXto {
     protected Date lastModificationTime;
     protected ParticipantInfoXto currentPerformer;
     protected UserInfoXto performedBy;
+    protected UserInfoXto performedOnBehalfOf;
     protected UserXto userPerformer;
     protected boolean assignedToModelParticipant;
     protected boolean assignedToUser;
@@ -466,6 +469,30 @@ public class ActivityInstanceXto {
      */
     public void setPerformedBy(UserInfoXto value) {
         this.performedBy = value;
+    }
+
+    /**
+     * Gets the value of the performedOnBehalfOf property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link UserInfoXto }
+     *     
+     */
+    public UserInfoXto getPerformedOnBehalfOf() {
+        return performedOnBehalfOf;
+    }
+
+    /**
+     * Sets the value of the performedOnBehalfOf property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link UserInfoXto }
+     *     
+     */
+    public void setPerformedOnBehalfOf(UserInfoXto value) {
+        this.performedOnBehalfOf = value;
     }
 
     /**

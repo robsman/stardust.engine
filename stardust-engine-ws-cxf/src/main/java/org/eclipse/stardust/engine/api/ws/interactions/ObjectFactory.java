@@ -34,22 +34,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwnerResponse }
-     * 
-     */
-    public GetOwnerResponse createGetOwnerResponse() {
-        return new GetOwnerResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetInputParametersResponse }
-     * 
-     */
-    public GetInputParametersResponse createGetInputParametersResponse() {
-        return new GetInputParametersResponse();
-    }
-
-    /**
      * Create an instance of {@link SetOutputParametersResponse }
      * 
      */
@@ -58,19 +42,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SetOutputParameters }
+     * Create an instance of {@link GetOwnerResponse }
      * 
      */
-    public SetOutputParameters createSetOutputParameters() {
-        return new SetOutputParameters();
-    }
-
-    /**
-     * Create an instance of {@link GetInputParameters }
-     * 
-     */
-    public GetInputParameters createGetInputParameters() {
-        return new GetInputParameters();
+    public GetOwnerResponse createGetOwnerResponse() {
+        return new GetOwnerResponse();
     }
 
     /**
@@ -79,14 +55,6 @@ public class ObjectFactory {
      */
     public BpmInteractionFaultXto createBpmInteractionFaultXto() {
         return new BpmInteractionFaultXto();
-    }
-
-    /**
-     * Create an instance of {@link GetDefinitionResponse }
-     * 
-     */
-    public GetDefinitionResponse createGetDefinitionResponse() {
-        return new GetDefinitionResponse();
     }
 
     /**
@@ -103,6 +71,38 @@ public class ObjectFactory {
      */
     public GetDefinition createGetDefinition() {
         return new GetDefinition();
+    }
+
+    /**
+     * Create an instance of {@link GetDefinitionResponse }
+     * 
+     */
+    public GetDefinitionResponse createGetDefinitionResponse() {
+        return new GetDefinitionResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetInputParametersResponse }
+     * 
+     */
+    public GetInputParametersResponse createGetInputParametersResponse() {
+        return new GetInputParametersResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetInputParameters }
+     * 
+     */
+    public GetInputParameters createGetInputParameters() {
+        return new GetInputParameters();
+    }
+
+    /**
+     * Create an instance of {@link SetOutputParameters }
+     * 
+     */
+    public SetOutputParameters createSetOutputParameters() {
+        return new SetOutputParameters();
     }
 
     /**

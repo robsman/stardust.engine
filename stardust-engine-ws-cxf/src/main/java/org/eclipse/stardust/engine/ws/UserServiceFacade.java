@@ -23,12 +23,24 @@ import java.util.List;
 import javax.jws.WebService;
 
 import org.eclipse.stardust.common.error.ApplicationException;
+import org.eclipse.stardust.engine.api.runtime.Deputy;
+import org.eclipse.stardust.engine.api.runtime.DeputyOptions;
 import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.runtime.UserGroup;
+import org.eclipse.stardust.engine.api.runtime.UserInfo;
 import org.eclipse.stardust.engine.api.runtime.UserRealm;
 import org.eclipse.stardust.engine.api.runtime.UserService;
-import org.eclipse.stardust.engine.api.ws.*;
+import org.eclipse.stardust.engine.api.ws.BpmFault;
+import org.eclipse.stardust.engine.api.ws.DeputiesXto;
+import org.eclipse.stardust.engine.api.ws.DeputyOptionsXto;
+import org.eclipse.stardust.engine.api.ws.DeputyXto;
 import org.eclipse.stardust.engine.api.ws.GetUserRealmsResponse.UserRealmsXto;
+import org.eclipse.stardust.engine.api.ws.IUserService;
+import org.eclipse.stardust.engine.api.ws.MapXto;
+import org.eclipse.stardust.engine.api.ws.UserGroupXto;
+import org.eclipse.stardust.engine.api.ws.UserInfoXto;
+import org.eclipse.stardust.engine.api.ws.UserRealmXto;
+import org.eclipse.stardust.engine.api.ws.UserXto;
 
 
 
@@ -357,5 +369,117 @@ public class UserServiceFacade implements IUserService
       }
       return null;
    }
+
+   public DeputiesXto getDeputies(UserInfoXto userXto) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         UserService us = wsEnv.getServiceFactory().getUserService(); 
+         
+         UserInfo user = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(userXto);
+         DeputiesXto deputiesXto = XmlAdapterUtils.marshalDeputies(us.getDeputies(user));
+         
+         return deputiesXto;
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   public DeputyXto modifyDeputy(UserInfoXto userXto, UserInfoXto deputyUserXto,
+         DeputyOptionsXto optionsXto) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         UserService us = wsEnv.getServiceFactory().getUserService();
+         
+         UserInfo user = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(userXto);
+         UserInfo deputyUser = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(deputyUserXto);
+         DeputyOptions options = XmlAdapterUtils.unmarshalDeputyOptions(optionsXto);
+         
+         Deputy deputy = us.modifyDeputy(user, deputyUser, options);
+         
+         return XmlAdapterUtils.marshalDeputy(deputy);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   public DeputyXto addDeputy(UserInfoXto userXto, UserInfoXto deputyUserXto,
+         DeputyOptionsXto optionsXto) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         UserService us = wsEnv.getServiceFactory().getUserService();
+         
+         UserInfo user = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(userXto);
+         UserInfo deputyUser = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(deputyUserXto);
+         DeputyOptions options = XmlAdapterUtils.unmarshalDeputyOptions(optionsXto);
+         
+         Deputy deputy = us.addDeputy(user, deputyUser, options);
+         
+         return XmlAdapterUtils.marshalDeputy(deputy);
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+   public void removeDeputy(UserInfoXto userXto, UserInfoXto deputyUserXto) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         UserService us = wsEnv.getServiceFactory().getUserService();
+         
+         UserInfo user = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(userXto);
+         UserInfo deputyUser = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(deputyUserXto);
+         
+         us.removeDeputy(user, deputyUser);
+         
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      
+   }
+
+   @Override
+   public DeputiesXto getUsersBeingDeputyFor(UserInfoXto deputyUserXto) throws BpmFault
+   {
+      try
+      {
+         WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+         UserService us = wsEnv.getServiceFactory().getUserService(); 
+         
+         UserInfo deputyUser = (UserInfo) XmlAdapterUtils.unmarshalParticipantInfo(deputyUserXto);
+         DeputiesXto deputiesXto = XmlAdapterUtils.marshalDeputies(us.getUsersBeingDeputyFor(deputyUser));
+         
+         return deputiesXto;
+      }
+      catch (ApplicationException e)
+      {
+         XmlAdapterUtils.handleBPMException(e);
+      }
+      return null;
+   }
+
+
 
 }

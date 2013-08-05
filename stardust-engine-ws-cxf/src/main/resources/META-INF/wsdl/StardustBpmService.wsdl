@@ -753,7 +753,48 @@
    <wsdl:message name="getUserRealmsResponse">
       <wsdl:part element="impl:getUserRealmsResponse" name="parameters"/>
    </wsdl:message>
+   
+   <!-- Deputy -->
+   <wsdl:message name="addDeputyRequest">
+   	  <wsdl:part element="impl:addDeputy" name="parameters" />
+   </wsdl:message>
+   
+   <wsdl:message name="addDeputyResponse">
+   	  <wsdl:part element="impl:addDeputyResponse" name="parameters" />
+   </wsdl:message>
+   
+   <wsdl:message name="modifyDeputyRequest">
+   	  <wsdl:part element="impl:modifyDeputy" name="parameters" />
+   </wsdl:message>
 
+   <wsdl:message name="modifyDeputyResponse">
+   	  <wsdl:part element="impl:modifyDeputyResponse" name="parameters" />
+   </wsdl:message>
+
+   <wsdl:message name="removeDeputyRequest">
+   	  <wsdl:part element="impl:removeDeputy" name="parameters" />
+   </wsdl:message>
+   
+   <wsdl:message name="removeDeputyResponse">
+   	  <wsdl:part element="impl:removeDeputyResponse" name="parameters" />
+   </wsdl:message>   
+
+   <wsdl:message name="getDeputiesRequest">
+   	  <wsdl:part element="impl:getDeputies" name="parameters" />
+   </wsdl:message>
+   
+   <wsdl:message name="getDeputiesResponse">
+   	  <wsdl:part element="impl:getDeputiesResponse" name="parameters" />
+   </wsdl:message>   
+
+   <wsdl:message name="getUsersBeingDeputyForRequest">
+   	  <wsdl:part element="impl:getUsersBeingDeputyFor" name="parameters" />
+   </wsdl:message>
+   
+   <wsdl:message name="getUsersBeingDeputyForResponse">
+   	  <wsdl:part element="impl:getUsersBeingDeputyForResponse" name="parameters" />
+   </wsdl:message>
+   
    <!-- Administration Service -->
 
    <wsdl:message name="getPasswordRulesRequest">
@@ -1991,6 +2032,56 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:output message="impl:getUserRealmsResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
+	  <wsdl:operation name="addDeputy" parameterOrder="parameters">
+		 <wsdl:documentation>
+		 Adds a new deputy user for a given user. This deputy user inherits for the defined
+         time frame all grants from given user. The deputy user has to login again before the
+         inherited grants become active.
+		 </wsdl:documentation>
+         <wsdl:input message="impl:addDeputyRequest" />
+         <wsdl:output message="impl:addDeputyResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />        
+	  </wsdl:operation>
+	  
+	  <wsdl:operation name="modifyDeputy" parameterOrder="parameters">
+		 <wsdl:documentation>
+         Modifies an existing deputy user for a given user. This deputy user inherits for the
+         defined time frame all grants from given user. The deputy user has to login again
+         before changes become active.
+		 </wsdl:documentation>
+         <wsdl:input message="impl:modifyDeputyRequest" />
+         <wsdl:output message="impl:modifyDeputyResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />        
+	  </wsdl:operation>	  
+
+	  <wsdl:operation name="removeDeputy" parameterOrder="parameters">
+		 <wsdl:documentation>
+         Removes an existing deputy user for a given user. All inherited grants from user are
+         revoked from deputy user. The deputy user has to login again before changes become
+         active.
+		 </wsdl:documentation>
+         <wsdl:input message="impl:removeDeputyRequest" />
+         <wsdl:output message="impl:removeDeputyResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />        
+	  </wsdl:operation>	  
+
+	  <wsdl:operation name="getDeputies" parameterOrder="parameters">
+		 <wsdl:documentation>
+         Returns a list of all deputy users for the given user.
+		 </wsdl:documentation>
+         <wsdl:input message="impl:getDeputiesRequest" />
+         <wsdl:output message="impl:getDeputiesResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />        
+	  </wsdl:operation>
+
+	  <wsdl:operation name="getUsersBeingDeputyFor" parameterOrder="parameters">
+		 <wsdl:documentation>
+         Returns a list of all users for which the given user is an deputy user.
+		 </wsdl:documentation>
+         <wsdl:input message="impl:getUsersBeingDeputyForRequest" />
+         <wsdl:output message="impl:getUsersBeingDeputyForResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />        
+	  </wsdl:operation>
 
    </wsdl:portType>
 
@@ -2319,8 +2410,8 @@ The MigrationReport returned by each call contains information about: Total reso
          <wsdl:input message="impl:setGlobalPermissionsRequest" />
          <wsdl:output message="impl:setGlobalPermissionsResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
-      </wsdl:operation>
-
+      </wsdl:operation>	 
+	  
    </wsdl:portType>
 
    <wsdl:binding name="IWorkflowServiceSoapBinding" type="impl:IWorkflowService">
@@ -3636,6 +3727,71 @@ The MigrationReport returned by each call contains information about: Total reso
             <wsdlsoap:fault name="fault" use="literal" />
          </wsdl:fault>
       </wsdl:operation>
+
+      <wsdl:operation name="addDeputy">
+         <wsdlsoap:operation soapAction="addDeputy" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+      
+      <wsdl:operation name="modifyDeputy">
+         <wsdlsoap:operation soapAction="modifyDeputy" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>      
+      
+      <wsdl:operation name="removeDeputy">
+         <wsdlsoap:operation soapAction="removeDeputy" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>      
+      
+      <wsdl:operation name="getDeputies">
+         <wsdlsoap:operation soapAction="getUserRealms" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>  
+      
+      <wsdl:operation name="getUsersBeingDeputyFor">
+         <wsdlsoap:operation soapAction="getUsersBeingDeputyFor" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>          
 
    </wsdl:binding>
 

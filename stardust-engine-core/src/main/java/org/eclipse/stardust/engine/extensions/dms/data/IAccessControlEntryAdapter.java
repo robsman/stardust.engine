@@ -67,6 +67,7 @@ public class IAccessControlEntryAdapter implements IAccessControlEntry, Serializ
       int result = 1;
       result = prime * result + ((getPrincipal() == null) ? 0 : getPrincipal().hashCode());
       result = prime * result + ((getPrivileges() == null) ? 0 : getPrivileges().hashCode());
+      result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
       return result;
    }
 
@@ -94,6 +95,8 @@ public class IAccessControlEntryAdapter implements IAccessControlEntry, Serializ
       }
       else if ( !getPrivileges().equals(other.getPrivileges()))
          return false;
+      if ( !getType().equals(other.getType()))
+         return false;  
       return true;
    }
 }

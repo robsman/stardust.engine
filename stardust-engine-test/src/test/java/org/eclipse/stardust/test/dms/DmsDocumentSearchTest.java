@@ -37,6 +37,7 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
@@ -319,6 +320,7 @@ public class DmsDocumentSearchTest
    }
 
    @Test
+   @Ignore("CRNT-29932")
    public void testFindContentLike()
    {
       DocumentQuery query = DocumentQuery.findAll();

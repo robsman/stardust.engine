@@ -13,6 +13,8 @@ package org.eclipse.stardust.engine.core.query.statistics.evaluation;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +44,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQueryResult;
 import org.eclipse.stardust.engine.core.spi.query.IUserQueryEvaluator;
-
 
 /**
  * @author rsauer
@@ -145,11 +146,48 @@ public class WorklistStatisticsRetriever implements IUserQueryEvaluator
             {
                mpEntry.nLoggedInUsers += 1;
             }
-            
             userEntry.nSharedWorkitems += mpEntry.nWorkitems;
          }
       }
 
+      for (Iterator<User> i = users.iterator(); i.hasNext();)
+      {
+         User user = i.next();
+
+         final UserStatistics userEntry = userStatistics.get(user.getOID());
+         Set<ParticipantDepartmentPair> ownGrantedRoles = linkedRoles.get(user.getOID());
+         Set<ParticipantDepartmentPair> deputyGrantedRoles = new HashSet<ParticipantDepartmentPair>();
+         
+         boolean isDeputy = false;
+         
+         if(UserUtils.isDeputyOfAny(UserBean.findByOid(user.getOID())))
+         {
+            Date now = new Date();
+            for (DeputyBean deputy : UserUtils.getDeputies(UserBean.findByOid(user.getOID())))
+            {
+               if (deputy.isActive(now))
+               {
+                  Set<ParticipantDepartmentPair> grantedRoles = linkedRoles.get(deputy.user);
+                  deputyGrantedRoles.addAll(grantedRoles);
+                  isDeputy = true;
+                  
+                  UserStatistics deputyStatistics = userStatistics.get(deputy.user);
+                  userEntry.nSharedWorkitems += deputyStatistics.nPrivateWorkitems;
+               }
+            }
+         }
+         
+         if(isDeputy)
+         {
+            deputyGrantedRoles.removeAll(ownGrantedRoles);
+            for (Iterator<ParticipantDepartmentPair> j = deputyGrantedRoles.iterator(); j.hasNext();)
+            {
+               final ParticipantStatistics mpEntry = mpStatistics.get(j.next());
+               userEntry.nSharedWorkitems += mpEntry.nWorkitems;               
+            }            
+         }         
+      }      
+      
       return new WorklistStatisticsResult(wsq, users, userStatistics, mpStatistics);
    }
 
@@ -206,7 +244,7 @@ public class WorklistStatisticsRetriever implements IUserQueryEvaluator
             WorkItemBean.FR__DEPARTMENT);
       sqlQuery.orderBy(WorkItemBean.FR__PERFORMER_KIND, WorkItemBean.FR__PERFORMER, 
             WorkItemBean.FR__DEPARTMENT);
-
+      
       StatisticsQueryUtils.executeQuery(sqlQuery, new IResultSetTemplate()
       {
          public void handleRow(ResultSet rs) throws SQLException
@@ -272,6 +310,5 @@ public class WorklistStatisticsRetriever implements IUserQueryEvaluator
             }
          }
       });
-   }
-
+   }   
 }

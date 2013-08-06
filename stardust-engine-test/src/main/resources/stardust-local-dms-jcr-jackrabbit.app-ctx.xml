@@ -34,16 +34,9 @@
          <bean id="connectionManagerFactory" class="org.jencks.factory.ConnectionManagerFactoryBean">
             <property name="transactionManager" ref="xaTransactionManager" />
             <property name="transaction" value="xa" />
-            <property name="poolingSupport" ref="dmsPoolingSupport" />
+            <property name="partitionStrategy" value="by-connector-properties"/>
          </bean>
       </property>
-   </bean>
-   <bean id="dmsPoolingSupport" class="org.jencks.factory.PoolingSupportFactoryBean" lazy-init="true">
-      <property name="poolMinSize" value="1" />
-      <property name="poolMaxSize" value="10" />
-      <property name="connectionMaxWaitMilliseconds" value="5000" />
-      <property name="connectionMaxIdleMinutes" value="1" />
-      <property name="allConnectionsEqual" value="false" />
    </bean>
    
    <bean id="carnotJackrabbitRepository" class="org.apache.jackrabbit.core.TransientRepository" lazy-init="true" depends-on="jcrRepoConfigFile, jcrWorkspace">

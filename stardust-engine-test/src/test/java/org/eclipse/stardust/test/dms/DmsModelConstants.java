@@ -22,7 +22,18 @@ package org.eclipse.stardust.test.dms;
 /* package-private */ class DmsModelConstants
 {
    /**
+    * the name of the model for common DMS tests
+    */
+   /* package-private */ static final String DMS_MODEL_NAME = "DmsModel";
+   
+   /**
     * the name of the model for synchronization tests
     */
    /* package-private */ static final String DMS_SYNC_MODEL_NAME = "DmsSyncModel";
+   
+   
+   /**
+    * a role used in the test case
+    */
+   /* package-private */ static final String ROLE_ID = "MyRole";
 }

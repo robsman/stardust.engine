@@ -13,13 +13,23 @@ package org.eclipse.stardust.test.api.setup;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
+import org.eclipse.stardust.engine.api.runtime.DeploymentException;
+import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
+import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
 import org.eclipse.stardust.test.api.util.DaemonHome;

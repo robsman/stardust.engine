@@ -1057,6 +1057,7 @@ public final class DocumentTypeUtils
             {
                if (securityEnabled)
                {
+                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, partitionPrefix);
                   return DmsVfsConversionUtils.fromVfs(adminVfs.createFile(
                         decodeResourceId(parentFolderId),
                         DmsVfsConversionUtils.toVfs(documentInfo), content, encoding),
@@ -1102,12 +1103,12 @@ public final class DocumentTypeUtils
                {
                   adminVfs.updateFile(
                         DmsVfsConversionUtils.toVfs(document, partitionPrefix), content,
-                        encoding, createNewRevision, null, keepLocked);
+                        encoding, createNewRevision, null, versionLabel, keepLocked);
                }
                else
                {
                   dms.updateDocument(document, content, encoding, createNewRevision,
-                        versionLabel, keepLocked);
+                        null, versionLabel, keepLocked);
                }
                return null;
             }
@@ -1122,12 +1123,12 @@ public final class DocumentTypeUtils
             {
                if (securityEnabled)
                {
-                  adminVfs.createFileVersion(decodeResourceId(documentId), versionLabel,
+                  adminVfs.createFileVersion(decodeResourceId(documentId), null, versionLabel,
                         false);
                }
                else
                {
-                  dms.versionDocument(documentId, versionLabel);
+                  dms.versionDocument(documentId, null, versionLabel);
                }
                return null;
             }
@@ -1161,6 +1162,7 @@ public final class DocumentTypeUtils
             {
                if (securityEnabled)
                {
+                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, partitionPrefix);
                   return DmsVfsConversionUtils.fromVfs(adminVfs.createFolder(
                         decodeResourceId(parentFolderId),
                         DmsVfsConversionUtils.toVfs(folderInfo)), partitionPrefix);
@@ -1182,6 +1184,7 @@ public final class DocumentTypeUtils
             {
                if (securityEnabled)
                {
+                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, partitionPrefix);
                   return DmsVfsConversionUtils.fromVfs(
                         adminVfs.getFolder(decodeResourceId(folderPath), lodNoMembers),
                         partitionPrefix);

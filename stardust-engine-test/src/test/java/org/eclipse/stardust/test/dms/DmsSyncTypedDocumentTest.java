@@ -89,7 +89,6 @@ public class DmsSyncTypedDocumentTest
    /**
     * Update via dms should also update all document and documentList data references to
     * the document in the workflow.
-    * ( with document security AccessDenied )
     */
    @Test
    public void testUpdateDocumentViaDms()
@@ -142,7 +141,6 @@ public class DmsSyncTypedDocumentTest
    /**
     * Update via workflow should update the document in the jcr and all references to the
     * same document in workflow document or documentList data.
-    * ( with document security AccessDenied )
     */
    @Test
    public void testUpdateDocumentViaWorkflow()
@@ -194,7 +192,6 @@ public class DmsSyncTypedDocumentTest
    /**
     * Removing the physical document should also remove all workflow document and
     * documentList data references to it.
-    * ( with document security AccessDenied )
     */
    @Test
    public void testDeleteDocumentViaDms()
@@ -243,7 +240,6 @@ public class DmsSyncTypedDocumentTest
    /**
     * Removing the document data in workflow should not delete the physical document and
     * it should not affect any other workflow data references to the same document.
-    * ( with document security: works because only removing a reference in the workflow )
     */
    @Test
    public void testRemoveDocumentInWorkflow()
@@ -294,7 +290,6 @@ public class DmsSyncTypedDocumentTest
 
    /**
     * Tests updates only targeting a specific xPath
-    * ( with document security AccessDenied )
     */
    @Test
    public void testPartialUpdateDocumentViaWorkflow()

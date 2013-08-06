@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
+import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_MODEL_NAME;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -31,11 +32,11 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsDocumentSearchTest.class })
+@SuiteClasses({ DmsDocumentSearchTest.class, DmsSecurityTest.class })
 public class DmsTestSuite
 {
    /* test suite */
    
    @ClassRule
-   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING);
+   public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, DMS_MODEL_NAME);
 }

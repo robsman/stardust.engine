@@ -36,15 +36,15 @@
 
    <!-- Do NOT use a Data Store -->
 
-   <!-- Security -->
+   <!-- Security (enabled) -->
    <Security appName="Jackrabbit">
       <!-- security manager -->
-      <SecurityManager class="org.apache.jackrabbit.core.security.simple.SimpleSecurityManager" workspaceName="security" />
+      <SecurityManager class="org.apache.jackrabbit.core.JcrVfsSecurityManager" workspaceName="security" />
 
       <!-- access manager -->
-      <AccessManager class="org.apache.jackrabbit.core.security.simple.SimpleAccessManager" />
+      <AccessManager class="org.eclipse.stardust.vfs.impl.jcr.jackrabbit.JcrVfsAccessManager" />
 
-      <LoginModule class="org.apache.jackrabbit.core.security.simple.SimpleLoginModule">
+      <LoginModule class="org.eclipse.stardust.vfs.impl.jcr.jackrabbit.JcrVfsLoginModule">
          <!-- anonymous user name ('anonymous' is the default value) -->
          <param name="anonymousId" value="anonymous" />
          <!-- administrator user id (default value if param is missing is 'admin') -->

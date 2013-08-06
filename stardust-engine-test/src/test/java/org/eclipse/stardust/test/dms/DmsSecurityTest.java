@@ -35,6 +35,7 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -83,6 +84,36 @@ public class DmsSecurityTest
       final ModelParticipant role1 = (ModelParticipant) sf.getQueryService().getParticipant(ROLE_ID);
       principal = new DmsPrincipal(role1, DMS_MODEL_NAME);      
    }
+   
+   
+   /**
+    * <p>
+    * This test makes sure that removing existing, i.e. already set, privileges
+    * works correctly.
+    * </p>
+    */
+   @Test
+   public void testRemoveExistingPrivilege()
+   {
+      /* (1) deny read on document ... */
+      final Set<AccessControlPolicy> policies1 = retrievePoliciesFor(doc.getId());
+      final AccessControlPolicy policy1 = policies1.iterator().next();
+      policy1.addAccessControlEntry(principal, Collections.<Privilege>singleton(DmsPrivilege.READ_PRIVILEGE), AccessControlEntry.EntryType.DENY);
+      sf.getDocumentManagementService().setPolicy(doc.getId(), policy1);
+      /* ... and assert that it's set */
+      final Set<AccessControlPolicy> setPolicies1 = retrievePoliciesFor(doc.getId());
+      assertAccessControlEntryIsSet(new DmsAccessControlEntry(principal, Collections.<Privilege>singleton(DmsPrivilege.READ_PRIVILEGE), AccessControlEntry.EntryType.DENY), setPolicies1);
+      
+      /* (2) remove policy by removing the access control entries ... */
+      final Set<AccessControlPolicy> policies2 = retrievePoliciesFor(doc.getId());
+      final AccessControlPolicy policy2 = policies2.iterator().next();
+      policy2.removeAllAccessControlEntries();
+      sf.getDocumentManagementService().setPolicy(doc.getId(), policy2);
+      /* ... and assert that it's entries are removed */
+      final Set<AccessControlPolicy> setPolicies2 = retrievePoliciesFor(doc.getId());
+      Assert.assertTrue(setPolicies2.iterator().next().getAccessControlEntries().isEmpty());
+   }   
+   
    
    /**
     * <p>

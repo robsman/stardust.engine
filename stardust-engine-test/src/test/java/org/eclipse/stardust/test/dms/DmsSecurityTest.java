@@ -50,7 +50,7 @@ import org.junit.rules.TestRule;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class DmsSecurityTest
 {
@@ -109,7 +109,7 @@ public class DmsSecurityTest
       final AccessControlPolicy policy2 = policies2.iterator().next();
       policy2.removeAllAccessControlEntries();
       sf.getDocumentManagementService().setPolicy(doc.getId(), policy2);
-      /* ... and assert that it's entries are removed */
+      /* ... and assert that its entries are removed */
       final Set<AccessControlPolicy> setPolicies2 = retrievePoliciesFor(doc.getId());
       Assert.assertTrue(setPolicies2.iterator().next().getAccessControlEntries().isEmpty());
    }   

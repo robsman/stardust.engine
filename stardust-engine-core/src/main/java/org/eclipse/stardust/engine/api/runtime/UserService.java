@@ -554,7 +554,9 @@ public interface UserService extends Service
     *           the user to which a deputy user shall be added.
     * @param deputyUser
     *           the deputy user.
-    * @param options TODO
+    * @param options
+    *           the options associated with the operation. Can be null, in which case the
+    *           default options will be used.
     * @return the created deputy.
     * @throws DeputyExistsException
     *            if the requested deputy already exists.

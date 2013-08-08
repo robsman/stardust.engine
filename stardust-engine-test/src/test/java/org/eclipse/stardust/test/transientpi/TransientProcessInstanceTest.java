@@ -2290,6 +2290,7 @@ public class TransientProcessInstanceTest
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
       
       dropTransientProcessInstanceStorage();
+      assertThat(NL + "Unable to start '" + testMethodSetup.testMethodName() + "' due to existing serial activity thread queues.", noSerialActivityThreadQueues(), is(true));
    }
    
    private void overrideTransientProcessesSupport(final String override)

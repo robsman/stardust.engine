@@ -2221,6 +2221,11 @@ public class TransientProcessInstanceTest
       return map.isEmpty();
    }
    
+   private void assertNoSerialActivityThreadQueuesBeforeTestStart()
+   {
+      assertThat(NL + "Unable to start '" + testMethodSetup.testMethodName() + "' due to existing serial activity thread queues.", noSerialActivityThreadQueues(), is(true));
+   }
+   
    private void startProcessViaJms(final String processId)
    {
       final Queue queue = testClassSetup.queue(JmsProperties.APPLICATION_QUEUE_NAME_PROPERTY);
@@ -2290,7 +2295,7 @@ public class TransientProcessInstanceTest
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
       
       dropTransientProcessInstanceStorage();
-      assertThat(NL + "Unable to start '" + testMethodSetup.testMethodName() + "' due to existing serial activity thread queues.", noSerialActivityThreadQueues(), is(true));
+      assertNoSerialActivityThreadQueuesBeforeTestStart();
    }
    
    private void overrideTransientProcessesSupport(final String override)
@@ -2299,6 +2304,7 @@ public class TransientProcessInstanceTest
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, override);
       
       dropTransientProcessInstanceStorage();
+      assertNoSerialActivityThreadQueuesBeforeTestStart();
    }   
    
    private void disableTransientProcessesSupport()

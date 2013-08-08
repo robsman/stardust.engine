@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,19 +39,19 @@ public class RepositoryItem implements UpgradableItem
       boot = new File(repositoryPath, "repository.boot");
       if (boot.exists())
       {
-         version = new Version(3, 0, 0);
+         version = Version.createFixedVersion(3, 0, 0);
       }
       else
       {
          boot = new File(repositoryPath, "carnot.boot");
          if (boot.exists())
          {
-            version = new Version(2, 0, 0);
+            version = Version.createFixedVersion(2, 0, 0);
          }
          else
          {
             trace.debug("Unknown repository version.");
-            version = new Version(0, 0, 0);
+            version = Version.createFixedVersion(0, 0, 0);
          }
       }
    }

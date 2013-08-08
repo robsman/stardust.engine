@@ -25,9 +25,13 @@
       
       <conf name="carnot-spring-sources" description="IPP Engine - Spring Module - Sources" />
       
-      <conf name="compile" extends="carnot-spring-compile, carnot-spring-compile-optional, carnot-spring-provided" visibility="private" description="Compile Time Dependencies" />
-
       <conf name="test" visibility="private" description="Test dependencies" />
+
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="provided" visibility="private" extends="carnot-spring-provided" />
+      <conf name="compile" visibility="private" extends="provided,carnot-spring-compile,carnot-spring-compile-optional" />
+      <conf name="runtime" visibility="private" extends="carnot-spring-runtime" />
+      <conf name="all" visibility="private" extends="provided, compile, runtime, test" />
 
       <conf name="pom" description="IPP Engine - Spring Module - POMs" />
    </configurations>
@@ -61,8 +65,16 @@
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-spring-provided->ejb21-module-compile" />
       
       <!-- test -->
-      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default" />
+      <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
       <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}" conf="test->default" />
       <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
+
+      <!-- ******************** -->
+      <!--    Override Rules    -->
+      <!-- ******************** -->
+      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
+      <override org="aopalliance" module="aopalliance" rev="${aopalliance.version}" />
    </dependencies>
 </ivy-module>

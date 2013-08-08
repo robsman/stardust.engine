@@ -29,6 +29,8 @@
       <conf name="test" visibility="public" description="Test Configuration" extends="compile" />
    
       <conf name="compile" visibility="private" description="Compile Configuration" />
+
+      <conf name="all" visibility="private" extends="compile, test" />
    </configurations>
    
    <!-- Publications -->
@@ -46,7 +48,10 @@
       <dependency org="org.eclipse.stardust.engine" name="carnot-spring" rev="${ipp.version.full}" conf="compile->carnot-spring-compile" />
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="compile->jms-api-module-compile" />
       <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" conf="compile->default" />
-      <dependency org="junit" name="junit" rev="${junit.version}" conf="compile->default" />
+      <dependency org="junit" name="junit" rev="${junit.version}" conf="compile->default">
+         <exclude org="org.hamcrest" module="hamcrest-core" />
+      </dependency>
+      <dependency org="org.hamcrest" name="hamcrest-core" rev="${hamcrest-core.version}" conf="compile->default" />
       <dependency org="org.springframework" name="spring-context" rev="${spring-context.version}" conf="compile->default" />
       
       <!-- 'test' configuration -->

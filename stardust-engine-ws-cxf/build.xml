@@ -41,6 +41,7 @@
 		<property name="build.ws-api.dir" value="${build.dir}/webapps/ws-api" />
 		<property name="build.tests" value="${build.dir}/tests" />
 		<property name="build.tests.classes" value="${build.tests}/classes" />
+      <property name="build.report" location="${build.dir}/report" />
 	</target>
 
 
@@ -51,6 +52,7 @@
 	<target name="initBuild" depends="init">
 		<property name="build.classes" value="${build.dir}/classes" />
 		<property name="build.lib" value="${build.dir}/lib" />
+		<property name="build.javadoc" value="${build.dir}/javadoc" />
 		<property name="build.lib.src" value="${build.dir}/src" />
 		<property name="build.src" value="${build.dir}/src" />
 
@@ -58,6 +60,8 @@
 		<property name="stardust-engine-ws-cxf.pom" value="${build.lib}/${stardust-engine-ws-cxf.pomfile}" />
 		<property name="stardust-engine-ws-cxf.jarfile" value="${artifactId}.jar" />
 		<property name="stardust-engine-ws-cxf.jar" value="${build.lib}/${stardust-engine-ws-cxf.jarfile}" />
+		<property name="stardust-engine-ws-cxf-javadoc.jarfile" value="${artifactId}-javadoc.jar" />
+		<property name="stardust-engine-ws-cxf-javadoc.jar" value="${build.lib}/${stardust-engine-ws-cxf-javadoc.jarfile}" />
 		<property name="stardust-engine-ws-cxf.src-jarfile" value="${artifactId}-sources.jar" />
 		<property name="stardust-engine-ws-cxf.src-jar" value="${build.lib.src}/${stardust-engine-ws-cxf.src-jarfile}" />
 		
@@ -150,6 +154,34 @@
 			</fileset>
 		</ipp:jar>
 	</target>
+   
+   <target name="javadoc" depends="compile">
+      <ipp:javadoc destdir="${build.javadoc}" scope="webservices" doctitle="${product.productnameonly} Web Services Engine API" windowtitle="${artifactId}"
+         packagenames="org.eclipse.stardust.engine.api.ws, org.eclipse.stardust.engine.api.ws.query">
+         <classpaths>
+            <classpath>
+               <path location="${build.classes}" />
+               <path refid="stardust-engine-ws-cxf.classpath" />
+            </classpath>
+         </classpaths>
+         <fileSets>
+            <fileset dir="${project.src}/org/eclipse/stardust">
+               <include name="engine/api/ws/BpmFault.java" />
+               <include name="engine/api/ws/IAdministrationService.java" />
+               <include name="engine/api/ws/IDocumentManagementService.java" />
+               <include name="engine/api/ws/IQueryService.java" />
+               <include name="engine/api/ws/IUserService.java" />
+               <include name="engine/api/ws/IWorkflowService.java" />
+               <include name="engine/api/ws/*Xto.java" />
+               <include name="engine/api/ws/query/*Xto.java" />
+            </fileset>
+         </fileSets>
+      </ipp:javadoc>
+      <ipp:jar jarfile="${stardust-engine-ws-cxf-javadoc.jar}" 
+         implementationTitle="Eclipse Process Manager - WS CXF Integration Javadoc">
+         <fileset dir="${build.javadoc}" />
+      </ipp:jar>
+   </target>
 
    <target name="wsStub" depends="init">
       <!-- TODO: seems that mapper doesn't work correctly in ant 1.6.5 so we have to move
@@ -175,12 +207,13 @@
 
    </target>
 
-	<target name="build" depends="jar, jar.src, build.ivy" />
+	<target name="build" depends="jar, jar.src, javadoc, build.ivy" />
 
 	<target name="build.ivy" if="dependencies.mode.ivy" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
 		<ivy-make-artifact-pom moduleName="ws-api-templates" packaging="zip" pomfilepath="${build.ws-api.dir}/../" />
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}"
-			conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided, stardust-engine-ws-cxf-runtime, stardust-engine-ws-cxf-sources, ws-api-templates" publishIvy="true">
+			conf="stardust-engine-ws-cxf-compile, stardust-engine-ws-cxf-provided, stardust-engine-ws-cxf-runtime, 
+		     stardust-engine-ws-cxf-sources, stardust-engine-ws-cxf-javadoc, ws-api-templates" publishIvy="true">
          <additional-artifacts>
             <artifacts pattern="${build.ws-api.dir}/../ws-api-templates(-[classifier]).[ext]" />
          </additional-artifacts>
@@ -215,7 +248,7 @@
 
 	</target>
 	
-	<target name="deploy" depends="build" />
+	<target name="deploy" depends="build, dependencies:report" />
 
 	<target name="dist" depends="build">
 		<!-- TODO copy to which stardust plugin? -->
@@ -256,6 +289,11 @@
       </ipp:mvn-deploy>
       <ipp:mvn-deploy pomFile="${build.lib}/jax-ws-cxf-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/jax-rs-cxf-module.pom" />
+   </target>
+
+   <target name="dependencies:report" depends="init,init.ivy">
+      <ivy-report ivyFile="${project.dir}/ivy.xml" outputDir="${build.report}" />
+      <ivy-report ivyFile="${project.dir}/module-ivy.xml" outputDir="${build.report}" />
    </target>
 
 </project>

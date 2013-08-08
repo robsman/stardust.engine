@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
 {
    private static final Logger trace = LogManager.getLogger(RuntimeUpgradeJob.class);
 
-   private static final Version VERSION_3 = new Version(3, 0, 0);
+   private static final Version VERSION_3 = Version.createFixedVersion(3, 0, 0);
 
    protected RuntimeItem item;
 

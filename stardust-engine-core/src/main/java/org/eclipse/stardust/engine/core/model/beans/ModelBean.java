@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,7 +52,7 @@ public class ModelBean extends RootElementBean
    private static final String RESOLVED_TO_MULTIPLE_VERSIONS = "Reference for ''{0}'' is resolved to multiple model versions.";
    private static final String NOT_RESOLVED_TO_LAST_DEPLOYED = "Reference for ''{0}'' was not resolved to the last deployed model version.";
 
-   private static final long serialVersionUID = 2L;
+   private static final long serialVersionUID = 3L;
 
    private static final Logger trace = LogManager.getLogger(ModelBean.class);
    
@@ -74,7 +74,7 @@ public class ModelBean extends RootElementBean
    private static final String VIEW_STRING = "View";
 
    public static final String CARNOT_VERSION_ATT = "CARNOT version";
-   private String carnotVersion;
+   private Version carnotVersion;
 
    private List<IExternalPackage> externalPackages = CollectionUtils.newList();
    private Scripting scripting;
@@ -1291,18 +1291,24 @@ public class ModelBean extends RootElementBean
       return participants.iterator(IConditionalPerformer.class);
    }
 
+   @Deprecated
    public void setCarnotVersion(String version)
+   {
+      carnotVersion = null;
+      if (StringUtils.isNotEmpty(version))
+      {
+         carnotVersion =  new Version(version);
+      }
+   }
+
+   public void setCarnotVersion(Version version)
    {
       this.carnotVersion = version;
    }
 
    public Version getCarnotVersion()
    {
-      if (StringUtils.isEmpty(carnotVersion))
-      {
-         return null;
-      }
-      return new Version(carnotVersion);
+      return carnotVersion;
    }
 
    public IEventConditionType createEventConditionType(String id, String name,

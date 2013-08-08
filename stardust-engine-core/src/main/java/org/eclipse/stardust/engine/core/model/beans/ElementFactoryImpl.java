@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1054,18 +1054,19 @@ public class ElementFactoryImpl implements ElementFactory
       ModelBean model = new ModelBean(id, name, description);
 
       String versionString = node.getAttribute(CARNOT_VERSION_ATT);
+      String vendorString = node.getAttribute(VENDOR);
       Version version = null;
       try
       {
-         version = new Version(versionString);
-         model.setCarnotVersion(versionString);
+         version = Version.createModelVersion(versionString, vendorString);
+         model.setCarnotVersion(version);
       }
       catch (Exception e)
       {
          throw new ModelParsingException(
                BpmRuntimeError.MDL_UNKNOWN_IPP_VERSION.raise(versionString, id));
       }
-      if (CompareHelper.compare(version, new Version(3, 0, 0)) < 0)
+      if (CompareHelper.compare(version, Version.createFixedVersion(3, 0, 0)) < 0)
       {
          throw new ModelParsingException(
                BpmRuntimeError.MDL_UNSUPPORTED_IPP_VERSION.raise(version, id));
@@ -1312,7 +1313,7 @@ public class ElementFactoryImpl implements ElementFactory
       }
       else if(name.equals(PredefinedConstants.QUALITY_ASSURANCE_FORMULA_ATT))
       {
-         activity.setQualityAssuranceFormula(reader.getChildValue(VALUE));          
+         activity.setQualityAssuranceFormula(reader.getChildValue(VALUE));
       }
    }
 }

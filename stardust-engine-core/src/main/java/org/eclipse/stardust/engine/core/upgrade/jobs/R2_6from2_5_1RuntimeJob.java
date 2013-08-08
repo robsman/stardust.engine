@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -252,7 +252,7 @@ public class R2_6from2_5_1RuntimeJob extends OracleAwareRuntimeUpgradeJob
 
    public Version getVersion()
    {
-      return new Version(2, 6, 0);
+      return Version.createFixedVersion(2, 6, 0);
    }
 
    @Override

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public class X3_0_0from2_5_0Converter extends RepositoryUpgradeJob
 {
    public static final Logger trace = LogManager.getLogger(X3_0_0from2_5_0Converter.class);
 
-   private static final Version CURRENT_VERSION = new Version(3, 0, 0);
+   private static final Version CURRENT_VERSION = Version.createFixedVersion(3, 0, 0);
    private static final String MODEL_ENCODING = "ISO-8859-1";
 
    public UpgradableItem run(UpgradableItem item, boolean recover)
@@ -88,7 +88,7 @@ public class X3_0_0from2_5_0Converter extends RepositoryUpgradeJob
       }
 
       repository.setBoot(bootFile);
-      repository.setVersion(new Version(3, 0, 0));
+      repository.setVersion(Version.createFixedVersion(3, 0, 0));
       return repository;
    }
 

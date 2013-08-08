@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,17 +42,17 @@ public class JobListTest extends TestCase
    public void testUpgradeToVersion()
    {
       List jobs = new LinkedList();
-      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
-      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
-      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
-      DumbModelUpgradeJob job27 = new DumbModelUpgradeJob(new Version(2,7,0));
+      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(Version.createFixedVersion(1,9,0));
+      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(Version.createFixedVersion(2,1,0));
+      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(Version.createFixedVersion(2,2,0));
+      DumbModelUpgradeJob job27 = new DumbModelUpgradeJob(Version.createFixedVersion(2,7,0));
       jobs.add(job19);
       jobs.add(job21);
       jobs.add(job22);
       jobs.add(job27);
       ModelItem item = new ModelItem(model);
       ModelUpgrader upgrader = new ModelUpgrader(item, jobs);
-      ModelItem newModel = (ModelItem) upgrader.upgradeToVersion(new Version(2,6,9), false);
+      ModelItem newModel = (ModelItem) upgrader.upgradeToVersion(Version.createFixedVersion(2,6,9), false);
       assertEquals(job22.getVersion(), newModel.getVersion());
       assertTrue(!job19.wasVisited());
       assertTrue(job21.wasVisited());
@@ -66,9 +66,9 @@ public class JobListTest extends TestCase
    public void testUpgradeToCurrentVersion()
    {
       List jobs = new LinkedList();
-      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
-      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
-      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
+      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(Version.createFixedVersion(1,9,0));
+      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(Version.createFixedVersion(2,1,0));
+      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(Version.createFixedVersion(2,2,0));
       DumbModelUpgradeJob current = new DumbModelUpgradeJob(CurrentVersion.getVersion());
       jobs.add(job19);
       jobs.add(job21);
@@ -90,11 +90,11 @@ public class JobListTest extends TestCase
    public void testUpgradeToFutureVersion()
    {
       List jobs = new LinkedList();
-      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
-      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
-      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
+      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(Version.createFixedVersion(1,9,0));
+      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(Version.createFixedVersion(2,1,0));
+      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(Version.createFixedVersion(2,2,0));
       DumbModelUpgradeJob current = new DumbModelUpgradeJob(CurrentVersion.getVersion());
-      DumbModelUpgradeJob future = new DumbModelUpgradeJob(new Version(10000, 0, 0));
+      DumbModelUpgradeJob future = new DumbModelUpgradeJob(Version.createFixedVersion(10000, 0, 0));
       jobs.add(job19);
       jobs.add(job21);
       jobs.add(job22);
@@ -116,9 +116,9 @@ public class JobListTest extends TestCase
    public void testRecovery()
    {
       List jobs = new LinkedList();
-      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(new Version(1,9,0));
-      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(new Version(2,1,0));
-      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(new Version(2,2,0));
+      DumbModelUpgradeJob job19 = new DumbModelUpgradeJob(Version.createFixedVersion(1,9,0));
+      DumbModelUpgradeJob job21 = new DumbModelUpgradeJob(Version.createFixedVersion(2,1,0));
+      DumbModelUpgradeJob job22 = new DumbModelUpgradeJob(Version.createFixedVersion(2,2,0));
       DumbModelUpgradeJob current = new DumbModelUpgradeJob(CurrentVersion.getVersion());
       jobs.add(job19);
       jobs.add(job21);

@@ -15,6 +15,10 @@
 -->
 <project name="ipp-engine-ivy">
 
+   <condition property="jackrabbit.core.conf.counterpart" value="jackrabbit-core-with-full-text-search" else="jackrabbit-core-without-full-text-search">
+     <equals arg1="${jackrabbit.core.conf}" arg2="jackrabbit-core-without-full-text-search" />
+   </condition>
+   
    <target name="dependencies:init" depends="-ivy-init" />
    
    <target name="dependencies:initClasspath" depends="-ivy-classpath-init" />
@@ -22,6 +26,8 @@
    <target name="dependencies:publish-local" depends="-ivy-publish-local" />
 
    <target name="dependencies:publish" depends="-ivy-publish" />
+
+   <target name="dependencies:report" depends="generate-ivy-dep-graph" />
 
    <target name="-ivy-classpath-init" depends="-ivy-init, -ivy-resolve">
 
@@ -60,6 +66,11 @@
          <path refid="ant.build.deps" />
       </path>
       
+      <path id="cp.publicJavadoc">
+         <path refid="servlet.deps" />
+         <path refid="ejb.deps" />
+      </path>
+      
    </target>
 
 
@@ -70,7 +81,7 @@
    </target>
 
    <target name="-ivy-resolve" xmlns:ivy="antlib:org.apache.ivy.ant" depends="-ivy-init">
-      <ivy:resolve file="${project.dir}/ivy.xml" refresh="true"/>
+      <ivy:resolve file="${project.dir}/ivy.xml" refresh="true" conf="*,!${jackrabbit.core.conf.counterpart}"/>
       
       <ivy:cachepath pathid="compile.secret" conf="compile-secret" />
       <ivy:cachepath pathid="hazelcast.cache.provider" conf="hazelcast-provider-compile" />
@@ -86,6 +97,9 @@
       <ivy:cachepath pathid="ant.build.deps" conf="ant-build-runtime" />
 
       <ivy:cachepath pathid="qdox.deps" conf="qdox-provider-compile" />
+      
+      <ivy:cachepath pathid="servlet.deps" conf="web-client-interface-provided" />
+      <ivy:cachepath pathid="ejb.deps" conf="ejb21-interface-provided" />
 
       <ivy:retrieve pattern="${build.lib}/integration-jars/[artifact].[ext]"
                conf="integration-jars"/>
@@ -112,23 +126,22 @@
    </target>
 
    <target name="-ivy-publish-local" xmlns:ivy="antlib:org.apache.ivy.ant" depends="-ivy-init">
-      <ivy:resolve file="${project.dir}/interface-ivy.xml" />
-      <ivy:deliver deliverpattern="${build.lib}/interface-[artifact].[ext]" />
-      <ivy:publish resolver="buildenv" conf="*" overwrite="true" haltonmissing="true">
+      <ivy:resolve file="${project.dir}/interface-ivy.xml" conf="*, !${jackrabbit.core.conf.counterpart}"/>
+      <ivy:deliver deliverpattern="${build.lib}/interface-[artifact].[ext]" conf="*,!${jackrabbit.core.conf.counterpart}" />
+      <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true">
          <artifacts pattern="${build.lib}/[artifact].[ext]"/>
       </ivy:publish>
       
       <!-- Publish created JARs and their POMs (ivy.xml) -->
-      <ivy:resolve file="${project.dir}/ivy.xml" />
-      <ivy:deliver deliverpattern="${build.lib}/[artifact].[ext]" merge="false" />
+      <ivy:resolve file="${project.dir}/ivy.xml" conf="*,!${jackrabbit.core.conf.counterpart}" />
+      <ivy:deliver deliverpattern="${build.lib}/[artifact].[ext]" merge="false" conf="*,!${jackrabbit.core.conf.counterpart}" />
       <ivy-make-carnot-engine-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" />
       <echo message="Publishing JARs and POMs ..." />
-      <ivy:publish resolver="buildenv" conf="*" overwrite="true" haltonmissing="true" 
+      <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true" 
          srcivypattern="${project.dir}/ivy.xml" update="true" merge="false">
          <artifacts pattern="${build.lib}/[artifact](-[classifier]).[ext]"/>
          <artifacts pattern="${build.lib.src}/[artifact](-[classifier]).[ext]"/>
       </ivy:publish>
-      <ivy:report todir="${build.dir}/report/ivy" />
       
       <!-- retrieve dependencies for resolved Ivy: ivy.xml -->
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]"
@@ -150,14 +163,13 @@
 
       <!-- Same procedure for module POMs (module-ivy.xml) -->
       <echo message="Publishing Module POMs ..." />
-      <ivy:resolve file="${project.dir}/module-ivy.xml" />
-      <ivy:deliver deliverpattern="${build.lib}/module-[artifact].[ext]" merge="false"/>
+      <ivy:resolve file="${project.dir}/module-ivy.xml" conf="*,!${jackrabbit.core.conf.counterpart}" />
+      <ivy:deliver deliverpattern="${build.lib}/module-[artifact].[ext]" merge="false" conf="*,!${jackrabbit.core.conf.counterpart}"/>
       <ivy-make-carnot-engine-module-poms ivyFile="${build.lib}/module-ivy.xml" pomFilePath="${build.lib}" />
-      <ivy:publish resolver="buildenv" conf="*" overwrite="true" haltonmissing="true" 
+      <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true" 
          srcivypattern="${project.dir}/module-ivy.xml" update="true" merge="false">
          <artifacts pattern="${build.lib}/[artifact].[ext]"/>
       </ivy:publish>
-      <ivy:report todir="${build.dir}/report/ivy" />
       
       <antcall target="-polish-up-dependencies"/>
    </target>
@@ -206,7 +218,7 @@
    <target name="-ivy-publish" xmlns:ivy="antlib:org.apache.ivy.ant" depends="-ivy-init, -ivy-publish-local">
 
       <!-- Publish Ivy artifacts and descriptor -->
-      <ivy:publish resolver="push-snapshot-artifacts" overwrite="true" haltonmissing="true" conf="*, !pom">
+      <ivy:publish resolver="push-snapshot-artifacts" overwrite="true" haltonmissing="true" conf="*, !pom, !${jackrabbit.core.conf.counterpart}">
          <artifacts pattern="${build.lib}/[artifact].[ext]" />
          <artifacts pattern="${build.dir}/webapps/[artifact].[ext]" />
       </ivy:publish>
@@ -217,6 +229,12 @@
          <artifacts pattern="${build.dir}/webapps/[artifact].[ext]" />
       </ivy:publish>
 
+   </target>
+
+   <target name="generate-ivy-dep-graph" depends="-ivy-init">
+      <ivy-report ivyFile="${project.dir}/interface-ivy.xml" conf="interface-all" outputDir="${build.report}" />
+      <ivy-report ivyFile="${project.dir}/ivy.xml" outputDir="${build.report}" />
+      <ivy-report ivyFile="${project.dir}/module-ivy.xml" outputDir="${build.report}" />
    </target>
 
 </project>

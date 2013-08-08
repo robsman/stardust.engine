@@ -26,7 +26,7 @@ public class InvalidArgumentException extends PublicException
     * Constructs an <code>IllegalArgumentException</code> with the 
     * specified detail message. 
     *
-    * @param   s   the detail message.
+    * @param  message the detail message describing the error condition.
     */
    public InvalidArgumentException(ErrorCase message)
    {

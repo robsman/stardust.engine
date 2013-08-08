@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
  */
 public class R3_0_6from3_0_1RuntimeJob extends OracleDB2AwareRuntimeUpgradeJob
 {
-   private static final Version VERSION = new Version(3, 0, 6);
+   private static final Version VERSION = Version.createFixedVersion(3, 0, 6);
    
    private static final String FIELD_OID = "oid";
    private static final String FIELD_ID = "id";

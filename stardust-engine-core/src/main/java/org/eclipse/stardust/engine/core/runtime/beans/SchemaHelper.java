@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -484,7 +484,7 @@ public class SchemaHelper
             String sysopPassword = null;
 
             if ((null == auditTrailVersion)
-                  || (0 >= new Version(4, 0, 0).compareTo(auditTrailVersion)))
+                  || (0 >= Version.createFixedVersion(4, 0, 0).compareTo(auditTrailVersion)))
             {
                PropertyPersistor persistor = PropertyPersistor
                      .findByName(Constants.SYSOP_PASSWORD);

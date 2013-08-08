@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ import org.w3c.dom.NodeList;
  */
 public class R3_2_0from3_0_6RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
-   private static final Version VERSION = new Version(3, 2, 0);
+   private static final Version VERSION = Version.createFixedVersion(3, 2, 0);
 
    private static final String PROP_3_2_0_MODEL_TABLE_MIGRATION = "carnot.upgrade.3.2.0.modelTableMigration";
 

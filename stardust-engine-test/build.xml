@@ -28,6 +28,7 @@
    <property name="build.classes.dir" value="${build.dir}/classes" />
    <property name="build.dep-report.dir" value="${build.dir}/dependency-report" />
    <property name="build.test-report.dir" value="${build.dir}/test-report" />
+   <property name="build.report" location="${build.dir}/ivy-report" />
    
    <property name="artifactId" value="stardust-engine-test" />
    <property name="artifact.jar" value="${artifactId}.jar" />
@@ -36,6 +37,21 @@
    <property file="${basedir}/etc/private.properties" />
    
    <import file="../../build.tools/commons-build.xml" />
+
+   <condition property="skip.tests" value="true">
+      <or>
+         <!-- skip test compilation and execution -->
+         <and>
+            <isset property="maven.test.skip" />
+            <equals arg1="${maven.test.skip}" arg2="true" casesensitive="false" trim="true" />
+         </and>
+         <!-- skip test execution -->
+         <and>
+            <isset property="skipTests" />
+            <equals arg1="${skipTests}" arg2="true" casesensitive="false" trim="true" />
+         </and>
+      </or>
+   </condition>
    
    <!-- clean -->
    <target name="clean" description="Cleans the project.">
@@ -43,10 +59,10 @@
    </target>
    
    <!-- deploy -->
-   <target name="deploy" description="Builds the whole project, runs all tests, builds the project's artifacts and publishes them." depends="build, test, jar, publish" />
+   <target name="deploy" description="Builds the whole project, runs all tests, builds the project's artifacts and publishes them." depends="build, test, jar, publish, dependencies:report" />
    
    <!-- test -->
-   <target name="test" description="Runs the functional tests." depends="build">
+   <target name="test" description="Runs the functional tests." unless="skip.tests" depends="build">
       <!-- Runtime Classpath for JUnit tests -->
       <path id="junit.rt.classpath">
          <path refid="test" />
@@ -86,7 +102,7 @@
    </target>
    
    <!-- build -->
-   <target name="build" depends="build-main, build-test" />
+   <target name="build" depends="build-main, build-test" unless="skip.compile" />
    
    <!-- build-main -->
    <target name="build-main" depends="init, compile-main, copy-resources-main" />
@@ -186,4 +202,12 @@
    <target name="print-failure-if-appropriate" if="test.failure">
       <echo message="At least one test case failed." level="error" />
    </target>
+
+   <target name="dependencies:report" depends="init">
+      <ivy-report ivyFile="${basedir}/ivy.xml" outputDir="${build.report}" />
+   </target>
+
+   <!-- targets which are invoked by pom.xml -->
+   <target name="compile" depends="build" />
+
 </project>

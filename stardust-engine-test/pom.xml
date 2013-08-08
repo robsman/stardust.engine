@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+    Copyright (c) 2011, 2012 SunGard CSA LLC and others.
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.eclipse.stardust.engine</groupId>
-  <artifactId>stardust-engine-base</artifactId>
+  <artifactId>stardust-engine-test</artifactId>
   <packaging>pom</packaging>
 
   <parent>
@@ -23,18 +23,6 @@
     <version>9.9.9-SNAPSHOT</version>
     <relativePath>../../org.eclipse.stardust/org.eclipse.stardust-parent/pom.xml</relativePath>
   </parent>
-
-  <properties>
-    <maven.test.skip>true</maven.test.skip>
-    
-    <!-- Following variables are possible in copyrightMessage:
-        {0}: will be replaced by CurrentVersion.getVersionName(), i.e. major.minor.micro
-        {1}: will be replaced by CurrentVersion.COPYRIGHT_YEARS, e.g. 2000-2012
-    -->
-    <copyright.message>2012 SunGard CSA LLC and others, {0}</copyright.message>
-    <vendor.name>Eclipse.org</vendor.name>
-    <product.name>Eclipse Process Manager</product.name>
-  </properties>
 
   <build>
     <plugins>
@@ -49,9 +37,15 @@
           </execution>
           <execution>
             <id>ant-install</id>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
           </execution>
           <execution>
             <id>ant-deploy</id>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
           </execution>
         </executions>
       </plugin>

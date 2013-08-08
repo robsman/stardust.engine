@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
  */
 public class R3_0_1from2_7_3RuntimeJob extends OracleDB2AwareRuntimeUpgradeJob
 {
-   private static final Version VERSION = new Version(3, 0, 1);
+   private static final Version VERSION = Version.createFixedVersion(3, 0, 1);
 
    private static final String V273_WORKFLOW_TAG = "WORKFLOW";
    private static final String V273_ACTIVITY_TAG = "ACTIVITY";
@@ -96,7 +96,7 @@ public class R3_0_1from2_7_3RuntimeJob extends OracleDB2AwareRuntimeUpgradeJob
     */
    public boolean matches(Version version)
    {
-      return version.compareTo(new Version(3, 0, 0)) < 0;
+      return version.compareTo(Version.createFixedVersion(3, 0, 0)) < 0;
    }
 
    protected void upgradeSchema(boolean recover) throws UpgradeException

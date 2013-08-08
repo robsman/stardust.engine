@@ -22,12 +22,17 @@ public class CurrentVersion
 {
    private static final String BUILD_VERSION_NAME = "-buildVersionName";
    private static final String VERSION_NAME = "-versionName";
+   
    public static final String COPYRIGHT_YEARS = "2000-2013";
+   public static final String COPYRIGHT_MESSAGE = "@copyrightMessage@";
+   
    public static final String MAJOR_VERSION = "@major@";
    public static final String MINOR_VERSION = "@minor@";
    public static final String MICRO_VERSION = "@micro@";
    public static final String BUILD = "@build@";
-   public static final String COPYRIGHT_MESSAGE = "@copyrightMessage@";
+   
+   public static final String VENDOR_NAME = "@vendor.name@";
+   public static final String PRODUCT_NAME = "@product.name@";
 
    /**
     * String representation in the form

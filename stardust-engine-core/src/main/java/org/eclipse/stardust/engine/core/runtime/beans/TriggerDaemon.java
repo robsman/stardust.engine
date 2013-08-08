@@ -11,7 +11,10 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -22,14 +25,25 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IParameterMapping;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.api.model.ITriggerType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.BatchedPullTriggerEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.PullTriggerEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.TriggerMatch;
 
 /**
  * @author ubirkemeyer
@@ -65,23 +79,27 @@ public class TriggerDaemon implements IDaemon
 
    public ExecutionResult execute(long batchSize)
    {
-      IModel model = ModelManagerFactory.getCurrent().findActiveModel();
-      if (model == null)
+      List<IModel> models = ModelManagerFactory.getCurrent().findActiveModels();
+      
+      //IModel model = ModelManagerFactory.getCurrent().findActiveModel();
+      if (models == null)
       {
          return IDaemon.WORK_DONE;
       }
-
+      
       long nTriggers = 0;
+      for (IModel model : models)
+      {
 
       Iterator processes = model.getAllProcessDefinitions();
       while ((nTriggers < batchSize) && processes.hasNext())
       {
-         final IProcessDefinition processDefinition = (IProcessDefinition) processes.next();
+         IProcessDefinition processDefinition = (IProcessDefinition) processes.next();
 
          Iterator processTriggers = processDefinition.getAllTriggers();
          while ((nTriggers < batchSize) && processTriggers.hasNext())
          {
-            final ITrigger trigger = (ITrigger) processTriggers.next();
+            ITrigger trigger = (ITrigger) processTriggers.next();
 
             if (!trigger.getType().getId().equals(triggerType.getId()))
             {
@@ -111,18 +129,19 @@ public class TriggerDaemon implements IDaemon
                   // (just in case trigger evaluation caused side-effects)
                   ++nTriggers;
 
-                  final TriggerMatch match = (TriggerMatch) triggerMatches.next();
+                  TriggerMatch match = (TriggerMatch) triggerMatches.next();
                   // @todo (france, ub): there should be are more general
                   // solution for runtime property overwriting
                   //String syncFlag = Parameters.instance().getString(
                   //      Modules.ENGINE + "." + trigger.getId() + "."
                   //      + EngineProperties.THREAD_MODE, "");
 
-                  final boolean isSync = trigger.isSynchronous();
+                  boolean isSync = trigger.isSynchronous();
                   //if (syncFlag.length() != 0)
                   //{
                   //   isSync = Boolean.getBoolean(syncFlag);
                   //}
+                  QName qProcessId = new QName(model.getId(), processDefinition.getId());
 
                   daemonLogger.info("Trigger Daemon, process trigger '" + trigger.toString() + ", " + match.toString() + "'.");
                   if (isTransientExecution(processDefinition))
@@ -132,16 +151,8 @@ public class TriggerDaemon implements IDaemon
                      try
                      {
                         service = factory.get();
-                        service.isolate(new Action<Void>()
-                        {
-                           @Override
-                           public Void execute()
-                           {
-                              new WorkflowServiceImpl().startProcess(processDefinition.getId(),
-                                    performParameterMapping(trigger, match.getData()), isSync);
-                              return null;
-                           }
-                        });
+                        service.isolate(new ExecutionAction(qProcessId.toString(),
+                              trigger, match.getData(), isSync));
                      }
                      finally
                      {
@@ -150,7 +161,7 @@ public class TriggerDaemon implements IDaemon
                   }
                   else
                   {
-                     new WorkflowServiceImpl().startProcess(processDefinition.getId(),
+                     new WorkflowServiceImpl().startProcess(qProcessId.toString(),
                            performParameterMapping(trigger, match.getData()), isSync);
                   }
                }
@@ -163,9 +174,36 @@ public class TriggerDaemon implements IDaemon
          }
       }
       
+      }
       return (nTriggers >= batchSize) ? IDaemon.WORK_PENDING : IDaemon.WORK_DONE;
    }
 
+   private class ExecutionAction implements Action<Void>
+   {
+
+      String processId;
+      ITrigger trigger;
+      Map data;
+      boolean isSync;
+      
+      public ExecutionAction(String processId, ITrigger trigger, Map data, boolean isSync)
+      {
+         this.processId = processId;
+         this.trigger = trigger;
+         this.data = data;
+         this.isSync = isSync;
+      }
+      
+      @Override
+      public Void execute()
+      {
+         new WorkflowServiceImpl().startProcess(this.processId,
+               performParameterMapping(this.trigger, this.data), this.isSync);
+         return null;         
+      }
+      
+   }
+   
    public String getType()
    {
       return type;

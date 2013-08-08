@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
@@ -28,10 +29,10 @@ public class DaemonFactory
    private static final String CACHED_DAEMON_FACTORY = "cached.daemon.factory";
 
    private static Map<Short, DaemonFactory> daemonFactoryPartitions = CollectionUtils.newHashMap();
-   
+
    private volatile Map<String, IDaemon> daemons;
-   
-   private Map<String, IDaemon> defaultDaemons;
+
+   private final Map<String, IDaemon> defaultDaemons;
 
    private DaemonFactory()
    {
@@ -43,26 +44,39 @@ public class DaemonFactory
 
    private void bootstrap()
    {
-      IModel model = ModelManagerFactory.getCurrent().findActiveModel();
-      if (model != null)
+      List<IModel> models = ModelManagerFactory.getCurrent().findActiveModels();
+      if (models != null && !models.isEmpty())
       {
-         Map<String, IDaemon> computedDaemons = (Map<String, IDaemon>)
-            model.getRuntimeAttribute(CACHED_DAEMON_FACTORY);
-         if (computedDaemons == null)
+         // Initialize daemons map with default daemons as these are not model dependent
+         Map<String, IDaemon> computedDaemons = CollectionUtils.copyMap(defaultDaemons);
+
+         for (IModel model : models)
          {
-            computedDaemons = CollectionUtils.newMap();
-            for (Iterator i = model.getAllTriggerTypes(); i.hasNext();)
+            // Compute and store the model dependent daemons in model for faster lookup
+            Map<String, IDaemon> modelDependentDaemons = (Map<String, IDaemon>) model
+                  .getRuntimeAttribute(CACHED_DAEMON_FACTORY);
+            if (modelDependentDaemons == null)
             {
-               ITriggerType type = (ITriggerType) i.next();
-               if (type.isPullTrigger())
+               modelDependentDaemons = CollectionUtils.newMap();
+               for (Iterator i = model.getAllTriggerTypes(); i.hasNext();)
                {
-                  String name = type.getId() + ".trigger";
-                  computedDaemons.put(name, new TriggerDaemon(type, name));
+                  ITriggerType type = (ITriggerType) i.next();
+                  if (type.isPullTrigger())
+                  {
+                     String name = type.getId() + ".trigger";
+                     modelDependentDaemons.put(name, new TriggerDaemon(type, name));
+                  }
                }
+               model.setRuntimeAttribute(CACHED_DAEMON_FACTORY, modelDependentDaemons);
             }
-            computedDaemons.putAll(defaultDaemons);
-            model.setRuntimeAttribute(CACHED_DAEMON_FACTORY, computedDaemons);
+
+            // Compute union of all daemons
+            // This always has to be computed as the daemons of a model might change
+            // if new model version is deployed
+            computedDaemons.putAll(modelDependentDaemons);
          }
+
+         // set union of daemons for all active models
          daemons = computedDaemons;
       }
       else

@@ -2511,7 +2511,7 @@ public class TransientProcessInstanceTest
          boolean mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
          while ( !mayComplete)
          {
-            Thread.sleep(1000);
+            Thread.sleep(500L);
             mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
          }
       }

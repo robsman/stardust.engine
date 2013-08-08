@@ -30,7 +30,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  * 
  * <p>
  * The default timeout when waiting for a state change is
- * 5 seconds.
+ * 10 seconds.
  * </p>
  * 
  * @author Nicolas.Werlein
@@ -38,7 +38,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class ActivityInstanceStateBarrier
 {
-   private static WaitTimeout timeout = new WaitTimeout(5, TimeUnit.SECONDS);
+   private static WaitTimeout timeout = new WaitTimeout(10, TimeUnit.SECONDS);
    
    private static ActivityInstanceStateBarrier instance;
 

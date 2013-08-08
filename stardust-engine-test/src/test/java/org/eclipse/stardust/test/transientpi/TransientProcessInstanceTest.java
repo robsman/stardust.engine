@@ -189,6 +189,8 @@ public class TransientProcessInstanceTest
 
    private static final String ASSERTION_MSG_STARTING_USER_CHECK = " - starting user check";
    
+   private static final String ASSERTION_MSG_SHOULD_NOT_BE_REACHED = " - line should not be reached";
+   
    /* package-private */ static final String HAZELCAST_LOGGING_TYPE_KEY = "hazelcast.logging.type";
    /* package-private */ static final String HAZELCAST_LOGGING_TYPE_VALUE = "log4j";
    
@@ -509,7 +511,7 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().startProcess(PROCESS_DEF_ID_ROLLBACK, null, true);
-         fail("Tx is marked for rollback and therefore cannot be committed.");
+         fail(NL + "Tx is marked for rollback and therefore cannot be committed.");
       }
       catch (final UnexpectedRollbackException ignored)
       {
@@ -1539,16 +1541,18 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().spawnSubprocessInstances(pi.getOID(), spawnInfos);
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final Parameters params = Parameters.instance();
-      params.set(APP_MAY_COMPLETE, true);
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final Parameters params = Parameters.instance();
+         params.set(APP_MAY_COMPLETE, true);
+         ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -1578,16 +1582,18 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().spawnSubprocessInstance(pi.getOID(), PROCESS_DEF_ID_FORKED, false, Collections.<String, Object>emptyMap());
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final Parameters params = Parameters.instance();
-      params.set(APP_MAY_COMPLETE, true);
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final Parameters params = Parameters.instance();
+         params.set(APP_MAY_COMPLETE, true);
+         ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -1614,16 +1620,18 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().spawnPeerProcessInstance(pi.getOID(), PROCESS_DEF_ID_FORKED, false, Collections.<String, Serializable>emptyMap(), true, SPAWN_LINK_COMMENT);
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
-      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
+         sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+         ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -1650,16 +1658,18 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().spawnPeerProcessInstance(pi.getOID(), PROCESS_DEF_ID_MANUAL_ACTIVITY, false, Collections.<String, Serializable>emptyMap(), true, SPAWN_LINK_COMMENT);
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final Parameters params = Parameters.instance();
-      params.set(APP_MAY_COMPLETE, true);
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final Parameters params = Parameters.instance();
+         params.set(APP_MAY_COMPLETE, true);
+         ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -1687,16 +1697,18 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().spawnPeerProcessInstance(pi.getOID(), PROCESS_DEF_ID_FORKED, spawnOptions);
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
-      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(pi.getOID()));
+         sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+         ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -1724,16 +1736,18 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().spawnPeerProcessInstance(pi.getOID(), PROCESS_DEF_ID_MANUAL_ACTIVITY, spawnOptions);
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final Parameters params = Parameters.instance();
-      params.set(APP_MAY_COMPLETE, true);
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final Parameters params = Parameters.instance();
+         params.set(APP_MAY_COMPLETE, true);
+         ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -1759,16 +1773,18 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().createCase(CASE_PI_NAME, CASE_PI_DESCRIPTION, new long[] { pi.getOID() });
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final Parameters params = Parameters.instance();
-      params.set(APP_MAY_COMPLETE, true);
-      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final Parameters params = Parameters.instance();
+         params.set(APP_MAY_COMPLETE, true);
+         ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
@@ -1796,21 +1812,23 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().joinCase(casePi.getOID(), new long[] { transientPi.getOID() });
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-
-      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
-      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
-      ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Completed);
-
-      final Parameters params = Parameters.instance();
-      params.set(APP_MAY_COMPLETE, true);
-      ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
+         sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+         ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
+         ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Completed);
+   
+         final Parameters params = Parameters.instance();
+         params.set(APP_MAY_COMPLETE, true);
+         ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(casePi.getOID()), is(true));
@@ -1839,20 +1857,22 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().joinProcessInstance(transientPi.getOID(), nonTransientPi.getOID(), JOIN_PI_COMMENT);
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
-      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
-      
-      final Parameters params = Parameters.instance();
-      params.set(APP_MAY_COMPLETE, true);
-      ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
+         sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+         ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
+         
+         final Parameters params = Parameters.instance();
+         params.set(APP_MAY_COMPLETE, true);
+         ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(transientPi.getOID()), is(false));
@@ -1880,20 +1900,22 @@ public class TransientProcessInstanceTest
       try
       {
          sf.getWorkflowService().joinProcessInstance(nonTransientPi.getOID(), transientPi.getOID(), JOIN_PI_COMMENT);
-         fail();
+         fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
       }
       catch (final IllegalOperationException e)
       {
          assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_EXCEPTION_ID_CHECK, e.getError().getId(), equalTo(PI_IS_TRANSIENT_BPM_RT_ERROR_ID));
       }
-      
-      final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
-      sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
-      ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
-      
-      final Parameters params = Parameters.instance();
-      params.set(APP_MAY_COMPLETE, true);
-      ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      finally
+      {
+         final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findForProcessInstance(nonTransientPi.getOID()));
+         sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
+         ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
+         
+         final Parameters params = Parameters.instance();
+         params.set(APP_MAY_COMPLETE, true);
+         ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
+      }
       
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(nonTransientPi.getOID()), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(transientPi.getOID()), is(false));
@@ -2136,7 +2158,7 @@ public class TransientProcessInstanceTest
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_NON_FORKED, null, true);
       
       pi.getStartingUser().isAdministrator();
-      fail();
+      fail(NL + ASSERTION_MSG_SHOULD_NOT_BE_REACHED);
    }
    
    /**

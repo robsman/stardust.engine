@@ -73,7 +73,7 @@
             <property name="forkingService" ref="carnotForkingService" />
          </bean>
       </property>
-      <property name="concurrentConsumers" value="5" />
+      <property name="maxConcurrentConsumers" value="5" />
    </bean>
    <bean name="daemonQueueListenerContainer" parent="abstractCarnotMessageListenerContainer">
       <property name="destination" ref="jmsDaemonQueue" />
@@ -82,7 +82,7 @@
             <property name="forkingService" ref="carnotForkingService" />
          </bean>
       </property>
-      <property name="concurrentConsumers" value="5" />
+      <property name="maxConcurrentConsumers" value="5" />
    </bean>
    <bean name="applicationQueueListenerContainer" parent="abstractCarnotMessageListenerContainer">
       <property name="destination" ref="jmsApplicationQueue" />
@@ -91,7 +91,7 @@
             <property name="forkingService" ref="carnotForkingService" />
          </bean>
       </property>
-      <property name="concurrentConsumers" value="5" />
+      <property name="maxConcurrentConsumers" value="5" />
    </bean>
    <bean abstract="true" name="abstractCarnotMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
       <property name="autoStartup" value="true" />

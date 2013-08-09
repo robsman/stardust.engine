@@ -36,6 +36,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 
 
 
@@ -65,7 +66,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    // this pattern does define a group which will contain a long value: the handler oid
    private static final Pattern handlerOidPattern = Pattern.compile("handlerOID *= *([0-9]+)");
-
+   private static final Pattern handlerModelElementOidPattern = Pattern.compile("handlerModelElementOID *= *([0-9]+)");
 
    private ActivityInstanceState state;
    private Date startTime;
@@ -605,7 +606,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                   .getCache(LogEntryBean.class).iterator();
          }
 
-         ModelElementList eventHandlers = null;
+         ModelElementList<ModelElement> eventHandlers = null;
          while (lIter != null && lIter.hasNext())
          {
             PersistenceController pc = (PersistenceController) lIter.next();
@@ -665,43 +666,55 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
     * @param logEntry the LogEntry which currently is inspected
     * @return
     */
-   private ModelElementList addHistoricalEventExecution(
-         IActivityInstance activityInstance, ModelElementList eventHandlers,
+   private ModelElementList<ModelElement> addHistoricalEventExecution(
+         IActivityInstance activityInstance, ModelElementList<ModelElement> eventHandlers,
          ILogEntry logEntry)
    {
-      // extract event handler oid from log entry subject
-      String subject = logEntry.getSubject();
-      Matcher matcher = handlerOidPattern.matcher(subject);
-
-      long eventHandlerOid = 0;
-      if (matcher.find())
-      {
-         eventHandlerOid = Long.valueOf(matcher.group(1));
-      }
-
       // retrieve event handlers for current AI once in this loop
       if (eventHandlers == null)
       {
          eventHandlers = activityInstance.getActivity().getEventHandlers();
       }
-
-      // find matching event handler and add to list of historical events
-      // (why does "foreach" give compilation issues? Using old style iteration)
-      for (Iterator iterator = eventHandlers.iterator(); iterator.hasNext();)
+      
+      // try to fetch event handler by event handler runtime oid
+      String subject = logEntry.getSubject();
+      Matcher matcher = handlerOidPattern.matcher(subject);
+      IEventHandler handler = null;
+      if (matcher.find())
       {
-         ModelElement type = (ModelElement) iterator.next();
-         if (eventHandlerOid == type.getOID())
+         long eventHandlerRuntimeOid = Long.valueOf(matcher.group(1));
+         if(eventHandlerRuntimeOid != Event.OID_UNDEFINED)
          {
-            EventHandler eventHandlerBindingDetails = new EventHandlerDetails(
-                  (IEventHandler) type);
-
-            HistoricalEvent histEvent = new HistoricalEventDetails(
-                  HistoricalEventType.EventExecution, logEntry.getTimeStamp(),
-                  HistoricalEventDetails.getUser(logEntry.getUserOID()),
-                  eventHandlerBindingDetails);
-            historicalEvents.add(histEvent);
+            long modelOid = activityInstance.getActivity().getModel().getModelOID();
+            handler = EventUtils.getEventHandler(modelOid, eventHandlerRuntimeOid);
          }
       }
+      
+      //try to fetch event handler by event handler model element oid
+      if(handler == null)
+      {
+         matcher = handlerModelElementOidPattern.matcher(subject);
+         if(matcher.find())
+         {
+            long eventHandlerModelElementOid = Long.valueOf(matcher.group(1));
+            if(eventHandlerModelElementOid != Event.OID_UNDEFINED)
+            {
+               handler = EventUtils.getEventHandler(eventHandlers, eventHandlerModelElementOid);
+            }
+         }         
+      }
+            
+      if(handler != null)
+      {
+         EventHandler eventHandlerDetails = new EventHandlerDetails(
+               handler);
+         HistoricalEvent histEvent = new HistoricalEventDetails(
+               HistoricalEventType.EventExecution, logEntry.getTimeStamp(),
+               HistoricalEventDetails.getUser(logEntry.getUserOID()),
+               eventHandlerDetails);
+         historicalEvents.add(histEvent);
+      }
+         
       return eventHandlers;
    }
 

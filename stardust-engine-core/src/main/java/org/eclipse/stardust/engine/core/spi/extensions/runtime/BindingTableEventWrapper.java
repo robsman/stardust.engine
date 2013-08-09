@@ -37,7 +37,7 @@ public class BindingTableEventWrapper implements ClosableIterator
    {
       EventBindingBean binding = (EventBindingBean) inner.next();
       Event event = new Event(binding.getType(), binding.getObjectOID(),
-            binding.getHandlerOID(), Event.PULL_EVENT);
+            binding.getHandlerOID(), Event.OID_UNDEFINED, Event.PULL_EVENT);
       event.setAttribute(PredefinedConstants.TARGET_TIMESTAMP_ATT,
             new Long(binding.getTargetStamp()));
       return event;

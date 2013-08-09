@@ -482,7 +482,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          if (getProcessDefinition().hasEventHandlers(
                PredefinedConstants.PROCESS_STATECHANGE_CONDITION))
          {
-            Event event = new Event(Event.PROCESS_INSTANCE, getOID(), 0,
+            Event event = new Event(Event.PROCESS_INSTANCE, getOID(), Event.OID_UNDEFINED, Event.OID_UNDEFINED,
                   Event.ENGINE_EVENT);
             event.setAttribute(PredefinedConstants.SOURCE_STATE_ATT, sourceState);
             event.setAttribute(PredefinedConstants.TARGET_STATE_ATT, targetState);

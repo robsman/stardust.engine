@@ -504,7 +504,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
       if (getActivity().hasEventHandlers(
             PredefinedConstants.ACTIVITY_STATECHANGE_CONDITION))
       {
-         Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), 0, Event.ENGINE_EVENT);
+         Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), Event.OID_UNDEFINED,
+               Event.OID_UNDEFINED, Event.ENGINE_EVENT);
          event.setAttribute(PredefinedConstants.SOURCE_STATE_ATT,
                ActivityInstanceState.getState(oldState));
          event.setAttribute(PredefinedConstants.TARGET_STATE_ATT,
@@ -845,7 +846,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
             if (getActivity().hasEventHandlers(
                   PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION))
             {
-               Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), 0,
+               Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), Event.OID_UNDEFINED, Event.OID_UNDEFINED,
                      Event.ENGINE_EVENT);
                event.setAttribute(PredefinedConstants.SOURCE_USER_ATT,
                      Long.valueOf(oldUserPerformer));
@@ -1848,7 +1849,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    public void processException(Throwable exception) throws Throwable
    {
-      Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), 0, Event.ENGINE_EVENT);
+      Event event = new Event(Event.ACTIVITY_INSTANCE, getOID(), Event.OID_UNDEFINED, Event.OID_UNDEFINED, Event.ENGINE_EVENT);
       event.setAttribute(PredefinedConstants.EXCEPTION_ATT, exception);
 
       event = EventUtils.processAutomaticEvent(getActivity(),

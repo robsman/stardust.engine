@@ -59,7 +59,7 @@ public class AbortActivityEventAction implements EventActionInstance
          {
             // create and return a copy of event ...
             Event alteredEvent = new Event(event.getType(), event.getObjectOID(), event
-                  .getHandlerOID(), event.getEmitterType());
+                  .getHandlerOID(), event.getHandlerModelElementOID(), event.getEmitterType());
             alteredEvent.setAttributes(event.getAttributes());
 
             // ... but with different intended state.

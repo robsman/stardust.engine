@@ -30,6 +30,12 @@ import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
 public class Event
 {
    /**
+    * Used to mark field {@link Event#handlerOID} or {@link Event#handlerModelElementOID}
+    * as undefined
+    */
+   public static final int OID_UNDEFINED = -1;
+   
+   /**
     * Indicates the event source to be an activity instance.
     */
    public static final int ACTIVITY_INSTANCE = 1;
@@ -56,15 +62,17 @@ public class Event
    private int type;
    private long objectOID;
    private long handlerOID;
+   private long handlerModelElementOID;
    private Map attributes = new HashMap();
    private int emitterType;
    private ActivityInstanceState intendedState;
 
-   public Event(int type, long objectOID, long handlerOID, int emitterType)
+   public Event(int type, long objectOID, long handlerRuntimeOID, long handlerModelElementOID, int emitterType)
    {
       this.type = type;
       this.objectOID = objectOID;
-      this.handlerOID = handlerOID;
+      this.handlerOID = handlerRuntimeOID;
+      this.handlerModelElementOID = handlerModelElementOID;
       this.emitterType = emitterType;
    }
 
@@ -118,6 +126,36 @@ public class Event
    public long getHandlerOID()
    {
       return handlerOID;
+   }
+
+   /**
+    * Sets the runtime OID of the event handler this event is targeting.
+    * 
+    * @param handlerOID - the runtime OID of the event handler this event is targeting
+    */
+   public void setHandlerOID(long handlerOID)
+   {
+      this.handlerOID = handlerOID;
+   }
+
+   /**
+    * Gets the model element OID of the event handler this event is targeting.
+    * 
+    * @return The current event handler model element OID.
+    */
+   public long getHandlerModelElementOID()
+   {
+      return handlerModelElementOID;
+   }
+
+   /**
+    * Sets the model element OID of the event handler this event is targeting.
+    * 
+    * @param handlerModelElementOID - the model element OID of the event handler this event is targeting
+    */
+   public void setHandlerModelElementOID(long handlerModelElementOID)
+   {
+      this.handlerModelElementOID = handlerModelElementOID;
    }
 
    /**
@@ -197,13 +235,11 @@ public class Event
       StringBuffer result = new StringBuffer("Event: [");
       result.append("objectOID = ").append(objectOID).append(", ");
       result.append("type = ").append(type).append(", ");
-      result.append("handlerOID = ").append(handlerOID);
+      result.append("handlerOID = ").append(handlerOID).append(", ");
+      result.append("handlerModelElementOID = ").append(handlerModelElementOID);
       result.append("]");
       return result.toString();
    }
 
-   public void setHandlerOID(long handlerOID)
-   {
-      this.handlerOID = handlerOID;
-   }
+   
 }

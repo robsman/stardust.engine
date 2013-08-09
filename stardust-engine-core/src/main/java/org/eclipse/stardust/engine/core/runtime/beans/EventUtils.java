@@ -45,6 +45,8 @@ import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.extensions.conditions.timer.TimeStampBinder;
 import org.eclipse.stardust.engine.core.model.beans.EventHandlerBean;
+import org.eclipse.stardust.engine.core.model.utils.ModelElement;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
@@ -75,6 +77,33 @@ public class EventUtils
    private static final String HANDLER_SCOPE = "handler.";
    private static int RETRY_FAILURE_MAX = Parameters.instance().getInteger("event.retry.failure", 5);
    public static int DEACTIVE_TYPE = 1024;
+   
+   public static IEventHandler getEventHandler(long modelOid, long eventHandlerOid)
+   {
+      try
+      {
+         return ModelManagerFactory.getCurrent().findEventHandler(modelOid, eventHandlerOid);
+      }
+      catch(Exception ignored)
+      {}
+      
+      return null;
+   }
+   
+   public static IEventHandler getEventHandler(ModelElementList<ModelElement> eventHandlers,
+         long eventHandlerModelElementOid)
+   {
+      for(ModelElement eventHandler: eventHandlers)
+      {
+         if(eventHandler.getOID() == eventHandlerModelElementOid 
+               && eventHandler instanceof IEventHandler)
+         {
+            return (IEventHandler) eventHandler;
+         }
+      }
+
+      return null;
+   }
    
    public static String getHandlerScope(IEventHandler handler)
    {
@@ -151,7 +180,8 @@ public class EventUtils
             continue;
          }
          
-         event.setHandlerOID(handler.getOID());
+         //set the oid of the element so that logging for that event will contain that information
+         event.setHandlerModelElementOID(handler.getOID());
 
          final EventHandlerInstance condition = cache.getHandlerInstance(handler);
          if (null == condition)
@@ -647,7 +677,7 @@ public class EventUtils
    private static void performBindActions(int objectType, IdentifiablePersistent source,
          IEventHandler handler, EventHandlerBinding binding)
    {
-      Event event = new Event(objectType, source.getOID(), handler.getOID(),
+      Event event = new Event(objectType, source.getOID(), Event.OID_UNDEFINED, handler.getOID(),
             Event.ENGINE_EVENT);
       // dynamically injecting targetTimestamp attribute
       if (PredefinedConstants.TIMER_CONDITION.equals(handler.getType().getId()))
@@ -702,7 +732,7 @@ public class EventUtils
    private static void performUnbindActions(int objectType,
          IdentifiablePersistent source, IEventHandler handler, EventHandlerBinding binding)
    {
-      Event event = new Event(objectType, source.getOID(), handler.getOID(),
+      Event event = new Event(objectType, source.getOID(), Event.OID_UNDEFINED, handler.getOID(),
             Event.ENGINE_EVENT);
       // dynamically injecting targetTimestamp attribute
       if (PredefinedConstants.TIMER_CONDITION.equals(handler.getType().getId()))

@@ -12,7 +12,7 @@ package org.eclipse.stardust.test.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.spring.SpringConstants;
 import org.eclipse.stardust.engine.api.spring.SpringUtils;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -57,7 +57,7 @@ public class SpringAppContext
          final String appCtxName = (forkingServiceMode == ForkingServiceMode.JMS) 
                                                    ? APP_CTX_NAME_JMS_FORKING
                                                    : APP_CTX_NAME_NATIVE_THREADING;
-         final Parameters params = Parameters.instance();
+         final GlobalParameters params = GlobalParameters.globals();
          params.set(SpringConstants.PRP_APPLICATION_CONTEXT_FILE, appCtxName);
 
          /* causes the Spring Application Context to be initialized */

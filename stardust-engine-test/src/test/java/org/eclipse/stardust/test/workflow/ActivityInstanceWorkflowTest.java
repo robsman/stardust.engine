@@ -28,7 +28,7 @@ import static org.junit.Assert.assertThat;
 import java.util.Collections;
 import java.util.Map;
 
-import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.InvalidValueException;
@@ -822,7 +822,7 @@ public class ActivityInstanceWorkflowTest
    public void testActivateNextActivityInstanceByAiOid()
    {
       // TODO (nw) remove as soon as CRNT-29836 has been resolved
-      Parameters.instance().set(KernelTweakingProperties.LAST_MODIFIED_TIMESTAMP_EPSILON, 20);
+      GlobalParameters.globals().set(KernelTweakingProperties.LAST_MODIFIED_TIMESTAMP_EPSILON, 20);
       
       startProcess(PD_1_ID);
       final ActivityInstance ai = findFirstAliveActivityInstanceFor(PD_1_ID);

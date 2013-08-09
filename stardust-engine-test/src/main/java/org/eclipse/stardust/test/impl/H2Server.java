@@ -17,7 +17,7 @@ import java.sql.DriverManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException;
@@ -74,11 +74,11 @@ public class H2Server
    
    static
    {
-      final Parameters parameters = Parameters.instance();
-      DBMS_URL = (String) parameters.getString(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_URL_SUFFIX);
-      DB_USER = (String) parameters.getString(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX);
-      DB_PASSWORD = (String) parameters.getString(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_PASSWORD_SUFFIX);
-      DBMS_PORT = (String) parameters.getString(SessionProperties.DS_NAME_AUDIT_TRAIL + DS_PORT_SUFFIX);
+      final GlobalParameters parameters = GlobalParameters.globals();
+      DBMS_URL = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_URL_SUFFIX);
+      DB_USER = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX);
+      DB_PASSWORD = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_PASSWORD_SUFFIX);
+      DBMS_PORT = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + DS_PORT_SUFFIX);
    }
    
    public H2Server() throws TestRtEnvException

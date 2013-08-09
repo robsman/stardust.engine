@@ -87,6 +87,8 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
    {
       checkId(inconsistencies);
 
+
+
       // check for unique Id
       ITypeDeclaration td = ((IModel) getModel()).findTypeDeclaration(getId());
       if (td != null && td != this)
@@ -95,7 +97,8 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                getName() + "'.", this, Inconsistency.ERROR));
       }
 
-      this.validateParentReferences((IModel) getModel(), inconsistencies, td);
+      validateElements(inconsistencies, td);
+      validateParentReferences((IModel) getModel(), inconsistencies, td);
 
       // check for usage of variables
       if (xpdlType instanceof SchemaTypeBean)
@@ -173,6 +176,11 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
       return model;
    }
 
+   private void validateElements(List inconsistencies, ITypeDeclaration declaration)
+   {
+      inconsistencies.addAll(ElementValidator.validateElements(declaration));
+   }
+
    private void validateParentReferences(IModel model, List inconsistencies,
          ITypeDeclaration declaration)
    {
@@ -204,7 +212,7 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                         String message = MessageFormat.format(
                               "TypeDeclaration ''{0}'': referenced parent type ''{1}'' not found.", //$NON-NLS-1$
                               declaration.getId(), typeId);
-                        inconsistencies.add(new Inconsistency(message, this,
+                        inconsistencies.add(new Inconsistency(message, declaration,
                               Inconsistency.ERROR));
                      }
                   }
@@ -266,7 +274,6 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
       }
       return null;
    }
-
 
 
 }

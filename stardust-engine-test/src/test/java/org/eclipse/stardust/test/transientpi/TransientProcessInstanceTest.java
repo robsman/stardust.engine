@@ -163,8 +163,6 @@ public class TransientProcessInstanceTest
    
    private static final String PI_IS_TRANSIENT_BPM_RT_ERROR_ID = "BPMRT03840";
    
-   private static final String APP_MAY_COMPLETE = "APP_MAY_COMPLETE";
-   
    private static final String SPAWN_LINK_COMMENT = "<Spawn Link Comment>";
    
    private static final String JOIN_PI_COMMENT = "<Join PI Comment>";
@@ -201,6 +199,8 @@ public class TransientProcessInstanceTest
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
+   private static volatile boolean appMayComplete;
+   
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS, MODEL_ID);
    
@@ -224,11 +224,12 @@ public class TransientProcessInstanceTest
    public void setUp()
    {
       final GlobalParameters params = GlobalParameters.globals();
-      params.set(APP_MAY_COMPLETE, false);
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
       params.set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
       params.set(KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER, SpringAppContextHazelcastJcaConnectionFactoryProvider.class.getName());
       params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, true);
+      
+      appMayComplete = false;
    }
    
    /**
@@ -1551,7 +1552,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
+         appMayComplete = true;
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1591,7 +1592,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
+         appMayComplete = true;
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1666,7 +1667,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
+         appMayComplete = true;
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1743,7 +1744,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
+         appMayComplete = true;
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1779,7 +1780,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
+         appMayComplete = true;
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1822,7 +1823,7 @@ public class TransientProcessInstanceTest
          ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
          ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Completed);
    
-         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
+         appMayComplete = true;
          ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1865,7 +1866,7 @@ public class TransientProcessInstanceTest
          sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
          ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
          
-         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
+         appMayComplete = true;
          ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1907,7 +1908,7 @@ public class TransientProcessInstanceTest
          sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
          ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
          
-         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
+         appMayComplete = true;
          ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -2497,8 +2498,7 @@ public class TransientProcessInstanceTest
       {
          int nRuns = 0;
          
-         boolean mayComplete = ((Boolean) GlobalParameters.globals().get(APP_MAY_COMPLETE)).booleanValue();
-         while ( !mayComplete)
+         while ( !appMayComplete)
          {
             nRuns++;
             if (nRuns > 10)
@@ -2508,7 +2508,6 @@ public class TransientProcessInstanceTest
             }
             
             Thread.sleep(1000L);
-            mayComplete = ((Boolean) GlobalParameters.globals().get(APP_MAY_COMPLETE)).booleanValue();
          }
       }
    }

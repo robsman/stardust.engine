@@ -90,7 +90,7 @@ public class ElementValidator
                         String message = MessageFormat.format(
                               "Duplicate identifier: ''{0}''", //$NON-NLS-1$
                               name);
-                        messages.add(new Inconsistency(message, declaration.getParent(),
+                        messages.add(new Inconsistency(message, declaration,
                               Inconsistency.ERROR));
                     	}
                     	names.add(name);

@@ -2514,15 +2514,15 @@ public class TransientProcessInstanceTest
          boolean mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
          while ( !mayComplete)
          {
-            Thread.sleep(1000L);
-            mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
-            
             nRuns++;
             if (nRuns > 10)
             {
                /* something went terribly wrong: we need to cancel */
-               throw new TimeoutException();
+               throw new TimeoutException("We still may not complete: something went terribly wrong ...");
             }
+            
+            Thread.sleep(1000L);
+            mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
          }
       }
    }

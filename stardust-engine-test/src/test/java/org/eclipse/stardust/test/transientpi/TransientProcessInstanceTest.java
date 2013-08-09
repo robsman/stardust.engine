@@ -70,6 +70,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.jms.JMSException;
 import javax.jms.MapMessage;
@@ -2505,14 +2506,23 @@ public class TransientProcessInstanceTest
     */
    public static final class WaitingApp
    {
-      public void doWait() throws InterruptedException
+      public void doWait() throws InterruptedException, TimeoutException
       {
+         int nRuns = 0;
+         
          final Parameters params = Parameters.instance();
          boolean mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
          while ( !mayComplete)
          {
-            Thread.sleep(500L);
+            Thread.sleep(1000L);
             mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
+            
+            nRuns++;
+            if (nRuns > 10)
+            {
+               /* something went terribly wrong: we need to cancel */
+               throw new TimeoutException();
+            }
          }
       }
    }

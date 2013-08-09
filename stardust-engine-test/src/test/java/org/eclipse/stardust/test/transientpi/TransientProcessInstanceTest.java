@@ -82,6 +82,7 @@ import javax.transaction.SystemException;
 
 import org.apache.log4j.Level;
 import org.eclipse.stardust.common.Action;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
@@ -222,7 +223,7 @@ public class TransientProcessInstanceTest
    @Before
    public void setUp()
    {
-      final Parameters params = Parameters.instance();
+      final GlobalParameters params = GlobalParameters.globals();
       params.set(APP_MAY_COMPLETE, false);
       params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 0);
       params.set(JmsProperties.RESPONSE_HANDLER_RETRY_COUNT_PROPERTY, 0);
@@ -1550,8 +1551,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         final Parameters params = Parameters.instance();
-         params.set(APP_MAY_COMPLETE, true);
+         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1591,8 +1591,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         final Parameters params = Parameters.instance();
-         params.set(APP_MAY_COMPLETE, true);
+         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1667,8 +1666,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         final Parameters params = Parameters.instance();
-         params.set(APP_MAY_COMPLETE, true);
+         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1745,8 +1743,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         final Parameters params = Parameters.instance();
-         params.set(APP_MAY_COMPLETE, true);
+         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1782,8 +1779,7 @@ public class TransientProcessInstanceTest
       }
       finally
       {
-         final Parameters params = Parameters.instance();
-         params.set(APP_MAY_COMPLETE, true);
+         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
          ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1826,8 +1822,7 @@ public class TransientProcessInstanceTest
          ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
          ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Completed);
    
-         final Parameters params = Parameters.instance();
-         params.set(APP_MAY_COMPLETE, true);
+         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
          ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1870,8 +1865,7 @@ public class TransientProcessInstanceTest
          sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
          ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
          
-         final Parameters params = Parameters.instance();
-         params.set(APP_MAY_COMPLETE, true);
+         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
          ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -1913,8 +1907,7 @@ public class TransientProcessInstanceTest
          sf.getWorkflowService().activateAndComplete(ai.getOID(), null, null);
          ProcessInstanceStateBarrier.instance().await(nonTransientPi.getOID(), ProcessInstanceState.Completed);
          
-         final Parameters params = Parameters.instance();
-         params.set(APP_MAY_COMPLETE, true);
+         GlobalParameters.globals().set(APP_MAY_COMPLETE, true);
          ProcessInstanceStateBarrier.instance().await(transientPi.getOID(), ProcessInstanceState.Completed);
       }
       
@@ -2292,8 +2285,7 @@ public class TransientProcessInstanceTest
    
    private void enableTransientProcessesSupport()
    {
-      final Parameters params = Parameters.instance();
-      params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
+      GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
       
       dropTransientProcessInstanceStorage();
       assertNoSerialActivityThreadQueuesBeforeTestStart();
@@ -2301,8 +2293,7 @@ public class TransientProcessInstanceTest
    
    private void overrideTransientProcessesSupport(final String override)
    {
-      final Parameters params = Parameters.instance();
-      params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, override);
+      GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, override);
       
       dropTransientProcessInstanceStorage();
       assertNoSerialActivityThreadQueuesBeforeTestStart();
@@ -2310,26 +2301,22 @@ public class TransientProcessInstanceTest
    
    private void disableTransientProcessesSupport()
    {
-      final Parameters params = Parameters.instance();
-      params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
+      GlobalParameters.globals().set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
    }
    
    private void disableInMemStorageExposal()
    {
-      final Parameters params = Parameters.instance();
-      params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, false);
+      GlobalParameters.globals().set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, false);
    }
    
    private void enableTxPropagation()
    {
-      final Parameters params = Parameters.instance();
-      params.set(KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION, KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION_ALWAYS);
+      GlobalParameters.globals().set(KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION, KernelTweakingProperties.APPLICATION_EXCEPTION_PROPAGATION_ALWAYS);
    }
    
    private void enableOneSystemQueueConsumerRetry()
    {
-      final Parameters params = Parameters.instance();
-      params.set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 2);
+      GlobalParameters.globals().set(JmsProperties.MESSAGE_LISTENER_RETRY_COUNT_PROPERTY, 2);
    }
    
    private void dropTransientProcessInstanceStorage()
@@ -2510,8 +2497,7 @@ public class TransientProcessInstanceTest
       {
          int nRuns = 0;
          
-         final Parameters params = Parameters.instance();
-         boolean mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
+         boolean mayComplete = ((Boolean) GlobalParameters.globals().get(APP_MAY_COMPLETE)).booleanValue();
          while ( !mayComplete)
          {
             nRuns++;
@@ -2522,7 +2508,7 @@ public class TransientProcessInstanceTest
             }
             
             Thread.sleep(1000L);
-            mayComplete = ((Boolean) params.get(APP_MAY_COMPLETE)).booleanValue();
+            mayComplete = ((Boolean) GlobalParameters.globals().get(APP_MAY_COMPLETE)).booleanValue();
          }
       }
    }

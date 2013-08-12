@@ -37,17 +37,6 @@ public class RuntimeJobs
          else
          {
             jobs = new LinkedList();
-            jobs.add(new R2_0_2fromPre2_0_0RuntimeJob());
-            jobs.add(new R2_0_2from2_0_0RuntimeJob());
-            jobs.add(new R2_0_3from2_0_2RuntimeJob());
-            jobs.add(new R2_5_0from2_0_3RuntimeJob());
-            jobs.add(new R2_5_1from2_5_0RuntimeJob());
-            jobs.add(new R2_5_3from2_5_1RuntimeJob());
-            jobs.add(new R2_6from2_5_1RuntimeJob());
-            jobs.add(new R2_7_2from2_6RuntimeJob());
-            jobs.add(new R2_7_3from2_7_2RuntimeJob());
-            jobs.add(new R3_0_1from2_7_3RuntimeJob());
-            jobs.add(new R3_0_1from3_0_0RuntimeJob());
             jobs.add(new R3_0_6from3_0_1RuntimeJob());
             jobs.add(new R3_2_0from3_0_6RuntimeJob());
             jobs.add(new R3_6_0from3_2_0RuntimeJob());

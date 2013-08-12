@@ -15,7 +15,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ExtensionProviderUtilsTest.class, ParametersTest.class})
+@SuiteClasses({ ExtensionProviderUtilsTest.class, GlobalParametersTest.class, ParametersTest.class })
 public class ConfigTestSuite
 {
    /* test suite */

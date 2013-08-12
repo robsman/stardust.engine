@@ -695,7 +695,7 @@ public class XmlAdapterUtils
          {
             Data data = (Data) model.getAllData().get(i);
 
-            xto.getGlobalVariables().getGlobalVariable().add(toWs(data, model));
+            xto.getGlobalVariables().getGlobalVariable().add(toWs(data));
          }
       }
 

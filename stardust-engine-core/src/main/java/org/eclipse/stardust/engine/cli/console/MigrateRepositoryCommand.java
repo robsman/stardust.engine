@@ -96,7 +96,8 @@ public class MigrateRepositoryCommand extends ConsoleCommand
          if (currentRepositoryStructureVersion < targetRepositoryStructureVersion)
          {
             print("Repository requires miration from structure version: "
-                  + currentRepositoryStructureVersion + " to " + targetRepositoryStructureVersion + ".");
+                  + currentRepositoryStructureVersion + " to "
+                  + targetRepositoryStructureVersion + ".");
          }
 
          boolean cancel = false;
@@ -105,42 +106,50 @@ public class MigrateRepositoryCommand extends ConsoleCommand
             report = dms.migrateRepository(0, true);
 
             RepositoryMigrationJobInfo currentMigrationJob = report.getCurrentMigrationJob();
-            long totalCount = report.getTotalCount();
-
-            print("The next migration job is: " + currentMigrationJob.getName()
-                  + "( from version " + currentMigrationJob.getFromVersion()
-                  + ", to version " + currentMigrationJob.getToVersion() + ").");
-            print("In this migration step " + totalCount
-                  + " resources need to be processed.");
-            print("Starting migration job with a batchSize of " + batchSize + ".");
-
-            boolean stepComplete = false;
-            long totalResourcesDone = 0;
-            while (!stepComplete && !cancel)
+            if (currentMigrationJob == null)
             {
-               report = dms.migrateRepository(batchSize, false);
-               totalResourcesDone += report.getResourcesDone();
-               print("Resources Processed: " + totalResourcesDone + " of " + totalCount);
-               if (report.getCurrentRepositoryVersion() > currentRepositoryVersion)
+               cancel = true;
+            }
+            else
+            {
+               long totalCount = report.getTotalCount();
+
+               print("The next migration job is: " + currentMigrationJob.getName()
+                     + "( from version " + currentMigrationJob.getFromVersion()
+                     + ", to version " + currentMigrationJob.getToVersion() + ").");
+               print("In this migration step " + totalCount
+                     + " resources need to be processed.");
+               print("Starting migration job with a batchSize of " + batchSize + ".");
+
+               boolean stepComplete = false;
+               long totalResourcesDone = 0;
+               while ( !stepComplete && !cancel)
                {
-                  stepComplete = true;
-                  print("Migration step complete. New repository version is "
-                        + report.getCurrentRepositoryVersion() + ".");
-                  currentRepositoryVersion = report.getCurrentRepositoryVersion();
-               }
-               else if (report.getCurrentRepositoryStructureVersion() > currentRepositoryStructureVersion)
-               {
-                  stepComplete = true;
-                  print("Migration step complete. New repository structure version is "
-                        + report.getCurrentRepositoryStructureVersion() + ".");
-                  currentRepositoryStructureVersion = report.getCurrentRepositoryStructureVersion();
-               }
-               long runtime = System.currentTimeMillis() - starttime;
-               if (timeLimit > 0 && runtime > timeLimit * 1000 * 60)
-               {
-                  cancel = true;
-                  print("Time limit exceded! The migration was stopped after " + runtime / 1000 / 60
-                        + " Minutes.");
+                  report = dms.migrateRepository(batchSize, false);
+                  totalResourcesDone += report.getResourcesDone();
+                  print("Resources Processed: " + totalResourcesDone + " of "
+                        + totalCount);
+                  if (report.getCurrentRepositoryVersion() > currentRepositoryVersion)
+                  {
+                     stepComplete = true;
+                     print("Migration step complete. New repository version is "
+                           + report.getCurrentRepositoryVersion() + ".");
+                     currentRepositoryVersion = report.getCurrentRepositoryVersion();
+                  }
+                  else if (report.getCurrentRepositoryStructureVersion() > currentRepositoryStructureVersion)
+                  {
+                     stepComplete = true;
+                     print("Migration step complete. New repository structure version is "
+                           + report.getCurrentRepositoryStructureVersion() + ".");
+                     currentRepositoryStructureVersion = report.getCurrentRepositoryStructureVersion();
+                  }
+                  long runtime = System.currentTimeMillis() - starttime;
+                  if (timeLimit > 0 && runtime > timeLimit * 1000 * 60)
+                  {
+                     cancel = true;
+                     print("Time limit exceded! The migration was stopped after "
+                           + runtime / 1000 / 60 + " Minutes.");
+                  }
                }
             }
          }

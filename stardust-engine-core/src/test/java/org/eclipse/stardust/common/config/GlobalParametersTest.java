@@ -29,7 +29,7 @@ import org.junit.Test;
  * </p>
  * 
  * @author Nicolas.Werlein
- * @version $Revision: $
+ * @version $Revision$
  */
 public class GlobalParametersTest
 {

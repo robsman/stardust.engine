@@ -59,10 +59,10 @@ public class LocalJcrH2TestSetup extends ExternalResource
    private static final String DATA_SOURCE_FACTORY_BEAN_ID = "xaAuditTrailConnectionFactory";
    private static final String JMS_RESOURCE_PROVIDER_BEAN_ID = "jmsResourceResolver";
    
-   private static final H2Server DBMS = new H2Server();
-   private static final SpringAppContext SPRING_APP_CTX = new SpringAppContext();
-
    private static boolean locked;
+
+   private final H2Server dbms;
+   private final SpringAppContext springAppCtx;
 
    private final String[] modelNames;
    private final UsernamePasswordPair userPwdPair;
@@ -101,6 +101,9 @@ public class LocalJcrH2TestSetup extends ExternalResource
       this.userPwdPair = userPwdPair;
       this.forkingServiceMode = forkingServiceMode;
       this.modelNames = (modelNames != null) ? modelNames : new String[0];
+      
+      this.dbms = new H2Server();
+      this.springAppCtx = new SpringAppContext();
    }
    
    /**
@@ -130,9 +133,9 @@ public class LocalJcrH2TestSetup extends ExternalResource
       
       LOG.info("---> Setting up the test environment ...");
 
-      DBMS.start();
-      DBMS.createSchema();
-      SPRING_APP_CTX.bootstrap(forkingServiceMode);
+      dbms.start();
+      dbms.createSchema();
+      springAppCtx.bootstrap(forkingServiceMode);
       
       sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
       if (modelNames.length > 0)
@@ -173,10 +176,10 @@ public class LocalJcrH2TestSetup extends ExternalResource
       sf.close();
       sf = null;
       
-      SPRING_APP_CTX.close();
+      springAppCtx.close();
       /* no need to drop the schema as the database content */
       /* is gone anyway as soon as the DBMS is stopped      */
-      DBMS.stop();
+      dbms.stop();
       
       LOG.info("<--- ... teardown of test environment done.");
    }
@@ -217,7 +220,7 @@ public class LocalJcrH2TestSetup extends ExternalResource
    {
       if (ds == null)
       {
-         ds = SPRING_APP_CTX.appCtx().getBean(DATA_SOURCE_FACTORY_BEAN_ID, DataSource.class);
+         ds = springAppCtx.appCtx().getBean(DATA_SOURCE_FACTORY_BEAN_ID, DataSource.class);
          
          if (ds == null)
          {
@@ -287,11 +290,11 @@ public class LocalJcrH2TestSetup extends ExternalResource
          throw new IllegalStateException("JMS is not in use in this test setup.");
       }
       
-      final IJmsResourceProvider result = SPRING_APP_CTX.appCtx().getBean(JMS_RESOURCE_PROVIDER_BEAN_ID, IJmsResourceProvider.class);
+      final IJmsResourceProvider result = springAppCtx.appCtx().getBean(JMS_RESOURCE_PROVIDER_BEAN_ID, IJmsResourceProvider.class);
       
       if (result == null)
       {
-         throw new IllegalStateException("Queue cannot be obtained from Spring Application Context.");
+         throw new IllegalStateException("JMS Resource Provider cannot be obtained from Spring Application Context.");
       }
       
       return result;

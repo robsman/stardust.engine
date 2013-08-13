@@ -179,7 +179,7 @@ public class EnumAccessor extends ScriptableObject
       if (val instanceof EnumAccessor && this.value != null)
       {
          if (((EnumAccessor) val).value == null) {
-            return ((EnumAccessor) val).value == this.value;
+            return ((EnumAccessor) val).value.equals(this.value);
          }
          return ((EnumAccessor) val).value.equalsIgnoreCase(this.value);
       }

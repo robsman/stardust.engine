@@ -169,7 +169,7 @@ public class Options
       }
       longnames.put(longname, o);
       
-      if (NO_SHORTNAME != shortname)
+      if (!NO_SHORTNAME.equals(shortname))
       {
          if (shortnames.containsKey(shortname))
          {

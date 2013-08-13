@@ -447,7 +447,7 @@ public class AuthorizationContext
       {
          permissions = getDefinedGrants(permissionId);
       }
-      if (permissionId == permissionIds[0])
+      if (permissionId.equals(permissionIds[0]))
       {
          if (permissions == null || EMPTY == permissions)
          {

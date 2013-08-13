@@ -2005,7 +2005,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                while (groups.hasNext())
                {
                   IUserGroup group = groups.next();
-                  if (group.getId() == participant.getId())
+                  if (group.getId().equals(participant.getId()))
                   {
                      inGroup = true;
                      break;

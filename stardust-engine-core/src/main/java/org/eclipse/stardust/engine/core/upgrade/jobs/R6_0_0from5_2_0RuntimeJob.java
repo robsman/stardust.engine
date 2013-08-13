@@ -372,6 +372,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             activeModels.add((long) model.getModelOID());
          }
+         Utils.flushSession(); 
       }
 
       //No need to do anything if no models are deployed. 

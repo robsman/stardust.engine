@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
@@ -28,10 +29,12 @@ import org.eclipse.stardust.engine.api.query.ParticipantWorklist;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
@@ -95,9 +98,10 @@ public class NullScopeFallbackTest
     * </p>
     */
    @Test
-   public void testNullDepartmentAsynchronous()
+   public void testNullDepartmentAsynchronous() throws InterruptedException, TimeoutException
    {
-      userSf.getWorkflowService().startProcess(PROCESS_ID_2, null, false);
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PROCESS_ID_2, null, false);
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
       
       ensureNullScope();
    }
@@ -126,10 +130,11 @@ public class NullScopeFallbackTest
     * </p>
     */
    @Test
-   public void testDepartmentNotFoundAsynchronous()
+   public void testDepartmentNotFoundAsynchronous() throws InterruptedException, TimeoutException
    {
       final Map<String, String> deptData = Collections.singletonMap("CountryCode", "N/A");
-      userSf.getWorkflowService().startProcess(PROCESS_ID_2, deptData, false);
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PROCESS_ID_2, deptData, false);
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
       
       ensureNullScope();
    }

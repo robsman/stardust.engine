@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
@@ -38,6 +39,7 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
@@ -100,9 +102,10 @@ public class ProcessInstanceWorkflowTest
     * </p>
     */
    @Test
-   public void testStartProcessAsynchronously()
+   public void testStartProcessAsynchronously() throws InterruptedException, TimeoutException
    {
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, false);
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
       assertNotNull(pi);
       assertEquals(ProcessInstanceState.Active, pi.getState());
    }

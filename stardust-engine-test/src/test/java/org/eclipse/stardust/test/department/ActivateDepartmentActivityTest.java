@@ -10,16 +10,24 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.COUNTRY_CODE_DATA_NAME;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_DE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_1;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_2;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
@@ -85,9 +93,10 @@ public class ActivateDepartmentActivityTest
     * </p>
     */
    @Test
-   public void testActivateDepartmentActivityAsynchronouslyWithRouteActivity()
+   public void testActivateDepartmentActivityAsynchronouslyWithRouteActivity() throws InterruptedException, TimeoutException
    {
-      startProcess(PROCESS_ID_1, false);
+      final ProcessInstance pi = startProcess(PROCESS_ID_1, false);
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
    }
    
    /**
@@ -111,14 +120,15 @@ public class ActivateDepartmentActivityTest
     * </p>
     */
    @Test
-   public void testActivateDepartmentActivityAsynchronouslyWithoutRouteActivity()
+   public void testActivateDepartmentActivityAsynchronouslyWithoutRouteActivity() throws InterruptedException, TimeoutException
    {
-      startProcess(PROCESS_ID_2, false);
+      final ProcessInstance pi = startProcess(PROCESS_ID_2, false);
+      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
    }   
    
-   private void startProcess(final String processId, final boolean synchronously)
+   private ProcessInstance startProcess(final String processId, final boolean synchronously)
    {
       final Map<String, String> ccData = Collections.singletonMap(COUNTRY_CODE_DATA_NAME, DEPT_ID_DE);
-      userSf.getWorkflowService().startProcess(processId, ccData, synchronously);
+      return userSf.getWorkflowService().startProcess(processId, ccData, synchronously);
    }
 }

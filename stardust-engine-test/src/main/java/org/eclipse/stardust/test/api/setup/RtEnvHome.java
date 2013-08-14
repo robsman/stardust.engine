@@ -121,6 +121,25 @@ public class RtEnvHome
    }
    
    /**
+    * Undeploys the model specified by the given OID.
+    *
+    * @param modelOid the runtime OID of the model to be deleted
+    *
+    * @return deployment information, including possible errors or warnings
+    * 
+    * @throws DeploymentException if an exception occurs during model undeployment
+    */
+   public static DeploymentInfo undeployModel(final AdministrationService adminService, final long modelOid)
+   {
+      if (adminService == null)
+      {
+         throw new NullPointerException("Administration Service must not be null.");
+      }
+      
+      return adminService.deleteModel(modelOid);
+   }
+   
+   /**
     * <p>
     * Cleans up the Audit Trail runtime and all deployed models. Plus, it cleans up the test
     * data structures {@link ActivityInstanceStateBarrier} as well as {@link ProcessInstanceStateBarrier}.

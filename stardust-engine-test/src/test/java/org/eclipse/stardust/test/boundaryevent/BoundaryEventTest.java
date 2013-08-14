@@ -513,10 +513,13 @@ public class BoundaryEventTest
       
       final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
+      final long modelOid = deploymentInfos.get(0).getModelOID();
       
       final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
       final List<Inconsistency> warnings = deploymentInfo.getWarnings();
       assertWarningsContain("No exception flow transition", warnings);
+      
+      RtEnvHome.undeployModel(sf.getAdministrationService(), modelOid);
    }
    
    /**
@@ -537,10 +540,13 @@ public class BoundaryEventTest
       
       final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
+      final long modelOid = deploymentInfos.get(0).getModelOID();
       
       final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
       final List<Inconsistency> warnings = deploymentInfo.getWarnings();
       assertWarningsContain("Multiple boundary events for exceptions not having disjunct type hierarchies", warnings);
+      
+      RtEnvHome.undeployModel(sf.getAdministrationService(), modelOid);
    }
 
    /**
@@ -561,10 +567,13 @@ public class BoundaryEventTest
       
       final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
+      final long modelOid = deploymentInfos.get(0).getModelOID();
       
       final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
       final List<Inconsistency> warnings = deploymentInfo.getWarnings();
       assertWarningsDoNotContain("EvaluatorException: missing exponent", warnings);
+      
+      RtEnvHome.undeployModel(sf.getAdministrationService(), modelOid);
    }
    
    /**
@@ -585,10 +594,13 @@ public class BoundaryEventTest
       
       final List<DeploymentInfo> deploymentInfos = RtEnvHome.deploy(sf.getAdministrationService(), deploymentOptions, DEPLOYMENT_VALIDATION_MODEL_ID);
       assertThat(deploymentInfos.size(), is(1));
+      final long modelOid = deploymentInfos.get(0).getModelOID();
       
       final DeploymentInfo deploymentInfo = deploymentInfos.get(0);
       final List<Inconsistency> warnings = deploymentInfo.getWarnings();
       assertWarningsContain("No boundary event handler with ID", warnings);
+      
+      RtEnvHome.undeployModel(sf.getAdministrationService(), modelOid);
    }   
    
    private void doOneEventDaemonRun()

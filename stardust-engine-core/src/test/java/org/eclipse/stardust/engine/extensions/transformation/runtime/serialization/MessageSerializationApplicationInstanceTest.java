@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.extensions.transformation.runtime.serializat
 
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -29,7 +30,14 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.AccessPoint;
+import org.eclipse.stardust.engine.api.model.Activity;
+import org.eclipse.stardust.engine.api.model.Application;
+import org.eclipse.stardust.engine.api.model.ApplicationContext;
+import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactoryUtils;
@@ -191,7 +199,7 @@ public class MessageSerializationApplicationInstanceTest
       assertNotNull(actualInAccessPointValues);
       assertEquals(1, actualInAccessPointValues.size());
       
-      assertThat(actualInAccessPointValues.get(0).getSecond(), org.hamcrest.Matchers.is(String.class));
+      assertThat(actualInAccessPointValues.get(0).getSecond(), instanceOf(String.class));
       final String actualValue = (String) actualInAccessPointValues.get(0).getSecond();
       assertEquals(value, actualValue);
    }
@@ -216,7 +224,7 @@ public class MessageSerializationApplicationInstanceTest
       assertNotNull(actualInAccessPointValues);
       assertEquals(1, actualInAccessPointValues.size());
       
-      assertThat(actualInAccessPointValues.get(0).getSecond(), org.hamcrest.Matchers.is(String.class));
+      assertThat(actualInAccessPointValues.get(0).getSecond(), instanceOf(String.class));
       final String actualValue = (String) actualInAccessPointValues.get(0).getSecond();
       assertEquals(newValue, actualValue);
    }

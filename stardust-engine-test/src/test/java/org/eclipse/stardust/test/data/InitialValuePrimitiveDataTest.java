@@ -10,9 +10,33 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.data;
 
-import static org.eclipse.stardust.test.data.DataModelConstants.*;
+import static org.eclipse.stardust.test.data.DataModelConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_BOOLEAN_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_BOOLEAN_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_BYTE_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_BYTE_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_CALENDAR_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_CALENDAR_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_CHAR_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_CHAR_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_DOUBLE_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_DOUBLE_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_FLOAT_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_FLOAT_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_INT_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_INT_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_LONG_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_LONG_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_SHORT_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_SHORT_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_STRING_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_STRING_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_TIMESTAMP_IN_DATA_MAPPING;
+import static org.eclipse.stardust.test.data.DataModelConstants.MY_TIMESTAMP_IN_DATA_PATH;
+import static org.eclipse.stardust.test.data.DataModelConstants.PROCESS_ID_1;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -24,10 +48,10 @@ import java.util.Date;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -359,7 +383,7 @@ public class InitialValuePrimitiveDataTest
       final Object result = sf.getWorkflowService().getInDataValue(ai.getOID(), null, inDataMapping);
       
       assertThat(result, notNullValue());
-      assertThat(result, is(Calendar.class));
+      assertThat(result, instanceOf(Calendar.class));
       assertThat(expected.before(result), is(true));
    }
    
@@ -369,7 +393,7 @@ public class InitialValuePrimitiveDataTest
       final Object result = sf.getWorkflowService().getInDataValue(ai.getOID(), null, inDataMapping);
       
       assertThat(result, notNullValue());
-      assertThat(result, is(Date.class));
+      assertThat(result, instanceOf(Date.class));
       assertThat(expected.before((Date) result), is(true));
    }
    
@@ -386,7 +410,7 @@ public class InitialValuePrimitiveDataTest
       final Object result = sf.getWorkflowService().getInDataPath(piOid, inDataPath);
       
       assertThat(result, notNullValue());
-      assertThat(result, is(Calendar.class));
+      assertThat(result, instanceOf(Calendar.class));
       assertThat(expected.before(result), is(true));
    }
 
@@ -395,7 +419,7 @@ public class InitialValuePrimitiveDataTest
       final Object result = sf.getWorkflowService().getInDataPath(piOid, inDataPath);
       
       assertThat(result, notNullValue());
-      assertThat(result, is(Date.class));
+      assertThat(result, instanceOf(Date.class));
       assertThat(expected.before((Date) result), is(true));
    }
    

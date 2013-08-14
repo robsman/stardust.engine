@@ -86,7 +86,7 @@ public class BoundaryEventTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
@@ -484,7 +484,7 @@ public class BoundaryEventTest
       final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, timeoutData, true);
       doOneEventDaemonRun();
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(pi.getOID());
       sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, EXCEPTION_FLOW_ACTIVITY_ID, ActivityInstanceState.Completed));
       
       final ActivityInstance ai = sf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findInState(PROCESS_ID_TIMER_EVENT_NON_INTERRUPTING, SLEEPING_ACTIVITY_ID, ActivityInstanceState.Hibernated));

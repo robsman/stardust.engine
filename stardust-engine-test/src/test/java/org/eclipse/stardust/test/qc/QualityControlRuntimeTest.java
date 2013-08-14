@@ -93,7 +93,7 @@ public class QualityControlRuntimeTest
    private ServiceFactory qcManagerServiceFactory;
    private ServiceFactory monitoredUserServiceFactory;
 
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule

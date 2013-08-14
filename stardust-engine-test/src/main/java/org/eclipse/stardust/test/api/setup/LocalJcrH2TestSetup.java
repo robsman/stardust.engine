@@ -26,6 +26,7 @@ import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.eclipse.stardust.test.impl.H2Server;
 import org.eclipse.stardust.test.impl.SpringAppContext;
 import org.junit.rules.ExternalResource;
+import org.springframework.context.ApplicationContext;
 
 /**
  * <p>
@@ -281,6 +282,23 @@ public class LocalJcrH2TestSetup extends ExternalResource
          throw new IllegalStateException("Queue cannot be obtained.");
       }
       return queue;
+   }
+   
+   /**
+    * <p>
+    * Allows for retrieving the {@link ForkingServiceMode} chosen for this test setup.
+    * </p>
+    * 
+    * @return the {@link ForkingServiceMode} chosen for this test setup
+    */
+   public ForkingServiceMode forkingServiceMode()
+   {
+      return forkingServiceMode;
+   }
+   
+   /* package-private */ ApplicationContext appCtx()
+   {
+      return springAppCtx.appCtx();
    }
    
    private IJmsResourceProvider initJmsResourceProvider()

@@ -10,14 +10,28 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.api.setup;
 
+import java.util.Enumeration;
+import java.util.List;
+
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.QueueBrowser;
+import javax.jms.Session;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.spring.threading.FiFoJobManager;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.springframework.jms.core.BrowserCallback;
+import org.springframework.jms.core.JmsTemplate;
 
 /**
  * <p>
@@ -40,10 +54,12 @@ public class TestMethodSetup extends ExternalResource
    
    private static final String LOG_EYE_CATCHER = "################## Test Method Boundary ##################";
    
+   private static final String NATIVE_THREADING_JOB_MANAGER_BEAN_ID = "carnotAsyncJobManager";
+   
    private final UsernamePasswordPair userPwdPair;
+   private final LocalJcrH2TestSetup testClassSetup;
    
    private ServiceFactory sf;
-   
    private String testMethodName;
    
    /**
@@ -52,15 +68,21 @@ public class TestMethodSetup extends ExternalResource
     * </p>
     * 
     * @param userPwdPair the credentials of the user used for test method setup; must not be null
+    * @param testClassSetup the corresponding test class setup object; must not be null
     */
-   public TestMethodSetup(final UsernamePasswordPair userPwdPair)
+   public TestMethodSetup(final UsernamePasswordPair userPwdPair, final LocalJcrH2TestSetup testClassSetup)
    {
       if (userPwdPair == null)
       {
          throw new NullPointerException("User password pair must not be null.");
       }
+      if (testClassSetup == null)
+      {
+         throw new NullPointerException("Test class setup must not be null.");
+      }
       
       this.userPwdPair = userPwdPair;
+      this.testClassSetup = testClassSetup;
    }
    
    /**
@@ -110,12 +132,70 @@ public class TestMethodSetup extends ExternalResource
    @Override
    protected void after()
    {
+      logRunningActivityThreads();
       RtEnvHome.cleanUpRuntime(sf.getAdministrationService());
       
       sf.close();
       sf = null;
-      
       LOG.info("<-- " + testMethodName);
       LOG.info(LOG_EYE_CATCHER);
+   }
+   
+   private void logRunningActivityThreads()
+   {
+      if (testClassSetup.forkingServiceMode() == ForkingServiceMode.NATIVE_THREADING)
+      {
+         logRunningActivityThreadsForNativeThreading();
+      }
+      else if (testClassSetup.forkingServiceMode() == ForkingServiceMode.JMS)
+      {
+         logRunningActivityThreadsForJMS();
+      }
+      else
+      {
+         throw new IllegalStateException("Unknown forking service mode '" + testClassSetup.forkingServiceMode() + "'.");
+      }
+   }
+   
+   private void logRunningActivityThreadsForNativeThreading()
+   {
+      final FiFoJobManager jobManager = testClassSetup.appCtx().getBean(NATIVE_THREADING_JOB_MANAGER_BEAN_ID, FiFoJobManager.class);
+      final List<?> activeJobs = (List<?>) Reflect.getFieldValue(jobManager, "activeJobs");
+      final List<?> scheduledJobs = (List<?>) Reflect.getFieldValue(jobManager, "scheduledJobs");
+      
+      for (final Object o : activeJobs)
+      {
+         logRunningActivityThread(o);
+      }
+      for (final Object o : scheduledJobs)
+      {
+         logRunningActivityThread(o);
+      }
+   }
+   
+   private void logRunningActivityThreadsForJMS()
+   {
+      final Queue queue = testClassSetup.queue(JmsProperties.SYSTEM_QUEUE_NAME_PROPERTY);
+      final JmsTemplate jmsTemplate = new JmsTemplate();
+      jmsTemplate.setConnectionFactory(testClassSetup.queueConnectionFactory());
+      jmsTemplate.browse(queue, new BrowserCallback<Void>()
+      {
+         @Override
+         public Void doInJms(final Session ignored, final QueueBrowser browser) throws JMSException
+         {
+            final Enumeration<?> ats = browser.getEnumeration();
+            while (ats.hasMoreElements())
+            {
+               logRunningActivityThread(ats.nextElement());
+            }
+            
+            return null;
+         }
+      });
+   }
+   
+   private void logRunningActivityThread(final Object at)
+   {
+      LOG.warn("Still running activity thread found: " + at);
    }
 }

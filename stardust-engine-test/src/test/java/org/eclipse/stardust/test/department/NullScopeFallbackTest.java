@@ -59,7 +59,7 @@ public class NullScopeFallbackTest
    
    private static final String USER_ID = "User";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
 
@@ -101,7 +101,7 @@ public class NullScopeFallbackTest
    public void testNullDepartmentAsynchronous() throws InterruptedException, TimeoutException
    {
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PROCESS_ID_2, null, false);
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(pi.getOID());
       
       ensureNullScope();
    }
@@ -134,7 +134,7 @@ public class NullScopeFallbackTest
    {
       final Map<String, String> deptData = Collections.singletonMap("CountryCode", "N/A");
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PROCESS_ID_2, deptData, false);
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(pi.getOID());
       
       ensureNullScope();
    }

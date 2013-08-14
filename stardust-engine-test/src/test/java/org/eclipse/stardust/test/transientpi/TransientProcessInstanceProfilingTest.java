@@ -79,7 +79,7 @@ public class TransientProcessInstanceProfilingTest
    
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    

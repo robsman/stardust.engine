@@ -20,7 +20,6 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.spi.monitoring.IProcessExecutionMonitor;
-import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
@@ -99,15 +98,14 @@ public class ProcessInstanceStateBarrier
          throw new UnsupportedOperationException("Waiting for process instance state '" + piState + "' is not supported.");
       }
       
-      if (isProcessInstanceStateConditionMet(piOid, piState))
-      {
-         return;
-      }
-      
-      initCondition(piOid, piState);
       
       try
       {
+         if (isProcessInstanceStateConditionMet(piOid, piState))
+         {
+            return;
+         }
+         
          final boolean success = condition.latch().await(timeout.time(), timeout.unit());
          if ( !success)
          {
@@ -121,20 +119,22 @@ public class ProcessInstanceStateBarrier
    }
 
    /**
+    * <p>
+    * Cleans up all the state gathered so far.
+    * </p>
+    */
+   public synchronized void cleanUp()
+   {
+      piStates.clear();
+      
+      condition = null;
+   }
+   
+   /**
     * needs to be synchronized since it reads the field {@link ProcessInstanceStateBarrier#piStates},
     * which is accessed concurrently
     */
    private synchronized boolean isProcessInstanceStateConditionMet(final long piOid, final ProcessInstanceState piState)
-   {
-      if (piState.equals(piStates.get(piOid)))
-      {
-         return true;
-      }
-      
-      return false;
-   }
-   
-   private synchronized void initCondition(final long piOid, final ProcessInstanceState piState)
    {
       if (condition != null)
       {
@@ -142,6 +142,13 @@ public class ProcessInstanceStateBarrier
       }
       
       condition = new ProcessInstanceStateCondition(piOid, piState);
+      
+      if (condition.matches(piOid, piStates.get(piOid)))
+      {
+         return true;
+      }
+      
+      return false;
    }
    
    /**
@@ -154,7 +161,7 @@ public class ProcessInstanceStateBarrier
       
       if (condition != null)
       {
-         if (condition.piOid() == piOid && condition.piState().equals(piState))
+         if (condition.matches(piOid, piState))
          {
             condition.latch().countDown();
          }
@@ -237,29 +244,13 @@ public class ProcessInstanceStateBarrier
          this.piState = piState;
       }
       
-      /*
-       * (non-Javadoc)
-       * @see org.springframework.transaction.support.TransactionSynchronization#afterCompletion(int)
+      /* (non-Javadoc)
+       * @see org.springframework.transaction.support.TransactionSynchronizationAdapter#afterCommit()
        */
       @Override
-      public void afterCompletion(final int status)
+      public void afterCommit()
       {
-         if (status == TransactionSynchronization.STATUS_COMMITTED)
-         {
-            instance().stateChanged(piOid, piState);
-         }
-         else if (status == TransactionSynchronization.STATUS_ROLLED_BACK)
-         {
-            /* just ignore state change */
-         }
-         else if (status == TransactionSynchronization.STATUS_UNKNOWN)
-         {
-            throw new UnsupportedOperationException("Unknown tx status.");
-         }
-         else
-         {
-            throw new UnsupportedOperationException("Unsupported tx status '" + status + "'.");
-         }
+         instance().stateChanged(piOid, piState);
       }
    }
    
@@ -276,19 +267,18 @@ public class ProcessInstanceStateBarrier
          this.latch = new CountDownLatch(1);
       }
       
-      public long piOid()
-      {
-         return piOid;
-      }
-      
-      public ProcessInstanceState piState()
-      {
-         return piState;
-      }
-      
       public CountDownLatch latch()
       {
          return latch;
+      }
+      
+      public boolean matches(final long piOid, final ProcessInstanceState piState)
+      {
+         if (this.piOid == piOid && this.piState == piState)
+         {
+            return true;
+         }
+         return false;
       }
    }
 }

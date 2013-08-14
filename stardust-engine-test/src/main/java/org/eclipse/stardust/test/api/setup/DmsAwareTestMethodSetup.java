@@ -30,10 +30,11 @@ public class DmsAwareTestMethodSetup extends TestMethodSetup
     * </p>
     * 
     * @param userPwdPair the credentials of the user used for runtime configuration; must not be null
+    * @param testClassSetup the corresponding test class setup object; must not be null
     */
-   public DmsAwareTestMethodSetup(final UsernamePasswordPair userPwdPair)
+   public DmsAwareTestMethodSetup(final UsernamePasswordPair userPwdPair, final LocalJcrH2TestSetup testClassSetup)
    {
-      super(userPwdPair);
+      super(userPwdPair, testClassSetup);
    }
    
    /**

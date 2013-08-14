@@ -55,7 +55,7 @@ public class JoinProcessTest
    
    private static final String PROCESS_ATTACHMENTS = "PROCESS_ATTACHMENTS";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule

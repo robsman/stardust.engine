@@ -32,7 +32,9 @@ import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DaemonHome;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 
 /**
  * <p>
@@ -120,7 +122,8 @@ public class RtEnvHome
    
    /**
     * <p>
-    * Cleans up the Audit Trail runtime and all deployed models.
+    * Cleans up the Audit Trail runtime and all deployed models. Plus, it cleans up the test
+    * data structures {@link ActivityInstanceStateBarrier} as well as {@link ProcessInstanceStateBarrier}.
     * </p>
     * 
     * @param adminService an administration service of a user authorized to clean up the runtime
@@ -128,6 +131,9 @@ public class RtEnvHome
     */
    public static void cleanUpRuntimeAndModels(final AdministrationService adminService) throws TestRtEnvException
    {
+      ActivityInstanceStateBarrier.instance().cleanUp();
+      ProcessInstanceStateBarrier.instance().cleanUp();
+      
       stopAllRunningDaemons(adminService);
       
       LOG.debug("Trying to clean up the Audit Trail runtime and all deployed models.");
@@ -143,7 +149,8 @@ public class RtEnvHome
 
    /**
     * <p>
-    * Cleans up the runtime (including user removal), but keeps the deployed models.
+    * Cleans up the runtime (including user removal), but keeps the deployed models. Plus, it cleans up the
+    * test data structures {@link ActivityInstanceStateBarrier} as well as {@link ProcessInstanceStateBarrier}.
     * </p>
     * 
     * @param adminService an administration service of a user authorized to clean up the runtime
@@ -151,6 +158,9 @@ public class RtEnvHome
     */
    public static void cleanUpRuntime(final AdministrationService adminService) throws TestRtEnvException
    {
+      ActivityInstanceStateBarrier.instance().cleanUp();
+      ProcessInstanceStateBarrier.instance().cleanUp();
+      
       stopAllRunningDaemons(adminService);
       
       LOG.debug("Trying to clean up the Audit Trail runtime.");

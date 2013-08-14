@@ -279,6 +279,17 @@ package org.eclipse.stardust.test.department;
    
    /******************************************************************
     *                                                                *
+    *                        Activity IDs                            *
+    *                                                                *
+    ******************************************************************/
+   /** 
+    * identifies the final activity in {@link #PROCESS_ID_1}
+    */
+   /* package-private */ static final String FINAL_ACTIVITY_IN_PD_1_ID = "Activity_1";
+   
+   
+   /******************************************************************
+    *                                                                *
     *                    Exception Handler IDs                       *
     *                                                                *
     ******************************************************************/

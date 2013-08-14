@@ -54,9 +54,7 @@ public class SpringAppContext
    {
       try
       {
-         final String appCtxName = (forkingServiceMode == ForkingServiceMode.JMS) 
-                                                   ? APP_CTX_NAME_JMS_FORKING
-                                                   : APP_CTX_NAME_NATIVE_THREADING;
+         final String appCtxName = determineAppCtxName(forkingServiceMode);
          final GlobalParameters params = GlobalParameters.globals();
          params.set(SpringConstants.PRP_APPLICATION_CONTEXT_FILE, appCtxName);
 
@@ -88,5 +86,21 @@ public class SpringAppContext
    public ConfigurableApplicationContext appCtx()
    {
       return (ConfigurableApplicationContext) SpringUtils.getApplicationContext();
+   }
+   
+   private String determineAppCtxName(final ForkingServiceMode forkingServiceMode)
+   {
+      if (forkingServiceMode == ForkingServiceMode.NATIVE_THREADING)
+      {
+         return APP_CTX_NAME_NATIVE_THREADING;
+      }
+      else if (forkingServiceMode == ForkingServiceMode.JMS)
+      {
+         return APP_CTX_NAME_JMS_FORKING;
+      }
+      else
+      {
+         throw new IllegalArgumentException("Unknown forking service mode '" + forkingServiceMode + "'.");
+      }
    }
 }

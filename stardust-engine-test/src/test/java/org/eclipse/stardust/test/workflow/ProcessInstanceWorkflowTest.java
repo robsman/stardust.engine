@@ -40,6 +40,7 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
@@ -63,7 +64,7 @@ public class ProcessInstanceWorkflowTest
    
    private static final String DEFAULT_ROLE_USER_ID = "u1";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID));
    
@@ -105,7 +106,7 @@ public class ProcessInstanceWorkflowTest
    public void testStartProcessAsynchronously() throws InterruptedException, TimeoutException
    {
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, false);
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(pi.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(pi.getOID());
       assertNotNull(pi);
       assertEquals(ProcessInstanceState.Active, pi.getState());
    }
@@ -168,11 +169,12 @@ public class ProcessInstanceWorkflowTest
     * </p>
     */
    @Test
-   public void testAbortProcessInstance()
+   public void testAbortProcessInstance() throws InterruptedException, TimeoutException
    {
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PD_1_ID, null, true);
       final ProcessInstance abortedPi = adminSf.getWorkflowService().abortProcessInstance(pi.getOID(), AbortScope.SubHierarchy);
       assertThat(abortedPi.getState(), isOneOf(ProcessInstanceState.Aborting, ProcessInstanceState.Aborted));
+      ProcessInstanceStateBarrier.instance().await(abortedPi.getOID(), ProcessInstanceState.Aborted);
    }
    
    /**

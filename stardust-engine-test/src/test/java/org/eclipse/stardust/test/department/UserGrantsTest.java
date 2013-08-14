@@ -56,7 +56,7 @@ public class UserGrantsTest
    
    private static final String USER_ID = "User";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
    

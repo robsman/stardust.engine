@@ -54,7 +54,7 @@ public class AdminServiceCrudTest
    
    private static final String DEPT_ID = "Dept";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule

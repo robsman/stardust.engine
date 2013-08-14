@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import junit.framework.Assert;
 
@@ -29,7 +30,17 @@ import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.DmsUtils;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
@@ -59,7 +70,7 @@ public class SpawnProcessTest
    
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
@@ -107,7 +118,7 @@ public class SpawnProcessTest
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -162,7 +173,7 @@ public class SpawnProcessTest
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -217,7 +228,7 @@ public class SpawnProcessTest
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -274,7 +285,7 @@ public class SpawnProcessTest
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
 
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -333,7 +344,7 @@ public class SpawnProcessTest
       Assert.assertEquals("SpawnPi should be in state Interrupted.", ProcessInstanceState.INTERRUPTED, getPiWithHierarchy(spawnSubprocessInstance, qs).getState().getValue());
       Assert.assertEquals("RootPi should be in state Active.", ProcessInstanceState.ACTIVE, getPiWithHierarchy(pi, qs).getState().getValue());
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -347,7 +358,7 @@ public class SpawnProcessTest
    }
 
    @Test
-   public void testShowDocumentData()
+   public void testShowDocumentData() throws InterruptedException, TimeoutException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
@@ -362,7 +373,8 @@ public class SpawnProcessTest
       Map<String, Serializable > map = new HashMap<String, Serializable>();
       map.put("Doc_1", getDoc(sf, pi));
       // Spawn process
-      wfs.spawnSubprocessInstance(ai.getProcessInstanceOID(), "ShowDoc", true, map);
+      final ProcessInstance spawnedPi = wfs.spawnSubprocessInstance(ai.getProcessInstanceOID(), "ShowDoc", true, map);
+      ActivityInstanceStateBarrier.instance().awaitForId(spawnedPi.getOID(), "DisplayDocData");
    }
 
    // ************************************
@@ -389,7 +401,7 @@ public class SpawnProcessTest
          ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess("InputData1");
          subprocessInstance = qs.findFirstProcessInstance(query);
 
-         ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(subprocessInstance.getOID());
+         ActivityInstanceStateBarrier.instance().awaitAlive(subprocessInstance.getOID());
          ActivityInstanceQuery query2 = ActivityInstanceQuery.findForProcessInstance(subprocessInstance.getOID());
          query2.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
          ai = qs.findFirstActivityInstance(query2);
@@ -417,7 +429,7 @@ public class SpawnProcessTest
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -458,7 +470,7 @@ public class SpawnProcessTest
          ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess("InputData1");
          subprocessInstance = qs.findFirstProcessInstance(query);
 
-         ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(subprocessInstance.getOID());
+         ActivityInstanceStateBarrier.instance().awaitAlive(subprocessInstance.getOID());
          ActivityInstanceQuery query2 = ActivityInstanceQuery.findForProcessInstance(subprocessInstance.getOID());
          query2.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
          ai = qs.findFirstActivityInstance(query2);
@@ -486,7 +498,7 @@ public class SpawnProcessTest
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -530,7 +542,7 @@ public class SpawnProcessTest
          ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess("InputData1");
          subprocessInstance = qs.findFirstProcessInstance(query);
 
-         ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(subprocessInstance.getOID());
+         ActivityInstanceStateBarrier.instance().awaitAlive(subprocessInstance.getOID());
          ActivityInstanceQuery query2 = ActivityInstanceQuery.findForProcessInstance(subprocessInstance.getOID());
          query2.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
          ai = qs.findFirstActivityInstance(query2);
@@ -558,7 +570,7 @@ public class SpawnProcessTest
             ai.getProcessInstanceOID(),
             getPiWithHierarchy(spawnSubprocessInstance, qs).getParentProcessInstanceOid());
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);
@@ -602,7 +614,7 @@ public class SpawnProcessTest
          ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess("InputData1");
          subprocessInstance = qs.findFirstProcessInstance(query);
 
-         ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(subprocessInstance.getOID());
+         ActivityInstanceStateBarrier.instance().awaitAlive(subprocessInstance.getOID());
          ActivityInstanceQuery query2 = ActivityInstanceQuery.findForProcessInstance(subprocessInstance.getOID());
          query2.where(ActivityInstanceQuery.STATE.isEqual(ActivityInstanceState.SUSPENDED));
          ai = qs.findFirstActivityInstance(query2);
@@ -618,7 +630,7 @@ public class SpawnProcessTest
       ProcessInstance spawnSubprocessInstance = wfs.spawnSubprocessInstance(
             ai.getProcessInstanceOID(), "InputData2", true, null);
 
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnSubprocessInstance.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnSubprocessInstance.getOID());
       
       ActivityInstanceQuery query = ActivityInstanceQuery.findForProcessInstance(spawnSubprocessInstance.getOID());
       query.setPolicy(HistoricalStatesPolicy.WITH_HIST_STATES);

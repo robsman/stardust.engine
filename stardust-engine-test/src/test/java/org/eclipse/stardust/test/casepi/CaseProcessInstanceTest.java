@@ -97,7 +97,7 @@ public class CaseProcessInstanceTest
    
    private static final UsernamePasswordPair USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(USER_PWD_PAIR);
    
    @ClassRule
@@ -388,7 +388,6 @@ public class CaseProcessInstanceTest
       long[] members2 = {caseProcess3.getOID(), caseProcess4.getOID()};
       wfService.createCase("Case2", null, members2);
 
-
       ProcessInstance joinProcessInstance = wfService.joinProcessInstance(caseProcess1.getOID(), caseProcess4.getOID(), "joined by test case");
       assertEquals(joinProcessInstance.getOID(), caseProcess4.getOID());
       
@@ -398,6 +397,7 @@ public class CaseProcessInstanceTest
       assertEquals(ProcessInstanceState.Active, getPiWithHierarchy(casePi.getOID(), sf.getQueryService()).getState());
 
       wfService.abortProcessInstance(caseProcess2.getOID(), AbortScope.SubHierarchy);
+      ProcessInstanceStateBarrier.instance().await(caseProcess2.getOID(), ProcessInstanceState.Aborted);
    }
 
    /**
@@ -520,7 +520,7 @@ public class CaseProcessInstanceTest
 
       ProcessInstance spawnedPi = wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2", true, null);
       /* make sure that spawning is completed before moving on */
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnedPi.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnedPi.getOID());
       
       wfService.leaveCase(casePi.getOID(), new long[]{caseProcess1.getOID()});
 

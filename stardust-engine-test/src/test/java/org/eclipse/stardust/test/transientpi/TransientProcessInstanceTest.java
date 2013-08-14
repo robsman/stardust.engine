@@ -196,7 +196,7 @@ public class TransientProcessInstanceTest
    
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    private static volatile boolean appMayComplete;
@@ -303,7 +303,7 @@ public class TransientProcessInstanceTest
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
    }
-
+   
    /**
     * <p>
     * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_OFF}.</b>

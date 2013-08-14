@@ -80,7 +80,7 @@ public class ActivityInstanceWorkflowTest
    
    private static final String DEFAULT_ROLE_USER_ID = "u1";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(DEFAULT_ROLE_USER_ID, DEFAULT_ROLE_USER_ID));
    

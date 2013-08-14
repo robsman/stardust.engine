@@ -137,6 +137,7 @@ public class TestMethodSetup extends ExternalResource
       
       sf.close();
       sf = null;
+      
       LOG.info("<-- " + testMethodName);
       LOG.info(LOG_EYE_CATCHER);
    }

@@ -10,14 +10,22 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static junit.framework.Assert.assertEquals;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG1_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG2_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG3_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_3;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_4;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_5;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_6;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ROLE1_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.X_SCOPE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.Y_SCOPE;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.Organization;
@@ -32,6 +40,7 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;

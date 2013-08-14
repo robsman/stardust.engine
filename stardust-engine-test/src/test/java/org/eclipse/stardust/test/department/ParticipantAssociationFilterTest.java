@@ -10,8 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG1_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;

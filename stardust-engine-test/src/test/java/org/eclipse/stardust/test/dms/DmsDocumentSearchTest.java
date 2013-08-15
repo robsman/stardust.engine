@@ -320,7 +320,6 @@ public class DmsDocumentSearchTest
    }
 
    @Test
-   @Ignore("CRNT-29932")
    public void testFindContentLike()
    {
       DocumentQuery query = DocumentQuery.findAll();

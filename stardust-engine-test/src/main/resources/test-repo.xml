@@ -20,7 +20,7 @@
    http://svn.apache.org/repos/asf/jackrabbit/tags/2.2.5/jackrabbit-core/src/main/resources/org/apache/jackrabbit/core/repository.xml)
    provided by the Jackrabbit project adjusted to fulfill our needs wrt. functional testing 
    of Stardust. The following changes have been made:
-   * changed persistence manager configuration to use 'org.apache.jackrabbit.core.persistence.mem.InMemPersistenceManager'
+   * changed persistence manager configuration to use 'org.apache.jackrabbit.core.persistence.mem.InMemBundlePersistenceManager'
    * changed file system configuration to use 'org.apache.jackrabbit.core.fs.mem.MemoryFileSystem'
    * changed search index configuration to use 'org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager'
    * removed data store configuration, i.e. no data store is used

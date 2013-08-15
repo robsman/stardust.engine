@@ -17,6 +17,7 @@ import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -719,7 +720,7 @@ public class CaseProcessInstanceTest
     * Tests merging members of groups.
     */
    @Test
-   public void testMerge()
+   public void testMerge() throws InterruptedException, TimeoutException
    {
       ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
             true);
@@ -742,6 +743,8 @@ public class CaseProcessInstanceTest
       assertHierarchy(rootCaseProcess3, caseProcess2, true);
 
       assertSameProcessInstance(rootCaseProcess2, rootCaseProcess3);
+      
+      ProcessInstanceStateBarrier.instance().await(rootCaseProcess1.getOID(), ProcessInstanceState.Aborted);
    }
 
    // ************************************************************************************

@@ -26,6 +26,7 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ISOLATED_QUERY_PROCESS;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_MANUAL_ACTIVITY;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_MANUAL_TRIGGER;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_MULTIPLE_RETRY;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_NON_FORKED;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_NON_FORKED_FAIL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_PULL_EVENT;
@@ -230,6 +231,7 @@ public class TransientProcessInstanceTest
       params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, true);
       
       appMayComplete = false;
+      FirstTryFailsApp.firstTime = true;
    }
    
    /**
@@ -2029,6 +2031,32 @@ public class TransientProcessInstanceTest
    
    /**
     * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Tests whether transient process execution is <b>not</b> cancelled, if the first attempt to execute the process instance
+    * fails, but the second succeeds and a {@link MultipleTryInterceptor} is configured appropriately.
+    * </p>
+    */
+   @Test
+   public void testMultipleRetry() throws Exception
+   {
+      enableTxPropagation();
+      enableOneSystemQueueConsumerRetry();
+      enableTransientProcessesSupport();
+
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_MULTIPLE_RETRY, null, true);
+      
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
+      
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
+   }
+   
+   /**
+    * <p>
     * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ALWAYS_DEFERRED}.</b>
     * </p>
     * 
@@ -2400,6 +2428,31 @@ public class TransientProcessInstanceTest
       {
          /* always throws an exception to test behavior in case of failures */
          throw new RuntimeException("expected");
+      }
+   }
+   
+   /**
+    * <p>
+    * This is the application used in the model that causes the process instance to fail
+    * during the first attempt in order to investigate the behavior in these cases.
+    * </p>
+    * 
+    * @author Nicolas.Werlein
+    * @version $Revision$
+    */
+   public static final class FirstTryFailsApp
+   {
+      private static volatile boolean firstTime = true;
+      
+      public void failTheFirstTime()
+      {
+         if (firstTime)
+         {
+            firstTime = false;
+            throw new RuntimeException("expected");
+         }
+         
+         /* succeed */
       }
    }
    

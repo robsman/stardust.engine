@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
 
@@ -28,6 +29,8 @@ public class MultipleTryInterceptor implements MethodInterceptor
 {
    private static final Logger trace = LogManager.getLogger(MultipleTryInterceptor.class);
 
+   public static final String TRIES_LEFT_PROPERTY_KEY = "MultipleTryInterceptor.TriesLeft";
+   
    private final int maxTries;
    private final int pause;
 
@@ -39,6 +42,9 @@ public class MultipleTryInterceptor implements MethodInterceptor
 
    public Object invoke(MethodInvocation invocation) throws Throwable
    {
+      final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      rtEnv.setProperty(TRIES_LEFT_PROPERTY_KEY, Integer.valueOf(maxTries - 1));
+
       for (int triesLeft = maxTries; true;)
       {
          try
@@ -56,6 +62,10 @@ public class MultipleTryInterceptor implements MethodInterceptor
          catch (Throwable e)
          {
             triesLeft = handleException(e, e, triesLeft);
+         }
+         finally
+         {
+            rtEnv.setProperty(TRIES_LEFT_PROPERTY_KEY, Integer.valueOf(triesLeft - 1));
          }
       }
    }

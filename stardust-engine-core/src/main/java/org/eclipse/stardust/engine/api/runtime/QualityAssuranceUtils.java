@@ -11,9 +11,9 @@
 package org.eclipse.stardust.engine.api.runtime;
 
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import org.eclipse.stardust.common.StringUtils;
@@ -265,7 +265,7 @@ public class QualityAssuranceUtils
       else
       {
          // get random number in the interval 0-100 (interval borders inclusive)
-         Random numberGenerator = new Random();
+         SecureRandom numberGenerator = new SecureRandom();
          int randomNumber = numberGenerator.nextInt(101);
 
          if (randomNumber <= probability)

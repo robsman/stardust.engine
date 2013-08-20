@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -269,7 +269,7 @@ public class SchemaHelper
 
          ddlManager.createGlobalSequenceIfNecessary(schemaName, session.getConnection());
          ddlManager.createSequenceStoredProcedureIfNecessary(schemaName, session.getConnection());
-         
+
          for (Iterator i = classes.iterator(); i.hasNext();)
          {
             Class clazz = (Class) i.next();
@@ -285,6 +285,7 @@ public class SchemaHelper
 
          new PropertyPersistor(Constants.SYSOP_PASSWORD, Constants.DEFAULT_PASSWORD);
          new PropertyPersistor(Constants.CARNOT_VERSION, CurrentVersion.getVersionName());
+         new PropertyPersistor(Constants.PRODUCT_NAME, CurrentVersion.PRODUCT_NAME);
 
          AuditTrailPartitionBean defaultPartitionBean = new AuditTrailPartitionBean(PredefinedConstants.DEFAULT_PARTITION_ID);
          Parameters.instance().set(SecurityProperties.CURRENT_PARTITION, defaultPartitionBean);
@@ -323,8 +324,8 @@ public class SchemaHelper
    public static final void validateBaseProperties()
    {
       validateBaseProperty(Constants.SYSOP_PASSWORD, Constants.DEFAULT_PASSWORD);
-
       validateBaseProperty(Constants.CARNOT_VERSION, CurrentVersion.getVersionName());
+      validateBaseProperty(Constants.PRODUCT_NAME, CurrentVersion.PRODUCT_NAME);
    }
 
    public static final void dropSchema(String sysconPassword)
@@ -371,7 +372,7 @@ public class SchemaHelper
 
             ddlManager.dropGlobalSequenceIfAny(schemaName, connection);
             ddlManager.dropSequenceStoredProcedureIfAny(schemaName, connection);
-            
+
             String tableDecorator = "";
             for (Iterator i = classes.iterator(); i.hasNext();)
             {
@@ -643,6 +644,7 @@ public class SchemaHelper
    public static final void setAuditTrailProperty(String name, String value)
    {
       if (Constants.SYSOP_PASSWORD.equals(name) || Constants.CARNOT_VERSION.equals(name)
+            || Constants.PRODUCT_NAME.equals(name)
             || RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION.equals(name))
       {
          throw new PublicException("Unable to set value of audit trail property '" + name
@@ -679,6 +681,7 @@ public class SchemaHelper
    public static final String deleteAuditTrailProperty(String name)
    {
       if (Constants.SYSOP_PASSWORD.equals(name) || Constants.CARNOT_VERSION.equals(name)
+            || Constants.PRODUCT_NAME.equals(name)
             || RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION.equals(name))
       {
          throw new PublicException("Unable to delete audit trail property '" + name
@@ -729,7 +732,7 @@ public class SchemaHelper
          new PropertyPersistor(name, defaultValue);
       }
    }
-   
+
    public static void alterAuditTrailCreateSequenceTable(String sysconPassword,
          boolean skipDdl, boolean skipDml, PrintStream spoolFile) throws SQLException
    {
@@ -782,7 +785,7 @@ public class SchemaHelper
          ParametersFacade.popLayer();
       }
    }
-   
+
    public static void alterAuditTrailDropSequenceTable(String sysconPassword,
          PrintStream spoolFile) throws SQLException
    {
@@ -822,7 +825,7 @@ public class SchemaHelper
          ParametersFacade.popLayer();
       }
    }
-   
+
    public static void alterAuditTrailVerifySequenceTable(String sysconPassword)
          throws SQLException
    {
@@ -1364,7 +1367,7 @@ public class SchemaHelper
          ParametersFacade.popLayer();
       }
    }
-   
+
    public static void alterAuditTrailDropPartition(String partitionId, String password)
    {
       IAuditTrailPartition partition = AuditTrailPartitionBean.findById(partitionId);

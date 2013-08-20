@@ -21,11 +21,13 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.eclipse.stardust.common.config.CurrentVersion;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
 
 
@@ -62,7 +64,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
             RuntimeUpgrader.UPGRADE_SCHEMA, false);
       final boolean verbose = Parameters.instance().getBoolean(
             RuntimeUpgrader.UPGRADE_VERBOSE, false);
-      
+
       this.item = (RuntimeItem) item;
 
       assertCompatibility();
@@ -74,7 +76,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
             if (schemaUpgrade || (!dryRun && !dataUpgrade))
             {
                info("Upgrading schema...");
-               
+
                this.item.spoolSqlComment(this.getVersion() + " schema upgrade DDL");
                if (verbose)
                {
@@ -92,7 +94,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
                  printUpgradeSchemaInfo();
                }
             }
-            // falling through to level 1 
+            // falling through to level 1
          case 1:
             if (!dryRun && !schemaUpgrade)
             {
@@ -113,7 +115,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
                  printMigrateDataInfo();
                }
             }
-            // falling through to level 2 
+            // falling through to level 2
          case 2:
             if (!dryRun && !schemaUpgrade)
             {
@@ -126,7 +128,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
             {
                info("Skipping model migration as requested.");
             }
-            // falling through to level 3 
+            // falling through to level 3
          case 3:
             // upgrades to before 3.0.0 did not use schema finalization
             if (0 <= getVersion().compareTo(VERSION_3))
@@ -134,7 +136,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
                if (schemaUpgrade || (!dryRun && !dataUpgrade))
                {
                   info("Finalizing schema...");
-                  
+
                   this.item.spoolSqlComment(this.getVersion() + " schema finalization DDL");
                   if(verbose)
                   {
@@ -153,12 +155,13 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
                   }
                }
             }
-            // falling through to level 4 
+            // falling through to level 4
          case 4:
             info("Upgrade to version " + getVersion()
                + " done, upgrading runtime version stamp...");
             upgradeRuntimeVersion();
             finalizeUpgradeState();
+            setProductName();
             info("...Version stamp updated.");
       }
       if (warn > 0)
@@ -177,24 +180,24 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
    protected abstract void upgradeSchema(boolean recover) throws UpgradeException;
 
    protected abstract void migrateData(boolean recover) throws UpgradeException;
-   
+
    protected abstract void finalizeSchema(boolean recover) throws UpgradeException;
-   
+
    /**
     * This method prints detailed information that describes what is done by this upgrade schema task.
     */
    protected abstract void printUpgradeSchemaInfo();
-   
+
    /**
     * This method prints detailed information that describes what is done by this migrate data task.
     */
    protected abstract void printMigrateDataInfo();
-   
+
    /**
     * This method prints detailed information that describes what is done by this finalize schema task.
     */
    protected abstract void printFinalizeSchemaInfo();
-   
+
    protected void upgradeModel(boolean recover) throws UpgradeException
    {
       ModelItem model = null;
@@ -268,13 +271,13 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
       {
          throw new UpgradeException("Unable to write model to readonly runtime");
       }
-      
+
       boolean supportsIdentityColumns = item.getDbDescriptor().supportsIdentityColumns();
       Connection connection = item.getConnection();
       try
       {
          String stringDataTableName = DatabaseHelper.getQualifiedName("STRING_DATA");
-         
+
          Statement deleteStmt = connection.createStatement();
          deleteStmt.executeUpdate("UPDATE "+stringDataTableName+" SET objectid=" + (-1 * oid)
                + " where objectid=" + oid);
@@ -289,7 +292,7 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
             insertStmt = "INSERT INTO "+stringDataTableName+" (oid, objectid, data_type, data)"
                   + " VALUES (?, ?, ?, ?)";
          }
-         
+
          PreparedStatement lshStmt = connection.prepareStatement(insertStmt.toString());
          writeToStringDataTable(lshStmt, oid, MODEL_DATA_TYPE, model.getModel());
          lshStmt.executeBatch();
@@ -320,6 +323,26 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
    protected void upgradeRuntimeVersion() throws UpgradeException
    {
       item.setVersion(getVersion());
+   }
+
+   protected void setProductName() throws UpgradeException
+   {
+      try
+      {
+         if(item.hasProperty(Constants.PRODUCT_NAME))
+         {
+            item.updateProperty(Constants.PRODUCT_NAME, CurrentVersion.getProductName());
+         }
+         else
+         {
+            item.createProperty(Constants.PRODUCT_NAME, CurrentVersion.getProductName());
+         }
+      }
+      catch (SQLException e)
+      {
+         throw new UpgradeException("Failed to write upgrade state to database : "
+               + e.getMessage());
+      }
    }
 
    private void setUpgradeState(String level) throws UpgradeException
@@ -420,9 +443,9 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
       {
          throw new UpgradeException("Unable to write model to readonly runtime");
       }
-      
+
       final int nSlices = ((value.length() / ATOM_SIZE)) + 1;
-      
+
       boolean supportsSequences = item.getDbDescriptor().supportsSequences();
       // obtain loopCount OID values and sort them in increasing order
       SortedSet oids = new TreeSet();
@@ -449,12 +472,12 @@ public abstract class RuntimeUpgradeJob extends UpgradeJob implements UpgradeObs
          {
             part = value.substring(ATOM_SIZE * i, ATOM_SIZE * (i + 1));
          }
-         
+
          if (useEndMarker)
          {
             part = part + LargeStringHolder.END_MARKER;
          }
-         
+
          int colIdx = 1;
          if (supportsSequences)
          {

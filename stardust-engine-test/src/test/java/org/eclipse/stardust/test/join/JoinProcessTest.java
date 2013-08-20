@@ -41,7 +41,9 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * TODO javadoc
+ * This class contains tests for the <i>Join Process</i> functionality,
+ * which allows for joining of process instances (refer to the Stardust documentation 
+ * for details about <i>Join Process</i>).
  * </p>
  * 
  * @author Roland.Stamm

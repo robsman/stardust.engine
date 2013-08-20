@@ -648,7 +648,7 @@ public class ActivityInstanceWorkflowTest
     * </p>
     * 
     * <p>
-    * TODO remove <code>@Ignore</code> after CRNT-20630 has been resolved
+    * TODO re-enable as soon as CRNT-20630 has been resolved
     * </p>
     */
    @Ignore("CRNT-20630")
@@ -821,7 +821,7 @@ public class ActivityInstanceWorkflowTest
    @Test
    public void testActivateNextActivityInstanceByAiOid()
    {
-      // TODO (nw) remove as soon as CRNT-29836 has been resolved
+      // TODO remove as soon as CRNT-29836 has been resolved
       GlobalParameters.globals().set(KernelTweakingProperties.LAST_MODIFIED_TIMESTAMP_EPSILON, 20);
       
       startProcess(PD_1_ID);

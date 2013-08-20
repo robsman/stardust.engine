@@ -71,6 +71,7 @@
          <param name="path" value="${wsp.home}/index" />
          <param name="supportHighlighting" value="true" />
          <param name="directoryManagerClass" value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
+         <param name="extractorPoolSize" value="0" />
       </SearchIndex>
    </Workspace>
 
@@ -92,5 +93,6 @@
       <param name="path" value="${rep.home}/repository/index" />
       <param name="supportHighlighting" value="true" />
       <param name="directoryManagerClass" value="org.apache.jackrabbit.core.query.lucene.directory.RAMDirectoryManager" />
+      <param name="extractorPoolSize" value="0" />
    </SearchIndex>
 </Repository>

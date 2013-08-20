@@ -47,7 +47,9 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * TODO javadoc
+ * This class contains tests for the <i>Quality Control</i> functionality,
+ * which allows for implementing the four-eye-principle (refer to the Stardust documentation 
+ * for details about <i>Quality Control</i>).
  * </p>
  * 
  * @author Holger.Prause

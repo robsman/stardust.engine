@@ -45,7 +45,8 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * TODO javadoc
+ * This class contains tests for DMS synchronization between the JCR repository and the
+ * Audit Trail database.
  * </p>
  * 
  * @author Roland.Stamm

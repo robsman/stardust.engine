@@ -78,7 +78,9 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * TODO javadoc
+ * This class contains tests for the <i>Case Process Instance</i> functionality,
+ * which allows for grouping process instances (refer to the Stardust documentation 
+ * for details about <i>Case Process Instances</i>).
  * </p>
  * 
  * @author Roland.Stamm

@@ -57,7 +57,9 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * TODO javadoc
+ * This class contains tests for the <i>Spawn Process</i> functionality,
+ * which allows for ad hoc spawning of process instances (refer to the Stardust documentation 
+ * for details about <i>Spawn Process</i>).
  * </p>
  * 
  * @author Roland.Stamm

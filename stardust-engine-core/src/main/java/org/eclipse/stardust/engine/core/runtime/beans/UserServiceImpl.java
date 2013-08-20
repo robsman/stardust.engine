@@ -860,23 +860,31 @@ public class UserServiceImpl implements UserService, Serializable
 	@Override
 	public Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
 	{
-		if (options == null)
-		{
-			options = DeputyOptions.DEFAULT;
-		}	
-		UserBean userBean = UserBean.findByOid(user.getOID());
-		UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
+      if (user.getOID() != deputyUser.getOID())
+      {
+         if (options == null)
+         {
+            options = DeputyOptions.DEFAULT;
+         }
+         UserBean userBean = UserBean.findByOid(user.getOID());
+         UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
 
-      UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
-      
-      DeputyBean db = new DeputyBean(userBean.getOID(), options.getFromDate(),
-            options.getToDate(), options.getParticipants());
+         UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
 
-      deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, db.toString());
+         DeputyBean db = new DeputyBean(userBean.getOID(), options.getFromDate(),
+               options.getToDate(), options.getParticipants());
 
-      UserUtils.updateDeputyGrants(deputyUserBean);
+         deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, db.toString());
 
-      return db.createDeputyDetails(deputyUser);
+         UserUtils.updateDeputyGrants(deputyUserBean);
+
+         return db.createDeputyDetails(deputyUser);
+      }
+	   else
+	   {
+         throw new InvalidArgumentException(
+               BpmRuntimeError.ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED.raise(user.getOID()));
+	   }
 	}
 
    @Override

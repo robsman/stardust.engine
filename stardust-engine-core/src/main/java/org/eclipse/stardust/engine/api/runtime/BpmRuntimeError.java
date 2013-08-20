@@ -168,7 +168,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 ATDB_USER_ID_EXISTS = newArgs2("ATDB02114", BpmRuntimeErrorMessages.getString("ATDB02114")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 ATDB_DEPUTY_EXISTS = newArgs2("ATDB02115", BpmRuntimeErrorMessages.getString("ATDB02115")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 ATDB_DEPUTY_DOES_NOT_EXISTS = newArgs2("ATDB02116", BpmRuntimeErrorMessages.getString("ATDB02115")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ATDB_DEPUTY_DOES_NOT_EXISTS = newArgs2("ATDB02116", BpmRuntimeErrorMessages.getString("ATDB02116")); //$NON-NLS-1$ //$NON-NLS-2$   
+   public static final Args1 ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED = newArgs1("ATDB02117", BpmRuntimeErrorMessages.getString("ATDB02117")); //$NON-NLS-1$ //$NON-NLS-2$
    
    public static final Args0 ATDB_NO_MATCHING_USER_DOMAIN = newArgs0("ATDB02121", BpmRuntimeErrorMessages.getString("ATDB02121")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_OID = newArgs1("ATDB02122", BpmRuntimeErrorMessages.getString("ATDB02122")); //$NON-NLS-1$ //$NON-NLS-2$

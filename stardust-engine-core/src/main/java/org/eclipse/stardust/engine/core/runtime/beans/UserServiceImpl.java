@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -860,7 +861,7 @@ public class UserServiceImpl implements UserService, Serializable
 	@Override
 	public Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
 	{
-      if (user.getOID() != deputyUser.getOID())
+      if (isAllowedToAddDeputy(user) && user.getOID() != deputyUser.getOID())
       {
          if (options == null)
          {
@@ -884,6 +885,21 @@ public class UserServiceImpl implements UserService, Serializable
 	   {
          throw new InvalidArgumentException(
                BpmRuntimeError.ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED.raise(user.getOID()));
+	   }
+	}
+	
+	private boolean isAllowedToAddDeputy(UserInfo user)
+	{
+	   IUser addingUser = SecurityProperties.getUser(); 
+	   if (addingUser.getOID() == user.getOID())
+	   {
+	      return true;
+	   }
+	   else
+	   {
+         throw new AccessForbiddenException(
+               BpmRuntimeError.ATDB_ADDING_DEPUTY_FORBIDDEN.raise(user.getOID(),
+                     addingUser.getOID()));
 	   }
 	}
 

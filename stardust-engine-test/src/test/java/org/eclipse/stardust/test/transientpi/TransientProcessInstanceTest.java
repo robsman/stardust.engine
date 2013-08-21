@@ -2050,7 +2050,7 @@ public class TransientProcessInstanceTest
       
       ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
       
-      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(true));
+      assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_HAS_ENTRY_IN_DB, hasEntryInDbForPi(pi.getOID()), is(false));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_NO_SERIAL_AT_QUEUES, noSerialActivityThreadQueues(), is(true));
       assertThat(NL + testMethodSetup.testMethodName() + ASSERTION_MSG_TRANSIENT_PI_STORAGE_EMPTY, isTransientProcessInstanceStorageEmpty(), is(true));
    }

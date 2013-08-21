@@ -5398,6 +5398,9 @@
                   <carnot:Triggers/>
                   <carnot:DataPaths/>
                   <carnot:EventHandlers/>
+                  <carnot:Attributes>
+                     <carnot:Attribute Name="carnot:engine:auditTrailPersistence" Value="TRANSIENT" Type="String"/>
+                  </carnot:Attributes>
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="10682" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_0_0">
                         <carnot:Symbols>

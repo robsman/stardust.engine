@@ -116,6 +116,7 @@ import org.eclipse.stardust.engine.api.model.Trigger;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.DescriptorPolicy;
 import org.eclipse.stardust.engine.api.query.LogEntries;
 import org.eclipse.stardust.engine.api.query.ParticipantWorklist;
@@ -1165,14 +1166,31 @@ public class XmlAdapterUtils
       {
          xto.setType(getDmsTypeName(model, data));
 
-         // TODO metadata type
          String metaDataSchema = (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
          if ( !isEmpty(metaDataSchema))
          {
+         if (metaDataSchema.startsWith("typeDeclaration:"))
+         {
+            metaDataSchema = metaDataSchema.substring("typeDeclaration:".length());
+         }
+         QName qualifiedMetaDataSchema = QName.valueOf(metaDataSchema);
+         String typeDeclarationModelId = qualifiedMetaDataSchema.getNamespaceURI();
+         
+         String modelId = model.getId();
+         Model modelWithTypeDeclaration;
+         if (typeDeclarationModelId != null && !typeDeclarationModelId.isEmpty() && !modelId.equals(typeDeclarationModelId))
+         {
+            modelWithTypeDeclaration = getActiveModel(typeDeclarationModelId);
+         }
+         else
+         {
+            modelWithTypeDeclaration = model;
+         }
+
             AttributeXto metaData = new AttributeXto();
             metaData.setName("metaDataType");
             metaData.setType(QNameConstants.QN_QNAME.toString());
-            metaData.setValue(getStructuredTypeName(model, metaDataSchema).toString());
+            metaData.setValue(getStructuredTypeName(modelWithTypeDeclaration, qualifiedMetaDataSchema.getLocalPart()).toString());
             xto.getAttributes().getAttribute().add(metaData);
          }
       }
@@ -1195,7 +1213,21 @@ public class XmlAdapterUtils
       return xto;
    }
 
-   public static DataPathXto toWs(DataPath dp, Model model)
+   private static Model getActiveModel(String modelId)
+   {
+      Model model = null;
+      WebServiceEnv currentWebServiceEnvironment = WebServiceEnv.currentWebServiceEnvironment();
+      ServiceFactory sf = currentWebServiceEnvironment.getServiceFactory();
+      Models models = sf.getQueryService().getModels(DeployedModelQuery.findActiveForId(modelId));
+      if (!models.isEmpty())
+      {
+         DeployedModelDescription deployedModelDescription = models.get(0);
+         model = currentWebServiceEnvironment.getModel(deployedModelDescription.getModelOID());
+      }
+      return model;
+   }
+
+public static DataPathXto toWs(DataPath dp, Model model)
    {
       DataPathXto res = toWs(dp, new DataPathXto());
 

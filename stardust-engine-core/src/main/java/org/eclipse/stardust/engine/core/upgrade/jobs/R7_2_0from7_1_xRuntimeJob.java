@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 SunGard CSA LLC and others.
+ * Copyright (c) 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,124 +10,29 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
-import java.sql.SQLException;
-
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
-public class R7_2_0from7_1_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
+public class R7_2_0from7_1_xRuntimeJob extends AT1_1_0from1_0_0RuntimeJob
 {
-   private static final String UPL_TABLE_NAME = "user_participant";
-   public static final String UPL_FIELD_ON_BEHALF_OF = "onBehalfOf";
-   private static final String AIH_TABLE_NAME = "act_inst_history";
-   public static final String AIH_FIELD_ON_BEHALF_OF_USER = "onBehalfOfUser";
-   
    private static final Logger trace = LogManager.getLogger(R7_2_0from7_1_xRuntimeJob.class);
 
-   private static final Version VERSION = new Version(7, 2, 0);
-   
+   private static final Version VERSION = Version.createFixedVersion(7, 2, 0);
+
    protected R7_2_0from7_1_xRuntimeJob()
    {
-      super(new DBMSKey[] {
-            DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
-            DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8,
-            DBMSKey.MYSQL_SEQ});
+      super();
    }
-   
+
    @Override
    protected Logger getLogger()
    {
       return trace;
    }
-   
-   protected void upgradeSchema(boolean recover) throws UpgradeException
-   {
-      DatabaseHelper.alterTable(item, new AlterTableInfo(UPL_TABLE_NAME)
-      {
-         private final FieldInfo ON_BEHALF_OF = new FieldInfo(UPL_FIELD_ON_BEHALF_OF,
-               Long.TYPE);
 
-         @Override
-         public FieldInfo[] getAddedFields()
-         {
-            return new FieldInfo[] { ON_BEHALF_OF };
-         }
-
-      }, this);
-      
-      try
-      {
-         setColumnDefaultValue(item, UPL_TABLE_NAME,
-               UPL_FIELD_ON_BEHALF_OF, 0);
-      }
-      catch (SQLException e)
-      {
-         reportExeption(e, "Could not update new column " + UPL_TABLE_NAME
-               + "." + UPL_FIELD_ON_BEHALF_OF + " to 0.");
-      }
-      
-      DatabaseHelper.alterTable(item, new AlterTableInfo(AIH_TABLE_NAME)
-      {
-         private final FieldInfo ON_BEHALF_OF = new FieldInfo(AIH_FIELD_ON_BEHALF_OF_USER,
-               Long.TYPE);
-
-         @Override
-         public FieldInfo[] getAddedFields()
-         {
-            return new FieldInfo[] { ON_BEHALF_OF };
-         }
-
-      }, this);
-      
-      try
-      {
-         setColumnDefaultValue(item, AIH_TABLE_NAME,
-               AIH_FIELD_ON_BEHALF_OF_USER, 0);
-      }
-      catch (SQLException e)
-      {
-         reportExeption(e, "Could not update new column " + AIH_TABLE_NAME
-               + "." + AIH_FIELD_ON_BEHALF_OF_USER + " to 0.");
-      }
-   }
-   
-   private void setColumnDefaultValue(RuntimeItem item, String tableName,
-         String columnName, Object defaultValue) throws SQLException
-   {
-      tableName = DatabaseHelper.getQualifiedName(tableName);
-
-      StringBuffer buffer = new StringBuffer(500);
-      buffer.append("UPDATE ").append(tableName);
-      buffer.append(" SET ").append(columnName).append(" = ").append(defaultValue);
-
-      item.executeDdlStatement(buffer.toString(), false);
-   }
-   
-   protected void migrateData(boolean recover) throws UpgradeException
-   {
-   }
-   
-   protected void finalizeSchema(boolean recover) throws UpgradeException
-   {
-   }
-   
-   protected void printUpgradeSchemaInfo()
-   {
-   }
-   
-   protected void printMigrateDataInfo()
-   {
-   }
-   
-   protected void printFinalizeSchemaInfo()
-   {
-   }
-   
    public Version getVersion()
    {
       return VERSION;
-   }   
+   }
 }

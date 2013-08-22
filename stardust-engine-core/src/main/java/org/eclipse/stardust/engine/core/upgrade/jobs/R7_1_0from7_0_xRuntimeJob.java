@@ -300,7 +300,7 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private String getStringToDoubleValueStmt(String doubleFieldName, String stringFieldName)
    {
       DBDescriptor dbDescriptor = item.getDbDescriptor();
-      StringBuilder builder = new StringBuilder(); 
+      StringBuilder builder = new StringBuilder();
       builder.append(doubleFieldName);
       builder.append(EQUALS);
       //derby needs special handling when converting from varchar to double
@@ -315,10 +315,10 @@ public class R7_1_0from7_0_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          builder.append(stringFieldName);
       }
-      
+
       return builder.toString();
    }
-   
+
    private void runUpdateDataValueStmnt(String tableName, String doubleFieldName,
          String stringFieldName, final PartitionInfo partitionInfo)
    {

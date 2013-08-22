@@ -114,7 +114,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    //Model Dep Table
 
    private static final String MODEL_DEP_TABLE_NAME = "model_dep";
-      
+
    private static final String MODEL_DEP_FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
 
    private static final String MODEL_DEP_FIELD__DEPLOYER = "deployer";
@@ -130,7 +130,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String MODEL_DEP_IDX2 = "model_dep_idx2";
 
    private static final String MODEL_DEP_IDX3 = "model_dep_idx3";
-   
+
    //User Participant Table
 
    private static final String UP_MODEL = "model";
@@ -288,7 +288,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
 
       }, this);
-      
+
       //Create MODEL_DEP_LCK table
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
@@ -372,36 +372,36 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             activeModels.add((long) model.getModelOID());
          }
-         Utils.flushSession(); 
+         Utils.flushSession();
       }
 
-      //No need to do anything if no models are deployed. 
+      //No need to do anything if no models are deployed.
       if (!activeModels.isEmpty())
       {
          Connection connection = item.getConnection();
          Statement stmt = connection.createStatement();
          stmt.executeUpdate(getDeleteGrantsSql(activeModels));
          stmt.close();
-   
+
          //Drop old index and create new one without model row.
          DatabaseHelper.alterTable(item, new AlterTableInfo(UserParticipantLink.TABLE_NAME)
          {
             private final FieldInfo PARTICIPANT = new FieldInfo(UserParticipantLink.FIELD__PARTICIPANT, Long.TYPE);
             private final FieldInfo DEPARTMENT = new FieldInfo(UserParticipantLink.FIELD__DEPARTMENT, Long.TYPE);
-   
+
             private final IndexInfo IDX2 = new IndexInfo(UP_IDX2, false,
                   new FieldInfo[] {PARTICIPANT, DEPARTMENT});
-   
+
             public FieldInfo[] getAddedFields()
             {
                return null;
             }
-   
+
             public IndexInfo[] getAlteredIndexes()
             {
                return new IndexInfo[] {IDX2};
             }
-   
+
             public void executeDmlBeforeIndexCreation(RuntimeItem item) throws SQLException
             {
                Connection connection = item.getConnection();
@@ -449,12 +449,12 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       if(recover)
       {
-         Statement delStmt = item.getConnection().createStatement();      
+         Statement delStmt = item.getConnection().createStatement();
          StringBuffer deleteCmd = new StringBuffer();
          deleteCmd.append("DELETE FROM ").append(ModelDeploymentBean.TABLE_NAME);
          delStmt.execute(deleteCmd.toString());
-      }      
-      
+      }
+
       StringBuffer insertCmd = new StringBuffer();
       if (item.getDbDescriptor().supportsSequences()) {
          String nextOid = item.getDbDescriptor().getNextValForSeqString(null, ModelDeploymentBean.PK_SEQUENCE);
@@ -499,12 +499,12 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       if(recover)
       {
-         Statement delStmt = item.getConnection().createStatement();      
+         Statement delStmt = item.getConnection().createStatement();
          StringBuffer deleteCmd = new StringBuffer();
          deleteCmd.append("DELETE FROM ").append(ModelRefBean.TABLE_NAME);
          delStmt.execute(deleteCmd.toString());
       }
-      
+
       insertCmd = new StringBuffer();
       insertCmd.append("INSERT INTO ").append(ModelRefBean.TABLE_NAME).append(" (");
       insertCmd.append(MODEL_REF_FIELD__CODE).append(',');
@@ -663,12 +663,12 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             {
                if(recover)
                {
-                  Statement delStmt = item.getConnection().createStatement();      
+                  Statement delStmt = item.getConnection().createStatement();
                   StringBuffer deleteCmd = new StringBuffer();
                   deleteCmd.append("DELETE FROM ").append(P_TABLE_NAME);
-                  delStmt.execute(deleteCmd.toString());                  
+                  delStmt.execute(deleteCmd.toString());
                }
-               
+
                String preferencesId = "global";
                insertPermissions(preferencesId, allPermissions);
 
@@ -921,7 +921,7 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    @Override
    protected void printFinalizeSchemaInfo()
    {
-      
+
    }
 
    @Override

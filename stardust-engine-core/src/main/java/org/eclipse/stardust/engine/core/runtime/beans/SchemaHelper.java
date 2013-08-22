@@ -10,24 +10,9 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.io.*;
+import java.sql.*;
+import java.util.*;
 
 import javax.xml.parsers.DocumentBuilder;
 
@@ -45,32 +30,16 @@ import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkType
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
-import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer;
+import org.eclipse.stardust.engine.core.runtime.setup.*;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.IClusterChangeObserver;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetupDocumentBuilder;
-import org.eclipse.stardust.engine.core.runtime.setup.TransientRuntimeSetup;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
-import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
 import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper.AlterMode;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper.ColumnNameModificationMode;
-import org.eclipse.stardust.engine.core.upgrade.framework.DropTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeObserver;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 

@@ -448,7 +448,7 @@ public interface IModel extends SymbolTable, RootElement, ConfigurationVariableD
 
    Iterator getAllConditionalPerformers();
 
-   @Deprecated 
+   @Deprecated
    void setCarnotVersion(String version);
 
    void setCarnotVersion(Version version);

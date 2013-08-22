@@ -4,7 +4,7 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
@@ -24,7 +24,7 @@
    <property file="${project.etc}/private.properties" />
 
    <property name="artifactId" value="carnot-base" />
-   
+
    <!-- Following variables are possible in copyrightMessage:
         {0}: will be replaced by CurrentVersion.getVersionName(), i.e. major.minor.micro
         {1}: will be replaced by CurrentVersion.COPYRIGHT_YEARS, e.g. 2000-2012
@@ -95,7 +95,7 @@
          <path refid="compile.deps" />
       </path>
    </target>
-   
+
    <target name="prepareSources" depends="initBuildDirectories, prepareSourcesForFastBuild, prepareSourcesForSafeBuild" />
 
    <target name="prepareSourcesForFastBuild" if="build.fast">
@@ -130,7 +130,7 @@
          <param name="destination" value="${build.src.generated}" />
       </antcall>
    </target>
-   
+
    <target name="copyVersionSourceFile">
       <copy todir="${destination}" overwrite="true">
          <fileset dir="${source}">
@@ -148,7 +148,7 @@
       </copy>
    </target>
 
-   <target name="compile" depends="prepareSources, initCompile" unless="skip.compile" 
+   <target name="compile" depends="prepareSources, initCompile" unless="skip.compile"
    	description="Compiles the project's Java classes">
       <!-- if build.fast property is set - only CurrentVersion class is compiled here. Otherwise all classes are compiled -->
       <ipp:javac-java6 destdir="${build.classes}"
@@ -219,7 +219,7 @@
                <include name="org/eclipse/stardust/common/error/ObjectNotFoundException.java" />
                <include name="org/eclipse/stardust/common/error/PublicException.java" />
                <include name="org/eclipse/stardust/common/error/ServiceCommandException.java" />
-   
+
                <include name="org/eclipse/stardust/common/security/InvalidPasswordException.java" />
                <include
                   name="org/eclipse/stardust/common/security/authentication/DefaultCallbackHandler.java" />
@@ -235,17 +235,17 @@
    <target name="build" depends="jar, jar.src, javadoc" xmlns:ivy="antlib:org.apache.ivy.ant">
       <ivy:resolve file="${project.dir}/base-interface-ivy.xml" />
       <ivy-publish-local ivyFile="${project.dir}/base-interface-ivy.xml" artifactId="base-artifacts" artifactDir="${build.lib}" publishPom="false" />
-      
+
       <ivy:resolve file="${project.dir}/ivy.xml" />
-      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}" 
-         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional, stardust-engine-base-sources, stardust-engine-base-javadoc, logging-log4j-provider-compile" 
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}"
+         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional, stardust-engine-base-sources, stardust-engine-base-javadoc, logging-log4j-provider-compile"
          publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
 
       <ivy:resolve file="${project.dir}/module-ivy.xml" />
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="base-module" />
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="logging-log4j-module" />
-      
+
       <ivy-publish-local ivyFile="${project.dir}/module-ivy.xml" artifactId="stardust-engine-base-module" artifactDir="${build.lib}" publishPom="false">
          <additional-artifacts>
             <artifacts pattern="${build.lib}/base-module.pom" />
@@ -253,7 +253,7 @@
          </additional-artifacts>
       </ivy-publish-local>
 
-      <ivy:retrieve file="${build.lib}/carnot-base.ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]" 
+      <ivy:retrieve file="${build.lib}/carnot-base.ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]"
          conf="stardust-engine-base-compile, logging-log4j-provider-compile" module="stardust-engine-base" />
    </target>
 
@@ -273,7 +273,7 @@
       <ipp:mvn-install pomFile="${build.lib}/base-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/logging-log4j-module.pom" />
    </target>
-	
+
    <target name="publish" depends="initBuild"
      description="publish artifacts into a remote Maven repository">
 
@@ -282,9 +282,9 @@
       <ipp:mvn-deploy pomFile="${build.lib}/base-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/logging-log4j-module.pom" />
    </target>
-   
+
    <!-- target is invoked by stardust-engine-nls project -->
-   <target name="copy-nls-resources" 
+   <target name="copy-nls-resources"
       description="copies the resources into a given folder">
       <copy todir="${build.nls.dir}">
          <fileset dir="${project.resources}">

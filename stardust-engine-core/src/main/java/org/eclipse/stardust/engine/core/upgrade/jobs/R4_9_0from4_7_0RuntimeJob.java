@@ -109,7 +109,7 @@ public class R4_9_0from4_7_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
          }
       }
-      
+
       DatabaseHelper.alterTable(item, new AlterTableInfo(LOG_ENTRY_TABLE_NAME)
       {
          private final FieldInfo ACTIVITY_INSTANCE = new FieldInfo(LOG_ENTRY_AI_COLUMN,

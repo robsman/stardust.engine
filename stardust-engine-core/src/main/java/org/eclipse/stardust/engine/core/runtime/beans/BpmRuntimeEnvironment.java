@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterRuntimeInfo;
@@ -663,5 +664,28 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    public void setDataClusterRuntimeInfo(DataClusterRuntimeInfo dataClusterRuntimeInfo)
    {
       this.dataClusterRuntimeInfo = dataClusterRuntimeInfo;
+   }
+   
+   /**
+    * <p>
+    * Returns whether the {@link MultipleTryInterceptor} will trigger no additional retry. This may
+    * have two reasons
+    * <ul>
+    *    <li>there's no retry configured</li>
+    *    <li>the retry count has been exceeded</li>
+    * </ul>
+    * </p>
+    * 
+    * @return whether the {@link MultipleTryInterceptor} will trigger no additional retry
+    */
+   public boolean isLastTry()
+   {
+      final Integer triesLeft = (Integer) get(MultipleTryInterceptor.TRIES_LEFT_PROPERTY_KEY);
+      if (triesLeft == null)
+      {
+         return true;
+      }
+      
+      return triesLeft.intValue() <= 0;
    }
 }

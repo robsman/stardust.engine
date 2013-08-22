@@ -32,7 +32,6 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceSupport;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
@@ -378,13 +377,7 @@ public class SerialActivityThreadWorkerCarrier extends ActionCarrier<Void>
       private boolean finallyFailed()
       {
          final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         final Integer triesLeft = (Integer) rtEnv.get(MultipleTryInterceptor.TRIES_LEFT_PROPERTY_KEY);
-         if (triesLeft == null)
-         {
-            return true;
-         }
-         
-         return triesLeft.intValue() <= 0;
+         return rtEnv.isLastTry();
       }
       
       private static interface ForkingServiceAction

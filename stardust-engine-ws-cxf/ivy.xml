@@ -163,6 +163,7 @@
       <override org="wsdl4j" module="wsdl4j" rev="${wsdl4j.version}" />
       <override org="commons-lang" module="commons-lang" rev="${commons-lang.version}" />
       <override org="com.sun.xml.bind" module="jaxb-impl" rev="${jaxb-impl.version}" />
+      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
       <override org="asm" module="asm" rev="${asm.version}" />
       <override org="aopalliance" module="aopalliance" rev="${aopalliance.version}" />
       <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />

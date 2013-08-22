@@ -77,10 +77,12 @@
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-tools-wsdlto-frontend-jaxws" rev="${cxf-tools-wsdlto-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default">
          <exclude org="xml-resolver" module="xml-resolver" />
       </dependency>
+      <dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="${jaxb-xjc.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default" />
 
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-ws-cxf-codegen-runtime->xerces-module-runtime" />
    
@@ -163,7 +165,6 @@
       <override org="wsdl4j" module="wsdl4j" rev="${wsdl4j.version}" />
       <override org="commons-lang" module="commons-lang" rev="${commons-lang.version}" />
       <override org="com.sun.xml.bind" module="jaxb-impl" rev="${jaxb-impl.version}" />
-      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
       <override org="asm" module="asm" rev="${asm.version}" />
       <override org="aopalliance" module="aopalliance" rev="${aopalliance.version}" />
       <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />

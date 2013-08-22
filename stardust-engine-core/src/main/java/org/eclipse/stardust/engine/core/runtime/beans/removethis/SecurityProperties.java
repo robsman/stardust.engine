@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.annotations.ConfigurationProperty;
 import org.eclipse.stardust.common.annotations.PropertyValueType;
 import org.eclipse.stardust.common.annotations.Status;
@@ -26,9 +25,12 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.security.audittrail.AuditTrailLoginService;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.IAuditTrailPartition;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.IUserDomain;
+import org.eclipse.stardust.engine.core.runtime.beans.IUserRealm;
+import org.eclipse.stardust.engine.core.runtime.beans.SynchronizationService;
 import org.eclipse.stardust.engine.core.spi.security.DynamicParticipantSynchronizationProvider;
 import org.eclipse.stardust.engine.core.spi.security.DynamicParticipantSynchronizationStrategy;
 import org.eclipse.stardust.engine.core.spi.security.ExternalLoginProvider;
@@ -40,6 +42,7 @@ import org.eclipse.stardust.engine.core.spi.security.ExternalLoginProvider;
  */
 public final class SecurityProperties
 {
+   public static final int PARTION_OID_UNDEFINED = -1;
    public static final String ENV_VAR_DEFAULT_DOMAIN = "CARNOT_DOMAIN";
    public static final String ENV_VAR_DEFAULT_REALM = "CARNOT_REALM";
    public static final String ENV_VAR_DEFAULT_USER = "CARNOT_USER";
@@ -312,7 +315,7 @@ public final class SecurityProperties
          IAuditTrailPartition result = getPartition(params);
          if (result == null)
          {
-            return -1;
+            return PARTION_OID_UNDEFINED;
          }
          else
          {

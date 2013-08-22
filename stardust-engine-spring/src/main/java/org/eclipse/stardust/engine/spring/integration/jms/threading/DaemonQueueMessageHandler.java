@@ -20,6 +20,7 @@ import javax.jms.Message;
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
@@ -32,6 +33,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.daemons.DaemonCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.CallingInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.NonInteractiveSecurityContextInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInterceptor;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
@@ -64,6 +66,29 @@ public class DaemonQueueMessageHandler extends AbstractMessageHandler
       action.execute();
    }
 
+   private Short extractPartitionOid(MapMessage message)
+   {
+      Short partitionOid = null;
+      try
+      {
+         partitionOid = message.getShortProperty(ActionCarrier.PARTITION_OID_TAG);
+      }
+      catch (JMSException ignored)
+      {
+      }
+
+      if (partitionOid == null
+            || partitionOid == SecurityProperties.PARTION_OID_UNDEFINED)
+      {
+         StringBuilder errorMsgBuilder = new StringBuilder();
+         errorMsgBuilder.append("Could not retrieve valid partitionOid from Jms Message: ");
+         errorMsgBuilder.append(message);
+         throw new PublicException(errorMsgBuilder.toString());
+      }
+
+      return partitionOid;
+   }
+   
    private class DaemonQueueMsgDeliveryAction implements Action
    {
 
@@ -78,7 +103,7 @@ public class DaemonQueueMessageHandler extends AbstractMessageHandler
       {
          if (message instanceof MapMessage)
          {
-            MapMessage mapMessage = (MapMessage) message;
+            final MapMessage mapMessage = (MapMessage) message;
             if (ActionCarrier.extractMessageType(mapMessage) == ActionCarrier
                   .DAEMON_MESSAGE_TYPE_ID)
             {
@@ -96,6 +121,17 @@ public class DaemonQueueMessageHandler extends AbstractMessageHandler
                   {
                      public Object execute()
                      {
+                        //set partiton oid(if not already cached) based on the jms message 
+                        //to prevent creating and caching of an invalid ModelManagerPartition
+                        Short partitionOid = SecurityProperties.getPartitionOid();
+                        if (partitionOid == null
+                              || partitionOid == SecurityProperties.PARTION_OID_UNDEFINED)
+                        {
+                           partitionOid = extractPartitionOid(mapMessage);
+                           Parameters.instance().set(
+                                 SecurityProperties.CURRENT_PARTITION_OID, partitionOid);
+                        }
+
                         ModelManagerFactory.getCurrent().findActiveModel();
                         return null;
                      }

@@ -320,14 +320,24 @@ public class DmsDocumentSearchTest
    }
 
    @Test
-   public void testFindContentLike()
+   public void testFindContentLike() throws InterruptedException
    {
+      final int expectedDocSize = 3;
+      final int retryCount = 3;
+      
       DocumentQuery query = DocumentQuery.findAll();
       query.where(DocumentQuery.CONTENT.like("this is a test content"));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
+      /* full text search indexers run asnychronously, and we don't have a means to determine   */
+      /* when they are completed ==> wait and retry seems dirty, but is the only option we have */
+      for (int i=0; docs.size() != expectedDocSize && i<retryCount; i++)
+      {
+         Thread.sleep(1000L);
+         docs = sf.getQueryService().getAllDocuments(query);
+      }
       
-      assertEquals("Documents", 3, docs.size());
+      assertEquals("Documents", expectedDocSize, docs.size());
       assertEquals("text/plain", docs.get(0).getContentType());
    }
 

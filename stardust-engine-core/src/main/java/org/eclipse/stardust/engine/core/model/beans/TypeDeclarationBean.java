@@ -198,7 +198,7 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                if (baseType != null)
                {
                   String baseTypeNameSpace = baseType.getTargetNamespace();
-                  XSDImport baseTypeImport = this.getImportByNamespace(
+                  XSDImport baseTypeImport = TypeDeclarationUtils.getImportByNamespace(
                         schemaType.getSchema(), baseTypeNameSpace);
                   if (baseTypeImport != null)
                   {
@@ -236,44 +236,5 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
       }
       return null;
    }
-
-   private XSDImport getImportByNamespace(XSDSchema schema, String nameSpace)
-   {
-      List<XSDImport> xsdImports = getImports(schema);
-      if (xsdImports != null)
-      {
-         for (Iterator<XSDImport> i = xsdImports.iterator(); i.hasNext();)
-         {
-            XSDImport xsdImport = i.next();
-            String importNameSpace = xsdImport.getNamespace();
-            if (nameSpace.equals(importNameSpace))
-            {
-               return xsdImport;
-            }
-         }
-      }
-      return null;
-   }
-
-   public static List<XSDImport> getImports(XSDSchema schema)
-   {
-      List<XSDImport> xsdImports = new ArrayList<XSDImport>();
-      List<XSDSchemaContent> contents = schema.getContents();
-      Iterator<XSDSchemaContent> it = contents.iterator();
-      while (it.hasNext())
-      {
-         XSDSchemaContent content = (XSDSchemaContent) it.next();
-         if (content instanceof XSDImport)
-         {
-            xsdImports.add((XSDImport) content);
-         }
-      }
-      if (!xsdImports.isEmpty())
-      {
-         return xsdImports;
-      }
-      return null;
-   }
-
 
 }

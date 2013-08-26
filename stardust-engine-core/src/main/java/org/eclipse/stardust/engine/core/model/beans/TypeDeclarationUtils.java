@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.emf.ecore.resource.URIConverter;
-import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.engine.api.model.IExternalReference;
 import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
@@ -34,7 +33,6 @@ import org.eclipse.xsd.XSDParticle;
 import org.eclipse.xsd.XSDParticleContent;
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDSchemaContent;
-import org.eclipse.xsd.XSDSchemaDirective;
 import org.eclipse.xsd.XSDSimpleTypeDefinition;
 import org.eclipse.xsd.XSDTerm;
 import org.eclipse.xsd.XSDTypeDefinition;
@@ -167,6 +165,24 @@ public class TypeDeclarationUtils
       if (!xsdImports.isEmpty())
       {
          return xsdImports;
+      }
+      return null;
+   }
+
+   public static XSDImport getImportByNamespace(XSDSchema schema, String nameSpace)
+   {
+      List<XSDImport> xsdImports = getImports(schema);
+      if (xsdImports != null)
+      {
+         for (Iterator<XSDImport> i = xsdImports.iterator(); i.hasNext();)
+         {
+            XSDImport xsdImport = i.next();
+            String importNameSpace = xsdImport.getNamespace();
+            if (nameSpace.equals(importNameSpace))
+            {
+               return xsdImport;
+            }
+         }
       }
       return null;
    }

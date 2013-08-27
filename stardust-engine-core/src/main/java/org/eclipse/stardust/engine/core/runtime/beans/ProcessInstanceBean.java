@@ -256,25 +256,31 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
+         IUser user, Map<String, ? > data, boolean isSubprocess)
+   {
+      return createInstance(processDefinition, null, null, user, data, isSubprocess);
+   }   
+   
+   public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          IUser user, Map<String, ? > data)
    {
-      return createInstance(processDefinition, null, null, user, data);
+      return createInstance(processDefinition, null, null, user, data, false);
    }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          IProcessInstance parentProcessInstance, IUser user, Map<String, ?> data)
    {
-      return createInstance(processDefinition, null, parentProcessInstance, user, data);
+      return createInstance(processDefinition, null, parentProcessInstance, user, data, false);
    }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          ActivityInstanceBean parentActivityInstance, IUser user, Map<String, ? > data)
    {
-      return createInstance(processDefinition, parentActivityInstance, null, user, data);
+      return createInstance(processDefinition, parentActivityInstance, null, user, data, false);
    }
 
    private static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
-         ActivityInstanceBean parentActivityInstance, IProcessInstance spawnParentProcessInstance, IUser user, Map<String, ? > data)
+         ActivityInstanceBean parentActivityInstance, IProcessInstance spawnParentProcessInstance, IUser user, Map<String, ? > data, boolean isSubProcess)
    {
       IProcessInstance parentProcessInstance = spawnParentProcessInstance;
       if (parentActivityInstance != null)
@@ -381,9 +387,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       processInstance.setState(ProcessInstanceState.ACTIVE);
-
-      processInstance.doBindAutomaticlyBoundEvents();
-
+      if(!isSubProcess)
+      {
+         processInstance.doBindAutomaticlyBoundEvents();
+      }
+         
       MonitoringUtils.processExecutionMonitors().processStarted(processInstance);
 
       return processInstance;
@@ -1371,7 +1379,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return ProcessInstanceProperty.class;
    }
 
-   private void doBindAutomaticlyBoundEvents()
+   public void doBindAutomaticlyBoundEvents()
    {
       final IProcessDefinition processDefinition = getProcessDefinition();
 

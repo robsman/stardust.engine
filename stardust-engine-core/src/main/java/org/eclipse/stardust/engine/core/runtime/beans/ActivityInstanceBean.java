@@ -1198,7 +1198,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          {
             subProcess = ProcessInstanceBean.createInstance(
                   getActivity().getImplementationProcessDefinition(),
-                  SecurityProperties.getUser(), Collections.EMPTY_MAP);
+                  SecurityProperties.getUser(), Collections.EMPTY_MAP, true);
          }
 
          if (separateData && copyAllData)
@@ -1232,6 +1232,8 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
          throw e;
       }
 
+      ((ProcessInstanceBean) subProcess).doBindAutomaticlyBoundEvents();      
+      
       if (plan != null && plan.hasNextActivity())
       {
          if (plan.nextStep())

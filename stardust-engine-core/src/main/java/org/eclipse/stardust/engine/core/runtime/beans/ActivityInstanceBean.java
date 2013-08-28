@@ -1190,7 +1190,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
                   return ProcessInstanceBean.createInstance(
                         getActivity().getImplementationProcessDefinition(),
                         ActivityInstanceBean.this, SecurityProperties.getUser(),
-                        Collections.EMPTY_MAP);
+                        Collections.EMPTY_MAP, true);
                }
             });
          }

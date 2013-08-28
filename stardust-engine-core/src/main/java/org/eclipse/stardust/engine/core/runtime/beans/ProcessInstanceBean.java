@@ -274,9 +274,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
-         ActivityInstanceBean parentActivityInstance, IUser user, Map<String, ? > data)
+         ActivityInstanceBean parentActivityInstance, IUser user, Map<String, ? > data, boolean isSubprocess)
    {
-      return createInstance(processDefinition, parentActivityInstance, null, user, data, false);
+      return createInstance(processDefinition, parentActivityInstance, null, user, data, isSubprocess);
    }
 
    private static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,

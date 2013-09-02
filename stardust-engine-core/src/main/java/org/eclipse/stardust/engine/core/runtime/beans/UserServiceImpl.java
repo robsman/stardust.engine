@@ -902,25 +902,59 @@ public class UserServiceImpl implements UserService, Serializable
                      addingUser.getOID()));
 	   }
 	}
+	
+   private boolean isAllowedToModifyDeputy(UserInfo user)
+   {
+      IUser modifyingUser = SecurityProperties.getUser(); 
+      if (modifyingUser.getOID() == user.getOID())
+      {
+         return true;
+      }
+      else
+      {
+         throw new AccessForbiddenException(
+               BpmRuntimeError.ATDB_MODIFYING_DEPUTY_FORBIDDEN.raise(user.getOID(),
+                     modifyingUser.getOID()));
+      }
+   }
 
+   private boolean isAllowedToRemoveDeputy(UserInfo user)
+   {
+      IUser modifyingUser = SecurityProperties.getUser(); 
+      if (modifyingUser.getOID() == user.getOID())
+      {
+         return true;
+      }
+      else
+      {
+         throw new AccessForbiddenException(
+               BpmRuntimeError.ATDB_REMOVING_DEPUTY_FORBIDDEN.raise(user.getOID(),
+                     modifyingUser.getOID()));
+      }
+   }
+   
+   
    @Override
    public Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
    {
-      if (options == null)
-      {
-         options = DeputyOptions.DEFAULT;
+      if (isAllowedToModifyDeputy(user))
+      {            
+         if (options == null)
+         {
+            options = DeputyOptions.DEFAULT;
+         }
+         
+         List<Deputy> deputies = getUsersBeingDeputyFor(deputyUser);
+         for (Deputy deputy : deputies)
+         {
+            if (deputy.getUser().equals(user))
+            {
+               removeDeputy(user, deputyUser);
+               return addDeputy(user, deputyUser, options);
+            }
+         }   
       }
       
-      List<Deputy> deputies = getUsersBeingDeputyFor(deputyUser);
-      for (Deputy deputy : deputies)
-      {
-         if (deputy.getUser().equals(user))
-         {
-            removeDeputy(user, deputyUser);
-            return addDeputy(user, deputyUser, options);
-         }
-      }
-
       throw new ObjectNotFoundException(
             BpmRuntimeError.ATDB_DEPUTY_DOES_NOT_EXISTS.raise(deputyUser.getOID(),
                   user.getOID()));
@@ -929,10 +963,13 @@ public class UserServiceImpl implements UserService, Serializable
    @Override
    public void removeDeputy(UserInfo user, UserInfo deputyUser)
    {
-      UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
-      UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
-      
-      UserUtils.updateDeputyGrants(deputyUserBean);
+      if (isAllowedToRemoveDeputy(user))
+      {      
+         UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
+         UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
+         
+         UserUtils.updateDeputyGrants(deputyUserBean);
+      }
    }
 
 	@Override
@@ -988,5 +1025,4 @@ public class UserServiceImpl implements UserService, Serializable
 
       return result;
 	}
-      
 }

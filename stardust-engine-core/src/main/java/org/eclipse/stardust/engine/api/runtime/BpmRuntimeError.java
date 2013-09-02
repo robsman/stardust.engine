@@ -77,6 +77,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_UNKNOWN_TYPE_DECLARATION_ID = newArgs1("MDL01182", BpmRuntimeErrorMessages.getString("MDL01182")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_UNKNOWN_DATA_TYPE_ID = newArgs1("MDL01183", BpmRuntimeErrorMessages.getString("MDL01183")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args0 MDL_NO_JAVA_APPLICATION_CLASS_PATH = newArgs0("MDL01191", BpmRuntimeErrorMessages.getString("MDL01191")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_NO_JAVA_APPLICATION_METHOD = newArgs0("MDL01192", BpmRuntimeErrorMessages.getString("MDL01192")); //$NON-NLS-1$ //$NON-NLS-2$
+      
    public static final Args1 MDL_DANGLING_DATA_PATH = newArgs1("MDL02021", BpmRuntimeErrorMessages.getString("MDL02021")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_DANGLING_IN_DATA_PATH = newArgs1("MDL02022", BpmRuntimeErrorMessages.getString("MDL02022")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_DANGLING_OUT_DATA_PATH = newArgs1("MDL02023", BpmRuntimeErrorMessages.getString("MDL02023")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -171,6 +174,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 ATDB_DEPUTY_DOES_NOT_EXISTS = newArgs2("ATDB02116", BpmRuntimeErrorMessages.getString("ATDB02116")); //$NON-NLS-1$ //$NON-NLS-2$   
    public static final Args1 ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED = newArgs1("ATDB02117", BpmRuntimeErrorMessages.getString("ATDB02117")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 ATDB_ADDING_DEPUTY_FORBIDDEN = new Args2("ATDB02118", BpmRuntimeErrorMessages.getString("ATDB02118")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ATDB_MODIFYING_DEPUTY_FORBIDDEN = new Args2("ATDB02119", BpmRuntimeErrorMessages.getString("ATDB02119")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ATDB_REMOVING_DEPUTY_FORBIDDEN = new Args2("ATDB02120", BpmRuntimeErrorMessages.getString("ATDB02120")); //$NON-NLS-1$ //$NON-NLS-2$
    
    public static final Args0 ATDB_NO_MATCHING_USER_DOMAIN = newArgs0("ATDB02121", BpmRuntimeErrorMessages.getString("ATDB02121")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_OID = newArgs1("ATDB02122", BpmRuntimeErrorMessages.getString("ATDB02122")); //$NON-NLS-1$ //$NON-NLS-2$

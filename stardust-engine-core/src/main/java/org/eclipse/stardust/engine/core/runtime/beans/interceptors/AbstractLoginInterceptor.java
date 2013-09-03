@@ -163,7 +163,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
             throw LoginUtils.createAccountExpiredException(user);
          }
                      
-         UserUtils.updateDeputyGrants((UserBean) user);
+         UserUtils.updateDeputyGrants(user);
                                    
          setCurrentUser(layer, user);
          

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2011 SunGard CSA LLC and others. All rights reserved. 
+	This program and the accompanying materials are made available under the 
+	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
+	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
+	SunGard CSA LLC - initial API and implementation and/or initial documentation -->
+
+<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+	<info organisation="com.infinity.bpm" module="stardust-camel" revision="${ipp.version.full}" />
+
+	<configurations>
+		<conf name="stardust-camel-compile" description="IPP Camel Application Type RT - Compile Scope" />
+		<conf name="stardust-camel-compile-optional"	description="IPP Camel Application Type RT - (Optional) Compile Scope" />
+		<conf name="stardust-camel-provided" description="IPP Camel Application Type RT - Provided Scope" />
+		<conf name="stardust-camel-runtime" description="IPP Camel Application Type RT - Runtime Scope" />
+		<conf name="stardust-camel-module-compile" extends="stardust-camel-compile" description="IPP Camel Application Type RT Module - Compile Scope" />
+		<conf name="stardust-camel-module-runtime" extends="stardust-camel-module-compile" description="IPP Camel Application Type RT Module - Runtime Scope" />
+		<conf name="compile" extends="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided" visibility="private" description="Compile Time Dependencies" />
+    <conf name="runtime" extends="stardust-camel-runtime"  visibility="private" />
+		<conf name="test" visibility="private" description="Test dependencies" />
+		<conf name="pom" description="IPP Camel Application Type RT - POMs" />       
+		<conf name="module-pom" description="IPP Module POMs" />
+
+      <!-- compound configurations which encapsulates the above mentioned configs -->
+      <conf name="all" visibility="private" extends="compile, runtime, test" />
+	</configurations>
+
+	<publications>
+		<artifact name="ipp-camel" type="jar"
+			conf="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided, stardust-camel-runtime"
+			ext="jar" />
+		<artifact name="ipp-camel" type="pom" conf="pom" ext="pom" />
+		<artifact name="ipp-camel-module" type="pom" conf="module-pom"
+			ext="pom" />
+	</publications>
+
+	<dependencies>
+		<!-- ipp-camel-compile -->
+		<dependency org="org.apache.camel" name="camel-core" rev="2.9.2"
+			conf="stardust-camel-compile->default">
+			<exclude org="org.slf4j" module="slf4j-api" />
+		</dependency>
+
+		<dependency org="org.apache.camel" name="camel-spring" rev="2.9.2"
+			conf="stardust-camel-compile->default">
+			<exclude org="org.apache.camel" module="camel-core" />
+			<exclude org="org.springframework" module="spring-context" />
+			<exclude org="org.springframework" module="spring-aop" />
+			<exclude org="org.springframework" module="spring-tx" />
+		</dependency>
+		<dependency org="org.apache.camel" name="camel-jms" rev="2.9.2"
+			conf="stardust-camel-compile->default">
+			<exclude org="org.apache.camel" module="camel-core" />
+			<exclude org="org.apache.camel" module="camel-spring" />
+			<exclude org="org.springframework" module="spring-jms" />
+			<exclude org="org.springframework" module="spring-core" />
+			<exclude org="org.springframework" module="spring-context" />
+			<exclude org="org.springframework" module="spring-tx" />
+			<exclude org="org.springframework" module="spring-beans" />
+		</dependency>
+		<dependency org="org.apache.camel" name="camel-quartz" rev="2.9.2"
+			conf="stardust-camel-compile->default">
+			<exclude org="org.apache.camel" module="camel-core" />
+			<exclude org="org.slf4j" module="slf4j-api" />
+			<exclude org="commons-collections" module="commons-collections"></exclude>
+		</dependency>
+		<dependency org="org.apache.camel" name="camel-mail" rev="2.9.2"
+			conf="stardust-camel-compile->default">
+			<exclude org="org.apache.camel" module="camel-core" />
+			<exclude org="javax.mail" module="mail" />
+		</dependency>
+		<dependency org="javax.mail" name="mail" rev="${mail.version}"
+			conf="stardust-camel-runtime->default" />
+		<dependency org="org.apache.camel" name="camel-restlet"
+			rev="2.9.2" conf="stardust-camel-compile->default">
+			<exclude org="org.apache.camel" module="camel-core" />
+		</dependency>
+		<dependency org="jdom" name="jdom" rev="1.0"
+			conf="stardust-camel-compile->default" />
+		<dependency org="commons-io" name="commons-io" rev="1.4"
+			conf="stardust-camel-compile->default" />
+
+	  <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->engine-module-compile" />
+		<dependency org="com.infinity.bpm" name="carnot-spring-module" rev="${ipp.version.full}" conf="stardust-camel-compile->spring-module-compile">
+			<exclude org="org.springframework" module="spring-web" />
+			<exclude org="org.springframework" module="spring-jdbc" />
+			<exclude org="org.springframework" module="spring-jms" />
+			<exclude org="org.springframework" module="spring-context-support" />
+		</dependency>
+		<dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->jms-api-module-compile" />
+	  <dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->ejb21-module-compile" />
+		<dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->logging-slf4j-log4j-module-compile" />
+
+		<dependency org="com.infinity.bpm" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="stardust-camel-runtime->logging-log4j-module-runtime" />
+
+		<dependency org="com.infinity.bpm" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-provided->web-client-module-provided" />
+
+		<dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="stardust-camel-runtime->default" />
+
+		<dependency org="commons-lang" name="commons-lang" rev="2.4" conf="stardust-camel-compile->default" />
+		<dependency org="org.apache.bsf" name="bsf-engines" rev="3.1-stardust01" conf="stardust-camel-compile->default">
+			<exclude org="org.apache.ws.commons.axiom" module="axiom-api" />
+			<exclude org="org.apache.ws.commons.axiom" module="axiom-impl" />
+			<exclude org="stax" module="stax-api" />
+			<exclude org="org.codehaus.woodstox" module="wstx-asl" />
+			<exclude org="rhino" module="js" />
+			<exclude org="xmlbeans" module="xbean" />
+			<exclude org="javax.servlet" module="servlet-api" />
+			<exclude org="net.sourceforge.retroweaver" module="retroweaver" />
+			<exclude org="net.sourceforge.retroweaver" module="retroweaver-rt" />
+			<exclude org="asm" module="asm" />
+			<exclude org="asm" module="asm-commons" />
+			<exclude org="asm" module="asm-utils" />
+			<exclude org="backport-util-concurrent" module="backport-util-concurrent" />
+		</dependency>
+		<!-- ipp-camel-runtime -->
+
+		<!-- package org.eclipse.xsd is mapped to com.infinity.bpm.thirdparty.xsd 
+			which is repackaged into carnot-engine. Therefore we doesn't need to include 
+			this artifact into the POM -->
+		<dependency org="org.eclipse.xsd" name="xsd-runtime" rev="2.6.1"
+			conf="compile->default">
+			<artifact name="org.eclipse.xsd" type="jar" />
+		</dependency>
+		<dependency org="com.google.code.gson" name="gson" rev="1.6"
+			conf="stardust-camel-compile->default" />
+		<dependency org="org.apache.camel" name="camel-script" rev="2.9.2"
+			conf="stardust-camel-compile->default" />
+		<dependency org="org.python" name="jython-standalone" rev="2.7-b1-infinity01"
+			conf="stardust-camel-compile->default" />
+
+		<dependency org="junit" name="junit" rev="${junit.version}"
+			conf="test->default">
+			<exclude org="org.hamcrest" module="hamcrest-core" />
+		</dependency>
+		<dependency org="org.hamcrest" name="hamcrest-core"
+			rev="${hamcrest-core.version}" conf="test->default" />
+		<dependency org="org.springframework" name="spring-test"
+			rev="${spring-test.version}" conf="test->default" />
+		<dependency org="org.hamcrest" name="hamcrest-library"
+			rev="${hamcrest-library.version}" conf="test->default" />
+	</dependencies>
+</ivy-module>

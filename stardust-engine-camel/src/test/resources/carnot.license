@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<carnot-licenses version="2.0">
+   <license-group format="1.0" product="Infinity Core Product" release="7.1">
+      <license
+         appserver="all"
+         component="ProcessDefinitionDesktop"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+      <license
+         appserver="all"
+         component="ProcessEngine"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="210912569162458736133251103157412362042202413532156"
+         type="CUSTOMER"
+         users="1000000"
+      />
+   </license-group>
+   <license-group format="2.0" product="Infinity Process Workbench for Developers" release="7.1">
+      <license
+         appserver="all"
+         component="ProcessWorkbenchDeveloperEdition"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="2.0" product="Infinity Process Workbench for Analysts" release="7.1">
+      <license
+         appserver="all"
+         component="ProcessWorkbenchAnalystEdition"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="2.0" product="Infinity Reporting Designer" release="7.1">
+      <license
+         appserver="all"
+         component="ReportDesigner"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="2.0" product="Infinity Reporting Runtime" release="7.1">
+      <license
+         appserver="all"
+         component="ReportingRuntime"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="2.0" product="Infinity Simulation Modeller" release="7.1">
+      <license
+         appserver="all"
+         component="SimulationModeller"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="2.0" product="Infinity Simulation AuditTrail Connection" release="7.1">
+      <license
+         appserver="all"
+         component="SimulationAuditTrailConnection"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="1.0" product="Infinity Process Warehouse" release="7.1">
+      <license
+         appserver="all"
+         component="ProcessWarehouse"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="210912569162458736133251103157412362042202413532156"
+         type="CUSTOMER"
+         users="1000000"
+      />
+   </license-group>
+   <license-group format="1.0" product="Infinity Terminal Session Adapter" release="7.1">
+      <license
+         appserver="all"
+         component="TerminalSessionAdapter"
+         expiration="2013-12-31"
+         format="any"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         sessions="1000000"
+         signature="193118622492792136071208862551307422112124104214104"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="1.0" product="Infinity JCA Adapter" release="7.1">
+      <license
+         appserver="all"
+         component="JCAAdapter"
+         connections="1000000"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="6911431255244706321073392516023022313873716638225"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="1.0" product="Infinity Web Services Adapter" release="7.1">
+      <license
+         appserver="all"
+         component="WebServicesAdapter"
+         connections="1000000"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="6911431255244706321073392516023022313873716638225"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="1.0" product="Infinity Wf-XML 2.0 Support" release="7.1">
+      <license
+         appserver="all"
+         component="Wf-XML"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="1.0" product="Infinity ARIS Import" release="7.1">
+      <license
+         appserver="all"
+         component="ARISImport"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="1.0" product="Infinity Agent Framework" release="7.1">
+      <license
+         appserver="all"
+         component="AgentFramework"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         monitors="1000000"
+         processors="8"
+         serial="1352996752360"
+         signature="1922211302091499772166175408456116151978780268354"
+         type="CUSTOMER"
+      />
+   </license-group>
+   <license-group format="1.0" product="Infinity DMS Integration" release="7.1">
+      <license
+         appserver="all"
+         component="DmsIntegration"
+         expiration="2013-12-31"
+         ip="any"
+         licensee="SunGard Systeme GmbH - internal"
+         processors="8"
+         serial="1352996752360"
+         signature="76170812361701963585222154132414319551518422523118"
+         type="CUSTOMER"
+      />
+   </license-group>
+</carnot-licenses>

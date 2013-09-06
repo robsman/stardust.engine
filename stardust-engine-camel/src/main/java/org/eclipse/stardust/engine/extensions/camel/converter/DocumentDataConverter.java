@@ -1,28 +1,27 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMultipart;
 
 import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
 import org.apache.camel.component.file.GenericFile;
-import org.eclipse.stardust.engine.api.runtime.DmsUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.core.compatibility.extensions.dms.data.DocumentStorageBean;
-import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
+import org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty;
 import org.eclipse.stardust.engine.extensions.camel.util.DmsFileArchiver;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
-import org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty;
-import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 
 @Converter
 public class DocumentDataConverter implements DataConverter
 {
+	private static final Logger logger = LogManager.getLogger(DocumentDataConverter.class);
 
    private String fromEndpoint;
    private String targetType;
@@ -68,6 +67,7 @@ public class DocumentDataConverter implements DataConverter
     *           Camel exchange
     * @return document from the input file
     * @throws IOException
+    * @throws MessagingException 
     */
    @Converter
    @Handler
@@ -103,6 +103,22 @@ public class DocumentDataConverter implements DataConverter
                      + "_"+df.format(new Date());
          }
 
+         MimeMultipart  mimeMultipart = null;
+         if (jcrDocumentContent == null){
+        	 mimeMultipart = (MimeMultipart) exchange.getIn().getBody();
+        	 if (mimeMultipart != null){
+        		 try {
+					jcrDocumentContent = (String) mimeMultipart.getBodyPart(1).getContent();
+				} catch (Exception e) {
+					e.printStackTrace();
+					jcrDocumentContent = "";
+				}
+        	 }
+        	 else {
+        		 jcrDocumentContent = "";
+        	 }
+         }
+         logger.debug("*** jcrDocumentContent = "+jcrDocumentContent);
          Document newDocument = dmsFileArchiver.archiveFile(jcrDocumentContent.getBytes(), path, folder);
          newDocument.setProperties(null);
          

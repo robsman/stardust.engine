@@ -926,9 +926,8 @@ public final class DocumentTypeUtils
          if (forkingDmsFacade == null)
          {
             forkingDmsFacade = new ForkingDmsFacade();
+            INSTANCE.set(forkingDmsFacade);
          }
-
-         INSTANCE.set(forkingDmsFacade);
 
          return forkingDmsFacade;
       }
@@ -942,8 +941,6 @@ public final class DocumentTypeUtils
       private IDocumentRepositoryService adminVfs;
 
       private boolean securityEnabled = false;
-
-      private String partitionPrefix;
 
       public ForkingDmsFacade()
       {
@@ -971,8 +968,6 @@ public final class DocumentTypeUtils
 
                      if (securityEnabled)
                      {
-                        this.partitionPrefix = DocumentManagementServiceImpl.getPartitionPrefix();
-
                         Method getAdminVfsMethod = DocumentManagementServiceImpl.class.getDeclaredMethod("getAdminVfs");
                         getAdminVfsMethod.setAccessible(true);
                         this.adminVfs = (IDocumentRepositoryService) getAdminVfsMethod.invoke(dmsServiceImpl);
@@ -1057,11 +1052,11 @@ public final class DocumentTypeUtils
             {
                if (securityEnabled)
                {
-                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, partitionPrefix);
+                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, getPartitionPrefix());
                   return DmsVfsConversionUtils.fromVfs(adminVfs.createFile(
                         decodeResourceId(parentFolderId),
                         DmsVfsConversionUtils.toVfs(documentInfo), content, encoding),
-                        partitionPrefix);
+                        getPartitionPrefix());
                }
                else
                {
@@ -1081,7 +1076,7 @@ public final class DocumentTypeUtils
                if (securityEnabled)
                {
                   return DmsVfsConversionUtils.fromVfs(
-                        adminVfs.getFile(decodeResourceId(documentId)), partitionPrefix);
+                        adminVfs.getFile(decodeResourceId(documentId)), getPartitionPrefix());
                }
                else
                {
@@ -1102,7 +1097,7 @@ public final class DocumentTypeUtils
                if (securityEnabled)
                {
                   adminVfs.updateFile(
-                        DmsVfsConversionUtils.toVfs(document, partitionPrefix), content,
+                        DmsVfsConversionUtils.toVfs(document, getPartitionPrefix()), content,
                         encoding, createNewRevision, null, versionLabel, keepLocked);
                }
                else
@@ -1162,10 +1157,10 @@ public final class DocumentTypeUtils
             {
                if (securityEnabled)
                {
-                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, partitionPrefix);
+                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, getPartitionPrefix());
                   return DmsVfsConversionUtils.fromVfs(adminVfs.createFolder(
                         decodeResourceId(parentFolderId),
-                        DmsVfsConversionUtils.toVfs(folderInfo)), partitionPrefix);
+                        DmsVfsConversionUtils.toVfs(folderInfo)), getPartitionPrefix());
                }
                else
                {
@@ -1184,10 +1179,10 @@ public final class DocumentTypeUtils
             {
                if (securityEnabled)
                {
-                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, partitionPrefix);
+                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, getPartitionPrefix());
                   return DmsVfsConversionUtils.fromVfs(
                         adminVfs.getFolder(decodeResourceId(folderPath), lodNoMembers),
-                        partitionPrefix);
+                        getPartitionPrefix());
                }
                else
                {
@@ -1207,7 +1202,7 @@ public final class DocumentTypeUtils
                string = string.substring(0, string.length() - 1);
             }
 
-            final String partitionPrefix = this.partitionPrefix;
+            final String partitionPrefix = this.getPartitionPrefix();
             if (string.startsWith("/"))
             {
                if ( !string.startsWith(partitionPrefix))
@@ -1221,6 +1216,11 @@ public final class DocumentTypeUtils
             }
          }
          return string;
+      }
+      
+      private String getPartitionPrefix()
+      {
+         return DocumentManagementServiceImpl.getPartitionPrefix();
       }
 
       @SuppressWarnings("unchecked")

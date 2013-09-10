@@ -402,6 +402,7 @@
       <override org="rome" module="rome" rev="${rome.version}" />
       <override org="jdom" module="jdom" rev="${jdom.version}" />
       <override org="de.l3s.boilerpipe" module="boilerpipe" rev="${boilerpipe.version}" />
+      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

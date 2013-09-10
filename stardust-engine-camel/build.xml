@@ -15,7 +15,7 @@
     in the etc folder of the project and put the property in there)
 -->
 
-<project name="ipp-camel" default="build" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
+<project name="stardust-engine-camel" default="build" basedir="." xmlns:ipp="com.infinity.bpm.ant.macros">
 	<property environment="env" />
 	<property name="project.dir" value="." />
 	<property name="project.src" value="${project.dir}/src/main/java" />

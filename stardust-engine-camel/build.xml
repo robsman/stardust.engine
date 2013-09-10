@@ -23,7 +23,7 @@
 	<property name="project.etc" value="${project.dir}/etc" />
 	<property file="${project.etc}/private.properties" />
 
-	<property name="artifactId" value="ipp-camel" />
+	<property name="artifactId" value="stardust-engine-camel" />
 	<!--property name="isb.home.directory" location="${basedir}/../../../components/isb" /-->
 	<import file="${project.dir}/../../build.tools/commons-build.xml" />
 	<!--import file="${isb.home.directory}/common/isb-common.xml" /-->
@@ -63,12 +63,12 @@
 		<property name="build.src" value="${build.dir}/src" />
 		<property name="build.src.none" location="${build.dir}/src-none" />
 
-		<property name="ipp-camel.jarfile" value="ipp-camel.jar" />
-		<property name="ipp-camel.jar" value="${build.lib}/${ipp-camel.jarfile}" />
-		<property name="ipp-camel-module.pom" value="${build.lib}/ipp-camel-module.pom" />
+		<property name="stardust-engine-camel.jarfile" value="stardust-engine-camel.jar" />
+		<property name="stardust-engine-camel.jar" value="${build.lib}/${stardust-engine-camel.jarfile}" />
+		<property name="stardust-engine-camel-module.pom" value="${build.lib}/stardust-engine-camel-module.pom" />
 
-		<property name="ipp-camel.src-jarfile" value="ipp-camel-sources.jar" />
-		<property name="ipp-camel.src-jar" value="${build.lib.src}/${ipp-camel.src-jarfile}" />
+		<property name="stardust-engine-camel.src-jarfile" value="stardust-engine-camel-sources.jar" />
+		<property name="stardust-engine-camel.src-jar" value="${build.lib.src}/${stardust-engine-camel.src-jarfile}" />
 	</target>
 
 	<target name="initBuildDirectories" depends="initBuild">
@@ -87,7 +87,7 @@
 	<target name="initClasspath" depends="init, initIvy">
 		<init-ivy-classpath />
 
-		<path id="ipp-camel.classpath">
+		<path id="stardust-engine-camel.classpath">
 			<path refid="compile.deps" />
 		</path>
 	</target>
@@ -109,7 +109,7 @@
 		<ipp:javac-java6 destdir="${build.classes}" srcdir="${build.src}">
 			<include name="**/*.java" />
 
-			<classpath refid="ipp-camel.classpath"/>
+			<classpath refid="stardust-engine-camel.classpath"/>
 		</ipp:javac-java6>
 		<copy todir="${build.classes}">
 			<fileset dir="${project.resources}">
@@ -119,8 +119,8 @@
 	</target>
 
 	<target name="jar" depends="compile">
-		<ipp:jar jarfile="${ipp-camel.jar}" implementationTitle="Infinity Process Platform - Camel Application Type RT">
-			<fileset dir="${build.classes}" id="fileset.ipp-camel.jar">
+		<ipp:jar jarfile="${stardust-engine-camel.jar}" implementationTitle="Infinity Process Platform - Camel Application Type RT">
+			<fileset dir="${build.classes}" id="fileset.stardust-engine-camel.jar">
 				<include name="**/*.class" />
 				<include name="**/META-INF/**/*" />
 			</fileset>
@@ -128,8 +128,8 @@
 	</target>
 
 	<target name="jar.src" depends="compile">
-		<delete file="${ipp-camel.src-jar}" />
-		<ipp:jar jarfile="${ipp-camel.src-jar}" implementationTitle="Infinity Process Platform - Camel Application Type RT">
+		<delete file="${stardust-engine-camel.src-jar}" />
+		<ipp:jar jarfile="${stardust-engine-camel.src-jar}" implementationTitle="Infinity Process Platform - Camel Application Type RT">
 			<fileset dir="${project.src}">
 				<include name="**/*.java" />
 			</fileset>
@@ -138,18 +138,18 @@
 
 	<target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
 		<ivy:resolve file="${project.dir}/ivy.xml" />
-		<ivy-make-module-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" moduleName="ipp-camel-module" />
+		<ivy-make-module-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" moduleName="stardust-engine-camel-module" />
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}" publishIvy="true" />
 		<!--  -->
 		<!--ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="true" publishPom="false" /-->
-		<!--ivy-publish-local artifactId="ipp-camel-module" artifactDir="${build.lib}" publishIvy="true" /-->
+		<!--ivy-publish-local artifactId="stardust-engine-camel-module" artifactDir="${build.lib}" publishIvy="true" /-->
 
 	</target>
 
 	<target name="dist" depends="build">
 		<property name="sungard.dir" value="../../../sungard" />
-		<copy file="${ipp-camel.jar}" todir="${sungard.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
-		<copy file="${ipp-camel.src-jar}" todir="${sungard.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
+		<copy file="${stardust-engine-camel.jar}" todir="${sungard.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
+		<copy file="${stardust-engine-camel.src-jar}" todir="${sungard.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
 	</target>
 
 	<target name="deploy" depends="build,dependencies:report " />
@@ -160,14 +160,14 @@
       <ipp:init-mvn />
       <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
          <arg value="install:install-file"/>
-         <arg value="-Dfile=${ipp-camel.jar}"/>
-         <arg value="-DpomFile=${build.lib}/ipp-camel.pom"/>
+         <arg value="-Dfile=${stardust-engine-camel.jar}"/>
+         <arg value="-DpomFile=${build.lib}/stardust-engine-camel.pom"/>
          <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
       </exec>
    </target>
 	<target name="install" depends="clean,deploy" description="installs the artifacts into a local Maven repository">
 		<init-ivy />
-		<property name="mvn.options" value="-Dfile=${ipp-camel.jar} -DpomFile=${build.lib}/ipp-camel.pom -DlocalRepositoryPath=${maven.localRepository} -Dipp.version=${ipp.version.full}" />
+		<property name="mvn.options" value="-Dfile=${stardust-engine-camel.jar} -DpomFile=${build.lib}/stardust-engine-camel.pom -DlocalRepositoryPath=${maven.localRepository} -Dipp.version=${ipp.version.full}" />
 		<mvn basedir="." goal="install:install-file" options="${mvn.options}" />
 	</target>-->
 
@@ -175,12 +175,12 @@
 
   <target name="install" if="maven.localRepository" depends="initBuild" description="installs the artifacts into a local Maven repository">
     <ipp:init-mvn localMavenRepository="${maven.localRepository}" />
-    <ipp:mvn-install file="${ipp-camel.jar}" pomFile="${build.lib}/ipp-camel.pom" />
+    <ipp:mvn-install file="${stardust-engine-camel.jar}" pomFile="${build.lib}/stardust-engine-camel.pom" />
   </target>
 
   <target name="publish" depends="initBuild" description="publish artifacts into a remote Maven repository">
     <ipp:init-mvn />
-    <ipp:mvn-deploy file="${ipp-camel.jar}" pomFile="${build.lib}/ipp-camel.pom" />
+    <ipp:mvn-deploy file="${stardust-engine-camel.jar}" pomFile="${build.lib}/stardust-engine-camel.pom" />
   </target> 
   
   <target name="dependencies:report" depends="init,initIvy">

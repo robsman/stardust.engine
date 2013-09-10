@@ -10,16 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct.spi;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
@@ -29,36 +25,15 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.query.AbstractDataFilter;
 import org.eclipse.stardust.engine.api.query.DataOrder;
 import org.eclipse.stardust.engine.api.query.IJoinFactory;
+import org.eclipse.stardust.engine.api.query.SqlBuilderBase.DataAttributeKey;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Functions;
-import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
-import org.eclipse.stardust.engine.core.struct.DataXPathMap;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
-import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 public class StructuredDataFilterExtension implements DataFilterExtension, Stateless
@@ -71,7 +46,9 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          DataFilterExtensionContext dataFilterExtensionContext, boolean isAndTerm,
          IJoinFactory joinFactory)
    {
-      Map<AbstractDataFilter, StructuredDataFilterContext> dataFilterContexts = CollectionUtils.newHashMap();
+      StructuredDataFilterExtensionContext extensionContext = new StructuredDataFilterExtensionContext();
+      dataFilterExtensionContext.setContent(extensionContext);
+      
       final ModelManager modelManager = ModelManagerFactory.getCurrent();
 
       int cnt = 0;
@@ -132,16 +109,14 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                dataFilterExtensionContext.useDistinct(true);
             }
 
-            if (!dataFilterContexts.containsKey(filter))
+            if (!extensionContext.contains(filter))
             {
                StructuredDataFilterContext filterContext = getContextForDataFilter(
                      joinFactory, dataFilterExtensionContext, filter, isAndTerm, cnt);
-               dataFilterContexts.put(filter, filterContext);
+               extensionContext.setContext(filter, filterContext);
             }
          }
       }
-
-      dataFilterExtensionContext.setContent(dataFilterContexts);
    }
 
          
@@ -295,12 +270,9 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
    public PredicateTerm createPredicateTerm(Join dvJoin,
          AbstractDataFilter dataFilter, Map<Long,IData> dataMap, DataFilterExtensionContext dataFilterExtensionContext)
    {
-      Map<AbstractDataFilter, StructuredDataFilterContext> dataFilterContexts = 
-         (Map<AbstractDataFilter, StructuredDataFilterContext>) dataFilterExtensionContext.getContent();
-      StructuredDataFilterContext context = (StructuredDataFilterContext) dataFilterContexts.get(dataFilter);
-      
       // override dvJoin with join specific for this dataFilter
-      dvJoin = context.getJoin();
+      StructuredDataFilterExtensionContext extensionContext = dataFilterExtensionContext.getContent();
+      dvJoin = extensionContext.getJoin(dataFilter);
       
       return matchDataInstancesPredicate(dvJoin, dataFilter.getAttributeName(),
             dataFilter.getOperator(), dataFilter.getOperand(), dataMap, dataFilter);
@@ -654,10 +626,8 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          preprocessJoins(query, dataFilterExtensionContext, isAndTerm, joinFactory);
       }
 
-      Map<AbstractDataFilter, StructuredDataFilterContext> dataFilterContexts = (Map) dataFilterExtensionContext.getContent();
-      StructuredDataFilterContext context = (StructuredDataFilterContext) dataFilterContexts.get(dataFilter);
-
-      return context.getJoin();
+      StructuredDataFilterExtensionContext extensionContext = dataFilterExtensionContext.getContent();
+      return extensionContext.getJoin(dataFilter);
    }
    
    public List<FieldRef> getPrefetchSelectExtension(ITableDescriptor descriptor)
@@ -674,5 +644,31 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
    public boolean isStateless()
    {
       return true;
+   }
+   
+   // (fh) out of inspiration for names
+   private static class StructuredDataFilterExtensionContext
+   {
+      private Map<DataAttributeKey, StructuredDataFilterContext> contexts = CollectionUtils.newHashMap();
+
+      private Join getJoin(AbstractDataFilter dataFilter)
+      {
+         return contexts.get(getSearchKey(dataFilter)).getJoin();
+      }
+
+      private void setContext(AbstractDataFilter filter, StructuredDataFilterContext filterContext)
+      {
+         contexts.put(getSearchKey(filter), filterContext);
+      }
+
+      private boolean contains(AbstractDataFilter filter)
+      {
+         return contexts.containsKey(getSearchKey(filter));
+      }
+
+      private DataAttributeKey getSearchKey(AbstractDataFilter filter)
+      {
+         return new DataAttributeKey(filter);
+      }
    }
 }

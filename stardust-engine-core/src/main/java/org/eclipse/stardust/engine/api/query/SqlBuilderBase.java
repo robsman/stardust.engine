@@ -2401,7 +2401,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
        *
        * @author Stephan.Born
        */
-   protected static class DataAttributeKey
+   public static class DataAttributeKey
    {
       private final String dataId;
 

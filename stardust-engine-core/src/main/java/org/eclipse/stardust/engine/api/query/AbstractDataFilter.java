@@ -112,9 +112,9 @@ public abstract class AbstractDataFilter
 
    protected Serializable setOption(EvaluationOption option, Serializable value)
    {
-      if (null == options)
+      if (options == null)
       {
-         this.options = CollectionUtils.createMap();
+         options = CollectionUtils.newMap();
       }
       
       return (Serializable) options.put(option, value);
@@ -158,6 +158,5 @@ public abstract class AbstractDataFilter
          h = h + 19 * options.size() + 23 * options.entrySet().iterator().next().hashCode();
       }
       return h;
-   }   
-   
+   }
 }

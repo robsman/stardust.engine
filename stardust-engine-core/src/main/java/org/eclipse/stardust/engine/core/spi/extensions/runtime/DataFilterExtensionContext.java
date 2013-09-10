@@ -27,7 +27,7 @@ public class DataFilterExtensionContext
 {
    private Object content;
 
-   private Map<String,List<AbstractDataFilter>> dataFiltersByDataId;
+   private Map<String, List<AbstractDataFilter>> dataFiltersByDataId;
 
    private final List<Join> joins = new LinkedList<Join>();
 
@@ -35,7 +35,7 @@ public class DataFilterExtensionContext
 
    public DataFilterExtensionContext(List<AbstractDataFilter> dataFilters)
    {
-      this.dataFiltersByDataId = createFiltersByDataIdMap(dataFilters);
+      dataFiltersByDataId = createFiltersByDataIdMap(dataFilters);
    }
 
    /**
@@ -46,41 +46,39 @@ public class DataFilterExtensionContext
    {
       List<AbstractDataFilter> dataFilters = new LinkedList<AbstractDataFilter>();
       findDataFilters(filterAndTerm, dataFilters);
-      this.dataFiltersByDataId = createFiltersByDataIdMap(dataFilters);
+      dataFiltersByDataId = createFiltersByDataIdMap(dataFilters);
    }
 
    private void findDataFilters(FilterTerm filterTerm, List<AbstractDataFilter> result)
    {
-      for (Iterator itr = filterTerm.getParts().iterator(); itr.hasNext();)
+      List<FilterCriterion> parts = filterTerm.getParts();
+      for (FilterCriterion criterion : parts)
       {
-         FilterCriterion criterion = (FilterCriterion) itr.next();
          if (criterion instanceof AbstractDataFilter)
          {
-            result.add((AbstractDataFilter)criterion);
+            result.add((AbstractDataFilter) criterion);
          }
-         if (criterion instanceof FilterTerm)
+         else if (criterion instanceof FilterTerm)
          {
-            FilterTerm term = (FilterTerm) criterion;
-            findDataFilters(term, result);
+            findDataFilters((FilterTerm) criterion, result);
          }
       }
    }
 
-   private Map<String,List<AbstractDataFilter>> createFiltersByDataIdMap(
+   private Map<String, List<AbstractDataFilter>> createFiltersByDataIdMap(
          List<AbstractDataFilter> dataFilters)
    {
-      Map<String,List<AbstractDataFilter>> filtersByDataId = CollectionUtils.newHashMap();
+      Map<String, List<AbstractDataFilter>> filtersByDataId = CollectionUtils.newHashMap();
 
-      for (Iterator<AbstractDataFilter> i = dataFilters.iterator(); i.hasNext();)
+      for (AbstractDataFilter filter : dataFilters)
       {
-         AbstractDataFilter filter = (AbstractDataFilter) i.next();
-
          String dataId = filter.getDataID();
-         if (filtersByDataId.containsKey(dataId) == false)
+         List<AbstractDataFilter> l = filtersByDataId.get(dataId);
+         if (l == null)
          {
-            filtersByDataId.put(dataId, new LinkedList<AbstractDataFilter>());
+            l = new LinkedList<AbstractDataFilter>();
+            filtersByDataId.put(dataId, l);
          }
-         List<AbstractDataFilter> l = (List<AbstractDataFilter>) filtersByDataId.get(dataId);
          l.add(filter);
       }
 
@@ -96,12 +94,12 @@ public class DataFilterExtensionContext
       this.content = content;
    }
 
-   public Object getContent()
+   public <T> T getContent()
    {
-      return this.content;
+      return (T) content;
    }
 
-   public Map<String,List<AbstractDataFilter>> getDataFiltersByDataId()
+   public Map<String, List<AbstractDataFilter>> getDataFiltersByDataId()
    {
       return dataFiltersByDataId;
    }
@@ -134,5 +132,4 @@ public class DataFilterExtensionContext
    {
       return useDistinct;
    }
-
 }

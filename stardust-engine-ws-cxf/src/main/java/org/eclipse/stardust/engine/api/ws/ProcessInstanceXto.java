@@ -45,6 +45,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="historicalEvents" type="{http://eclipse.org/stardust/ws/v2012a/api}HistoricalEvents" minOccurs="0"/>
  *         &lt;element name="caseProcessInstance" type="{http://www.w3.org/2001/XMLSchema}boolean"/>
  *         &lt;element name="linkedProcessInstances" type="{http://eclipse.org/stardust/ws/v2012a/api}ProcessInstanceLinks" minOccurs="0"/>
+ *         &lt;element name="descriptorDefinitions" type="{http://eclipse.org/stardust/ws/v2012a/api}DataPaths" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -73,7 +74,8 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "instanceProperties",
     "historicalEvents",
     "caseProcessInstance",
-    "linkedProcessInstances"
+    "linkedProcessInstances",
+    "descriptorDefinitions"
 })
 public class ProcessInstanceXto {
 
@@ -109,6 +111,7 @@ public class ProcessInstanceXto {
     protected HistoricalEventsXto historicalEvents;
     protected boolean caseProcessInstance;
     protected ProcessInstanceLinksXto linkedProcessInstances;
+    protected DataPathsXto descriptorDefinitions;
 
     /**
      * Gets the value of the oid property.
@@ -508,6 +511,30 @@ public class ProcessInstanceXto {
      */
     public void setLinkedProcessInstances(ProcessInstanceLinksXto value) {
         this.linkedProcessInstances = value;
+    }
+
+    /**
+     * Gets the value of the descriptorDefinitions property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link DataPathsXto }
+     *     
+     */
+    public DataPathsXto getDescriptorDefinitions() {
+        return descriptorDefinitions;
+    }
+
+    /**
+     * Sets the value of the descriptorDefinitions property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link DataPathsXto }
+     *     
+     */
+    public void setDescriptorDefinitions(DataPathsXto value) {
+        this.descriptorDefinitions = value;
     }
 
 }

@@ -1767,6 +1767,12 @@ public static DataPathXto toWs(DataPath dp, Model model)
       {
          res.setInstanceProperties(marshalInstanceProperties(pi, includeDescriptors,
                model));
+         
+         if (includeDescriptors)
+         {
+            res.setDescriptorDefinitions(marshalDataPathList(
+                  pi.getDescriptorDefinitions(), model));
+         }
       }
       
       // TODO pi.getAttributes()

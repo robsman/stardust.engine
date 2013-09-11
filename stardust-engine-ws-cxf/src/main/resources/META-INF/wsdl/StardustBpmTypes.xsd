@@ -1265,6 +1265,8 @@
 			<!--
 				<element name="attributes" type="tns:Attributes" minOccurs="0" />
 			-->
+			
+			<element name="descriptorDefinitions" type="tns:DataPaths" minOccurs="0" />
 		</sequence>
 	</complexType>
 

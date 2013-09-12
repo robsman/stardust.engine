@@ -2408,33 +2408,38 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
       private final String attributeName;
       
+      private final boolean noEqualCaseDescriptors;
+
       public DataAttributeKey(DataOrder order)
       {
-         this(order.getDataID(), order.getAttributeName(), null);
+         this(order.getDataID(), order.getAttributeName(), true);
       }
 
       public DataAttributeKey(AbstractDataFilter filter)
       {
-         this(filter.getDataID(), filter.getAttributeName(), filter.getOperand());
+         this(filter.getDataID(), filter.getAttributeName(), true);
+      }
+
+      public DataAttributeKey(AbstractDataFilter filter, boolean noEqualCaseDescriptors)
+      {
+         this(filter.getDataID(), filter.getAttributeName(), noEqualCaseDescriptors);
       }
 
       public DataAttributeKey(IData data, String attributeName)
       {
-         this(ModelUtils.getQualifiedId(data), attributeName, null);
+         this(ModelUtils.getQualifiedId(data), attributeName, true);
       }
 
       public DataAttributeKey(String dataId, String attributeName)
       {
-         this(dataId, attributeName, null);
+         this(dataId, attributeName, true);
       }
 
-      private DataAttributeKey(String dataId, String attributeName, Serializable operand)
+      private DataAttributeKey(String dataId, String attributeName, boolean noEqualCaseDescriptors)
       {
          this.dataId = dataId;
-         this.attributeName = (operand != null)
-               && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId)
-               && PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName)
-               ? attributeName + '/' + operand : attributeName;
+         this.attributeName = attributeName;
+         this.noEqualCaseDescriptors = noEqualCaseDescriptors;
       }
 
       public String getDataId()
@@ -2452,6 +2457,11 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          if (this == other)
          {
             return true;
+         }
+         if (noEqualCaseDescriptors && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId) &&
+             PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName))
+         {
+            return false;
          }
          if (other instanceof DataAttributeKey)
          {

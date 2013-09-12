@@ -136,15 +136,24 @@ public class CamelProducerSpringBeanApplicationInstance
 
          Exchange exchange = (Exchange) method.invoke(producer, inDataMappings);
 
-         if (exchange != null
-               && (exchange.getException() != null || exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class) != null))
+         if (exchange != null)
          {
-            if (exchange.getException() instanceof org.apache.camel.RuntimeCamelException)
-               throw new InvocationTargetException(exchange.getException().getCause());
-            Throwable caused = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
-            if (caused != null)
-               throw new InvocationTargetException(caused);
-            throw new InvocationTargetException(exchange.getException());
+               if (exchange.getException() != null || exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class) != null)
+               {
+            	   if (exchange.getException() instanceof org.apache.camel.RuntimeCamelException)
+            	   {
+            		   throw new InvocationTargetException(exchange.getException().getCause());
+            	   }
+            
+            	   Throwable caused = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
+            	   
+            	   if (caused != null)
+            	   {
+            		   throw new InvocationTargetException(caused);
+            	   }
+            
+            	   throw new InvocationTargetException(exchange.getException());
+               }
          }
 
          if (exchange != null)

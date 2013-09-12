@@ -2406,26 +2406,39 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       private final String dataId;
 
       private final String attributeName;
+      
+      private final boolean noEqualCaseDescriptors;
 
       public DataAttributeKey(DataOrder order)
       {
-         this(order.getDataID(), order.getAttributeName());
+         this(order.getDataID(), order.getAttributeName(), true);
       }
 
       public DataAttributeKey(AbstractDataFilter filter)
       {
-         this(filter.getDataID(), filter.getAttributeName());
+         this(filter.getDataID(), filter.getAttributeName(), true);
+      }
+
+      public DataAttributeKey(AbstractDataFilter filter, boolean noEqualCaseDescriptors)
+      {
+         this(filter.getDataID(), filter.getAttributeName(), noEqualCaseDescriptors);
       }
 
       public DataAttributeKey(IData data, String attributeName)
       {
-         this(ModelUtils.getQualifiedId(data), attributeName);
+         this(ModelUtils.getQualifiedId(data), attributeName, true);
       }
 
       public DataAttributeKey(String dataId, String attributeName)
       {
+         this(dataId, attributeName, true);
+      }
+
+      private DataAttributeKey(String dataId, String attributeName, boolean noEqualCaseDescriptors)
+      {
          this.dataId = dataId;
          this.attributeName = attributeName;
+         this.noEqualCaseDescriptors = noEqualCaseDescriptors;
       }
 
       public String getDataId()
@@ -2444,7 +2457,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          {
             return true;
          }
-         if (PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId) &&
+         if (noEqualCaseDescriptors && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId) &&
              PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName))
          {
             return false;
@@ -2466,8 +2479,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          final int PRIME = 31;
          int result = 1;
          result = PRIME * result + ((dataId == null) ? 0 : dataId.hashCode());
-         result = PRIME * result
-               + ((attributeName == null) ? 0 : attributeName.hashCode());
+         result = PRIME * result + ((attributeName == null) ? 0 : attributeName.hashCode());
          return result;
       }
 

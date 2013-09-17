@@ -10,11 +10,15 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultExchange;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 
 
 public class GenericProducer
 {
+   public static final Logger logger = LogManager.getLogger(GenericProducer.class
+         .getCanonicalName());
    public static final String SEND_METHOD = "executeMessage(java.lang.Object)"; //$NON-NLS-1$
    public static final String SEND_METHOD_WITH_HEADER = "executeMessage(java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>)"; //$NON-NLS-1$
    public static final String SEND_RECEIVE_METHOD_WITH_HEADER = "sendBodyInOut(java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>)"; //$NON-NLS-1$
@@ -43,6 +47,16 @@ public class GenericProducer
         	 
         	 String invocationType = (String) activityInstance.getActivity().getApplication()
           		.getAttribute(CamelConstants.INVOCATION_TYPE_EXT_ATT);
+        	if (StringUtils.isEmpty(invocationPattern) )
+         {
+        	   logger.debug("Attribute "+CamelConstants.INVOCATION_PATTERN_EXT_ATT+" is missing");
+         }
+        	
+         if (StringUtils.isEmpty(invocationType) )
+         {
+            logger.debug("Attribute "+CamelConstants.INVOCATION_TYPE_EXT_ATT+" is missing");
+         }
+        	 
         	 
         	 if (StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
         	 {

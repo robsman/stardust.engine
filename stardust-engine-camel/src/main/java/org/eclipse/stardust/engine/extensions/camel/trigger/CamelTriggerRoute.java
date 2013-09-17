@@ -301,7 +301,8 @@ public class CamelTriggerRoute
 
          String outBodyAccesPoint = (String) this.trigger.getAllAttributes().get(
                "carnot:engine:camel::outBodyAccessPoint");
-         if (outBodyAccesPoint != null && outBodyAccesPoint.equalsIgnoreCase(mapping.getParameterId()))
+         if ( (outBodyAccesPoint != null && outBodyAccesPoint.equalsIgnoreCase(mapping.getParameterId()))||
+               (mapping!=null && mapping.getParameterId()!=null && mapping.getParameterId().equalsIgnoreCase(ACCESS_POINT_MESSAGE)))
          {
             accessPtProps.setAccessPointLocation(ACCESS_POINT_MESSAGE);
             accessPtProps.setAccessPointPath(mapping.getParameterPath());

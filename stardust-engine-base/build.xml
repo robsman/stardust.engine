@@ -52,7 +52,6 @@
       <property name="build.classes" value="${build.dir}/classes" />
       <property name="build.javadoc" location="${build.dir}/javadoc" />
       <property name="build.lib" location="${build.dir}/lib" />
-      <property name="build.lib.src" value="${build.dir}/src" />
       <property name="build.src" value="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
       <property name="build.report" location="${build.dir}/report" />
@@ -72,14 +71,13 @@
       <property name="carnot-base-javadoc.jarfile" value="carnot-base-javadoc.jar" />
       <property name="carnot-base-javadoc.jar" value="${build.lib}/${carnot-base-javadoc.jarfile}" />
       <property name="carnot-base.src-jarfile" value="carnot-base-sources.jar" />
-      <property name="carnot-base.src-jar" value="${build.lib.src}/${carnot-base.src-jarfile}" />
+      <property name="carnot-base.src-jar" value="${build.lib}/${carnot-base.src-jarfile}" />
    </target>
 
    <target name="initBuildDirectories" depends="initBuild">
       <mkdir dir="${build.classes}" />
       <mkdir dir="${build.lib}" />
       <mkdir dir="${build.src}" />
-      <mkdir dir="${build.lib.src}" />
       <mkdir dir="${build.src.none}" />
    </target>
 
@@ -179,8 +177,12 @@
 
    <target name="jar.src" depends="compile">
       <delete file="${carnot-base.src-jar}" />
-      <ipp:jar jarfile="${carnot-base.src-jar}" implementationTitle="Infinity Process Base - Base Packages">
-         <fileset dir="${project.src}">
+      <ipp:jar jarfile="${carnot-base.src-jar}" implementationTitle="Infinity Process Base - Base Packages (Sources)"
+         duplicate="preserve">
+         <fileset dir="${build.src.generated}">
+            <include name="**/*.java" />
+         </fileset>
+         <fileset dir="${build.src.static}">
             <include name="**/*.java" />
          </fileset>
       </ipp:jar>
@@ -237,8 +239,9 @@
       <ivy-publish-local ivyFile="${project.dir}/base-interface-ivy.xml" artifactId="base-artifacts" artifactDir="${build.lib}" publishPom="false" />
 
       <ivy:resolve file="${project.dir}/ivy.xml" />
-      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}"
-         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional, stardust-engine-base-sources, stardust-engine-base-javadoc, logging-log4j-provider-compile"
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}"
+         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional,
+         stardust-engine-base-sources, stardust-engine-base-javadoc, logging-log4j-provider-compile"
          publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
 

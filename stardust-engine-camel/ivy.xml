@@ -12,17 +12,17 @@
 	<info organisation="org.eclipse.stardust.engine" module="stardust-engine-camel" revision="${ipp.version.full}" />
 
 	<configurations>
-		<conf name="stardust-camel-compile" description="IPP Camel Application Type RT - Compile Scope" />
-		<conf name="stardust-camel-compile-optional"	description="IPP Camel Application Type RT - (Optional) Compile Scope" />
-		<conf name="stardust-camel-provided" description="IPP Camel Application Type RT - Provided Scope" />
-		<conf name="stardust-camel-runtime" description="IPP Camel Application Type RT - Runtime Scope" />
-		<conf name="stardust-camel-module-compile" extends="stardust-camel-compile" description="IPP Camel Application Type RT Module - Compile Scope" />
-		<conf name="stardust-camel-module-runtime" extends="stardust-camel-module-compile" description="IPP Camel Application Type RT Module - Runtime Scope" />
+		<conf name="stardust-camel-compile" description="Stardust Camel Application Type RT - Compile Scope" />
+		<conf name="stardust-camel-compile-optional"	description="Stardust Camel Application Type RT - (Optional) Compile Scope" />
+		<conf name="stardust-camel-provided" description="Stardust Camel Application Type RT - Provided Scope" />
+		<conf name="stardust-camel-runtime" description="Stardust Camel Application Type RT - Runtime Scope" />
+		<conf name="stardust-camel-module-compile" extends="stardust-camel-compile" description="Stardust Camel Application Type RT Module - Compile Scope" />
+		<conf name="stardust-camel-module-runtime" extends="stardust-camel-module-compile" description="Stardust Camel Application Type RT Module - Runtime Scope" />
 		<conf name="compile" extends="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided" visibility="private" description="Compile Time Dependencies" />
     <conf name="runtime" extends="stardust-camel-runtime"  visibility="private" />
 		<conf name="test" visibility="private" description="Test dependencies" />
-		<conf name="pom" description="IPP Camel Application Type RT - POMs" />       
-		<conf name="module-pom" description="IPP Module POMs" />
+		<conf name="pom" description="Stardust Camel Application Type RT - POMs" />       
+		<conf name="module-pom" description="Stardust Module POMs" />
 
       <!-- compound configurations which encapsulates the above mentioned configs -->
       <conf name="all" visibility="private" extends="compile, runtime, test" />
@@ -51,12 +51,29 @@
 			<exclude org="org.springframework" module="spring-aop" />
 			<exclude org="org.springframework" module="spring-tx" />
 		</dependency>
+		<dependency org="org.apache.camel" name="camel-jms" rev="${camel-jms.version}"
+			conf="stardust-camel-runtime->default">
+			<exclude org="org.apache.camel" module="camel-core" />
+			<exclude org="org.apache.camel" module="camel-spring" />
+			<exclude org="org.springframework" module="spring-jms" />
+			<exclude org="org.springframework" module="spring-core" />
+			<exclude org="org.springframework" module="spring-context" />
+			<exclude org="org.springframework" module="spring-tx" />
+			<exclude org="org.springframework" module="spring-beans" />
+		</dependency>
 		<dependency org="org.apache.camel" name="camel-quartz" rev="${camel-quartz.version}"
 			conf="stardust-camel-compile->default">
 			<exclude org="org.apache.camel" module="camel-core" />
 			<exclude org="org.slf4j" module="slf4j-api" />
 			<exclude org="commons-collections" module="commons-collections" />
 		</dependency>
+    <dependency org="org.apache.camel" name="camel-http" rev="{camel-http.version}"
+      conf="stardust-camel-runtime->default" />
+		<dependency org="org.apache.camel" name="camel-mail" rev="{camel-mail.version}"
+			conf="stardust-camel-runtime->default">
+			<exclude org="org.apache.camel" module="camel-core" />
+			<exclude org="javax.mail" module="mail" />
+		</dependency>    
 		<dependency org="javax.mail" name="mail" rev="${mail.version}"
 			conf="stardust-camel-runtime->default" />
 		<dependency org="org.apache.camel" name="camel-restlet"
@@ -97,6 +114,8 @@
 		</dependency>
 		<dependency org="com.google.code.gson" name="gson" rev="${gson.version}"
 			conf="stardust-camel-compile->default" />
+		<dependency org="org.apache.camel" name="camel-script" rev="${camel-script.version}"
+			conf="stardust-camel-runtime->default" />
 
 		<dependency org="junit" name="junit" rev="${junit.version}"
 			conf="test->default">
@@ -109,8 +128,8 @@
 		<dependency org="org.hamcrest" name="hamcrest-library"
 			rev="${hamcrest-library.version}" conf="test->default" />
 		<dependency org="javax.mail" name="mail" rev="1.4"
-			conf="ipp-camel-compile->default" />
+			conf="stardust-camel-compile->default" />
 		<dependency org="log4j" name="log4j" rev="1.2.15"
-			conf="ipp-camel-compile->default" />
+			conf="stardust-camel-compile->default" />
 	</dependencies>
 </ivy-module>

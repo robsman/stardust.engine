@@ -149,10 +149,10 @@
       </ipp:jar>
       <ipp:jar jarfile="${carnot.emf.xsd.integration.src-jar}" excludes="*.jar" duplicate="preserve" implementationTitle="Infinity Process Engine - EMF XSD Integration Sources">
          <fileset dir="${build.src.generated}" excludes="*.jar">
-            <include name="ag/carnot/bpm/rt/data/structured/emfxsd/**/*.*" />
+            <include name="org/eclipse/stardust/engine/core/struct/emfxsd/**/*.*" />
          </fileset>
          <fileset dir="${build.src.static}" excludes="*.jar">
-            <include name="ag/carnot/bpm/rt/data/structured/emfxsd/**/*.*" />
+            <include name="org/eclipse/stardust/engine/core/struct/emfxsd/**/*.*" />
          </fileset>
       </ipp:jar>
    </target>
@@ -650,7 +650,6 @@
    <target name="initKernelBuild" depends="init">
       <property name="build.classes" location="${build.dir}/classes" />
       <property name="build.lib" location="${build.dir}/lib" />
-      <property name="build.lib.src" location="${build.dir}/src" />
       <property name="build.javadoc" location="${build.dir}/javadoc" />
       <property name="build.src" location="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
@@ -659,19 +658,19 @@
       <property name="carnot.client.jarfile" value="carnot-client.jar" />
       <property name="carnot.client.jar" location="${build.lib}/${carnot.client.jarfile}" />
       <property name="carnot.client.src-jarfile" value="carnot-client-sources.jar" />
-      <property name="carnot.client.src-jar" location="${build.lib.src}/${carnot.client.src-jarfile}" />
+      <property name="carnot.client.src-jar" location="${build.lib}/${carnot.client.src-jarfile}" />
 
       <property name="carnot.engine.jarfile" value="carnot-engine.jar" />
       <property name="carnot.engine.jar" location="${build.lib}/${carnot.engine.jarfile}" />
       <property name="carnot.engine-javadoc.jarfile" value="carnot-engine-javadoc.jar" />
       <property name="carnot.engine-javadoc.jar" location="${build.lib}/${carnot.engine-javadoc.jarfile}" />
       <property name="carnot.engine.src-jarfile" value="carnot-engine-sources.jar" />
-      <property name="carnot.engine.src-jar" location="${build.lib.src}/${carnot.engine.src-jarfile}" />
+      <property name="carnot.engine.src-jar" location="${build.lib}/${carnot.engine.src-jarfile}" />
 
       <property name="carnot.emf.xsd.integration.jarfile" value="carnot-emf-xsd-integration.jar" />
       <property name="carnot.emf.xsd.integration.jar" location="${build.lib}/${carnot.emf.xsd.integration.jarfile}" />
       <property name="carnot.emf.xsd.integration.src-jarfile" value="carnot-emf-xsd-integration-sources.jar" />
-      <property name="carnot.emf.xsd.integration.src-jar" location="${build.lib.src}/${carnot.emf.xsd.integration.src-jarfile}" />
+      <property name="carnot.emf.xsd.integration.src-jar" location="${build.lib}/${carnot.emf.xsd.integration.src-jarfile}" />
 
    </target>
 
@@ -683,7 +682,6 @@
       <mkdir dir="${build.classes}" />
       <mkdir dir="${build.lib}" />
       <mkdir dir="${build.javadoc}" />
-      <mkdir dir="${build.lib.src}" />
       <mkdir dir="${build.src}" />
       <mkdir dir="${build.src.none}" />
    </target>

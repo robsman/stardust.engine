@@ -147,9 +147,9 @@
 	</target>
 
 	<target name="dist" depends="build">
-		<property name="sungard.dir" value="../../../sungard" />
-		<copy file="${stardust-engine-camel.jar}" todir="${sungard.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
-		<copy file="${stardust-engine-camel.src-jar}" todir="${sungard.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
+		<property name="stardust.dir" value="../../../stardust" />
+		<copy file="${stardust-engine-camel.jar}" todir="${stardust.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
+		<copy file="${stardust-engine-camel.src-jar}" todir="${stardust.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
 	</target>
 
 	<target name="deploy" depends="build,dependencies:report " />

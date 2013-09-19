@@ -59,7 +59,6 @@
 		<property name="build.dir" value="${build.home}" />
 		<property name="build.classes" value="${build.dir}/classes" />
 		<property name="build.lib" value="${build.dir}/lib" />
-		<property name="build.lib.src" value="${build.dir}/src" />
 		<property name="build.src" value="${build.dir}/src" />
 		<property name="build.src.none" location="${build.dir}/src-none" />
 
@@ -68,13 +67,12 @@
 		<property name="stardust-engine-camel-module.pom" value="${build.lib}/stardust-engine-camel-module.pom" />
 
 		<property name="stardust-engine-camel.src-jarfile" value="stardust-engine-camel-sources.jar" />
-		<property name="stardust-engine-camel.src-jar" value="${build.lib.src}/${stardust-engine-camel.src-jarfile}" />
+		<property name="stardust-engine-camel.src-jar" value="${build.lib}/${stardust-engine-camel.src-jarfile}" />
 	</target>
 
 	<target name="initBuildDirectories" depends="initBuild">
 		<mkdir dir="${build.classes}" />
 		<mkdir dir="${build.lib}" />
-		<mkdir dir="${build.lib.src}" />
 		<mkdir dir="${build.src}" />
 		<mkdir dir="${build.src.none}" />
 	</target>
@@ -139,11 +137,7 @@
 	<target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
 		<ivy:resolve file="${project.dir}/ivy.xml" />
 		<ivy-make-module-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" moduleName="stardust-engine-camel-module" />
-		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}" publishIvy="true" />
-		<!--  -->
-		<!--ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="true" publishPom="false" /-->
-		<!--ivy-publish-local artifactId="stardust-engine-camel-module" artifactDir="${build.lib}" publishIvy="true" /-->
-
+		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" publishIvy="true" />
 	</target>
 
 	<target name="dist" depends="build">

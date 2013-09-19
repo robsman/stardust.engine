@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright (c) 2011 SunGard CSA LLC and others. All rights reserved. 
-	This program and the accompanying materials are made available under the 
-	terms of the Eclipse Public License v1.0 which accompanies this distribution, 
-	and is available at http://www.eclipse.org/legal/epl-v10.html Contributors: 
-	SunGard CSA LLC - initial API and implementation and/or initial documentation -->
+<!--
+    Copyright (c) 2011 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
 
 <ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -18,6 +23,8 @@
 		<conf name="stardust-camel-runtime" description="Stardust Camel Application Type RT - Runtime Scope" />
 		<conf name="stardust-camel-module-compile" extends="stardust-camel-compile" description="Stardust Camel Application Type RT Module - Compile Scope" />
 		<conf name="stardust-camel-module-runtime" extends="stardust-camel-module-compile" description="Stardust Camel Application Type RT Module - Runtime Scope" />
+      <conf name="stardust-camel-sources" description="Stardust Camel Sources" />
+      
 		<conf name="compile" extends="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided" visibility="private" description="Compile Time Dependencies" />
     <conf name="runtime" extends="stardust-camel-runtime"  visibility="private" />
 		<conf name="test" visibility="private" description="Test dependencies" />
@@ -40,6 +47,7 @@
 		<artifact name="stardust-engine-camel" type="jar"
 			conf="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided, stardust-camel-runtime"
 			ext="jar" />
+		<artifact name="stardust-camel" type="source" conf="stardust-camel-sources" ext="jar"  m:classifier="sources"/>
 		<artifact name="stardust-engine-camel" type="pom" conf="pom" ext="pom" />
 		<artifact name="stardust-engine-camel-module" type="pom" conf="module-pom"
 			ext="pom" />
@@ -107,11 +115,9 @@
 		<dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="stardust-camel-runtime->logging-log4j-module-runtime" />
 
 		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-provided->web-client-module-provided" />
-
 		<dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="stardust-camel-runtime->default" />
 
 		<dependency org="commons-lang" name="commons-lang" rev="${commons-lang.version}" conf="stardust-camel-compile->default" />
-		<!-- stardust-engine-camel-runtime -->
 
 		<!-- package org.eclipse.xsd is mapped to com.infinity.bpm.thirdparty.xsd 
 			which is repackaged into carnot-engine. Therefore we doesn't need to include 

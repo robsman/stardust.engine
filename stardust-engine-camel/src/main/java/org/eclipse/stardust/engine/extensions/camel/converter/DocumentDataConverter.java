@@ -85,7 +85,7 @@ public class DocumentDataConverter implements DataConverter {
 								((GenericFile) messageContent).getBody());
 				 logger.debug("*** FileLength = " +((GenericFile) messageContent).getFileLength()); 
 			} else if (messageContent instanceof String) {
-				jcrDocumentContent = (byte[]) messageContent;
+				jcrDocumentContent =  ((String) messageContent).getBytes();
 			}
 			DmsFileArchiver dmsFileArchiver = new DmsFileArchiver(
 					ClientEnvironment.getCurrentServiceFactory());

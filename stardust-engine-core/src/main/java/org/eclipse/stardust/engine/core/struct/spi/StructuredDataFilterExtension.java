@@ -676,7 +676,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
       private DataAttributeKey getSearchKey(AbstractDataFilter filter)
       {
-         return new DataAttributeKey(filter, false);
+         return new DataAttributeKey(filter);
       }
    }
 }

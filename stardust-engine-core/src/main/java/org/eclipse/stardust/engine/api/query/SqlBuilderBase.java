@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -2407,38 +2408,33 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
 
       private final String attributeName;
       
-      private final boolean noEqualCaseDescriptors;
-
       public DataAttributeKey(DataOrder order)
       {
-         this(order.getDataID(), order.getAttributeName(), true);
+         this(order.getDataID(), order.getAttributeName(), null);
       }
 
       public DataAttributeKey(AbstractDataFilter filter)
       {
-         this(filter.getDataID(), filter.getAttributeName(), true);
-      }
-
-      public DataAttributeKey(AbstractDataFilter filter, boolean noEqualCaseDescriptors)
-      {
-         this(filter.getDataID(), filter.getAttributeName(), noEqualCaseDescriptors);
+         this(filter.getDataID(), filter.getAttributeName(), filter.getOperand());
       }
 
       public DataAttributeKey(IData data, String attributeName)
       {
-         this(ModelUtils.getQualifiedId(data), attributeName, true);
+         this(ModelUtils.getQualifiedId(data), attributeName, null);
       }
 
       public DataAttributeKey(String dataId, String attributeName)
       {
-         this(dataId, attributeName, true);
+         this(dataId, attributeName, null);
       }
 
-      private DataAttributeKey(String dataId, String attributeName, boolean noEqualCaseDescriptors)
+      private DataAttributeKey(String dataId, String attributeName, Serializable operand)
       {
          this.dataId = dataId;
-         this.attributeName = attributeName;
-         this.noEqualCaseDescriptors = noEqualCaseDescriptors;
+         this.attributeName = (operand != null)
+               && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId)
+               && PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName)
+               ? attributeName + '/' + operand : attributeName;
       }
 
       public String getDataId()
@@ -2456,11 +2452,6 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          if (this == other)
          {
             return true;
-         }
-         if (noEqualCaseDescriptors && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId) &&
-             PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName))
-         {
-            return false;
          }
          if (other instanceof DataAttributeKey)
          {

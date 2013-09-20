@@ -1093,17 +1093,20 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                for (int j = 0, nHandlerChildren = handlerChildren.getLength(); j < nHandlerChildren; j++)
                {
                   Node actionNode = handlerChildren.item(j);
-                  if (EVENT_ACTION.equals(actionNode.getNodeName()))
+                  if(node instanceof Element && node.getNamespaceURI().equals(NS_CARNOT_WORKFLOWMODEL_31))
                   {
-                     elementFactory.createEventAction(actionNode, handler);
-                  }
-                  else if (BIND_ACTION.equals(actionNode.getNodeName()))
-                  {
-                     elementFactory.createBindAction(actionNode, handler);
-                  }
-                  else if (UNBIND_ACTION.equals(actionNode.getNodeName()))
-                  {
-                     elementFactory.createUnbindAction(actionNode, handler);
+                     if (EVENT_ACTION.equals(actionNode.getLocalName()))
+                     {
+                        elementFactory.createEventAction(actionNode, handler);
+                     }
+                     else if (BIND_ACTION.equals(actionNode.getLocalName()))
+                     {
+                        elementFactory.createBindAction(actionNode, handler);
+                     }
+                     else if (UNBIND_ACTION.equals(actionNode.getLocalName()))
+                     {
+                        elementFactory.createUnbindAction(actionNode, handler);
+                     }
                   }
                }
             }

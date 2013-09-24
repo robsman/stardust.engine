@@ -32,21 +32,20 @@
    <target name="-ivy-classpath-init" depends="-ivy-init, -ivy-resolve">
 
       <path id="carnot.classpath">
-      	<path refid="carnot-engine.compile" />
-      	<path refid="carnot-engine.provided" />
+         <path refid="carnot-engine.compile" />
+         <path refid="carnot-engine.provided" />
          <path refid="carnot-engine.compile.optional" />
-         <path refid="eclipse.classpath" />
       </path>
 
       <path id="secret.classpath">
-      	<path refid="jta.classpath"/>
-      	<path refid="compile.secret" />
-      	<path refid="cache.interface" />
-      	<path refid="hazelcast.cache.provider" />
+         <path refid="jta.classpath"/>
+         <path refid="compile.secret" />
+         <path refid="cache.interface" />
+         <path refid="hazelcast.cache.provider" />
       </path>
 
       <path id="jta.classpath">
-      	<path refid="jencks.jta.provider" />
+         <path refid="jencks.jta.provider" />
       </path>
 
       <path id="jms.classpath">
@@ -106,18 +105,6 @@
       
       <property name="integration-jars.dir" value="${build.lib}/integration-jars"/>
             
-      <property name="emf-common.jar" location="${integration-jars.dir}/org.eclipse.emf.common.jar"/>
-      <property name="emf-ecore.jar" location="${integration-jars.dir}/org.eclipse.emf.ecore.jar"/>
-      <property name="emf-ecore-xmi.jar" location="${integration-jars.dir}/org.eclipse.emf.ecore.xmi.jar"/>
-      <property name="emf-xsd.jar" location="${integration-jars.dir}/org.eclipse.xsd.jar"/>
-      
-      <path id="eclipse.classpath">
-         <pathelement path="${emf-common.jar}"/>
-         <pathelement path="${emf-ecore.jar}"/>
-         <pathelement path="${emf-ecore-xmi.jar}"/>
-         <pathelement path="${emf-xsd.jar}"/>
-      </path>
-      
       <property name="js.jar" location="${integration-jars.dir}/js.jar"/>
       
       <ivy:cachepath pathid="test" conf="test" />
@@ -145,7 +132,7 @@
       <!-- retrieve dependencies for resolved Ivy: ivy.xml -->
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]"
          conf="base-provider-compile,base-provider-runtime,swing-client-provider-compile,
-            2nd-level-cache-interface-compile,
+            2nd-level-cache-interface-compile,emf-xsd-provider-compile,
             build-lib,jcr-interface-compile,jcr-vfs-provider-compile,web-client-interface-provided,
             web-client-provider-runtime,ant-provider-runtime,logging-slf4j-log4j-provider-compile" />
       <ivy:retrieve file="${build.lib}/ivy.xml" pattern="${build.lib}/ext/[artifact]-[revision].[ext]"

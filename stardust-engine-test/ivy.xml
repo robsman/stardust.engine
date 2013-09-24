@@ -28,8 +28,6 @@
       <conf name="sources" visibility="public" description="Stardust Engine Test - Sources" />
       <conf name="test" visibility="public" description="Test Configuration" extends="compile" />
    
-      <conf name="test-in-eclipse" visibility="private" description="Test Configuration for execution in Eclipse (see CRNT-25444)" />
-
       <conf name="compile" visibility="private" description="Compile Configuration" />
 
       <conf name="all" visibility="private" extends="compile, test" />
@@ -71,14 +69,5 @@
       <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
       <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="${geronimo-j2ee-management_1.0_spec.version}" conf="test->default" />
       
-      <!-- 'test-in-eclipse' -->
-      <dependency org="org.eclipse.emf" name="emf-runtime" rev="${emf-runtime.version}" transitive="false" conf="test-in-eclipse->default">
-         <artifact name="org.eclipse.emf.common" type="jar"/>
-         <artifact name="org.eclipse.emf.ecore" type="jar"/>
-         <artifact name="org.eclipse.emf.ecore.xmi" type="jar"/>
-      </dependency>
-      <dependency org="org.eclipse.xsd" name="xsd-runtime" rev="${xsd-runtime.version}" transitive="false" conf="test-in-eclipse->default">
-         <artifact name="org.eclipse.xsd" type="jar"/>
-      </dependency>
    </dependencies>
 </ivy-module>

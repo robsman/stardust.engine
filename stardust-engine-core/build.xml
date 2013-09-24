@@ -40,20 +40,7 @@
    <target name="jar" depends="compile, checkCodeGen, init.jarjar">
       <ipp:jarjar jarfile="${carnot.client.jar}" implementationTitle="Infinity Process Engine - Client">
 
-         <rule pattern="org.eclipse.emf.**" result="com.infinity.bpm.thirdparty.emf.@1" />
-         <rule pattern="org.eclipse.xsd.**" result="com.infinity.bpm.thirdparty.xsd.@1" />
          <rule pattern="org.mozilla.**" result="com.infinity.bpm.thirdparty.org.mozilla.@1" />
-         <rule pattern="**.emfxsd.**" result="@1.emfxsd.runtime.@2" />
-
-         <zipfileset src="${emf-common.jar}"
-            excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*"/>
-         <zipfileset src="${emf-ecore.jar}"
-            excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*, model/**/*, schema/**/*, org/eclipse/emf/ecore/doc-files/**/*, org/eclipse/emf/ecore/resource/doc-files/**/*" />
-         <zipfileset src="${emf-ecore-xmi.jar}"
-            excludes="about.html, plugin.properties, plugin.xml, META-INF/**/*" />
-         <zipfileset src="${emf-xsd.jar}"
-            excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*, model/**/*, cache/**/*, org/eclipse/xsd/doc-files/**/*" />
-         <zipfileset src="${emf-xsd.jar}" includes="plugin.properties, cache/**" prefix="com/infinity/bpm/thirdparty/xsd" />
 
          <zipfileset src="${js.jar}" excludes="META-INF/**" />
 
@@ -88,21 +75,7 @@
 
       <ipp:jarjar jarfile="${carnot.engine.jar}" implementationTitle="Infinity Process Engine - Runtime">
 
-         <rule pattern="org.eclipse.emf.**" result="com.infinity.bpm.thirdparty.emf.@1" />
-         <rule pattern="org.eclipse.xsd.**" result="com.infinity.bpm.thirdparty.xsd.@1" />
          <rule pattern="org.mozilla.**" result="com.infinity.bpm.thirdparty.org.mozilla.@1" />
-
-         <rule pattern="**.emfxsd.**" result="@1.emfxsd.runtime.@2" />
-
-         <zipfileset src="${emf-common.jar}"
-            excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*" />
-         <zipfileset src="${emf-ecore.jar}"
-            excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*, model/**/*, schema/**/*, org/eclipse/emf/ecore/doc-files/**/*, org/eclipse/emf/ecore/resource/doc-files/**/*" />
-         <zipfileset src="${emf-ecore-xmi.jar}"
-            excludes="about.html, plugin.properties, plugin.xml, META-INF/**/*" />
-         <zipfileset src="${emf-xsd.jar}"
-            excludes="about.html, about.ini, about.mappings, about.properties, modeling32.png, plugin.properties, plugin.xml, META-INF/**/*, model/**/*, cache/**/*, org/eclipse/xsd/doc-files/**/*" />
-         <zipfileset src="${emf-xsd.jar}" includes="plugin.properties, cache/**" prefix="com/infinity/bpm/thirdparty/xsd" />
 
          <zipfileset src="${js.jar}" excludes="META-INF/**" />
 
@@ -527,7 +500,7 @@
    </target>
 
    <target name="compile" depends="prepareSources, initKernelBuildDirectories, initClasspath, compile.jdk16"
-   	unless="skip.compile" description="compiles the carnot kernel classes" />
+      unless="skip.compile" description="compiles the carnot kernel classes" />
 
    <target name="compile.jdk16" depends="init"
       description="Compiling Java 1.6 code">
@@ -725,7 +698,7 @@
    </target>
 
    <target name="compileTests" depends="compile, copyTestsSourceFiles, copyTestsDatFiles, initClasspath" 
-   	unless="skip.compile" description="compiles the Infinity test classes">
+      unless="skip.compile" description="compiles the Infinity test classes">
       <javac srcdir="${build.tests.src}" destdir="${build.tests.classes}" debug="true" deprecation="no" includes="**/*.java">
          <classpath refid="junit.test.classpath" />
          <classpath refid="junit.test.license.classpath" />
@@ -981,33 +954,33 @@
 
    <target name="install" if="maven.localRepository" depends="initKernelBuild"
       description="installs the artifacts into a local Maven repository">
-   	
-   	<ipp:init-mvn localMavenRepository="${maven.localRepository}" />
-   	<ipp:mvn-install file="${carnot.engine.jar}" pomFile="${build.lib}/carnot-engine.pom" />
-   	<ipp:mvn-install file="${carnot.client.jar}" pomFile="${build.lib}/carnot-client.pom" />
-   	<ipp:mvn-install file="${carnot.emf.xsd.integration.jar}" pomFile="${build.lib}/carnot-emf-xsd-integration.pom" />
-   	
-   	<ipp:mvn-install pomFile="${build.lib}/2nd-level-cache-hazelcast-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/ant-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/carnot-emf-xsd-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/client-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/ejb21-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/ejb30-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/engine-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/jcr-api-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/jcr-jackrabbit-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/jcr-jackrabbit-webapp-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/jcr-vfs-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/jms-activemq-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/jms-api-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/jta-api-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/jta-jencks-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/logging-slf4j-log4j-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/qdox-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/swing-client-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/web-client-module.pom" />
-   	<ipp:mvn-install pomFile="${build.lib}/xerces-module.pom" />
-   	
+      
+      <ipp:init-mvn localMavenRepository="${maven.localRepository}" />
+      <ipp:mvn-install file="${carnot.engine.jar}" pomFile="${build.lib}/carnot-engine.pom" />
+      <ipp:mvn-install file="${carnot.client.jar}" pomFile="${build.lib}/carnot-client.pom" />
+      <ipp:mvn-install file="${carnot.emf.xsd.integration.jar}" pomFile="${build.lib}/carnot-emf-xsd-integration.pom" />
+      
+      <ipp:mvn-install pomFile="${build.lib}/2nd-level-cache-hazelcast-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/ant-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/carnot-emf-xsd-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/client-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/ejb21-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/ejb30-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/engine-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/jcr-api-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/jcr-jackrabbit-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/jcr-jackrabbit-webapp-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/jcr-vfs-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/jms-activemq-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/jms-api-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/jta-api-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/jta-jencks-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/logging-slf4j-log4j-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/qdox-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/swing-client-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/web-client-module.pom" />
+      <ipp:mvn-install pomFile="${build.lib}/xerces-module.pom" />
+      
    </target>
 
    <target name="publish" depends="initKernelBuild"
@@ -1017,7 +990,7 @@
       <ipp:mvn-deploy file="${carnot.engine.jar}" pomFile="${build.lib}/carnot-engine.pom" />
       <ipp:mvn-deploy file="${carnot.client.jar}" pomFile="${build.lib}/carnot-client.pom" />
       <ipp:mvn-deploy file="${carnot.emf.xsd.integration.jar}" pomFile="${build.lib}/carnot-emf-xsd-integration.pom" />
-   	
+      
       <ipp:mvn-deploy pomFile="${build.lib}/2nd-level-cache-hazelcast-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/ant-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/carnot-emf-xsd-module.pom" />

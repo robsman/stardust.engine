@@ -96,10 +96,6 @@
 				<include name="**/*.java" />
 			</fileset>
 		</copy>
-		<replace dir="${build.src}" token="import org.eclipse.xsd" 
-         value="import com.infinity.bpm.thirdparty.xsd" summary="true"/>
-		<replace dir="${build.src}" token="import org.eclipse.stardust.engine.core.struct.emfxsd" 
-         value="import org.eclipse.stardust.engine.core.struct.emfxsd.runtime" summary="true"/>
 	</target>
 
 	<target name="compile" depends="initClasspath, initBuildDirectories, prepareSources" unless="skip.compile" description="Compiles the project's Java classes">

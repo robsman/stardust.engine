@@ -69,6 +69,8 @@
          <exclude org="org.eclipse.stardust.engine" module="jcr-vfs" />
       </dependency>
          
+      <dependency org="org.eclipse.xsd" name="org.eclipse.xsd" rev="${org.eclipse.xsd.version}" conf="stardust-engine-ws-cxf-compile->default" />
+      
       <dependency org="org.springframework" name="spring-beans" rev="${spring-beans.version}" conf="stardust-engine-ws-cxf-compile->default" />
       <dependency org="org.springframework" name="spring-context" rev="${spring-context.version}" conf="stardust-engine-ws-cxf-compile->default" />
       <dependency org="org.springframework" name="spring-web" rev="${spring-web.version}" conf="stardust-engine-ws-cxf-compile->default" />
@@ -138,9 +140,6 @@
 
         <!-- package org.eclipse.xsd is mapped to com.infinity.bpm.thirdparty.xsd which is repacked into carnot-engine.
            Therefore we doesn't need to include this artifact into the POM -->
-      <dependency org="org.eclipse.xsd" name="xsd-runtime" rev="${xsd-runtime.version}" conf="compile->default">
-         <artifact name="org.eclipse.xsd" type="jar"/>
-      </dependency>
       <dependency org="org.eclipse.emf" name="emf-runtime" rev="${emf-runtime.version}" transitive="false" conf="compile->default">
          <artifact name="org.eclipse.emf.common" type="jar"/>
          <artifact name="org.eclipse.emf.ecore" type="jar"/>

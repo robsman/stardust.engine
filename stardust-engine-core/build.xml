@@ -70,6 +70,7 @@
             <include name="**/*_de.properties" />
             <include name="**/*_en.properties" />
             <include name="**/*_zh_CN.properties" />
+            <include name="**/*_zh_TW.properties" />
 
             <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.class"/>
          </fileset>
@@ -118,6 +119,7 @@
             <include name="**/*_de.properties" />
             <include name="**/*_en.properties" />
             <include name="**/*_zh_CN.properties" />
+            <include name="**/*_zh_TW.properties" />
 
             <exclude name="org/eclipse/stardust/engine/api/ejb2/tools/*.class"/>
          </fileset>
@@ -605,6 +607,7 @@
          <fileset dir="${project.res}" includes="**/*_de.properties" />
          <fileset dir="${project.res}" includes="**/*_en.properties" />
          <fileset dir="${project.res}" includes="**/*_zh_CN.properties" />
+         <fileset dir="${project.res}" includes="**/*_zh_TW.properties" />
       </copy>
       
       <mkdir dir="${build.classes}/META-INF/services" />

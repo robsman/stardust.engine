@@ -26,7 +26,6 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
       super(exchange);
    }
 
-   @Override
    public void marshal(DataMapping dataMapping, Map<String, Object> extendedAttributes)
    {
       Object dataMap = findDataValue(dataMapping, extendedAttributes);
@@ -60,7 +59,6 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
       }
    }
 
-   @Override
    public void unmarshal(DataMapping dataMapping, Map<String, Object> extendedAttributes)
    {
       String xml = (String) findDataValue(dataMapping, extendedAttributes);

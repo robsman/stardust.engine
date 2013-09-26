@@ -22,7 +22,7 @@
 		<conf name="stardust-camel-provided" description="Stardust Camel Application Type RT - Provided Scope" />
 		<conf name="stardust-camel-runtime" description="Stardust Camel Application Type RT - Runtime Scope" />
 		<conf name="stardust-camel-module-compile" extends="stardust-camel-compile" description="Stardust Camel Application Type RT Module - Compile Scope" />
-		<conf name="stardust-camel-module-runtime" extends="stardust-camel-module-compile" description="Stardust Camel Application Type RT Module - Runtime Scope" />
+		<conf name="stardust-camel-module-runtime" extends="stardust-camel-module-compile, stardust-camel-runtime" description="Stardust Camel Application Type RT Module - Runtime Scope" />
       <conf name="stardust-camel-sources" description="Stardust Camel Sources" />
       
 		<conf name="compile" extends="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided" visibility="private" description="Compile Time Dependencies" />
@@ -82,6 +82,7 @@
 			<exclude org="org.apache.camel" module="camel-core" />
 			<exclude org="org.slf4j" module="slf4j-api" />
 			<exclude org="commons-collections" module="commons-collections" />
+         <exclude org="javax.transaction" module="jta"/>
 		</dependency>
     <dependency org="org.apache.camel" name="camel-http" rev="${camel-http.version}"
          conf="stardust-camel-runtime->default">
@@ -117,7 +118,7 @@
 	  <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->ejb21-module-compile" />
 		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->logging-slf4j-log4j-module-compile" />
 
-		<dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="stardust-camel-runtime->logging-log4j-module-runtime" />
+		<dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="stardust-camel-compile->logging-log4j-module-runtime" />
 
 		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-provided->web-client-module-provided" />
 		<dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="stardust-camel-runtime->default" />
@@ -146,9 +147,5 @@
 			rev="${spring-test.version}" conf="test->default" />
 		<dependency org="org.hamcrest" name="hamcrest-library"
 			rev="${hamcrest-library.version}" conf="test->default" />
-		<dependency org="javax.mail" name="mail" rev="${mail.version}"
-			conf="stardust-camel-compile->default" />
-		<dependency org="log4j" name="log4j" rev="${log4j.version}"
-			conf="stardust-camel-compile->default" />
 	</dependencies>
 </ivy-module>

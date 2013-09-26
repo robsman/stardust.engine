@@ -24,9 +24,7 @@
 	<property file="${project.etc}/private.properties" />
 
 	<property name="artifactId" value="stardust-engine-camel" />
-	<!--property name="isb.home.directory" location="${basedir}/../../../components/isb" /-->
 	<import file="${project.dir}/../../build.tools/commons-build.xml" />
-	<!--import file="${isb.home.directory}/common/isb-common.xml" /-->
 	<target name="initOnDevelopment" if="setup.development">
 		<echo message="Performing a development build ..." />
 
@@ -59,6 +57,7 @@
 		<property name="build.dir" value="${build.home}" />
 		<property name="build.classes" value="${build.dir}/classes" />
 		<property name="build.lib" value="${build.dir}/lib" />
+      <property name="global.build.lib" value="${build.lib}/3rdParty" />
 		<property name="build.src" value="${build.dir}/src" />
 		<property name="build.src.none" location="${build.dir}/src-none" />
 
@@ -138,6 +137,29 @@
 		<ivy:resolve file="${project.dir}/ivy.xml" />
 		<ivy-make-module-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" moduleName="stardust-engine-camel-module" />
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" publishIvy="true" />
+      <ivy:retrieve file="${project.dir}/ivy.xml" conf="stardust-camel-module-runtime" 
+         pattern="${build.lib}/[artifact]-[revision].[ext]" transitive="false" />
+      <!-- remove duplicated dependencies -->
+      <delete>
+         <fileset dir="${build.lib}">
+            <present present="both" targetdir="${global.build.lib}/spring"/>
+         </fileset>
+         <fileset dir="${build.lib}">
+            <present present="both" targetdir="${global.build.lib}/ext"/>
+         </fileset>
+         <fileset dir="${build.lib}">
+            <present present="both" targetdir="${global.build.lib}/jms"/>
+         </fileset>
+         <fileset dir="${build.lib}">
+            <present present="both" targetdir="${global.build.lib}/engine-ws-cxf"/>
+         </fileset>
+         <fileset dir="${build.lib}">
+            <present present="both" targetdir="${global.build.lib}"/>
+         </fileset>
+         <fileset dir="${build.lib}">
+            <include name="carnot-*.jar"/>
+         </fileset>
+      </delete>
 	</target>
 
 	<target name="dist" depends="build">
@@ -147,25 +169,6 @@
 	</target>
 
 	<target name="deploy" depends="build,dependencies:report " />
-
-	<!--<target name="install" depends="deploy" if="maven.localRepository"
-     description="installs the artifacts into a local Maven repository">
-     <ipp:init-mvn />
-      <ipp:init-mvn />
-      <exec dir="." executable="${m2.home}/bin/${mvn.exe}" failonerror="true">
-         <arg value="install:install-file"/>
-         <arg value="-Dfile=${stardust-engine-camel.jar}"/>
-         <arg value="-DpomFile=${build.lib}/stardust-engine-camel.pom"/>
-         <arg value="-DlocalRepositoryPath=${maven.localRepository}"/>
-      </exec>
-   </target>
-	<target name="install" depends="clean,deploy" description="installs the artifacts into a local Maven repository">
-		<init-ivy />
-		<property name="mvn.options" value="-Dfile=${stardust-engine-camel.jar} -DpomFile=${build.lib}/stardust-engine-camel.pom -DlocalRepositoryPath=${maven.localRepository} -Dipp.version=${ipp.version.full}" />
-		<mvn basedir="." goal="install:install-file" options="${mvn.options}" />
-	</target>-->
-
-  <!-- New -->
 
   <target name="install" if="maven.localRepository" depends="initBuild" description="installs the artifacts into a local Maven repository">
     <ipp:init-mvn localMavenRepository="${maven.localRepository}" />

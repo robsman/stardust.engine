@@ -27,7 +27,7 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
    }
 
    @Override
-   public void unmarshal(DataMapping dataMapping, Map<String, Object> extendedAttributes)
+   public void marshal(DataMapping dataMapping, Map<String, Object> extendedAttributes)
    {
       Object dataMap = findDataValue(dataMapping, extendedAttributes);
 
@@ -36,7 +36,7 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
          ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
          String typeDeclarationId = this.getTypeDeclarationId(dataMapping);
-
+    
          // TODO: is that the correct OID?
          long modelOid = new Long(dataMapping.getModelOID());
          SDTConverter converter = new SDTConverter(typeDeclarationId, modelOid);
@@ -49,7 +49,7 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
          try
          {
             org.w3c.dom.Document w3cDocument = DOMConverter.convert(document, getDOMImplementation());
-            messageFormat.serialize(w3cDocument, stream, converter.getXsdSchema());
+            messageFormat.serialize(w3cDocument, stream, converter.getXsdSchema()); 
          }
          catch (Exception e)
          {
@@ -61,7 +61,7 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
    }
 
    @Override
-   public void marshal(DataMapping dataMapping, Map<String, Object> extendedAttributes)
+   public void unmarshal(DataMapping dataMapping, Map<String, Object> extendedAttributes)
    {
       String xml = (String) findDataValue(dataMapping, extendedAttributes);
 

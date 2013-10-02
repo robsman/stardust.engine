@@ -435,11 +435,17 @@
             						<xsl:otherwise>String</xsl:otherwise>
             					</xsl:choose>
 	            			</xsl:when>
+	            			<xsl:when test="$DeclaredType">Enumeration</xsl:when>
 	            			<xsl:when test="$ExternalReference[@location='ag.carnot.base.Money']">Money</xsl:when>
 	            			<xsl:when test="$ExternalReference[@location='org.eclipse.stardust.common.Money']">Money</xsl:when>
 	            			<xsl:otherwise>String</xsl:otherwise>
 	            		</xsl:choose>
             		</xsl:attribute>
+            	</attribute>
+            </xsl:if>
+            <xsl:if test="$type='primitive' and $DeclaredType">
+            	<attribute name="carnot:engine:dataType">
+            		<xsl:attribute name="value"><xsl:value-of select="$DeclaredType/@Id"/></xsl:attribute>
             	</attribute>
             </xsl:if>
             

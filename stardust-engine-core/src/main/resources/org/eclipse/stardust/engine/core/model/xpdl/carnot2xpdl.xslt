@@ -1137,6 +1137,21 @@
 								<xsl:attribute name="location">org.eclipse.stardust.common.Money</xsl:attribute>
 							</ExternalReference>
 						</xsl:when>
+						<xsl:when test="wfm:attribute[@name='carnot:engine:type']/@value='Enumeration'">
+							<xsl:variable name="dataType" select="wfm:attribute[@name='carnot:engine:dataType']/@value"/>
+							<xsl:choose>
+						        <xsl:when test="substring-before($dataType, ':{')">
+									<xsl:call-template name="external-reference">
+										<xsl:with-param name="ref" select="$dataType"/>
+									</xsl:call-template>
+								</xsl:when>
+								<xsl:otherwise>
+									<DeclaredType>
+										<xsl:attribute name="Id"><xsl:value-of select="$dataType"/></xsl:attribute>
+									</DeclaredType>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:when>
 						<xsl:otherwise>
 					        <BasicType>
 								<xsl:attribute name="Type">

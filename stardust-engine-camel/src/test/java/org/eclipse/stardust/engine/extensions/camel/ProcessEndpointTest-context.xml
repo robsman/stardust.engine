@@ -9,12 +9,12 @@
 
 	<import resource="SharedTestContext.xml"/>
 	
-    <camelContext xmlns="http://camel.apache.org/schema/spring" trace="true">
+  <!--   <camelContext xmlns="http://camel.apache.org/schema/spring" trace="true" >
     	<routeBuilder ref="processEndpointRouteBuilder" />
-    </camelContext>
+    </camelContext> -->
     
-    <bean id="processEndpointRouteBuilder"
+   <!--  <bean id="processEndpointRouteBuilder"
     	class="org.eclipse.stardust.engine.extensions.camel.ProcessEndpointTest"
-    	factory-method="createFullRoute"/>
+    	factory-method="createFullRoute"/> -->
 
 </beans>

@@ -1,12 +1,9 @@
 package org.eclipse.stardust.engine.extensions.camel.trigger;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ENDPOINT_TYPE_CLASS_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.GENERIC_ENDPOINT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ROUTE_EXT_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.getRouteId;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.initializeEndpoint;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.replaceSymbolicEndpoint;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
 
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.createRouteDefintion;
+import static org.eclipse.stardust.engine.extensions.camel.Util.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,13 +15,10 @@ import java.util.regex.Pattern;
 
 import org.apache.camel.CamelContext;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IAccessPoint;
-import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IParameterMapping;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.core.model.beans.AccessPointBean;
 import org.eclipse.stardust.engine.core.model.beans.ExternalReferenceBean;
@@ -35,19 +29,16 @@ import org.eclipse.stardust.engine.core.model.beans.TypeDeclarationBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
-import org.eclipse.stardust.engine.extensions.camel.EndpointHelper;
+import org.eclipse.stardust.engine.extensions.camel.MappingExpression;
 import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
-import org.eclipse.stardust.engine.extensions.camel.runtime.Endpoint;
+
 import org.eclipse.stardust.engine.extensions.camel.trigger.exceptions.UndefinedEndpointException;
 
 public class CamelTriggerRoute
 {
-
    private static final Logger logger = LogManager.getLogger(CamelTriggerRoute.class);
-   private static final Map<String, Class< ? >> primitiveClasses = new HashMap<String, Class< ? >>();
 
+   private static final Map<String, Class< ? >> primitiveClasses = new HashMap<String, Class< ? >>();
    static
    {
       primitiveClasses.put("long", Long.class);
@@ -61,172 +52,46 @@ public class CamelTriggerRoute
       primitiveClasses.put("short", Short.class);
       primitiveClasses.put("char", Character.class);
       primitiveClasses.put("character", Character.class);
-      
-      
-      
    }
-   
-   private static final String NEW_LINE = "\n";
-   private static final String QUOTATION = "\"";
-   private static final String ENDPOINT_PREFIX = "\n<to uri=\"";
-   private static final String ENDPOINT_SUFFIX = "\"/>";
-   private static final String ROUTE_START = "<route ";
-   private static final String ROUTE_END = "</route>";
-
-   private static final String ACCESS_POINT_MESSAGE = "message";
-
-   private static final String ACCESS_POINT_HEADERS = "headers";
-
-   private static final String DOCUMENT_LIST = "dmsDocumentList";
-
-   private static final String DOCUMENT = "dmsDocument";
 
    private ITrigger trigger;
-   private StringBuilder routeDefinition;
-   private Endpoint endpoint;
-   private List<AccessPointProperties> accessPointList = new ArrayList<AccessPointProperties>();
-   private MappingExpression mappingExpression = new CamelTriggerRoute.MappingExpression();
-   private List<DataConverter> dataConverters;
-   private String partition;
-   private String ctu;
-   private String ctp;
 
-   private static String getNonPrimitiveType(String type){
-      if(type.equals("String") ||type.equals("java.lang.String"))
+   private StringBuilder routeDefinition;
+
+   private List<DataConverter> dataConverters;
+
+   private static String getNonPrimitiveType(String type)
+   {
+      if (type.equals("String") || type.equals("java.lang.String"))
          return "java.lang.String";
-     String nonPrimitivetype=primitiveClasses.get(type).getName();
-     return nonPrimitivetype;
-      
+      String nonPrimitivetype = primitiveClasses.get(type).getName();
+      return nonPrimitivetype;
+
    }
-   
+
    public CamelTriggerRoute(CamelContext camelContext, ITrigger trigger, List<DataConverter> converters,
          String partition) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
          UndefinedEndpointException
    {
       this.trigger = trigger;
       this.dataConverters = converters;
-
-      this.ctu = (String) this.trigger.getAllAttributes().get("carnot:engine:camel::username");
-      this.ctp = (String) this.trigger.getAllAttributes().get("carnot:engine:camel::password");
-
-      if (!StringUtils.isEmpty(partition))
+      MappingExpression mappingExpression = new MappingExpression();
+      String processId = getProcessId(this.trigger);
+      String modelId = getModelId(this.trigger);
+      if (processId != null)
       {
-         this.partition = partition;
-      }
-      else
-      {
-         this.partition = Parameters.instance().getString(SecurityProperties.DEFAULT_PARTITION, "default");
-      }
-
-      String selectedEndpointTypeClass = (String) trigger.getAttribute(ENDPOINT_TYPE_CLASS_ATT);
-      if (selectedEndpointTypeClass == null)
-         selectedEndpointTypeClass = GENERIC_ENDPOINT;
-
-      if (logger.isDebugEnabled())
-      {
-         logger.warn("Evaluate camel trigger route with enpoint : " + selectedEndpointTypeClass);
-      }
-
-      String processId = ((IProcessDefinition) trigger.getParent()).getId();
-      String modelId = trigger.getModel().getId();
-      String multiModelDeploymentId = null;
-      if (!StringUtils.isEmpty(modelId) && !StringUtils.isEmpty(processId))
-      {
-         multiModelDeploymentId = "modelId=" + modelId + "&amp;processId=" + processId;
-      }
-      else
-      {
-         if (!StringUtils.isEmpty(processId))
-         {
-            multiModelDeploymentId = "processId=" + processId;
-         }
-      }
-
-      if (selectedEndpointTypeClass != null && processId != null)
-      {
-         String providedRouteDefinition = (String) trigger.getAttribute(ROUTE_EXT_ATT);
-
+         String providedRouteDefinition = getProvidedRouteConfiguration(this.trigger);
          if (!StringUtils.isEmpty(providedRouteDefinition))
          {
-            endpoint = initializeEndpoint(selectedEndpointTypeClass);
-
-            performParameterMapping();
-            buildMappingExpression(accessPointList);
-
-            StringBuilder route = new StringBuilder();
-            route.append(ROUTE_START);
-            route.append("id=");
-            route.append(QUOTATION);
-            route.append(getRouteId(partition, modelId, processId, trigger.getId(), false));
-            route.append(QUOTATION);
-
-            route.append(" autoStartup=\"true\" >");
-
-            StringBuilder replacementString = new StringBuilder();
-
-            if (mappingExpression.getBeanExpression().size() > 0)
-            {
-
-               if (logger.isDebugEnabled())
-               {
-                  logger.debug("Adding converters to route.");
-               }
-
-               for (int i = 0; i < mappingExpression.getBeanExpression().size(); i++)
-               {
-                  String beanmapping = mappingExpression.getBeanExpression().get(i);
-
-                  if (i == 0)
-                  {
-                     replacementString.append(beanmapping);
-                  }
-                  else
-                  {
-                     replacementString.append(ENDPOINT_PREFIX);
-                     replacementString.append(beanmapping);
-                  }
-
-                  replacementString.append(ENDPOINT_SUFFIX);
-               }
-
-               replacementString.append(ENDPOINT_PREFIX);
-
-            }
-
-            replacementString.append("ipp:process:start?");
-            replacementString.append(multiModelDeploymentId);
-            replacementString.append(mappingExpression.getBodyExpression());
-            replacementString.append(QUOTATION);
-
-            String authenticationEndpoint = buildAuthenticationEndpoint(this.ctu, this.ctp);
-
-            if (mappingExpression.getHeaderExpression().size() > 0)
-            {
-
-               if (logger.isDebugEnabled())
-               {
-                  logger.debug("Adding Headers to route.");
-               }
-               String headersFragment = "";
-               for (String headerName : mappingExpression.getHeaderExpression().keySet())
-               {
-                  headersFragment += "<setHeader headerName=\"" + headerName + "\">\n";
-                  headersFragment += "<simple>$simple{" + mappingExpression.getHeaderExpression().get(headerName)
-                        + "}</simple>\n";
-                  headersFragment += "</setHeader>\n";
-               }
-               authenticationEndpoint += headersFragment;
-            }
-            providedRouteDefinition = injectAuthenticationEndpoint(providedRouteDefinition, authenticationEndpoint);
-            route.append(replaceSymbolicEndpoint(providedRouteDefinition, replacementString.toString()));
-            route.append(NEW_LINE);
-            route.append(ROUTE_END);
-
+            List<AccessPointProperties> accessPointList = performParameterMapping();
+            buildMappingExpression(accessPointList, mappingExpression);
+            StringBuilder route = createRouteDefintion(providedRouteDefinition, getCurrentPartition(partition),
+                  modelId, processId, trigger.getId(), getUserName(this.trigger), getPassword(this.trigger),
+                  mappingExpression);
             if (logger.isDebugEnabled())
             {
                logger.debug("Generated route:" + route);
             }
-
             routeDefinition = route;
          }
       }
@@ -257,10 +122,10 @@ public class CamelTriggerRoute
    }
 
    @SuppressWarnings({"rawtypes"})
-   private void performParameterMapping() throws IOException
+   private List<AccessPointProperties> performParameterMapping() throws IOException
    {
       Map<String, String> schemaRefs = new HashMap<String, String>();
-
+      List<AccessPointProperties> accessPointList = new ArrayList<AccessPointProperties>();
       ModelElementList parameterMappings = this.trigger.getParameterMappings();
 
       Link typeBean = ((Link) ((ModelBean) this.trigger.getModel()).getTypeDeclarations());
@@ -301,8 +166,9 @@ public class CamelTriggerRoute
 
          String outBodyAccesPoint = (String) this.trigger.getAllAttributes().get(
                "carnot:engine:camel::outBodyAccessPoint");
-         if ( (outBodyAccesPoint != null && outBodyAccesPoint.equalsIgnoreCase(mapping.getParameterId()))||
-               (mapping!=null && mapping.getParameterId()!=null && mapping.getParameterId().equalsIgnoreCase(ACCESS_POINT_MESSAGE)))
+         if ((outBodyAccesPoint != null && outBodyAccesPoint.equalsIgnoreCase(mapping.getParameterId()))
+               || (mapping != null && mapping.getParameterId() != null && mapping.getParameterId().equalsIgnoreCase(
+                     ACCESS_POINT_MESSAGE)))
          {
             accessPtProps.setAccessPointLocation(ACCESS_POINT_MESSAGE);
             accessPtProps.setAccessPointPath(mapping.getParameterPath());
@@ -325,9 +191,10 @@ public class CamelTriggerRoute
           * accessPtProps.setAccessPointType(DOCUMENT_LIST); }
           */
          accessPtProps.setAccessPointType(mapping.getData().getType().getId());
-         accessPtProps.setEndPoint(endpoint);
+         // accessPtProps.setEndPoint(endpoint);
          accessPointList.add(accessPtProps);
       }
+      return accessPointList;
    }
 
    private String getOutAccessPointNameUsingDataMappingName(ParameterMappingBean mapping)
@@ -348,7 +215,7 @@ public class CamelTriggerRoute
       return null;
    }
 
-   private void buildMappingExpression(List<AccessPointProperties> accessList)
+   private void buildMappingExpression(List<AccessPointProperties> accessList, MappingExpression mappingExpression)
    {
       if (accessList == null || accessList.isEmpty())
          return;
@@ -379,43 +246,58 @@ public class CamelTriggerRoute
                int endIndex = accessPtProps.getAccessPointPath().lastIndexOf("()");
                headerName = accessPtProps.getAccessPointPath().substring(startIndex + 3, endIndex);
             }
-            
+
             if (accessPtProps.getAccessPointType().equals(DOCUMENT_LIST))
             {
-               logger.warn("The Type "+DOCUMENT_LIST+" is not supported as header");
+               logger.warn("The Type " + DOCUMENT_LIST + " is not supported as header");
             }
             else if (accessPtProps.getAccessPointType().equals(DOCUMENT))
             {
                mappingExpression.getBodyExpression().append("headerAs(");
                mappingExpression.getBodyExpression().append(headerName);
                mappingExpression.getBodyExpression().append("\\," + bodyMainType + ")}");
+
+               mappingExpression.getPostHeadersExpression().add(
+                     "<setHeader headerName=\"" + headerName + "\"><simple>$simple{body}</simple></setHeader>");// As(org.eclipse.stardust.engine.api.runtime.Document)
+               mappingExpression.setIncludeMoveEndpoint(true);
             }
             else if (accessPtProps.getData().getType().getId().equals("struct"))
             {
                mappingExpression.getBodyExpression().append("headerAs(");
                mappingExpression.getBodyExpression().append(headerName);
                mappingExpression.getBodyExpression().append("\\,java.util.Map)}");
-//               mappingExpression.getHeaderExpression().put(
-//                     headerName,
-//                     "bean:sdtFileConverter?method=genericXSDToSDT(&quot;" + accessPtProps.getXsdName()
-//                           + "&quot; , &quot;" + accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
-//                           + "&quot;)");
-//               
-//
-//               // mappingExpression.getBeanExpression().add("bean:structuredDataTranslator?method=convert(\""
-//               // +
-//               // accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
-//               // + "\" , \"$simple{body}\")");
-//               // mappingExpression.getBodyExpression().append("bodyAs(java.util.Map)");
-//               mappingExpression.getBodyExpression().append("header."+headerName+"}");
+               // mappingExpression.getHeaderExpression().put(
+               // headerName,
+               // "bean:sdtFileConverter?method=genericXSDToSDT(&quot;" +
+               // accessPtProps.getXsdName()
+               // + "&quot; , &quot;" +
+               // accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
+               // + "&quot;)");
+               //
+               //
+               // //
+               // mappingExpression.getBeanExpression().add("bean:structuredDataTranslator?method=convert(\""
+               // // +
+               // // accessPtProps.getData().getStringAttribute("carnot:engine:dataType")
+               // // + "\" , \"$simple{body}\")");
+               // //
+               // mappingExpression.getBodyExpression().append("bodyAs(java.util.Map)");
+               // mappingExpression.getBodyExpression().append("header."+headerName+"}");
             }
             else if (accessPtProps.getData().getType().getId().equals("primitive"))
-               mappingExpression.getBodyExpression().append("headerAs("+headerName+"\\,"+getNonPrimitiveType( ((Type)accessPtProps.getData().getAttribute("carnot:engine:type")).getName())+")}");
-            else if (accessPtProps.getData().getType().getId().equals("serializable") && bodyMainType!=null)
+               mappingExpression.getBodyExpression().append(
+                     "headerAs("
+                           + headerName
+                           + "\\,"
+                           + getNonPrimitiveType(((Type) accessPtProps.getData().getAttribute("carnot:engine:type"))
+                                 .getName()) + ")}");
+            else if (accessPtProps.getData().getType().getId().equals("serializable") && bodyMainType != null)
             {
-//               mappingExpression.getBodyExpression().append("bodyAs(");
-//               mappingExpression.getBodyExpression().append(bodyMainType + ")");
-               mappingExpression.getBodyExpression().append("headerAs("+headerName+"\\,"+bodyMainType.replaceAll("<", "&lt;").replaceAll(">", "&gt;")+")}");
+               // mappingExpression.getBodyExpression().append("bodyAs(");
+               // mappingExpression.getBodyExpression().append(bodyMainType + ")");
+               mappingExpression.getBodyExpression().append(
+                     "headerAs(" + headerName + "\\," + bodyMainType.replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+                           + ")}");
             }
 
             // if (bodyMainType != null)
@@ -494,12 +376,14 @@ public class CamelTriggerRoute
                      // }
                   }
                   mappingExpression.getBodyExpression().append("body");
+                  mappingExpression.setIncludeMoveEndpoint(true);
+
                   // mappingExpression.getBodyExpression().append("}");
                   // return;
                }
             }
-            if (bodyPathType == null)
-            {
+//            if (bodyPathType == null)
+//            {
                if (accessPtProps.getData().getType().getId().equals("struct"))
                {
                   mappingExpression.getBeanExpression().add(
@@ -519,14 +403,14 @@ public class CamelTriggerRoute
                   mappingExpression.getBodyExpression().append("bodyAs(");
                   mappingExpression.getBodyExpression().append(bodyMainType + ")");
                }
-            }
-            else
-            {
-               if (bodyMainType != null)
-                  mappingExpression.getHeaderExpression().put("IsSerializable", "true");
-               mappingExpression.getBodyExpression().append("bodyAs(");
-               mappingExpression.getBodyExpression().append(bodyPathType + ")");
-            }
+//            }
+//            else
+//            {
+//               if (bodyMainType != null)
+//                  mappingExpression.getHeaderExpression().put("IsSerializable", "true");
+//               mappingExpression.getBodyExpression().append("bodyAs(");
+//               mappingExpression.getBodyExpression().append(bodyPathType + ")");
+//            }
             mappingExpression.getBodyExpression().append("}");
          }
       }
@@ -559,89 +443,4 @@ public class CamelTriggerRoute
       return bodyType;
    }
 
-   private String extractBodyMainType(IData data)
-   {
-      return (String) data.getAttribute("carnot:engine:className");
-   }
-
-   private String buildAuthenticationEndpoint(String user, String password)
-   {
-      StringBuffer buffer = new StringBuffer();
-
-      buffer.append("<setHeader headerName=\"");
-      buffer.append(CamelConstants.MessageProperty.ORIGIN);
-      buffer.append("\">");
-      buffer.append("<constant>");
-      buffer.append(CamelConstants.OriginValue.TRIGGER_CONSUMER);
-      buffer.append("</constant>");
-      buffer.append(" </setHeader>");
-
-      buffer.append("<setHeader headerName=\"ippPassword\">");
-      buffer.append("<constant>" + EndpointHelper.sanitizeUri(password) + "</constant>");
-      buffer.append(" </setHeader>");
-
-      buffer.append("<setHeader headerName=\"ippUser\">");
-      buffer.append("<constant>" + EndpointHelper.sanitizeUri(user) + "</constant>");
-      buffer.append(" </setHeader>");
-
-      buffer.append("<setHeader headerName=\"ippPartition\">");
-      buffer.append("<constant>" + this.partition + "</constant>");
-      buffer.append(" </setHeader>");
-
-      buffer.append("<to uri=\"ipp:authenticate:setCurrent\"/>");
-      // buffer.append(user);
-      // //buffer.append("&amp;password=");
-      // buffer.append(password);
-      // buffer.append("&amp;partition=");
-      // buffer.append(this.partition);
-      // buffer.append("\"/>");
-
-      return buffer.toString();
-   }
-
-   private String injectAuthenticationEndpoint(String routeDefinition, String authenticationEndpoint)
-   {
-      int fromStartIndex = routeDefinition.indexOf("<from");
-      String fromEndpoint = routeDefinition.substring(fromStartIndex);
-      int fromEndIndex = fromEndpoint.indexOf(">") + 1;
-      fromEndpoint = fromEndpoint.substring(0, fromEndIndex);
-
-      String routeDefinitionEndpoints = routeDefinition.substring(fromEndIndex);
-
-      StringBuffer buffer = new StringBuffer();
-      buffer.append(fromEndpoint);
-      buffer.append("<transacted ref=\"required\"/>"); // TODO : make it more visible
-      buffer.append(authenticationEndpoint);
-      buffer.append(routeDefinitionEndpoints);
-
-      return buffer.toString();
-   }
-
-   private static class MappingExpression
-   {
-      private StringBuffer bodyExpression = new StringBuffer();
-      private List<String> beanExpression = new ArrayList<String>();
-      private List<String> postExpression = new ArrayList<String>();
-      private Map<String, String> headerExpression = new HashMap<String, String>();
-
-      public StringBuffer getBodyExpression()
-      {
-         return bodyExpression;
-      }
-
-      public List<String> getBeanExpression()
-      {
-         return beanExpression;
-      }
-
-      public List<String> getPostExpression()
-      {
-         return postExpression;
-      }
-
-      public Map<String, String> getHeaderExpression()
-      {
-         return headerExpression;
-      }
-   }
 }

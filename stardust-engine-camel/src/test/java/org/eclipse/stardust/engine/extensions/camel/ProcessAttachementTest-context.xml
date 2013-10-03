@@ -9,10 +9,10 @@
 
 	<import resource="SharedTestContext.xml"/>
 
-    <camelContext xmlns="http://camel.apache.org/schema/spring" trace="true">
-    	<routeBuilder ref="processAttachementRouteBuilder" />
+    <camelContext xmlns="http://camel.apache.org/schema/spring" trace="true" id="defaultCamelContext">
+    <!-- 	<routeBuilder ref="processAttachementRouteBuilder" />
     	<routeBuilder ref="processAttachementEndpointBuilder" />
-    	<routeBuilder ref="createattachementEndpointParamRoute" />
+    	<routeBuilder ref="createattachementEndpointParamRoute" /> -->
 
 <!--    	<route>-->
 <!--    		<from uri"..."/>-->
@@ -24,7 +24,7 @@
 <!--    		<to uri="ipp:activity:next?dataOutput=Approved;true;boolean"/>-->
 <!--    	</route>-->
     </camelContext>
-    <bean id="processAttachementRouteBuilder"
+   <!--  <bean id="processAttachementRouteBuilder"
     	class="org.eclipse.stardust.engine.extensions.camel.ProcessAttachementTest"
     	factory-method="createFullRoute"/>
 
@@ -34,5 +34,5 @@
 
   <bean id="createattachementEndpointParamRoute"
     	class="org.eclipse.stardust.engine.extensions.camel.ProcessAttachementTest"
-    	factory-method="createattachementEndpointParamRoute"/>
+    	factory-method="createattachementEndpointParamRoute"/> -->
 </beans>

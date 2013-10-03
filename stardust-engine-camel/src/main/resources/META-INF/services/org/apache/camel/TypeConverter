@@ -1,4 +1,3 @@
-org.eclipse.stardust.engine.extensions.camel.converter.DataConverter
 org.eclipse.stardust.engine.extensions.camel.converter.DocumentDataConverter
 org.eclipse.stardust.engine.extensions.camel.converter.DocumentListFileConverter
 org.eclipse.stardust.engine.extensions.camel.converter.SDTFileConverter

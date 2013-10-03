@@ -1,18 +1,17 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
 
-import static org.eclipse.stardust.engine.extensions.camel.component.CamelHelper.*;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ACTIVITY_ID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ACTIVITY_INSTANCE_OID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.EXPECTED_RESULT_SIZE;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SubCommand.Activity.COMMAND_COMPLETE;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SubCommand.Activity.COMMAND_FIND;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.parseSimpleExpression;
 
 import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-import org.apache.camel.language.simple.SimpleLanguage;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.common.log.LogManager;
@@ -78,10 +77,11 @@ public class ActivityEndpoint extends AbstractIppEndpoint
     */
    public void setActivityId(String activityId)
    {
-      if (activityId.startsWith("${") && activityId.endsWith("}"))
-         this.activityId = SimpleLanguage.simple(extractTokenFromExpression(activityId));
-      else
-         this.activityId = SimpleLanguage.simple(activityId);
+//      if (activityId.startsWith("${") && activityId.endsWith("}"))
+//         this.activityId = SimpleLanguage.simple(extractTokenFromExpression(activityId));
+//      else
+//         this.activityId = SimpleLanguage.simple(activityId);
+      this.activityId=    parseSimpleExpression(activityId);
    }
 
    /**
@@ -89,10 +89,11 @@ public class ActivityEndpoint extends AbstractIppEndpoint
     */
    public void setActivityInstanceOid(String activityInstanceOid)
    {
-      if (activityInstanceOid.startsWith("${") && activityInstanceOid.endsWith("}"))
-         this.activityInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(activityInstanceOid));
-      else
-         this.activityInstanceOid = SimpleLanguage.simple(activityInstanceOid);
+//      if (activityInstanceOid.startsWith("${") && activityInstanceOid.endsWith("}"))
+//         this.activityInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(activityInstanceOid));
+//      else
+//         this.activityInstanceOid = SimpleLanguage.simple(activityInstanceOid);
+      this.activityInstanceOid=    parseSimpleExpression(activityInstanceOid);
    }
 
    /**
@@ -135,7 +136,7 @@ public class ActivityEndpoint extends AbstractIppEndpoint
     *           flag
     * @return activity Id
     */
-   protected String evaluateActivityId(Exchange exchange, boolean strict)
+   public String evaluateActivityId(Exchange exchange, boolean strict)
    {
       if (null != this.activityId)
          return this.activityId.evaluate(exchange, String.class);
@@ -159,7 +160,7 @@ public class ActivityEndpoint extends AbstractIppEndpoint
     *           flag
     * @return activity instance Oid
     */
-   protected Long evaluateActivityInstanceOid(Exchange exchange, boolean strict)
+   public Long evaluateActivityInstanceOid(Exchange exchange, boolean strict)
    {
       if (null != this.activityInstanceOid)
          return this.activityInstanceOid.evaluate(exchange, Long.class);
@@ -229,7 +230,7 @@ public class ActivityEndpoint extends AbstractIppEndpoint
     *           flag
     * @return ExpectedResultSize
     */
-   protected Long evaluateExpectedResultSize(Exchange exchange, boolean strict)
+   public Long evaluateExpectedResultSize(Exchange exchange, boolean strict)
    {
       if (null != this.expectedResultSize)
       {

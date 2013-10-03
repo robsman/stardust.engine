@@ -3,8 +3,10 @@ package org.eclipse.stardust.engine.extensions.camel.util;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ADDITIONAL_SPRING_BEANS_DEF_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_CONTEXT_ID_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DEFAULT_CAMEL_CONTEXT_ID;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.SPRING_XML_ROUTES_FOOTER;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.SPRING_XML_ROUTES_HEADER;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTES_HEADER;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTES_FOOTER;
+//import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.SPRING_XML_ROUTES_FOOTER;
+//import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.SPRING_XML_ROUTES_HEADER;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.createSpringFileContent;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.loadBeanDefinition;
 
@@ -36,157 +38,169 @@ import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerRoute;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
-public class CreateTriggerRouteAction implements Action<Object> {
+public class CreateTriggerRouteAction implements Action<Object>
+{
 
-	public static final Logger logger = LogManager
-			.getLogger(CreateTriggerRouteAction.class);
+   public static final Logger logger = LogManager.getLogger(CreateTriggerRouteAction.class);
 
-	private static final String CAMEL_TRIGGER_TYPE = "camel";
+   private static final String CAMEL_TRIGGER_TYPE = "camel";
 
-	private String partition;
-	private BpmRuntimeEnvironment bpmRt;
-	private ApplicationContext springContext;
-	private List<DataConverter> dataConverters;
-	private ITrigger trigger;
+   private String partition;
 
-	public CreateTriggerRouteAction(String partition,
-			ApplicationContext springContext, List<DataConverter> dataConverters) {
+   private BpmRuntimeEnvironment bpmRt;
 
-		this.partition = partition;
-		this.springContext = springContext;
-		this.dataConverters = dataConverters;
-	}
+   private ApplicationContext springContext;
 
-	public CreateTriggerRouteAction(BpmRuntimeEnvironment bpmRt,
-			String partition, ApplicationContext springContext,
-			List<DataConverter> dataConverters) {
+   private List<DataConverter> dataConverters;
 
-		this.bpmRt = bpmRt;
-		this.partition = partition;
-		this.springContext = springContext;
-		this.dataConverters = dataConverters;
-	}
+   private ITrigger trigger;
 
-	public CreateTriggerRouteAction(BpmRuntimeEnvironment bpmRt,
-			String partition, ApplicationContext springContext,
-			List<DataConverter> dataConverters, ITrigger trigger) {
+   public CreateTriggerRouteAction(String partition, ApplicationContext springContext,
+         List<DataConverter> dataConverters)
+   {
 
-		this(bpmRt, partition, springContext, dataConverters);
-		this.trigger = trigger;
-	}
+      this.partition = partition;
+      this.springContext = springContext;
+      this.dataConverters = dataConverters;
+   }
 
-	public Object execute() {
+   public CreateTriggerRouteAction(BpmRuntimeEnvironment bpmRt, String partition, ApplicationContext springContext,
+         List<DataConverter> dataConverters)
+   {
 
-		if (this.bpmRt == null) {
-			this.bpmRt = PropertyLayerProviderInterceptor.getCurrent();
-		}
+      this.bpmRt = bpmRt;
+      this.partition = partition;
+      this.springContext = springContext;
+      this.dataConverters = dataConverters;
+   }
 
-		Map<String, String> properties = new HashMap<String, String>();
-		properties.put(SecurityProperties.PARTITION, partition);
-		LoginUtils.mergeDefaultCredentials(Parameters.instance(), properties);
-		AbstractLoginInterceptor.setCurrentPartitionAndDomain(
-				Parameters.instance(), bpmRt, properties);
+   public CreateTriggerRouteAction(BpmRuntimeEnvironment bpmRt, String partition, ApplicationContext springContext,
+         List<DataConverter> dataConverters, ITrigger trigger)
+   {
 
-		if (this.trigger == null) {
-			createTriggerRoute();
-		} else {
-			createTriggerlRoute(this.trigger);
-		}
+      this(bpmRt, partition, springContext, dataConverters);
+      this.trigger = trigger;
+   }
 
-		return null;
-	}
+   public Object execute()
+   {
 
-	private void createTriggerRoute() {
+      if (this.bpmRt == null)
+      {
+         this.bpmRt = PropertyLayerProviderInterceptor.getCurrent();
+      }
 
-		List<IModel> models = ModelManagerFactory.getCurrent().getModels();
+      Map<String, String> properties = new HashMap<String, String>();
+      properties.put(SecurityProperties.PARTITION, partition);
+      LoginUtils.mergeDefaultCredentials(Parameters.instance(), properties);
+      AbstractLoginInterceptor.setCurrentPartitionAndDomain(Parameters.instance(), bpmRt, properties);
 
-		for (int i = 0; i < models.size(); i++) {
+      if (this.trigger == null)
+      {
+         createTriggerRoute();
+      }
+      else
+      {
+         createTriggerlRoute(this.trigger);
+      }
 
-			IModel model = models.get(i);
+      return null;
+   }
 
-			if (ModelManagerFactory.getCurrent().isActive(model)) {
+   private void createTriggerRoute()
+   {
 
-				ModelElementList<IProcessDefinition> processes = model
-						.getProcessDefinitions();
-				for (int pd = 0; pd < processes.size(); pd++) {
+      List<IModel> models = ModelManagerFactory.getCurrent().getModels();
 
-					IProcessDefinition process = model.getProcessDefinitions()
-							.get(pd);
+      for (int i = 0; i < models.size(); i++)
+      {
 
-					createTriggerRoute(process);
-				}
-			}
-		}
-	}
+         IModel model = models.get(i);
 
-	private void createTriggerRoute(IProcessDefinition process) {
+         if (ModelManagerFactory.getCurrent().isActive(model))
+         {
 
-		for (int i = 0; i < process.getTriggers().size(); i++) {
+            ModelElementList<IProcessDefinition> processes = model.getProcessDefinitions();
+            for (int pd = 0; pd < processes.size(); pd++)
+            {
 
-			ITrigger trigger = (ITrigger) process.getTriggers().get(i);
+               IProcessDefinition process = model.getProcessDefinitions().get(pd);
 
-			if (CAMEL_TRIGGER_TYPE.equals(trigger.getType().getId())) {
+               createTriggerRoute(process);
+            }
+         }
+      }
+   }
 
-				createTriggerlRoute(trigger);
-			}
-		}
-	}
+   private void createTriggerRoute(IProcessDefinition process)
+   {
 
-	private void createTriggerlRoute(ITrigger trigger) {
-		try {
+      for (int i = 0; i < process.getTriggers().size(); i++)
+      {
 
-			String contextId = (String) trigger
-					.getAttribute(CAMEL_CONTEXT_ID_ATT);
+         ITrigger trigger = (ITrigger) process.getTriggers().get(i);
 
-			if (StringUtils.isEmpty(contextId)) {
-				contextId = DEFAULT_CAMEL_CONTEXT_ID;
-				logger.warn("No context provided - the default context is used.");
-			}
+         if (CAMEL_TRIGGER_TYPE.equals(trigger.getType().getId()))
+         {
 
-			CamelContext camelContext = (CamelContext) springContext
-					.getBean(contextId);
+            createTriggerlRoute(trigger);
+         }
+      }
+   }
 
-			String additionalBeanDefinition = (String) trigger
-					.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
+   private void createTriggerlRoute(ITrigger trigger)
+   {
+      try
+      {
 
-			if (!StringUtils.isEmpty(additionalBeanDefinition)) {
-				loadBeanDefinition(
-						createSpringFileContent(additionalBeanDefinition,
-								false, null),
-						(AbstractApplicationContext) springContext);
-			}
+         String contextId = (String) trigger.getAttribute(CAMEL_CONTEXT_ID_ATT);
 
-			CamelTriggerRoute route = new CamelTriggerRoute(camelContext,
-					trigger, dataConverters, SecurityProperties.getPartition()
-							.getId());
+         if (StringUtils.isEmpty(contextId))
+         {
+            contextId = DEFAULT_CAMEL_CONTEXT_ID;
+            logger.warn("No context provided - the default context is used.");
+         }
 
-			if (route.getRouteDefinition() != null
-					&& route.getRouteDefinition().length() > 0) {
+         CamelContext camelContext = (CamelContext) springContext.getBean(contextId);
 
-				StringBuilder generatedXml = new StringBuilder(
-						SPRING_XML_ROUTES_HEADER + route.getRouteDefinition()
-								+ SPRING_XML_ROUTES_FOOTER);
+         String additionalBeanDefinition = (String) trigger.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
 
-				logger.info("Route for trigger " + trigger.getName()
-						+ " to be added to context " + contextId
-						+ " for partition " + partition + ".");
+         if (!StringUtils.isEmpty(additionalBeanDefinition))
+         {
+            loadBeanDefinition(createSpringFileContent(additionalBeanDefinition, false, null),
+                  (AbstractApplicationContext) springContext);
+         }
 
-				if (logger.isDebugEnabled()) {
-					logger.debug(route.getRouteDefinition());
-				}
+         CamelTriggerRoute route = new CamelTriggerRoute(camelContext, trigger, dataConverters, SecurityProperties
+               .getPartition().getId());
 
-				RoutesDefinition routes = ((ModelCamelContext) camelContext)
-						.loadRoutesDefinition(IOUtils
-								.toInputStream(generatedXml.toString()));
+         if (route.getRouteDefinition() != null && route.getRouteDefinition().length() > 0)
+         {
 
-				((ModelCamelContext) camelContext).addRouteDefinitions(routes
-						.getRoutes());
-			} else {
-				logger.warn("No route definition found.");
-			}
-		} catch (Exception e) {
-			throw new RuntimeException("Route creation for trigger "
-					+ trigger.getName() + " failed.", e);
-		}
-	}
+            StringBuilder generatedXml = new StringBuilder(SPRING_XML_ROUTES_HEADER + route.getRouteDefinition()
+                  + SPRING_XML_ROUTES_FOOTER);
+
+            logger.info("Route for trigger " + trigger.getName() + " to be added to context " + contextId
+                  + " for partition " + partition + ".");
+
+            if (logger.isDebugEnabled())
+            {
+               logger.debug(route.getRouteDefinition());
+            }
+
+            RoutesDefinition routes = ((ModelCamelContext) camelContext).loadRoutesDefinition(IOUtils
+                  .toInputStream(generatedXml.toString()));
+
+            ((ModelCamelContext) camelContext).addRouteDefinitions(routes.getRoutes());
+         }
+         else
+         {
+            logger.warn("No route definition found.");
+         }
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Route creation for trigger " + trigger.getName() + " failed.", e);
+      }
+   }
 }

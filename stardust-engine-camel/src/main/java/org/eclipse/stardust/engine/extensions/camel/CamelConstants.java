@@ -1,57 +1,84 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
-import java.util.HashMap;
+//import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 
 public final class CamelConstants
 {
-
+   public static final String GREATER_THAN_SIGN = ">";
+   public static final String LESS_THAN_SIGN = "<";
+   public static final String BLANK_SPACE = " ";
+   public static final String NEW_LINE = "\n";
+   public static final String HORIZONTAL_TAB = "\t";
+   public static final String COLON=":";
+   public static final String DOUBLE_SLASH="//";
+   public static final String DIRECT_COMPONENT="direct";
+   public static final String DIRECT_ENDPOINT=DIRECT_COMPONENT+COLON+DOUBLE_SLASH;
+   public static final String ENDPOINT_PREFIX = NEW_LINE+"<to uri=\"";
+   public static final String ENDPOINT_SUFFIX = "\"/>";
+   public static final String QUOTATION = "\"";
+   public static final String ROUTE_START = "<route ";
+   public static final String ROUTE_END = "</route>";
+   public static final String ACCESS_POINT_MESSAGE = "message";
+   public static final String ACCESS_POINT_HEADERS = "headers";
+   public static final String DOCUMENT_LIST = "dmsDocumentList";
+   public static final String DOCUMENT = "dmsDocument";
    public static final String PRP_APPLICATION_CONTEXT = "org.eclipse.stardust.engine.api.spring.applicationContext";
-	
-   public static final String SPRING_XML_ROUTES_HEADER = "<routes xmlns=\"http://camel.apache.org/schema/spring\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">";
-   public static final String SPRING_XML_ROUTES_FOOTER = "</routes>";
-   public static final String SPRING_XML_ROUTE_FOOTER = "</route>";
-   public static final String SPRING_XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<beans xmlns=\"http://www.springframework.org/schema/beans\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \nxsi:schemaLocation=\"http://www.springframework.org/schema/beans\nhttp://www.springframework.org/schema/beans/spring-beans.xsd\">\n";
-   public static final String SPRING_XML_FOOTER = "\n</beans>";
-   public static final String IPP_DIRECT_TAG = "ipp:direct";
-   public static final String IPP_AUTHENTICATE_TAG = "ipp:authenticate";
+   public static final String SEND_METHOD = "executeMessage(java.lang.Object)"; //$NON-NLS-1$
+   public static final String SEND_METHOD_WITH_HEADER = "executeMessage(java.lang.Object,java.util.Map"+LESS_THAN_SIGN+"java.lang.String,java.lang.Object"+GREATER_THAN_SIGN+")"; //$NON-NLS-1$
+   public static final String SEND_RECEIVE_METHOD_WITH_HEADER = "sendBodyInOut(java.lang.Object,java.util.Map"+LESS_THAN_SIGN+"java.lang.String,java.lang.Object"+GREATER_THAN_SIGN+")"; //$NON-NLS-1$
+   
+   public static final String SPRING_XML_ROUTES_HEADER = LESS_THAN_SIGN+"routes xmlns=\"http"+COLON+"//camel.apache.org/schema/spring\" xmlns:xsi=\"http"+COLON+"//www.w"+COLON+".org/2001/XMLSchema-instance\""+GREATER_THAN_SIGN+"";
+   public static final String SPRING_XML_ROUTES_FOOTER = LESS_THAN_SIGN+"/routes"+GREATER_THAN_SIGN+"";
+   public static final String SPRING_XML_ROUTE_FOOTER = LESS_THAN_SIGN+"/route"+GREATER_THAN_SIGN+"";
+   public static final String SPRING_XML_MAP_ELT_HEADER= LESS_THAN_SIGN+"map"+GREATER_THAN_SIGN+"";
+   public static final String SPRING_XML_MAP_ELT_FOOTER= LESS_THAN_SIGN+"/map"+GREATER_THAN_SIGN+"";
+   public static final String SPRING_XML_VALUE_ELT_HEADER= LESS_THAN_SIGN+"value"+GREATER_THAN_SIGN+"";
+   public static final String SPRING_XML_VALUE_ELT_FOOTER= LESS_THAN_SIGN+"/value"+GREATER_THAN_SIGN+"";
+   public static final String SPRING_XML_ENTRY_ELT_HEADER= "entry";
+   public static final String SPRING_XML_ENTRY_ELT_FOOTER= LESS_THAN_SIGN+"/entry"+GREATER_THAN_SIGN+"";
+   
+   public static final String SPRING_XML_HEADER = LESS_THAN_SIGN+"?xml version=\"1.0\" encoding=\"UTF-8\"?"+GREATER_THAN_SIGN+"\n"+LESS_THAN_SIGN+"beans xmlns=\"http"+COLON+"//www.springframework.org/schema/beans\"\nxmlns"+COLON+"xsi=\"http"+COLON+"//www.w3.org/2001/XMLSchema-instance\" \nxsi"+COLON+"schemaLocation=\"http"+COLON+"//www.springframework.org/schema/beans\nhttp"+COLON+"//www.springframework.org/schema/beans/spring-beans.xsd\""+GREATER_THAN_SIGN+"\n";
+   public static final String SPRING_XML_FOOTER = "\n"+LESS_THAN_SIGN+"/beans"+GREATER_THAN_SIGN+"";
+   public static final String IPP_DIRECT_TAG = "ipp"+COLON+"direct";
+   public static final String IPP_AUTHENTICATE_TAG = "ipp"+COLON+"authenticate";
 
    public final static String CAMEL_TRIGGER_TYPE = "camel";
-   public final static String CAMEL_SCOPE = PredefinedConstants.ENGINE_SCOPE + "camel:"; //$NON-NLS-1$
+   public final static String CAMEL_SCOPE = PredefinedConstants.ENGINE_SCOPE + "camel"+COLON; //$NON-NLS-1$
    public final static String ENRICHER_CLASSNAME= "org.eclipse.stardust.engine.extensions.camel.enricher.MapAppenderProcessor";
    
-   public final static String PRODUCER_METHOD_NAME_ATT = CAMEL_SCOPE + ":producerMethodName"; //$NON-NLS-1$
-   public final static String INVOCATION_TYPE_EXT_ATT = CAMEL_SCOPE + ":invocationType"; //$NON-NLS-1$
-   public final static String ADDITIONAL_SPRING_BEANS_DEF_ATT = CAMEL_SCOPE + ":additionalSpringBeanDefinitions"; //$NON-NLS-1$
-   public final static String CAMEL_CONTEXT_ID_ATT = CAMEL_SCOPE + ":camelContextId"; //$NON-NLS-1$
-   public final static String PRODUCER_ROUTE_ATT = CAMEL_SCOPE + ":routeEntries"; //$NON-NLS-1$
-   public final static String CONSUMER_ROUTE_ATT = CAMEL_SCOPE + ":consumerRoute"; //$NON-NLS-1$
-   public final static String BODY_PARAM_ATT = CAMEL_SCOPE + ":exchange:body"; //$NON-NLS-1$
-   public final static String ENDPOINT_URI_ATT = CAMEL_SCOPE + ":endpointURI"; //$NON-NLS-1$
-   public final static String ENDPOINT_TYPE_CLASS_ATT = CAMEL_SCOPE + ":endpointTypeClass";
-   public final static String ROUTE_EXT_ATT = CAMEL_SCOPE + ":camelRouteExt";
-   public static final String CORRELATION_PATTERN_EXT_ATT = CAMEL_SCOPE + ":correlationPattern";
-   public static final String INVOCATION_PATTERN_EXT_ATT = CAMEL_SCOPE + ":invocationPattern";
-   public static final String PROCESS_CONTEXT_HEADERS_EXT_ATT = CAMEL_SCOPE + ":processContextHeaders";
+   public final static String PRODUCER_METHOD_NAME_ATT = CAMEL_SCOPE + ""+COLON+"producerMethodName"; //$NON-NLS-1$
+   public final static String INVOCATION_TYPE_EXT_ATT = CAMEL_SCOPE + ""+COLON+"invocationType"; //$NON-NLS-1$
+   public final static String ADDITIONAL_SPRING_BEANS_DEF_ATT = CAMEL_SCOPE + ""+COLON+"additionalSpringBeanDefinitions"; //$NON-NLS-1$
+   public final static String CAMEL_CONTEXT_ID_ATT = CAMEL_SCOPE + ""+COLON+"camelContextId"; //$NON-NLS-1$
+   public final static String PRODUCER_ROUTE_ATT = CAMEL_SCOPE + ""+COLON+"routeEntries"; //$NON-NLS-1$
+   public final static String CONSUMER_ROUTE_ATT = CAMEL_SCOPE + ""+COLON+"consumerRoute"; //$NON-NLS-1$
+   public final static String BODY_PARAM_ATT = CAMEL_SCOPE + ""+COLON+"exchange"+COLON+"body"; //$NON-NLS-1$
+   public final static String ENDPOINT_URI_ATT = CAMEL_SCOPE + ""+COLON+"endpointURI"; //$NON-NLS-1$
+   public final static String ENDPOINT_TYPE_CLASS_ATT = CAMEL_SCOPE + ""+COLON+"endpointTypeClass";
+   public final static String ROUTE_EXT_ATT = CAMEL_SCOPE + ""+COLON+"camelRouteExt";
+   public static final String CORRELATION_PATTERN_EXT_ATT = CAMEL_SCOPE + ""+COLON+"correlationPattern";
+   public static final String INVOCATION_PATTERN_EXT_ATT = CAMEL_SCOPE + ""+COLON+"invocationPattern";
+   public static final String PROCESS_CONTEXT_HEADERS_EXT_ATT = CAMEL_SCOPE + ""+COLON+"processContextHeaders";
    public static final String DEFAULT_CAMEL_CONTEXT_ID = "defaultCamelContext";
    
-   public static final String SUPPORT_MULTIPLE_ACCESS_POINTS = CAMEL_SCOPE+":supportsMultipleAccessPoints";
-   public static final String CAT_BODY_IN_ACCESS_POINT = CAMEL_SCOPE+":inBodyAccessPoint";
-   public static final String CAT_BODY_OUT_ACCESS_POINT = CAMEL_SCOPE+":outBodyAccessPoint";
-   public static final String CAT_HEADERS_OUT_ACCESS_POINT = CAMEL_SCOPE+":outputHeadersAccessPoint";
+   public static final String SUPPORT_MULTIPLE_ACCESS_POINTS = CAMEL_SCOPE+""+COLON+"supportsMultipleAccessPoints";
+   public static final String CAT_BODY_IN_ACCESS_POINT = CAMEL_SCOPE+""+COLON+"inBodyAccessPoint";
+   public static final String CAT_BODY_OUT_ACCESS_POINT = CAMEL_SCOPE+""+COLON+"outBodyAccessPoint";
+   public static final String CAT_HEADERS_OUT_ACCESS_POINT = CAMEL_SCOPE+""+COLON+"outputHeadersAccessPoint";
    
 
    public static final String METHOD_PARAMETER_PREFIX = "Param"; //$NON-NLS-1$
-   public static final String ENDPOINT_PKG = "org.eclipse.stardust.engine.extensions.camel.runtime";
+  // public static final String ENDPOINT_PKG = "org.eclipse.stardust.engine.extensions.camel.runtime";
 
-   public static final String GENERIC_ENDPOINT = ENDPOINT_PKG + "." + "GenericEndpoint";
-   public static final String JMS_ENDPOINT = ENDPOINT_PKG + "." + "JmsEndpoint";
-   public static final String File_ENDPOINT = ENDPOINT_PKG + "." + "FileEndpoint";
-   public static final String Mail_ENDPOINT = ENDPOINT_PKG + "." + "MailEndpoint";
-   public static final String QUARTZ_ENDPOINT = ENDPOINT_PKG + "." + "QuartzEndpoint";
-   public static final String RESTLET_ENDPOINT = ENDPOINT_PKG + "." + "RestletEndpoint";
+//   public static final String GENERIC_ENDPOINT = ENDPOINT_PKG + "." + "GenericEndpoint";
+//   public static final String JMS_ENDPOINT = ENDPOINT_PKG + "." + "JmsEndpoint";
+//   public static final String File_ENDPOINT = ENDPOINT_PKG + "." + "FileEndpoint";
+//   public static final String Mail_ENDPOINT = ENDPOINT_PKG + "." + "MailEndpoint";
+//   public static final String QUARTZ_ENDPOINT = ENDPOINT_PKG + "." + "QuartzEndpoint";
+//   public static final String RESTLET_ENDPOINT = ENDPOINT_PKG + "." + "RestletEndpoint";
 
    public static final String GENERIC_ENDPOINT_KEY = "Generic Endpoint";
    public static final String FILE_ENDPOINT_KEY = "File";
@@ -69,20 +96,20 @@ public final class CamelConstants
     * 
     * @return
     */
-   public static final Map<String, String> getManagedEndpoints()
-   {
-
-      Map<String, String> edpoints = new HashMap<String, String>();
-      edpoints.put(GENERIC_ENDPOINT_KEY, GENERIC_ENDPOINT);
-      edpoints.put(FILE_ENDPOINT_KEY, File_ENDPOINT);
-      // endpointType.add("Ws");
-//      edpoints.put(JMS_ENDPOINT_KEY, JMS_ENDPOINT);
-//      edpoints.put(MAIL_ENDPOINT_KEY, Mail_ENDPOINT);
-//      edpoints.put(QUARTZ_ENDPOINT_KEY, QUARTZ_ENDPOINT);
-    //  edpoints.put(RESTLET_ENDPOINT_KEY, RESTLET_ENDPOINT);
-      return edpoints;
-
-   }
+//   public static final Map<String, String> getManagedEndpoints()
+//   {
+//
+//      Map<String, String> edpoints = new HashMap<String, String>();
+//      edpoints.put(GENERIC_ENDPOINT_KEY, GENERIC_ENDPOINT);
+//      edpoints.put(FILE_ENDPOINT_KEY, File_ENDPOINT);
+//      // endpointType.add("Ws");
+////      edpoints.put(JMS_ENDPOINT_KEY, JMS_ENDPOINT);
+////      edpoints.put(MAIL_ENDPOINT_KEY, Mail_ENDPOINT);
+////      edpoints.put(QUARTZ_ENDPOINT_KEY, QUARTZ_ENDPOINT);
+//    //  edpoints.put(RESTLET_ENDPOINT_KEY, RESTLET_ENDPOINT);
+//      return edpoints;
+//
+//   }
 
    /**
     * Returns the key of a value in the map
@@ -166,6 +193,11 @@ public final class CamelConstants
          public static final String COMMAND_FIND = "find";
          public static final String COMMAND_COMPLETE = "complete";
       }
+      public static final class Document
+      {
+         public static final String COMMAND_MOVE = "move";
+         
+      }
    }
 
    public static final class MessageProperty
@@ -198,5 +230,7 @@ public final class CamelConstants
          public static final String ROUTE_ID = "ippRouteId";
          public static final String COPY_DATA="ippCopyData";
          public static final String PARENT_PROCESS_INSTANCE_OID="ippParentProcessInstanceOid";
+         public static final String DOCUMENT_Id = "ippDmsDocumentId";
+         public static final String TARGET_PATH = "ippDmsTargetPath";
    }
 }

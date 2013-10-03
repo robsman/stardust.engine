@@ -1,5 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
 
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.parseSimpleExpression;
 import static org.eclipse.stardust.engine.extensions.camel.component.CamelHelper.*;
 import org.apache.camel.Consumer;
 import org.apache.camel.Exchange;
@@ -18,47 +19,55 @@ public class AuthenticationEndpoint extends AbstractIppEndpoint
    final static Logger LOG = LogManager.getLogger(AuthenticationEndpoint.class);
 
    protected Expression user;
+
    protected Expression password;
+
    protected Expression partition;
+
    protected Expression realm;
+
    protected Expression domain;
 
    public AuthenticationEndpoint(String uri, IppComponent component)
    {
       super(uri, component);
    }
-   
+
    /**
     * Creates a new producer which is used send messages into the endpoint
-    *
+    * 
     * @return a newly created producer
-    * @throws Exception can be thrown
+    * @throws Exception
+    *            can be thrown
     */
-public Producer createProducer() throws Exception
+   public Producer createProducer() throws Exception
    {
       return new AuthenticationProducer(this);
    }
 
-/**
- * Creates a new Event Driven Consumer which consumes messages 
- * from the endpoint using the given processor
- *
- * @param processor  the given processor
- * @return a newly created consumer
- * @throws Exception can be thrown
- */
-public Consumer createConsumer(Processor processor) throws Exception
+   /**
+    * Creates a new Event Driven Consumer which consumes messages from the endpoint using
+    * the given processor
+    * 
+    * @param processor
+    *           the given processor
+    * @return a newly created consumer
+    * @throws Exception
+    *            can be thrown
+    */
+   public Consumer createConsumer(Processor processor) throws Exception
    {
       throw new UnsupportedOperationException("This endpoint cannot be used as a consumer:" + getEndpointUri());
    }
 
-/**
- * 
- * @param exchange
- * @param strict flag
- * @return user account
- */
-public String evaluateUser(Exchange exchange, boolean strict)
+   /**
+    * 
+    * @param exchange
+    * @param strict
+    *           flag
+    * @return user account
+    */
+   public String evaluateUser(Exchange exchange, boolean strict)
    {
       if (null != this.user)
       {
@@ -76,10 +85,10 @@ public String evaluateUser(Exchange exchange, boolean strict)
    }
 
    /**
-	 * @param exchange
-	 * @return password
-	 */
-public String evaluatePassword(Exchange exchange)
+    * @param exchange
+    * @return password
+    */
+   public String evaluatePassword(Exchange exchange)
    {
       if (null != this.password)
          return this.password.evaluate(exchange, String.class);
@@ -87,11 +96,11 @@ public String evaluatePassword(Exchange exchange)
          return exchange.getIn().getHeader(CamelConstants.MessageProperty.PASSWORD, String.class);
    }
 
-	/**
-	 * @param exchange
-	 * @return partition
-	 */
-public String evaluatePartition(Exchange exchange)
+   /**
+    * @param exchange
+    * @return partition
+    */
+   public String evaluatePartition(Exchange exchange)
    {
       if (null != this.partition)
          return this.partition.evaluate(exchange, String.class);
@@ -99,11 +108,11 @@ public String evaluatePartition(Exchange exchange)
          return exchange.getIn().getHeader(CamelConstants.MessageProperty.PARTITION, String.class);
    }
 
-	/**
-	 * @param exchange
-	 * @return realm
-	 */
-public String evaluateRealm(Exchange exchange)
+   /**
+    * @param exchange
+    * @return realm
+    */
+   public String evaluateRealm(Exchange exchange)
    {
       if (null != this.realm)
          return this.realm.evaluate(exchange, String.class);
@@ -112,10 +121,10 @@ public String evaluateRealm(Exchange exchange)
    }
 
    /**
- * @param exchange
- * @return domain
- */
-public String evaluateDomain(Exchange exchange)
+    * @param exchange
+    * @return domain
+    */
+   public String evaluateDomain(Exchange exchange)
    {
       if (null != this.domain)
          return this.domain.evaluate(exchange, String.class);
@@ -123,60 +132,65 @@ public String evaluateDomain(Exchange exchange)
          return exchange.getIn().getHeader(CamelConstants.MessageProperty.DOMAIN, String.class);
    }
 
-/**
- * @param user
- */
-public void setUser(String user)
+   /**
+    * @param user
+    */
+   public void setUser(String user)
    {
-      if (user.startsWith("${") && user.endsWith("}"))
-         this.user = SimpleLanguage.simple(extractTokenFromExpression(user));
-      else
-         this.user = SimpleLanguage.simple(user);
+      // if (user.startsWith("${") && user.endsWith("}"))
+      // this.user = SimpleLanguage.simple(extractTokenFromExpression(user));
+      // else
+      // this.user = SimpleLanguage.simple(user);
+      this.user = parseSimpleExpression(user);
 
    }
 
-/**
- * @param password
- */
-public void setPassword(String password)
+   /**
+    * @param password
+    */
+   public void setPassword(String password)
    {
-      if (password.startsWith("${") && password.endsWith("}"))
-         this.password = SimpleLanguage.simple(extractTokenFromExpression(password));
-      else
-         this.password = SimpleLanguage.simple(password);
+      // if (password.startsWith("${") && password.endsWith("}"))
+      // this.password = SimpleLanguage.simple(extractTokenFromExpression(password));
+      // else
+      // this.password = SimpleLanguage.simple(password);
+      this.password = parseSimpleExpression(password);
    }
 
-/**
- * @param partition
- */
-public void setPartition(String partition)
+   /**
+    * @param partition
+    */
+   public void setPartition(String partition)
    {
-      if (partition.startsWith("${") && partition.endsWith("}"))
-         this.partition = SimpleLanguage.simple(extractTokenFromExpression(partition));
-      else
-         this.partition = SimpleLanguage.simple(partition);
+      // if (partition.startsWith("${") && partition.endsWith("}"))
+      // this.partition = SimpleLanguage.simple(extractTokenFromExpression(partition));
+      // else
+      // this.partition = SimpleLanguage.simple(partition);
+      this.partition = parseSimpleExpression(partition);
    }
 
-/**
- * @param realm
- */
-public void setRealm(String realm)
+   /**
+    * @param realm
+    */
+   public void setRealm(String realm)
    {
-      if (realm.startsWith("${") && realm.endsWith("}"))
-         this.realm = SimpleLanguage.simple(extractTokenFromExpression(realm));
-      else
-         this.realm = SimpleLanguage.simple(realm);
+      // if (realm.startsWith("${") && realm.endsWith("}"))
+      // this.realm = SimpleLanguage.simple(extractTokenFromExpression(realm));
+      // else
+      // this.realm = SimpleLanguage.simple(realm);
+      this.realm = parseSimpleExpression(realm);
    }
 
-/**
- * @param domain
- */
-public void setDomain(String domain)
+   /**
+    * @param domain
+    */
+   public void setDomain(String domain)
    {
-      if (domain.startsWith("${") && domain.endsWith("}"))
-         this.domain = SimpleLanguage.simple(extractTokenFromExpression(domain));
-      else
-         this.domain = SimpleLanguage.simple(domain);
+      // if (domain.startsWith("${") && domain.endsWith("}"))
+      // this.domain = SimpleLanguage.simple(extractTokenFromExpression(domain));
+      // else
+      // this.domain = SimpleLanguage.simple(domain);
+      this.domain = parseSimpleExpression(domain);
    }
 
 }

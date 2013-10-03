@@ -19,9 +19,12 @@ public class IppComponent extends DefaultComponent
 {
 
    private static final String DELIMITER = ":";
-   private static final String CARNOT_CURRENT_VERSION = "Camel-Ipp version: " + CurrentVersion.getVersionName();
+
+   private static final String CARNOT_CURRENT_VERSION = "Component version: " + CurrentVersion.getVersionName();
+
    private static final String JAVA_RUNTIME_VERSION = "Java Runtime Version: "
          + System.getProperty("java.runtime.version");
+
    private static Logger trace = LogManager.getLogger(IppComponent.class);
 
    public IppComponent()
@@ -31,16 +34,18 @@ public class IppComponent extends DefaultComponent
 
    }
 
-/**
- * Attempt to resolve an endpoint for the given URI
- * 
- * @param uri the URI to create
- * @param remaining
- * @param parameters
- * @return a newly created Endpoint using the given uri
- * @throws Exception is thrown if error creating the endpoint
- */
-protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception
+   /**
+    * Attempt to resolve an endpoint for the given URI
+    * 
+    * @param uri
+    *           the URI to create
+    * @param remaining
+    * @param parameters
+    * @return a newly created Endpoint using the given uri
+    * @throws Exception
+    *            is thrown if error creating the endpoint
+    */
+   protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception
    {
       AbstractIppEndpoint ippEndpoint = null;
       String endpointKey = extractEndpoint(remaining);
@@ -64,6 +69,11 @@ protected Endpoint createEndpoint(String uri, String remaining, Map<String, Obje
          ippEndpoint = new AuthenticationEndpoint(uri, this);
          setProperties(ippEndpoint, parameters);
       }
+      else if (CamelConstants.Endpoint.DMS.equalsIgnoreCase(endpointKey))
+      {
+         ippEndpoint = new DocumentManagementEndpoint(uri, this);
+         setProperties(ippEndpoint, parameters);
+      }
 
       if (StringUtils.isNotEmpty(subCommand) && null != ippEndpoint)
          ippEndpoint.setSubCommand(subCommand);
@@ -79,13 +89,13 @@ protected Endpoint createEndpoint(String uri, String remaining, Map<String, Obje
       return remaining;
    }
 
-/**
- * extract a sub command
- * 
- * @param remaining
- * @return SubCommand
- */
-private String extractSubCommand(String remaining)
+   /**
+    * extract a sub command
+    * 
+    * @param remaining
+    * @return SubCommand
+    */
+   private String extractSubCommand(String remaining)
    {
       int idx = remaining.indexOf(DELIMITER);
       if (idx > -1)

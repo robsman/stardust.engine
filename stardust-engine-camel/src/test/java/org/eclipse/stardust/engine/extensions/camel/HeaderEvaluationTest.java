@@ -11,7 +11,6 @@ import org.junit.Test;
 public class HeaderEvaluationTest
 {
    @Test
-// @DirtiesContext
  public void testAuthenticateWithPwd() throws Exception
  {
       CamelContext context=new DefaultCamelContext();

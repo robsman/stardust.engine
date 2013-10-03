@@ -18,71 +18,78 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ConfigurableApplicationContext;
 
-public class CamelApplicationLoader implements ApplicationContextAware {
+public class CamelApplicationLoader implements ApplicationContextAware
+{
 
-	public static final Logger logger = LogManager
-			.getLogger(CamelApplicationLoader.class);
+   public static final Logger logger = LogManager.getLogger(CamelApplicationLoader.class);
 
-	private ForkingService forkingService;
+   private ForkingService forkingService;
 
-	private ApplicationContext springContext;
-	private String partitionId;
+   private ApplicationContext springContext;
 
-	public ForkingService getForkingService() {
-		return forkingService;
-	}
+   private String partitionId;
 
-	public void setForkingService(ForkingService forkingService) {
-		this.forkingService = forkingService;
-	}
+   public ForkingService getForkingService()
+   {
+      return forkingService;
+   }
 
-	public void setPartitionId(String partitionId) {
-		this.partitionId = partitionId;
-	}
+   public void setForkingService(ForkingService forkingService)
+   {
+      this.forkingService = forkingService;
+   }
 
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+   public void setPartitionId(String partitionId)
+   {
+      this.partitionId = partitionId;
+   }
 
-		this.springContext = applicationContext;
+   @Override
+   public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+   {
 
-		SpringUtils
-				.setApplicationContext((ConfigurableApplicationContext) applicationContext);
+      this.springContext = applicationContext;
 
-		this.bootstrap();
+      SpringUtils.setApplicationContext((ConfigurableApplicationContext) applicationContext);
 
-	}
+      this.bootstrap();
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private void bootstrap() {
-		final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor
-				.getCurrent();
+   }
 
-		if (bpmRt != null && this.partitionId != null) {
+   @SuppressWarnings({"unchecked", "rawtypes"})
+   private void bootstrap()
+   {
+      final BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
 
-			Action action = new CreateApplicationRouteAction(bpmRt,
-					this.partitionId, this.springContext);
+      if (bpmRt != null && this.partitionId != null)
+      {
 
-			action.execute();
+         Action action = new CreateApplicationRouteAction(bpmRt, this.partitionId, this.springContext);
 
-		} else {
+         action.execute();
 
-			List<String> partitions = null;
+      }
+      else
+      {
 
-			if (this.partitionId == null) {
-				partitions = (List<String>) this.forkingService
-						.isolate(new LoadPartitionsAction());
-			} else {
-				partitions = CollectionUtils.newList();
-				partitions.add(this.partitionId);
-			}
+         List<String> partitions = null;
 
-			for (Iterator<String> i = partitions.iterator(); i.hasNext();) {
-				String partition = i.next();
+         if (this.partitionId == null)
+         {
+            partitions = (List<String>) this.forkingService.isolate(new LoadPartitionsAction());
+         }
+         else
+         {
+            partitions = CollectionUtils.newList();
+            partitions.add(this.partitionId);
+         }
 
-				this.forkingService.isolate(new CreateApplicationRouteAction(
-						partition, this.springContext));
-			}
-		}
-	}
+         for (Iterator<String> i = partitions.iterator(); i.hasNext();)
+         {
+            String partition = i.next();
+
+            this.forkingService.isolate(new CreateApplicationRouteAction(partition, this.springContext));
+         }
+      }
+   }
 }

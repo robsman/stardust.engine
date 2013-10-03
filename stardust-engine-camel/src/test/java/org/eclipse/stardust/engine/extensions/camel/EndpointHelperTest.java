@@ -30,13 +30,13 @@ public class EndpointHelperTest
       assertTrue(expectedResponse.equalsIgnoreCase(response));
    }
 
-   @Test
-   public void testKeyClassMapping()
-   {
-      Map<String, String> endpoints = getManagedEndpoints();
-      String className = GENERIC_ENDPOINT;
-      String reponse = getKeyByValue(endpoints, className);
-   }
+//   @Test
+//   public void testKeyClassMapping()
+//   {
+//      Map<String, String> endpoints = getManagedEndpoints();
+//      String className = GENERIC_ENDPOINT;
+//      String reponse = getKeyByValue(endpoints, className);
+//   }
 
    @Test
    public void testReplaceSymbolicEndpoint()

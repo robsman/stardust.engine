@@ -64,7 +64,7 @@
 		<redeliveryPolicy maximumRedeliveries="4"
 			redeliveryDelay="10000"/>
 	</errorHandler>
-	<camelContext errorHandlerRef="myErrorHandler" id="defaultCamelContext" trace="true"
+	<camelContext errorHandlerRef="myErrorHandler" id="defaultCamelContext" trace="true" shutdownRunningTask="CompleteCurrentTaskOnly" 
 		xmlns="http://camel.apache.org/schema/spring">
 	</camelContext>
 

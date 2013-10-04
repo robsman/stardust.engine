@@ -78,11 +78,7 @@
       <!-- main idea of this config is to include only carnot-engine.jar as a dependency -->
       <conf name="carnot-engine-jar" visibility="private"/>
       
-      <conf name="carnot-emf-xsd-integration-compile" extends="carnot-engine-jar" visibility="public"/>
-      <conf name="carnot-emf-xsd-integration-runtime" extends="carnot-emf-xsd-integration-compile, carnot-engine-jar" visibility="public"/>
-      
       <conf name="carnot-client-sources"/>
-      <conf name="carnot-emf-xsd-integration-sources"/>
       <conf name="carnot-engine-sources"/>
       
       <conf name="carnot-engine-javadoc"/>
@@ -94,8 +90,8 @@
       <conf name="integration-jars" extends="js-provider-runtime" visibility="private"/>
 
       <!-- compound configurations which encapsulates the above mentioned configs -->
-      <conf name="compile" extends="carnot-engine-compile, carnot-engine-compile-optional, carnot-client-compile, carnot-emf-xsd-integration-compile, compile-secret, integration-jars" visibility="private"/>
-      <conf name="runtime" extends="carnot-engine-runtime, carnot-engine-runtime-optional, carnot-client-runtime, carnot-emf-xsd-integration-runtime,build-lib,ant-build-runtime" visibility="private"/>
+      <conf name="compile" extends="carnot-engine-compile, carnot-engine-compile-optional, carnot-client-compile, compile-secret, integration-jars" visibility="private"/>
+      <conf name="runtime" extends="carnot-engine-runtime, carnot-engine-runtime-optional, carnot-client-runtime, build-lib,ant-build-runtime" visibility="private"/>
       <conf name="provided" extends="carnot-engine-provided" visibility="private"/>
 
       <conf name="all" extends="compile, runtime, provided, test" visibility="private"/>
@@ -108,12 +104,9 @@
          conf="carnot-engine-compile, carnot-engine-runtime, carnot-engine-compile-optional, carnot-engine-runtime-optional, carnot-engine-provided, carnot-engine-jar" />
       <artifact name="carnot-engine" type="source" ext="jar" conf="carnot-engine-sources" m:classifier="sources"/>
       <artifact name="carnot-engine" type="javadoc" ext="jar" conf="carnot-engine-javadoc" m:classifier="javadoc"/>
-      <artifact name="carnot-emf-xsd-integration" type="jar" conf="carnot-emf-xsd-integration-compile, carnot-emf-xsd-integration-runtime" ext="jar"/>
-      <artifact name="carnot-emf-xsd-integration" type="source" ext="jar" conf="carnot-emf-xsd-integration-sources" m:classifier="sources"/>
 
       <artifact name="carnot-client" type="pom" conf="pom" ext="pom"/>
       <artifact name="carnot-engine" type="pom" conf="pom" ext="pom"/>
-      <artifact name="carnot-emf-xsd-integration" type="pom" conf="pom" ext="pom"/>
    </publications>
 
    <dependencies>

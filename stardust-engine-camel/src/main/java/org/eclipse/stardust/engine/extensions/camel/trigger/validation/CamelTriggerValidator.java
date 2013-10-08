@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.TriggerValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.TriggerValidatorEx;
+import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.EndpointHelper;
 import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerLoader;
 import org.eclipse.stardust.engine.extensions.camel.util.CreateTriggerRouteAction;
@@ -95,7 +96,15 @@ public class CamelTriggerValidator implements TriggerValidator,
                     "No route definition specified for trigger: "
                             + trigger.getId(), trigger, Inconsistency.ERROR));
         }
-
+        
+        // check if route contains the "ipp:direct" directive
+        if(!routeDefinition.contains("uri=\"" + CamelConstants.IPP_DIRECT_TAG + "\"")) {
+        	 inconsistencies.add(new Inconsistency(
+                     "Missing entry uri=\"" + CamelConstants.IPP_DIRECT_TAG + "\"  in the " +
+                     		"route definition for trigger: "
+                             + trigger.getId(), trigger, Inconsistency.ERROR));
+        }
+        
         if (!trigger.getAllPersistentAccessPoints().hasNext()) {
                  logger.warn("No Parameter mapping defined for trigger: " + trigger.getId());
 //          inconsistencies.add(new Inconsistency(

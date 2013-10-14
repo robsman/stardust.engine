@@ -1,1 +1,2 @@
 org.eclipse.stardust.engine.core.compatibility.ipp.PreStardustTypeNameResolver
+org.eclipse.stardust.engine.core.compatibility.ipp.DeprecatedTypeNameResolver

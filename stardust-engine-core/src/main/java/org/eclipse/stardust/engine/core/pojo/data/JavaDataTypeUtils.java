@@ -25,11 +25,16 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.reflect.ResolvedMethod;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.PluggableType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.pojo.utils.JavaAccessPointType;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanConstants;
 
 
@@ -74,9 +79,18 @@ public class JavaDataTypeUtils
 
    public static String getReferenceClassName(AccessPoint data)
    {
+      return getReferenceClassName(data, false);
+   }
+   
+   public static String getReferenceClassName(AccessPoint data, boolean javaExpected)
+   {
       if (data.getType().getId().equals(PredefinedConstants.PRIMITIVE_DATA))
       {
          Type type = (Type) data.getAttribute(PredefinedConstants.TYPE_ATT);
+         if (Type.Enumeration == type && (data instanceof ModelElement))
+         {
+            return getJavaEnumClassName(data, javaExpected);
+         }
          return Reflect.getClassFromAbbreviatedName(type.getName()).getName();
       }
       else if (data.getType().getId().equals(PredefinedConstants.SERIALIZABLE_DATA))
@@ -98,18 +112,23 @@ public class JavaDataTypeUtils
 
    public static Class getReferenceClass(AccessPoint data)
    {
+      return getReferenceClass(data, false);
+   }
+   
+   public static Class getReferenceClass(AccessPoint data, boolean javaExpected)
+   {
       Class referenceClass = (data instanceof ModelElement)
             ? (Class) ((ModelElement) data).getRuntimeAttribute(CACHED_REFERENCE_CLASS)
             : null;
       if (null == referenceClass)
       {
-         final String referenceClassName = getReferenceClassName(data);
+         final String referenceClassName = getReferenceClassName(data, javaExpected);
          
-         if ( !StringUtils.isEmpty(referenceClassName))
+         if (!StringUtils.isEmpty(referenceClassName))
          {
             referenceClass = Reflect.getClassFromAbbreviatedName(referenceClassName);
             
-            if ((null != referenceClass) && (data instanceof ModelElement))
+            if ((null != referenceClass) && isCacheable(data))
             {
                ((ModelElement) data).setRuntimeAttribute(CACHED_REFERENCE_CLASS, referenceClass);
             }
@@ -117,6 +136,44 @@ public class JavaDataTypeUtils
       }
       
       return referenceClass;
+   }
+
+   private static boolean isCacheable(AccessPoint data)
+   {
+      return (data instanceof ModelElement) && !isJavaEnumeration(data);
+   }
+
+   public static boolean isJavaEnumeration(AccessPoint data)
+   {
+      PluggableType type = data.getType();
+      if (type != null && PredefinedConstants.PRIMITIVE_DATA.equals(type.getId()))
+      {
+         Object primitiveType = data.getAttribute(PredefinedConstants.TYPE_ATT);
+         if (primitiveType == Type.Enumeration && (data instanceof ModelElement))
+         {
+            return !String.class.getName().equals(getJavaEnumClassName(data, true));
+         }
+      }
+      return false;
+   }
+
+   private static String getJavaEnumClassName(AccessPoint data, boolean javaExpected)
+   {
+      if (javaExpected)
+      {
+         String typeDeclarationId = data.getStringAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+         IModel model = (IModel) ((ModelElement) data).getModel();
+         ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
+         if (typeDeclaration != null)
+         {
+            String className = typeDeclaration.getStringAttribute(PredefinedConstants.CLASS_NAME_ATT);
+            if (className != null)
+            {
+               return className;
+            }
+         }
+      }
+      return String.class.getName();
    }
 
    public static AccessPoint createIntrinsicAccessPoint(ModelElement parent, String id,
@@ -190,7 +247,13 @@ public class JavaDataTypeUtils
 
    public static BridgeObject getBridgeObject(AccessPoint point, String path)
    {
-      Class accessPointType = getReferenceClass(point);
+      return getBridgeObject(point, path, null);
+   }
+   
+   public static BridgeObject getBridgeObject(AccessPoint point, String path, AccessPathEvaluationContext context)
+   {
+      boolean javaExpected = (context != null) && (context.getTargetAccessPointDefinition() instanceof JavaAccessPoint);
+      Class accessPointType = getReferenceClass(point, javaExpected);
       Direction direction = null;
       Class currentType = accessPointType;
       if (!StringUtils.isEmpty(path))

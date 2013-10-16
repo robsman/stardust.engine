@@ -67,7 +67,8 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                || type.equals(Type.Short)
                || type.equals(Type.Integer)
                || type.equals(Type.Long)
-               || type.equals(Type.Timestamp))
+               || type.equals(Type.Timestamp)
+               || type.equals(Type.Enumeration))
          {
             return BigData.NUMERIC_VALUE;
          }
@@ -142,7 +143,8 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                || type.equals(Type.Short)
                || type.equals(Type.Integer)
                || type.equals(Type.Long)
-               || type.equals(Type.Timestamp))
+               || type.equals(Type.Timestamp)
+               || type.equals(Type.Enumeration))
          {
             return BigData.NUMERIC_VALUE;
          }

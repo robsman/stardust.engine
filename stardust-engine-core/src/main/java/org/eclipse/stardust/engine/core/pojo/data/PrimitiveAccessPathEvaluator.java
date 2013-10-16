@@ -13,7 +13,6 @@ package org.eclipse.stardust.engine.core.pojo.data;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Map;
 
 import org.eclipse.stardust.common.Money;
 import org.eclipse.stardust.common.Stateless;
@@ -21,75 +20,20 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
-
+import org.eclipse.stardust.engine.core.model.beans.DataBean;
+import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 
 /**
  * @author ubirkemeyer
  * @version $Revision$
  */
-public class PrimitiveAccessPathEvaluator implements AccessPathEvaluator, Stateless
+public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator, Stateless
 {
    public boolean isStateless()
    {
       return true;
-   }
-
-   public Object evaluate(Map attributes, Object accessPoint, String outPath)
-   {
-      try
-      {
-         return JavaDataTypeUtils.evaluate(outPath, accessPoint);
-      }
-      catch (InvocationTargetException e)
-      {
-         throw new PublicException("Failed reading java value.", e.getTargetException());
-      }
-   }
-
-   public Object evaluate(Map attributes, Object accessPoint, String inPath, Object value)
-   {
-      try
-      {
-         return JavaDataTypeUtils.evaluate(inPath, accessPoint, value);
-      }
-      catch (InvocationTargetException e)
-      {
-         throw new PublicException("Failed setting java value.", e.getTargetException());
-      }
-   }
-
-   public Object createInitialValue(Map attributes)
-   {
-      Type type = (Type) attributes.get(PredefinedConstants.TYPE_ATT);
-
-      Object defaultValue = createDefaultValue(attributes);
-      if (defaultValue == null)
-      {
-         return newValueInstance(type);
-      }
-      return defaultValue;
-   }
-
-   public Object createDefaultValue(Map attributes)
-   {
-      String defaultValue = (String) attributes.get(PredefinedConstants
-            .DEFAULT_VALUE_ATT);
-      if (!StringUtils.isEmpty(defaultValue))
-      {
-         Type type = (Type) attributes.get(PredefinedConstants.TYPE_ATT);
-
-         try
-         {
-            return Reflect.convertStringToObject(type.getId(), defaultValue);
-         }
-         catch (Exception e)
-         {
-            throw new PublicException("Can't convert value '" + defaultValue
-                  + "' to type '" + type + "'.", e);
-         }
-      }
-      return null;
    }
 
    private Object newValueInstance(Type type)
@@ -141,6 +85,124 @@ public class PrimitiveAccessPathEvaluator implements AccessPathEvaluator, Statel
       else if (type.equals(Type.Money))
       {
          return new Money(0);
+      }
+      return null;
+   }
+
+   @Override
+   public Object evaluate(AccessPoint accessPointDefinition, Object accessPointInstance, String outPath,
+         AccessPathEvaluationContext accessPathEvaluationContext)
+   {
+      try
+      {
+         if (JavaDataTypeUtils.isJavaEnumeration(accessPointDefinition))
+         {
+            if (accessPointInstance instanceof Number)
+            {
+               if (accessPathEvaluationContext != null && accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint)
+               {
+                  Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
+                  if (enumClass != null && enumClass.isEnum())
+                  {
+                     accessPointInstance = enumClass.getEnumConstants()[((Number) accessPointInstance).intValue()];
+                  }
+               }
+               else
+               {
+                  // TODO: provide the string value
+               }
+            }
+         }
+         return JavaDataTypeUtils.evaluate(outPath, accessPointInstance);
+      }
+      catch (InvocationTargetException e)
+      {
+         throw new PublicException("Failed reading java value.", e.getTargetException());
+      }
+   }
+
+   @Override
+   public Object evaluate(AccessPoint accessPointDefinition, Object accessPointInstance, String inPath,
+         AccessPathEvaluationContext accessPathEvaluationContext, Object value)
+   {
+      try
+      {
+         if (accessPointInstance != null && JavaDataTypeUtils.isJavaEnumeration(accessPointDefinition))
+         {
+            if (value != null && value.getClass().isEnum())
+            {
+               if (accessPathEvaluationContext != null && accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint)
+               {
+                  Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
+                  if (enumClass != null && enumClass.isEnum() && enumClass.isInstance(value))
+                  {
+                     value = ((Enum) value).ordinal();
+                  }
+               }
+               else
+               {
+                  // TODO: provide the string value
+               }
+            }
+            else
+            {
+               // TODO:
+            }
+         }
+         return JavaDataTypeUtils.evaluate(inPath, accessPointInstance, value);
+      }
+      catch (InvocationTargetException e)
+      {
+         throw new PublicException("Failed setting java value.", e.getTargetException());
+      }
+   }
+
+   @Override
+   public Object createInitialValue(AccessPoint accessPointDefinition,
+         AccessPathEvaluationContext accessPathEvaluationContext)
+   {
+      Object defaultValue = createDefaultValue(accessPointDefinition, accessPathEvaluationContext);
+      return defaultValue == null
+            ? newValueInstance((Type) accessPointDefinition.getAttribute(PredefinedConstants.TYPE_ATT))
+            : defaultValue;
+   }
+
+   @Override
+   public Object createDefaultValue(AccessPoint accessPointDefinition,
+         AccessPathEvaluationContext accessPathEvaluationContext)
+   {
+      String defaultValue = accessPointDefinition.getStringAttribute(PredefinedConstants.DEFAULT_VALUE_ATT);
+      if (!StringUtils.isEmpty(defaultValue))
+      {
+         Type type = (Type) accessPointDefinition.getAttribute(PredefinedConstants.TYPE_ATT);
+         if (Type.Enumeration == type && accessPointDefinition instanceof DataBean)
+         {
+            Class refClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
+            if (refClass.isEnum())
+            {
+               Object[] values = refClass.getEnumConstants();
+               for (int i = 0; i < values.length; i++)
+               {
+                  if (values[i] instanceof Enum && defaultValue.equals(((Enum) values[i]).name()))
+                  {
+                     return i;
+                  }
+               }
+            }
+            else
+            {
+               
+            }
+         }
+         try
+         {
+            return Reflect.convertStringToObject(type.getId(), defaultValue);
+         }
+         catch (Exception e)
+         {
+            throw new PublicException("Can't convert value '" + defaultValue
+                  + "' to type '" + type + "'.", e);
+         }
       }
       return null;
    }

@@ -128,4 +128,17 @@ public final class ProcessInstanceFilter implements FilterCriterion
    {
       return new ProcessInstanceFilter(oids, includingSubprocesses);
    }
+
+   @Override
+   public String toString()
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append("ProcessInstance OID IN ");
+      sb.append(oids);
+      if (includingSubprocesses)
+      {
+         sb.append(" INCLUSIVE");
+      }
+      return sb.toString();
+   }
 }

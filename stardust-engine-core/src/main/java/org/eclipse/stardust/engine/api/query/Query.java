@@ -215,4 +215,10 @@ public abstract class Query implements Serializable
    {
       return order.accept(visitor, context);
    }
+
+   @Override
+   public String toString()
+   {
+      return "WHERE " + getFilter();
+   }
 }

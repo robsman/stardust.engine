@@ -15,11 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.stardust.common.StringKey;
-import org.eclipse.stardust.common.log.LogManager;
-import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-
-
 
 /**
  * Filter criterion providing filter criteria groups. Grouped can be built by either
@@ -35,7 +31,7 @@ public abstract class FilterTerm implements FilterCriterion
 {
    private static final long serialVersionUID = -8556008405429115283L;
 
-   private static final Logger trace = LogManager.getLogger(FilterTerm.class);
+   //private static final Logger trace = LogManager.getLogger(FilterTerm.class);
 
    /**
     * Constant marking AND-terms.
@@ -178,5 +174,32 @@ public abstract class FilterTerm implements FilterCriterion
       {
          super(tag, tag);
       }
+   }
+
+   @Override
+   public String toString()
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append('(');
+      if (parts != null)
+      {
+         boolean first = true;
+         for (Object part : parts)
+         {
+            if (first)
+            {
+               first = false;
+            }
+            else
+            {
+               sb.append(' ');
+               sb.append(kind);
+               sb.append(' ');
+            }
+            sb.append(part);
+         }
+      }
+      sb.append(')');
+      return sb.toString();
    }
 }

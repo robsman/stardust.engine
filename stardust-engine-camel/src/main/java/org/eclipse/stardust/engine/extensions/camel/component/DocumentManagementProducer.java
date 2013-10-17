@@ -8,19 +8,18 @@ import static org.eclipse.stardust.engine.extensions.camel.component.CamelHelper
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-
 import org.apache.camel.CamelException;
 import org.apache.camel.Exchange;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
 
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
+import org.eclipse.stardust.engine.extensions.camel.converter.DocumentDataConverter;
 
 public class DocumentManagementProducer extends AbstractIppProducer
 {
-   private static final Logger logger = LogManager.getLogger(DocumentManagementProducer.class);
+   static Logger logger = LogManager.getLogger(DocumentDataConverter.class);
 
    private DocumentManagementEndpoint endpoint;
 

@@ -1,11 +1,8 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.camel.CamelContext;
@@ -28,7 +25,7 @@ import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
 @Ignore
-public class CamelApplicationTest //extends AbstractJUnit4SpringContextTests
+public class CamelApplicationTest 
 {
    private static ClassPathXmlApplicationContext ctx;
    {
@@ -86,10 +83,10 @@ public class CamelApplicationTest //extends AbstractJUnit4SpringContextTests
 
       assertNotNull(result);
       assertTrue(result instanceof Map< ? , ? >);
-      assertThat(((Map<String,Object>) result).get("addrLine1"), equalTo(addressMap.get("addrLine1")));
-      assertThat(((Map<String,Object>) result).get("addrLine2"), equalTo(addressMap.get("addrLine2")));
-      assertThat(((Map<String,Object>) result).get("zipCode"), equalTo(addressMap.get("zipCode")));
-      assertThat(((Map<String,Object>) result).get("city"), equalTo(addressMap.get("city")));
+      assertTrue(((Map<String,Object>) result).get("addrLine1").equals(addressMap.get("addrLine1")));
+      assertTrue(((Map<String,Object>) result).get("addrLine2").equals(addressMap.get("addrLine2")));
+      assertTrue(((Map<String,Object>) result).get("zipCode").equals(addressMap.get("zipCode")));
+      assertTrue(((Map<String,Object>) result).get("city").equals(addressMap.get("city")));
 
    }
 
@@ -128,7 +125,7 @@ public class CamelApplicationTest //extends AbstractJUnit4SpringContextTests
 
       Object expectedJSON = "{\"lastName\":\"Mungikar\",\"address\":{\"addrLine1\":\"test1\",\"addrLine2\":\"test1\",\"zipCode\":\"test1\",\"city\":\"test1\"},\"firstName\":\"Manali\"}";
 
-      assertThat(result, equalTo(expectedJSON));
+      assertTrue(result.equals(expectedJSON));
 
    }
 
@@ -230,8 +227,8 @@ public class CamelApplicationTest //extends AbstractJUnit4SpringContextTests
             pInstance.getOID(), "Person");
 
       assertNotNull(resultDataMap);
-      assertThat(resultDataMap.get("firstName"), equalTo(expectedBody.get("lastName")));
-      assertThat(resultDataMap.get("lastName"), equalTo(expectedBody.get("firstName")));
+      assertTrue(resultDataMap.get("firstName").equals(expectedBody.get("lastName")));
+      assertTrue(resultDataMap.get("lastName").equals(expectedBody.get("firstName")));
    }
 
    // @Test

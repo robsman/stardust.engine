@@ -1,8 +1,7 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
-import static org.hamcrest.Matchers.equalTo;
+
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -15,25 +14,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
-import javax.annotation.Resource;
-
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
 import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 //
 //@ContextConfiguration(locations = {
 //      "BpmTypeConverterTest-context.xml", "classpath:carnot-spring-context.xml",
@@ -118,19 +108,19 @@ public class BpmTypeConverterTest // extends AbstractJUnit4SpringContextTests
 
       assertTrue(result instanceof Map< ? , ? >);
 
-      assertThat(((Map) result).get("string"), equalTo(dataTypesMap.get("string")));
-      assertThat(((Map) result).get("boolean"), equalTo(dataTypesMap.get("boolean")));
-      assertThat(((Map) result).get("int"), equalTo(dataTypesMap.get("int")));
-      assertThat(((Map) result).get("short"), equalTo(dataTypesMap.get("short")));
-      assertThat(((Map) result).get("byte"), equalTo(dataTypesMap.get("byte")));
-      assertThat(((Map) result).get("double"), equalTo(dataTypesMap.get("double")));
-      assertThat(((Map) result).get("float"), equalTo(dataTypesMap.get("float")));
+      assertTrue(((Map) result).get("string").equals(dataTypesMap.get("string")));
+      assertTrue(((Map) result).get("boolean").equals(dataTypesMap.get("boolean")));
+      assertTrue(((Map) result).get("int").equals(dataTypesMap.get("int")));
+      assertTrue(((Map) result).get("short").equals(dataTypesMap.get("short")));
+      assertTrue(((Map) result).get("byte").equals(dataTypesMap.get("byte")));
+      assertTrue(((Map) result).get("double").equals(dataTypesMap.get("double")));
+      assertTrue(((Map) result).get("float").equals(dataTypesMap.get("float")));
 
       // TODO: decimal is handled as String in IPP
       // assertThat(((Map) result).get("decimal"),
       // equalTo(dataTypesMap.get("decimal")));
-      assertThat(((Map) result).get("date"), equalTo(dataTypesMap.get("date")));
-      assertThat(((Map) result).get("dateTime"), equalTo(dataTypesMap.get("dateTime")));
+      assertTrue(((Map) result).get("date").equals(dataTypesMap.get("date")));
+      assertTrue(((Map) result).get("dateTime").equals(dataTypesMap.get("dateTime")));
    }
 
    @SuppressWarnings("rawtypes")
@@ -194,19 +184,19 @@ public class BpmTypeConverterTest // extends AbstractJUnit4SpringContextTests
 
          assertTrue(map instanceof Map< ? , ? >);
 
-         assertThat(((Map) map).get("string"), equalTo(dataTypesMap.get("string")));
-         assertThat(((Map) map).get("boolean"), equalTo(dataTypesMap.get("boolean")));
-         assertThat(((Map) map).get("int"), equalTo(dataTypesMap.get("int")));
-         assertThat(((Map) map).get("short"), equalTo(dataTypesMap.get("short")));
-         assertThat(((Map) map).get("byte"), equalTo(dataTypesMap.get("byte")));
-         assertThat(((Map) map).get("double"), equalTo(dataTypesMap.get("double")));
-         assertThat(((Map) map).get("float"), equalTo(dataTypesMap.get("float")));
+         assertTrue(((Map) map).get("string").equals(dataTypesMap.get("string")));
+         assertTrue(((Map) map).get("boolean").equals(dataTypesMap.get("boolean")));
+         assertTrue(((Map) map).get("int").equals(dataTypesMap.get("int")));
+         assertTrue(((Map) map).get("short").equals(dataTypesMap.get("short")));
+         assertTrue(((Map) map).get("byte").equals(dataTypesMap.get("byte")));
+         assertTrue(((Map) map).get("double").equals(dataTypesMap.get("double")));
+         assertTrue(((Map) map).get("float").equals(dataTypesMap.get("float")));
 
          // TODO: decimal is handled as String in IPP
          // assertThat(((Map) map).get("decimal"),
          // equalTo(dataTypesMap.get("decimal")));
-         assertThat(((Map) map).get("date"), equalTo(dataTypesMap.get("date")));
-         assertThat(((Map) map).get("dateTime"), equalTo(dataTypesMap.get("dateTime")));
+         assertTrue(((Map) map).get("date").equals(dataTypesMap.get("date")));
+         assertTrue(((Map) map).get("dateTime").equals(dataTypesMap.get("dateTime")));
       }
 
    }
@@ -341,10 +331,10 @@ public class BpmTypeConverterTest // extends AbstractJUnit4SpringContextTests
 
       assertNotNull(result);
       assertTrue(result instanceof Map< ? , ? >);
-      assertThat(((Map) result).get("addrLine1"), equalTo(addressMap.get("addrLine1")));
-      assertThat(((Map) result).get("addrLine2"), equalTo(addressMap.get("addrLine2")));
-      assertThat(((Map) result).get("zipCode"), equalTo(addressMap.get("zipCode")));
-      assertThat(((Map) result).get("city"), equalTo(addressMap.get("city")));
+      assertTrue(((Map) result).get("addrLine1").equals(addressMap.get("addrLine1")));
+      assertTrue(((Map) result).get("addrLine2").equals(addressMap.get("addrLine2")));
+      assertTrue(((Map) result).get("zipCode").equals(addressMap.get("zipCode")));
+      assertTrue(((Map) result).get("city").equals(addressMap.get("city")));
 
    }
 

@@ -3,17 +3,14 @@ package org.eclipse.stardust.engine.extensions.camel.converter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMultipart;
-
 import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty;
@@ -23,8 +20,7 @@ import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironmen
 
 @Converter
 public class DocumentDataConverter implements DataConverter {
-	private static final Logger logger = LogManager
-			.getLogger(DocumentDataConverter.class);
+   static Logger logger = LogManager.getLogger(DocumentDataConverter.class);
 	DmsUtils dmsUtils;
 	private String fromEndpoint;
 	private String targetType;
@@ -71,7 +67,7 @@ public class DocumentDataConverter implements DataConverter {
 	@Converter
 	@Handler
 	public Document genericFileToDocument(Object messageContent,
-			Exchange exchange) throws IOException, MessagingException {
+			Exchange exchange) throws IOException{
 		byte[] jcrDocumentContent = null;
 		if (exchange != null) {
 			if (messageContent instanceof GenericFile<?>) {
@@ -119,21 +115,21 @@ public class DocumentDataConverter implements DataConverter {
 							.replaceAll(":", "_")
 							+ "_" + df.format(new Date());
 			}
-			MimeMultipart mimeMultipart = null;
-			if (jcrDocumentContent == null) {
-				mimeMultipart = (MimeMultipart) exchange.getIn().getBody();
-				if (mimeMultipart != null) {
-					try {
-						jcrDocumentContent = (byte[]) mimeMultipart
-								.getBodyPart(1).getContent();
-					} catch (Exception e) {
-						e.printStackTrace();
-						jcrDocumentContent = "".getBytes();
-					}
-				} else {
-					jcrDocumentContent ="".getBytes();
-				}
-			}
+//			MimeMultipart mimeMultipart = null;
+//			if (jcrDocumentContent == null) {
+//				mimeMultipart = (MimeMultipart) exchange.getIn().getBody();
+//				if (mimeMultipart != null) {
+//					try {
+//						jcrDocumentContent = (byte[]) mimeMultipart
+//								.getBodyPart(1).getContent();
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//						jcrDocumentContent = "".getBytes();
+//					}
+//				} else {
+//					jcrDocumentContent ="".getBytes();
+//				}
+//			}
 			Document newDocument = dmsFileArchiver.archiveFile(
 					jcrDocumentContent, path, folder);
 			newDocument.setProperties(null);	

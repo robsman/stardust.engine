@@ -2335,6 +2335,7 @@
 			<element name="defaultValue" type="string"/>
 			<element name="description" type="string"/>
 			<element name="modelOid" type="int"/>
+			<element name="type" type="string"/> 			
 		</sequence>
 	</complexType>
 

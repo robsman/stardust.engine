@@ -213,6 +213,7 @@ import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariable;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
+import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
@@ -4956,6 +4957,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
          variableXto.setDescription(variable.getDescription());
          variableXto.setModelOid(variable.getModelOid());
          variableXto.setName(variable.getName());
+         variableXto.setType(variable.getType().name());         
          variableXto.setValue(variable.getValue());
 
       }
@@ -5012,8 +5014,9 @@ public static DataPathXto toWs(DataPath dp, Model model)
       if (variableXto != null)
       {
          ConfigurationVariableDefinition variableDefinition = new ConfigurationVariableDefinition(
-               variableXto.getName(), variableXto.getDefaultValue(),
-               variableXto.getDescription(), variableXto.getModelOid());
+               variableXto.getName(), 
+               ConfigurationVariableUtils.getType(variableXto.getType()), 
+               variableXto.getDefaultValue(), variableXto.getDescription(), variableXto.getModelOid());
 
          ret = new ConfigurationVariable(variableDefinition, variableXto.getValue());
       }
@@ -5418,5 +5421,4 @@ public static DataPathXto toWs(DataPath dp, Model model)
       
       return deputiesXto;      
    }
-
 }

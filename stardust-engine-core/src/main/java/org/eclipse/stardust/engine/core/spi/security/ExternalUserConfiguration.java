@@ -18,9 +18,18 @@ import java.util.*;
 
 import org.eclipse.stardust.common.StringUtils;
 
-
 public abstract class ExternalUserConfiguration
 {
+   /**
+    * Gets the Session Tokens for the external user.
+    * 
+    * @return Key/Value pairs.
+    */   
+   public Map<String, String> getSessionTokens()
+   {
+      return Collections.EMPTY_MAP;
+   }
+   
    /**
     * Gets the first name of the external user.
     * 

@@ -44,8 +44,6 @@ import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalWithProperties;
 import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
 
-
-
 // @todo (france, ub): should be three interceptors (?!)
 // - login interceptor for internal login
 // - login interceptor for principal login
@@ -168,6 +166,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          setCurrentUser(layer, user);
          
          SessionManager.instance().updateLastModificationTime(user);
+         SessionManager.instance().updateSessionTokens(user);         
       }
       
       return invocation.proceed();
@@ -191,6 +190,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       setCurrentUser(layer, user);
 
       SessionManager.instance().updateLastModificationTime(user);
+      SessionManager.instance().updateSessionTokens(user);      
       
       if ( !LoginUtils.isLoginLoggingDisabled(user))
       {

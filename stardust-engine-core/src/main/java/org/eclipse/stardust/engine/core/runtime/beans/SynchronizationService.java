@@ -844,7 +844,7 @@ public abstract class SynchronizationService
       user.setLastName(userConf.getLastName());
       user.setEMail(userConf.getEMail());
       user.setDescription(userConf.getDescription());
-      user.SetSessionTokens(userConf.getSessionTokens());
+      user.setSessionTokens(userConf.getSessionTokens());
       
       Map properties = userConf.getProperties();
 

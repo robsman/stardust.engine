@@ -1384,7 +1384,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       return sessionTokens;
    }
 
-   public void SetSessionTokens(Map<String, String> sessionTokens)
+   public void setSessionTokens(Map<String, String> sessionTokens)
    {
       this.sessionTokens = sessionTokens;
    }	

@@ -43,7 +43,7 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
     * 
     * @param session tokens.
     */   
-   void SetSessionTokens(Map<String, String> sessionTokens);
+   void setSessionTokens(Map<String, String> sessionTokens);
    
    
    /**

@@ -20,14 +20,17 @@ import org.eclipse.stardust.common.StringUtils;
 /**
  * AddTerm can hold an arbitrary number of <code>PredicateTerm</code>s which are
  * combined by the operator AND.
- * 
+ *
  * @author sborn
  * @version $Revision$
  */
 public class AndTerm implements MultiPartPredicateTerm
 {
    private final List<PredicateTerm> parts;
-   
+
+   private String tag;
+
+
    public static AndTerm shallowCopy(AndTerm rhs)
    {
       return new AndTerm(rhs);
@@ -40,10 +43,10 @@ public class AndTerm implements MultiPartPredicateTerm
    {
       this((PredicateTerm[]) null);
    }
-   
+
    /**
     * Constructs an <code>AddTerm</code> with the given <code>PredicateTerm</code>s.
-    * 
+    *
     * @param predicates An array of <code>PredicateTerm</code>s
     */
    public AndTerm(PredicateTerm[] predicates)
@@ -61,7 +64,7 @@ public class AndTerm implements MultiPartPredicateTerm
          }
       }
    }
-   
+
    protected AndTerm(AndTerm rhs)
    {
       this.parts = Collections.unmodifiableList(rhs.parts);
@@ -69,28 +72,40 @@ public class AndTerm implements MultiPartPredicateTerm
 
    /**
     * Adds an <code>PredicateTerm</code> to this <code>AddTerm</code>.
-    * 
+    *
     * @param part The <code>PredicateTerm</code> to be added
-    * 
+    *
     * @return This <code>AddTerm</code>
     */
    public MultiPartPredicateTerm add(PredicateTerm part)
    {
       this.parts.add(part);
-      
+
       return this;
    }
-   
+
    /**
     * Returns the <code>PredicateTerm</code>s currently hold by this <code>AddTerm</code>.
-    * 
+    *
     * @return A list <code>PredicateTerm</code>s
     */
    public List<PredicateTerm> getParts()
    {
       return Collections.unmodifiableList(parts);
    }
-   
+
+   @Override
+   public String getTag()
+   {
+      return tag;
+   }
+
+   @Override
+   public void setTag(String tag)
+   {
+      this.tag = tag;
+   }
+
    public String toString()
    {
       if (null == parts || parts.size() == 0)

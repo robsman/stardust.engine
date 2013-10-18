@@ -12,11 +12,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
@@ -43,7 +39,7 @@ public class DataValueBean extends IdentifiablePersistentBean
    private static final Logger trace = LogManager.getLogger(DataValueBean.class);
 
    /**
-    * Providing this instance will result in default initialization.  
+    * Providing this instance will result in default initialization.
     */
    public static final Object USE_DEFAULT_INITIAL_VALUE = new Object();
 
@@ -101,7 +97,7 @@ public class DataValueBean extends IdentifiablePersistentBean
     * Evaluates, depending on the data type, if the value can be represented inline in the
     * <code>data_value</code> table) or if the value's representations has to be sliced
     * for storage.
-    * 
+    *
     * @param value
     *           The generic representation of the data value to match with.
     * @return <code>true</code> if the value can be stored inline, <code>false</code>
@@ -117,9 +113,9 @@ public class DataValueBean extends IdentifiablePersistentBean
    /**
     * Returns the maximum string length a (@link DataValueBean} can hold when its type
     * equals {@link BigData#STRING_VALUE}
-    * 
+    *
     * @return The fitting and may be truncated string
-    * 
+    *
     * @see #getShortStringColumnLength()
     */
    public static int getStringValueMaxLength()
@@ -136,7 +132,7 @@ public class DataValueBean extends IdentifiablePersistentBean
       {
          pi = (ProcessInstanceBean) session.findByOID(ProcessInstanceBean.class, processInstanceOID);
       }
-      
+
       ModelManager manager = ModelManagerFactory.getCurrent();
       List<Long> oids = CollectionUtils.newList();
       List<IData> uncachedData = CollectionUtils.newList();
@@ -154,7 +150,7 @@ public class DataValueBean extends IdentifiablePersistentBean
          oids.add(manager.getRuntimeOid(dataObject));
          uncachedData.add(dataObject);
       }
-      
+
       if (!oids.isEmpty())
       {
          PredicateTerm modelPredicate = Predicates.isEqual(FR__MODEL, model.getModelOID());
@@ -165,7 +161,7 @@ public class DataValueBean extends IdentifiablePersistentBean
                .addJoin(new Join(ProcessInstanceBean.class)
                   .on(DataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE)
                   .where(processInstancePredicate));
-   
+
          ResultIterator iterator = session.getIterator(DataValueBean.class, queryExtension);
          while (iterator.hasNext())
          {
@@ -291,14 +287,14 @@ public class DataValueBean extends IdentifiablePersistentBean
                // ignore case by applying LOWER(..) SQL function
                lhsOperand = Functions.strLower(lhsOperand);
             }
-            
+
             if (operator.isBinary())
             {
                if (matchValue instanceof Collection)
                {
                   List<List< ? >> subLists = CollectionUtils.split(
                         (Collection) matchValue, 1000);
-                  
+
                   MultiPartPredicateTerm mpTerm = new OrTerm();
                   for (List< ? > subList : subLists)
                   {
@@ -311,14 +307,19 @@ public class DataValueBean extends IdentifiablePersistentBean
                                  evaluationOptions);
                         }
                      });
-                     
+
+                     if (operator.equals(Operator.NOT_ANY_OF))
+                     {
+                        Assert.lineNeverReached("TODO: Still to be implemented");
+                     }
+
                      if(operator.equals(Operator.NOT_IN))
                      {
-                        mpTerm.add(Predicates.notInList(lhsOperand, valuesIter));                                               
+                        mpTerm.add(Predicates.notInList(lhsOperand, valuesIter));
                      }
                      else
                      {
-                        mpTerm.add(Predicates.inList(lhsOperand, valuesIter));                                              
+                        mpTerm.add(Predicates.inList(lhsOperand, valuesIter));
                      }
                   }
 
@@ -352,9 +353,9 @@ public class DataValueBean extends IdentifiablePersistentBean
    }
 
    /**
-    * Copy the given source data value to the data value of the same data of the target 
+    * Copy the given source data value to the data value of the same data of the target
     * process instance.
-    * 
+    *
     * @param targetProcessInstance  Process instance which receives the data value
     * @param srcValue Source data value
     * @throws PublicException
@@ -366,7 +367,7 @@ public class DataValueBean extends IdentifiablePersistentBean
             srcValue.getSerializedValue());
       IDataValue targetValue = targetProcessInstance.getDataValue(srcValue.getData(),
             dvProvider);
-      
+
       if (targetValue == null)
       {
          throw new PublicException("No workflow data defined with ID '"
@@ -377,15 +378,15 @@ public class DataValueBean extends IdentifiablePersistentBean
       {
          targetValue.setValue(dvProvider.getEvaluatedValue().getValue(), false);
       }
-      
+
       if (trace.isDebugEnabled())
       {
          trace.debug("Copied data value '" + targetValue.getData().getName() + "'.");
       }
    }
-   
+
    /**
-    * 
+    *
     */
    public DataValueBean()
    {
@@ -419,8 +420,8 @@ public class DataValueBean extends IdentifiablePersistentBean
 									"DataValueBean for process instance {0} and data {1} cannot be created as the data reference cannot be resolved.",
 									new Object[] { processInstance.getOID(),
 											data.getId() }));
-      }            
-      
+      }
+
       if (trace.isDebugEnabled())
       {
          trace.debug("Data value created for '" + data + "' and '" + processInstance
@@ -444,12 +445,12 @@ public class DataValueBean extends IdentifiablePersistentBean
             dataValueProvider.setUsedForInitialization();
          }
       }
-      
+
       org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
 
       if (session.isReadOnly())
       {
-         // for read-only audit trails, create a handler 
+         // for read-only audit trails, create a handler
          // that does not modify the database
          dataHandler = new TransientBigDataHandler();
       }
@@ -457,7 +458,7 @@ public class DataValueBean extends IdentifiablePersistentBean
       {
          dataHandler = new LargeStringHolderBigDataHandler(this);
       }
-   
+
       // explicitly asking for an atomic data value, as we need to know for the actual
       // value of the data, considered a blob at worst (canonicalizeDataValue treats pairs
       // an collections special as they might be used for BETWEEN or IN predicates)
@@ -477,8 +478,8 @@ public class DataValueBean extends IdentifiablePersistentBean
          if ( !session.isReadOnly())
          {
             session.cluster(this);
-            
-            // Update of data cluster has to be done here because it is possible that 
+
+            // Update of data cluster has to be done here because it is possible that
             // no update on this data value is necessary.
             if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
             {
@@ -519,7 +520,7 @@ public class DataValueBean extends IdentifiablePersistentBean
 
    /**
     * Retrieves the value of the data value.
-    * 
+    *
     * @return If the type of the data value's data is a literal, the java wrapper object (<code>Integer</code>,
     *         <code>Long</code> etc.) is returned. If the type is an (entity bean)
     *         reference, the entity bean is returned.
@@ -541,13 +542,13 @@ public class DataValueBean extends IdentifiablePersistentBean
 
       dataHandler.write(value, forceRefresh);
    }
-   
+
    public double getDoubleValue()
    {
       fetch();
       return double_value;
    }
-   
+
    @Override
    public void setDoubleValue(double value)
    {
@@ -562,7 +563,7 @@ public class DataValueBean extends IdentifiablePersistentBean
    // @todo (france, ub): investigate usage of this method in the context of plethora
    /**
     * Retrieves the serialized value of the data value.
-    * 
+    *
     * @return If the type of the data value's data is a literal, the java wrapper object (<code>Integer</code>,
     *         <code>Long</code> etc.) is returned. If the type is an (entity bean)
     *         reference, the pk of the entity bean is returned.
@@ -659,7 +660,7 @@ public class DataValueBean extends IdentifiablePersistentBean
       {
          result = ((String) result).toLowerCase();
       }
-      
+
       return result;
    }
 }

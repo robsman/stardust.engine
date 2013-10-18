@@ -17,43 +17,19 @@ import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.OneElementIterator;
-import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IScopedModelParticipant;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.api.runtime.PerformerType;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -2226,6 +2202,39 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             && filter.getOperand() == null;
    }
 
+   public static MultiPartPredicateTerm getTopLevelCollectorForNotAnyOf(Join dvJoin,
+         boolean filterUsedInAndTerm)
+   {
+      MultiPartPredicateTerm result = null;
+
+      AndTerm restriction = dvJoin.getRestriction();
+      for (PredicateTerm term : restriction.getParts())
+      {
+         if (Operator.NOT_ANY_OF.getId().equals(term.getTag()))
+         {
+            if (term instanceof MultiPartPredicateTerm)
+            {
+               if (term instanceof OrTerm && filterUsedInAndTerm)
+               {
+                  // TODO: I18N
+                  new PublicException(
+                        "Mixed usage of NotAnyOf data filter not supported.");
+               }
+
+               result = (MultiPartPredicateTerm) term;
+               break;
+            }
+            else
+            {
+               new InternalException(
+                     "NotAnyOf data filter needs to be collected in MultiPartPredicateTerm.");
+            }
+         }
+      }
+
+      return result;
+   }
+
    protected static class VisitationContext
    {
       private final Query query;
@@ -2322,11 +2331,21 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       public void pushFilterKind(FilterTerm.Kind filterKind)
       {
          filterKinds.addLast(filterKind);
+         if (dataFilterExtensionContext != null)
+         {
+            dataFilterExtensionContext.setFilterUsedInAndTerm(FilterTerm.AND
+                  .equals(filterKind));
+         }
       }
 
       public void popFilterKind()
       {
          filterKinds.removeLast();
+         if (dataFilterExtensionContext != null)
+         {
+            dataFilterExtensionContext.setFilterUsedInAndTerm(FilterTerm.AND
+                  .equals(peekLastFilterKind()));
+         }
       }
 
       public FilterTerm.Kind peekLastFilterKind()
@@ -2405,41 +2424,45 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    public static class DataAttributeKey
    {
       private final String dataId;
-
       private final String attributeName;
       
-      private final boolean noEqualCaseDescriptors;
+      private final boolean notAnyOfFilter;
 
       public DataAttributeKey(DataOrder order)
       {
-         this(order.getDataID(), order.getAttributeName(), true);
+         this(order.getDataID(), order.getAttributeName(), null, false);
       }
 
       public DataAttributeKey(AbstractDataFilter filter)
       {
-         this(filter.getDataID(), filter.getAttributeName(), true);
+         this(filter.getDataID(), filter.getAttributeName(), filter.getOperand(), Operator.NOT_ANY_OF
+               .equals(filter.getOperator()));
       }
 
-      public DataAttributeKey(AbstractDataFilter filter, boolean noEqualCaseDescriptors)
+      public DataAttributeKey(AbstractDataFilter filter, boolean notAnyOfFilter)
       {
-         this(filter.getDataID(), filter.getAttributeName(), noEqualCaseDescriptors);
+         this(filter.getDataID(), filter.getAttributeName(), null, notAnyOfFilter);
       }
 
       public DataAttributeKey(IData data, String attributeName)
       {
-         this(ModelUtils.getQualifiedId(data), attributeName, true);
+         this(ModelUtils.getQualifiedId(data), attributeName, null, false);
       }
 
       public DataAttributeKey(String dataId, String attributeName)
       {
-         this(dataId, attributeName, true);
+         this(dataId, attributeName, null, false);
       }
 
-      private DataAttributeKey(String dataId, String attributeName, boolean noEqualCaseDescriptors)
+      private DataAttributeKey(String dataId, String attributeName,
+            Serializable operand, boolean notAnyOfFilter)
       {
          this.dataId = dataId;
-         this.attributeName = attributeName;
-         this.noEqualCaseDescriptors = noEqualCaseDescriptors;
+         this.attributeName = (operand != null)
+               && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId)
+               && PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName)
+               ? attributeName + '/' + operand : attributeName;
+         this.notAnyOfFilter = notAnyOfFilter;
       }
 
       public String getDataId()
@@ -2452,16 +2475,16 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          return attributeName;
       }
 
+      public boolean isNotAnyOfFilter()
+      {
+         return notAnyOfFilter;
+      }
+
       public boolean equals(Object other)
       {
          if (this == other)
          {
             return true;
-         }
-         if (noEqualCaseDescriptors && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId) &&
-             PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName))
-         {
-            return false;
          }
          if (other instanceof DataAttributeKey)
          {
@@ -2469,7 +2492,8 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             return (this.dataId != null ? this.dataId.equals(that.dataId)
                   : that.dataId == null)
                   && (this.attributeName != null ? this.attributeName
-                        .equals(that.attributeName) : that.attributeName == null);
+                        .equals(that.attributeName) : that.attributeName == null)
+                  && this.notAnyOfFilter == that.notAnyOfFilter;
          }
 
          return false;

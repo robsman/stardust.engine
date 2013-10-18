@@ -23,13 +23,12 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PluggableType;
-import org.eclipse.stardust.engine.api.query.AbstractDataFilter;
-import org.eclipse.stardust.engine.api.query.DataOrder;
-import org.eclipse.stardust.engine.api.query.IJoinFactory;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.SqlBuilderBase.DataAttributeKey;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
@@ -49,7 +48,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
    {
       StructuredDataFilterExtensionContext extensionContext = new StructuredDataFilterExtensionContext();
       dataFilterExtensionContext.setContent(extensionContext);
-      
+
       final ModelManager modelManager = ModelManagerFactory.getCurrent();
 
       int cnt = 0;
@@ -65,7 +64,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                {
                   AbstractDataFilter dataFilter = dataFiltersForOneData.get(0);
                   String dataID = dataFilter.getDataID();
-                  
+
                   String namespace = null;
                   if (dataID.startsWith("{"))
                   {
@@ -73,7 +72,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                      namespace = qname.getNamespaceURI();
                      dataID = qname.getLocalPart();
                   }
-                  
+
                   List<IModel> candidates = StringUtils.isEmpty(namespace)
                         ? modelManager.getModels()
                         : modelManager.getModelsForId(namespace);
@@ -123,7 +122,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       }
    }
 
-         
+
    private StructuredDataFilterContext getContextForDataFilter(IJoinFactory joinFactory,
          DataFilterExtensionContext dataFilterExtensionContext,
          AbstractDataFilter filter, boolean isAndTerm, int cnt)
@@ -141,7 +140,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
       return context;
    }
-   
+
    private void validateXPath(String dataId, String xPath, boolean canReturnLists)
    {
       if (StringUtils.isEmpty(xPath))
@@ -150,31 +149,31 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                BpmRuntimeError.QUERY_MISSING_XPATH_ON_NON_STRUCT_DATA
                      .raise(dataId, xPath));
       }
-      
+
       boolean isValid = false;
-      
+
       Collection<IData> allData = this.findAllDatas(dataId, ModelManagerFactory.getCurrent());
       for (Iterator<IData> i = allData.iterator(); i.hasNext(); )
       {
          IData data = (IData) i.next();
          IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
-         
+
          // throws a PublicException if XPath is not defined
          TypedXPath typedXPath = null;
          try
          {
             typedXPath = xPathMap.getXPath(xPath);
-            isValid = true;            
+            isValid = true;
          }
          catch (IllegalOperationException e)
          {
             // check if indexed
             if(StructuredDataXPathUtils.isIndexedXPath(xPath))
             {
-               throw new IllegalOperationException(BpmRuntimeError.BPMRT_INVALID_INDEXED_XPATH.raise());               
+               throw new IllegalOperationException(BpmRuntimeError.BPMRT_INVALID_INDEXED_XPATH.raise());
             }
          }
-         
+
          if (typedXPath != null && typedXPath.getType() == BigData.NULL)
          {
             // complex types or lists of complex types are not allowed as query attributes
@@ -182,7 +181,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                   BpmRuntimeError.QUERY_XPATH_ON_STRUCT_DATA_MUST_POINT_TO_PRIMITIVE
                         .raise(dataId, xPath));
          }
-         
+
          if (typedXPath != null && !canReturnLists)
          {
             if (StructuredDataXPathUtils.canReturnList(typedXPath.getXPath(), xPathMap))
@@ -199,23 +198,23 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          throw new IllegalOperationException(
                BpmRuntimeError.MDL_UNKNOWN_XPATH
                      .raise(xPath));
-      }      
+      }
    }
 
    private boolean dataFiltersDoesNotContainListXPaths(String dataId, List<AbstractDataFilter> filtersForData)
    {
       Set<IData> allData = this.findAllDatas(dataId, ModelManagerFactory.getCurrent());
-      
+
       for (Iterator<IData> i = allData.iterator(); i.hasNext(); )
       {
          IData data = i.next();
          IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
-         
+
          for (Iterator<AbstractDataFilter> f = filtersForData.iterator(); f.hasNext(); )
          {
             AbstractDataFilter df = f.next();
             TypedXPath typedXPath = null;
-            
+
             try
             {
                typedXPath = xPathMap.getXPath(df.getAttributeName());
@@ -223,7 +222,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             catch (Exception e)
             {
             }
-            
+
             if (typedXPath != null)
             {
                if (StructuredDataXPathUtils.canReturnList(typedXPath.getXPath(), xPathMap))
@@ -235,51 +234,54 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       }
       return true;
    }
-   
+
    private Set<IData> findAllDatas(String dataID, ModelManager modelManager)
    {
-      Set datas = new HashSet<IData>();      
-      
+      Set datas = new HashSet<IData>();
+
       String namespace = null;
       if (dataID.startsWith("{"))
       {
          QName qname = QName.valueOf(dataID);
          namespace = qname.getNamespaceURI();
          dataID = qname.getLocalPart();
-      }                     
+      }
 
       Iterator modelItr = null;
       if (namespace != null)
-      {      
+      {
          modelItr = modelManager.getAllModelsForId(namespace);
       }
       else
       {
-         modelItr = modelManager.getAllModels();         
+         modelItr = modelManager.getAllModels();
       }
-      
+
       while (modelItr.hasNext())
-      {                  
-         IModel model = (IModel) modelItr.next();        
+      {
+         IModel model = (IModel) modelItr.next();
          IData data = model.findData(dataID);
          if (null != data)
          {
             datas.add(data);
          }
       }
-      
-      return datas;
-   }   
 
-   public PredicateTerm createPredicateTerm(Join dvJoin,
-         AbstractDataFilter dataFilter, Map<Long,IData> dataMap, DataFilterExtensionContext dataFilterExtensionContext)
+      return datas;
+   }
+
+   public PredicateTerm createPredicateTerm(Join dvJoin, AbstractDataFilter dataFilter,
+         Map<Long, IData> dataMap, DataFilterExtensionContext dataFilterExtensionContext)
    {
       // override dvJoin with join specific for this dataFilter
-      StructuredDataFilterExtensionContext extensionContext = dataFilterExtensionContext.getContent();
+      StructuredDataFilterExtensionContext extensionContext = dataFilterExtensionContext
+            .getContent();
       dvJoin = extensionContext.getJoin(dataFilter);
-      
+      boolean filterUsedInAndTerm = dataFilterExtensionContext.isFilterUsedInAndTerm();
+
       return matchDataInstancesPredicate(dvJoin, dataFilter.getAttributeName(),
-            dataFilter.getOperator(), dataFilter.getOperand(), dataMap, dataFilter);
+            dataFilter.getOperator(), dataFilter.getOperand(), dataMap, dataFilter,
+            filterUsedInAndTerm);
    }
 
    /**
@@ -294,14 +296,14 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
     *           The generic representation of the data value to match with.
     * @param dataMap
     * @param evaluationOptions TODO
-    * 
+    *
     * @return A predicate term for matching data instances possibly having the given
     *         value.
     * @see #isLargeValue
     */
    private PredicateTerm matchDataInstancesPredicate(Join dvJoin, String xPathString,
          Operator operator, Object value, Map<Long, IData> dataMap,
-         final IEvaluationOptionProvider evaluationOptions)
+         final IEvaluationOptionProvider evaluationOptions, boolean filterUsedInAndTerm)
    {
       final LargeStringHolderBigDataHandler.Representation canonicalValue = LargeStringHolderBigDataHandler.canonicalizeDataValue(
             StructuredDataValueBean.string_value_COLUMN_LENGTH, value);
@@ -311,24 +313,24 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
       switch (canonicalValue.getClassificationKey())
       {
-      case BigData.NULL_VALUE:
-         valueColumn = null;
-         break;
+         case BigData.NULL_VALUE:
+            valueColumn = null;
+            break;
 
-      case BigData.NUMERIC_VALUE:
-         valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE);
-         break;
+         case BigData.NUMERIC_VALUE:
+            valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE);
+            break;
 
-      case BigData.STRING_VALUE:
-         valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE);
-         break;
+         case BigData.STRING_VALUE:
+            valueColumn = dvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE);
+            break;
 
-      default:
-         throw new InternalException("Unsupported BigData type classification: "
-               + canonicalValue.getClassificationKey());
+         default:
+            throw new InternalException("Unsupported BigData type classification: "
+                  + canonicalValue.getClassificationKey());
       }
 
-      final AndTerm resultTerm = new AndTerm();
+      AndTerm resultTerm = new AndTerm();
 
       if (operator instanceof Operator.Unary)
       {
@@ -381,7 +383,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                // ignore case by applying LOWER(..) SQL function
                valueColumn = Functions.strLower(valueColumn);
             }
-            
+
             if (operator.isBinary())
             {
                if (matchValue instanceof Collection)
@@ -400,13 +402,44 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                                        evaluationOptions);
                               }
                            });
-                     if(operator.equals(Operator.NOT_IN))
+
+
+                     if (Operator.NOT_IN.equals(operator))
                      {
-                        mpTerm.add(Predicates.notInList(valueColumn, valuesIter));                                               
+                        mpTerm.add(Predicates.notInList(valueColumn, valuesIter));
                      }
-                     else
+                     else if (Operator.IN.equals(operator))
                      {
-                        mpTerm.add(Predicates.inList(valueColumn, valuesIter));                                              
+                        mpTerm.add(Predicates.inList(valueColumn, valuesIter));
+                     }
+                     else if (Operator.NOT_ANY_OF.equals(operator))
+                     {
+                        // Scan over top level predicates in join restriction and pick existing collector term
+                        MultiPartPredicateTerm notAnyOfCollector = SqlBuilderBase
+                              .getTopLevelCollectorForNotAnyOf(dvJoin,
+                                    filterUsedInAndTerm);
+
+                        // if no existing collector term could be found then this will be created
+                        if (notAnyOfCollector == null)
+                        {
+                           if (filterUsedInAndTerm)
+                           {
+                              notAnyOfCollector = new AndTerm();
+                           }
+                           else
+                           {
+                              notAnyOfCollector = new OrTerm();
+                           }
+
+                           notAnyOfCollector.setTag(Operator.NOT_ANY_OF.getId());
+                           dvJoin.getRestriction().add(notAnyOfCollector);
+
+                           // also add the current resultTerm to the join but not as part of collector
+                           dvJoin.getRestriction().add(resultTerm);
+                           resultTerm = new AndTerm();
+                        }
+
+                        notAnyOfCollector.add(Predicates.inList(valueColumn, valuesIter));
                      }
                   }
 
@@ -486,7 +519,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          Map<String, Join> dataOrderJoins)
    {
       validateXPath(order.getDataID(), order.getAttributeName(), false);
-      
+
       String alias = "DVO" + (dataOrderJoins.size() + 1);
       Join dvJoin;
       if (null != pisJoin)
@@ -519,14 +552,14 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             + "' is not defined");
 
       dvJoin.setRequired(false);
-      
+
       alias = alias + "_SD";
 
-      
+
       boolean useNumericColumn = false;
       boolean useStringColumn = false;
       boolean useDoubleColumn = false;
-   
+
       for (Iterator<IData> i = dataMap.values().iterator(); i.hasNext();)
       {
          IData data = i.next();
@@ -536,7 +569,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          useStringColumn |= (BigData.STRING_VALUE == typeClassification);
          useDoubleColumn |= (BigData.DOUBLE_VALUE == typeClassification);
       }
-      
+
       if (useNumericColumn)
       {
          orderCriteria.add(dvJoin.fieldRef(StructuredDataValueBean.FIELD__NUMBER_VALUE),
@@ -548,14 +581,14 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          orderCriteria.add(dvJoin.fieldRef(StructuredDataValueBean.FIELD__STRING_VALUE),
                order.isAscending());
       }
-      
+
       if (useDoubleColumn)
       {
          orderCriteria.add(dvJoin.fieldRef(StructuredDataValueBean.FIELD__DOUBLE_VALUE),
                order.isAscending());
       }
-      
-      // else do nothing (compatible to behavior of other data types!) 
+
+      // else do nothing (compatible to behavior of other data types!)
       String dataId = order.getDataID() + "/" + order.getAttributeName();
       dataOrderJoins.put(dataId, dvJoin);
    }
@@ -569,7 +602,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          throw new InternalException(
                "DataFilter for structured data should specify xpath in the attribute name.");
       }
-      
+
       Set<Long> xPathOids = findAllOids(dataIds, xPathString);
 
       /*
@@ -582,15 +615,15 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          }
       }
       */
-      
+
       if(!xPathOids.isEmpty())
-      {      
+      {
          andTerm.add(Predicates.inList(
                dvJoin.fieldRef(StructuredDataValueBean.FIELD__XPATH),
                xPathOids.iterator()));
       }
    }
-   
+
    /*private boolean inflateXPathTerm(List<PredicateTerm> parts, FieldRef xPathField, Set<Long> xPathOids)
    {
       boolean inflated = false;
@@ -633,7 +666,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       StructuredDataFilterExtensionContext extensionContext = dataFilterExtensionContext.getContent();
       return extensionContext.getJoin(dataFilter);
    }
-   
+
    public List<FieldRef> getPrefetchSelectExtension(ITableDescriptor descriptor)
    {
       List<FieldRef> cols = CollectionUtils.newArrayList();
@@ -649,7 +682,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
    {
       return true;
    }
-   
+
    // (fh) out of inspiration for names
    private static class StructuredDataFilterExtensionContext
    {

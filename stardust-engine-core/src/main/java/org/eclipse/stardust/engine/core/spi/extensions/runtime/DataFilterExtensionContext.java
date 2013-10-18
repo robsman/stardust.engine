@@ -21,7 +21,7 @@ import org.eclipse.stardust.engine.core.persistence.Join;
 
 
 /**
- * Context object to access all data filters relating to the same query 
+ * Context object to access all data filters relating to the same query
  */
 public class DataFilterExtensionContext
 {
@@ -32,6 +32,8 @@ public class DataFilterExtensionContext
    private final List<Join> joins = new LinkedList<Join>();
 
    private boolean useDistinct = false;
+
+   private boolean isFilterUsedInAndTerm = true;
 
    public DataFilterExtensionContext(List<AbstractDataFilter> dataFilters)
    {
@@ -107,8 +109,8 @@ public class DataFilterExtensionContext
    public void removeJoin(Join join)
    {
       this.joins.remove(join);
-   }   
-   
+   }
+
    public void addJoin(Join join)
    {
       this.joins.add(join);
@@ -131,5 +133,15 @@ public class DataFilterExtensionContext
    public boolean useDistinct()
    {
       return useDistinct;
+   }
+
+   public boolean isFilterUsedInAndTerm()
+   {
+      return isFilterUsedInAndTerm;
+   }
+
+   public void setFilterUsedInAndTerm(boolean isFilterUsedInAndTerm)
+   {
+      this.isFilterUsedInAndTerm = isFilterUsedInAndTerm;
    }
 }

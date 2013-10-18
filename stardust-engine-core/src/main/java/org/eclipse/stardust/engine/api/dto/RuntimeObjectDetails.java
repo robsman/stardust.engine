@@ -91,6 +91,17 @@ public class RuntimeObjectDetails implements RuntimeObject
       return modelElementID;
    }
 
+   @Override
+   public int hashCode()
+   {
+      final int PRIME = 31;
+      int result = 1;
+      result = PRIME * result + Long.valueOf(getOID()).hashCode();
+      result = PRIME * result + Integer.valueOf(getModelOID()).hashCode();
+      return result;
+   }
+
+   @Override
    public boolean equals(Object other)
    {
       if (other == null)

@@ -27,8 +27,8 @@ import org.eclipse.stardust.common.rt.IJobManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
 
 /**
  * @author rsauer
@@ -56,6 +56,8 @@ public class SessionManager implements IDisposable
    private final int syncToDiskInterval;
    
    private Long nextSynchToDiskTime;
+   
+   private Map<Long, Map<String, String>> sessionTokens;
    
    public static SessionManager instance()
    {
@@ -101,6 +103,7 @@ public class SessionManager implements IDisposable
             PRP_SESSION_UPDATE_DELAY, 10);
       
       this.lastModificationTimes = CollectionUtils.createMap();
+      this.sessionTokens = CollectionUtils.newHashMap();
    }
    
    public long getExpirationTime(long lastModificationTime)
@@ -131,6 +134,17 @@ public class SessionManager implements IDisposable
       synchToDiskIfNeeded();
    }
 
+   public Map<String, String> getSessionTokens()   
+   {
+      IUser user = SecurityProperties.getUser();
+      return (Map<String, String>) sessionTokens.get(user.getOID());
+   }   
+   
+   public synchronized void updateSessionTokens(IUser user)
+   {
+      sessionTokens.put(new Long(user.getOID()), user.getSessionTokens());
+   }   
+   
    private void synchToDiskIfNeeded()
    {
       if (null == nextSynchToDiskTime)

@@ -55,8 +55,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
 
    @SuppressWarnings("unused")
    private static final int EXTENDED_STATE_FLAG_ALL = ~0; // all bits   
-   
-   
+      
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__ACCOUNT = "account";
    public static final String FIELD__FIRST_NAME = "firstName";
@@ -136,6 +135,8 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
     * Holds a cached version of profile
     */
    private transient Map cachedProfile = null;
+   
+   private transient Map sessionTokens = null;   
    
    private transient Set<Long> grantsCache = null;
    
@@ -1371,5 +1372,20 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             markModified(FIELD__EXTENDED_STATE);
          }
       }
+   }
+
+   public Map<String, String> getSessionTokens()
+   {
+      if (null == sessionTokens)
+      {
+         sessionTokens = CollectionUtils.newHashMap();
+      }
+      
+      return sessionTokens;
+   }
+
+   public void SetSessionTokens(Map<String, String> sessionTokens)
+   {
+      this.sessionTokens = sessionTokens;
    }	
 }

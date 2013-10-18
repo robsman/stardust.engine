@@ -47,8 +47,6 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
 import org.eclipse.stardust.engine.core.spi.security.*;
 import org.eclipse.stardust.engine.core.spi.security.ExternalUserConfiguration.GrantInfo;
 
-
-
 /**
  * @author ubirkemeyer
  * @version $Revision$
@@ -846,7 +844,8 @@ public abstract class SynchronizationService
       user.setLastName(userConf.getLastName());
       user.setEMail(userConf.getEMail());
       user.setDescription(userConf.getDescription());
-
+      user.SetSessionTokens(userConf.getSessionTokens());
+      
       Map properties = userConf.getProperties();
 
       if ((null != properties) && !properties.isEmpty())

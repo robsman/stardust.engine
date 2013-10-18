@@ -20,7 +20,6 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.IRole;
 import org.eclipse.stardust.engine.api.runtime.IDynamicParticipant;
 
-
 /**
  *
  */
@@ -30,6 +29,23 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
    String LAST_FAILED_LOGIN_TIMESTAMP_PROPERTY = "LastFailedLoginTimestamp";
    String FAILED_LOGIN_RETRIES_COUNT_PROPERTY = "FailedLoginRetriesCount";
 
+   /**
+    * Get the session tokens for this user.
+    * Only the current user is allowed to to this call. 
+    * 
+    * @return session tokens for this user
+    */
+   Map<String, String> getSessionTokens();
+
+   /**
+    * Set the session tokens.
+    * Only the current user is allowed to to this call. 
+    * 
+    * @param session tokens.
+    */   
+   void SetSessionTokens(Map<String, String> sessionTokens);
+   
+   
    /**
     * Get the probability for this user
     * @return the probability for this user
@@ -240,6 +256,5 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
 
    public boolean hasGrant(IModelParticipant participant);
    
-   boolean isPropertyAvailable(int pattern);
-   
+   boolean isPropertyAvailable(int pattern);   
 }

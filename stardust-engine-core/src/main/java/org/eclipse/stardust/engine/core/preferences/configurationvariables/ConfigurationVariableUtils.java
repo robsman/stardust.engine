@@ -32,8 +32,6 @@ import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 
-
-
 public class ConfigurationVariableUtils
 {
    private static final Logger trace = LogManager.getLogger(ConfigurationVariableUtils.class);
@@ -41,11 +39,11 @@ public class ConfigurationVariableUtils
    // pattern: description
    //    (?<!\\\\): Lookbehind assertion: variable shall not be escaped, i.e start with \
    //    \\$\\{(\\w+)\\}: the variable matches ${name} and group results in "name"
-   private static Pattern modelVars = Pattern.compile("(?<!\\\\)\\$\\{(\\w+)\\}");
+   private static Pattern modelVars = Pattern.compile("(?<!\\\\)\\$\\{(\\w+)(:\\w+)?\\}");
    // pattern: description
    //    \\\\: variable is escaped, i.e starts with \
    //    (\\$\\{\\w+\\}): the escaped variable matches ${name} and group results in "${name}"
-   private static Pattern escapedModelVars = Pattern.compile("\\\\(\\$\\{\\w+\\})");
+   private static Pattern escapedModelVars = Pattern.compile("\\\\(\\$\\{(\\w+)(:\\w+)?\\})");
    
    /**
     * The moduleId of preferences used to store configuration variables.
@@ -110,7 +108,7 @@ public class ConfigurationVariableUtils
             if (prefEntry.getValue() != null)
             {
                ConfigurationVariableDefinition definition = new ConfigurationVariableDefinition(
-                     prefEntry.getKey(), "", "", -1);
+                     getName(prefEntry.getKey()), getType(prefEntry.getKey()), "", "", -1);
                ConfigurationVariable variable = new ConfigurationVariable(definition,
                      (String) prefEntry.getValue());
                mergedConfigurationVariables.put(definition.getName(), variable);
@@ -218,10 +216,12 @@ public class ConfigurationVariableUtils
       String result;
       
       String name = modelVariable.getName();
+      ConfigurationVariableScope type = modelVariable.getType();
+      
       // pattern: description
       //    (?<!\\\\): Lookbehind assertion: variable shall not be escaped, i.e start with \
       //    (\\$\\{" + name + "\\}): the variable matches ${name}
-      String tobeReplacedPattern = "(?<!\\\\)(\\$\\{" + name + "\\})";
+      String tobeReplacedPattern = "(?<!\\\\)(\\$\\{" + name + "(:" + type.name() + ")?\\})";
       String newValue = StringUtils.isEmpty(modelVariable.getValue())
             ? modelVariable.getDefaultValue()
             : modelVariable.getValue();
@@ -235,5 +235,29 @@ public class ConfigurationVariableUtils
       return result;
    }
 
-
+   public static String getName(String name)
+   {
+      String[] parts = name.split(":");
+      return parts[0];      
+   }
+   
+   public static ConfigurationVariableScope getType(String name)
+   {
+      String[] parts = name.split(":");
+      if(parts.length == 1)
+      {
+         return ConfigurationVariableScope.String;
+      }      
+      
+      ConfigurationVariableScope[] scopes = ConfigurationVariableScope.values();
+      for(ConfigurationVariableScope scope : scopes)
+      {
+         if(scope.name().equals(parts[1]))
+         {
+            return scope;
+         }
+      }
+      
+      return ConfigurationVariableScope.String;
+   }        
 }

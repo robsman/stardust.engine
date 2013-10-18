@@ -21,6 +21,7 @@ public class ConfigurationVariableDefinition implements IConfigurationVariableDe
    private String defaultValue;
    private String description;
    private int modelOid;
+   private ConfigurationVariableScope type;
    
    public ConfigurationVariableDefinition(IConfigurationVariableDefinition definition)
    {
@@ -29,13 +30,15 @@ public class ConfigurationVariableDefinition implements IConfigurationVariableDe
       this.defaultValue = definition.getDefaultValue();
       this.description = definition.getDescription();
       this.modelOid = definition.getModelOid();
+      this.type = definition.getType();
    }
    
-   public ConfigurationVariableDefinition(String name, String defaultValue,
+   public ConfigurationVariableDefinition(String name, ConfigurationVariableScope type, String defaultValue,
          String description, int modelOid)
    {
       super();
       this.name = name;
+      this.type = type;      
       this.defaultValue = defaultValue;
       this.description = description;
       this.modelOid = modelOid;
@@ -65,5 +68,11 @@ public class ConfigurationVariableDefinition implements IConfigurationVariableDe
    public String toString()
    {
       return "ConfVar: " + getName() + "(defaultValue:" + getDefaultValue() + ")";
+   }
+
+   @Override
+   public ConfigurationVariableScope getType()
+   {
+      return type;
    }
 }

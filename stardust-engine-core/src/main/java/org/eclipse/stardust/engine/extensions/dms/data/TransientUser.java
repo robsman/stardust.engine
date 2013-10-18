@@ -376,5 +376,13 @@ public class TransientUser implements IUser
    {
       return false;
    }
-   
+
+   public Map<String, String> getSessionTokens()
+   {
+      return null;
+   }
+
+   public void SetSessionTokens(Map<String, String> sessionTokens)
+   {
+   }   
 }

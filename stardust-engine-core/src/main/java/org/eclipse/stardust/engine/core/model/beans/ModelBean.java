@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.compatibility.diagram.*;
 import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
+import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.IConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
@@ -1381,7 +1382,9 @@ public class ModelBean extends RootElementBean
          String description = (String) getAttribute(IPP_VARIABLES + i
                + IPP_VARIABLES_DESCRIPTION);
 
-         defs.add(new ConfigurationVariableDefinition(name, defaultValue, description, getModelOID()));
+         defs.add(new ConfigurationVariableDefinition(ConfigurationVariableUtils.getName(name), 
+               ConfigurationVariableUtils.getType(name),
+               defaultValue, description, getModelOID()));
          i++;
       }
       return defs;

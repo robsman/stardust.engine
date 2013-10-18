@@ -85,10 +85,11 @@ public class ValidationConfigurationVariablesProvider extends
             Serializable serializable = prefName.getValue();
             String value = serializable == null ? "" : serializable.toString();
             ConfigurationVariableDefinition definition = new ConfigurationVariableDefinition(
-                  prefName.getKey(), value, "", 0);
+                  ConfigurationVariableUtils.getName(prefName.getKey()), 
+                  ConfigurationVariableUtils.getType(prefName.getKey()),
+                  value, "", 0);
             newList.add(new ConfigurationVariable(definition, value));
          }
-         
          
          configurationVariables.setConfigurationVariables(newList);
 

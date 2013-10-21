@@ -66,7 +66,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
       final boolean isPrefetchHint = filter instanceof DataPrefetchHint;
       final boolean isFilterUsedInAndTerm = isAndTerm(context);
       final boolean isIsNullFilter = isIsNullFilter(filter);
-      final boolean isNotAnyOfFilter = filter.getOperator().equals(Operator.NOT_ANY_OF);
+      final boolean isNotAnyOfFilter = Operator.NOT_ANY_OF.equals(filter.getOperator());
 
       // join data_value table at most once for every dataID involved with the query, this
       // join will eventually be reused by successive DataFilters targeting the same

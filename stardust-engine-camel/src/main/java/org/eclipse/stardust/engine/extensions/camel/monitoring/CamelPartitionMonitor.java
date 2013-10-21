@@ -62,7 +62,7 @@ public class CamelPartitionMonitor implements IPartitionMonitor
 
                   IApplication app = apps.get(ai);
                   
-                  if (app != null
+                  if (app != null  && app.getType()!= null
                         && (app.getType().getId().equals(CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE) || app
                               .getType().getId().equals(CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE)))
                   {

@@ -70,6 +70,9 @@
       </dependency>
          
       <dependency org="org.eclipse.xsd" name="org.eclipse.xsd" rev="${org.eclipse.xsd.version}" conf="stardust-engine-ws-cxf-compile->default" />
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.common" rev="${org.eclipse.emf.common.version}" transitive="false" conf="stardust-engine-ws-cxf-compile->default"/>
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore" rev="${org.eclipse.emf.ecore.version}" transitive="false" conf="stardust-engine-ws-cxf-compile->default"/>
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore.xmi" rev="${org.eclipse.emf.ecore.xmi.version}" transitive="false" conf="stardust-engine-ws-cxf-compile->default"/>
       
       <dependency org="org.springframework" name="spring-beans" rev="${spring-beans.version}" conf="stardust-engine-ws-cxf-compile->default" />
       <dependency org="org.springframework" name="spring-context" rev="${spring-context.version}" conf="stardust-engine-ws-cxf-compile->default" />
@@ -136,14 +139,6 @@
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
          <exclude org="javax.ws.rs" module="jsr311-api" />
-      </dependency>
-
-        <!-- package org.eclipse.xsd is mapped to com.infinity.bpm.thirdparty.xsd which is repacked into carnot-engine.
-           Therefore we doesn't need to include this artifact into the POM -->
-      <dependency org="org.eclipse.emf" name="emf-runtime" rev="${emf-runtime.version}" transitive="false" conf="compile->default">
-         <artifact name="org.eclipse.emf.common" type="jar"/>
-         <artifact name="org.eclipse.emf.ecore" type="jar"/>
-         <artifact name="org.eclipse.emf.ecore.xmi" type="jar"/>
       </dependency>
       
       <!-- test -->

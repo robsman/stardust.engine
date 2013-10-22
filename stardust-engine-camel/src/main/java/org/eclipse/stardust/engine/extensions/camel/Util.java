@@ -48,9 +48,13 @@ public class Util
       return (String) (String) trigger.getAttribute(ROUTE_EXT_ATT);
    }
 
+   public static boolean isConsumerApplication(IApplication application){
+	   return CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId()) &&((application.getAttribute("carnot:engine:camel::applicationIntegrationOverlay")!=null) && !((String)application.getAttribute("carnot:engine:camel::applicationIntegrationOverlay")).equalsIgnoreCase("mailIntegrationOverlay"));
+   }
+   
    public static String getProvidedRouteConfiguration(IApplication application)
    {
-      if (CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId()))
+      if (isConsumerApplication(application))
          return (String) application.getAttribute(CamelConstants.CONSUMER_ROUTE_ATT);
      // return (String) (String) application.getAttribute(ROUTE_EXT_ATT);
       return (String) (String) application.getAttribute(PRODUCER_ROUTE_ATT);

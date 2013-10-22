@@ -140,7 +140,7 @@ public class CreateApplicationRouteAction implements Action<Object>
                   (AbstractApplicationContext) springContext);
          }
 
-         if (CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId()))
+         if (isConsumerApplication(application))
          {
 
             if (StringUtils.isNotEmpty(invocationPattern)

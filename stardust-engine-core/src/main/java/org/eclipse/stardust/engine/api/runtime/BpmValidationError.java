@@ -37,12 +37,29 @@ public class BpmValidationError extends ErrorCase
 
    //ApplicationType related
    public static final Args1 APP_TYPE_NO_LONGER_SUPPORTED = newArgs1("APP01001", BpmRuntimeErrorMessages.getString("APP01001"));
+   public static final Args0 APP_UNSPECIFIED_CLASS_FOR_JFC_APPLICATION = newArgs0("APP01002", BpmRuntimeErrorMessages.getString("APP01002"));
+   public static final Args0 APP_UNSPECIFIED_COMPLETION_METHOD_FOR_JFC_APPLICATION = newArgs0("APP01003", BpmRuntimeErrorMessages.getString("APP01003"));
+   public static final Args1 APP_COMPLETION_METHOD_NOT_FOUND = newArgs1("APP01004", BpmRuntimeErrorMessages.getString("APP01004"));
 
    //Actions related
    public static final Args0 ACT_NO_DATA_DEFINED = newArgs0("ACT01001", BpmRuntimeErrorMessages.getString("ACT01001"));
    public static final Args0 ACT_NO_ACCESS_POINT_DEFINED = newArgs0("ACT01002", BpmRuntimeErrorMessages.getString("ACT01002"));
    public static final Args0 ACT_NO_PROCESS_SELECTED = newArgs0("ACT01003", BpmRuntimeErrorMessages.getString("ACT01003"));
 
+   //Conditions related
+   public static final Args1 COND_NOT_AN_EXCEPTION_CLASS = newArgs1("COND01001", BpmRuntimeErrorMessages.getString("COND01001"));
+   public static final Args0 COND_NO_CONDITION_SPECIFIED = newArgs0("COND01002", BpmRuntimeErrorMessages.getString("COND01002"));
+   public static final Args0 COND_TARGET_STATE_IN_SAME_STATE_AS_SOURCE_STATE = newArgs0("COND01003", BpmRuntimeErrorMessages.getString("COND01003"));
+   public static final Args0 COND_INVALID_DATA_MAPPING = newArgs0("COND01004", BpmRuntimeErrorMessages.getString("COND01004"));
+   public static final Args0 COND_INVALID_DATA_PATH = newArgs0("COND01005", BpmRuntimeErrorMessages.getString("COND01005"));
+   public static final Args0 COND_INVALID_DATA_SPECIFIED = newArgs0("COND01006", BpmRuntimeErrorMessages.getString("COND01006"));
+   public static final Args0 COND_NO_PROCESS_OR_ACTIVITY_CONTEXT = newArgs0("COND01007", BpmRuntimeErrorMessages.getString("COND01007"));
+   public static final Args0 COND_NO_PERIOD_SPECIFIED = newArgs0("COND01008", BpmRuntimeErrorMessages.getString("COND01008"));
+
+   //Trigger related
+   public static final Args1 TRIGG_UNSPECIFIED_PARTICIPANT_FOR_TRIGGER = newArgs1("TRIGG01001", BpmRuntimeErrorMessages.getString("TRIGG01001"));
+   public static final Args2 TRIGG_INVALID_PARTICIPANT_FOR_TRIGGER = newArgs2("TRIGG01002", BpmRuntimeErrorMessages.getString("TRIGG01002"));
+   public static final Args0 TRIGG_UNSPECIFIED_START_TIME_FOR_TRIGGER = newArgs0("TRIGG01003", BpmRuntimeErrorMessages.getString("TRIGG01003"));
 
    private static final Object[] NONE = {};
 

@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationContextValidator;
 
 
@@ -31,8 +32,8 @@ public class JFCValidator implements ApplicationContextValidator
 
       if (className == null)
       {
-         inconsistencies.add(new Inconsistency(
-               "Unspecified class for JFC application.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.APP_UNSPECIFIED_CLASS_FOR_JFC_APPLICATION.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       else
       {
@@ -43,9 +44,8 @@ public class JFCValidator implements ApplicationContextValidator
 
             if (methodName == null)
             {
-               inconsistencies.add(new Inconsistency(
-                     "Unspecified completion method for JFC application.",
-                     Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.APP_UNSPECIFIED_COMPLETION_METHOD_FOR_JFC_APPLICATION.raise();
+               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
             }
             else
             {
@@ -55,9 +55,8 @@ public class JFCValidator implements ApplicationContextValidator
                }
                catch (InternalException e)
                {
-                  inconsistencies.add(new Inconsistency(
-                        "Couldn't find completion method '" + methodName
-                        + "' for JFC application.", Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.APP_COMPLETION_METHOD_NOT_FOUND.raise(methodName);
+                  inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
                }
             }
          }
@@ -65,14 +64,14 @@ public class JFCValidator implements ApplicationContextValidator
          {
             // inconsistencies.add(new Inconsistency("Couldn't find class '" + className
             //      + "' for JFC application.", Inconsistency.WARNING));
-            
+
             // JFC classes are not required to be on the server classpath.
          }
          catch (NoClassDefFoundError e)
          {
             //inconsistencies.add(new Inconsistency("Couldn't find class definition for "
             //      + "JFC application.", Inconsistency.WARNING));
-            
+
             // JFC classes are not required to be on the server classpath.
          }
       }

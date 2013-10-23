@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Period;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.EventConditionValidator;
@@ -74,26 +75,26 @@ public class TimerValidator implements EventConditionValidator
                         && !LONG_TARGET.acceptAssignmentFrom(bo)
                         && !PERIOD_TARGET.acceptAssignmentFrom(bo))
                   {
-                     list.add(new Inconsistency("Invalid data mapping",
-                           Inconsistency.WARNING));
+                     BpmValidationError error = BpmValidationError.COND_INVALID_DATA_MAPPING.raise();
+                     list.add(new Inconsistency(error, Inconsistency.WARNING));
                   }
                }
                else
                {
-                  list.add(new Inconsistency("Invalid data path",
-                        Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.COND_INVALID_DATA_PATH.raise();
+                  list.add(new Inconsistency(error, Inconsistency.WARNING));
                }
             }
             else
             {
-               list.add(new Inconsistency("Invalid data specified",
-                           Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.COND_INVALID_DATA_SPECIFIED.raise();
+               list.add(new Inconsistency(error, Inconsistency.WARNING));
             }
          }
          else
          {
-            list.add(new Inconsistency("Timer condition using data has to have either "
-                  + "process or activity context", Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.COND_NO_PROCESS_OR_ACTIVITY_CONTEXT.raise();
+            list.add(new Inconsistency(error, Inconsistency.WARNING));
          }
          // todo: check bridge object
       }
@@ -102,7 +103,8 @@ public class TimerValidator implements EventConditionValidator
          Object period = attributes.get(PredefinedConstants.TIMER_PERIOD_ATT);
          if (!(period instanceof Period))
          {
-            list.add(new Inconsistency("No period specified.", Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.COND_NO_PERIOD_SPECIFIED.raise();
+            list.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
       return list;

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
 
@@ -14,7 +15,7 @@ public class DeprecatedValidator implements ApplicationValidator,
    ApplicationValidatorEx
 {
    private String applicationName;
-   
+
    @Override
    public List validate(IApplication application)
    {
@@ -23,8 +24,8 @@ public class DeprecatedValidator implements ApplicationValidator,
       {
          applicationName = application.getName();
       }
-      inconsistencies.add(new Inconsistency("Application type of " + applicationName + " is no longer supported",
-            application, Inconsistency.WARNING));
+      BpmValidationError error = BpmValidationError.APP_TYPE_NO_LONGER_SUPPORTED.raise(application);
+      inconsistencies.add(new Inconsistency(error, application, Inconsistency.WARNING));
       return inconsistencies;
    }
 

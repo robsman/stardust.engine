@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.EventActionValidator;
 
 
@@ -28,7 +29,8 @@ public class TriggerActionValidator implements EventActionValidator
       Object processId = attributes.get(PredefinedConstants.TRIGGER_ACTION_PROCESS_ATT);
       if (!(processId instanceof String) || StringUtils.isEmpty((String) processId))
       {
-         list.add(new Inconsistency("No Process selected.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.ACT_NO_PROCESS_SELECTED.raise();
+         list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       return list;
    }

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.EventActionValidator;
 
 
@@ -27,7 +28,8 @@ public class ExcludeUserActionValidator implements EventActionValidator
       ArrayList list = new ArrayList();
       if (StringUtils.isEmpty((String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA)))
       {
-         list.add(new Inconsistency("No Data specified.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.ACT_NO_DATA_DEFINED.raise();
+         list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       return list;
    }

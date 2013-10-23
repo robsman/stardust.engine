@@ -184,9 +184,9 @@ public class AdministrationServiceImpl
          {
             deploymentError(ex, null);
          }
-         
-         MonitoringUtils.partitionMonitors().modelDeployed(element.getModel(), true);                  
-         
+
+         MonitoringUtils.partitionMonitors().modelDeployed(element.getModel(), true);
+
          return doOverwriteModel(element, options == null ? new DeploymentOptions() : options);
       }
       finally
@@ -213,6 +213,11 @@ public class AdministrationServiceImpl
    {
       // @todo (france, ub): more gracefully fill the deployment info
       LogUtils.traceException(e, false);
+      //throw new DeploymentException(e.getMessage(),
+      //      Collections.<DeploymentInfo>singletonList(new DeploymentInfoDetails(validFrom, null, null)));
+      if (e instanceof DeploymentException) {
+         throw (DeploymentException)e;
+      }
       throw new DeploymentException(e.getMessage(),
             Collections.<DeploymentInfo>singletonList(new DeploymentInfoDetails(validFrom, null, null)));
    }
@@ -261,7 +266,7 @@ public class AdministrationServiceImpl
    {
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       IModel model = modelManager.findModel(modelOid);
-      
+
       if (model == null)
       {
          throw new ObjectNotFoundException(
@@ -272,7 +277,7 @@ public class AdministrationServiceImpl
          throw new PublicException(
                "Unable to delete model. It is providing a primary implementation.");
       }
-      
+
       List<IModel> referingModels = new ArrayList<IModel>();
       for (Iterator<IModel> i = modelManager.getAllModels(); i.hasNext();)
       {
@@ -295,8 +300,8 @@ public class AdministrationServiceImpl
          throw new PublicException(
                "Unable to delete model. It is referenced by at least one other model.");
       }
-      
-      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);      
+
+      Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       long nonterminatedInstances = 0;
 
       try
@@ -308,8 +313,8 @@ public class AdministrationServiceImpl
                   ProcessInstanceBean.FR__STATE,
                   new int[] { ProcessInstanceState.ABORTED, ProcessInstanceState.COMPLETED });
 
-            predicate = Predicates.andTerm( 
-                  Predicates.isEqual( 
+            predicate = Predicates.andTerm(
+                  Predicates.isEqual(
                         ProcessInstanceBean.FR__MODEL, modelOid),
                         predicate);
 
@@ -342,10 +347,10 @@ public class AdministrationServiceImpl
       if(nonterminatedInstances > 0)
       {
          throw new PublicException(
-         "Unable to delete model. It has open process instances.");         
+         "Unable to delete model. It has open process instances.");
       }
-   }   
-   
+   }
+
    private void deleteModelRuntimePart(long modelOid, boolean removeModelReferences)
    {
       // @todo (paris, ub): isolate every single delete operation?
@@ -406,8 +411,8 @@ public class AdministrationServiceImpl
          checkDaemonStopState(false);
          model = ModelManagerFactory.getCurrent().findModel(modelOid);
          assertNotPredefinedModel(model);
-         
-         MonitoringUtils.partitionMonitors().modelDeleted(model);         
+
+         MonitoringUtils.partitionMonitors().modelDeleted(model);
       }
       catch (Exception e)
       {
@@ -416,7 +421,7 @@ public class AdministrationServiceImpl
 
       try
       {
-         try 
+         try
          {
             checkCanDeleteModel(modelOid);
             deleteModelRuntimePart(modelOid, true);
@@ -425,7 +430,7 @@ public class AdministrationServiceImpl
          {
             deploymentError(e, null);
          }
-         
+
          final DeploymentInfo deleteModelModelingPart = deleteModelModelingPart(modelOid);
          logModelOperation(DELETE_MODEL_MESSAGE, model);
 
@@ -442,7 +447,7 @@ public class AdministrationServiceImpl
    {
       AuditTrailPartitionBean partition = (AuditTrailPartitionBean) SecurityProperties.getPartition(false);
       partition.lock();
-      
+
       if(deploymentElements == null)
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("deploymentElements"));
@@ -488,13 +493,13 @@ public class AdministrationServiceImpl
             elements.add(parsedUnit);
             overrides.put(modelId, parsedUnit.getModel());
          }
-         
+
          for (ParsedDeploymentUnit unit : elements)
          {
             IModel model = unit.getModel();
-            MonitoringUtils.partitionMonitors().modelDeployed(model, false);         
-         }                  
-         
+            MonitoringUtils.partitionMonitors().modelDeployed(model, false);
+         }
+
          // deploy the models
          return doDeployModel(elements, options);
       }
@@ -568,7 +573,7 @@ public class AdministrationServiceImpl
          {
             pId = qname.getLocalPart();
          }
-         
+
          Iterator<IModel> matchingModels = null;
          if (interfaceModel.getId().equals(mId))
          {
@@ -626,7 +631,7 @@ public class AdministrationServiceImpl
 
       trace.info("Primary implementation for process '{" + interfaceModel.getId() + "}" + processId
             + "' [modelOid: " + interfaceOid + "] set to '" + implementationId + "'.");
-      
+
       return new DeploymentInfoDetails(
             (Date) interfaceModel.getAttribute(PredefinedConstants.VALID_FROM_ATT),
             interfaceModel.getId(), comment);
@@ -825,7 +830,7 @@ public class AdministrationServiceImpl
             .get(EngineProperties.FORKING_SERVICE_HOME);
 
       final long piOid = processInstance.getOID();
-      final long userOid = SecurityProperties.getUserOID();      
+      final long userOid = SecurityProperties.getUserOID();
       ForkingService service = null;
 
       try
@@ -1286,12 +1291,12 @@ public class AdministrationServiceImpl
             synchronously, null, Collections.EMPTY_MAP, false);
 
       final ProcessInstance pi = DetailsFactory.create(processInstance);
-      
+
       if (isSerialExecutionScenario(processInstance))
       {
          ProcessInstanceUtils.scheduleSerialActivityThreadWorkerIfNecessary(processInstance);
       }
-      
+
       return pi;
    }
 
@@ -1440,7 +1445,7 @@ public class AdministrationServiceImpl
    public List<Permission> getPermissions()
    {
       return CollectionUtils.union(
-            Authorization2.getPermissions(AdministrationService.class), 
+            Authorization2.getPermissions(AdministrationService.class),
             Authorization2.getPermissions(GlobalPermissionSpecificService.class));
    }
 
@@ -1599,7 +1604,7 @@ public class AdministrationServiceImpl
             AuditTrailLogger.getInstance(LogCode.ENGINE).info(MessageFormat.format(DEPLOY_MODEL_MESSAGE,
                   model.getName(), model.getModelOID()));
          }
-         
+
          List<DeploymentInfo> subList = CollectionUtils.newList(elements.size());
          for(DeploymentInfo info : infos.subList(0, elements.size()))
          {
@@ -1625,7 +1630,7 @@ public class AdministrationServiceImpl
          trace.info(logMessage);
       }
    }
-      
+
    private String getMessage(List<DeploymentInfo> infos)
    {
       for (DeploymentInfo info : infos)
@@ -2053,9 +2058,9 @@ public class AdministrationServiceImpl
    {
       return PreferenceStorageFactory.getCurrent();
    }
-   
+
    /**
-    * Class is used to list all possible global permissions. With it the permissions 
+    * Class is used to list all possible global permissions. With it the permissions
     * can be evaluated by <code>Authorization2</code> class.
     * @author sven.rottstock
     * @see GlobalPermissionConstants
@@ -2064,7 +2069,7 @@ public class AdministrationServiceImpl
    {
       @ExecutionPermission(id=ExecutionPermission.Id.manageAuthorization)
       Permission getManageAuthorizationPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.controlProcessEngine)
       Permission getControlProcessEnginePermission();
 
@@ -2073,55 +2078,55 @@ public class AdministrationServiceImpl
 
       @ExecutionPermission(id=ExecutionPermission.Id.forceSuspend)
       Permission getForceSuspendPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.manageDaemons)
       Permission getManageDaemonsPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.modifyAuditTrail)
       Permission getModifyAuditTrailPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.modifyDepartments)
       Permission getModifyDepartmentsPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.modifyUserData)
       Permission getModifyUserDataPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.readAuditTrailStatistics)
       Permission getReadAuditTrailStatisticsPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.createCase)
       Permission getCreateCasePermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.readDepartments)
       Permission getReadDepartmentsPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.readModelData)
       Permission getReadModelDataPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.readUserData)
       Permission getReadUserDataPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.resetUserPassword)
       Permission getResetUserPasswordPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.runRecovery)
       Permission getRunRecoveryPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.saveOwnUserScopePreferences)
       Permission getSaveOwnUserScopePreferencesPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.saveOwnRealmScopePreferences)
       Permission getSaveOwnRealmScopePreferencesPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.saveOwnPartitionScopePreferences)
       Permission getSaveOwnPartitionScopePreferencesPermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.joinProcessInstance)
       Permission getJoinProcessInstancePermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.spawnPeerProcessInstance)
       Permission getSpawnPeerProcessInstancePermission();
-      
+
       @ExecutionPermission(id=ExecutionPermission.Id.spawnSubProcessInstance)
       Permission getSpawnSubProcessInstancePermission();
    }

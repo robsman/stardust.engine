@@ -24,10 +24,16 @@ import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.stardust.engine.core.compatibility.ipp.PreStardustTypeNameResolver;
+import org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage;
 
 
 public class MappingModelUtil
 {
+   // (fh) required to make sure that the MappingPackage is properly initialized
+   // DO NOT REMOVE
+   @SuppressWarnings("unused")
+   private static final MappingPackage pkg = MappingPackage.eINSTANCE;
+
    public static String transformEcore2XML(EObject eobject) {
       ByteArrayOutputStream stream = new ByteArrayOutputStream();
       ResourceSet resourceSet = new ResourceSetImpl();

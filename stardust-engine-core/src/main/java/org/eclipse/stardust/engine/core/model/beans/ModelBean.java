@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.compatibility.diagram.*;
 import org.eclipse.stardust.engine.core.model.utils.*;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
+import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableScope;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.IConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
@@ -308,7 +309,8 @@ public class ModelBean extends RootElementBean
          for (IConfigurationVariableDefinition varDefinition : configurationVariableDefinitions)
          {
             definedVarNames.add(varDefinition.getName());
-            if (StringUtils.isEmpty(varDefinition.getDefaultValue()))
+            if (StringUtils.isEmpty(varDefinition.getDefaultValue())
+                  && !(varDefinition.getType().name().equals(ConfigurationVariableScope.Password.name())))
             {
                inconsistencies.add(new Inconsistency("Configuration Variable '"
                      + varDefinition.getName() + "' has no default value defined.", this,

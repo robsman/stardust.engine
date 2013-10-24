@@ -1115,13 +1115,29 @@ public class AuthorizationContext
       }
       if (department == null)
       {
+         //try to get via id from the database
          try
          {
             department = DepartmentBean.findById(deptId, parent, org);
          }
-         catch (ObjectNotFoundException ex)
+         catch (ObjectNotFoundException ignored)
+         {}
+         
+         //try to get from synchronization service
+         if(department == null)
          {
-            department = synchronizeDepartment(org, departmentIds);
+            try
+            {
+               department = synchronizeDepartment(org, departmentIds);
+            }
+            catch (ObjectNotFoundException ignored)
+            {}
+         }
+         
+         //use null department
+         if(department == null)
+         {
+            department = IDepartment.NULL;
          }
          subdepartments.add(department);
       }

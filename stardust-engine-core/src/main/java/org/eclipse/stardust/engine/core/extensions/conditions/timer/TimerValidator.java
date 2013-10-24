@@ -49,7 +49,8 @@ public class TimerValidator implements EventConditionValidator
          Object dataId = attributes.get(PredefinedConstants.TIMER_CONDITION_DATA_ATT);
          if (!(dataId instanceof String) || StringUtils.isEmpty((String) dataId))
          {
-            list.add(new Inconsistency("No Data specified.", Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.COND_NO_DATA_SPECIFIED.raise();
+            list.add(new Inconsistency(error, Inconsistency.WARNING));
          }
          IProcessDefinition process = null;
          if (context instanceof IProcessDefinition)

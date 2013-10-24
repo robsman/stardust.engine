@@ -29,7 +29,29 @@ import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IApplicationContext;
+import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
+import org.eclipse.stardust.engine.api.model.IFormalParameter;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.JoinSplitType;
+import org.eclipse.stardust.engine.api.model.LoopType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
@@ -52,9 +74,9 @@ import org.eclipse.stardust.engine.extensions.dms.data.VfsOperationAccessPointPr
 public class ActivityBean extends IdentifiableElementBean implements IActivity
 {
    private static final long serialVersionUID = 1L;
-   
+
    private static final String TAG_INTERMEDIATE_EVENT_HOST = "stardust:bpmnIntermediateEventHost";
-   
+
    public static final String IMPLEMENTATION_TYPE_ATT = "Implementation Type";
    private ImplementationType implementationType;
 
@@ -79,7 +101,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    private IProcessDefinition implementationProcessDefinition = null;
 
    public static final String SUBPROCESS_MODE_ATT = "Subprocess Execution Mode";
-   
+
    private SubProcessModeKey subProcessMode;
 
    private IModelParticipant performer = null;
@@ -89,17 +111,17 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    private List<ITransition> inTransitions = null;
 
    private List<ITransition> outTransitions = null;
-   
+
    private List<ITransition> exceptionTransitions = null;
 
    private List dataMappings = null;
-   
+
    private ModelElementListAdapter inDataMappings = new ModelElementListAdapter(CollectionUtils.newList());
 
    private ModelElementListAdapter outDataMappings = new ModelElementListAdapter(CollectionUtils.newList());
 
    private Link eventHandlers = new Link(this, "Event Handlers");
-   
+
    private IReference externalReference = null;
 
    private transient IApplicationContext interfaceContext = new MyInterfaceContext();
@@ -107,12 +129,12 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    private transient IApplicationContext noninteractiveAppContext = new MyApplicationContext();
    private transient IApplicationContext defaultContext = new MyDefaultContext();
 
-   private Set<IQualityAssuranceCode> qualityAssuranceCodes;   
+   private Set<IQualityAssuranceCode> qualityAssuranceCodes;
    private boolean qualityAssuranceEnabled = false;
-   private IModelParticipant qualityAssuranceParticipant = null;   
+   private IModelParticipant qualityAssuranceParticipant = null;
    private String qualityAssuranceFormula;
    private int qualityAssuranceProbability;
-   
+
    /**
     * @param activity
     */
@@ -156,7 +178,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          dataMappings = CollectionUtils.newList();
       }
       dataMappings.add(dataMapping);
-      
+
       if (Direction.IN == dataMapping.getDirection() || Direction.IN_OUT == dataMapping.getDirection())
       {
          inDataMappings.getDelegate().add(dataMapping);
@@ -252,7 +274,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          return null;
       }
-      
+
       if (externalReference != null)
       {
          IExternalPackage externalPackage = externalReference.getExternalPackage();
@@ -271,7 +293,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          return getImplementation(implementationProcessDefinition);
       }
-      
+
       return implementationProcessDefinition;
    }
 
@@ -360,7 +382,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          return null;
       }
-      
+
       final String condition = TransitionBean.ON_BOUNDARY_EVENT_PREDICATE + "(" + eventHandlerId + ")";
       for (final ITransition t : exceptionTransitions)
       {
@@ -371,12 +393,12 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       }
       return null;
    }
-   
+
    public boolean hasExceptionTransitions()
    {
       return exceptionTransitions != null && !exceptionTransitions.isEmpty();
    }
-   
+
    public IModelParticipant getPerformer()
    {
       return performer;
@@ -393,7 +415,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          return null;
       }
-      
+
       if (externalReference != null)
       {
          IExternalPackage pkg = externalReference.getExternalPackage();
@@ -441,7 +463,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          outDataMappings.getDelegate().remove(dataMapping);
       }
-      
+
       if (dataMappings != null)
       {
          dataMappings.remove(dataMapping);
@@ -453,7 +475,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    {
       inDataMappings.getDelegate().clear();
       outDataMappings.getDelegate().clear();
-      
+
       if (dataMappings != null)
       {
          dataMappings.clear();
@@ -561,24 +583,23 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    {
       super.checkConsistency(inconsistencies);
       checkId(inconsistencies);
-      
+
       if (getId() != null)
       {
          // check for unique Id
          IActivity a = getProcessDefinition().findActivity(getId());
          if (a != null && a != this)
          {
-            inconsistencies.add(new Inconsistency("Duplicate ID for activity '" +
-                  getName() + "'.", this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.ACTY_DUPLICATE_ID.raise(getName());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
-         
+
          // check id to fit in maximum length
          if (getId().length() > AuditTrailActivityBean.getMaxIdLength())
          {
-            inconsistencies.add(new Inconsistency("ID for activity '" + getName()
-                  + "' exceeds maximum length of "
-                  + AuditTrailActivityBean.getMaxIdLength() + " characters.",
-                  this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.ACTY_ID_EXCEEDS_MAXIMUM_LENGTH.raise(
+                  getName(), AuditTrailActivityBean.getMaxIdLength());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
       }
 
@@ -586,45 +607,40 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       if (isInteractive())
       {
          IModelParticipant performer = getPerformer();
-         
+
          if (performer == null)
          {
-            inconsistencies.add(new Inconsistency("No performer set for manual or interactive application activity '" + getId()
-                  + "' of process '" + getProcessDefinition().getName() + "'.",
-                  this,
-                  Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.ACTY_NO_PERFORMER.raise(
+                  getId(), getProcessDefinition().getName());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
          else if (((IModel) getModel()).findParticipant(getPerformer().getId()) == null)
          {
-            inconsistencies.add(new Inconsistency("The associated performer '" + getPerformer().getId()
-                  + "' set for manual or interactive application activity '"
-                  + getId() + "' doesn't exist in the model.",
-                  this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.ACTY_PERFORMER_DOES_NOT_EXIST.raise(
+                  getPerformer().getId(), getId());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
-         
-         if(isQualityAssuranceEnabled())
+
+         if (isQualityAssuranceEnabled())
          {
-            if(performer != null && performer instanceof IConditionalPerformer)
+            if (performer != null && performer instanceof IConditionalPerformer)
             {
-               inconsistencies.add(new Inconsistency("Performer should not be a conditional performer for quality assurance activity '" + getId()
-                     + "' of process '" + getProcessDefinition().getName() + "'.",
-                     this,
-                     Inconsistency.ERROR));               
+               BpmValidationError error = BpmValidationError.ACTY_PERFORMER_SHOULD_NOT_BE_CONDITIONAL_PERFORMER.raise(
+                     getId(), getProcessDefinition().getName());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
             IModelParticipant qualityAssurancePerformer = getQualityAssurancePerformer();
-            if(qualityAssurancePerformer == null)
+            if (qualityAssurancePerformer == null)
             {
-               inconsistencies.add(new Inconsistency("No quality assurance performer set for quality assurance activity '" + getId()
-                     + "' of process '" + getProcessDefinition().getName() + "'.",
-                     this,
-                     Inconsistency.ERROR));               
+               BpmValidationError error = BpmValidationError.ACTY_NO_QA_PERFORMER_SET.raise(
+                     getId(), getProcessDefinition().getName());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
-            else if(qualityAssurancePerformer instanceof IConditionalPerformer)
+            else if (qualityAssurancePerformer instanceof IConditionalPerformer)
             {
-               inconsistencies.add(new Inconsistency("Quality assurance performer should not be a conditional performer for quality assurance activity '" + getId()
-                     + "' of process '" + getProcessDefinition().getName() + "'.",
-                     this,
-                     Inconsistency.ERROR));                              
+               BpmValidationError error = BpmValidationError.ACTY_QA_PERFORMER_SHOULD_NOT_BE_CONDITIONAL_PERFORMER.raise(
+                     getId(), getProcessDefinition().getName());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
          }
       }
@@ -637,9 +653,8 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             IProcessDefinition ipd = getImplementationProcessDefinition();
             if (ipd == null)
             {
-               inconsistencies.add(new Inconsistency("No implementation process set for subprocess activity '" +
-                     getId() + "'.",
-                     this, Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.ACTY_NO_IMPLEMENTATION_PROCESS_SET_FOR_SUBPROCESS_ACTIVITY.raise(getId());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
          }
          catch (UnresolvedExternalReference ex)
@@ -648,13 +663,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          }
          if (getSubProcessMode() == null)
          {
-            inconsistencies.add(new Inconsistency(
-                  "Value 'subProcessMode' is not set for activity '" + getId()
-                        + "'. This will be evaluated as 'Sync Shared'.", this,
-                  Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_NOT_SET.raise(getId());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
-      
+
       // Rule: if implementation type is application, an application must be set
       if (getImplementationType().equals(ImplementationType.Application))
       {
@@ -663,9 +676,8 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             IApplication app = getApplication();
             if (app == null)
             {
-               inconsistencies.add(new Inconsistency("No application set for application activity '" +
-                     getId() + "'.",
-                     this, Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.ACTY_NO_APPLICATION_SET_FOR_APPLICATION_ACTIVITY.raise(getId());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
             else
             {
@@ -673,12 +685,12 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                // change this
                if(type != null && type.getId().equals("dmsOperation"))
                {
-                  boolean folder = (Boolean) app.getBooleanAttribute(DmsConstants.PRP_RUNTIME_DEFINED_TARGET_FOLDER);                  
+                  boolean folder = (Boolean) app.getBooleanAttribute(DmsConstants.PRP_RUNTIME_DEFINED_TARGET_FOLDER);
                   String operation = app.getStringAttribute(DmsConstants.PRP_OPERATION_NAME);
-                  
+
                   if(folder && operation != null && operation.equals("addDocument"))
-                  {             
-                     boolean valid = false;                     
+                  {
+                     boolean valid = false;
                      for (Iterator iterator = getAllInDataMappings(); iterator.hasNext();)
                      {
                         IDataMapping dataMapping = (IDataMapping) iterator.next();
@@ -697,15 +709,14 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                            }
                         }
                      }
-                     
-                     if(!valid)
+
+                     if ( !valid)
                      {
-                        inconsistencies.add(new Inconsistency("No access point for application '" +
-                              app.getId() + "'.",
-                              this, Inconsistency.ERROR));                        
-                     }                     
-                  }                  
-               }               
+                        BpmValidationError error = BpmValidationError.ACTY_NO_ACCESS_POINT_FOR_APPLICATION.raise(getId());
+                        inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                     }
+                  }
+               }
             }
          }
          catch (UnresolvedExternalReference ex)
@@ -733,40 +744,26 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          IEventHandler eventHandler = (IEventHandler) iterator.next();
          eventHandler.checkConsistency(inconsistencies);
-         
+
          checkBoundaryEventConsistency(eventHandler, inconsistencies);
       }
       checkBoundaryEventsConsistency(eventHandlers, inconsistencies);
       checkIntermediateEventConsistency(inconsistencies);
-      
-      // @todo laokoon (ub): temporarily disabled, leads to stack overflow in cycles
-
-      // Rule: Activity network may not form a XOR-AND block
-
-      /*
-      Activity _andJoinActivity;
-
-      if (getSplitType().getValue() == JoinSplitTypeKey.XOR
-            && (_andJoinActivity = checkXORANDBlock(this, this)) != null)
-      {
-         inconsistencies.add(new Inconsistency("XOR split and AND join block exists between activity '" +
-               getId() + "' and '" + _andJoinActivity.getId() + "'.",
-               this, Inconsistency.ERROR, getProcessDefinition().getName()));
-      }
-      */
    }
 
    /**
     * if it's a boundary event, there SHOULD be a corresponding exception flow transition
     */
-   private void checkBoundaryEventConsistency(final IEventHandler eventHandler, final List<Inconsistency> inconsitencies)
+   private void checkBoundaryEventConsistency(final IEventHandler eventHandler,
+         final List<Inconsistency> inconsistencies)
    {
       if (eventHandler.getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY) != null)
       {
          final ITransition exceptionTransition = getExceptionTransition(eventHandler.getId());
          if (exceptionTransition == null)
          {
-            inconsitencies.add(new Inconsistency("No exception flow transition for event handler with ID '" + eventHandler.getId() + "'.", eventHandler, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.ACTY_NO_EXCEPTION_FLOW_TRANSITION_FOR_EVENT_HANDLER.raise(eventHandler.getId());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
    }
@@ -783,7 +780,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          {
             continue;
          }
-         
+
          for (int j=i+1; j<eventHandlers.size(); j++)
          {
             final IEventHandler y = (IEventHandler) eventHandlers.get(j);
@@ -791,48 +788,48 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             {
                continue;
             }
-            
+
             if ( !exceptionHierarchiesAreDisjunct(x, y))
             {
-               inconsistencies.add(new Inconsistency("Multiple boundary events for exceptions not having disjunct type hierarchies ('"
-                                                      + x.getId() + "' and '" + y.getId() + "'). Only one will be processed during event handling.", 
-                                                      this, Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.ACTY_BOUNDARY_EVENTS_WITH_UNDISJUNCT_TYPE_HIERARCHIES.raise(
+                     x.getId(), y.getId());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
             }
          }
       }
    }
-   
+
    private boolean isErrorBoundaryEvent(final IEventHandler eventHandler)
    {
       if (eventHandler.getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY) == null)
       {
          return false;
       }
-      
+
       if ( !PredefinedConstants.EXCEPTION_CONDITION.equals(eventHandler.getType().getId()))
       {
          return false;
       }
-      
+
       return true;
    }
-   
+
    private boolean exceptionHierarchiesAreDisjunct(final IEventHandler x, final IEventHandler y)
    {
       final String xExceptionName = (String) x.getAttribute(PredefinedConstants.EXCEPTION_CLASS_ATT);
       final String yExceptionName = (String) y.getAttribute(PredefinedConstants.EXCEPTION_CLASS_ATT);
-      
+
       final Class<?> xException = Reflect.getClassFromClassName(xExceptionName);
       final Class<?> yException = Reflect.getClassFromClassName(yExceptionName);
-      
+
       if (xException.isAssignableFrom(yException) || yException.isAssignableFrom(xException))
       {
          return false;
       }
-      
+
       return true;
    }
-   
+
    /**
     * if it's an intermediate event, it SHOULD have one inbound and one outbound sequence flow
     */
@@ -843,11 +840,12 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          if (getInTransitions().size() != 1 || getOutTransitions().size() != 1)
          {
-            inconsistencies.add(new Inconsistency("Intermediate events must have one inbound and one outbound sequence flow.", this, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.ACTY_INTERMEDIATE_EVENTS_MUST_HAVE_ONE_IN_AND_OUTBOUND_SEQUENCE_FLOW.raise();
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
    }
-   
+
    /**
     * Checks, wether there is a path from <tt>startActivity</tt> to an activity
     * with AND join and another path back to <tt>startActivity</tt>.
@@ -975,7 +973,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    {
       return getAccessPoint(contextId, id, null);
    }
-   
+
    public AccessPoint getAccessPoint(String contextId, String id, Direction direction)
    {
       IApplicationContext context = getContext(contextId);
@@ -1027,28 +1025,28 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          return engineContext;
       }
-      
+
       if (PredefinedConstants.DEFAULT_CONTEXT.equals(contextId))
       {
          return defaultContext;
       }
-      
+
       if (PredefinedConstants.APPLICATION_CONTEXT.equals(contextId))
       {
          return noninteractiveAppContext;
       }
-      
+
       if (PredefinedConstants.PROCESSINTERFACE_CONTEXT.equals(contextId))
       {
          return interfaceContext;
       }
-      
+
       IApplication app = getApplication();
       if (app != null && isInteractive())
       {
          return app.findContext(contextId);
       }
-      
+
       return null;
    }
 
@@ -1164,7 +1162,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          }
          return param.getData();
       }
-      
+
       public Iterator getAllAccessPoints()
       {
          return getAccessPoints(null);
@@ -1209,11 +1207,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          return ActivityBean.this.getModel();
       }
    }
-   
+
    public class MyApplicationContext extends ApplicationContextBean
    {
       private static final long serialVersionUID = 1L;
-      
+
       private final List<AccessPoint> EMPTY = Collections.emptyList();
 
       public MyApplicationContext()
@@ -1232,7 +1230,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          IApplication app = getApplication();
          return app == null ? null : app.findAccessPoint(id, direction);
       }
-      
+
       public Iterator getAllAccessPoints()
       {
          IApplication app = getApplication();
@@ -1266,9 +1264,9 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    private class MyEngineContext extends ApplicationContextBean
    {
       private static final long serialVersionUID = 1L;
-      
+
       private transient Map accessPoints = new HashMap();
-      
+
       public MyEngineContext()
       {
          super(PredefinedConstants.ENGINE_CONTEXT, true);
@@ -1329,7 +1327,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    private class MyDefaultContext extends ApplicationContextBean
    {
       /**
-       * 
+       *
        */
       private static final long serialVersionUID = 1L;
 
@@ -1353,7 +1351,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    {
       return qualityAssuranceEnabled;
    }
-      
+
    public void setQualityAssuranceCodes(Set<IQualityAssuranceCode> qualityCodes)
    {
       this.qualityAssuranceCodes = qualityCodes;
@@ -1362,8 +1360,8 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    public Set<IQualityAssuranceCode> getQualityAssuranceCodes()
    {
       return qualityAssuranceCodes;
-   }   
-   
+   }
+
    public void setQualityAssurancePerformer(IModelParticipant participant)
    {
       qualityAssuranceParticipant = participant;
@@ -1373,7 +1371,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    {
       return qualityAssuranceParticipant;
    }
-      
+
    public void setQualityAssuranceFormula(String formula)
    {
       qualityAssuranceFormula = formula;
@@ -1383,7 +1381,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
    {
       return qualityAssuranceFormula;
    }
-      
+
    public void setQualityAssuranceProbability(int probability)
    {
       qualityAssuranceProbability = probability;

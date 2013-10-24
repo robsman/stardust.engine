@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.IEventActionType;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PluggableType;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.EventActionValidator;
 
@@ -54,14 +55,14 @@ public class ActionBean extends IdentifiableElementBean
       checkId(inconsistencies);
       if (StringUtils.isEmpty(getName()))
       {
-         inconsistencies.add(new Inconsistency(name + " does not have a Name.",
-               this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.ACTN_NO_NAME.raise(name);
+         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       IEventActionType type = (IEventActionType) getType();
       if (type == null)
       {
-         inconsistencies.add(new Inconsistency(name + " does not have a type.",
-               this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.ACTN_NO_TYPE.raise(name);
+         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       else
       {

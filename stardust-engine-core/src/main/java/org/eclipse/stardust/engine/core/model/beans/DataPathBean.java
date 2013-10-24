@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.SingleRef;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
@@ -84,27 +85,27 @@ public class DataPathBean extends IdentifiableElementBean
    public void checkConsistency(List inconsistencies)
    {
       checkId(inconsistencies);
-      
+
       if (getId() != null)
       {
          // check for unique Id
          IDataPath dp = ((IProcessDefinition) getParent()).findDataPath(getId(), direction);
          if (dp != null && dp != this)
          {
-            inconsistencies.add(new Inconsistency("Duplicate ID for data path '" +
-                  getName() + "'.", this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.DATA_DUPLICATE_ID_FOR_DATAPATH.raise(getName());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
       }
       if (StringUtils.isEmpty(getName()))
       {
-         inconsistencies.add(new Inconsistency("No Name specified for DataPath.",
-               this, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.DATA_NO_NAME_SPECIFIED_FOR_DATAPATH.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       IData data = getData();
       if (data == null)
       {
-         inconsistencies.add(new Inconsistency("No Data specified for DataPath.",
-               this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.DATA_NO_DATA_SPECIFIED_FOR_DATAPATH.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
       else if (isKeyDescriptor())
       {
@@ -114,47 +115,47 @@ public class DataPathBean extends IdentifiableElementBean
             String dataTypeId = data.getType().getId();
             if (PredefinedConstants.PRIMITIVE_DATA.equals(dataTypeId))
             {
-               // all primitive types can be key descriptors. 
+               // all primitive types can be key descriptors.
                return;
             }
             if (!PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
             {
-               inconsistencies.add(new Inconsistency("Key descriptors must be either primitive or structured types.",
-                     this, Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.DATA_KEY_DESCRIPTORS_MUST_BE_PRIMITIVE_OR_STRUCTURED_TYPES.raise();
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
             else if (accessPath == null || accessPath.length() == 0)
             {
-               inconsistencies.add(new Inconsistency("Structured key descriptors must have primitive type.",
-                     this, Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_HAVE_PRIMITIVE_TYPE.raise();
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
             else
             {
                IXPathMap xPathMap = StructuredTypeRtUtils.getXPathMap(data);
                if (xPathMap == null)
                {
-                  inconsistencies.add(new Inconsistency("No schema found for structured key descriptor.",
-                        this, Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_KEY_DESCRIPTOR.raise();
+                  inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
                }
                else if (StructuredDataXPathUtils.returnSinglePrimitiveType(accessPath, xPathMap) != BigData.STRING)
                {
-                  inconsistencies.add(new Inconsistency("Structured key descriptors must have primitive type.",
-                        this, Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_HAVE_PRIMITIVE_TYPE.raise();
+                  inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
                }
                else
                {
                   XPathAnnotations xPathAnnotations = StructuredDataXPathUtils.getXPathAnnotations(accessPath, xPathMap);
                   if (!xPathAnnotations.isIndexed() || !xPathAnnotations.isPersistent())
                   {
-                     inconsistencies.add(new Inconsistency("Structured key descriptors must be indexed and persistent.",
-                           this, Inconsistency.ERROR));
+                     BpmValidationError error = BpmValidationError.DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_BE_INDEXED_AND_PERSISTENT.raise();
+                     inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
                   }
                }
             }
          }
          else
          {
-            inconsistencies.add(new Inconsistency("DataPath marked as key descriptor but it's not a descriptor.",
-                  this, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.DATA_DATAPATH_IS_NOT_A_DESCRIPTOR.raise();
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
    }

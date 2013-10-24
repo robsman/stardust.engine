@@ -29,7 +29,7 @@ public class TriggerActionValidator implements EventActionValidator
       Object processId = attributes.get(PredefinedConstants.TRIGGER_ACTION_PROCESS_ATT);
       if (!(processId instanceof String) || StringUtils.isEmpty((String) processId))
       {
-         BpmValidationError error = BpmValidationError.ACT_NO_PROCESS_SELECTED.raise();
+         BpmValidationError error = BpmValidationError.ACTN_NO_PROCESS_SELECTED.raise();
          list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       return list;

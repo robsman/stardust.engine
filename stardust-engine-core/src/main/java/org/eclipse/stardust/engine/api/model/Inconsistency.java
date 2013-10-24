@@ -13,12 +13,8 @@ package org.eclipse.stardust.engine.api.model;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.stardust.common.error.ErrorCase;
-import org.eclipse.stardust.common.error.ErrorMessageUtils;
 import org.eclipse.stardust.engine.core.model.utils.Identifiable;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.Nameable;
@@ -51,7 +47,6 @@ public class Inconsistency implements Serializable
    private String sourceElementId;
    private String sourceElementName;
    private ErrorCase error;
-   private String test;
 
    /**
     * Constructs an Inconsistency.

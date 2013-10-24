@@ -28,7 +28,7 @@ public class ExcludeUserActionValidator implements EventActionValidator
       ArrayList list = new ArrayList();
       if (StringUtils.isEmpty((String) attributes.get(PredefinedConstants.EXCLUDED_PERFORMER_DATA)))
       {
-         BpmValidationError error = BpmValidationError.ACT_NO_DATA_DEFINED.raise();
+         BpmValidationError error = BpmValidationError.ACTN_NO_DATA_DEFINED.raise();
          list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       return list;

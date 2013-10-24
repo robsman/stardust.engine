@@ -29,13 +29,13 @@ public class SetDataActionValidator implements EventActionValidator
       if (StringUtils.isEmpty((String) attributes.get(
             PredefinedConstants.SET_DATA_ACTION_DATA_ID_ATT)))
       {
-         BpmValidationError error = BpmValidationError.ACT_NO_DATA_DEFINED.raise();
+         BpmValidationError error = BpmValidationError.ACTN_NO_DATA_DEFINED.raise();
          list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       if (StringUtils.isEmpty((String) attributes.get(
             PredefinedConstants.SET_DATA_ACTION_ATTRIBUTE_NAME_ATT)))
       {
-         BpmValidationError error = BpmValidationError.ACT_NO_ACCESS_POINT_DEFINED.raise();
+         BpmValidationError error = BpmValidationError.ACTN_NO_ACCESS_POINT_DEFINED.raise();
          list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       return list;

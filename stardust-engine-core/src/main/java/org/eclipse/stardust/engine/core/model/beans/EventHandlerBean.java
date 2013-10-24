@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailEventHandlerBean;
@@ -35,11 +36,11 @@ import org.eclipse.stardust.engine.core.spi.extensions.model.EventConditionValid
 public class EventHandlerBean extends IdentifiableElementBean implements IEventHandler
 {
    private static final Logger trace = LogManager.getLogger(EventHandlerBean.class);
-   
+
    public static final String BOUNDARY_EVENT_TYPE_KEY = "carnot:engine:event:boundaryEventType";
    public static final String BOUNDARY_EVENT_TYPE_INTERRUPTING_VALUE = "Interrupting";
    public static final String BOUNDARY_EVENT_TYPE_NON_INTERRUPTING_VALUE = "Non-interrupting";
-   
+
    static final String AUTO_BIND_ATT = "Automatic Binding At Runtime";
    private boolean autoBind;
 
@@ -214,31 +215,30 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
    {
       super.checkConsistency(inconsistencies);
       checkId(inconsistencies);
-      
+
       if (getId() != null)
       {
          IEventHandler eh = ((EventHandlerOwner) getParent()).findHandlerById(getId());
          if (eh != null && eh != this)
          {
-            inconsistencies.add(new Inconsistency("Duplicate ID for event handler '" +
-                  getName() + "'.", this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER.raise(getName());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
-         
+
          // check id to fit in maximum length
          if (getId().length() > AuditTrailEventHandlerBean.getMaxIdLength())
          {
-            inconsistencies.add(new Inconsistency("ID for event handler '" + getName()
-                  + "' exceeds maximum length of "
-                  + AuditTrailEventHandlerBean.getMaxIdLength() + " characters.",
-                  this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.EVEN_ID_FOR_EVENT_HANDLER_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS.raise(
+                  getName(), AuditTrailEventHandlerBean.getMaxIdLength());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
       }
 
       IEventConditionType type = (IEventConditionType) getType();
       if (type == null)
       {
-         inconsistencies.add(new Inconsistency("EventHandler does not have a condition type",
-               this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.EVEN_HANDLER_DOES_NOT_HAVE_CONDITION_TYPE.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
       else
       {
@@ -272,9 +272,8 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
             IAction a = (IAction) actions.findById(eventAction.getId());
             if (a != null && a != eventAction)
             {
-               inconsistencies.add(new Inconsistency("Duplicate ID for event action '" +
-                     eventAction.getName() + "'.", eventAction,
-                     Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.EVEN_DUPLICATE_ID_FOR_EVENT_ACTION.raise(eventAction.getName());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
          }
       }
@@ -312,7 +311,7 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
    public Iterator getAllAccessPoints()
    {
       Iterator accessPoints;
-      
+
       IEventConditionType handlerType = (IEventConditionType) getType();
       Object apProvider = handlerType
             .getAttribute(PredefinedConstants.ACCESSPOINT_PROVIDER_ATT);

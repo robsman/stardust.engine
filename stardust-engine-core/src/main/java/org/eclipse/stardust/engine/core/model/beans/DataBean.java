@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.model.IReference;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PluggableType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
@@ -85,18 +86,18 @@ public class DataBean extends IdentifiableElementBean implements IData
       IData d = ((IModel) getModel()).findData(getId());
       if (d != null && d != this)
       {
-         inconsistencies.add(new Inconsistency("Duplicate ID for data '" +
-               getName() + "'.", this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.DATA_DUPLICATE_ID_FOR_DATA.raise(getName());
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
-      
+
       if (null != getId())
       {
          // check id to fit in maximum length
          if (getId().length() > AuditTrailDataBean.getMaxIdLength())
          {
-            inconsistencies.add(new Inconsistency("ID for data '" + getName()
-                  + "' exceeds maximum length of " + AuditTrailDataBean.getMaxIdLength()
-                  + " characters.", this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.DATA_ID_FOR_DATA_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS.raise(
+                  getName(), AuditTrailDataBean.getMaxIdLength());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
       }
 

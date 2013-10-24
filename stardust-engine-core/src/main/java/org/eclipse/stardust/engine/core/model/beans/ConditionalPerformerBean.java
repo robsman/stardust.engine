@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.api.model.IParticipant;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.ParticipantType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.SingleRef;
 import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
@@ -98,9 +99,8 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          // Rule: associated workflow data must exist
          if (null == getData())
          {
-            inconsistencies.add(new Inconsistency("No data associated to the conditional "
-                  + "performer '" + getId() + "'.", this,
-                  Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.PART_NO_DATA_ASSOCIATED_TO_CONDITIONAL_PERFORMER.raise(getId());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
          else
          {
@@ -116,18 +116,11 @@ public class ConditionalPerformerBean extends ModelParticipantBean
                      && !Long.class.isAssignableFrom(rhs.getEndClass())
                      && !long.class.isAssignableFrom(rhs.getEndClass()))
                {
-                  inconsistencies
-                        .add(new Inconsistency(
-                              "The data expression for the "
-                                    + "conditional performer '"
-                                    + getId()
-                                    + "' yields a value of unsupported type. Performers can be looked "
-                                    + "up by string (User account, User Group ID or Participant ID) or "
-                                    + "longs (User, User Group or Participant OID).",
-                              this, Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.PART_DATA_EXPRESSION_OF_UNSUPPORTED_TYPE.raise(getId());
+                  inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
                }
             }
-            
+
             if (null != getRealmData())
             {
                validator = (ExtendedDataValidator) ValidatorUtils.getValidator(getRealmData()
@@ -142,11 +135,8 @@ public class ConditionalPerformerBean extends ModelParticipantBean
                         && !Long.class.isAssignableFrom(rhs.getEndClass())
                         && !long.class.isAssignableFrom(rhs.getEndClass()))
                   {
-                     inconsistencies.add(new Inconsistency(
-                           "The realm data expression for the conditional performer '" + getId() +
-                           "' yields a value of unsupported type. Performers can be looked " +
-                           "up by string (User Realm ID) or longs (User Realm OID).",
-                           this, Inconsistency.ERROR));
+                     BpmValidationError error = BpmValidationError.PART_DATA_REALM_EXPRESSION_OF_UNSUPPORTED_TYPE.raise(getId());
+                     inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
                   }
                }
             }
@@ -234,7 +224,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
 
       return kind;
    }
-   
+
    public IData getData()
    {
       return (IData) data.getElement();
@@ -269,7 +259,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
    {
       return true;
    }
-   
+
    public boolean isAuthorized(IUserGroup userGroup)
    {
       return true;
@@ -379,7 +369,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
 
       return userPerformer;
    }
-   
+
    private IUser retrieveUserByRealmQualification(Pair realmQualifiedUser)
    {
       IUser userPerformer;
@@ -433,7 +423,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
       {
          final String account = (String) userHandle;
          final Map properties = new HashMap();
-         
+
          final Object realmHandle = realmQualifiedUser.getSecond();
          if (realmHandle instanceof Long)
          {
@@ -460,7 +450,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
                   "Invalid user performer realm identifier: ''{0}''.",
                   new Object[] { realmHandle }));
          }
-         
+
          userPerformer = retrieveUserByAccount(account, properties);
       }
       else
@@ -469,10 +459,10 @@ public class ConditionalPerformerBean extends ModelParticipantBean
                "Invalid conditional participant performer identifier: ''{0}''.",
                new Object[] { userHandle }));
       }
-      
+
       return userPerformer;
    }
-   
+
    private IUser retrieveUserByOid(long userOid)
    {
       IUser userPerformer;
@@ -485,7 +475,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          trace.debug("Invalid conditional user performer", e);
          userPerformer = null;
       }
-      
+
       return userPerformer;
    }
 
@@ -498,7 +488,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          {
             properties = Collections.EMPTY_MAP;
          }
-         
+
          userPerformer = SynchronizationService.synchronize(account,
                (IModel) getModel(), Parameters.instance().getBoolean(
                         SecurityProperties.AUTHORIZATION_SYNC_CONDITIONAL_PERFORMER_PROPERTY,
@@ -509,7 +499,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          trace.debug("Invalid conditional user performer", e);
          userPerformer = null;
       }
-      
+
       return userPerformer;
    }
 
@@ -584,9 +574,9 @@ public class ConditionalPerformerBean extends ModelParticipantBean
       else if (performerHandle instanceof String)
       {
          String id = (String) performerHandle;
-         
+
          QName idRef = QName.valueOf(id);
-         
+
          if (idRef.getNamespaceURI().isEmpty())
          {
             performer = ((IModel) processInstance.getProcessDefinition().getModel()).findParticipant(id);
@@ -595,11 +585,11 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          {
             IModel model = ModelManagerFactory.getCurrent().findActiveModel(
                   idRef.getNamespaceURI());
-                  
-            performer = model.findParticipant(idRef.getLocalPart());      
-                        
+
+            performer = model.findParticipant(idRef.getLocalPart());
+
          }
-               
+
       }
       else
       {
@@ -610,7 +600,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
 
       return performer;
    }
-   
+
    private Object retrievePerformerHandle(IProcessInstance processInstance)
    {
       // @todo Should be checked in consistency check
@@ -622,9 +612,9 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          throw new InternalException("No data set for conditional performer '" + getId()
                + "'.");
       }
-      
+
       Object performerHandle = evaluateData(processInstance, data, getDereferencePath());
-      
+
       if (!(performerHandle instanceof Long))
       {
          final IData realmData = getRealmData();
@@ -638,7 +628,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
 
       return performerHandle;
    }
-   
+
    private Object evaluateData(IProcessInstance processInstance, IData data, String dereferencePath)
    {
       IDataValue dataValue = processInstance.getDataValue(data);
@@ -647,7 +637,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          throw new InternalException("No data value for data '" + data.getId()
                + "' available for conditional performer retrieval.");
       }
-      
+
       ExtendedAccessPathEvaluator evaluator = SpiUtils.createExtendedAccessPathEvaluator(data, dereferencePath);
       AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(processInstance, null);
       return evaluator.evaluate(data, dataValue.getValue(),

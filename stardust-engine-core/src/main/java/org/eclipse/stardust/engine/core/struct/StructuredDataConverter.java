@@ -243,16 +243,25 @@ public class StructuredDataConverter
          }
          else if (StructuredDataXPathUtils.isSimpleAttributeAccess(xPath))
          {
+            Node leaf = null;
             // try to find attribute element directly
-            Attribute attribute = rootNode.getAttribute(xPath.substring(xPath.indexOf('@')+1));
-            if (attribute == null)
+            String attributeName = xPath.substring(xPath.indexOf('@')+1);
+            if (attributeName.isEmpty())
             {
-               nodelist = Collections.EMPTY_LIST;
+               for (Node child : rootNode.getChildren())
+               {
+                  if (child instanceof Text)
+                  {
+                     leaf = child;
+                     break;
+                  }
+               }
             }
             else
             {
-               nodelist = Collections.singletonList((Node) attribute);
+               leaf = rootNode.getAttribute(attributeName);
             }
+            nodelist = leaf == null ? Collections.<Node>emptyList() : Collections.singletonList(leaf);
          }
          else
          {
@@ -295,6 +304,16 @@ public class StructuredDataConverter
          // there is a node value
          complexType.put(NODE_VALUE_KEY, StructuredDataValueFactory.convertTo(parentXPath.getType(),
                StructuredDataXPathUtils.findNodeValue(parentNode)));
+      }
+      else
+      {
+         TypedXPath childXPath = parentXPath.getChildXPath(NODE_VALUE_KEY);
+         if (childXPath != null)
+         {
+            // there is a node value
+            complexType.put(NODE_VALUE_KEY, StructuredDataValueFactory.convertTo(childXPath.getType(),
+                  StructuredDataXPathUtils.findNodeValue(parentNode)));
+         }
       }
 
       // attributes
@@ -602,6 +621,13 @@ public class StructuredDataConverter
       if (key.equals(NODE_VALUE_KEY))
       {
          // special case for node value
+         // (fh) if this is a complex type with simple content and attributes,
+         // fetch the actual value xpath from the children.
+         TypedXPath xPath = childXPath.getChildXPath(key);
+         if (xPath != null)
+         {
+            childXPath = xPath;
+         }
          String valueString = StructuredDataValueFactory.convertToString(childXPath.getType(), childXPath.getXsdTypeName(), value);
          parentNode.appendChild(new Text(valueString));
       }

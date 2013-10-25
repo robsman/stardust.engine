@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
+import org.eclipse.stardust.engine.core.struct.StructuredDataConverter;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.XPathAnnotations;
@@ -144,35 +145,44 @@ public class XPathFinder
       }
       else if (xsdTypeDefinition instanceof XSDComplexTypeDefinition)
       {
-         XSDComplexTypeDefinition xsdComplexTypeDefinition = (XSDComplexTypeDefinition)xsdTypeDefinition;
-
-         if (xsdComplexTypeDefinition.getContent() instanceof XSDSimpleTypeDefinition)
-         {
-            // the one and only XPath if enumeration is top-level element
-            XSDSimpleTypeDefinition xsdSimpleTypeDefinition = (XSDSimpleTypeDefinition)xsdComplexTypeDefinition.getContent();
-            allXPaths.add(new TypedXPath(null, allXPaths.size(), xpath, false, elementName,
-                  elementNs, xsdTypeDefinition.getName(),
-                  xsdTypeDefinition.getTargetNamespace(),
-                  getBigDataType(xsdSimpleTypeDefinition), false, xsdAnnotations,
-                  getEnumerationValues(xsdSimpleTypeDefinition)));
-         }
-         else
-         {
-            // the root XPath
-            TypedXPath typedXPath = new TypedXPath(null, allXPaths.size(), xpath, false, elementName, elementNs,
-                  xsdTypeDefinition.getName(), xsdTypeDefinition.getTargetNamespace(),
-                  BigData.NULL, false, xsdAnnotations, Collections.EMPTY_LIST);
-            allXPaths.add(typedXPath);
-            findAttributes(typedXPath, xsdComplexTypeDefinition.getAttributeContents(), allXPaths);
-            findAllXPaths(typedXPath, xsdComplexTypeDefinition, allXPaths, visitedTypes, allVisitedTypes);
-         }
+         XSDComplexTypeDefinition xsdComplexTypeDefinition = (XSDComplexTypeDefinition) xsdTypeDefinition;
+         findComplexTypeXpaths(null, xpath, elementName, elementNs, xsdComplexTypeDefinition, xsdAnnotations, allXPaths,
+               visitedTypes, allVisitedTypes);
       }
       else
       {
-         throw new RuntimeException("Unsupported XSD: "+xsdTypeDefinition);
+         throw new RuntimeException("Unsupported XSD: " + xsdTypeDefinition);
       }
       
       return allXPaths;
+   }
+
+   private static String getTargetNamespace(XSDTypeDefinition typeDefinition)
+   {
+      String targetNamespace = typeDefinition.getTargetNamespace();
+      if (targetNamespace == null)
+      {
+         XSDTypeDefinition base = typeDefinition.getBaseType();
+         if (base != null)
+         {
+            return getTargetNamespace(base);
+         }
+      }
+      return targetNamespace;
+   }
+
+   private static String getName(XSDTypeDefinition typeDefinition)
+   {
+      String name = typeDefinition.getName();
+      if (name == null)
+      {
+         XSDTypeDefinition base = typeDefinition.getBaseType();
+         if (base != null)
+         {
+            return getName(base);
+         }
+      }
+      return name;
    }
 
    public static XSDElementDeclaration findElement(XSDSchema xsdSchema,
@@ -396,8 +406,9 @@ public class XPathFinder
       }
    }
    
-   private static void findAllXPaths(TypedXPath parentXPath, final XSDElementDeclaration xsdElementDeclaration,
-         XSDParticle xsdParticle, Set allXPaths, Stack visitedTypes, Set<XSDTypeDefinition> allVisitedTypes)
+   private static void findAllXPaths(TypedXPath parentXPath,
+         final XSDElementDeclaration xsdElementDeclaration, XSDParticle xsdParticle, Set allXPaths,
+         Stack<XSDTypeDefinition> visitedTypes, Set<XSDTypeDefinition> allVisitedTypes)
    {
       XSDTypeDefinition xsdTypeDefinition = xsdElementDeclaration.getTypeDefinition();
       
@@ -453,22 +464,24 @@ public class XPathFinder
                throw new RuntimeException("Equally named subelements (equal local names) are not supported: '"+elementName+"'");
             }
             
-            TypedXPath typedXPath = new TypedXPath(parentXPath, allXPaths.size(),
-                  childXPathString, false,
-                  xsdElementDeclaration.getName(), elementTargetNamespace,
-                  xsdTypeDefinition.getName(),
-                  xsdTypeDefinition.getTargetNamespace(), getBigDataType(xsdTypeDefinition),
-                  isList, findAnnotations(xsdElementDeclaration.getAnnotation()),
-                  getEnumerationValues(xsdTypeDefinition));
-            allXPaths.add(typedXPath);
-   
             if (xsdTypeDefinition instanceof XSDComplexTypeDefinition)
             {
-               XSDComplexTypeDefinition xsdComplexTypeDefinition = (XSDComplexTypeDefinition)xsdTypeDefinition;
-               findAttributes(typedXPath, xsdComplexTypeDefinition.getAttributeContents(), allXPaths);
-               findAllXPaths(typedXPath, xsdComplexTypeDefinition, allXPaths, visitedTypes, allVisitedTypes);
+               findComplexTypeXpaths(parentXPath, childXPathString, xsdElementDeclaration.getName(),
+                     elementTargetNamespace, (XSDComplexTypeDefinition) xsdTypeDefinition,
+                     findAnnotations(xsdElementDeclaration.getAnnotation()),
+                     allXPaths, visitedTypes, allVisitedTypes);
             }
-            // ignore simple type definition, XPath for it is already added by appendXPath
+            else
+            {
+               TypedXPath typedXPath = new TypedXPath(parentXPath, allXPaths.size(),
+                     childXPathString, false,
+                     xsdElementDeclaration.getName(), elementTargetNamespace,
+                     xsdTypeDefinition.getName(),
+                     xsdTypeDefinition.getTargetNamespace(), getBigDataType(xsdTypeDefinition),
+                     isList, findAnnotations(xsdElementDeclaration.getAnnotation()),
+                     getEnumerationValues(xsdTypeDefinition));
+               allXPaths.add(typedXPath);
+            }
          }
          finally
          {
@@ -477,35 +490,83 @@ public class XPathFinder
       }
    }
 
-   private static void findAttributes(TypedXPath parentXPath,
-         EList/*<XSDAttributeGroupContent>*/ attributeContents, Set allXPaths)
+   private static void findComplexTypeXpaths(TypedXPath parent, String xpath, String elementName, String elementNs,
+         XSDComplexTypeDefinition xsdComplexTypeDefinition, XPathAnnotations xsdAnnotations, Set<TypedXPath> allXPaths,
+         Stack visitedTypes, Set<XSDTypeDefinition> allVisitedTypes)
    {
-      for (int i=0; i<attributeContents.size(); i++)
+      List<XSDAttributeGroupContent> attributeContents = xsdComplexTypeDefinition.getAttributeContents();
+      if (xsdComplexTypeDefinition.getContent() instanceof XSDSimpleTypeDefinition)
       {
-         XSDAttributeGroupContent xsdAttributeGroupContent = (XSDAttributeGroupContent)attributeContents.get(i);
+         // the one and only XPath if enumeration is top-level element
+         XSDSimpleTypeDefinition xsdSimpleTypeDefinition = (XSDSimpleTypeDefinition) xsdComplexTypeDefinition.getContent();
+         if (attributeContents.isEmpty())
+         {
+            // keep compatibility with old style complex types with simple content if they do not have attributes
+            TypedXPath typedXPath = new TypedXPath(parent, allXPaths.size(), xpath, false,
+                  elementName, elementNs,
+                  xsdComplexTypeDefinition.getName(), xsdComplexTypeDefinition.getTargetNamespace(),
+                  getBigDataType(xsdSimpleTypeDefinition), false, xsdAnnotations,
+                  getEnumerationValues(xsdSimpleTypeDefinition));
+            allXPaths.add(typedXPath);
+         }
+         else
+         {
+            // the root XPath
+            TypedXPath rootXPath = new TypedXPath(parent, allXPaths.size(), xpath, false,
+                  elementName, elementNs,
+                  xsdComplexTypeDefinition.getName(), xsdComplexTypeDefinition.getTargetNamespace(),
+                  BigData.NULL, false, xsdAnnotations, Collections.EMPTY_LIST);
+            allXPaths.add(rootXPath);
+            TypedXPath typedXPath = new TypedXPath(rootXPath, allXPaths.size(), 
+                  parent == null ? StructuredDataConverter.NODE_VALUE_KEY : xpath + "/" + StructuredDataConverter.NODE_VALUE_KEY, false,
+                  StructuredDataConverter.NODE_VALUE_KEY, "",
+                  getName(xsdSimpleTypeDefinition), getTargetNamespace(xsdSimpleTypeDefinition),
+                  getBigDataType(xsdSimpleTypeDefinition), false, xsdAnnotations,
+                  getEnumerationValues(xsdSimpleTypeDefinition));
+            allXPaths.add(typedXPath);
+            findAttributes(rootXPath, attributeContents, allXPaths);
+         }
+      }
+      else
+      {
+         // the root XPath
+         TypedXPath typedXPath = new TypedXPath(parent, allXPaths.size(), xpath, false,
+               elementName, elementNs,
+               xsdComplexTypeDefinition.getName(), xsdComplexTypeDefinition.getTargetNamespace(),
+               BigData.NULL, false, xsdAnnotations, Collections.EMPTY_LIST);
+         allXPaths.add(typedXPath);
+         findAttributes(typedXPath, attributeContents, allXPaths);
+         findAllXPaths(typedXPath, xsdComplexTypeDefinition, allXPaths, visitedTypes, allVisitedTypes);
+      }
+   }
+
+   private static void findAttributes(TypedXPath parentXPath,
+         List<XSDAttributeGroupContent> attributeContents, Set allXPaths)
+   {
+      for (XSDAttributeGroupContent xsdAttributeGroupContent : attributeContents)
+      {
          if (xsdAttributeGroupContent instanceof XSDAttributeUse)
          {
-            XSDAttributeUse xsdAttributeUse = (XSDAttributeUse)xsdAttributeGroupContent;
-            addAttribute(parentXPath, xsdAttributeUse, allXPaths);
+            addAttribute(parentXPath, (XSDAttributeUse) xsdAttributeGroupContent, allXPaths);
          }
          else if (xsdAttributeGroupContent instanceof XSDAttributeGroupDefinition)
          {
-            XSDAttributeGroupDefinition xsdAttributeGroupDefinition = (XSDAttributeGroupDefinition)xsdAttributeGroupContent;
-            List /*<XSDAttributeUse>*/ xsdAttributeUses = xsdAttributeGroupDefinition.getResolvedAttributeGroupDefinition().getAttributeUses();
-            for (int j=0; j<xsdAttributeUses.size(); j++)
+            XSDAttributeGroupDefinition attributeGroupDefinition = ((XSDAttributeGroupDefinition) xsdAttributeGroupContent)
+                  .getResolvedAttributeGroupDefinition();
+            List<XSDAttributeUse> xsdAttributeUses = attributeGroupDefinition.getAttributeUses();
+            for (XSDAttributeUse use : xsdAttributeUses)
             {
-               addAttribute(parentXPath, (XSDAttributeUse) xsdAttributeUses.get(j), allXPaths);
+               addAttribute(parentXPath, use, allXPaths);
             }
          }
          else
          {
-            throw new RuntimeException("Unsupported XSD: "+xsdAttributeGroupContent);
+            throw new RuntimeException("Unsupported XSD: " + xsdAttributeGroupContent);
          }
       }
    }
 
-   private static void addAttribute(TypedXPath parentXPath, XSDAttributeUse xsdAttributeUse,
-         Set allXPaths)
+   private static void addAttribute(TypedXPath parentXPath, XSDAttributeUse xsdAttributeUse, Set allXPaths)
    {
       XSDSimpleTypeDefinition xsdSimpleTypeDefinition = xsdAttributeUse.getAttributeDeclaration().getTypeDefinition();
       
@@ -530,7 +591,7 @@ public class XPathFinder
       allXPaths.add(new TypedXPath(parentXPath, allXPaths.size(), attributeXPath,
             true, attributeName,
             xsdAttributeUse.getAttributeDeclaration().getTargetNamespace(),
-            xsdSimpleTypeDefinition.getName(),
+            getName(xsdSimpleTypeDefinition),
             xsdSimpleTypeDefinition.getTargetNamespace(),
             getBigDataType(xsdSimpleTypeDefinition), false,
             findAnnotations(xsdAttributeUse.getContent().getAnnotation()),

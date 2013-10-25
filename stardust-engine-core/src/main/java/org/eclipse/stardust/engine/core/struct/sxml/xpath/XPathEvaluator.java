@@ -73,6 +73,14 @@ public class XPathEvaluator
 
    protected static Expression parseXPath(String xPathExpression)
    {
+      if (xPathExpression.equals("@"))
+      {
+         xPathExpression = "text()";
+      }
+      else if (xPathExpression.endsWith("/@"))
+      {
+         xPathExpression = xPathExpression.substring(0, xPathExpression.length() - 1) + "text()";
+      }
       return (Expression) Parser.parseExpression(xPathExpression, XPATH_COMPILER);
    }
 

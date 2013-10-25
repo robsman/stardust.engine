@@ -47,7 +47,7 @@
 		<artifact name="stardust-engine-camel" type="jar"
 			conf="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided, stardust-camel-runtime"
 			ext="jar" />
-		<artifact name="stardust-camel" type="source" conf="stardust-camel-sources" ext="jar"  m:classifier="sources"/>
+		<artifact name="stardust-engine-camel" type="source" conf="stardust-camel-sources" ext="jar"  m:classifier="sources"/>
 		<artifact name="stardust-engine-camel" type="pom" conf="pom" ext="pom" />
 		<artifact name="stardust-engine-camel-module" type="pom" conf="module-pom"
 			ext="pom" />
@@ -84,18 +84,8 @@
 			<exclude org="commons-collections" module="commons-collections" />
          <exclude org="javax.transaction" module="jta"/>
 		</dependency>
-    <dependency org="org.apache.camel" name="camel-http" rev="${camel-http.version}"
-         conf="stardust-camel-runtime->default">
-         <exclude org="commons-codec" module="commons-codec" />
-         <exclude org="org.apache.geronimo.specs" module="geronimo-servlet_2.5_spec" />
-      </dependency>
       <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}"
       conf="stardust-camel-runtime->default" />
-		<dependency org="org.apache.camel" name="camel-mail" rev="{camel-mail.version}"
-			conf="stardust-camel-runtime->default">
-			<exclude org="org.apache.camel" module="camel-core" />
-			<exclude org="javax.mail" module="mail" />
-		</dependency>    
 		<dependency org="javax.mail" name="mail" rev="${mail.version}"
 			conf="stardust-camel-runtime->default" />
 		<dependency org="org.apache.camel" name="camel-restlet"

@@ -242,18 +242,18 @@ public class ModelBean extends RootElementBean
          if (administrator == null)
          {
             BpmValidationError error = BpmValidationError.PART_MISSING_ADMINISTRATOR_PARTICIPANT.raise();
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
          else if (!(administrator instanceof IRole))
          {
             BpmValidationError error = BpmValidationError.PART_ADMINISTRATOR_PARTICIPANT_MUST_BE_A_ROLE.raise();
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, administrator, Inconsistency.ERROR));
          }
          
          if (!scripting.isSupported())
          {
             BpmValidationError error = BpmValidationError.MDL_UNSUPPORTED_SCRIPT_LANGUAGE.raise(scripting.getType());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
          
          if (ModelManagerFactory.isAvailable())
@@ -261,7 +261,7 @@ public class ModelBean extends RootElementBean
             if (administrator.getAllOrganizations().hasNext())
             {
                BpmValidationError error = BpmValidationError.PART_ADMINISTRATOR_IS_NOT_ALLOWED_TO_HAVE_RELATIONSHIPS_TO_ANY_ORGANIZATION.raise();
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             Set<String> grants = new HashSet<String>();
             addAllGrants(grants, QueryService.class, "getAllUsers", UserQuery.class);
@@ -283,7 +283,7 @@ public class ModelBean extends RootElementBean
                if (grants.contains(participant.getId()) && isScoped(participant))
                {
                   BpmValidationError error = BpmValidationError.PART_SCOPED_PARTICIPANTS_NOT_ALLOWED_FOR_MODEL_LEVEL_GRANTS.raise();
-                  inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   break;
                }
             }
@@ -306,13 +306,13 @@ public class ModelBean extends RootElementBean
                   && !(varDefinition.getType().name().equals(ConfigurationVariableScope.Password.name())))
             {
                BpmValidationError error = BpmValidationError.MDL_NO_DEFAULT_VALUE_FOR_CONFIGURATION_VARIABLE.raise(varDefinition.getName());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
             
             if ( !configurationVariableReferences.contains(varDefinition.getName()))
             {
                BpmValidationError error = BpmValidationError.MDL_CONFIGURATION_VARIABLE_NEVER_USED.raise(varDefinition.getName());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
          
@@ -321,7 +321,7 @@ public class ModelBean extends RootElementBean
             if ( !definedVarNames.contains(varReferenceName))
             {
                BpmValidationError error = BpmValidationError.MDL_CONFIGURATION_VARIABLE_DOES_NOT_EXIST.raise(varReferenceName);
-               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
          
@@ -441,7 +441,7 @@ public class ModelBean extends RootElementBean
             if (referencedModel == this)
             {
                BpmValidationError error = BpmValidationError.MDL_CIRCULAR_REFERENCES_TO.raise(id);
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                return false;
             }
             if (ref != null)
@@ -451,7 +451,7 @@ public class ModelBean extends RootElementBean
                {
                   BpmValidationError error = BpmValidationError.MDL_REFERENCE_TO_MODEL_IS_INALID_UNTIL.raise(
                         id, from);
-                  inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   return false;
                }
             }
@@ -475,8 +475,8 @@ public class ModelBean extends RootElementBean
             {
                if (referencedModel != lastDeployedModel)
                {
-                  BpmValidationError error = BpmValidationError.MDL_REFERENCE_NOT_RESOLVED_TO_LAST_DEPLOYED_VERSION.raise(id);
-                  inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.MDL_REFERENCE_NOT_RESOLVED_TO_LAST_DEPLOYED_VERSION.raise(refId);
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                }
             }
             else
@@ -488,7 +488,7 @@ public class ModelBean extends RootElementBean
       else if (model != other && id.equals(other.getId()))
       {
          BpmValidationError error = BpmValidationError.MDL_REFERENCE_IS_RESOLVED_TO_MULTIPLE_MODEL_VERSION.raise(id);
-         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+         inconsistencies.add(new Inconsistency(error, model, Inconsistency.ERROR));
          return false;
       }
       return true;
@@ -1379,7 +1379,7 @@ public class ModelBean extends RootElementBean
          String description = (String) getAttribute(IPP_VARIABLES + i
                + IPP_VARIABLES_DESCRIPTION);
 
-         defs.add(new ConfigurationVariableDefinition(ConfigurationVariableUtils.getName(name), 
+         defs.add(new ConfigurationVariableDefinition(ConfigurationVariableUtils.getName(name),
                ConfigurationVariableUtils.getType(name),
                defaultValue, description, getModelOID()));
          i++;

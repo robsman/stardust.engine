@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PluggableType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.spi.extensions.model.DataType;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -35,7 +36,7 @@ public class ValidatorUtils
    {
       return getValidator(type, modelElement, inconsistencies, true);
    }
-   
+
    public static Object getValidator(PluggableType type, ModelElement modelElement,
       List inconsistencies, boolean mandatory)
    {
@@ -67,8 +68,9 @@ public class ValidatorUtils
             {
                if (mandatory)
                {
-                  inconsistencies.add(new Inconsistency("Cannot retrieve class '"
-                        + validatorClassName + "' for validating.", modelElement, Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.VAL_CANNOT_RETRIEVE_CLASS_FOR_VALIDATION.raise(validatorClassName);
+                  inconsistencies.add(new Inconsistency(error, modelElement,
+                        Inconsistency.WARNING));
                }
             }
             else

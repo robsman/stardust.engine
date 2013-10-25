@@ -28,6 +28,7 @@ public class BpmValidationError extends ErrorCase
    //General validation
    public static final Args1 VAL_DUPLICATE_IDENTIFIER = newArgs1("VAL01000", BpmValidationErrorMessages.getString("VAL01000"));
    public static final Args1 VAL_INVALID_IDENTIFIER = newArgs1("VAL01001", BpmValidationErrorMessages.getString("VAL01001"));
+   public static final Args1 VAL_CANNOT_RETRIEVE_CLASS_FOR_VALIDATION = newArgs1("VAL01002", BpmValidationErrorMessages.getString("VAL01002"));
 
    //Model related
    public static final Args1 MDL_INVALID_QA_CODE_ID = newArgs1("MDL01001", BpmValidationErrorMessages.getString("MDL01001"));
@@ -96,12 +97,27 @@ public class BpmValidationError extends ErrorCase
    public static final Args1 TRIGG_UNSPECIFIED_PARTICIPANT_FOR_TRIGGER = newArgs1("TRIGG01001", BpmValidationErrorMessages.getString("TRIGG01001"));
    public static final Args2 TRIGG_INVALID_PARTICIPANT_FOR_TRIGGER = newArgs2("TRIGG01002", BpmValidationErrorMessages.getString("TRIGG01002"));
    public static final Args0 TRIGG_UNSPECIFIED_START_TIME_FOR_TRIGGER = newArgs0("TRIGG01003", BpmValidationErrorMessages.getString("TRIGG01003"));
+   public static final Args1 TRIGG_DUPLICATE_ID_FOR_PROCESS_DEFINITION = newArgs1("TRIGG01004", BpmValidationErrorMessages.getString("TRIGG01004"));
+   public static final Args3 TRIGG_ID_EXCEEDS_MAXIMUM_LENGTH = newArgs3("TRIGG01005", BpmValidationErrorMessages.getString("TRIGG01005"));
+   public static final Args0 TRIGG_NO_NAME_SET = newArgs0("TRIGG01006", BpmValidationErrorMessages.getString("TRIGG01006"));
+   public static final Args0 TRIGG_NO_TYPE_SET = newArgs0("TRIGG01007", BpmValidationErrorMessages.getString("TRIGG01007"));
+   public static final Args0 TRIGG_PARAMETER_MAPPING_DOES_NOT_SPECIFY_DATA = newArgs0("TRIGG01008", BpmValidationErrorMessages.getString("TRIGG01008"));
+   public static final Args0 TRIGG_PARAMETER_MAPPING_DOES_NOT_SPECIFY_PARAMETER = newArgs0("TRIGG01009", BpmValidationErrorMessages.getString("TRIGG01009"));
+   public static final Args1 TRIGG_PARAMETER_FOR_PARAMETER_MAPPING_INVALID = newArgs1("TRIGG01010", BpmValidationErrorMessages.getString("TRIGG01010"));
+   public static final Args0 TRIGG_ACCESSPOINT_HAS_INVALID_ID = newArgs0("TRIGG01011", BpmValidationErrorMessages.getString("TRIGG01011"));
+   public static final Args1 TRIGG_SCAN_TRIGGERS_DO_NOT_SUPPORT_ACCESS_POINT_TYPE = newArgs1("TRIGG01012", BpmValidationErrorMessages.getString("TRIGG01012"));
+   public static final Args1 TRIGG_PARAMETER_MAPPING_CONTAINS_AN_INVALID_TYPE_CONVERSION = newArgs1("TRIGG01013", BpmValidationErrorMessages.getString("TRIGG01013"));
 
    //Transition related
    public static final Args2 TRAN_ID_EXCEEDS_MAXIMUM_LENGTH = newArgs2("TRAN01001", BpmValidationErrorMessages.getString("TRAN01001"));
    public static final Args2 TRAN_NO_BOUNDARY_EVENT_HANDLER_WITH_ID_FOR_EXCEPTION_TRANSITION_FOUND = newArgs2("TRAN01002", BpmValidationErrorMessages.getString("TRAN01002"));
    public static final Args1 TRAN_EXPRESSION_SCRIPTING_LANGUAGE_DO_NOT_MATCH = newArgs1("TRAN01003", BpmValidationErrorMessages.getString("TRAN01003"));
    public static final Args1 TRAN_UNSUPPORTED_SCRIPTING_LANGUAGE = newArgs1("TRAN01004", BpmValidationErrorMessages.getString("TRAN01004"));
+
+   //Structured Types related
+   public static final Args1 SDT_DUPLICATE_ID_FOR_TYPE_DECLARATION = newArgs1("SDT01000", BpmValidationErrorMessages.getString("SDT01000"));
+   public static final Args1 SDT_TYPE_DECLARATION_NOT_ALLOWED_TO_CONTAIN_VARIABLES = newArgs1("SDT01001", BpmValidationErrorMessages.getString("SDT01001"));
+   public static final Args2 SDT_REFERENCED_PARENT_TYPE_NOT_FOUND = newArgs2("SDT01002", BpmValidationErrorMessages.getString("SDT01002"));
 
    //Participant related
    public static final Args1 PART_NO_DATA_ASSOCIATED_TO_CONDITIONAL_PERFORMER = newArgs1("PART01001", BpmValidationErrorMessages.getString("PART01001"));

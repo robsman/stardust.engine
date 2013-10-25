@@ -56,13 +56,13 @@ public class ActionBean extends IdentifiableElementBean
       if (StringUtils.isEmpty(getName()))
       {
          BpmValidationError error = BpmValidationError.ACTN_NO_NAME.raise(name);
-         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
       IEventActionType type = (IEventActionType) getType();
       if (type == null)
       {
          BpmValidationError error = BpmValidationError.ACTN_NO_TYPE.raise(name);
-         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
       else
       {

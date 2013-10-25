@@ -100,7 +100,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          if (null == getData())
          {
             BpmValidationError error = BpmValidationError.PART_NO_DATA_ASSOCIATED_TO_CONDITIONAL_PERFORMER.raise(getId());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
          else
          {
@@ -117,7 +117,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
                      && !long.class.isAssignableFrom(rhs.getEndClass()))
                {
                   BpmValidationError error = BpmValidationError.PART_DATA_EXPRESSION_OF_UNSUPPORTED_TYPE.raise(getId());
-                  inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                }
             }
 
@@ -136,7 +136,7 @@ public class ConditionalPerformerBean extends ModelParticipantBean
                         && !long.class.isAssignableFrom(rhs.getEndClass()))
                   {
                      BpmValidationError error = BpmValidationError.PART_DATA_REALM_EXPRESSION_OF_UNSUPPORTED_TYPE.raise(getId());
-                     inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   }
                }
             }

@@ -23,6 +23,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -117,7 +118,7 @@ public class TriggerBean extends IdentifiableElementBean
    {
       return findAccessPoint(id, null);
    }
-   
+
    public AccessPoint findAccessPoint(String id, Direction direction)
    {
       return getAccessPointLink().findAccessPoint(id, direction);
@@ -140,7 +141,7 @@ public class TriggerBean extends IdentifiableElementBean
    }
 
    public ModelElementList getParameterMappings()
-   {      
+   {
       return ModelUtils.getModelElementList(parameterMappings);
    }
 
@@ -203,30 +204,30 @@ public class TriggerBean extends IdentifiableElementBean
    {
       super.checkConsistency(inconsistencies);
       checkId(inconsistencies);
-      
+
       if (getId() != null)
       {
          // check for unique Id
          ITrigger t = ((IProcessDefinition) getParent()).findTrigger(getId());
          if (t != null && t != this)
          {
-            inconsistencies.add(new Inconsistency("Duplicate ID for process definition '" +
-                  getName() + "'.", this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.TRIGG_DUPLICATE_ID_FOR_PROCESS_DEFINITION.raise(getName());
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
-         
+
          // check id to fit in maximum length
          if (getId().length() > AuditTrailTriggerBean.getMaxIdLength())
          {
-            inconsistencies.add(new Inconsistency("ID '" + getId() + "' for trigger '"
-                  + getName() + "' exceeds maximum length of "
-                  + AuditTrailTriggerBean.getMaxIdLength() + " characters.",
-                  this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.TRIGG_ID_EXCEEDS_MAXIMUM_LENGTH.raise(
+                  getId(), getName(), AuditTrailTriggerBean.getMaxIdLength());
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
       }
 
       if (StringUtils.isEmpty(getName()))
       {
-         inconsistencies.add(new Inconsistency("No Name set for trigger.", this, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.TRIGG_NO_NAME_SET.raise();
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
 
       ITriggerType triggerType = (ITriggerType) getType();
@@ -252,52 +253,52 @@ public class TriggerBean extends IdentifiableElementBean
       }
       else
       {
-         inconsistencies.add(new Inconsistency("No type set for trigger.",
-               this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.TRIGG_NO_TYPE_SET.raise();
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
 
       // TODO: add warnings for duplicates
       for (Iterator j = getAllParameterMappings(); j.hasNext();)
       {
-         String msg = null;
+         BpmValidationError error = null;
          IParameterMapping pm = (IParameterMapping) j.next();
          if (pm.getData() == null)
          {
-            msg = "Parameter Mapping does not specify a Data.";
+            error = BpmValidationError.TRIGG_PARAMETER_MAPPING_DOES_NOT_SPECIFY_DATA.raise();
          }
          else if (pm.getParameterId() == null)
          {
-            msg = "Parameter Mapping does not specify a Parameter.";
+            error = BpmValidationError.TRIGG_PARAMETER_MAPPING_DOES_NOT_SPECIFY_PARAMETER.raise();
          }
          else if (findAccessPoint(pm.getParameterId()) == null)
          {
-            msg = "Parameter '" + pm.getParameterId() + "' for Parameter Mapping is invalid.";
+            error = BpmValidationError.TRIGG_PARAMETER_FOR_PARAMETER_MAPPING_INVALID.raise(pm.getParameterId());
          }
          else
          {
             IAccessPoint accessPoint = (IAccessPoint) findAccessPoint(pm.getParameterId());
             if (!StringUtils.isValidIdentifier(accessPoint.getId()))
             {
-               msg = "AccessPoint has invalid id defined.";
-            }            
+               error = BpmValidationError.TRIGG_ACCESSPOINT_HAS_INVALID_ID.raise();
+            }
             if (triggerType != null && PredefinedConstants.SCAN_TRIGGER.equals(triggerType.getId()))
             {
                String apType = accessPoint.getType().getId();
                if (!DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(apType) && !DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(apType))
                {
-                  msg = MessageFormat.format("Scan triggers do not support \"{0}\" access point type.", apType);
+                  error = BpmValidationError.TRIGG_SCAN_TRIGGERS_DO_NOT_SUPPORT_ACCESS_POINT_TYPE.raise(apType);
                }
             }
             else if (!BridgeObject.isValidMapping(Direction.OUT, accessPoint,
                   pm.getParameterPath(), pm.getData(), pm.getDataPath(), null))
             {
-               msg = "Parameter Mapping '" + pm.getParameterId() + "' contains an invalid type conversion.";
+               error = BpmValidationError.TRIGG_PARAMETER_MAPPING_CONTAINS_AN_INVALID_TYPE_CONVERSION.raise(pm.getParameterId());
             }
 
          }
-         if (msg != null)
+         if (error != null)
          {
-            inconsistencies.add(new Inconsistency(msg, this, Inconsistency.WARNING));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
          }
       }
    }

@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +25,7 @@ import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
 import org.eclipse.stardust.engine.api.model.IXpdlType;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
@@ -34,7 +33,6 @@ import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.xsd.XSDComplexTypeDefinition;
 import org.eclipse.xsd.XSDImport;
 import org.eclipse.xsd.XSDSchema;
-import org.eclipse.xsd.XSDSchemaContent;
 import org.eclipse.xsd.XSDTypeDefinition;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -93,8 +91,8 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
       ITypeDeclaration td = ((IModel) getModel()).findTypeDeclaration(getId());
       if (td != null && td != this)
       {
-         inconsistencies.add(new Inconsistency("Duplicate ID for type declaration '" +
-               getName() + "'.", this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.SDT_DUPLICATE_ID_FOR_TYPE_DECLARATION.raise(getName());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
 
       validateElements(inconsistencies, td);
@@ -136,9 +134,8 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                if (variablesMatcher.find())
                {
                   String group = variablesMatcher.group(0);
-                  inconsistencies.add(new Inconsistency(
-                        "Type declaration is not allowed to contain variables: " + group,
-                        this, Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.SDT_TYPE_DECLARATION_NOT_ALLOWED_TO_CONTAIN_VARIABLES.raise(group);
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                }
             }
          }
@@ -209,10 +206,9 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                      ModelElementList<TypeDeclarationBean> referedDeclarations = model.getTypeDeclarations();
                      if (getTypeDeclaration(referedDeclarations, qname.getLocalPart()) == null)
                      {
-                        String message = MessageFormat.format(
-                              "TypeDeclaration ''{0}'': referenced parent type ''{1}'' not found.", //$NON-NLS-1$
+                        BpmValidationError error = BpmValidationError.SDT_REFERENCED_PARENT_TYPE_NOT_FOUND.raise(
                               declaration.getId(), typeId);
-                        inconsistencies.add(new Inconsistency(message, declaration,
+                        inconsistencies.add(new Inconsistency(error, declaration,
                               Inconsistency.ERROR));
                      }
                   }

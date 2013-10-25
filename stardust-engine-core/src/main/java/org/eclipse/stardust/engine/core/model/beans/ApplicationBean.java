@@ -85,7 +85,7 @@ public class ApplicationBean extends IdentifiableElementBean
       if (app != null && app != this)
       {
          BpmValidationError error = BpmValidationError.APP_DUPLICATE_ID.raise(getName());
-         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
 
       if (getType() != null)

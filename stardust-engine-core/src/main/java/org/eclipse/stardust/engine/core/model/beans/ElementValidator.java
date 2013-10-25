@@ -59,7 +59,7 @@ public class ElementValidator
                 if (attributeNames.contains(name))
                 {
                   BpmValidationError error = BpmValidationError.VAL_DUPLICATE_IDENTIFIER.raise(name);
-                  messages.add(new Inconsistency(error, Inconsistency.ERROR));
+                  messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
                 }
                 attributeNames.add(name);
             }
@@ -85,7 +85,7 @@ public class ElementValidator
                     	if (names.contains(name))
                     	{
                         BpmValidationError error = BpmValidationError.VAL_DUPLICATE_IDENTIFIER.raise(name);
-                        messages.add(new Inconsistency(error, Inconsistency.ERROR));
+                        messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
                     	}
                     	names.add(name);
                     }
@@ -135,7 +135,7 @@ public class ElementValidator
                 if (names.contains(name))
                 {
                   BpmValidationError error = BpmValidationError.VAL_DUPLICATE_IDENTIFIER.raise(name);
-                  messages.add(new Inconsistency(error, Inconsistency.ERROR));
+                  messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
                 }
                 names.add(name);
             }
@@ -157,7 +157,7 @@ public class ElementValidator
          if (!isValidElementName(name))
          {
             BpmValidationError error = BpmValidationError.VAL_INVALID_IDENTIFIER.raise(name);
-            messages.add(new Inconsistency(error, Inconsistency.ERROR));
+            messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
          }
       }
    }

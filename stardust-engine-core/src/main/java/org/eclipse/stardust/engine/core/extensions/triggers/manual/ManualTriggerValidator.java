@@ -41,7 +41,7 @@ public class ManualTriggerValidator implements TriggerValidator, TriggerValidato
       if (participantId == null)
       {
          BpmValidationError error = BpmValidationError.TRIGG_UNSPECIFIED_PARTICIPANT_FOR_TRIGGER.raise(typeId);
-         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
       else
       {
@@ -51,7 +51,7 @@ public class ManualTriggerValidator implements TriggerValidator, TriggerValidato
          {
             BpmValidationError error = BpmValidationError.TRIGG_INVALID_PARTICIPANT_FOR_TRIGGER.raise(
                   participantId, model.getElementOID());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
    }
 

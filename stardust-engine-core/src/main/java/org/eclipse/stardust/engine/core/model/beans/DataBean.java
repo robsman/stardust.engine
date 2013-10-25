@@ -87,7 +87,7 @@ public class DataBean extends IdentifiableElementBean implements IData
       if (d != null && d != this)
       {
          BpmValidationError error = BpmValidationError.DATA_DUPLICATE_ID_FOR_DATA.raise(getName());
-         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
 
       if (null != getId())
@@ -97,7 +97,7 @@ public class DataBean extends IdentifiableElementBean implements IData
          {
             BpmValidationError error = BpmValidationError.DATA_ID_FOR_DATA_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS.raise(
                   getName(), AuditTrailDataBean.getMaxIdLength());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
       }
 

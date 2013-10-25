@@ -93,19 +93,19 @@ public class DataPathBean extends IdentifiableElementBean
          if (dp != null && dp != this)
          {
             BpmValidationError error = BpmValidationError.DATA_DUPLICATE_ID_FOR_DATAPATH.raise(getName());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
       }
       if (StringUtils.isEmpty(getName()))
       {
          BpmValidationError error = BpmValidationError.DATA_NO_NAME_SPECIFIED_FOR_DATAPATH.raise();
-         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
       IData data = getData();
       if (data == null)
       {
          BpmValidationError error = BpmValidationError.DATA_NO_DATA_SPECIFIED_FOR_DATAPATH.raise();
-         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
       else if (isKeyDescriptor())
       {
@@ -121,12 +121,12 @@ public class DataPathBean extends IdentifiableElementBean
             if (!PredefinedConstants.STRUCTURED_DATA.equals(dataTypeId))
             {
                BpmValidationError error = BpmValidationError.DATA_KEY_DESCRIPTORS_MUST_BE_PRIMITIVE_OR_STRUCTURED_TYPES.raise();
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             else if (accessPath == null || accessPath.length() == 0)
             {
                BpmValidationError error = BpmValidationError.DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_HAVE_PRIMITIVE_TYPE.raise();
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             else
             {
@@ -134,12 +134,12 @@ public class DataPathBean extends IdentifiableElementBean
                if (xPathMap == null)
                {
                   BpmValidationError error = BpmValidationError.DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_KEY_DESCRIPTOR.raise();
-                  inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                }
                else if (StructuredDataXPathUtils.returnSinglePrimitiveType(accessPath, xPathMap) != BigData.STRING)
                {
                   BpmValidationError error = BpmValidationError.DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_HAVE_PRIMITIVE_TYPE.raise();
-                  inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                }
                else
                {
@@ -147,7 +147,7 @@ public class DataPathBean extends IdentifiableElementBean
                   if (!xPathAnnotations.isIndexed() || !xPathAnnotations.isPersistent())
                   {
                      BpmValidationError error = BpmValidationError.DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_BE_INDEXED_AND_PERSISTENT.raise();
-                     inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   }
                }
             }
@@ -155,7 +155,7 @@ public class DataPathBean extends IdentifiableElementBean
          else
          {
             BpmValidationError error = BpmValidationError.DATA_DATAPATH_IS_NOT_A_DESCRIPTOR.raise();
-            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
          }
       }
    }

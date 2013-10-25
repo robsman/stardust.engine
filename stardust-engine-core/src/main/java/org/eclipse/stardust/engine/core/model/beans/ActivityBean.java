@@ -591,7 +591,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          if (a != null && a != this)
          {
             BpmValidationError error = BpmValidationError.ACTY_DUPLICATE_ID.raise(getName());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
 
          // check id to fit in maximum length
@@ -599,7 +599,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          {
             BpmValidationError error = BpmValidationError.ACTY_ID_EXCEEDS_MAXIMUM_LENGTH.raise(
                   getName(), AuditTrailActivityBean.getMaxIdLength());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
       }
 
@@ -612,13 +612,13 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          {
             BpmValidationError error = BpmValidationError.ACTY_NO_PERFORMER.raise(
                   getId(), getProcessDefinition().getName());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
          else if (((IModel) getModel()).findParticipant(getPerformer().getId()) == null)
          {
             BpmValidationError error = BpmValidationError.ACTY_PERFORMER_DOES_NOT_EXIST.raise(
                   getPerformer().getId(), getId());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
 
          if (isQualityAssuranceEnabled())
@@ -627,20 +627,20 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             {
                BpmValidationError error = BpmValidationError.ACTY_PERFORMER_SHOULD_NOT_BE_CONDITIONAL_PERFORMER.raise(
                      getId(), getProcessDefinition().getName());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             IModelParticipant qualityAssurancePerformer = getQualityAssurancePerformer();
             if (qualityAssurancePerformer == null)
             {
                BpmValidationError error = BpmValidationError.ACTY_NO_QA_PERFORMER_SET.raise(
                      getId(), getProcessDefinition().getName());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             else if (qualityAssurancePerformer instanceof IConditionalPerformer)
             {
                BpmValidationError error = BpmValidationError.ACTY_QA_PERFORMER_SHOULD_NOT_BE_CONDITIONAL_PERFORMER.raise(
                      getId(), getProcessDefinition().getName());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
          }
       }
@@ -654,7 +654,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             if (ipd == null)
             {
                BpmValidationError error = BpmValidationError.ACTY_NO_IMPLEMENTATION_PROCESS_SET_FOR_SUBPROCESS_ACTIVITY.raise(getId());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
          }
          catch (UnresolvedExternalReference ex)
@@ -664,7 +664,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          if (getSubProcessMode() == null)
          {
             BpmValidationError error = BpmValidationError.ACTY_SUBPROCESSMODE_NOT_SET.raise(getId());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
          }
       }
 
@@ -677,7 +677,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             if (app == null)
             {
                BpmValidationError error = BpmValidationError.ACTY_NO_APPLICATION_SET_FOR_APPLICATION_ACTIVITY.raise(getId());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             else
             {
@@ -713,7 +713,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
                      if ( !valid)
                      {
                         BpmValidationError error = BpmValidationError.ACTY_NO_ACCESS_POINT_FOR_APPLICATION.raise(getId());
-                        inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                      }
                   }
                }
@@ -763,7 +763,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          if (exceptionTransition == null)
          {
             BpmValidationError error = BpmValidationError.ACTY_NO_EXCEPTION_FLOW_TRANSITION_FOR_EVENT_HANDLER.raise(eventHandler.getId());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
          }
       }
    }
@@ -793,7 +793,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
             {
                BpmValidationError error = BpmValidationError.ACTY_BOUNDARY_EVENTS_WITH_UNDISJUNCT_TYPE_HIERARCHIES.raise(
                      x.getId(), y.getId());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
       }
@@ -841,7 +841,7 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
          if (getInTransitions().size() != 1 || getOutTransitions().size() != 1)
          {
             BpmValidationError error = BpmValidationError.ACTY_INTERMEDIATE_EVENTS_MUST_HAVE_ONE_IN_AND_OUTBOUND_SEQUENCE_FLOW.raise();
-            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
          }
       }
    }

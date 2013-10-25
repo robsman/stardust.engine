@@ -19,7 +19,19 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.EventHandlerOwner;
+import org.eclipse.stardust.engine.api.model.IAccessPoint;
+import org.eclipse.stardust.engine.api.model.IAction;
+import org.eclipse.stardust.engine.api.model.IBindAction;
+import org.eclipse.stardust.engine.api.model.IDataType;
+import org.eclipse.stardust.engine.api.model.IEventAction;
+import org.eclipse.stardust.engine.api.model.IEventActionType;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IUnbindAction;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.PluggableType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
@@ -222,7 +234,7 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
          if (eh != null && eh != this)
          {
             BpmValidationError error = BpmValidationError.EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER.raise(getName());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
 
          // check id to fit in maximum length
@@ -230,7 +242,7 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
          {
             BpmValidationError error = BpmValidationError.EVEN_ID_FOR_EVENT_HANDLER_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS.raise(
                   getName(), AuditTrailEventHandlerBean.getMaxIdLength());
-            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
       }
 
@@ -238,7 +250,7 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
       if (type == null)
       {
          BpmValidationError error = BpmValidationError.EVEN_HANDLER_DOES_NOT_HAVE_CONDITION_TYPE.raise();
-         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
       else
       {
@@ -273,7 +285,7 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
             if (a != null && a != eventAction)
             {
                BpmValidationError error = BpmValidationError.EVEN_DUPLICATE_ID_FOR_EVENT_ACTION.raise(eventAction.getName());
-               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
          }
       }

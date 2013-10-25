@@ -1,5 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.sql;
 
+import static org.eclipse.stardust.engine.extensions.camel.EndpointHelper.replaceHtmlCodeByCharacter;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.*;
@@ -11,10 +12,13 @@ import org.apache.camel.RuntimeExchangeException;
 import org.apache.camel.component.sql.DefaultSqlPrepareStatementStrategy;
 
 import org.apache.camel.util.StringQuoteHelper;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 
 public class SqlPrepareStatementStrategy extends DefaultSqlPrepareStatementStrategy
 {
    private final char separator;
+   public static final Logger LOG = LogManager.getLogger(SqlPrepareStatementStrategy.class.getCanonicalName());
 
    public SqlPrepareStatementStrategy(char separator)
    {
@@ -25,6 +29,19 @@ public class SqlPrepareStatementStrategy extends DefaultSqlPrepareStatementStrat
    {
       super(',');
       separator = ',';
+   }
+
+   /**
+    * Custom implementation for prepareQuery Method; The html characters are replaced by
+    * their corresponding special characters.
+    */
+   @Override
+   public String prepareQuery(String query, boolean allowNamedParameters) throws SQLException
+   {
+      String answer = super.prepareQuery(query, allowNamedParameters);
+      answer = replaceHtmlCodeByCharacter(answer);
+      LOG.debug("Prepared query: " + answer);
+      return answer;
    }
 
    @Override
@@ -92,8 +109,9 @@ public class SqlPrepareStatementStrategy extends DefaultSqlPrepareStatementStrat
 
                   // get from body before header
                   Object next = bodyMap != null ? bodyMap.get(nextParam) : null;
-                  //ISB:Customized the default behavior; if a headerId exists it will override the value provided in the body Map
-                  if (next == null||headerMap.get(nextParam) != null)
+                  // ISB:Customized the default behavior; if a headerId exists it will
+                  // override the value provided in the body Map
+                  if (next == null || headerMap.get(nextParam) != null)
                   {
                      next = headerMap != null ? headerMap.get(nextParam) : null;
                   }

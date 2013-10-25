@@ -25,4 +25,17 @@ public class EndpointHelper
       return uri;
 
    }
+   
+   public static String replaceHtmlCodeByCharacter (final String input){
+      String answer=input;
+      
+      if(answer.contains("&amp;"))
+         answer= answer.replaceAll("&amp;", "\\&");
+      if(answer.contains("&lt;"))
+         answer= answer.replaceAll("&lt;", "<");
+      if(answer.contains("&gt;"))
+         answer= answer.replaceAll("&gt;", ">");
+      
+      return answer;
+   }
 }

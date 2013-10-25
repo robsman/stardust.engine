@@ -13,8 +13,6 @@ package org.eclipse.stardust.engine.api.runtime;
 import java.text.MessageFormat;
 
 import org.eclipse.stardust.common.error.ErrorCase;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError.Args1;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError.Args2;
 
 
 /**
@@ -28,118 +26,139 @@ public class BpmValidationError extends ErrorCase
 
 
    //General validation
-   public static final Args1 VAL_DUPLICATE_IDENTIFIER = newArgs1("VAL01000", BpmRuntimeErrorMessages.getString("VAL01000"));
-   public static final Args1 VAL_INVALID_IDENTIFIER = newArgs1("VAL01001", BpmRuntimeErrorMessages.getString("VAL01001"));
+   public static final Args1 VAL_DUPLICATE_IDENTIFIER = newArgs1("VAL01000", BpmValidationErrorMessages.getString("VAL01000"));
+   public static final Args1 VAL_INVALID_IDENTIFIER = newArgs1("VAL01001", BpmValidationErrorMessages.getString("VAL01001"));
 
    //Model related
-   public static final Args1 MDL_INVALID_QA_CODE_ID = newArgs1("MDL01001", BpmRuntimeErrorMessages.getString("MDL01001"));
-   public static final Args2 MDL_DUPLICATE_QA_CODE = newArgs2("MDL01002", BpmRuntimeErrorMessages.getString("MDL01002"));
-   public static final Args1 MDL_UNSUPPORTED_SCRIPT_LANGUAGE = newArgs1("MDL01003", BpmRuntimeErrorMessages.getString("MDL01003"));
-   public static final Args1 MDL_NO_DEFAULT_VALUE_FOR_CONFIGURATION_VARIABLE = newArgs1("MDL01004", BpmRuntimeErrorMessages.getString("MDL01004"));
-   public static final Args1 MDL_CONFIGURATION_VARIABLE_NEVER_USED = newArgs1("MDL01005", BpmRuntimeErrorMessages.getString("MDL01005"));
-   public static final Args1 MDL_CONFIGURATION_VARIABLE_DOES_NOT_EXIST = newArgs1("MDL01006", BpmRuntimeErrorMessages.getString("MDL01006"));
-   public static final Args1 MDL_CIRCULAR_REFERENCES_TO = newArgs1("MDL01007", BpmRuntimeErrorMessages.getString("MDL01007"));
-   public static final Args2 MDL_REFERENCE_TO_MODEL_IS_INALID_UNTIL = newArgs2("MDL01008", BpmRuntimeErrorMessages.getString("MDL01008"));
-   public static final Args1 MDL_REFERENCE_NOT_RESOLVED_TO_LAST_DEPLOYED_VERSION = newArgs1("MDL01009", BpmRuntimeErrorMessages.getString("MDL01009"));
-   public static final Args1 MDL_REFERENCE_IS_RESOLVED_TO_MULTIPLE_MODEL_VERSION = newArgs1("MDL01010", BpmRuntimeErrorMessages.getString("MDL01010"));
+   public static final Args1 MDL_INVALID_QA_CODE_ID = newArgs1("MDL01001", BpmValidationErrorMessages.getString("MDL01001"));
+   public static final Args2 MDL_DUPLICATE_QA_CODE = newArgs2("MDL01002", BpmValidationErrorMessages.getString("MDL01002"));
+   public static final Args1 MDL_UNSUPPORTED_SCRIPT_LANGUAGE = newArgs1("MDL01003", BpmValidationErrorMessages.getString("MDL01003"));
+   public static final Args1 MDL_NO_DEFAULT_VALUE_FOR_CONFIGURATION_VARIABLE = newArgs1("MDL01004", BpmValidationErrorMessages.getString("MDL01004"));
+   public static final Args1 MDL_CONFIGURATION_VARIABLE_NEVER_USED = newArgs1("MDL01005", BpmValidationErrorMessages.getString("MDL01005"));
+   public static final Args1 MDL_CONFIGURATION_VARIABLE_DOES_NOT_EXIST = newArgs1("MDL01006", BpmValidationErrorMessages.getString("MDL01006"));
+   public static final Args1 MDL_CIRCULAR_REFERENCES_TO = newArgs1("MDL01007", BpmValidationErrorMessages.getString("MDL01007"));
+   public static final Args2 MDL_REFERENCE_TO_MODEL_IS_INALID_UNTIL = newArgs2("MDL01008", BpmValidationErrorMessages.getString("MDL01008"));
+   public static final Args1 MDL_REFERENCE_NOT_RESOLVED_TO_LAST_DEPLOYED_VERSION = newArgs1("MDL01009", BpmValidationErrorMessages.getString("MDL01009"));
+   public static final Args1 MDL_REFERENCE_IS_RESOLVED_TO_MULTIPLE_MODEL_VERSION = newArgs1("MDL01010", BpmValidationErrorMessages.getString("MDL01010"));
 
    //Process Definiton related
-   public static final Args0 PD_NO_START_ACTIVITY = newArgs0("PD01001", BpmRuntimeErrorMessages.getString("PD01001"));
-   public static final Args1 PD_DUPLICATE_ID = newArgs1("PD01002", BpmRuntimeErrorMessages.getString("PD01002"));
-   public static final Args2 PD_ID_EXCEEDS_LENGTH = newArgs2("PD01003", BpmRuntimeErrorMessages.getString("PD01003"));
-   public static final Args1 PD_FORMAL_PARAMETER_NO_DATA_SET = newArgs1("PD01004", BpmRuntimeErrorMessages.getString("PD01004"));
-   public static final Args2 PD_DUPLICATE_TRANSITION_SAME_SOURCE_OR_TARGET = newArgs2("PD01005", BpmRuntimeErrorMessages.getString("PD01005"));
-   public static final Args2 PD_MULTIPLE_START_ACTIVYTIES = newArgs2("PD01006", BpmRuntimeErrorMessages.getString("PD01006"));
-   public static final Args1 PD_NO_ACTIVITIES_DEFINED = newArgs1("PD01007", BpmRuntimeErrorMessages.getString("PD01007"));
-   public static final Args1 PD_PROCESS_INTERFACE_NOT_RESOLVED = newArgs1("PD01008", BpmRuntimeErrorMessages.getString("PD01008"));
+   public static final Args0 PD_NO_START_ACTIVITY = newArgs0("PD01001", BpmValidationErrorMessages.getString("PD01001"));
+   public static final Args1 PD_DUPLICATE_ID = newArgs1("PD01002", BpmValidationErrorMessages.getString("PD01002"));
+   public static final Args2 PD_ID_EXCEEDS_LENGTH = newArgs2("PD01003", BpmValidationErrorMessages.getString("PD01003"));
+   public static final Args1 PD_FORMAL_PARAMETER_NO_DATA_SET = newArgs1("PD01004", BpmValidationErrorMessages.getString("PD01004"));
+   public static final Args2 PD_DUPLICATE_TRANSITION_SAME_SOURCE_OR_TARGET = newArgs2("PD01005", BpmValidationErrorMessages.getString("PD01005"));
+   public static final Args2 PD_MULTIPLE_START_ACTIVYTIES = newArgs2("PD01006", BpmValidationErrorMessages.getString("PD01006"));
+   public static final Args1 PD_NO_ACTIVITIES_DEFINED = newArgs1("PD01007", BpmValidationErrorMessages.getString("PD01007"));
+   public static final Args1 PD_PROCESS_INTERFACE_NOT_RESOLVED = newArgs1("PD01008", BpmValidationErrorMessages.getString("PD01008"));
 
    //ApplicationType related
-   public static final Args1 APP_TYPE_NO_LONGER_SUPPORTED = newArgs1("APP01001", BpmRuntimeErrorMessages.getString("APP01001"));
-   public static final Args0 APP_UNSPECIFIED_CLASS_FOR_JFC_APPLICATION = newArgs0("APP01002", BpmRuntimeErrorMessages.getString("APP01002"));
-   public static final Args0 APP_UNSPECIFIED_COMPLETION_METHOD_FOR_JFC_APPLICATION = newArgs0("APP01003", BpmRuntimeErrorMessages.getString("APP01003"));
-   public static final Args1 APP_COMPLETION_METHOD_NOT_FOUND = newArgs1("APP01004", BpmRuntimeErrorMessages.getString("APP01004"));
-   public static final Args1 APP_DUPLICATE_ID = newArgs1("APP01005", BpmRuntimeErrorMessages.getString("APP01005"));
+   public static final Args1 APP_TYPE_NO_LONGER_SUPPORTED = newArgs1("APP01001", BpmValidationErrorMessages.getString("APP01001"));
+   public static final Args0 APP_UNSPECIFIED_CLASS_FOR_JFC_APPLICATION = newArgs0("APP01002", BpmValidationErrorMessages.getString("APP01002"));
+   public static final Args0 APP_UNSPECIFIED_COMPLETION_METHOD_FOR_JFC_APPLICATION = newArgs0("APP01003", BpmValidationErrorMessages.getString("APP01003"));
+   public static final Args1 APP_COMPLETION_METHOD_NOT_FOUND = newArgs1("APP01004", BpmValidationErrorMessages.getString("APP01004"));
+   public static final Args1 APP_DUPLICATE_ID = newArgs1("APP01005", BpmValidationErrorMessages.getString("APP01005"));
 
    //Actions related
-   public static final Args0 ACTN_NO_DATA_DEFINED = newArgs0("ACTN01001", BpmRuntimeErrorMessages.getString("ACTN01001"));
-   public static final Args0 ACTN_NO_ACCESS_POINT_DEFINED = newArgs0("ACTN01002", BpmRuntimeErrorMessages.getString("ACTN01002"));
-   public static final Args0 ACTN_NO_PROCESS_SELECTED = newArgs0("ACTN01003", BpmRuntimeErrorMessages.getString("ACT01003"));
-   public static final Args1 ACTN_NO_TYPE = newArgs1("ACTN10004", BpmRuntimeErrorMessages.getString("ACTN10004"));
-   public static final Args1 ACTN_NO_NAME = newArgs1("ACTN10005", BpmRuntimeErrorMessages.getString("ACTN10005"));
+   public static final Args0 ACTN_NO_DATA_DEFINED = newArgs0("ACTN01001", BpmValidationErrorMessages.getString("ACTN01001"));
+   public static final Args0 ACTN_NO_ACCESS_POINT_DEFINED = newArgs0("ACTN01002", BpmValidationErrorMessages.getString("ACTN01002"));
+   public static final Args0 ACTN_NO_PROCESS_SELECTED = newArgs0("ACTN01003", BpmValidationErrorMessages.getString("ACT01003"));
+   public static final Args1 ACTN_NO_TYPE = newArgs1("ACTN10004", BpmValidationErrorMessages.getString("ACTN10004"));
+   public static final Args1 ACTN_NO_NAME = newArgs1("ACTN10005", BpmValidationErrorMessages.getString("ACTN10005"));
 
    //Activity related
-   public static final Args1 ACTY_DUPLICATE_ID = newArgs1("ACTY01001", BpmRuntimeErrorMessages.getString("ACTY01001"));
-   public static final Args2 ACTY_ID_EXCEEDS_MAXIMUM_LENGTH = newArgs2("ACTY01002", BpmRuntimeErrorMessages.getString("ACTY01002"));
-   public static final Args2 ACTY_NO_PERFORMER = newArgs2("ACTY01003", BpmRuntimeErrorMessages.getString("ACTY01003"));
-   public static final Args2 ACTY_PERFORMER_DOES_NOT_EXIST = newArgs2("ACTY01004", BpmRuntimeErrorMessages.getString("ACTY01004"));
-   public static final Args2 ACTY_PERFORMER_SHOULD_NOT_BE_CONDITIONAL_PERFORMER = newArgs2("ACTY01005", BpmRuntimeErrorMessages.getString("ACTY01005"));
-   public static final Args2 ACTY_NO_QA_PERFORMER_SET = newArgs2("ACTY01006", BpmRuntimeErrorMessages.getString("ACTY01006"));
-   public static final Args2 ACTY_QA_PERFORMER_SHOULD_NOT_BE_CONDITIONAL_PERFORMER = newArgs2("ACTY01007", BpmRuntimeErrorMessages.getString("ACTY01007"));
-   public static final Args1 ACTY_NO_IMPLEMENTATION_PROCESS_SET_FOR_SUBPROCESS_ACTIVITY = newArgs1("ACTY01008", BpmRuntimeErrorMessages.getString("ACTY01008"));
-   public static final Args1 ACTY_SUBPROCESSMODE_NOT_SET = newArgs1("ACTY01009", BpmRuntimeErrorMessages.getString("ACTY01009"));
-   public static final Args1 ACTY_NO_APPLICATION_SET_FOR_APPLICATION_ACTIVITY = newArgs1("ACTY01010", BpmRuntimeErrorMessages.getString("ACTY01010"));
-   public static final Args1 ACTY_NO_ACCESS_POINT_FOR_APPLICATION = newArgs1("ACTY01011", BpmRuntimeErrorMessages.getString("ACTY01011"));
-   public static final Args1 ACTY_NO_EXCEPTION_FLOW_TRANSITION_FOR_EVENT_HANDLER = newArgs1("ACTY01012", BpmRuntimeErrorMessages.getString("ACTY01012"));
-   public static final Args2 ACTY_BOUNDARY_EVENTS_WITH_UNDISJUNCT_TYPE_HIERARCHIES = newArgs2("ACTY01013", BpmRuntimeErrorMessages.getString("ACTY01013"));
-   public static final Args0 ACTY_INTERMEDIATE_EVENTS_MUST_HAVE_ONE_IN_AND_OUTBOUND_SEQUENCE_FLOW = newArgs0("ACTY01014", BpmRuntimeErrorMessages.getString("ACTY01014"));
+   public static final Args1 ACTY_DUPLICATE_ID = newArgs1("ACTY01001", BpmValidationErrorMessages.getString("ACTY01001"));
+   public static final Args2 ACTY_ID_EXCEEDS_MAXIMUM_LENGTH = newArgs2("ACTY01002", BpmValidationErrorMessages.getString("ACTY01002"));
+   public static final Args2 ACTY_NO_PERFORMER = newArgs2("ACTY01003", BpmValidationErrorMessages.getString("ACTY01003"));
+   public static final Args2 ACTY_PERFORMER_DOES_NOT_EXIST = newArgs2("ACTY01004", BpmValidationErrorMessages.getString("ACTY01004"));
+   public static final Args2 ACTY_PERFORMER_SHOULD_NOT_BE_CONDITIONAL_PERFORMER = newArgs2("ACTY01005", BpmValidationErrorMessages.getString("ACTY01005"));
+   public static final Args2 ACTY_NO_QA_PERFORMER_SET = newArgs2("ACTY01006", BpmValidationErrorMessages.getString("ACTY01006"));
+   public static final Args2 ACTY_QA_PERFORMER_SHOULD_NOT_BE_CONDITIONAL_PERFORMER = newArgs2("ACTY01007", BpmValidationErrorMessages.getString("ACTY01007"));
+   public static final Args1 ACTY_NO_IMPLEMENTATION_PROCESS_SET_FOR_SUBPROCESS_ACTIVITY = newArgs1("ACTY01008", BpmValidationErrorMessages.getString("ACTY01008"));
+   public static final Args1 ACTY_SUBPROCESSMODE_NOT_SET = newArgs1("ACTY01009", BpmValidationErrorMessages.getString("ACTY01009"));
+   public static final Args1 ACTY_NO_APPLICATION_SET_FOR_APPLICATION_ACTIVITY = newArgs1("ACTY01010", BpmValidationErrorMessages.getString("ACTY01010"));
+   public static final Args1 ACTY_NO_ACCESS_POINT_FOR_APPLICATION = newArgs1("ACTY01011", BpmValidationErrorMessages.getString("ACTY01011"));
+   public static final Args1 ACTY_NO_EXCEPTION_FLOW_TRANSITION_FOR_EVENT_HANDLER = newArgs1("ACTY01012", BpmValidationErrorMessages.getString("ACTY01012"));
+   public static final Args2 ACTY_BOUNDARY_EVENTS_WITH_UNDISJUNCT_TYPE_HIERARCHIES = newArgs2("ACTY01013", BpmValidationErrorMessages.getString("ACTY01013"));
+   public static final Args0 ACTY_INTERMEDIATE_EVENTS_MUST_HAVE_ONE_IN_AND_OUTBOUND_SEQUENCE_FLOW = newArgs0("ACTY01014", BpmValidationErrorMessages.getString("ACTY01014"));
 
    //Conditions related
-   public static final Args1 COND_NOT_AN_EXCEPTION_CLASS = newArgs1("COND01001", BpmRuntimeErrorMessages.getString("COND01001"));
-   public static final Args0 COND_NO_CONDITION_SPECIFIED = newArgs0("COND01002", BpmRuntimeErrorMessages.getString("COND01002"));
-   public static final Args0 COND_TARGET_STATE_IN_SAME_STATE_AS_SOURCE_STATE = newArgs0("COND01003", BpmRuntimeErrorMessages.getString("COND01003"));
-   public static final Args0 COND_INVALID_DATA_MAPPING = newArgs0("COND01004", BpmRuntimeErrorMessages.getString("COND01004"));
-   public static final Args0 COND_INVALID_DATA_PATH = newArgs0("COND01005", BpmRuntimeErrorMessages.getString("COND01005"));
-   public static final Args0 COND_INVALID_DATA_SPECIFIED = newArgs0("COND01006", BpmRuntimeErrorMessages.getString("COND01006"));
-   public static final Args0 COND_NO_PROCESS_OR_ACTIVITY_CONTEXT = newArgs0("COND01007", BpmRuntimeErrorMessages.getString("COND01007"));
-   public static final Args0 COND_NO_PERIOD_SPECIFIED = newArgs0("COND01008", BpmRuntimeErrorMessages.getString("COND01008"));
-   public static final Args0 COND_NO_DATA_SPECIFIED = newArgs0("COND01009", BpmRuntimeErrorMessages.getString("COND01009"));
+   public static final Args1 COND_NOT_AN_EXCEPTION_CLASS = newArgs1("COND01001", BpmValidationErrorMessages.getString("COND01001"));
+   public static final Args0 COND_NO_CONDITION_SPECIFIED = newArgs0("COND01002", BpmValidationErrorMessages.getString("COND01002"));
+   public static final Args0 COND_TARGET_STATE_IN_SAME_STATE_AS_SOURCE_STATE = newArgs0("COND01003", BpmValidationErrorMessages.getString("COND01003"));
+   public static final Args0 COND_INVALID_DATA_MAPPING = newArgs0("COND01004", BpmValidationErrorMessages.getString("COND01004"));
+   public static final Args0 COND_INVALID_DATA_PATH = newArgs0("COND01005", BpmValidationErrorMessages.getString("COND01005"));
+   public static final Args0 COND_INVALID_DATA_SPECIFIED = newArgs0("COND01006", BpmValidationErrorMessages.getString("COND01006"));
+   public static final Args0 COND_NO_PROCESS_OR_ACTIVITY_CONTEXT = newArgs0("COND01007", BpmValidationErrorMessages.getString("COND01007"));
+   public static final Args0 COND_NO_PERIOD_SPECIFIED = newArgs0("COND01008", BpmValidationErrorMessages.getString("COND01008"));
+   public static final Args0 COND_NO_DATA_SPECIFIED = newArgs0("COND01009", BpmValidationErrorMessages.getString("COND01009"));
 
    //Trigger related
-   public static final Args1 TRIGG_UNSPECIFIED_PARTICIPANT_FOR_TRIGGER = newArgs1("TRIGG01001", BpmRuntimeErrorMessages.getString("TRIGG01001"));
-   public static final Args2 TRIGG_INVALID_PARTICIPANT_FOR_TRIGGER = newArgs2("TRIGG01002", BpmRuntimeErrorMessages.getString("TRIGG01002"));
-   public static final Args0 TRIGG_UNSPECIFIED_START_TIME_FOR_TRIGGER = newArgs0("TRIGG01003", BpmRuntimeErrorMessages.getString("TRIGG01003"));
+   public static final Args1 TRIGG_UNSPECIFIED_PARTICIPANT_FOR_TRIGGER = newArgs1("TRIGG01001", BpmValidationErrorMessages.getString("TRIGG01001"));
+   public static final Args2 TRIGG_INVALID_PARTICIPANT_FOR_TRIGGER = newArgs2("TRIGG01002", BpmValidationErrorMessages.getString("TRIGG01002"));
+   public static final Args0 TRIGG_UNSPECIFIED_START_TIME_FOR_TRIGGER = newArgs0("TRIGG01003", BpmValidationErrorMessages.getString("TRIGG01003"));
+
+   //Transition related
+   public static final Args2 TRAN_ID_EXCEEDS_MAXIMUM_LENGTH = newArgs2("TRAN01001", BpmValidationErrorMessages.getString("TRAN01001"));
+   public static final Args2 TRAN_NO_BOUNDARY_EVENT_HANDLER_WITH_ID_FOR_EXCEPTION_TRANSITION_FOUND = newArgs2("TRAN01002", BpmValidationErrorMessages.getString("TRAN01002"));
+   public static final Args1 TRAN_EXPRESSION_SCRIPTING_LANGUAGE_DO_NOT_MATCH = newArgs1("TRAN01003", BpmValidationErrorMessages.getString("TRAN01003"));
+   public static final Args1 TRAN_UNSUPPORTED_SCRIPTING_LANGUAGE = newArgs1("TRAN01004", BpmValidationErrorMessages.getString("TRAN01004"));
 
    //Participant related
-   public static final Args1 PART_NO_DATA_ASSOCIATED_TO_CONDITIONAL_PERFORMER = newArgs1("PART01001", BpmRuntimeErrorMessages.getString("PART01001"));
-   public static final Args1 PART_DATA_EXPRESSION_OF_UNSUPPORTED_TYPE = newArgs1("PART01002", BpmRuntimeErrorMessages.getString("PART01002"));
-   public static final Args1 PART_DATA_REALM_EXPRESSION_OF_UNSUPPORTED_TYPE = newArgs1("PART01003", BpmRuntimeErrorMessages.getString("PART01003"));
-   public static final Args0 PART_MISSING_ADMINISTRATOR_PARTICIPANT = newArgs0("PART01004", BpmRuntimeErrorMessages.getString("PART01004"));
-   public static final Args0 PART_ADMINISTRATOR_PARTICIPANT_MUST_BE_A_ROLE = newArgs0("PART01005", BpmRuntimeErrorMessages.getString("PART01005"));
-   public static final Args0 PART_ADMINISTRATOR_IS_NOT_ALLOWED_TO_HAVE_RELATIONSHIPS_TO_ANY_ORGANIZATION = newArgs0("PART01006", BpmRuntimeErrorMessages.getString("PART01006"));
-   public static final Args0 PART_SCOPED_PARTICIPANTS_NOT_ALLOWED_FOR_MODEL_LEVEL_GRANTS = newArgs0("PART01007", BpmRuntimeErrorMessages.getString("PART01007"));
+   public static final Args1 PART_NO_DATA_ASSOCIATED_TO_CONDITIONAL_PERFORMER = newArgs1("PART01001", BpmValidationErrorMessages.getString("PART01001"));
+   public static final Args1 PART_DATA_EXPRESSION_OF_UNSUPPORTED_TYPE = newArgs1("PART01002", BpmValidationErrorMessages.getString("PART01002"));
+   public static final Args1 PART_DATA_REALM_EXPRESSION_OF_UNSUPPORTED_TYPE = newArgs1("PART01003", BpmValidationErrorMessages.getString("PART01003"));
+   public static final Args0 PART_MISSING_ADMINISTRATOR_PARTICIPANT = newArgs0("PART01004", BpmValidationErrorMessages.getString("PART01004"));
+   public static final Args0 PART_ADMINISTRATOR_PARTICIPANT_MUST_BE_A_ROLE = newArgs0("PART01005", BpmValidationErrorMessages.getString("PART01005"));
+   public static final Args0 PART_ADMINISTRATOR_IS_NOT_ALLOWED_TO_HAVE_RELATIONSHIPS_TO_ANY_ORGANIZATION = newArgs0("PART01006", BpmValidationErrorMessages.getString("PART01006"));
+   public static final Args0 PART_SCOPED_PARTICIPANTS_NOT_ALLOWED_FOR_MODEL_LEVEL_GRANTS = newArgs0("PART01007", BpmValidationErrorMessages.getString("PART01007"));
+   public static final Args1 PART_DUPLICATE_ID = newArgs1("PART01008", BpmValidationErrorMessages.getString("PART01008"));
+   public static final Args2 PART_ID_EXCEEDS_MAXIMUM_LENGTH = newArgs2("PART01009", BpmValidationErrorMessages.getString("PART01009"));
+   public static final Args2 PART_ASSOCIATED_ORGANIZATION_SET_FOR_PARTICIPANT_DOES_NOT_EXIST = newArgs2("PART01010", BpmValidationErrorMessages.getString("PART01010"));
+   public static final Args1 PART_DATA_FOR_SCOPED_ORGANIZATION_MUST_EXIST = newArgs1("PART01011", BpmValidationErrorMessages.getString("PART01011"));
+   public static final Args1 PART_DATA_OF_SCOPED_ORGANIZATION_CAN_ONLY_BE_PRIM_OR_STRUCT = newArgs1("PART01012", BpmValidationErrorMessages.getString("PART01012"));
+   public static final Args1 PART_DATA_OF_SCOPED_ORGANIZATION_MUST_NOT_BE_NULL = newArgs1("PART01013", BpmValidationErrorMessages.getString("PART01013"));
+   public static final Args1 PART_DATA_OF_SCOPED_ORGANIZATION_MUST_NOT_BE_NULL_WHEN_SDT_IS_USED = newArgs1("PART01014", BpmValidationErrorMessages.getString("PART01014"));
+   public static final Args3 PART_TYPE_OF_DATA_OF_SCOPED_ORGANIZATION_IS_NOT = newArgs3("PART01015", BpmValidationErrorMessages.getString("PART01015"));
+   public static final Args1 PART_ORGANIZATION_IS_SCOPED_BUT_IN_AUDITTRAIL_UNSCOPED = newArgs1("PART01016", BpmValidationErrorMessages.getString("PART01016"));
+   public static final Args1 PART_ORGANIZATION_IS_UNSCOPED_BUT_IN_AUDITTRAIL_SCOPED = newArgs1("PART01017", BpmValidationErrorMessages.getString("PART01017"));
+   public static final Args3 PART_TYPE_OF_DATA_ID_OF_SCOPED_ORGANIZATION_IS_DIFFERENT_FROM_DATA_ID_IN_AUDIT_TRAIL = newArgs3("PART01018", BpmValidationErrorMessages.getString("PART01018"));
+   public static final Args3 PART_TYPE_OF_DATA_ID_OF_SCOPED_ORGANIZATION_IS_DIFFERENT_FROM_DATA_PATH_IN_AUDIT_TRAIL = newArgs3("PART01019", BpmValidationErrorMessages.getString("PART01019"));
+   public static final Args0 PART_MULTIPLE_SOPER_ORGANIZATIONS_ARE_NOT_ALLOWED = newArgs0("PART01020", BpmValidationErrorMessages.getString("PART01020"));
+   public static final Args1 PART_MODEL_CONTAINS_DIFFERENT_MANAGER_OF_ASSOCIATION_THAN_DEPLOYED_MODEL = newArgs1("PART01021", BpmValidationErrorMessages.getString("PART01021"));
+   public static final Args1 PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL = newArgs1("PART01022", BpmValidationErrorMessages.getString("PART01022"));
 
    //Data/Datamapping/Datapath related
-   public static final Args1 DATA_DUPLICATE_ID_FOR_DATA = newArgs1("DATA01001", BpmRuntimeErrorMessages.getString("DATA01001"));
-   public static final Args2 DATA_ID_FOR_DATA_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS = newArgs2("DATA01002", BpmRuntimeErrorMessages.getString("DATA01002"));
-   public static final Args1 DATA_NO_ACTIVITY_SET_FOR_DATAMAPPING = newArgs1("DATA01003", BpmRuntimeErrorMessages.getString("DATA01003"));
-   public static final Args1 DATA_NO_DATA_SET_FOR_DATAMAPPING = newArgs1("DATA01004", BpmRuntimeErrorMessages.getString("DATA01004"));
-   public static final Args1 DATA_NO_USEFUL_ID_SET_FOR_DATAMAPPING = newArgs1("DATA01005", BpmRuntimeErrorMessages.getString("DATA01005"));
-   public static final Args1 DATA_NO_USEFUL_NAME_SET_FOR_DATAMAPPING = newArgs1("DATA01006", BpmRuntimeErrorMessages.getString("DATA01006"));
-   public static final Args2 DATA_DATAMAPPING_HAS_NO_UNIQUE_ID_FOR_DIRECTION = newArgs2("DATA01007", BpmRuntimeErrorMessages.getString("DATA01007"));
-   public static final Args1 DATA_CANNOT_RESOLVE_ACCESSPOINTPROVIDER_FOR_DATAMAPPING = newArgs1("DATA01008", BpmRuntimeErrorMessages.getString("DATA01008"));
-   public static final Args2 DATA_INVALID_CONTEXT_FOR_DATAMAPPING = newArgs2("DATA01009", BpmRuntimeErrorMessages.getString("DATA01009"));
-   public static final Args1 DATA_INVALID_APPLICATION_FOR_DATAMAPPING = newArgs1("DATA01010", BpmRuntimeErrorMessages.getString("DATA01010"));
-   public static final Args2 DATA_INVALID_DATATYPE_FOR_DATAMAPPING = newArgs2("DATA01011", BpmRuntimeErrorMessages.getString("DATA01011"));
-   public static final Args2 DATA_FORMAL_PARAMETER_NOT_RESOLVABLE_FOR_DATAMAPPING = newArgs2("DATA01012", BpmRuntimeErrorMessages.getString("DATA01012"));
-   public static final Args2 DATA_APPLICATION_ACCESS_POINT_NOT_RESOLVABLE_FOR_DATAMAPPING = newArgs2("DATA01013", BpmRuntimeErrorMessages.getString("DATA01013"));
-   public static final Args1 DATA_NO_APPLICATION_ACCESS_POINT_SET_FOR_DATAMAPPING = newArgs1("DATA01014", BpmRuntimeErrorMessages.getString("DATA01014"));
-   public static final Args1 DATA_NO_CONTEXT_SET_FOR_DATAMAPPING = newArgs1("DATA01015", BpmRuntimeErrorMessages.getString("DATA01015"));
-   public static final Args2 DATA_CONTEXT_FOR_DATAMAPPING_UNDEFINED = newArgs2("DATA01016", BpmRuntimeErrorMessages.getString("DATA01016"));
-   public static final Args1 DATA_INVALID_DATAPATH_FOR_DATAMAPPING = newArgs1("DATA01017", BpmRuntimeErrorMessages.getString("DATA01017"));
-   public static final Args1 DATA_DUPLICATE_ID_FOR_DATAPATH = newArgs1("DATA01018", BpmRuntimeErrorMessages.getString("DATA01018"));
-   public static final Args0 DATA_NO_NAME_SPECIFIED_FOR_DATAPATH = newArgs0("DATA01019", BpmRuntimeErrorMessages.getString("DATA01019"));
-   public static final Args0 DATA_NO_DATA_SPECIFIED_FOR_DATAPATH = newArgs0("DATA01020", BpmRuntimeErrorMessages.getString("DATA01020"));
-   public static final Args0 DATA_KEY_DESCRIPTORS_MUST_BE_PRIMITIVE_OR_STRUCTURED_TYPES = newArgs0("DATA01021", BpmRuntimeErrorMessages.getString("DATA01021"));
-   public static final Args0 DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_HAVE_PRIMITIVE_TYPE = newArgs0("DATA01022", BpmRuntimeErrorMessages.getString("DATA01022"));
-   public static final Args0 DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_KEY_DESCRIPTOR = newArgs0("DATA01023", BpmRuntimeErrorMessages.getString("DATA01023"));
-   public static final Args0 DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_BE_INDEXED_AND_PERSISTENT = newArgs0("DATA01024", BpmRuntimeErrorMessages.getString("DATA01024"));
-   public static final Args0 DATA_DATAPATH_IS_NOT_A_DESCRIPTOR = newArgs0("DATA01025", BpmRuntimeErrorMessages.getString("DATA01025"));
+   public static final Args1 DATA_DUPLICATE_ID_FOR_DATA = newArgs1("DATA01001", BpmValidationErrorMessages.getString("DATA01001"));
+   public static final Args2 DATA_ID_FOR_DATA_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS = newArgs2("DATA01002", BpmValidationErrorMessages.getString("DATA01002"));
+   public static final Args1 DATA_NO_ACTIVITY_SET_FOR_DATAMAPPING = newArgs1("DATA01003", BpmValidationErrorMessages.getString("DATA01003"));
+   public static final Args1 DATA_NO_DATA_SET_FOR_DATAMAPPING = newArgs1("DATA01004", BpmValidationErrorMessages.getString("DATA01004"));
+   public static final Args1 DATA_NO_USEFUL_ID_SET_FOR_DATAMAPPING = newArgs1("DATA01005", BpmValidationErrorMessages.getString("DATA01005"));
+   public static final Args1 DATA_NO_USEFUL_NAME_SET_FOR_DATAMAPPING = newArgs1("DATA01006", BpmValidationErrorMessages.getString("DATA01006"));
+   public static final Args2 DATA_DATAMAPPING_HAS_NO_UNIQUE_ID_FOR_DIRECTION = newArgs2("DATA01007", BpmValidationErrorMessages.getString("DATA01007"));
+   public static final Args1 DATA_CANNOT_RESOLVE_ACCESSPOINTPROVIDER_FOR_DATAMAPPING = newArgs1("DATA01008", BpmValidationErrorMessages.getString("DATA01008"));
+   public static final Args2 DATA_INVALID_CONTEXT_FOR_DATAMAPPING = newArgs2("DATA01009", BpmValidationErrorMessages.getString("DATA01009"));
+   public static final Args1 DATA_INVALID_APPLICATION_FOR_DATAMAPPING = newArgs1("DATA01010", BpmValidationErrorMessages.getString("DATA01010"));
+   public static final Args2 DATA_INVALID_DATATYPE_FOR_DATAMAPPING = newArgs2("DATA01011", BpmValidationErrorMessages.getString("DATA01011"));
+   public static final Args2 DATA_FORMAL_PARAMETER_NOT_RESOLVABLE_FOR_DATAMAPPING = newArgs2("DATA01012", BpmValidationErrorMessages.getString("DATA01012"));
+   public static final Args2 DATA_APPLICATION_ACCESS_POINT_NOT_RESOLVABLE_FOR_DATAMAPPING = newArgs2("DATA01013", BpmValidationErrorMessages.getString("DATA01013"));
+   public static final Args1 DATA_NO_APPLICATION_ACCESS_POINT_SET_FOR_DATAMAPPING = newArgs1("DATA01014", BpmValidationErrorMessages.getString("DATA01014"));
+   public static final Args1 DATA_NO_CONTEXT_SET_FOR_DATAMAPPING = newArgs1("DATA01015", BpmValidationErrorMessages.getString("DATA01015"));
+   public static final Args2 DATA_CONTEXT_FOR_DATAMAPPING_UNDEFINED = newArgs2("DATA01016", BpmValidationErrorMessages.getString("DATA01016"));
+   public static final Args1 DATA_INVALID_DATAPATH_FOR_DATAMAPPING = newArgs1("DATA01017", BpmValidationErrorMessages.getString("DATA01017"));
+   public static final Args1 DATA_DUPLICATE_ID_FOR_DATAPATH = newArgs1("DATA01018", BpmValidationErrorMessages.getString("DATA01018"));
+   public static final Args0 DATA_NO_NAME_SPECIFIED_FOR_DATAPATH = newArgs0("DATA01019", BpmValidationErrorMessages.getString("DATA01019"));
+   public static final Args0 DATA_NO_DATA_SPECIFIED_FOR_DATAPATH = newArgs0("DATA01020", BpmValidationErrorMessages.getString("DATA01020"));
+   public static final Args0 DATA_KEY_DESCRIPTORS_MUST_BE_PRIMITIVE_OR_STRUCTURED_TYPES = newArgs0("DATA01021", BpmValidationErrorMessages.getString("DATA01021"));
+   public static final Args0 DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_HAVE_PRIMITIVE_TYPE = newArgs0("DATA01022", BpmValidationErrorMessages.getString("DATA01022"));
+   public static final Args0 DATA_NO_SCHEMA_FOUND_FOR_STRUCTURED_KEY_DESCRIPTOR = newArgs0("DATA01023", BpmValidationErrorMessages.getString("DATA01023"));
+   public static final Args0 DATA_STRUCTURED_KEY_DESCRIPTORS_MUST_BE_INDEXED_AND_PERSISTENT = newArgs0("DATA01024", BpmValidationErrorMessages.getString("DATA01024"));
+   public static final Args0 DATA_DATAPATH_IS_NOT_A_DESCRIPTOR = newArgs0("DATA01025", BpmValidationErrorMessages.getString("DATA01025"));
 
    //Event related
-   public static final Args1 EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER = newArgs1("EVEN01000", BpmRuntimeErrorMessages.getString("EVEN01000"));
-   public static final Args2 EVEN_ID_FOR_EVENT_HANDLER_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS = newArgs2("EVEN01001", BpmRuntimeErrorMessages.getString("EVEN01001"));
-   public static final Args0 EVEN_HANDLER_DOES_NOT_HAVE_CONDITION_TYPE = newArgs0("EVEN01002", BpmRuntimeErrorMessages.getString("EVEN01002"));
-   public static final Args1 EVEN_DUPLICATE_ID_FOR_EVENT_ACTION = newArgs1("EVEN01003", BpmRuntimeErrorMessages.getString("EVEN01003"));
+   public static final Args1 EVEN_DUPLICATE_ID_FOR_EVENT_HANDLER = newArgs1("EVEN01000", BpmValidationErrorMessages.getString("EVEN01000"));
+   public static final Args2 EVEN_ID_FOR_EVENT_HANDLER_EXCEEDS_MAXIMUM_LENGTH_OF_CHARACTERS = newArgs2("EVEN01001", BpmValidationErrorMessages.getString("EVEN01001"));
+   public static final Args0 EVEN_HANDLER_DOES_NOT_HAVE_CONDITION_TYPE = newArgs0("EVEN01002", BpmValidationErrorMessages.getString("EVEN01002"));
+   public static final Args1 EVEN_DUPLICATE_ID_FOR_EVENT_ACTION = newArgs1("EVEN01003", BpmValidationErrorMessages.getString("EVEN01003"));
 
    private static final Object[] NONE = {};
 
@@ -185,7 +204,7 @@ public class BpmValidationError extends ErrorCase
     */
    public static Args0 newArgs0(String errorCode)
    {
-      return new Args0(errorCode, BpmRuntimeErrorMessages.getString(errorCode));
+      return new Args0(errorCode, BpmValidationErrorMessages.getString(errorCode));
    }
 
    /**
@@ -201,7 +220,7 @@ public class BpmValidationError extends ErrorCase
     */
    public static Args1 newArgs1(String errorCode)
    {
-      return new Args1(errorCode, BpmRuntimeErrorMessages.getString(errorCode));
+      return new Args1(errorCode, BpmValidationErrorMessages.getString(errorCode));
    }
 
    /**
@@ -217,7 +236,7 @@ public class BpmValidationError extends ErrorCase
     */
    public static Args2 newArgs2(String errorCode)
    {
-      return new Args2(errorCode, BpmRuntimeErrorMessages.getString(errorCode));
+      return new Args2(errorCode, BpmValidationErrorMessages.getString(errorCode));
    }
 
    /**
@@ -331,7 +350,7 @@ public class BpmValidationError extends ErrorCase
 
    public static Args newArgs(String errorCode)
    {
-      return new Args(errorCode, BpmRuntimeErrorMessages.getString(errorCode));
+      return new Args(errorCode, BpmValidationErrorMessages.getString(errorCode));
    }
 
    public static class Args extends AbstractErrorFactory

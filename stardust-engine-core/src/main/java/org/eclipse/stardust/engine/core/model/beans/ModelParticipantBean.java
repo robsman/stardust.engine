@@ -27,6 +27,7 @@ import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IRole;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailParticipantBean;
@@ -44,17 +45,17 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
 {
    /** Organizations this participant is part of. */
    private List organizations = null;
-   
+
    private List<IRole> allCurrentRoles = null;
    private List<IOrganization> allCurrentOrganizations = null;
    private List<IRole> allPreviousRoles = null;
    private List<IOrganization> allPreviousOrganizations = null;
-   
+
    private List<String> allNewOrganizations = null;
-   private List<String> allRemovedOrganizations = null;   
-   
+   private List<String> allRemovedOrganizations = null;
+
    private String qualifiedId = null;
-   
+
    public String getQualifiedId()
    {
       if(qualifiedId == null)
@@ -79,8 +80,8 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                if(organization.getId().equals(participant.getId()))
                {
                   return true;
-               }                  
-            }         
+               }
+            }
          }
          if(participant instanceof IRole && allCurrentRoles != null)
          {
@@ -89,9 +90,9 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                if(role.getId().equals(participant.getId()))
                {
                   return true;
-               }                  
-            }                  
-         }      
+               }
+            }
+         }
       }
       else
       {
@@ -102,8 +103,8 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                if(organization.getId().equals(participant.getId()))
                {
                   return true;
-               }                  
-            }         
+               }
+            }
          }
          if(participant instanceof IRole && allPreviousRoles != null)
          {
@@ -112,14 +113,14 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                if(role.getId().equals(participant.getId()))
                {
                   return true;
-               }                  
-            }                  
-         }               
+               }
+            }
+         }
       }
-      
+
       return false;
-   }   
-   
+   }
+
    private boolean isTreeAdded(IOrganization organization)
    {
       if(containsMember(organization, false))
@@ -136,13 +137,13 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             return false;
          }
       }
-      
+
       IRole teamLead = organization.getTeamLead();
       if(teamLead != null && containsMember(teamLead, false))
       {
          return false;
-      }      
-      
+      }
+
       Iterator allOrganizations = organization.getSubOrganizations();
       while (allOrganizations.hasNext())
       {
@@ -152,7 +153,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             return false;
          }
       }
-      
+
       return true;
    }
 
@@ -166,20 +167,20 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
       Iterator allParticipants = organization.getAllParticipants();
       while (allParticipants.hasNext())
       {
-         
+
          IModelParticipant deployedParticipant = (IModelParticipant) allParticipants.next();
          if(containsMember(deployedParticipant, true))
          {
             return false;
          }
       }
-      
+
       IRole teamLead = organization.getTeamLead();
       if(teamLead != null && containsMember(teamLead, true))
       {
          return false;
-      }      
-      
+      }
+
       Iterator allOrganizations = organization.getSubOrganizations();
       while (allOrganizations.hasNext())
       {
@@ -189,10 +190,10 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             return false;
          }
       }
-      
+
       return true;
-   }   
-   
+   }
+
    public ModelParticipantBean(String id, String name, String description)
    {
       super(id, name);
@@ -260,7 +261,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
          collectTopLevelOrganizations((IOrganization) iterator.next(), resultSet);
       }
    }
-   
+
    /**
     * Populates the vector <code>inconsistencies</code> with all inconsistencies of the participant.
     */
@@ -270,44 +271,43 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
       {
          super.checkConsistency(inconsistencies);
          checkId(inconsistencies);
-         
+
          IModel currentModel = (IModel) getModel();
          allCurrentRoles = new ArrayList();
          allCurrentOrganizations = new ArrayList();
-                  
+
          Iterator allRoles = currentModel.getAllRoles();
          while (allRoles.hasNext())
          {
             IRole role = (IRole) allRoles.next();
             allCurrentRoles.add(role);
-         }                  
+         }
          Iterator allOrganizations = currentModel.getAllOrganizations();
          while (allOrganizations.hasNext())
          {
             IOrganization organization = (IOrganization) allOrganizations.next();
             allCurrentOrganizations.add(organization);
          }
-         
+
          // check for unique Id
          IModelParticipant p = ((IModel) getModel()).findParticipant(getId());
          if (p != null && p != this)
          {
-            inconsistencies.add(new Inconsistency("Duplicate ID for participant '" +
-                  getName() + "'.", this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.PART_DUPLICATE_ID.raise(getName());
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
-         
+
          if (null != getId())
          {
             // check id to fit in maximum length
             if (getId().length() > AuditTrailParticipantBean.getMaxIdLength())
             {
-               inconsistencies.add(new Inconsistency("ID for participant '" + getName()
-                     + "' exceeds maximum length of "
-                     + AuditTrailParticipantBean.getMaxIdLength() + " characters.",
-                     this, Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.PART_ID_EXCEEDS_MAXIMUM_LENGTH.raise(
+                     getName(), AuditTrailParticipantBean.getMaxIdLength());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
          }
-         
+
          // Rule: All associated Organizations must be part of the model
          for (Iterator i = ((IModel) getModel()).getAllOrganizations(); i.hasNext();)
          {
@@ -315,13 +315,11 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
 
             if (((IModel) getModel()).findParticipant(organization.getId()) == null)
             {
-               inconsistencies.add(new Inconsistency("The associated organization '"
-                     + organization.getId()
-                     + "' set for participant '"
-                     + getId() + "' doesn't exist in the model.",
-                     this, Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.PART_ASSOCIATED_ORGANIZATION_SET_FOR_PARTICIPANT_DOES_NOT_EXIST.raise(
+                     organization.getId(), getId());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
-            
+
             boolean scopedOrg = organization
                   .getBooleanAttribute(PredefinedConstants.BINDING_ATT);
             String dataIdOrg = organization
@@ -333,10 +331,8 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                IData data = ((IModel) getModel()).findData(dataIdOrg);
                if(data == null)
                {
-                  inconsistencies.add(new Inconsistency(
-                        "The data of the scoped organization '" + organization.getId()
-                              + "' must exist.'", this,
-                        Inconsistency.ERROR));                  
+                  BpmValidationError error = BpmValidationError.PART_DATA_FOR_SCOPED_ORGANIZATION_MUST_EXIST.raise(organization.getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                }
                else
                {
@@ -347,25 +343,21 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                         .getId());
                   if ((!isPrimitiveData) && (!isStructData))
                   {
-                     inconsistencies.add(new Inconsistency(
-                           "The data of the scoped organization '" + organization.getId()
-                                 + "' can only be a primitive or structured type.'",
-                           this, Inconsistency.ERROR));
+                     BpmValidationError error = BpmValidationError.PART_DATA_OF_SCOPED_ORGANIZATION_CAN_ONLY_BE_PRIM_OR_STRUCT.raise(organization.getId());
+                     inconsistencies.add(new Inconsistency(error, this,
+                           Inconsistency.ERROR));
                   }
                   if (dataIdOrg == null)
                   {
-                     inconsistencies.add(new Inconsistency(
-                           "The data of the scoped organization '" + organization.getId()
-                                 + "' must not be null.'", this,
+                     BpmValidationError error = BpmValidationError.PART_DATA_OF_SCOPED_ORGANIZATION_MUST_NOT_BE_NULL.raise(organization.getId());
+                     inconsistencies.add(new Inconsistency(error, this,
                            Inconsistency.ERROR));
                   }
                   if (isStructData && dataPathOrg == null)
                   {
-                     inconsistencies.add(new Inconsistency(
-                           "The data path of the scoped organization '"
-                                 + organization.getId()
-                                 + "' must not be null when structured data type is used.'",
-                           this, Inconsistency.ERROR));
+                     BpmValidationError error = BpmValidationError.PART_DATA_OF_SCOPED_ORGANIZATION_MUST_NOT_BE_NULL_WHEN_SDT_IS_USED.raise(organization.getId());
+                     inconsistencies.add(new Inconsistency(error, this,
+                           Inconsistency.ERROR));
                   }
                   else
                   {
@@ -373,15 +365,15 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                            Direction.OUT, null);
                      if (!String.class.equals(bridgeData.getEndClass()))
                      {
-                        inconsistencies.add(new Inconsistency("The type of the data '"
-                              + dataIdOrg + "' of the scoped organization '"
-                              + organization.getId() + "' is not '" + String.class
-                              + "'.'", this, Inconsistency.ERROR));
+                        BpmValidationError error = BpmValidationError.PART_TYPE_OF_DATA_OF_SCOPED_ORGANIZATION_IS_NOT.raise(
+                              dataIdOrg, organization.getId(), String.class);
+                        inconsistencies.add(new Inconsistency(error, this,
+                              Inconsistency.ERROR));
                      }
                   }
                }
             }
-            
+
             if (ModelManagerFactory.isAvailable())
             {
                ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -392,18 +384,18 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                   allRemovedOrganizations = new ArrayList();
                   allPreviousRoles = new ArrayList();
                   allPreviousOrganizations = new ArrayList();
-                  
+
                   for(IOrganization currentOrganization : allCurrentOrganizations)
                   {
                      allNewOrganizations.add(currentOrganization.getId());
-                  }                  
-                  
+                  }
+
                   allRoles = model.getAllRoles();
                   while (allRoles.hasNext())
                   {
                      IRole deployedRole = (IRole) allRoles.next();
                      allPreviousRoles.add(deployedRole);
-                  }                  
+                  }
                   allOrganizations = model.getAllOrganizations();
                   while (allOrganizations.hasNext())
                   {
@@ -418,14 +410,14 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                   for(IOrganization currentOrganization : allCurrentOrganizations)
                   {
                      allRemovedOrganizations.remove(currentOrganization.getId());
-                  }                                    
-                  
-                  allOrganizations = model.getAllOrganizations();                  
+                  }
+
+                  allOrganizations = model.getAllOrganizations();
                   while (allOrganizations.hasNext())
                   {
                      IOrganization deployedOrganization = (IOrganization) allOrganizations
-                           .next();                     
-                     
+                           .next();
+
                      if(allNewOrganizations.contains(organization.getId()))
                      {
                         // is new
@@ -435,7 +427,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                                  organization, inconsistencies))
                            {
                               break;
-                           }                           
+                           }
                         }
                      }
                      else if(allRemovedOrganizations.contains(deployedOrganization.getId()))
@@ -449,7 +441,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                                  null, inconsistencies))
                            {
                               break;
-                           }                           
+                           }
                         }
                      }
                      else if (organization.getId().equals(deployedOrganization.getId()))
@@ -460,23 +452,17 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                         // organization in model version deployment
                         if (scopedOrg && !scopedDeployedOrg)
                         {
-                           inconsistencies
-                                 .add(new Inconsistency(
-                                       "The organization '"
-                                             + organization.getId()
-                                             + "' is scoped. But in audit trail this organization is unscoped.'",
-                                       this, Inconsistency.ERROR));
+                           BpmValidationError error = BpmValidationError.PART_ORGANIZATION_IS_SCOPED_BUT_IN_AUDITTRAIL_UNSCOPED.raise(organization.getId());
+                           inconsistencies.add(new Inconsistency(error, this,
+                                 Inconsistency.ERROR));
                         }
                         // Rule: It's not allowed to change from an unscoped to a scoped
                         // organization in model version deployment
                         else if (!scopedOrg && scopedDeployedOrg)
                         {
-                           inconsistencies
-                                 .add(new Inconsistency(
-                                       "The organization '"
-                                             + organization.getId()
-                                             + "' is unscoped. But in audit trail this organization is scoped.'",
-                                       this, Inconsistency.ERROR));
+                           BpmValidationError error = BpmValidationError.PART_ORGANIZATION_IS_UNSCOPED_BUT_IN_AUDITTRAIL_SCOPED.raise(organization.getId());
+                           inconsistencies.add(new Inconsistency(error, this,
+                                 Inconsistency.ERROR));
                         }
                         else if (scopedOrg && scopedDeployedOrg)
                         {
@@ -486,34 +472,23 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                                  .getStringAttribute(PredefinedConstants.BINDING_DATA_ID_ATT);
                            if (!dataIdOrg.equals(dataIdDeployedOrg))
                            {
-                              inconsistencies
-                                    .add(new Inconsistency(
-                                          "The data id '"
-                                                + dataIdOrg
-                                                + "' of the scoped organization '"
-                                                + organization.getId()
-                                                + "' is different from the data id '"
-                                                + dataIdDeployedOrg
-                                                + "' of the deployed scoped organization in audit trail.'",
-                                          this, Inconsistency.ERROR));
+                              BpmValidationError error = BpmValidationError.PART_TYPE_OF_DATA_ID_OF_SCOPED_ORGANIZATION_IS_DIFFERENT_FROM_DATA_ID_IN_AUDIT_TRAIL.raise(
+                                    dataIdOrg, organization.getId(), dataIdDeployedOrg);
+                              inconsistencies.add(new Inconsistency(error, this,
+                                    Inconsistency.ERROR));
                            }
                            else if ((dataPathOrg != null && dataPathDeployedOrg == null)
                                  || (dataPathOrg == null && dataPathDeployedOrg != null)
                                  || ((dataPathOrg != null && dataPathDeployedOrg != null) && (!dataPathOrg
                                        .equals(dataPathDeployedOrg))))
                            {
-                              inconsistencies
-                                    .add(new Inconsistency(
-                                          "The data path '"
-                                                + dataPathOrg
-                                                + "' of the scoped organization '"
-                                                + organization.getId()
-                                                + "' is different from the data path '"
-                                                + dataPathDeployedOrg
-                                                + "' of the deployed scoped organization in audit trail.'",
-                                          this, Inconsistency.ERROR));
+                              BpmValidationError error = BpmValidationError.PART_TYPE_OF_DATA_ID_OF_SCOPED_ORGANIZATION_IS_DIFFERENT_FROM_DATA_PATH_IN_AUDIT_TRAIL.raise(
+                                    dataPathOrg, organization.getId(),
+                                    dataPathDeployedOrg);
+                              inconsistencies.add(new Inconsistency(error, this,
+                                    Inconsistency.ERROR));
                            }
-   
+
                            if (scopedOrg)
                            {
                               // Rule: The subtree of a scoped organization must not be
@@ -534,9 +509,9 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                   allOrganizations.next();
                   if (allOrganizations.hasNext())
                   {
-                     inconsistencies.add(new Inconsistency(
-                           "Multiple superorganizations are not allowed.",
-                           this, Inconsistency.ERROR));
+                     BpmValidationError error = BpmValidationError.PART_MULTIPLE_SOPER_ORGANIZATIONS_ARE_NOT_ALLOWED.raise();
+                     inconsistencies.add(new Inconsistency(error, this,
+                           Inconsistency.ERROR));
                      break;
                   }
                }
@@ -551,10 +526,10 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
 
    private boolean compareParticipantTree(IOrganization deployedOrg, IOrganization organization,
          List inconsistencies)
-   {      
+   {
       boolean isValid = true;
-      String organizationID = organization != null ? organization.getId() : deployedOrg.getId();      
-      
+      String organizationID = organization != null ? organization.getId() : deployedOrg.getId();
+
       if(deployedOrg != null && organization != null)
       {
          // deployed one is the previous one
@@ -564,16 +539,14 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
                || (deployedTeamLead == null && teamLead != null && containsMember(teamLead, false))
                || (deployedTeamLead != null && teamLead != null
                      && !CompareHelper.areEqual(deployedTeamLead.getId(), teamLead.getId())))
-         {         
-            inconsistencies.add(new Inconsistency(
-                  "The model to deploy contains a different 'Manager Of'-association '"
-                        + organization.getId()
-                        + "' than the deployed model in audit trail.'", this,
+         {
+            BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_MANAGER_OF_ASSOCIATION_THAN_DEPLOYED_MODEL.raise(organization.getId());
+            inconsistencies.add(new Inconsistency(error, this,
                   Inconsistency.ERROR));
-            isValid = false;    
+            isValid = false;
          }
-      }      
-      
+      }
+
       Iterator deployedParticipantIter = deployedOrg != null ? deployedOrg.getAllParticipants() : null;
       Iterator participantIter = organization != null ? organization.getAllParticipants() : null;
       List<IModelParticipant> participantList = new ArrayList<IModelParticipant>();
@@ -588,8 +561,8 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
          deployedParticipantList.add(((IModelParticipant) deployedParticipantIter.next()));
       }
 
-      List checkedParticipants = new ArrayList();      
-      for (IModelParticipant deployedModelParticipant : deployedParticipantList)               
+      List checkedParticipants = new ArrayList();
+      for (IModelParticipant deployedModelParticipant : deployedParticipantList)
       {
          checkedParticipants.add(deployedModelParticipant);
          boolean containsParticipant = false;
@@ -597,7 +570,7 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
          {
             if (deployedModelParticipant.getId().equals(modelParticipant.getId())
                   && ((deployedModelParticipant instanceof OrganizationBean && modelParticipant instanceof OrganizationBean)
-                        || (deployedModelParticipant instanceof RoleBean && modelParticipant instanceof RoleBean) 
+                        || (deployedModelParticipant instanceof RoleBean && modelParticipant instanceof RoleBean)
                         || (deployedModelParticipant instanceof ConditionalPerformerBean && modelParticipant instanceof ConditionalPerformerBean)))
             {
                containsParticipant = true;
@@ -612,47 +585,41 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
          }
          if(!containsParticipant)
          {
-            // here check for removed                  
+            // here check for removed
             if(deployedModelParticipant instanceof IOrganization)
             {
                if(!isTreeRemoved((IOrganization) deployedModelParticipant))
                {
-                  inconsistencies.add(new Inconsistency(
-                        "The model to deploy contains a different organization tree of the scoped organization '"
-                              + organizationID
-                              + "' than the scoped organization tree of the model in audit trail.'",
-                        this, Inconsistency.ERROR));
-                  isValid = false;                                 
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  isValid = false;
                }
             }
             else
             {
                if(containsMember(deployedModelParticipant, true))
                {
-                  inconsistencies.add(new Inconsistency(
-                        "The model to deploy contains a different organization tree of the scoped organization '"
-                              + organizationID
-                              + "' than the scoped organization tree of the model in audit trail.'",
-                        this, Inconsistency.ERROR));
-                  isValid = false;                                                      
-               }                                    
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  isValid = false;
+               }
             }
-         }         
+         }
       }
-      
+
       for (IModelParticipant modelParticipant : participantList)
       {
          if(checkedParticipants.contains(modelParticipant))
          {
             continue;
          }
-         
+
          boolean containsParticipant = false;
          for (IModelParticipant deployedModelParticipant : deployedParticipantList)
          {
             if (deployedModelParticipant.getId().equals(modelParticipant.getId())
                   && ((deployedModelParticipant instanceof OrganizationBean && modelParticipant instanceof OrganizationBean)
-                        || (deployedModelParticipant instanceof RoleBean && modelParticipant instanceof RoleBean) 
+                        || (deployedModelParticipant instanceof RoleBean && modelParticipant instanceof RoleBean)
                         || (deployedModelParticipant instanceof ConditionalPerformerBean && modelParticipant instanceof ConditionalPerformerBean)))
             {
                containsParticipant = true;
@@ -675,29 +642,23 @@ public abstract class ModelParticipantBean extends IdentifiableElementBean
             {
                if(!isTreeAdded((IOrganization) modelParticipant))
                {
-                  inconsistencies.add(new Inconsistency(
-                        "The model to deploy contains a different organization tree of the scoped organization '"
-                              + organizationID
-                              + "' than the scoped organization tree of the model in audit trail.'",
-                        this, Inconsistency.ERROR));
-                  isValid = false;                                 
-               }                  
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  isValid = false;
+               }
             }
             else
             {
                if(containsMember(modelParticipant, false))
                {
-                  inconsistencies.add(new Inconsistency(
-                        "The model to deploy contains a different organization tree of the scoped organization '"
-                              + organizationID
-                              + "' than the scoped organization tree of the model in audit trail.'",
-                        this, Inconsistency.ERROR));
-                  isValid = false;                                                      
-               }                                                                        
+                  BpmValidationError error = BpmValidationError.PART_MODEL_CONTAINS_DIFFERENT_ORGANIZATION_TREE_THAN_DEPLOYED_MODEL.raise(organization.getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
+                  isValid = false;
+               }
             }
-         }                     
+         }
       }
-            
+
       return isValid;
    }
 

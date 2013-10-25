@@ -147,7 +147,7 @@ public class XPathFinder
       {
          XSDComplexTypeDefinition xsdComplexTypeDefinition = (XSDComplexTypeDefinition) xsdTypeDefinition;
          findComplexTypeXpaths(null, xpath, elementName, elementNs, xsdComplexTypeDefinition, xsdAnnotations, allXPaths,
-               visitedTypes, allVisitedTypes);
+               visitedTypes, allVisitedTypes, false);
       }
       else
       {
@@ -469,7 +469,7 @@ public class XPathFinder
                findComplexTypeXpaths(parentXPath, childXPathString, xsdElementDeclaration.getName(),
                      elementTargetNamespace, (XSDComplexTypeDefinition) xsdTypeDefinition,
                      findAnnotations(xsdElementDeclaration.getAnnotation()),
-                     allXPaths, visitedTypes, allVisitedTypes);
+                     allXPaths, visitedTypes, allVisitedTypes, isList);
             }
             else
             {
@@ -492,7 +492,7 @@ public class XPathFinder
 
    private static void findComplexTypeXpaths(TypedXPath parent, String xpath, String elementName, String elementNs,
          XSDComplexTypeDefinition xsdComplexTypeDefinition, XPathAnnotations xsdAnnotations, Set<TypedXPath> allXPaths,
-         Stack visitedTypes, Set<XSDTypeDefinition> allVisitedTypes)
+         Stack visitedTypes, Set<XSDTypeDefinition> allVisitedTypes, boolean isList)
    {
       List<XSDAttributeGroupContent> attributeContents = xsdComplexTypeDefinition.getAttributeContents();
       if (xsdComplexTypeDefinition.getContent() instanceof XSDSimpleTypeDefinition)
@@ -505,7 +505,7 @@ public class XPathFinder
             TypedXPath typedXPath = new TypedXPath(parent, allXPaths.size(), xpath, false,
                   elementName, elementNs,
                   xsdComplexTypeDefinition.getName(), xsdComplexTypeDefinition.getTargetNamespace(),
-                  getBigDataType(xsdSimpleTypeDefinition), false, xsdAnnotations,
+                  getBigDataType(xsdSimpleTypeDefinition), isList, xsdAnnotations,
                   getEnumerationValues(xsdSimpleTypeDefinition));
             allXPaths.add(typedXPath);
          }
@@ -515,7 +515,7 @@ public class XPathFinder
             TypedXPath rootXPath = new TypedXPath(parent, allXPaths.size(), xpath, false,
                   elementName, elementNs,
                   xsdComplexTypeDefinition.getName(), xsdComplexTypeDefinition.getTargetNamespace(),
-                  BigData.NULL, false, xsdAnnotations, Collections.EMPTY_LIST);
+                  BigData.NULL, isList, xsdAnnotations, Collections.EMPTY_LIST);
             allXPaths.add(rootXPath);
             TypedXPath typedXPath = new TypedXPath(rootXPath, allXPaths.size(), 
                   parent == null ? StructuredDataConverter.NODE_VALUE_KEY : xpath + "/" + StructuredDataConverter.NODE_VALUE_KEY, false,
@@ -533,7 +533,7 @@ public class XPathFinder
          TypedXPath typedXPath = new TypedXPath(parent, allXPaths.size(), xpath, false,
                elementName, elementNs,
                xsdComplexTypeDefinition.getName(), xsdComplexTypeDefinition.getTargetNamespace(),
-               BigData.NULL, false, xsdAnnotations, Collections.EMPTY_LIST);
+               BigData.NULL, isList, xsdAnnotations, Collections.EMPTY_LIST);
          allXPaths.add(typedXPath);
          findAttributes(typedXPath, attributeContents, allXPaths);
          findAllXPaths(typedXPath, xsdComplexTypeDefinition, allXPaths, visitedTypes, allVisitedTypes);

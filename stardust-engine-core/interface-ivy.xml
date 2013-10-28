@@ -278,7 +278,7 @@
       <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="jackrabbit-core-with-full-text-search->default" />
       <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-with-full-text-search->default" />
       
-      <dependency org="org.apache.tika" name="tika-parsers" rev="${tika-parsers.version}" conf="jackrabbit-core-with-full-text-search->default">
+      <dependency org="org.apache.tika" name="tika-parsers" rev="${tika-parsers.version}" conf="jackrabbit-core-with-full-text-search,jackrabbit-core-without-full-text-search->default">
          <exclude org="org.gagravarr" module="vorbis-java-tika"/>
          <exclude org="org.gagravarr" module="vorbis-java-core"/>
          <exclude org="edu.ucar" module="netcdf"/>

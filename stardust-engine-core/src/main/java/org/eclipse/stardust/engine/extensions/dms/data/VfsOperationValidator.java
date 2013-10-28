@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 
 
@@ -29,14 +30,15 @@ public class VfsOperationValidator implements ApplicationValidator
    public List validate(Map attributes, Map typeAttributes, Iterator accessPoints)
    {
       // TODO (ab) validate dmsId and other properties (depending on operation)
-      
+
       List inconsistencies = CollectionUtils.newLinkedList();
-      
+
       if ( !attributes.containsKey(DmsConstants.PRP_OPERATION_NAME))
       {
-         inconsistencies.add(new Inconsistency("DMS operation is not set.", Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.VAL_DMS_OPERATION_NOT_SET.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
-      
+
       return inconsistencies;
    }
 

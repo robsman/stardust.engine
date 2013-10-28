@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.TriggerValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.TriggerValidatorEx;
@@ -33,14 +34,14 @@ public class JMSTriggerValidator implements TriggerValidator, TriggerValidatorEx
    {
       throw new UnsupportedOperationException();
    }
-   
+
    public List validate(ITrigger trigger)
    {
       List inconsistencies = CollectionUtils.newList();
       if (trigger.getAttribute(PredefinedConstants.MESSAGE_TYPE_ATT) == null)
       {
-         inconsistencies.add(new Inconsistency("Unspecified message type for JMS trigger",
-               trigger, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.TRIGG_UNSPECIFIED_MESSAGE_TYPE_FOR_JMS_TRIGGER.raise();
+         inconsistencies.add(new Inconsistency(error, trigger, Inconsistency.ERROR));
       }
       Iterator<AccessPoint> accessPoints = trigger.getAllAccessPoints();
       while (accessPoints.hasNext())
@@ -48,18 +49,18 @@ public class JMSTriggerValidator implements TriggerValidator, TriggerValidatorEx
          AccessPoint ap = accessPoints.next();
          if (StringUtils.isEmpty(ap.getId()))
          {
-            inconsistencies.add(new Inconsistency("Parameter has no id.",
-                  trigger, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.TRIGG_PARAMETER_HAS_NO_ID.raise();
+            inconsistencies.add(new Inconsistency(error, trigger, Inconsistency.ERROR));
          }
          else if (!StringUtils.isValidIdentifier(ap.getId()))
          {
-            inconsistencies.add(new Inconsistency("Parameter has invalid id defined.",
-                  trigger, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.TRIGG_PARAMETER_HAS_INVALID_ID_DEFINED.raise();
+            inconsistencies.add(new Inconsistency(error, trigger, Inconsistency.WARNING));
          }
          if (ap.getAttribute(PredefinedConstants.JMS_LOCATION_PROPERTY) == null)
          {
-            inconsistencies.add(new Inconsistency("No Location specified for parameter: " + ap.getId(),
-                  trigger, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.TRIGG_NO_LOCATION_FOR_PARAMETER_SPECIFIED.raise(ap.getId());
+            inconsistencies.add(new Inconsistency(error, trigger, Inconsistency.WARNING));
          }
          String clazz = (String) ap.getAttribute(PredefinedConstants.CLASS_NAME_ATT);
          try
@@ -68,15 +69,15 @@ public class JMSTriggerValidator implements TriggerValidator, TriggerValidatorEx
          }
          catch (InternalException e)
          {
-            inconsistencies.add(new Inconsistency("Please provide a valid Type for Parameter '"
-                  + ap.getName() + "' (Class '" + clazz + "' cannot be found).",
-                  trigger, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.TRIGG_NO_VALID_TYPE_FOR_PARAMETER_CLASS_CANNOT_BE_FOUND.raise(
+                  ap.getName(), clazz);
+            inconsistencies.add(new Inconsistency(error, trigger, Inconsistency.WARNING));
          }
          catch (NoClassDefFoundError e)
          {
-            inconsistencies.add(new Inconsistency("Please provide a valid Type for Parameter '"
-                  + ap.getName() + "' (Class '" + clazz + "' could not be loaded).",
-                  trigger, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.TRIGG_NO_VALID_TYPE_FOR_PARAMETER_CLASS_COULD_NOT_BE_LOADED.raise(
+                  ap.getName(), clazz);
+            inconsistencies.add(new Inconsistency(error, trigger, Inconsistency.WARNING));
          }
       }
       return inconsistencies;

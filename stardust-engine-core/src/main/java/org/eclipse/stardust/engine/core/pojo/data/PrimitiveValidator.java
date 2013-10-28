@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
@@ -38,8 +39,8 @@ public class PrimitiveValidator implements ExtendedDataValidator, Stateless
 
       if (null == type)
       {
-         inconsistencies.add(new Inconsistency("Unspecified type for primitive data",
-               Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.DATA_UNSPECIFIED_TYPE_FOR_PRIMITIVE_DATA.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
       return inconsistencies;
    }

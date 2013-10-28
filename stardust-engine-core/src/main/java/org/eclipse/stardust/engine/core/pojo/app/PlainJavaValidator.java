@@ -16,6 +16,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 
 
@@ -27,7 +28,7 @@ public class PlainJavaValidator implements ApplicationValidator
 {
    /**
     * Checks if the application has a valid class, method and constructor.
-    * 
+    *
     * @param attributes
     *           The application context attributes.
     * @param typeAttributes
@@ -43,8 +44,8 @@ public class PlainJavaValidator implements ApplicationValidator
 
       if (className == null)
       {
-         inconsistencies.add(new Inconsistency("Java class not specified.",
-               Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.JAVA_CLASS_NOT_SPECIFIED.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       else
       {
@@ -56,8 +57,8 @@ public class PlainJavaValidator implements ApplicationValidator
 
             if (methodName == null)
             {
-               inconsistencies.add(new Inconsistency("Completion method not specified.",
-                     Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.JAVA_COMPLETION_METHOD_NOT_SPECIFIED.raise();
+               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
             }
             else
             {
@@ -67,9 +68,9 @@ public class PlainJavaValidator implements ApplicationValidator
                }
                catch (InternalException e)
                {
-                  inconsistencies.add(new Inconsistency("Couldn't find method '"
-                        + methodName + "' in class '" + clazz.getName() + "'.",
-                        Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.JAVA_COULD_NOT_FIND_METHOD_IN_CLASS.raise(
+                        methodName, clazz.getName());
+                  inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
                }
             }
 
@@ -78,8 +79,8 @@ public class PlainJavaValidator implements ApplicationValidator
 
             if (constructorName == null)
             {
-               inconsistencies.add(new Inconsistency("Constructor not specified.",
-                     Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.JAVA_CONSTRUCTOR_NOT_SPECIFIED.raise();
+               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
             }
             else
             {
@@ -89,21 +90,21 @@ public class PlainJavaValidator implements ApplicationValidator
                }
                catch (InternalException e)
                {
-                  inconsistencies.add(new Inconsistency("Couldn't find constructor '"
-                        + constructorName + "' in class '" + clazz.getName() + "'.",
-                        Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.JAVA_COULD_NOT_FIND_CONSTRUCTOR_IN_CLASS.raise(
+                        constructorName, clazz.getName());
+                  inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
                }
             }
          }
          catch (InternalException e)
          {
-            inconsistencies.add(new Inconsistency("Class '" + className + "' not found.",
-                  Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.JAVA_CLASS_NOT_FOUND.raise(className);
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
          catch (NoClassDefFoundError e)
          {
-            inconsistencies.add(new Inconsistency("Class '" + className
-                  + "' could not be loaded.", Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.JAVA_CLASS_COULD_NOT_BE_LOADED.raise(className);
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
       return inconsistencies;

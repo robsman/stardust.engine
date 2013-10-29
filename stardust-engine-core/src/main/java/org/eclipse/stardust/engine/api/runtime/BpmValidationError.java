@@ -76,9 +76,11 @@ public class BpmValidationError extends ErrorCase
    public static final Args0 APP_PARAMETER_HAS_NO_ID_DEFINED = newArgs0("APP01012", BpmValidationErrorMessages.getString("APP01012"));
    public static final Args0 APP_PARAMETER_HAS_INVALID_ID_DEFINED = newArgs0("APP01013", BpmValidationErrorMessages.getString("APP01013"));
    public static final Args1 APP_NO_LOCATION_DEFINED_FOR_PARAMETER = newArgs1("APP01014", BpmValidationErrorMessages.getString("APP01014"));
-   public static final Args2 APP_NO_VALID_TYPE_FOR_PARAMETER_CLASS_CANNOT_BE_FOUND = newArgs2("APP01014", BpmValidationErrorMessages.getString("APP01014"));
-   public static final Args2 APP_NO_VALID_TYPE_FOR_PARAMETER_CLASS_COULD_NOT_BE_LOADED = newArgs2("APP01015", BpmValidationErrorMessages.getString("APP01015"));
-   public static final Args1 APP_DUPLICATE_ID_USED = newArgs1("APP01016", BpmValidationErrorMessages.getString("APP01016"));
+   public static final Args2 APP_NO_VALID_TYPE_FOR_PARAMETER_CLASS_CANNOT_BE_FOUND = newArgs2("APP01015", BpmValidationErrorMessages.getString("APP01015"));
+   public static final Args2 APP_NO_VALID_TYPE_FOR_PARAMETER_CLASS_COULD_NOT_BE_LOADED = newArgs2("APP01016", BpmValidationErrorMessages.getString("APP01016"));
+   public static final Args1 APP_DUPLICATE_ID_USED = newArgs1("APP01017", BpmValidationErrorMessages.getString("APP01017"));
+   public static final Args0 APP_INVALID_MAIL_ADDRESS = newArgs0("APP01018", BpmValidationErrorMessages.getString("APP01018"));
+   public static final Args0 APP_UNDEFINED_HTML_PATH_FOR_JSP_APPLICATION = newArgs0("APP01019", BpmValidationErrorMessages.getString("APP01019"));
 
    //Actions related
    public static final Args0 ACTN_NO_DATA_DEFINED = newArgs0("ACTN01001", BpmValidationErrorMessages.getString("ACTN01001"));
@@ -137,6 +139,10 @@ public class BpmValidationError extends ErrorCase
    public static final Args1 TRIGG_NO_LOCATION_FOR_PARAMETER_SPECIFIED = newArgs1("TRIGG01017", BpmValidationErrorMessages.getString("TRIGG01017"));
    public static final Args2 TRIGG_NO_VALID_TYPE_FOR_PARAMETER_CLASS_CANNOT_BE_FOUND = newArgs2("TRIGG01018", BpmValidationErrorMessages.getString("TRIGG01018"));
    public static final Args2 TRIGG_NO_VALID_TYPE_FOR_PARAMETER_CLASS_COULD_NOT_BE_LOADED = newArgs2("TRIGG01019", BpmValidationErrorMessages.getString("TRIGG01019"));
+   public static final Args0 TRIGG_UNSPECIFIED_USER_NAME_FOR_MAIL_TRIGGER = newArgs0("TRIGG01020", BpmValidationErrorMessages.getString("TRIGG01020"));
+   public static final Args0 TRIGG_UNSPECIFIED_PASSWORD_FOR_MAIL_TRIGGER = newArgs0("TRIGG01021", BpmValidationErrorMessages.getString("TRIGG01021"));
+   public static final Args0 TRIGG_UNSPECIFIED_SERVER_NAME_FOR_MAIL_TRIGGER = newArgs0("TRIGG01022", BpmValidationErrorMessages.getString("TRIGG01022"));
+   public static final Args0 TRIGG_UNSPECIFIED_PROTOCOL_FOR_MAIL_TRIGGER = newArgs0("TRIGG01023", BpmValidationErrorMessages.getString("TRIGG01023"));
 
    //Transition related
    public static final Args2 TRAN_ID_EXCEEDS_MAXIMUM_LENGTH = newArgs2("TRAN01001", BpmValidationErrorMessages.getString("TRAN01001"));
@@ -221,6 +227,8 @@ public class BpmValidationError extends ErrorCase
    public static final Args1 JAVA_INTERFACE_NOT_SPECIFIED = newArgs1("JAVA01011", BpmValidationErrorMessages.getString("JAVA01011"));
    public static final Args1 JAVA_METHOD_NOT_SPECIFIED = newArgs1("JAVA01012", BpmValidationErrorMessages.getString("JAVA01012"));
    public static final Args0 JAVA_BUSINESS_INTERFACE_NOT_SPECIFIED = newArgs0("JAVA01013", BpmValidationErrorMessages.getString("JAVA01013"));
+   public static final Args0 JAVA_BEAN_TYPE_NOT_SPECIFIED = newArgs0("JAVA01014", BpmValidationErrorMessages.getString("JAVA01014"));
+   public static final Args0 JAVA_BEAN_ID_NOT_SPECIFIED = newArgs0("JAVA01015", BpmValidationErrorMessages.getString("JAVA01015"));
 
    private static final Object[] NONE = {};
 

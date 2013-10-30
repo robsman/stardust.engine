@@ -397,7 +397,7 @@ public class CamelTriggerRoute
                   mappingExpression.getBodyExpression().append("bodyAs(java.util.Map)");
                }
                else if (accessPtProps.getData().getType().getId().equals("primitive"))
-                  mappingExpression.getBodyExpression().append("bodyAs(java.lang.String)");
+                  mappingExpression.getBodyExpression().append("bodyAs("+getNonPrimitiveType(((Type) accessPtProps.getData().getAttribute("carnot:engine:type")).getName())+")");
                else if (accessPtProps.getData().getType().getId().equals("serializable"))
                {
                   mappingExpression.getBodyExpression().append("bodyAs(");

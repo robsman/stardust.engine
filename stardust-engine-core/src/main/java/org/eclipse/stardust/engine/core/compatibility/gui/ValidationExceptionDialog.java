@@ -15,7 +15,9 @@ import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.JOptionPane;
@@ -25,8 +27,13 @@ import javax.swing.table.DefaultTableModel;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Functor;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.IErrorMessageProvider;
+import org.eclipse.stardust.common.error.IErrorMessageProvider.Factory;
 import org.eclipse.stardust.common.error.ValidationException;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
+
 
 
 /**
@@ -35,6 +42,8 @@ import org.eclipse.stardust.engine.api.model.Inconsistency;
  */
 public class ValidationExceptionDialog
 {
+   private ArrayList<Factory> translators;
+
    private ValidationExceptionDialog()
    {
    }
@@ -100,7 +109,12 @@ public class ValidationExceptionDialog
                Vector result = new Vector(1);
                if (source instanceof Inconsistency)
                {
-                  result.add(((Inconsistency) source).getMessage());
+                  Inconsistency inc = (Inconsistency)source;
+                  if (inc.getError() != null) {
+                     result.add(getMessageFromErrorCase(inc.getError()));
+                  } else {
+                     result.add(((Inconsistency) source).getMessage());
+                  }
                }
                else
                {
@@ -157,6 +171,39 @@ public class ValidationExceptionDialog
       {
          return false;
       }
+   }
+
+   public static String getMessageFromErrorCase(ErrorCase errorCase)
+   {
+      ArrayList<Factory> translators = new ArrayList<IErrorMessageProvider.Factory>(
+            ExtensionProviderUtils.getExtensionProviders(IErrorMessageProvider.Factory.class));
+
+      Locale locale = Locale.ENGLISH;
+      String loc = System.getProperty("user.language");
+      Iterator<IErrorMessageProvider.Factory> tIter = translators.iterator();
+      while (tIter.hasNext())
+      {
+         IErrorMessageProvider.Factory msgFactory = (IErrorMessageProvider.Factory) tIter.next();
+         IErrorMessageProvider msgProvider = msgFactory.getProvider(errorCase);
+         if (msgProvider != null)
+         {
+            if (loc != null)
+            {
+               Locale[] s = Locale.getAvailableLocales();
+               for (int i = 0; i < s.length; i++ )
+               {
+                  if (s[i].getLanguage().equalsIgnoreCase(loc))
+                  {
+                     locale = s[i];
+                  }
+               }
+            }
+            System.out.println("Choosen locale: " + locale.getDisplayName() + " " + locale.getLanguage());
+            return msgProvider.getErrorMessage(errorCase, null, locale);
+         }
+      }
+
+      return null;
    }
 
    public static void main(String[] args)

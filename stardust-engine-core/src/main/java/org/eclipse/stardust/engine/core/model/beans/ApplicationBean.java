@@ -102,8 +102,17 @@ public class ApplicationBean extends IdentifiableElementBean
                Collection c = validator.validate(getAllAttributes(), getType().getAllAttributes(), getAllAccessPoints());
                for (Iterator i = c.iterator(); i.hasNext();)
                {
-                  Inconsistency x = (Inconsistency) i.next();
-                  inconsistencies.add(new Inconsistency(x.getMessage(), this, x.getSeverity()));
+                  Inconsistency inc = (Inconsistency) i.next();
+                  if (inc.getError() != null)
+                  {
+                     inconsistencies.add(new Inconsistency(inc.getError(), this,
+                           inc.getSeverity()));
+                  }
+                  else
+                  {
+                     inconsistencies.add(new Inconsistency(inc.getMessage(), this,
+                           inc.getSeverity()));
+                  }
                }
             }
          }

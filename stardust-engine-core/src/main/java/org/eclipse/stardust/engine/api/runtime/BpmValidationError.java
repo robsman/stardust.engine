@@ -50,6 +50,8 @@ public class BpmValidationError extends ErrorCase
    public static final Args1 MDL_REFERENCED_PACKAGE_WITH_NAMESPACE_NOT_FOUND = newArgs1("MDL01014", BpmValidationErrorMessages.getString("MDL01014"));
    public static final Args2 MDL_AUDITTRAIL_CONTAINS_MODEL_WHICH_DIFFERS_FROM_THIS_MODEL = newArgs2("MDL01015", BpmValidationErrorMessages.getString("MDL01015"));
    public static final Args1 MDL_PREDECESSOR_MODEL_NOT_FOUND = newArgs1("MDL01016", BpmValidationErrorMessages.getString("MDL01016"));
+   public static final Args0 MDL_UNKNOWN_MODEL_VERSION = newArgs0("MDL01017", BpmValidationErrorMessages.getString("MDL01017"));
+   public static final Args1 MDL_MODEL_VERSION = newArgs1("MDL01018", BpmValidationErrorMessages.getString("MDL01018"));
 
    //Process Definiton related
    public static final Args0 PD_NO_START_ACTIVITY = newArgs0("PD01001", BpmValidationErrorMessages.getString("PD01001"));

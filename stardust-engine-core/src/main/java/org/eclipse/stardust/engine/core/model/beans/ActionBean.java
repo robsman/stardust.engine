@@ -72,8 +72,14 @@ public class ActionBean extends IdentifiableElementBean
             Collection coll = validator.validate(getAllAttributes());
             for (Iterator i = coll.iterator(); i.hasNext();)
             {
-               Inconsistency x = (Inconsistency) i.next();
-               inconsistencies.add(new Inconsistency(x.getMessage(), this, x.getSeverity()));
+               Inconsistency inc = (Inconsistency) i.next();
+               if (inc.getError() != null)
+               {
+                  inconsistencies.add(new Inconsistency(inc.getError(), this,
+                        inc.getSeverity()));
+               }
+               inconsistencies.add(new Inconsistency(inc.getMessage(), this,
+                     inc.getSeverity()));
             }
          }
       }

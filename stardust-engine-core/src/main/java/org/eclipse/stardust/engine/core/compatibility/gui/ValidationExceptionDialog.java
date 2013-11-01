@@ -109,10 +109,13 @@ public class ValidationExceptionDialog
                Vector result = new Vector(1);
                if (source instanceof Inconsistency)
                {
-                  Inconsistency inc = (Inconsistency)source;
-                  if (inc.getError() != null) {
+                  Inconsistency inc = (Inconsistency) source;
+                  if (inc.getError() != null)
+                  {
                      result.add(getMessageFromErrorCase(inc.getError()));
-                  } else {
+                  }
+                  else
+                  {
                      result.add(((Inconsistency) source).getMessage());
                   }
                }
@@ -178,8 +181,7 @@ public class ValidationExceptionDialog
       ArrayList<Factory> translators = new ArrayList<IErrorMessageProvider.Factory>(
             ExtensionProviderUtils.getExtensionProviders(IErrorMessageProvider.Factory.class));
 
-      Locale locale = Locale.ENGLISH;
-      String loc = System.getProperty("user.language");
+      Locale locale = Locale.getDefault();
       Iterator<IErrorMessageProvider.Factory> tIter = translators.iterator();
       while (tIter.hasNext())
       {
@@ -187,18 +189,6 @@ public class ValidationExceptionDialog
          IErrorMessageProvider msgProvider = msgFactory.getProvider(errorCase);
          if (msgProvider != null)
          {
-            if (loc != null)
-            {
-               Locale[] s = Locale.getAvailableLocales();
-               for (int i = 0; i < s.length; i++ )
-               {
-                  if (s[i].getLanguage().equalsIgnoreCase(loc))
-                  {
-                     locale = s[i];
-                  }
-               }
-            }
-            System.out.println("Choosen locale: " + locale.getDisplayName() + " " + locale.getLanguage());
             return msgProvider.getErrorMessage(errorCase, null, locale);
          }
       }

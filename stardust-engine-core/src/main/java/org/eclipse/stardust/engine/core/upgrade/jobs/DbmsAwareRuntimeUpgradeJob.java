@@ -49,6 +49,7 @@ public abstract class DbmsAwareRuntimeUpgradeJob extends RuntimeUpgradeJob
    protected static final String INSERT_INTO = "INSERT INTO ";
    protected static final String VALUES = " VALUES ";
    protected static final String SELECT = "SELECT ";
+   protected static final String SELECT_DISTINCT = "SELECT DISTINCT ";
    protected static final String FROM = " FROM ";
    protected static final String INNER_JOIN = " INNER JOIN ";
    protected static final String ON = " ON ";

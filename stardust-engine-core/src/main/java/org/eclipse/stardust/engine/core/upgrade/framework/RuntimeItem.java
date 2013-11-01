@@ -43,7 +43,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 public class RuntimeItem implements UpgradableItem
 {
    private static final Logger trace = LogManager.getLogger(RuntimeItem.class);
-   
+
    public static final String TABLE_PROPERTY = "property";
    public static final String TABLE_PROPERTY_SEQ = "PROPERTY_SEQ";
    public static final String FIELD_PROPERTY__OID = "oid";
@@ -52,7 +52,7 @@ public class RuntimeItem implements UpgradableItem
    public static final String FIELD_PROPERTY__LOCALE = "locale";
 
    public static final String PROPERTY_LOCALE_DEFAULT = "DEFAULT";
-   
+
    public static final String PROP_PRODUCTION_AT_SCHEMA = "carnot.auditTrail.upgrade.productionSchema";
 
    private final String driverName;
@@ -64,16 +64,16 @@ public class RuntimeItem implements UpgradableItem
    private Connection connection;
 
    private Version version;
-   
+
    private final boolean dryRun;
-   
+
    private PrintStream sqlSpoolDevice;
 
    private boolean archiveFlagTested = false;
    private boolean archive = false;
    private Map sequenceMap = new Hashtable();
 
-   
+
    public RuntimeItem()
    {
       this.dbDescriptor = null;
@@ -83,7 +83,7 @@ public class RuntimeItem implements UpgradableItem
       this.password = null;
       this.dryRun = false;
    }
-    
+
    /**
     * Constructs the item with connection information to the audit trail.
     * The connection information should have all necessary rights to perform
@@ -97,20 +97,20 @@ public class RuntimeItem implements UpgradableItem
       this.connectURL = connectURL;
       this.user = user;
       this.password = password;
-      
+
       this.dryRun = Parameters.instance().getBoolean(Upgrader.UPGRADE_DRYRUN, false);
-      
+
       if (dryRun)
       {
          trace.info("Operating against runtime in readonly mode");
       }
    }
-   
+
    public void initSqlSpoolDevice(File spoolFile) throws FileNotFoundException
    {
       this.sqlSpoolDevice = new PrintStream(new FileOutputStream(spoolFile));
    }
-   
+
    public void setSqlSpoolDevice(PrintStream sqlSpoolDevice)
    {
       this.sqlSpoolDevice = sqlSpoolDevice;
@@ -120,7 +120,7 @@ public class RuntimeItem implements UpgradableItem
    {
       return dbDescriptor;
    }
-   
+
    public void spoolSqlComment(String comment)
    {
       if (null != sqlSpoolDevice)
@@ -132,10 +132,10 @@ public class RuntimeItem implements UpgradableItem
          sqlSpoolDevice.println();
       }
    }
-   
+
    public void executeDdlStatement(String sql, boolean commit) throws SQLException
    {
-      Statement statement = null;      
+      Statement statement = null;
       if (null != sqlSpoolDevice)
       {
          sqlSpoolDevice.print(sql);
@@ -170,7 +170,7 @@ public class RuntimeItem implements UpgradableItem
 
             Reflect.getClassFromClassName(driverName);
             connection = DriverManager.getConnection(connectURL, user, password);
-            
+
             if (connection.getAutoCommit())
             {
                trace.info("Disabling Auto-Commit mode for JDBC connection.");
@@ -217,7 +217,7 @@ public class RuntimeItem implements UpgradableItem
    public void setVersion(Version version)
    {
       this.version = version;
-      
+
       try
       {
          updateProperty(Constants.CARNOT_VERSION, version.toString());
@@ -298,7 +298,7 @@ public class RuntimeItem implements UpgradableItem
          Statement statement = null;
          try
          {
-            StringBuilder sqlBuilder = new StringBuilder(); 
+            StringBuilder sqlBuilder = new StringBuilder();
             statement = getConnection().createStatement();
 
             if (isArchiveAuditTrail() || getDbDescriptor().supportsSequences())
@@ -317,7 +317,7 @@ public class RuntimeItem implements UpgradableItem
                sqlBuilder.append(stringLiteral(value)).append(", ");
                sqlBuilder.append(stringLiteral(PROPERTY_LOCALE_DEFAULT));
                sqlBuilder.append(")");
-               
+
             }
             else if (getDbDescriptor().supportsIdentityColumns())
             {
@@ -349,7 +349,7 @@ public class RuntimeItem implements UpgradableItem
          }
       }
    }
-   
+
    public void updateProperty(String name, String value) throws SQLException
    {
       if (dryRun)
@@ -380,7 +380,7 @@ public class RuntimeItem implements UpgradableItem
    {
       deleteProperty(name, true);
    }
-   
+
    public void deleteProperty(String name, boolean commit) throws SQLException
    {
       if (dryRun)
@@ -399,7 +399,7 @@ public class RuntimeItem implements UpgradableItem
             sqlBuilder.append(" WHERE ");
             sqlBuilder.append(FIELD_PROPERTY__NAME);
             sqlBuilder.append("=");
-            sqlBuilder.append(stringLiteral(name)); 
+            sqlBuilder.append(stringLiteral(name));
             if (null != sqlSpoolDevice)
             {
                sqlSpoolDevice.print(sqlBuilder.toString());
@@ -409,7 +409,7 @@ public class RuntimeItem implements UpgradableItem
                   sqlSpoolDevice.println("commit;");
                }
             }
-            
+
             statement = getConnection().createStatement();
             statement.executeUpdate(sqlBuilder.toString());
 
@@ -473,9 +473,8 @@ public class RuntimeItem implements UpgradableItem
          try
          {
             stmt = getConnection().createStatement();
-            // TODO schema name
             rs = stmt.executeQuery(getDbDescriptor().getCreatePKStatement(
-                  null, sequenceName));
+                  DatabaseHelper.getSchemaName(), sequenceName));
             rs.next();
             return Long.toString(rs.getLong(1));
          }
@@ -547,7 +546,7 @@ public class RuntimeItem implements UpgradableItem
       }
       return archive;
    }
-   
+
    public String getProductionAtSchemaName()
    {
       String productionSchema = System.getProperty(RuntimeItem.PROP_PRODUCTION_AT_SCHEMA);

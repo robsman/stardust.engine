@@ -37,27 +37,10 @@ import org.eclipse.stardust.engine.api.runtime.IModelPersistor;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Session;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
-import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IRuntimeOidRegistry;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeModelLoader;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidRegistry;
-import org.eclipse.stardust.engine.core.runtime.beans.RuntimeOidUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataLoader;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
@@ -66,14 +49,7 @@ import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
-import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgradeTaskExecutor;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgrader;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeTask;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
 /**
  *
@@ -88,6 +64,8 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String ACTIVITY_INSTANCE_TABLE_NAME = "activity_instance";
 
+   private static final String ACTIVITY_INSTANCE_FIELD_OID = "oid";
+
    private static final String ACTIVITY_INSTANCE_FIELD_CRITICALITY = "criticality";
 
    private static final String ACTIVITY_INSTANCE_FIELD_PROPERTIES = "propertiesAvailable";
@@ -95,6 +73,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String ACTIVITY_INSTANCE_FIELD_PI = "processInstance";
 
    private static final String ACTIVITY_INSTANCE_IDX9 = "activity_inst_idx9";
+
+   private static final String ACTIVITY_INSTANCE_PROP_TABLE_NAME = "act_inst_property";
+
+   private static final String ACTIVITY_INSTANCE_PROP_FIELD_OBJECT_OID = "objectOID";
 
    private static final String AUDIT_TRAIL_PARTITION_TABLE_NAME = "partition";
 
@@ -133,6 +115,9 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String WORK_ITEM_TABLE_NAME = "workitem";
 
    private static final String WORK_ITEM_FIELD_CRITICALITY = "criticality";
+
+   private static final String PROPERTY_TABLE_NAME = "property";
+   private static final String PROPERTY_FIELD_NAME = "name";
 
    private static final Version VERSION = Version.createFixedVersion(7, 0, 0);
 
@@ -358,21 +343,22 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
+         private static final String oldDefinition = "ag.carnot.workflow.runtime.setup_definition";
+         private static final String newDefinition = "org.eclipse.stardust.engine.core.runtime.setup_definition";
+
          @Override
          public void execute()
          {
-            // update datacluster setup key
+            // update data cluster setup key
+            // @formatter:off
             StringBuffer dataClusterUpdateStatement = new StringBuffer();
-            dataClusterUpdateStatement.append("UPDATE property");
-            dataClusterUpdateStatement.append(" SET name=");
-            dataClusterUpdateStatement.append("'");
             dataClusterUpdateStatement
-                  .append("org.eclipse.stardust.engine.core.runtime.setup_definition");
-            dataClusterUpdateStatement.append("'");
-            dataClusterUpdateStatement.append(" where name=");
-            dataClusterUpdateStatement.append("'");
-            dataClusterUpdateStatement.append("ag.carnot.workflow.runtime.setup_definition");
-            dataClusterUpdateStatement.append("'");
+                  .append(UPDATE).append(DatabaseHelper.getQualifiedName(PROPERTY_TABLE_NAME))
+                  .append(SET).append(PROPERTY_FIELD_NAME).append(EQUALS)
+                  .append(QUOTE).append(newDefinition).append(QUOTE)
+                  .append(WHERE).append(PROPERTY_FIELD_NAME).append(EQUALS)
+                  .append(QUOTE).append(oldDefinition).append(QUOTE);
+            // @formatter:on
 
             try
             {
@@ -617,22 +603,26 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void initActivityInstanceProperties() throws SQLException
    {
+      final String aiAlias = "ai";
+      final String aipAlias = "aip";
+
       Connection connection = item.getConnection();
 
-      StringBuffer selectCmd = new StringBuffer() //
-            .append("SELECT DISTINCT ai.").append(ActivityInstanceBean.FIELD__OID) //
-            .append(" FROM ").append(ActivityInstanceBean.TABLE_NAME) //
-            .append(" ai ") //
-            .append(" INNER JOIN ").append(ActivityInstanceProperty.TABLE_NAME) //
-            .append(" aip ON aip.").append(ActivityInstanceProperty.FIELD__OBJECT_OID) //
-            .append(" = ai.").append(ActivityInstanceBean.FIELD__OID); //
+      // @formatter:off
+      StringBuffer selectCmd = new StringBuffer()
+            .append(SELECT_DISTINCT).append("ai.").append(ACTIVITY_INSTANCE_FIELD_OID)
+            .append(FROM).append(DatabaseHelper.getQualifiedName(ACTIVITY_INSTANCE_TABLE_NAME, aiAlias))
+            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(ACTIVITY_INSTANCE_PROP_TABLE_NAME, aipAlias))
+            .append(ON).append(aipAlias).append(DOT).append(ACTIVITY_INSTANCE_PROP_FIELD_OBJECT_OID)
+            .append(EQUALS).append(aiAlias).append(DOT).append(ACTIVITY_INSTANCE_FIELD_OID);
 
-      StringBuffer updateCmd = new StringBuffer() //
-            .append("UPDATE ").append(ActivityInstanceBean.TABLE_NAME) //
-            .append(" SET ").append(ActivityInstanceBean.FIELD__PROPERTIES_AVAILABLE) //
-            .append(" = 1 ") //
-            .append(" WHERE ").append(ActivityInstanceBean.FIELD__OID) //
-            .append(" = ?"); //
+      StringBuffer updateCmd = new StringBuffer()
+            .append(UPDATE).append(DatabaseHelper.getQualifiedName(ACTIVITY_INSTANCE_TABLE_NAME))
+            .append(SET).append(ACTIVITY_INSTANCE_FIELD_PROPERTIES)
+            .append(EQUALS).append("1")
+            .append(WHERE).append(ACTIVITY_INSTANCE_FIELD_OID)
+            .append(EQUAL_PLACEHOLDER);
+      // @formatter:on
 
       PreparedStatement selectRowsStmt = connection
             .prepareStatement(selectCmd.toString());
@@ -668,8 +658,8 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       tableName = DatabaseHelper.getQualifiedName(tableName);
 
       StringBuffer buffer = new StringBuffer(500);
-      buffer.append("UPDATE ").append(tableName);
-      buffer.append(" SET ").append(columnName).append(" = ").append(defaultValue);
+      buffer.append(UPDATE).append(tableName);
+      buffer.append(SET).append(columnName).append(EQUALS).append(defaultValue);
 
       // Execute DML instead of DDL, but this DML is part of the DDL so it has to be
       // handled the same way.
@@ -689,7 +679,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          String nextOid = dbDescriptor.getNextValForSeqString(
                DatabaseHelper.getSchemaName(), PROCESS_INSTANCE_LINK_TYPE_PK_SEQUENCE);
-         insertCmd.append("INSERT INTO ").append(tableName).append(" (");
+         insertCmd.append(INSERT_INTO).append(tableName).append(" (");
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_OID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION).append(',');
@@ -698,7 +688,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
       else if (dbDescriptor.supportsIdentityColumns())
       {
-         insertCmd.append("INSERT INTO ").append(tableName).append(" (");
+         insertCmd.append(INSERT_INTO).append(tableName).append(" (");
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION).append(") ");
@@ -706,7 +696,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
       else
       {
-         insertCmd.append("INSERT INTO ").append(tableName).append(" (");
+         insertCmd.append(INSERT_INTO).append(tableName).append(" (");
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION).append(',');
@@ -721,9 +711,15 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             && !dbDescriptor.supportsIdentityColumns();
       if (hasSequenceHelper)
       {
-         String update = "UPDATE " + DatabaseHelper.getQualifiedName("sequence_helper")
-               + " SET value=?" + " WHERE name='link_type_seq'";
-         updateStatement = connection.prepareStatement(update);
+         // @formatter:off
+         StringBuffer update = new StringBuffer();
+         update.append(UPDATE).append(DatabaseHelper.getQualifiedName("sequence_helper"))
+               .append(SET).append("value").append(EQUAL_PLACEHOLDER)
+               .append(WHERE).append("name")
+               .append(EQUALS).append(QUOTE).append("link_type_seq").append(QUOTE);
+         // @formatter:on
+
+         updateStatement = connection.prepareStatement(update.toString());
          updateStatement.setLong(1,
                PredefinedProcessInstanceLinkTypes.values().length + 1);
       }
@@ -768,11 +764,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       PreparedStatement selectRowsStmt = null;
       try
       {
+         // @formatter:off
          StringBuffer selectCmd = new StringBuffer()
-               //
-               .append("SELECT ").append(AUDIT_TRAIL_PARTITION_FIELD_OID).append(", ")
-               .append(AUDIT_TRAIL_PARTITION_FIELD_ID) //
-               .append(" FROM ").append(AUDIT_TRAIL_PARTITION_TABLE_NAME);
+               .append(SELECT).append(AUDIT_TRAIL_PARTITION_FIELD_OID)
+               .append(COMMA).append(AUDIT_TRAIL_PARTITION_FIELD_ID)
+               .append(FROM).append(DatabaseHelper.getQualifiedName(AUDIT_TRAIL_PARTITION_TABLE_NAME));
+         // @formatter:on
 
          Connection connection = item.getConnection();
 

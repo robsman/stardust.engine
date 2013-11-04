@@ -11,10 +11,12 @@
 package org.eclipse.stardust.engine.api.query;
 
 import java.io.Serializable;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.EvaluationOption;
 import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
 import org.eclipse.stardust.engine.core.persistence.Operator;
@@ -118,6 +120,29 @@ public abstract class AbstractDataFilter
       }
       
       return (Serializable) options.put(option, value);
+   }
+
+   protected static void checkCollectionValues(Collection values, Operator operator)
+   {
+      if (values.isEmpty())
+      {
+         throw new PublicException(
+               BpmRuntimeError.QUERY_DATA_FILTER_EMPTY_VALUE_LIST_FOR_XXX_OPERATOR
+                     .raise(operator));
+      }
+   
+      Set typeSet = new HashSet(values.size());
+      for (Iterator i = values.iterator(); i.hasNext();)
+      {
+         typeSet.add(i.next().getClass());
+   
+         if (typeSet.size() > 1)
+         {
+            throw new PublicException(
+                  BpmRuntimeError.QUERY_DATA_FILTER_VALUE_TYPES_ARE_INHOMOGENEOUS
+                        .raise(typeSet));
+         }
+      }
    }
 
    /**

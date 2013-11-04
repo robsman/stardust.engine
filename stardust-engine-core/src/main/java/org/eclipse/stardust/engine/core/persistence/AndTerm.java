@@ -28,9 +28,6 @@ public class AndTerm implements MultiPartPredicateTerm
 {
    private final List<PredicateTerm> parts;
 
-   private String tag;
-
-
    public static AndTerm shallowCopy(AndTerm rhs)
    {
       return new AndTerm(rhs);
@@ -92,18 +89,6 @@ public class AndTerm implements MultiPartPredicateTerm
    public List<PredicateTerm> getParts()
    {
       return Collections.unmodifiableList(parts);
-   }
-
-   @Override
-   public String getTag()
-   {
-      return tag;
-   }
-
-   @Override
-   public void setTag(String tag)
-   {
-      this.tag = tag;
    }
 
    public String toString()

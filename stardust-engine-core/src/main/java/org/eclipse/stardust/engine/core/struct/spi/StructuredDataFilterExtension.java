@@ -273,10 +273,13 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
    public PredicateTerm createPredicateTerm(Join dvJoin, AbstractDataFilter dataFilter,
          Map<Long, IData> dataMap, DataFilterExtensionContext dataFilterExtensionContext)
    {
-      // override dvJoin with join specific for this dataFilter
-      StructuredDataFilterExtensionContext extensionContext = dataFilterExtensionContext
-            .getContent();
-      dvJoin = extensionContext.getJoin(dataFilter);
+      if ( !Operator.NOT_ANY_OF.equals(dataFilter.getOperator()))
+      {
+         // override dvJoin with join specific for this dataFilter
+         StructuredDataFilterExtensionContext extensionContext = dataFilterExtensionContext
+               .getContent();
+         dvJoin = extensionContext.getJoin(dataFilter);
+      }
       boolean filterUsedInAndTerm = dataFilterExtensionContext.isFilterUsedInAndTerm();
 
       return matchDataInstancesPredicate(dvJoin, dataFilter.getAttributeName(),
@@ -330,7 +333,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                   + canonicalValue.getClassificationKey());
       }
 
-      AndTerm resultTerm = new AndTerm();
+      final AndTerm resultTerm = new AndTerm();
 
       if (operator instanceof Operator.Unary)
       {
@@ -388,6 +391,8 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
             {
                if (matchValue instanceof Collection)
                {
+                  final boolean isNotAnyOfFilter = Operator.NOT_ANY_OF.equals(operator);
+
                   List<List< ? >> subLists = CollectionUtils.split(
                         (Collection) matchValue, 1000);
                   MultiPartPredicateTerm mpTerm = new OrTerm();
@@ -412,38 +417,33 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
                      {
                         mpTerm.add(Predicates.inList(valueColumn, valuesIter));
                      }
-                     else if (Operator.NOT_ANY_OF.equals(operator))
+                     else if (isNotAnyOfFilter)
                      {
-                        // Scan over top level predicates in join restriction and pick existing collector term
-                        MultiPartPredicateTerm notAnyOfCollector = SqlBuilderBase
-                              .getTopLevelCollectorForNotAnyOf(dvJoin,
-                                    filterUsedInAndTerm);
-
-                        // if no existing collector term could be found then this will be created
-                        if (notAnyOfCollector == null)
+                        // add the following only once to this join - driven by content of mpTerm
+                        if (mpTerm.getParts().isEmpty())
                         {
-                           if (filterUsedInAndTerm)
-                           {
-                              notAnyOfCollector = new AndTerm();
-                           }
-                           else
-                           {
-                              notAnyOfCollector = new OrTerm();
-                           }
+                           // add mpTerm itself
+                           dvJoin.getRestriction().add(mpTerm);
 
-                           notAnyOfCollector.setTag(Operator.NOT_ANY_OF.getId());
-                           dvJoin.getRestriction().add(notAnyOfCollector);
-
-                           // also add the current resultTerm to the join but not as part of collector
+                           // also add the current resultTerm
                            dvJoin.getRestriction().add(resultTerm);
-                           resultTerm = new AndTerm();
                         }
 
-                        notAnyOfCollector.add(Predicates.inList(valueColumn, valuesIter));
+                        // add inList predicate to mpTerm
+                        mpTerm.add(Predicates.inList(valueColumn, valuesIter));
                      }
                   }
 
-                  resultTerm.add(mpTerm);
+                  if (isNotAnyOfFilter)
+                  {
+                     // return a single predicate for this kind of operator as all others have been added to join
+                     return Predicates.isNull(dvJoin
+                           .fieldRef(StructuredDataValueBean.FIELD__PROCESS_INSTANCE));
+                  }
+                  else
+                  {
+                     resultTerm.add(mpTerm);
+                  }
                }
                else
                {
@@ -657,6 +657,15 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          int index, DataFilterExtensionContext dataFilterExtensionContext,
          boolean isAndTerm, IJoinFactory joinFactory)
    {
+      // notAnyOf Filter definitively need their own join
+      if (Operator.NOT_ANY_OF.equals(dataFilter.getOperator()))
+      {
+         validateXPath(dataFilter.getDataID(), dataFilter.getAttributeName(), true);
+         return joinFactory.createDataFilterJoins(dataFilter.getFilterMode(), index,
+               StructuredDataValueBean.class,
+               StructuredDataValueBean.FR__PROCESS_INSTANCE);
+      }
+
       if (dataFilterExtensionContext.getContent() == null)
       {
          // preprocess joins first

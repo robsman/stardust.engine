@@ -18,16 +18,10 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.core.persistence.*;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
-import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
 
 /**
@@ -40,13 +34,13 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
     * Has to be the same value as {@link ProcessInstanceBean#FIELD__ROOT_PROCESS_INSTANCE}
     * and {@link ProcessInstanceScopeBean#FIELD__ROOT_PROCESS_INSTANCE}
     */
-   public static final String FIELD_GLUE_ROOT_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE;
+   protected static final String FIELD_GLUE_ROOT_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE;
 
    /**
     * Has to be the same value as {@link ProcessInstanceBean#FIELD__SCOPE_PROCESS_INSTANCE}
     * and {@link ProcessInstanceScopeBean#FIELD__SCOPE_PROCESS_INSTANCE}
     */
-   public static final String FIELD_GLUE_SCOPE_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE;
+   protected static final String FIELD_GLUE_SCOPE_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE;
 
    protected ProcessHierarchyPreprocessor createQueryPreprocessor()
    {
@@ -82,7 +76,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
             dataMap);
 
       final DataFilterExtensionContext dataFilterExtensionContext = context.getDataFilterExtensionContext();
-      if (null == dvJoin)
+      if (null == dvJoin || isNotAnyOfFilter)
       {
          // first use of this specific dataID, setup join
          // a dummy queryDescriptor needed here
@@ -91,6 +85,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
                      ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE);
 
          JoinFactory joinFactory = new JoinFactory(context);
+
          dvJoin = dataFilterExtension.createDvJoin(queryDescriptor, filter,
                dataJoinMapping.size() + 1, dataFilterExtensionContext,
                isFilterUsedInAndTerm, joinFactory);
@@ -109,7 +104,16 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          {
             context.useDistinct(useDistinct);
          }
-         dataJoinMapping.put(joinKey, dvJoin);
+
+         if(isNotAnyOfFilter)
+         {
+            // this shall never match with other key - use the join itself as key
+            dataJoinMapping.put(dvJoin, dvJoin);
+         }
+         else
+         {
+            dataJoinMapping.put(joinKey, dvJoin);
+         }
 
          AndTerm andTerm = new AndTerm();
          dataFilterExtension.appendDataIdTerm(andTerm, dataMap, dvJoin, filter);
@@ -144,28 +148,16 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
       {
          PredicateTerm predicateTerm = dataFilterExtension.createPredicateTerm(dvJoin, filter, dataMap,
                dataFilterExtensionContext);
-         if (isNotAnyOfFilter)
-         {
-            // Only add predicate once if join has been added and is not reused
-            predicateTerm = null;
-            MultiPartPredicateTerm collector = getTopLevelCollectorForNotAnyOf(dvJoin, isFilterUsedInAndTerm);
-            if(collector == null || collector.getParts().size() <= 1)
-            {
-               // Currently only SDT is supported - hard coding of column is possible
-               predicateTerm = Predicates.isNull(dvJoin.fieldRef(StructuredDataValueBean.FIELD__PROCESS_INSTANCE));
-            }
-         }
 
          return predicateTerm;
       }
    }
 
-   // TODO (peekaboo): Refactor this and other classes with same name and semantic into common (base) class
-   private class JoinFactory implements IJoinFactory
-         {
+   protected class JoinFactory implements IJoinFactory
+   {
       private final VisitationContext context;
-      private final boolean isProcInstQuery;
-      private final boolean isAiQueryUsingWorkItem;
+      protected final boolean isProcInstQuery;
+      protected final boolean isAiQueryUsingWorkItem;
 
       public JoinFactory(VisitationContext context)
       {
@@ -205,7 +197,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          }
          else if (AbstractDataFilter.MODE_SUBPROCESSES == dataFilterMode)
          {
-            // TODO (peekaboo): Improve detection wether distinct is needed.
+            // TODO (peekaboo): Improve detection whether distinct is needed.
             //incSubProcModeCounter();
             context.useDistinct(true);
 
@@ -238,7 +230,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          }
          else if (AbstractDataFilter.MODE_ALL_FROM_HIERARCHY == dataFilterMode)
          {
-            // TODO (peekaboo): Improve detection wether distinct is needed.
+            // TODO (peekaboo): Improve detection whether distinct is needed.
             //incAllFromHierModeCounter();
             context.useDistinct(true);
 
@@ -278,7 +270,7 @@ public class InlinedDataFilterSqlBuilder extends SqlBuilderBase
          return dvJoin;
       }
 
-      private Join getGlueJoin()
+      protected Join getGlueJoin()
       {
          if (null == glueJoin)
          {

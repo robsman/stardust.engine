@@ -18,18 +18,4 @@ package org.eclipse.stardust.engine.core.persistence;
  */
 public interface PredicateTerm
 {
-   /**
-    * Set a tag to the predicate term. Tags can be used for identifying special terms within a query.
-    * As the tag does not need to be unique the applier of the tag needs to take care.
-    *
-    * @param tag The tag to be set. Previously set tag will be overwritten.
-    */
-   void setTag(String tag);
-
-   /**
-    * The tag which identifies the predicate term.
-    *
-    * @return The tag previously set by {@link #setTag(String)}
-    */
-   String getTag();
 }

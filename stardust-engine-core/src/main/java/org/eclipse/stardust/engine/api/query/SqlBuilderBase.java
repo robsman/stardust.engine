@@ -2202,39 +2202,6 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             && filter.getOperand() == null;
    }
 
-   public static MultiPartPredicateTerm getTopLevelCollectorForNotAnyOf(Join dvJoin,
-         boolean filterUsedInAndTerm)
-   {
-      MultiPartPredicateTerm result = null;
-
-      AndTerm restriction = dvJoin.getRestriction();
-      for (PredicateTerm term : restriction.getParts())
-      {
-         if (Operator.NOT_ANY_OF.getId().equals(term.getTag()))
-         {
-            if (term instanceof MultiPartPredicateTerm)
-            {
-               if (term instanceof OrTerm && filterUsedInAndTerm)
-               {
-                  // TODO: I18N
-                  new PublicException(
-                        "Mixed usage of NotAnyOf data filter not supported.");
-               }
-
-               result = (MultiPartPredicateTerm) term;
-               break;
-            }
-            else
-            {
-               new InternalException(
-                     "NotAnyOf data filter needs to be collected in MultiPartPredicateTerm.");
-            }
-         }
-      }
-
-      return result;
-   }
-
    protected static class VisitationContext
    {
       private final Query query;

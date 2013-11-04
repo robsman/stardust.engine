@@ -13,9 +13,6 @@ package org.eclipse.stardust.engine.api.query;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.persistence.Operator;
@@ -23,8 +20,8 @@ import org.eclipse.stardust.engine.core.persistence.Operator;
 
 // TODO: documentation
 /**
- * 
- * 
+ *
+ *
  * @author born
  * @version $Revision$
  */
@@ -41,7 +38,7 @@ public class HierarchyDataFilter extends AbstractDataFilter
    {
       super(dataID, null, operator, value1, value2, filterMode);
    }
-   
+
    /**
     * Creates a filter matching workflow data being equal with the given
     * <code>value</code>.
@@ -160,21 +157,7 @@ public class HierarchyDataFilter extends AbstractDataFilter
     */
    public static HierarchyDataFilter in(String dataID, Collection values)
    {
-      if (values.isEmpty())
-      {
-         throw new PublicException("Empty value list for IN operator");
-      }
-
-      Set typeSet = new HashSet(values.size());
-      for (Iterator i = values.iterator(); i.hasNext();)
-      {
-         typeSet.add(i.next().getClass());
-
-         if (typeSet.size() > 1)
-         {
-            throw new PublicException("Value types are inhomogeneous: " + typeSet);
-         }
-      }
+      checkCollectionValues(values, Operator.IN);
 
       return new HierarchyDataFilter(dataID, Operator.IN, new ArrayList(values),
             MODE_ALL_FROM_HIERARCHY);

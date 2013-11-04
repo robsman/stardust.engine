@@ -25,8 +25,6 @@ public class ComparisonTerm implements PredicateTerm
    private final Operator operator;
    private final Object valueExpr;
 
-   private String tag;
-
    /**
     * Constructs an <code>ComparisonTerm</code> which describes an comparison
     * of an alias-qualified attribute by an unary operator.
@@ -85,18 +83,6 @@ public class ComparisonTerm implements PredicateTerm
    public Object getValueExpr()
    {
       return valueExpr;
-   }
-
-   @Override
-   public void setTag(String tag)
-   {
-      this.tag = tag;
-   }
-
-   @Override
-   public String getTag()
-   {
-      return this.tag;
    }
 
    public String toString()

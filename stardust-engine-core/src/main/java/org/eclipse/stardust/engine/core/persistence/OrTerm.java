@@ -28,9 +28,6 @@ public class OrTerm implements MultiPartPredicateTerm
 {
    private final List<PredicateTerm> parts;
 
-   private String tag;
-
-
    /**
     * Constructs an empty <code>OrTerm</code>.
     */
@@ -82,18 +79,6 @@ public class OrTerm implements MultiPartPredicateTerm
    public List<PredicateTerm> getParts()
    {
       return Collections.unmodifiableList(parts);
-   }
-
-   @Override
-   public String getTag()
-   {
-      return tag;
-   }
-
-   @Override
-   public void setTag(String tag)
-   {
-      this.tag = tag;
    }
 
    public String toString()

@@ -13,9 +13,6 @@ package org.eclipse.stardust.engine.api.query;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -368,21 +365,7 @@ public class DataFilter extends AbstractDataFilter
     */
    public static DataFilter in(String dataID, String attributeName, Collection values)
    {
-      if (values.isEmpty())
-      {
-         throw new PublicException("Empty value list for IN operator");
-      }
-
-      Set typeSet = new HashSet(values.size());
-      for (Iterator i = values.iterator(); i.hasNext();)
-      {
-         typeSet.add(i.next().getClass());
-
-         if (typeSet.size() > 1)
-         {
-            throw new PublicException("Value types are inhomogeneous: " + typeSet);
-         }
-      }
+      checkCollectionValues(values, Operator.IN);
 
       return new DataFilter(dataID, attributeName, Operator.IN, new ArrayList(values),
             MODE_ALL_FROM_SCOPE);
@@ -416,21 +399,7 @@ public class DataFilter extends AbstractDataFilter
     */
    public static DataFilter notIn(String dataID, String attributeName, Collection values)
    {
-      if (values.isEmpty())
-      {
-         throw new PublicException("Empty value list for NOT_IN operator");
-      }
-
-      Set typeSet = new HashSet(values.size());
-      for (Iterator i = values.iterator(); i.hasNext();)
-      {
-         typeSet.add(i.next().getClass());
-
-         if (typeSet.size() > 1)
-         {
-            throw new PublicException("Value types are inhomogeneous: " + typeSet);
-         }
-      }
+      checkCollectionValues(values, Operator.NOT_IN);
 
       return new DataFilter(dataID, attributeName, Operator.NOT_IN, new ArrayList(values),
             MODE_ALL_FROM_SCOPE);
@@ -451,25 +420,7 @@ public class DataFilter extends AbstractDataFilter
     */
    public static DataFilter notAnyOf(String dataID, String attributeName, Collection values)
    {
-      // TODO: refactor to reuse code for both notIn and  notExistsIn
-
-      if (values.isEmpty())
-      {
-         // TODO: error case
-         throw new PublicException("Empty value list for NOT_ANY_OF operator");
-      }
-
-      Set typeSet = new HashSet(values.size());
-      for (Iterator i = values.iterator(); i.hasNext();)
-      {
-         typeSet.add(i.next().getClass());
-
-         if (typeSet.size() > 1)
-         {
-            // TODO: error case
-            throw new PublicException("Value types are inhomogeneous: " + typeSet);
-         }
-      }
+      checkCollectionValues(values, Operator.NOT_ANY_OF);
 
       return new DataFilter(dataID, attributeName, Operator.NOT_ANY_OF, new ArrayList(values),
             MODE_ALL_FROM_SCOPE);

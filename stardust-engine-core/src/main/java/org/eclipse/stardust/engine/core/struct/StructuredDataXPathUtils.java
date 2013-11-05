@@ -1495,7 +1495,7 @@ public class StructuredDataXPathUtils
     */
    public static boolean canHaveContentAndAttributes(TypedXPath typedXPath)
    {
-      if (typedXPath.getChildXPaths().size() > 0 && typedXPath.getType() != BigData.NULL)
+      if (typedXPath.getChildXPaths().size() > 0 && typedXPath.getType() != BigData.NULL || typedXPath.getChildXPath("@") != null)
       {
          return true;
       }

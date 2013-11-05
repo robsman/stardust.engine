@@ -250,6 +250,11 @@ private String xPathToJavaScriptPath(String xPath)
          buffer.replace(i, i + 1, ".");
       }
 
+      int lastCharIndex = buffer.length() - 1;
+      if (buffer.charAt(lastCharIndex) == '.')
+      {
+         buffer.setLength(lastCharIndex);
+      }
       return buffer.toString();
    }
 

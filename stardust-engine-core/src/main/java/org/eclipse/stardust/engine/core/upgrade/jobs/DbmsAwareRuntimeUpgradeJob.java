@@ -44,6 +44,7 @@ import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
 public abstract class DbmsAwareRuntimeUpgradeJob extends RuntimeUpgradeJob
 {
    // SQL constants
+   protected static final String DELETE_FROM = "DELETE FROM ";
    protected static final String UPDATE = "UPDATE ";
    protected static final String SET = " SET ";
    protected static final String INSERT_INTO = "INSERT INTO ";
@@ -55,6 +56,7 @@ public abstract class DbmsAwareRuntimeUpgradeJob extends RuntimeUpgradeJob
    protected static final String ON = " ON ";
    protected static final String WHERE = " WHERE ";
    protected static final String EXISTS = " EXISTS ";
+   protected static final String NULL = "NULL";
    protected static final String IS_NULL = " IS NULL";
    protected static final String PLACEHOLDER = "?";
    protected static final String EQUAL_PLACEHOLDER = " = " + PLACEHOLDER;

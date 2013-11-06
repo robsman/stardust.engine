@@ -343,36 +343,6 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
-         private static final String oldDefinition = "ag.carnot.workflow.runtime.setup_definition";
-         private static final String newDefinition = "org.eclipse.stardust.engine.core.runtime.setup_definition";
-
-         @Override
-         public void execute()
-         {
-            // update data cluster setup key
-            // @formatter:off
-            StringBuffer dataClusterUpdateStatement = new StringBuffer();
-            dataClusterUpdateStatement
-                  .append(UPDATE).append(DatabaseHelper.getQualifiedName(PROPERTY_TABLE_NAME))
-                  .append(SET).append(PROPERTY_FIELD_NAME).append(EQUALS)
-                  .append(QUOTE).append(newDefinition).append(QUOTE)
-                  .append(WHERE).append(PROPERTY_FIELD_NAME).append(EQUALS)
-                  .append(QUOTE).append(oldDefinition).append(QUOTE);
-            // @formatter:on
-
-            try
-            {
-               DatabaseHelper.executeUpdate(item, dataClusterUpdateStatement.toString());
-            }
-            catch (SQLException e)
-            {
-               reportExeption(e, "could not update data cluster setup");
-            }
-         }
-      });
-
-      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
-      {
          @Override
          public void execute()
          {
@@ -412,6 +382,36 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
+         private static final String oldDefinition = "ag.carnot.workflow.runtime.setup_definition";
+         private static final String newDefinition = "org.eclipse.stardust.engine.core.runtime.setup_definition";
+
+         @Override
+         public void execute()
+         {
+            // update data cluster setup key
+            // @formatter:off
+            StringBuffer dataClusterUpdateStatement = new StringBuffer();
+            dataClusterUpdateStatement
+                  .append(UPDATE).append(DatabaseHelper.getQualifiedName(PROPERTY_TABLE_NAME))
+                  .append(SET).append(PROPERTY_FIELD_NAME).append(EQUALS)
+                  .append(QUOTE).append(newDefinition).append(QUOTE)
+                  .append(WHERE).append(PROPERTY_FIELD_NAME).append(EQUALS)
+                  .append(QUOTE).append(oldDefinition).append(QUOTE);
+            // @formatter:on
+
+            try
+            {
+               DatabaseHelper.executeUpdate(item, dataClusterUpdateStatement.toString());
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "could not update data cluster setup");
+            }
+         }
+      });
+
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
+      {
          @Override
          public void execute()
          {
@@ -422,7 +422,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             catch (SQLException e)
             {
                reportExeption(e,
-               "Failed init activity instance properties (nested exception).");
+                     "Failed init activity instance properties (nested exception).");
             }
          }
       });
@@ -438,16 +438,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
             catch (SQLException e)
             {
-               reportExeption(e,
-               "Failed upgrade data types (nested exception).");
+               reportExeption(e, "Failed upgrade data types (nested exception).");
             }
          }
       });
-   }
 
-   private void initFinalizeSchemaTasks()
-   {
-      upgradeTaskExecutor.addFinalizeSchemaTask(new UpgradeTask()
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
          @Override
          public void execute()
@@ -463,6 +459,11 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
          }
       });
+   }
+
+   private void initFinalizeSchemaTasks()
+   {
+      // no tasks for schema finalization
    }
 
    protected void upgradeSchema(boolean recover) throws UpgradeException
@@ -512,10 +513,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       try
       {
          String partitionTableName = DatabaseHelper
-               .getQualifiedName(AuditTrailPartitionBean.TABLE_NAME);
+               .getQualifiedName(AUDIT_TRAIL_PARTITION_TABLE_NAME);
 
          StringBuffer selectCmd = new StringBuffer() //
-               .append(SELECT).append(AuditTrailPartitionBean.FIELD__ID) //
+               .append(SELECT).append(AUDIT_TRAIL_PARTITION_FIELD_ID) //
                .append(FROM).append(partitionTableName);
 
          Connection connection = item.getConnection();
@@ -529,7 +530,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             while (pendingRows.next())
             {
                upgradeDataTypesByPartition(pendingRows
-                     .getString(AuditTrailPartitionBean.FIELD__ID));
+                     .getString(AUDIT_TRAIL_PARTITION_FIELD_ID));
             }
          }
          finally

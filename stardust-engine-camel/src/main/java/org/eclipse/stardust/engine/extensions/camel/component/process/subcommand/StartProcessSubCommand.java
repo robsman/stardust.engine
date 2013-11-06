@@ -1,23 +1,17 @@
 package org.eclipse.stardust.engine.extensions.camel.component.process.subcommand;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ATTACHMENT_FILE_CONTENT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ATTACHMENTS;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_INSTANCE_OID;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.ExchangePattern;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.extensions.camel.component.ProcessEndpoint;
-import org.eclipse.stardust.engine.extensions.camel.util.DmsFileArchiver;
-import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
 
 public class StartProcessSubCommand extends AbstractSubCommand
 {
@@ -44,38 +38,26 @@ public class StartProcessSubCommand extends AbstractSubCommand
          }
       }
 
+      ProcessInstance pi;
       // Determine data for start process
+      @SuppressWarnings("unchecked")
       Map<String, Object> data = (Map<String, Object>) endpoint.evaluateData(exchange);
-
-      ProcessInstance pi = getWorkflowService().startProcess(fullyQualifiedName, data, endpoint.isSynchronousMode());
-
-      if (exchange.getProperty(ATTACHMENT_FILE_CONTENT) != null
-            || exchange.getIn().getHeader(ATTACHMENT_FILE_CONTENT) != null)
-      {
-
-         DmsFileArchiver dmsFileArchiver = new DmsFileArchiver(ClientEnvironment.getCurrentServiceFactory());
-         String path = processId;
-         String jcrDocumentContent = endpoint.evaluateAttachementContent(exchange);
-         dmsFileArchiver.setRootFolderPath("/");
-         String documents = "/documents";
-         Document newDocument = dmsFileArchiver.archiveFile(jcrDocumentContent.getBytes(), path, documents);
-
-         List<Document> attachments = (List<Document>) getWorkflowService().getInDataPath(pi.getOID(), PROCESS_ATTACHMENTS);
-
-         // initialize it if necessary
-         if (null == attachments)
-         {
-            attachments = new ArrayList<Document>();
-         }
-         // add the new document
-         attachments.add(newDocument);
-
-         // update the attachments
-         getWorkflowService().setOutDataPath(pi.getOID(), PROCESS_ATTACHMENTS, attachments);
+      
+      String attachments = (String) exchange.getIn().getHeader("CamelAttachment");
+      if(attachments == null) {
+    	  pi = getWorkflowService().startProcess(fullyQualifiedName, data, endpoint.isSynchronousMode());
       }
-
-      // Start a process instance
-
+      else {
+    	  // Retrieve Document dataID
+		  @SuppressWarnings("rawtypes")
+		  Set listKeys = data.keySet();
+		  @SuppressWarnings("unchecked")
+		  Iterator<String> it = listKeys.iterator();
+		  String dataId = (String) it.next();
+    	  StartProcessAndAttachDocumentCommand command = new StartProcessAndAttachDocumentCommand(fullyQualifiedName, dataId, endpoint.isSynchronousMode(), exchange);
+          pi = (ProcessInstance) getWorkflowService().execute(command);
+      }
+     
       // manipulate exchange
       if (exchange.getPattern().equals(ExchangePattern.OutOnly))
          exchange.getOut().setHeader(PROCESS_INSTANCE_OID, pi.getOID());

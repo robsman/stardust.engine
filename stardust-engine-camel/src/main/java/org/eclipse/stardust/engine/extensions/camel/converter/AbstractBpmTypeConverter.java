@@ -109,7 +109,52 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
             complexTypes.add(nestedType);
 
          }
-      }
+         else if (element.isJsonPrimitive())
+         {
+
+            JsonPrimitive primitive = element.getAsJsonPrimitive();
+
+            TypedXPath typedXPath = xPathMap.getXPath(path);
+
+            if (typedXPath != null)
+            {
+
+            	switch (typedXPath.getType())
+            	{
+	            	case 0:
+	            		complexTypes.add(primitive.getAsBoolean());
+	            		break;
+	            	case 2:
+	            		complexTypes.add(primitive.getAsByte());
+	            		break;
+	            	case 3:
+	            	   complexTypes.add(primitive.getAsShort());
+	            	   break;
+	            	case 4:
+	            	   complexTypes.add(primitive.getAsInt());
+	            	   break;
+	            	case 5:
+	            	   complexTypes.add(primitive.getAsLong());
+	            	   break;
+	            	case 6:
+	            	   complexTypes.add(primitive.getAsFloat());
+	            	   break;
+	            	case 7:
+	            	   complexTypes.add(primitive.getAsDouble());
+	            	   break;
+	            	case 8:
+	            	   complexTypes.add(primitive.getAsString());
+	            	   break;
+	            	case 9:
+	            	   complexTypes.add(primitive.getAsString());
+	            	   break;
+	            	default:
+	            	   complexTypes.add(primitive.getAsString());
+	            	   break;
+            		}	
+            	}
+         	}
+      	}
    }
 
    protected void processJsonObject(JsonObject jsonObject, Map<String, Object> complexType, String path,

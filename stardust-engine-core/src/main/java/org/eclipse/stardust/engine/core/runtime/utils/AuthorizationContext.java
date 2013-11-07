@@ -1120,28 +1120,31 @@ public class AuthorizationContext
          {
             department = DepartmentBean.findById(deptId, parent, org);
          }
-         catch (ObjectNotFoundException ignored)
-         {}
-         
-         //try to get from synchronization service
-         if(department == null)
+         catch (ObjectNotFoundException ignored1)
          {
+            //try to get from synchronization service
             try
             {
                department = synchronizeDepartment(org, departmentIds);
             }
-            catch (ObjectNotFoundException ignored)
-            {}
-         }
-         
-         //use null department
-         if(department == null)
-         {
-            department = IDepartment.NULL;
-         }
+            catch (ObjectNotFoundException ignored2)
+            {
+               //use null department for caching so no further lookups on db 
+               //will be performed
+               department = IDepartment.NULL;   
+            }
+         }      
          subdepartments.add(department);
       }
       depts.put(key, department);
+      
+      //throw exception so the the authorization evaluation will use the parent department
+      //for permission checks
+      if(department == null || department == IDepartment.NULL)
+      {
+          throw new ObjectNotFoundException(
+                  BpmRuntimeError.ATDB_UNKNOWN_DEPARTMENT_ID.raise(deptId, deptId)); 
+      }
       return department;
    }
 }

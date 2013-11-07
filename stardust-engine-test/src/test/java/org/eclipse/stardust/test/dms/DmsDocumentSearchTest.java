@@ -322,7 +322,10 @@ public class DmsDocumentSearchTest
    @Test
    public void testFindContentLike() throws InterruptedException
    {
-      final int expectedDocSize = 3;
+      // final int expectedDocSize = 3;
+      // In Stardust only 2 is expected as
+      // pdf not available for full text search - needs to be refactored
+      final int expectedDocSize = 2;
       final int retryCount = 3;
       
       DocumentQuery query = DocumentQuery.findAll();

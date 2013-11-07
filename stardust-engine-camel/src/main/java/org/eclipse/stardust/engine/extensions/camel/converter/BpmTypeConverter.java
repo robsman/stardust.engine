@@ -50,12 +50,12 @@ public class BpmTypeConverter
 
    public void toNativeObject(Exchange exchange) throws Exception
    {
-      processMarshalling(exchange, new JavaScriptTypeConverter(exchange));
+      processMarshalling(exchange, new JavaScriptTypeConverter(exchange, JsonTypeConverter.LONG_DATA_FORMAT));
    }
 
    public void fromNativeObject(Exchange exchange) throws Exception
    {
-      processUnmarshalling(exchange, new JavaScriptTypeConverter(exchange));
+      processUnmarshalling(exchange, new JavaScriptTypeConverter(exchange, JsonTypeConverter.ISO_DATE_FORMAT));
    }
 
    public void fromXML(Exchange exchange) throws Exception

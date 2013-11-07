@@ -4,7 +4,9 @@
  */
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +20,27 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 public class JsonTypeConverter extends AbstractBpmTypeConverter
 {
+   public static String ISO_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+   public static String LONG_DATA_FORMAT = "LONG";
+   
+   private String dateFormat = ISO_DATE_FORMAT;
+	
    public JsonTypeConverter(Exchange exchange)
    {
       super(exchange);
+      this.dateFormat = ISO_DATE_FORMAT;
+   }
+   
+   public JsonTypeConverter(Exchange exchange, String dateFormat)
+   {
+      super(exchange);
+      this.dateFormat = dateFormat;
    }
 
    @Override
@@ -95,7 +112,23 @@ public class JsonTypeConverter extends AbstractBpmTypeConverter
          if (dataMap != null)
          {
             GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS").create();
+            
+            if (LONG_DATA_FORMAT.equals(this.dateFormat))
+            {
+            	gsonBuilder.registerTypeAdapter(Date.class, new JsonSerializer<Date>() {
+            		
+					@Override
+					public JsonElement serialize(Date date, Type type,
+							JsonSerializationContext context) {
+						return date != null ? 
+								new JsonPrimitive("/Date(" + date.getTime() + ")/") : null;
+					}
+				});
+            }
+            else
+            {
+            	gsonBuilder.setDateFormat(this.dateFormat).create();
+            }
 
             Gson gson = gsonBuilder.create();
             String json = null;
@@ -113,5 +146,4 @@ public class JsonTypeConverter extends AbstractBpmTypeConverter
          }
       }
    }
-
 }

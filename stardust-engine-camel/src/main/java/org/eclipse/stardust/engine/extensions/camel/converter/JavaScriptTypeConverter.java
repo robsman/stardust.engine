@@ -11,9 +11,9 @@ import org.eclipse.stardust.engine.api.model.DataMapping;
 
 public class JavaScriptTypeConverter extends JsonTypeConverter
 {
-   public JavaScriptTypeConverter(Exchange exchange)
+   public JavaScriptTypeConverter(Exchange exchange, String dateFormat)
    {
-      super(exchange);
+      super(exchange, dateFormat);
    }
 
    @Override

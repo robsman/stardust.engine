@@ -10,88 +10,43 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.TransformingIterator;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Functions;
-import org.eclipse.stardust.engine.core.persistence.IEvaluationOptionProvider;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolderBigDataHandler;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 
 
-public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
+public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSqlBuilder
 {
    private static final Set<DataAttributeKey> NO_DATA_ATTIBUTE_KEYS = CollectionUtils.newHashSet();
-   /**
-    * Has to be the same value as  {@link ProcessInstanceBean#FIELD__ROOT_PROCESS_INSTANCE}
-    * and {@link ProcessInstanceScopeBean#FIELD__ROOT_PROCESS_INSTANCE}
-    */
-   public static final String FIELD_GLUE_ROOT_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE;
-
-   /**
-    * Has to be the same value as  {@link ProcessInstanceBean#FIELD__SCOPE_PROCESS_INSTANCE}
-    * and {@link ProcessInstanceScopeBean#FIELD__SCOPE_PROCESS_INSTANCE}
-    */
-   public static final String FIELD_GLUE_SCOPE_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE;
 
    private final DataCluster[] clusterSetup;
-   
+
    /**
-    * The set of {@link ProcessInstanceState} the DataCluster must support 
-    * for fetching data values - see {@link DataCluster#getEnableStates()} 
+    * The set of {@link ProcessInstanceState} the DataCluster must support
+    * for fetching data values - see {@link DataCluster#getEnableStates()}
     */
    private final Set<ProcessInstanceState> requiredClusterPiStates;
 
    public ClusterAwareInlinedDataFilterSqlBuilder()
    {
+      super();
+
       this.clusterSetup = RuntimeSetup.instance().getDataClusterSetup();
       this.requiredClusterPiStates = DataClusterHelper.getRequiredClusterPiStates();
    }
@@ -158,11 +113,6 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
             evaluationContext, clusterBindings, dataFilterExtensionContext));
    }
 
-   protected ProcessHierarchyPreprocessor createQueryPreprocessor()
-   {
-      return new ProcessHierarchyPreprocessor();
-   }
-
    protected List getJoins(VisitationContext rawContext)
    {
       ClusteredDataVisitationContext cntxt = (ClusteredDataVisitationContext) rawContext;
@@ -197,9 +147,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
 
       PredicateTerm resultTerm = null;
 
-      final boolean filterUsedInAndTerm = isAndTerm(cntxt);
       final boolean isPrefetchHint = filter instanceof DataPrefetchHint;
-      final boolean isIsNullFilter = isIsNullFilter(filter);
       final Integer dataFilterMode = Integer.valueOf(filter.getFilterMode());
 
       final DataAttributeKey filterKey;
@@ -212,7 +160,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
       {
          filterKey = new DataAttributeKey(filter.getDataID(), filter.getAttributeName());
       }
-      
+
       Set<DataCluster> boundClusters = cntxt.getClusterBindings().get(filterKey);
       if (null != boundClusters
             // Clusters can only be used for this data scope mode (default mode).
@@ -279,76 +227,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
       }
       else
       {
-         // join data_value table at most once for every dataID involved with the query, this
-         // join will eventually be reused by successive DataFilters targeting the same
-         // dataID (especially needed for ORed predicate to prevent combinatorical explosion)
-
-         
-         // TODO (peekaboo): refactor this code block (join generation) to reusable factory class
-         Pair joinKey = new Pair(dataFilterMode, new DataAttributeKey(filterKey.getDataId(), filterKey.getAttributeName()));
-         Join dvJoin = (Join) dataJoinMapping.get(joinKey);
-         final Map<Long, IData> dataMap = this.findAllDataRtOids(filterKey.getDataId(),
-               cntxt.getEvaluationContext().getModelManager());
-         DataFilterExtension dataFilterExtension = SpiUtils.createDataFilterExtension(
-               dataMap);
-         final DataFilterExtensionContext dataFilterExtensionContext = cntxt.getDataFilterExtensionContext();
-         if (null == dvJoin)
-         {
-            // first use of this specific dataID, setup join
-            // a dummy queryDescriptor needed here
-            QueryDescriptor queryDescriptor = QueryDescriptor.from(ProcessInstanceBean.class)
-                  .select(ProcessInstanceBean.FIELD__OID,
-                        ProcessInstanceBean.FIELD__SCOPE_PROCESS_INSTANCE);
-
-            JoinFactory joinFactory = new JoinFactory(cntxt);
-            dvJoin = dataFilterExtension.createDvJoin(queryDescriptor, filter,
-                  dataJoinMapping.size() + 1, dataFilterExtensionContext,
-                  filterUsedInAndTerm, joinFactory);
-
-            // use INNER JOIN if both is valid
-            // * filter is used in an AND term
-            // * filter is NOT prefetch hint
-            // otherwise use LEFT OUTER JOIN
-            dvJoin.setRequired(filterUsedInAndTerm && !isPrefetchHint && !isIsNullFilter);
-
-            if (dataFilterExtensionContext.useDistinct())
-            {
-               cntxt.useDistinct(dataFilterExtensionContext.useDistinct());
-            }
-            dataJoinMapping.put(joinKey, dvJoin);
-
-            AndTerm andTerm = new AndTerm();
-            dataFilterExtension.appendDataIdTerm(andTerm, dataMap, dvJoin, filter);
-            if (andTerm.getParts().size() != 0)
-            {
-               dvJoin.where(andTerm);
-            }
-         }
-      else
-      {
-         // if join already exists
-         // * and filter is used in an AND term
-         // * and filter is NOT prefetch hint
-         // then force join to be an INNER JOIN
-         // otherwise leave it as it is
-            if (filterUsedInAndTerm && !isPrefetchHint && !isIsNullFilter)
-         {
-            dvJoin.setRequired(true);
-         }
-      }
-
-         if (isPrefetchHint)
-         {
-            final List<FieldRef> selectExtension = cntxt.getSelectExtension();
-            selectExtension.addAll(dataFilterExtension.getPrefetchSelectExtension(dvJoin));
-
-            return NOTHING;
-         }
-         else
-         {
-            resultTerm = dataFilterExtension.createPredicateTerm(dvJoin, filter, dataMap,
-                  cntxt.getDataFilterExtensionContext());
-         }
+         resultTerm = (PredicateTerm) super.visit(filter, rawContext);
       }
 
       return resultTerm;
@@ -359,7 +238,6 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
       final ClusteredDataVisitationContext cntxt = (ClusteredDataVisitationContext) rawContext;
 
       // Check for existing cluster joins. If no match exists then create new join.
-      // TODO (sb): Code duplication with method visit(AbstractDataFilter). Refactor.
       Map clusterJoins = new UnionMap(cntxt.clusterJoins, cntxt.clusterOrderByJoins, false);
 
       IData data = findCorrespondingData(order.getDataID(), cntxt.getEvaluationContext().getModelManager());
@@ -864,7 +742,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
             {
                continue;
             }
-            
+
             Set<DataAttributeKey> referencedSlots = context.clusterCandidates.get(cluster);
             for (DataAttributeKey slotCandidate : context.slotCandidates)
             {
@@ -950,7 +828,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
             {
                continue;
             }
-            
+
             Set<DataAttributeKey> referencedSlots = context.clusterCandidates.get(cluster);
             for (DataAttributeKey key : context.slotCandidates)
             {
@@ -1029,156 +907,6 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
       public Object visit(DocumentFilter filter, Object context)
       {
          return null;
-      }
-   }
-
-   // TODO (peekaboo): Refactor this and other classes with same name and semantic into common (base) class
-   private class JoinFactory implements IJoinFactory
-   {
-      private final VisitationContext context;
-      private final boolean isProcInstQuery;
-      private final boolean isAiQueryUsingWorkItem;
-
-      public JoinFactory(ClusteredDataVisitationContext context)
-      {
-         this.context = context;
-         this.isProcInstQuery = ProcessInstanceBean.class.isAssignableFrom(context
-               .getType());
-         this.isAiQueryUsingWorkItem = WorkItemBean.class.isAssignableFrom(context
-               .getType());
-      }
-
-      public Join createDataFilterJoins(int dataFilterMode, int idx, Class dvClass, FieldRef dvProcessInstanceField)
-      {
-         final Join dvJoin;
-
-         final String pisAlias;
-         final String pihAlias = "PR_PIH" + idx;
-         final String dvAlias = "PR_"+ dvProcessInstanceField.getType().getTableAlias() + idx;
-
-         if (AbstractDataFilter.MODE_ALL_FROM_SCOPE == dataFilterMode)
-         {
-            if (isProcInstQuery)
-            {
-               dvJoin = new Join(dvClass, dvAlias)//
-                     .on(ProcessInstanceBean.FR__SCOPE_PROCESS_INSTANCE,
-                           dvProcessInstanceField.fieldName);
-            }
-            else
-            {
-               Join glue = getGlueJoin();
-
-               dvJoin = new Join(dvClass, dvAlias)//
-                     .on(glue.fieldRef(FIELD_GLUE_SCOPE_PROCESS_INSTANCE),
-                           dvProcessInstanceField.fieldName);
-
-               dvJoin.setDependency(glue);
-            }
-         }
-         else if (AbstractDataFilter.MODE_SUBPROCESSES == dataFilterMode)
-         {
-            // TODO (peekaboo): Improve detection wether distinct is needed.
-            //incSubProcModeCounter();
-            context.useDistinct(true);
-
-            FieldRef lhsFieldRef;
-            if (isProcInstQuery)
-            {
-               lhsFieldRef = ProcessInstanceBean.FR__OID;
-            }
-            else if (isAiQueryUsingWorkItem)
-            {
-               lhsFieldRef = WorkItemBean.FR__PROCESS_INSTANCE;
-            }
-            else
-            {
-               lhsFieldRef = ActivityInstanceBean.FR__PROCESS_INSTANCE;
-            }
-
-            Join hierJoin = new Join(ProcessInstanceHierarchyBean.class, pihAlias)//
-                  .on(lhsFieldRef,
-                        ProcessInstanceHierarchyBean.FIELD__SUB_PROCESS_INSTANCE);
-
-            dataJoinMapping.put(new Pair(
-                  Integer.valueOf(AbstractDataFilter.MODE_SUBPROCESSES), pihAlias), hierJoin);
-
-            dvJoin = new Join(dvClass, dvAlias)//
-                  .on(hierJoin.fieldRef(ProcessInstanceHierarchyBean.FIELD__PROCESS_INSTANCE),
-                        dvProcessInstanceField.fieldName);
-
-            dvJoin.setDependency(hierJoin);
-         }
-         else if (AbstractDataFilter.MODE_ALL_FROM_HIERARCHY == dataFilterMode)
-         {
-            // TODO (peekaboo): Improve detection whether distinct is needed.
-            //incAllFromHierModeCounter();
-            context.useDistinct(true);
-
-            Join pisJoin;
-            pisAlias = "PR_PIS" + idx;
-            if (isProcInstQuery)
-            {
-               pisJoin = new Join(ProcessInstanceScopeBean.class, pisAlias)//
-                     .on(ProcessInstanceBean.FR__ROOT_PROCESS_INSTANCE,
-                           ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE);
-            }
-            else
-            {
-               Join glue = getGlueJoin();
-
-               pisJoin = new Join(ProcessInstanceScopeBean.class, pisAlias)//
-                     .on(glue.fieldRef(FIELD_GLUE_ROOT_PROCESS_INSTANCE),
-                           ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE);
-
-               pisJoin.setDependency(glue);
-            }
-
-            dataJoinMapping.put(new Pair(Integer.valueOf(
-                  AbstractDataFilter.MODE_ALL_FROM_HIERARCHY), pisAlias), pisJoin);
-
-            dvJoin = new Join(dvClass, dvAlias)//
-                  .on(pisJoin.fieldRef(ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE),
-                        dvProcessInstanceField.fieldName);
-
-            dvJoin.setDependency(pisJoin);
-         }
-         else
-         {
-            throw new InternalException(MessageFormat.format(
-                  "Invalid DataFilter mode: {0}.", new Object[] { Integer.valueOf(dataFilterMode) }));
-         }
-
-         return dvJoin;
-      }
-
-      public Join getGlueJoin()
-      {
-         if (null == glueJoin)
-         {
-            glueJoin = (Join) context.getPredicateJoins().get(ProcessInstanceBean.class);
-
-            if (null == glueJoin)
-            {
-               FieldRef frProcessInstance = ActivityInstanceBean.FR__PROCESS_INSTANCE;
-               if (isAiQueryUsingWorkItem)
-               {
-                  frProcessInstance = WorkItemBean.FR__PROCESS_INSTANCE;
-               }
-
-               glueJoin = new Join(ProcessInstanceScopeBean.class, "PR_PIS")//
-                     .on(frProcessInstance,
-                           ProcessInstanceScopeBean.FIELD__PROCESS_INSTANCE);
-
-               dataJoinMapping.put(ProcessInstanceScopeBean.class, glueJoin);
-            }
-         }
-
-         return glueJoin;
-      }
-
-      public boolean isProcInstQuery()
-      {
-         return isProcInstQuery;
       }
    }
 

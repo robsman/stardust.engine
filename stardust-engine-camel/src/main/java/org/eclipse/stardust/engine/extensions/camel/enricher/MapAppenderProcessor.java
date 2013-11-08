@@ -39,7 +39,8 @@ public class MapAppenderProcessor implements Processor
    private static String MESSAGE_TRANSFORMATION_PROPERTY_ATTRIBUTE = "messageTransformation:TransformationProperty";
    private static String SYNCHRONOUS_RETRY_ENABLED_ATTRIBUTE = "synchronous:retry:enable";
    private static String APPLICATION_INTEGRATION_OVERLAY_ATTRIBUTE = "carnot:engine:camel::applicationIntegrationOverlay";
-
+   public static final String SQL_ROW_COUNT = "CamelSqlRowCount";
+   public static final String SQL_UPDATE_COUNT = "CamelSqlUpdateCount";
    // TODO : add otheres such as REST and Script.
 
    private BpmRuntimeEnvironment bpmRt;
@@ -77,7 +78,11 @@ public class MapAppenderProcessor implements Processor
       }
 
       exchange.getIn().setHeaders(currentHeaders);
-
+      if(exchange.getIn().getHeaders().containsKey(SQL_ROW_COUNT))
+        exchange.getIn().removeHeader(SQL_ROW_COUNT);
+      if(exchange.getIn().getHeaders().containsKey(SQL_UPDATE_COUNT))
+        exchange.getIn().removeHeader(SQL_UPDATE_COUNT);
+      
       if (attributes.containsKey(PROCESS_CONTEXT_HEADERS_EXT_ATT)
             && attributes.get(PROCESS_CONTEXT_HEADERS_EXT_ATT) != null)
       {

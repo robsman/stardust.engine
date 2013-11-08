@@ -405,33 +405,13 @@
 		        	<xsl:variable name="primtype" select="$DataField/c:Attributes/c:Attribute[@Name='carnot:engine:type']/@Value"/>
             		<xsl:attribute name="value">
 	            		<xsl:choose>
+	            		    <xsl:when test="$primtype"><xsl:value-of select="$primtype"/></xsl:when>
 	            			<xsl:when test="$BasicType">
             					<xsl:choose>
             						<xsl:when test="$BasicType/@Type='BOOLEAN'">boolean</xsl:when>
-            						<xsl:when test="$BasicType/@Type='INTEGER'">
-            							<xsl:choose>
-            								<xsl:when test="$primtype='char' or $primtype='byte' or $primtype='short' or $primtype='int' or $primtype='long'">
-            									<xsl:value-of select="$primtype"/>
-            								</xsl:when>
-            								<xsl:otherwise>long</xsl:otherwise>
-            							</xsl:choose>
-        							</xsl:when>
-            						<xsl:when test="$BasicType/@Type='FLOAT'">
-            							<xsl:choose>
-            								<xsl:when test="$primtype='float' or $primtype='double'">
-            									<xsl:value-of select="$primtype"/>
-            								</xsl:when>
-            								<xsl:otherwise>double</xsl:otherwise>
-            							</xsl:choose>
-            						</xsl:when>
-            						<xsl:when test="$BasicType/@Type='DATETIME'">
-            							<xsl:choose>
-            								<xsl:when test="$primtype='Calendar' or $primtype='Timestamp'">
-            									<xsl:value-of select="$primtype"/>
-            								</xsl:when>
-            								<xsl:otherwise>Timestamp</xsl:otherwise>
-            							</xsl:choose>
-            						</xsl:when>
+            						<xsl:when test="$BasicType/@Type='INTEGER'">long</xsl:when>
+            						<xsl:when test="$BasicType/@Type='FLOAT'">double</xsl:when>
+            						<xsl:when test="$BasicType/@Type='DATETIME'">Timestamp</xsl:when>
             						<xsl:otherwise>String</xsl:otherwise>
             					</xsl:choose>
 	            			</xsl:when>
@@ -443,12 +423,21 @@
             		</xsl:attribute>
             	</attribute>
             </xsl:if>
-            <xsl:if test="$type='primitive' and $DeclaredType">
+            <xsl:if test="$type='primitive' and ($DeclaredType or $ExternalReference[@namespace='typeDeclaration'])">
             	<attribute name="carnot:engine:dataType">
-            		<xsl:attribute name="value"><xsl:value-of select="$DeclaredType/@Id"/></xsl:attribute>
+            		<xsl:choose>
+            			<xsl:when test="$DeclaredType">
+		            		<xsl:attribute name="value"><xsl:value-of select="$DeclaredType/@Id"/></xsl:attribute>
+            			</xsl:when>
+            			<xsl:otherwise>
+			        		<xsl:call-template name="carnot-element-proxy">
+			        			<xsl:with-param name="ref" select="$ExternalReference"/>
+			        			<xsl:with-param name="attname">value</xsl:with-param>
+			        		</xsl:call-template>
+            			</xsl:otherwise>
+            		</xsl:choose>
             	</attribute>
             </xsl:if>
-            
             <xsl:if test="$type='serializable' and $ExternalReference">
             	<attribute name="carnot:engine:className">
             		<xsl:attribute name="value"><xsl:value-of select="$ExternalReference/@location" /></xsl:attribute>
@@ -854,7 +843,8 @@
 
     <xsl:template name="carnot-element-proxy">
     	<xsl:param name="ref"/>
-    	<xsl:attribute name="proxy"><xsl:value-of select="$ref/@namespace" />:{<xsl:value-of select="$ref/@location" />}<xsl:value-of select="$ref/@xref" /></xsl:attribute>
+    	<xsl:param name="attname">proxy</xsl:param>
+    	<xsl:attribute name="{$attname}"><xsl:value-of select="$ref/@namespace" />:{<xsl:value-of select="$ref/@location" />}<xsl:value-of select="$ref/@xref" /></xsl:attribute>
     </xsl:template>
 	
 	<xsl:template name="carnot-description">

@@ -14,6 +14,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
@@ -25,10 +27,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.reflect.ResolvedMethod;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
-import org.eclipse.stardust.engine.api.model.PluggableType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.pojo.utils.JavaAccessPointType;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -44,6 +43,8 @@ import org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanConstants;
  */
 public class JavaDataTypeUtils
 {
+   private static final String QUALIFIED_TYPE_DECLARATION_PREFIX = "typeDeclaration:";
+
    private static final Logger trace = LogManager.getLogger(JavaDataTypeUtils.class);
 
    private static final String PROTOCOL_SEPARATOR = "://";
@@ -162,14 +163,31 @@ public class JavaDataTypeUtils
       if (javaExpected)
       {
          String typeDeclarationId = data.getStringAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-         IModel model = (IModel) ((ModelElement) data).getModel();
-         ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
-         if (typeDeclaration != null)
+         if (typeDeclarationId != null)
          {
-            String className = typeDeclaration.getStringAttribute(PredefinedConstants.CLASS_NAME_ATT);
-            if (className != null)
+            IModel model = (IModel) ((ModelElement) data).getModel();
+            if (typeDeclarationId.startsWith(QUALIFIED_TYPE_DECLARATION_PREFIX))
             {
-               return className;
+               QName qname = QName.valueOf(typeDeclarationId.substring(QUALIFIED_TYPE_DECLARATION_PREFIX.length()));
+               String modelId = qname.getNamespaceURI();
+               if (!model.getId().equals(modelId))
+               {
+                  IExternalPackage pkg = model.findExternalPackage(modelId);
+                  if (pkg != null)
+                  {
+                     model = pkg.getReferencedModel();
+                  }
+               }
+               typeDeclarationId = qname.getLocalPart();
+            }
+            ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
+            if (typeDeclaration != null)
+            {
+               String className = typeDeclaration.getStringAttribute(PredefinedConstants.CLASS_NAME_ATT);
+               if (className != null)
+               {
+                  return className;
+               }
             }
          }
       }

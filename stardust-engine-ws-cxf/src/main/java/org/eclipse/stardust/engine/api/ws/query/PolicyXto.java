@@ -59,23 +59,23 @@ import javax.xml.bind.annotation.XmlType;
 public class PolicyXto {
 
     @XmlElements({
-        @XmlElement(name = "casePolicy", type = CasePolicyXto.class),
-        @XmlElement(name = "processCumulationPolicy", type = ProcessCumulationPolicyXto.class),
-        @XmlElement(name = "performanceCriticalityPolicy", type = PerformanceCriticalityPolicyXto.class),
-        @XmlElement(name = "excludeUserPolicy", type = ExcludeUserPolicyXto.class),
         @XmlElement(name = "descriptorPolicy", type = DescriptorPolicyXto.class),
-        @XmlElement(name = "evaluateByWorkitemsPolicy", type = EvaluateByWorkitemsPolicyXto.class),
+        @XmlElement(name = "processCumulationPolicy", type = ProcessCumulationPolicyXto.class),
         @XmlElement(name = "criticalCostPerExecutionPolicy", type = CriticalCostPerExecutionPolicyXto.class),
+        @XmlElement(name = "timeoutPolicy", type = TimeoutPolicyXto.class),
+        @XmlElement(name = "historicalEventPolicy", type = HistoricalEventPolicyXto.class),
+        @XmlElement(name = "evaluateByWorkitemsPolicy", type = EvaluateByWorkitemsPolicyXto.class),
+        @XmlElement(name = "excludeUserPolicy", type = ExcludeUserPolicyXto.class),
         @XmlElement(name = "historicalStatesPolicy", type = HistoricalStatesPolicyXto.class),
+        @XmlElement(name = "processInstanceDetailsPolicy", type = ProcessInstanceDetailsPolicyXto.class),
+        @XmlElement(name = "subFolderPolicy", type = SubFolderPolicyXto.class),
         @XmlElement(name = "subsetPolicy", type = SubsetPolicyXto.class),
         @XmlElement(name = "criticalExecutionTimePolicy", type = CriticalExecutionTimePolicyXto.class),
-        @XmlElement(name = "criticalProcessingTimePolicy", type = CriticalProcessingTimePolicyXto.class),
         @XmlElement(name = "userDetailsPolicy", type = UserDetailsPolicyXto.class),
-        @XmlElement(name = "historicalEventPolicy", type = HistoricalEventPolicyXto.class),
+        @XmlElement(name = "performanceCriticalityPolicy", type = PerformanceCriticalityPolicyXto.class),
         @XmlElement(name = "modelVersionPolicy", type = ModelVersionPolicyXto.class),
-        @XmlElement(name = "subFolderPolicy", type = SubFolderPolicyXto.class),
-        @XmlElement(name = "processInstanceDetailsPolicy", type = ProcessInstanceDetailsPolicyXto.class),
-        @XmlElement(name = "timeoutPolicy", type = TimeoutPolicyXto.class)
+        @XmlElement(name = "criticalProcessingTimePolicy", type = CriticalProcessingTimePolicyXto.class),
+        @XmlElement(name = "casePolicy", type = CasePolicyXto.class)
     })
     protected List<EvaluationPolicyXto> subsetPolicyOrSubFolderPolicyOrModelVersionPolicy;
 
@@ -97,23 +97,23 @@ public class PolicyXto {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link CasePolicyXto }
-     * {@link ProcessCumulationPolicyXto }
-     * {@link PerformanceCriticalityPolicyXto }
-     * {@link ExcludeUserPolicyXto }
      * {@link DescriptorPolicyXto }
-     * {@link EvaluateByWorkitemsPolicyXto }
+     * {@link ProcessCumulationPolicyXto }
      * {@link CriticalCostPerExecutionPolicyXto }
+     * {@link TimeoutPolicyXto }
+     * {@link HistoricalEventPolicyXto }
+     * {@link EvaluateByWorkitemsPolicyXto }
+     * {@link ExcludeUserPolicyXto }
      * {@link HistoricalStatesPolicyXto }
+     * {@link ProcessInstanceDetailsPolicyXto }
+     * {@link SubFolderPolicyXto }
      * {@link SubsetPolicyXto }
      * {@link CriticalExecutionTimePolicyXto }
-     * {@link CriticalProcessingTimePolicyXto }
      * {@link UserDetailsPolicyXto }
-     * {@link HistoricalEventPolicyXto }
+     * {@link PerformanceCriticalityPolicyXto }
      * {@link ModelVersionPolicyXto }
-     * {@link SubFolderPolicyXto }
-     * {@link ProcessInstanceDetailsPolicyXto }
-     * {@link TimeoutPolicyXto }
+     * {@link CriticalProcessingTimePolicyXto }
+     * {@link CasePolicyXto }
      * 
      * 
      */

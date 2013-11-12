@@ -325,8 +325,7 @@
 
                   <element name="inList" type="tns:InListPredicate" />
                   <element name="notInList" type="tns:NotInListPredicate" />
-
-                  <element name="between" type="tns:BetweenPredicate" />
+                  <element name="notAnyOf" type="tns:NotAnyOfPredicate" />
 
                   <element name="forProcessDefinition" type="tns:ProcessDefinitionFilter" />
                   <element name="forProcess" type="tns:ProcessInstanceFilter" />
@@ -504,6 +503,12 @@
          <extension base="tns:BinaryListValuedPredicate" />
       </complexContent>
    </complexType>
+   
+   <complexType name="NotAnyOfPredicate">
+      <complexContent>
+         <extension base="tns:BinaryListValuedPredicate" />
+      </complexContent>
+   </complexType>   
 
    <complexType name="BetweenPredicate">
       <complexContent>
@@ -513,7 +518,7 @@
 
    <element name="inList" type="tns:InListPredicate" substitutionGroup="tns:filterCriterion" />
    <element name="notInList" type="tns:NotInListPredicate" substitutionGroup="tns:filterCriterion" />
-   <element name="between" type="tns:BetweenPredicate" substitutionGroup="tns:filterCriterion" />
+   <element name="notAnyOf" type="tns:NotAnyOfPredicate" substitutionGroup="tns:filterCriterion" />
 
    <!-- specific filters -->
 

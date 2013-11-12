@@ -313,7 +313,7 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
    protected String getTypeDeclarationId(DataMapping mapping)
    {
       AccessPoint ap = mapping.getApplicationAccessPoint();
-      if(ap!=null){
+
       Object dataType = ap.getAttribute("carnot:engine:dataType");
       String namespace = mapping.getNamespace();
 
@@ -321,7 +321,7 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
       {
          return "{" + namespace + "}" + dataType;
       }
-      }
+
       return null;
    }
 

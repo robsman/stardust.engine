@@ -38,7 +38,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 //import com.infinity.bpm.util.test.SpringTestUtils;
 import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
 
-
+@Ignore
 public class ProcessAttachementTest //extends AbstractJUnit4SpringContextTests 
 {
    

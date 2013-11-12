@@ -32,10 +32,11 @@ public class RuntimeJobs
          // Todo: refactor this out of Stardust code
          if (CurrentVersion.getProductName().matches(".*[Ee]clipse.*"))
          {
-            jobs.add(new AT1_1_0from1_0_0RuntimeJob());
+            // intentionally left empty: currently no RT upgrade job required for Stardust
          }
          else
          {
+            jobs = new LinkedList();
             jobs.add(new R3_0_6from3_0_1RuntimeJob());
             jobs.add(new R3_2_0from3_0_6RuntimeJob());
             jobs.add(new R3_6_0from3_2_0RuntimeJob());

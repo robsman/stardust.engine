@@ -21,7 +21,6 @@ package org.eclipse.stardust.engine.api.spring;
  */
 public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IAdministrationService
 {
-
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
     */
@@ -509,6 +508,17 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
             serviceProxy).getConfigurationVariables(modelId);
    }
 
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(java.lang.String modelId, boolean all)
+    */
+   public
+         org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
+         getConfigurationVariables(java.lang.String modelId, boolean all)
+   {
+      return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
+            serviceProxy).getConfigurationVariables(modelId, all);
+   }
+      
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(java.util.List modelIds)
     */

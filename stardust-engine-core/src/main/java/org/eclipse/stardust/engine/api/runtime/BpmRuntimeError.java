@@ -420,7 +420,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 IPPWS_ENV_CREATION_FAILED_SESSION_PROPS_NULL = newArgs0("IPPWS02002", BpmRuntimeErrorMessages.getString("IPPWS02002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 IPPWS_ENV_CREATION_FAILED_ALL_NULL = newArgs0("IPPWS02003", BpmRuntimeErrorMessages.getString("IPPWS02003")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 IPPWS_META_DATA_TYPE_INVALID = newArgs2("IPPWS03001", "The specified metaDataType ''{0}'' does not match the type defined for data ''{1}''."); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 IPPWS_META_DATA_TYPE_INVALID = newArgs2("IPPWS03001", BpmRuntimeErrorMessages.getString("IPPWS03001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 IPPWS_DATA_VALUE_INVALID = newArgs2("IPPWS03101", BpmRuntimeErrorMessages.getString("IPPWS03101")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Login related
    public static final Args0 LOGIN_LDAP_INVALID_USER_PASSWORD = newArgs0("LOGIN01001", BpmRuntimeErrorMessages.getString("LOGIN01001")); //$NON-NLS-1$ //$NON-NLS-2$

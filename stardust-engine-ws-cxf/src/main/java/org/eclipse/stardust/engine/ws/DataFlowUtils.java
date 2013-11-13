@@ -2023,7 +2023,9 @@ public class DataFlowUtils
          }
          catch (Exception e)
          {
-            trace.error("Failed unmarshalling structured data value.", e);
+            trace.debug("Failed unmarshalling structured data value.", e);
+            throw new InvalidValueException(
+                  BpmRuntimeError.IPPWS_DATA_VALUE_INVALID.raise(value, rootXPath));
          }
       }
       else if (value instanceof String)
@@ -2041,7 +2043,9 @@ public class DataFlowUtils
          }
          catch (Exception e)
          {
-            trace.error("Failed unmarshalling structured data value.", e);
+            trace.debug("Failed unmarshalling structured data value.", e);
+            throw new InvalidValueException(
+                  BpmRuntimeError.IPPWS_DATA_VALUE_INVALID.raise(value, rootXPath));
          }
       }
       else if (value instanceof List)

@@ -1917,15 +1917,20 @@ public class AdministrationServiceImpl
 
    public ConfigurationVariables getConfigurationVariables(String modelId)
    {
+      return getConfigurationVariables(modelId, false);
+   }
+
+   public ConfigurationVariables getConfigurationVariables(String modelId, boolean all)
+   {
       if (StringUtils.isEmpty(modelId))
       {
          throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("modelId"));
       }
 
       return ConfigurationVariableUtils.getConfigurationVariables(getPreferenceStore(),
-            modelId, true);
-   }
-
+            modelId, true, all);
+   }   
+   
    public List<ConfigurationVariables> getConfigurationVariables(List<String> modelIds)
    {
       if(modelIds == null)
@@ -1941,7 +1946,7 @@ public class AdministrationServiceImpl
             throw new InvalidArgumentException(BpmRuntimeError.BPMRT_NULL_ARGUMENT.raise("modelId"));
          }
          confVars.add(ConfigurationVariableUtils.getConfigurationVariables(
-               getPreferenceStore(), modelId, true));
+               getPreferenceStore(), modelId, true, false));
       }
       return confVars;
    }

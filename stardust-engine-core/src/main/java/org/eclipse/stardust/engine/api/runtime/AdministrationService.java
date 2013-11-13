@@ -731,7 +731,7 @@ public interface AdministrationService extends Service
 
 
    /**
-    * Retrieves merged configuration variables from all models matching the specified modelId.
+    * Retrieves merged configuration variables from all models matching the specified modelId (without Password type).
     * The contained descriptions and default values are taken from the newest model version the configuration variable exists in.
     *
     * @param modelId The modelId of the model(s) to retrieve the configuration variables from.
@@ -740,9 +740,21 @@ public interface AdministrationService extends Service
     * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
     */
    ConfigurationVariables getConfigurationVariables(String modelId);
-
+   
    /**
-    * Retrieves merged configuration variables from all models matching the specified modelIds.
+    * Retrieves merged configuration variables from all models matching the specified modelId.
+    * The contained descriptions and default values are taken from the newest model version the configuration variable exists in.
+    *
+    * @param modelId The modelId of the model(s) to retrieve the configuration variables from.
+    * @param all Indicates if to fetch all configuration variables, including Password type.
+    * @return A ConfigurationVariables object containing the merged configuration variables from all model versions.
+    *
+    * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
+    */
+   ConfigurationVariables getConfigurationVariables(String modelId, boolean all);
+   
+   /**
+    * Retrieves merged configuration variables from all models matching the specified modelIds (without Password type).
     * The contained descriptions and default values are taken from the newest model version the configuration variable exists in.
     *
     * @param modelIds The modelId of the model(s) to retrieve the configuration variables from.
@@ -753,7 +765,7 @@ public interface AdministrationService extends Service
    List<ConfigurationVariables> getConfigurationVariables(List<String> modelIds);
 
    /**
-    * Retrieves configuration variables from the given model.
+    * Retrieves configuration variables from the given model (without Password type).
     *
     * @param model The model xml representation in byte array form.
     * @return A ConfigurationVariables object containing only the configuration variables from the given model.

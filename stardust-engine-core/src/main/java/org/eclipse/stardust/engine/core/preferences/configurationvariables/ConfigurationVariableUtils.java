@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.emf.ecore.xml.type.internal.RegEx;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -55,6 +56,13 @@ public class ConfigurationVariableUtils
          IPreferenceStorageManager preferenceStore, String modelId,
          boolean mergeDeployedModels)
    {
+      return getConfigurationVariables(preferenceStore, modelId, mergeDeployedModels, false);
+   }
+      
+   public static ConfigurationVariables getConfigurationVariables(
+         IPreferenceStorageManager preferenceStore, String modelId,
+         boolean mergeDeployedModels, boolean all)
+   {   
       List< ? extends ConfigurationVariableDefinitionProvider> providers;
 
       if (mergeDeployedModels)
@@ -80,19 +88,19 @@ public class ConfigurationVariableUtils
          providers = Collections.emptyList();
       }
 
-      return getConfigurationVariables(preferenceStore, modelId, providers);
+      return getConfigurationVariables(preferenceStore, modelId, providers, all);
    }
-
+   
    public static ConfigurationVariables getConfigurationVariables(
          IPreferenceStorageManager preferenceStore, IModel externalModel)
    {
       return getConfigurationVariables(preferenceStore, externalModel.getId(),
-            Collections.singletonList(externalModel));
+            Collections.singletonList(externalModel), false);
    }
 
    private static ConfigurationVariables getConfigurationVariables(
          IPreferenceStorageManager preferenceStore, String modelId,
-         List< ? extends ConfigurationVariableDefinitionProvider> providers)
+         List< ? extends ConfigurationVariableDefinitionProvider> providers, boolean all)
    {
       Preferences preferences = preferenceStore.getPreferences(PreferenceScope.PARTITION,
             CONFIGURATION_VARIABLES, modelId);
@@ -107,11 +115,14 @@ public class ConfigurationVariableUtils
          {
             if (prefEntry.getValue() != null)
             {
-               ConfigurationVariableDefinition definition = new ConfigurationVariableDefinition(
-                     getName(prefEntry.getKey()), getType(prefEntry.getKey()), "", "", -1);
-               ConfigurationVariable variable = new ConfigurationVariable(definition,
-                     (String) prefEntry.getValue());
-               mergedConfigurationVariables.put(definition.getName(), variable);
+               if(all || getType(prefEntry.getKey()).equals(ConfigurationVariableScope.String))
+               {
+                  ConfigurationVariableDefinition definition = new ConfigurationVariableDefinition(
+                        getName(prefEntry.getKey()), getType(prefEntry.getKey()), "", "", -1);
+                  ConfigurationVariable variable = new ConfigurationVariable(definition,
+                        (String) prefEntry.getValue());
+                  mergedConfigurationVariables.put(definition.getName(), variable);
+               }
             }
          }
       }
@@ -129,9 +140,12 @@ public class ConfigurationVariableUtils
                // dont substitute default value here leave that to GUI.
                value = "";
             }
-            ConfigurationVariable confVar = new ConfigurationVariable(confVarDef, value);
-
-            mergedConfigurationVariables.put(confVarDef.getName(), confVar);
+            
+            if(all || confVarDef.getType().equals(ConfigurationVariableScope.String))
+            {            
+               ConfigurationVariable confVar = new ConfigurationVariable(confVarDef, value);
+               mergedConfigurationVariables.put(confVarDef.getName(), confVar);
+            }
          }
       }
 
@@ -259,5 +273,5 @@ public class ConfigurationVariableUtils
       }
       
       return ConfigurationVariableScope.String;
-   }        
+   }
 }

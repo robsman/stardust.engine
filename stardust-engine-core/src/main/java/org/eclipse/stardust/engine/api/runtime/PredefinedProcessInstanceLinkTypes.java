@@ -19,7 +19,8 @@ public enum PredefinedProcessInstanceLinkTypes
 {
    SWITCH("Peer Process Instance"),
    JOIN("Join Process Instance"),
-   UPGRADE("Upgrade Process Instance");
+   UPGRADE("Upgrade Process Instance"),
+   SPAWN("Spawn Process Instance");
    
    private String id;
    private String description;

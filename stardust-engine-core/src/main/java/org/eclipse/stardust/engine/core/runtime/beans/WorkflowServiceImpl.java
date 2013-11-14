@@ -211,6 +211,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (copyData)
       {
          DataCopyUtils.copyDataUsingDocumentCopyHeuristics(parentProcessInstance, processInstance, data == null ? Collections.EMPTY_SET: data.keySet());
+         DataCopyUtils.copyNotes(parentProcessInstance, processInstance);
       }
       runProcessInstance(processInstance, null);
 
@@ -732,10 +733,16 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       assertNotTransientProcessInstance(processInstance);
       processInstance.setPriority(originatingProcessInstance.getPriority());
 
-      if (dco.copyAllData() && dco.useHeuristics())
+      if (dco.copyAllData())
       {
-         DataCopyUtils.copyDataUsingDocumentCopyHeuristics(originatingProcessInstance, processInstance,
-               data == null ? Collections.EMPTY_SET: data.ignoreDataIds);
+         if (dco.useHeuristics())
+         {
+            DataCopyUtils.copyDataUsingDocumentCopyHeuristics(originatingProcessInstance,
+                  processInstance, data == null
+                        ? Collections.EMPTY_SET
+                        : data.ignoreDataIds);
+         }
+         DataCopyUtils.copyNotes(originatingProcessInstance, processInstance);
       }
 
       IProcessInstanceLinkType link = ProcessInstanceLinkTypeBean.findById(linkType);

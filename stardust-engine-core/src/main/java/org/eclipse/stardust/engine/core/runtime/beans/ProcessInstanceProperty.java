@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
 
 
@@ -56,5 +57,19 @@ public class ProcessInstanceProperty extends AbstractPropertyWithUser
    public ProcessInstanceProperty(long processInstance, String name, Object value)
    {
       super(processInstance, name, value);
+   }
+   
+   /**
+    * Clones the current property and adapts the clones oid to the targeted processInstance.
+    * 
+    * @param processInstance The target processInstance oid.
+    * @return The cloned property.
+    */
+   public ProcessInstanceProperty clone(long processInstance)
+   {
+      ProcessInstanceProperty property = new ProcessInstanceProperty();
+      ProcessInstanceProperty clone = super.clone(processInstance, property);
+      SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(property);
+      return clone;
    }
 }

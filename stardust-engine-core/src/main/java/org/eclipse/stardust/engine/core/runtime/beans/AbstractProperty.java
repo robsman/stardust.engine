@@ -222,4 +222,17 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
          this.lastModificationTime = lastModificationTime;
       }
    }
+
+   public <T extends AbstractProperty> T clone(long objectId, T property)
+   {
+      property.objectOID = objectId;
+      
+      property.lastModificationTime = this.lastModificationTime;
+      property.number_value = this.number_value;
+      property.name = this.name;
+      property.string_value = this.string_value;
+      property.type_key = this.type_key;
+      
+      return property;
+   }
 }

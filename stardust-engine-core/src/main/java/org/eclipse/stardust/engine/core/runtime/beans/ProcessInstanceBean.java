@@ -1527,6 +1527,15 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          setPropertyValue(PI_NOTE, buffer.toString());
       }
    }
+   
+   public void addExistingNote(ProcessInstanceProperty srcNote)
+   {
+      super.addProperty(srcNote.clone(this.getOID()));
+      
+      propIndexHandler.handleIndexForGeneralProperties();
+      propIndexHandler.handleIndexForNoteProperty(noteExists());
+      propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
+   }
 
    public List/*<Attribute>*/ getNotes()
    {

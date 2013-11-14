@@ -686,21 +686,24 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          options = SpawnOptions.DEFAULT;
       }
       String processId = qname.getLocalPart();
-      if (processId.equals(originatingProcessDefinition.getId()))
+      if (options.isAbortProcessInstance())
       {
-         /*if (model == originatingProcessDefinition.getModel() && options.isAbortProcessInstance())
+         if (processId.equals(originatingProcessDefinition.getId()))
          {
-            throw new IllegalOperationException(
-                  BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
+            /*if (model == originatingProcessDefinition.getModel())
+            {
+               throw new IllegalOperationException(
+                     BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
+            }
+            else*/ 
+            { 
+               linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
+            }
          }
-         else*/ if (!options.isAbortProcessInstance())
-         {
-            linkType = PredefinedProcessInstanceLinkTypes.SPAWN;
-         }
-         else
-         { 
-            linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
-         }
+      }
+      else
+      {
+         linkType = PredefinedProcessInstanceLinkTypes.SPAWN;
       }
 
       IProcessDefinition processDefinition = model.findProcessDefinition(processId);

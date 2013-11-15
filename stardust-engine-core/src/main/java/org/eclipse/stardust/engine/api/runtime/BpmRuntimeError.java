@@ -360,7 +360,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 BPMRT_ILLEGAL_AI_STATE_CHANGE = newArgs2("BPMRT03901", BpmRuntimeErrorMessages.getString("BPMRT03901")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args3 BPMRT_ILLEGAL_AI_STATE_CHANGE_FOR_AI = newArgs3("BPMRT03902", BpmRuntimeErrorMessages.getString("BPMRT03902")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args4 BPMRT_ILLEGAL_AI_STATE_CHANGE_FOR_AI_WITH_PI_STATE = newArgs4("BPMRT03903", BpmRuntimeErrorMessages.getString("BPMRT03903")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE = newArgs2("BPMRT03904", "Cannot run activity thread for activity instance {0} because process instance {1} is aborted.");
+   public static final Args2 BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE = newArgs2("BPMRT03904", BpmRuntimeErrorMessages.getString("BPMRT03904")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_CANNOT_RUN_A_INVALID_PI_STATE = newArgs2("BPMRT03905", BpmRuntimeErrorMessages.getString("BPMRT03905")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_INCOMPATIBLE_TYPE_FOR_DATA = newArgs1("BPMRT04002", BpmRuntimeErrorMessages.getString("BPMRT04002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 BPMRT_INCOMPATIBLE_TYPE_FOR_DATA_WITH_PATH = newArgs2("BPMRT04003", BpmRuntimeErrorMessages.getString("BPMRT04003")); //$NON-NLS-1$ //$NON-NLS-2$

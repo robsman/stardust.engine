@@ -14,19 +14,23 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 
+import javax.xml.namespace.QName;
 import javax.xml.transform.TransformerException;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
+import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.sxml.*;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
+import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.util.XSDConstants;
-
 
 /**
  * Conversions DOM -> Collection (Map/List/Primitive) and vice versa
@@ -37,10 +41,20 @@ public class StructuredDataConverter
 
    public static final String NODE_VALUE_KEY = "@";
    private IXPathMap xPathMap;
+   private Map<String, TypedXPath> wildcards;
+   private Map<String, TypedXPath> roots;
+
+   private IModel model;
 
    public StructuredDataConverter(IXPathMap xPathMap)
    {
       this.xPathMap = xPathMap;
+   }
+
+   public StructuredDataConverter(IXPathMap xPathMap, IModel model)
+   {
+      this.xPathMap = xPathMap;
+      this.model = model;
    }
 
    /**
@@ -82,7 +96,7 @@ public class StructuredDataConverter
    public Object toCollection(Element rootNode, String xPath, boolean namespaceAware)
    {
       String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(xPath);
-      String targetElementName = StructuredDataXPathUtils.getLastXPathPart(this.xPathMap.getXPath(xPathWithoutIndexes).getXPath());
+      String targetElementName = StructuredDataXPathUtils.getLastXPathPart(xPathWithoutIndexes);
       if ( !StringUtils.isEmpty(targetElementName)
             && rootNode.getLocalName().equals(targetElementName)
             && (rootNode.getChildCount() == 0 || !hasSameNameChild(rootNode,
@@ -117,12 +131,12 @@ public class StructuredDataConverter
 
       List<Node> nodelist = evaluateXPath(rootNode, xPath, namespaceAware);
 
-      if (StructuredDataXPathUtils.returnsSinglePrimitive(xPath, this.xPathMap))
+      if (StructuredDataXPathUtils.returnsSinglePrimitive(xPath, xPathMap, this))
       {
          // return primitive type
          if (nodelist.size() > 1)
          {
-            throw new PublicException("Expression '"+xPath+"' was expected to return 0 or 1 hits, but it returned '"+nodelist.size()+"'");
+            throw new PublicException("Expression '" + xPath + "' was expected to return 0 or 1 hits, but it returned '" + nodelist.size() + "'");
          }
          if (nodelist.isEmpty())
          {
@@ -139,7 +153,7 @@ public class StructuredDataConverter
             return StructuredDataValueFactory.convertTo(typedXPath.getType(), StructuredDataXPathUtils.findNodeValue(node));
          }
       }
-      else if (StructuredDataXPathUtils.canReturnList(xPath, this.xPathMap))
+      else if (StructuredDataXPathUtils.canReturnList(xPath, xPathMap, this))
       {
          // return List (List of complexTypes or primitives)
          List list = new ArrayList();
@@ -166,7 +180,7 @@ public class StructuredDataConverter
          // return Map (complexType)
          if (nodelist.size() > 1)
          {
-            throw new PublicException("Expression '"+xPath+"' was expected to return 0 or 1 hits, but it returned '"+nodelist.size()+"'");
+            throw new PublicException("Expression '" + xPath + "' was expected to return 0 or 1 hits, but it returned '"+nodelist.size()+"'");
          }
 
          if (nodelist.isEmpty())
@@ -268,14 +282,14 @@ public class StructuredDataConverter
             try
             {
                XPathEvaluator xPathEvaluator;
-               if (this.xPathMap.containsXPath(xPath))
+               if (xPathMap.containsXPath(xPath))
                {
                   // reuse cached xPath
-                  xPathEvaluator = this.xPathMap.getXPath(xPath).getCompiledXPath(namespaceAware);
+                  xPathEvaluator = xPathMap.getXPath(xPath).getCompiledXPath(namespaceAware);
                }
                else
                {
-                  xPathEvaluator = StructuredDataXPathUtils.createXPathEvaluator(xPath, xPathMap.getRootXPath(), namespaceAware);
+                  xPathEvaluator = StructuredDataXPathUtils.createXPathEvaluator(this, xPath, xPathMap.getRootXPath(), namespaceAware);
                }
                nodelist = xPathEvaluator.selectNodes(rootNode);
             }
@@ -322,7 +336,7 @@ public class StructuredDataConverter
          Attribute attribute = parentNode.getAttribute(i);
 
          String xPath = StructuredDataXPathUtils.getNodeXPath(attribute, rootNode);
-         if (!this.xPathMap.containsXPath(xPath))
+         if (!xPathMap.containsXPath(xPath))
          {
             if ("http://www.w3.org/2001/XMLSchema-instance".equals(attribute.getNamespaceURI()) ||
                   IStructuredDataValue.STRUCTURED_DATA_NAMESPACE.equals(attribute.getNamespaceURI()))
@@ -330,21 +344,16 @@ public class StructuredDataConverter
                // ignore unknown attributes from xsi namespace (http://www.w3.org/2001/XMLSchema-instance)
                continue;
             }
-            else if (isStrict)
-            {
-               throw new PublicException("Undefined XPath: '"+xPath+"'.");
-            }
-            else
-            {
-               continue;
-            }
          }
-         TypedXPath typedXPath = xPathMap.getXPath(xPath);
-
-         // attributes are always primitives
-         complexType.put(
+         TypedXPath typedXPath = getXPath(rootNode, attribute);
+         if (typedXPath != null)
+         {
+            // (fh) TODO: qualified name if wildcard
+            // attributes are always primitives
+            complexType.put(
                StructuredDataXPathUtils.getLastXPathPart(typedXPath.getXPath()),
                StructuredDataValueFactory.convertTo(typedXPath.getType(), StructuredDataXPathUtils.findNodeValue(attribute)));
+         }
       }
 
       // elements
@@ -359,6 +368,12 @@ public class StructuredDataConverter
             continue;
          }
          String nodeName = childNode.getLocalName();
+         String xPath = typedXPath.getXPath();
+         if (xPath.isEmpty() && xPathMap.getXPath(xPath) != typedXPath)
+         {
+            nodeName = "{" + childNode.getNamespaceURI() + "}" + nodeName;
+            System.err.println(nodeName);
+         }
          if (typedXPath.getType() == BigData.NULL || typedXPath.getChildXPaths().size() > 0) {
             // complexType or List of complexTypes
             if (typedXPath.isList())
@@ -400,15 +415,138 @@ public class StructuredDataConverter
 
    private TypedXPath getXPath(final Node rootNode, Node node)
    {
-      String xPath = StructuredDataXPathUtils.getNodeXPath(node, rootNode);
-
-      if (this.xPathMap.containsXPath(xPath))
+      String path = StructuredDataXPathUtils.getNodeXPath(node, rootNode);
+      TypedXPath xPath = getTypedXPath(path);
+      if (xPath != null)
       {
-         return xPathMap.getXPath(xPath);
+         return xPath;
       }
-      else if (isStrict)
+
+      // (fh) maybe we have a parent node with a wildcard ?
+      int ix = path.lastIndexOf('/');
+      if (ix >= 0)
       {
-         throw new PublicException("Undefined XPath: '"+xPath+"'.");
+         String childPath = path.substring(ix + 1);
+         if (!childPath.isEmpty())
+         {
+            String parentPath = path.substring(0, ix);
+            TypedXPath parentXPath = getTypedXPath(parentPath);
+            if (parentXPath != null)
+            {
+               TypedXPath childXPath = null;
+               if (childPath.startsWith("@"))
+               {
+                  childXPath = new TypedXPath(parentXPath, 0, childPath, true, null, null,
+                        "string", XSDConstants.SCHEMA_FOR_SCHEMA_URI_2001, BigData.STRING, false, null, null);
+               }
+               else
+               {
+                  // try to find a matching xpath in the structures defined in the model
+                  if (node instanceof Element && model != null && model.getTypeDeclarations() != null)
+                  {
+                     String nsURI = ((Element) node).getNamespaceURI();
+                     String localName = ((Element) node).getLocalName();
+                     String name = nsURI.isEmpty() ? localName : "{" + nsURI + "}" + localName;
+                     addWildcards(path, name);
+                     childXPath = wildcards.get(path);
+                  }
+               }
+               
+               if (childXPath != null)
+               {
+                  if (wildcards == null)
+                  {
+                     wildcards = CollectionUtils.newMap();
+                  }
+                  wildcards.put(path, childXPath);
+                  return childXPath;
+               }
+            }
+         }
+      }
+
+      // (fh) no xpaths found, giving up
+      if (isStrict)
+      {
+         throw new PublicException("Undefined XPath: '" + path + "'.");
+      }
+      return null;
+   }
+
+   private void addWildcards(String path, String qualifiedName)
+   {
+      if (wildcards == null || !wildcards.containsKey(path))
+      {
+         for (ITypeDeclaration declaration : model.getTypeDeclarations())
+         {
+            XSDSchema schema = getSchema(declaration);
+            if (schema != null)
+            {
+               Set<TypedXPath> paths = null;
+               try
+               {
+                  paths = XPathFinder.findAllXPaths(schema, qualifiedName, false);
+               }
+               catch (Exception ex)
+               {
+                  // (fh) just ignore and continue with next type declaration
+               }
+               if (paths != null && !paths.isEmpty())
+               {
+                  if (wildcards == null)
+                  {
+                     wildcards = CollectionUtils.newMap();
+                  }
+                  for (TypedXPath child : paths)
+                  {
+                     String key = child.getXPath().isEmpty() ? path : path + "/" + child.getXPath();
+                     wildcards.put(key, child);
+                     if (child.getXPath().isEmpty())
+                     {
+                        String elementName = child.getXsdElementName();
+                        if (elementName != null)
+                        {
+                           if (roots == null)
+                           {
+                              roots = CollectionUtils.newMap();
+                           }
+                           if (!roots.containsKey(elementName))
+                           {
+                              roots.put(elementName, child);
+                           }
+                        }
+                     }
+                  }
+                  break;
+               }
+            }
+         }
+      }
+   }
+
+   private XSDSchema getSchema(ITypeDeclaration declaration)
+   {
+      IXpdlType type = declaration.getXpdlType();
+      if (type instanceof ISchemaType)
+      {
+         return ((ISchemaType) type).getSchema();
+      }
+      if (type instanceof IExternalReference)
+      {
+         return ((IExternalReference) type).getSchema((IModel) declaration.getModel());
+      }
+      return null;
+   }
+
+   TypedXPath getTypedXPath(String path)
+   {
+      if (xPathMap.containsXPath(path))
+      {
+         return xPathMap.getXPath(path);
+      }
+      if (wildcards != null && wildcards.containsKey(path))
+      {
+         return wildcards.get(path);
       }
       return null;
    }
@@ -449,51 +587,53 @@ public class StructuredDataConverter
          // already a DOM element, convert to SXML
          return new Node[]{org.eclipse.stardust.engine.core.struct.sxml.converters.DOMConverter.convert((org.w3c.dom.Element)object)};
       }
-      else if (object instanceof List)
-      {
-         // List
-         TypedXPath typedXPath = this.xPathMap.getXPath(StructuredDataXPathUtils.getXPathWithoutIndexes(targetXPath));
-         Element node = StructuredDataXPathUtils.createElement(typedXPath, namespaceAware);
-         fillNodeList ((List)object, node, typedXPath, namespaceAware, ignoreUnknownXPaths);
-         List<Element> childNodes = node.getChildElements();
-         Element [] nodes = new Element[childNodes.size()];
-         for (int i=0; i<nodes.length; i++)
-         {
-            nodes[i] = childNodes.get(i);
-         }
-         return nodes;
-      }
-      else if (object instanceof Map)
-      {
-         // complexType
-         TypedXPath typedXPath = this.xPathMap.getXPath(StructuredDataXPathUtils.getXPathWithoutIndexes(targetXPath));
-         Element node = StructuredDataXPathUtils.createElement(typedXPath, namespaceAware);
-         fillComplexType((Map)object, node, StructuredDataXPathUtils.getXPathWithoutIndexes(targetXPath), namespaceAware, ignoreUnknownXPaths);
-         return new Element[]{node};
-      }
       else
       {
-         // primitive
-         TypedXPath typedXPath = this.xPathMap.getXPath(StructuredDataXPathUtils.getXPathWithoutIndexes(targetXPath));
-         String valueString = StructuredDataValueFactory.convertToString(typedXPath.getType(), typedXPath.getXsdTypeName(), object);
-
-         String lastXPathPart = StructuredDataXPathUtils.getLastXPathPart(typedXPath.getXPath());
-         if (StructuredDataXPathUtils.isRootXPath(targetXPath))
+         String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(targetXPath);
+         TypedXPath typedXPath = xPathMap.getXPath(xPathWithoutIndexes);
+         if (object instanceof List)
          {
-            // no element must be created if the root is a primitive
-            return new Node[]{new Text(valueString)};
+            // List
+            Element node = StructuredDataXPathUtils.createElement(typedXPath, namespaceAware);
+            fillNodeList((List)object, node, new Pair(xPathWithoutIndexes, typedXPath), namespaceAware, ignoreUnknownXPaths);
+            List<Element> childNodes = node.getChildElements();
+            Element [] nodes = new Element[childNodes.size()];
+            for (int i = 0; i < nodes.length; i++)
+            {
+               nodes[i] = childNodes.get(i);
+            }
+            return nodes;
          }
-         else if ( -1 != lastXPathPart.indexOf('@'))
+         else if (object instanceof Map)
          {
-            // create an attribute node
-            return new Node[]{StructuredDataXPathUtils.createAttribute(typedXPath, valueString)};
+            // complexType
+            Element node = StructuredDataXPathUtils.createElement(typedXPath, namespaceAware);
+            fillComplexType((Map)object, node, xPathWithoutIndexes, namespaceAware, ignoreUnknownXPaths);
+            return new Element[]{node};
          }
          else
          {
-            // create an element node
-            Element node = StructuredDataXPathUtils.createElement(typedXPath, namespaceAware);
-            node.appendChild(new Text(valueString));
-            return new Node[]{node};
+            // primitive
+            String valueString = StructuredDataValueFactory.convertToString(typedXPath.getType(), typedXPath.getXsdTypeName(), object);
+
+            String lastXPathPart = StructuredDataXPathUtils.getLastXPathPart(typedXPath.getXPath());
+            if (StructuredDataXPathUtils.isRootXPath(targetXPath))
+            {
+               // no element must be created if the root is a primitive
+               return new Node[]{new Text(valueString)};
+            }
+            else if ( -1 != lastXPathPart.indexOf('@'))
+            {
+               // create an attribute node
+               return new Node[]{StructuredDataXPathUtils.createAttribute(typedXPath, valueString)};
+            }
+            else
+            {
+               // create an element node
+               Element node = StructuredDataXPathUtils.createElement(typedXPath, namespaceAware);
+               node.appendChild(new Text(valueString));
+               return new Node[]{node};
+            }
          }
       }
    }
@@ -546,11 +686,12 @@ public class StructuredDataConverter
       {
          public int compare(Object o1, Object o2)
          {
-            TypedXPath childXPath1 = composeChildXPath(xPath, (String) o1, ignoreUnknownXPaths);
+            TypedXPath childXPath1 = composeChildXPath(xPath, (String) o1, ignoreUnknownXPaths).getSecond();
             int orderKey1 = (childXPath1 == null) ? -1 : childXPath1.getOrderKey();
-            TypedXPath childXPath2 = composeChildXPath(xPath, (String) o2, ignoreUnknownXPaths);
+            TypedXPath childXPath2 = composeChildXPath(xPath, (String) o2, ignoreUnknownXPaths).getSecond();
             int orderKey2 = (childXPath2 == null) ? -1 :childXPath2.getOrderKey();
-            return new Integer(orderKey1).compareTo(new Integer(orderKey2));
+            int result = new Integer(orderKey1).compareTo(new Integer(orderKey2));
+            return result == 0 ? ((String) o1).compareTo((String) o2) : result;
          }
       });
       sortedKeys.addAll(complexType.keySet());
@@ -560,17 +701,31 @@ public class StructuredDataConverter
          String key = (String) i.next();
          Object value = complexType.get(key);
 
-         TypedXPath childXPath = composeChildXPath(xPath, key, ignoreUnknownXPaths);
+         Pair<String, TypedXPath> childXPath = composeChildXPath(xPath, key, ignoreUnknownXPaths);
 
-         if (childXPath != null && childXPath.getAnnotations().isPersistent())
+         if (childXPath != null && childXPath.getSecond().getAnnotations().isPersistent())
          {
             processObject(value, key, childXPath, node, namespaceAware, ignoreUnknownXPaths);
          }
       }
    }
 
-   private TypedXPath composeChildXPath (String parentXPath, String child, boolean ignoreUnknownXPaths)
+   private Pair<String, TypedXPath> composeChildXPath (String parentXPath, String child, boolean ignoreUnknownXPaths)
    {
+      if (child.startsWith("{"))
+      {
+         int ix = child.indexOf('}');
+         if (ix > 0)
+         {
+            // TODO anyAttributes
+            if (model != null && model.getTypeDeclarations() != null)
+            {
+               String qName = child;
+               child = child.substring(ix + 1); 
+               addWildcards(parentXPath + "/" + child, qName);
+            }
+         }
+      }
       // node value in a complex type
       if (child.equals(NODE_VALUE_KEY))
       {
@@ -592,22 +747,17 @@ public class StructuredDataConverter
       }
    }
 
-   private TypedXPath getXPathIfExists(String xPath, boolean ignoreUnknownXPaths)
+   private Pair<String, TypedXPath> getXPathIfExists(String xPath, boolean ignoreUnknownXPaths)
    {
-      if (this.xPathMap.containsXPath(xPath) || (!ignoreUnknownXPaths && isStrict))
-      {
-         return this.xPathMap.getXPath(xPath);
-      }
-      else
-      {
-         return null;
-      }
+      TypedXPath path = getTypedXPath(xPath);
+      return new Pair(xPath,
+            path == null && !ignoreUnknownXPaths && isStrict ? xPathMap.getXPath(xPath) : path);
    }
 
-   private void fillNodeList(List complexTypeList, Element node, TypedXPath childXPath,
+   private void fillNodeList(List complexTypeList, Element node, Pair<String, TypedXPath> childXPath,
          boolean namespaceAware, boolean ignoreUnknownXPaths)
    {
-      String key = StructuredDataXPathUtils.getLastXPathPart(childXPath.getXPath());
+      String key = StructuredDataXPathUtils.getLastXPathPart(childXPath.getFirst());
       for (Iterator i = complexTypeList.iterator(); i.hasNext(); )
       {
          processObject(i.next(), key, childXPath, node, namespaceAware, ignoreUnknownXPaths);
@@ -615,45 +765,46 @@ public class StructuredDataConverter
 
    }
 
-   private void processObject(Object value, String key, TypedXPath childXPath,
+   private void processObject(Object value, String key, Pair<String, TypedXPath> childXPath,
          Element parentNode, boolean namespaceAware, boolean ignoreUnknownXPaths)
    {
+      TypedXPath path = childXPath.getSecond();
       if (key.equals(NODE_VALUE_KEY))
       {
          // special case for node value
          // (fh) if this is a complex type with simple content and attributes,
          // fetch the actual value xpath from the children.
-         TypedXPath xPath = childXPath.getChildXPath(key);
-         if (xPath != null)
+         TypedXPath xPath = path.getChildXPath(key);
+         if (xPath == null)
          {
-            childXPath = xPath;
+            xPath = path;
          }
-         String valueString = StructuredDataValueFactory.convertToString(childXPath.getType(), childXPath.getXsdTypeName(), value);
+         String valueString = StructuredDataValueFactory.convertToString(xPath.getType(), xPath.getXsdTypeName(), value);
          parentNode.appendChild(new Text(valueString));
       }
       else if (value instanceof List)
       {
-         fillNodeList ((List)value, parentNode, childXPath, namespaceAware, ignoreUnknownXPaths);
+         fillNodeList((List) value, parentNode, childXPath, namespaceAware, ignoreUnknownXPaths);
       }
       else if (value instanceof Map)
       {
-         Element childNode = StructuredDataXPathUtils.createElement(childXPath, namespaceAware);
-         fillComplexType((Map)value, childNode, childXPath.getXPath(), namespaceAware, ignoreUnknownXPaths);
+         Element childNode = StructuredDataXPathUtils.createElement(path, namespaceAware);
+         fillComplexType((Map) value, childNode, childXPath.getFirst(), namespaceAware, ignoreUnknownXPaths);
          parentNode.appendChild(childNode);
       }
       else if ( -1 != key.indexOf('@'))
       {
          // TODO namespace
          // set an attribute
-         String valueString = StructuredDataValueFactory.convertToString(childXPath.getType(), childXPath.getXsdTypeName(), value);
-         parentNode.addAttribute(StructuredDataXPathUtils.createAttribute(childXPath, valueString));
+         String valueString = StructuredDataValueFactory.convertToString(path.getType(), path.getXsdTypeName(), value);
+         parentNode.addAttribute(StructuredDataXPathUtils.createAttribute(path, valueString));
       }
       else
       {
          // create an element
-         Element childNode = StructuredDataXPathUtils.createElement(childXPath, namespaceAware);
+         Element childNode = StructuredDataXPathUtils.createElement(path, namespaceAware);
          boolean isPlainText = true;
-         if (isAnyType(childXPath) && value != null && value.toString().indexOf('<') >= 0)
+         if (isAnyType(path) && value != null && value.toString().indexOf('<') >= 0)
          {
             try
             {
@@ -676,7 +827,7 @@ public class StructuredDataConverter
          }
          if (isPlainText)
          {
-            String valueString = StructuredDataValueFactory.convertToString(childXPath.getType(), childXPath.getXsdTypeName(), value);
+            String valueString = StructuredDataValueFactory.convertToString(path.getType(), path.getXsdTypeName(), value);
             childNode.appendChild(new Text(valueString));
          }
          parentNode.appendChild(childNode);
@@ -688,5 +839,82 @@ public class StructuredDataConverter
    {
       return XSDConstants.isSchemaForSchemaNamespace(childXPath.getXsdTypeNs()) &&
             "anyType".equals(childXPath.getXsdTypeName());
+   }
+
+   public TypedXPath getRootXPath(String id)
+   {
+      TypedXPath xPath = null;
+      if (model != null)
+      {
+         if (roots == null)
+         {
+            roots = CollectionUtils.newMap();
+         }
+         if (roots.containsKey(id))
+         {
+            xPath = roots.get(id);
+         }
+         else
+         {
+            for (ITypeDeclaration declaration : model.getTypeDeclarations())
+            {
+               IXpdlType type = declaration.getXpdlType();
+               // (fh) do not force loading all external schemas.
+               if (type instanceof IExternalReference)
+               {
+                  String xref = ((IExternalReference) type).getXref();
+                  if (xref == null)
+                  {
+                     continue;
+                  }
+                  int ix = xref.lastIndexOf('/');
+                  if (ix >= 0)
+                  {
+                     xref = xref.substring(ix + 1);
+                  }
+                  xref = xref.trim();
+                  if (xref.isEmpty())
+                  {
+                     continue;
+                  }
+                  QName qName = QName.valueOf(xref);
+                  if (!qName.getLocalPart().equals(id))
+                  {
+                     continue;
+                  }
+               }
+               XSDSchema schema = getSchema(declaration);
+               if (schema != null)
+               {
+                  Set<TypedXPath> paths = null;
+                  try
+                  {
+                     paths = StructuredTypeRtUtils.getAllXPaths(model, declaration);
+                  }
+                  catch (Exception ex)
+                  {
+                     // (fh) just ignore and continue with next type declaration
+                  }
+                  if (paths != null && !paths.isEmpty())
+                  {
+                     for (TypedXPath path : paths)
+                     {
+                        if (path.getXPath().isEmpty() && id.equals(path.getXsdElementName()))
+                        {
+                           xPath = path;
+                           break;
+                        }
+                     }
+                  }
+                  if (xPath != null)
+                  {
+                     break;
+                  }
+               }
+            }
+            roots.put(id, xPath);
+         }
+      }
+      return xPath;
    }
 }

@@ -26,25 +26,24 @@ import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
 
-
-
 /**
  *  
  */
 public class DataXPathMap implements IXPathMap, Serializable
 {
-   
    private static final long serialVersionUID = 1632169933703923771L;
 
-   private Map /*<Long,TypedXPath>*/ oidToXPath;
+   private Map<Long, TypedXPath> oidToXPath;
 
-   private Map /*<String,Long>*/ xPathToOid;
+   private Map<String, Long> xPathToOid;
    
-   private Map /*<String,TypedXPath>*/ xPathToTypedXPath;
+   private Map<String, TypedXPath> xPathToTypedXPath;
 
-   private Set /*<Long>*/ allXPathOids;
+   private Set<Long> allXPathOids;
 
-   private final Set /*<TypedXPath>*/ allXPaths;
+   private final Set<TypedXPath> allXPaths;
+
+   private IData data;
    
    public static IXPathMap getXPathMap(AccessPoint accessPoint)
    {
@@ -83,13 +82,18 @@ public class DataXPathMap implements IXPathMap, Serializable
       return xPathMap;
    }
 
-   public DataXPathMap(Map /*<Long,TypedXPath>*/xPaths)
+   public DataXPathMap(Map<Long, TypedXPath> xPaths)
    {
-      this.oidToXPath = new HashMap(xPaths);
+      this(xPaths, null);
+   }
+
+   public DataXPathMap(Map<Long, TypedXPath> xPaths, IData data)
+   {
+      oidToXPath = new HashMap(xPaths);
       
-      this.xPathToOid = new HashMap(xPaths.size());
-      this.allXPathOids = new HashSet(xPaths.size());
-      this.xPathToTypedXPath = new HashMap(xPaths.size());
+      xPathToOid = new HashMap(xPaths.size());
+      allXPathOids = new HashSet(xPaths.size());
+      xPathToTypedXPath = new HashMap(xPaths.size());
       
       for (Iterator i = xPaths.entrySet().iterator(); i.hasNext();)
       {
@@ -101,7 +105,8 @@ public class DataXPathMap implements IXPathMap, Serializable
          allXPathOids.add(oid);
       }
       
-      this.allXPaths = Collections.unmodifiableSet(new HashSet(this.oidToXPath.values()));
+      allXPaths = Collections.unmodifiableSet(new HashSet(oidToXPath.values()));
+      this.data = data;
    }
 
    public TypedXPath getXPath(long xPathOID)

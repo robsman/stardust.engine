@@ -27,6 +27,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.sxml.*;
@@ -380,17 +381,15 @@ public class StructuredDataXPathUtils
     */
    public static boolean returnsSinglePrimitive(String xPath, IXPathMap xPathMap)
    {
+      return returnsSinglePrimitive(xPath, xPathMap, null);
+   }
+   
+   static boolean returnsSinglePrimitive(String xPath, IXPathMap xPathMap, StructuredDataConverter converter)
+   {
       if (isRootXPath(xPath))
       {
          TypedXPath rootXPath = xPathMap.getRootXPath();
-         if (rootXPath.getType() == BigData.NULL)
-         {
-            return false;
-         }
-         else
-         {
-            return true;
-         }
+         return rootXPath.getType() != BigData.NULL;
       }
 
       if (hasMultipleSteps(xPath))
@@ -406,10 +405,14 @@ public class StructuredDataXPathUtils
             {
                currentXPathWithoutIndexes.append("/");
             }
-            currentXPathWithoutIndexes.append(getXPathPartNode(xPathPart));
+            String id = getXPathPartNode(xPathPart);
+            currentXPathWithoutIndexes.append(id);
 
-            TypedXPath typedXPath = xPathMap.getXPath(currentXPathWithoutIndexes
-                  .toString());
+            TypedXPath typedXPath = getTypedXPath(currentXPathWithoutIndexes.toString(), xPathMap, converter);
+            if (typedXPath == null)
+            {
+               break;
+            }
 
             String index = getXPathPartIndex(xPathPart);
             if (canIndexReturnList(index, typedXPath))
@@ -420,9 +423,8 @@ public class StructuredDataXPathUtils
       }
 
       // check that the last part type is a primitive
-      String xPathWithoutIndexes = getXPathWithoutIndexes(xPath);
-      TypedXPath typedXPath = xPathMap.getXPath(xPathWithoutIndexes);
-      if (typedXPath.getType() == BigData.NULL || !isIndexedXPath(xPath) && typedXPath.isList()
+      TypedXPath typedXPath = getTypedXPath(getXPathWithoutIndexes(xPath), xPathMap, converter);
+      if (typedXPath == null || typedXPath.getType() == BigData.NULL || !isIndexedXPath(xPath) && typedXPath.isList()
             || !typedXPath.getChildXPaths().isEmpty())
       {
          return false;
@@ -431,6 +433,20 @@ public class StructuredDataXPathUtils
       {
          return true;
       }
+   }
+
+   private static TypedXPath getTypedXPath(String xPath, IXPathMap xPathMap,
+         StructuredDataConverter converter)
+   {
+      TypedXPath typedXPath = converter == null
+            ? xPathMap.getXPath(xPath)
+            : converter.getTypedXPath(xPath);
+            
+      if (typedXPath == null)
+      {
+         typedXPath = converter.getRootXPath(getLastXPathPart(xPath));
+      }
+      return typedXPath;
    }
 
    public static XPathAnnotations getXPathAnnotations(String xPath, IXPathMap xPathMap)
@@ -559,16 +575,28 @@ public class StructuredDataXPathUtils
     */
    public static boolean canReturnList(String xPath, IXPathMap xPathMap)
    {
+      return canReturnList(xPath, xPathMap, null);
+   }
+   
+   /**
+    * Analyses the XPath and returns true if the XPath can return lists of primitive or
+    * complex values
+    * @param xPath
+    * @param xPathMap
+    * @param converter
+    * @return
+    */
+   static boolean canReturnList(String xPath, IXPathMap xPathMap, StructuredDataConverter converter)
+   {
       if (isRootXPath(xPath))
       {
          return false;
       }
 
-      if ( !hasMultipleSteps(xPath))
+      if (!hasMultipleSteps(xPath))
       {
-         TypedXPath typedXPath = xPathMap.getXPath(getXPathWithoutIndexes(xPath));
-
-         return canIndexReturnList(getXPathPartIndex(xPath), typedXPath);
+         TypedXPath typedXPath = getTypedXPath(getXPathWithoutIndexes(xPath), xPathMap, converter);
+         return typedXPath != null && canIndexReturnList(getXPathPartIndex(xPath), typedXPath);
       }
 
       StringTokenizer xPathParts = getXPathPartTokenizer(xPath);
@@ -583,10 +611,10 @@ public class StructuredDataXPathUtils
          }
          currentXPathWithoutIndexes.append(getXPathPartNode(xPathPart));
 
-         TypedXPath typedXPath = xPathMap.getXPath(currentXPathWithoutIndexes.toString());
+         TypedXPath typedXPath = getTypedXPath(currentXPathWithoutIndexes.toString(), xPathMap, converter);
 
          String index = getXPathPartIndex(xPathPart);
-         if (canIndexReturnList(index, typedXPath))
+         if (typedXPath != null && canIndexReturnList(index, typedXPath))
          {
             return true;
          }
@@ -1062,7 +1090,7 @@ public class StructuredDataXPathUtils
       }
    }
 
-   public static void putValue(Document document, IXPathMap xPathMap, String xPath,
+   public static void putValue(IModel model, Document document, IXPathMap xPathMap, String xPath,
          Object value, boolean namespaceAware, boolean ignoreUnknownXPaths)
    {
       try
@@ -1116,7 +1144,7 @@ public class StructuredDataXPathUtils
             return;
          }
 
-         putValues(document, xPathMap, Collections.singletonMap(xPath, value), namespaceAware, ignoreUnknownXPaths);
+         putValues(model, document, xPathMap, Collections.singletonMap(xPath, value), namespaceAware, ignoreUnknownXPaths);
       }
       catch (Exception e)
       {
@@ -1155,6 +1183,13 @@ public class StructuredDataXPathUtils
          Map /*<String,Object>*/ values, boolean namespaceAware, boolean ignoreUnknownXPaths)
          throws XPathException, ParserConfigurationException, FactoryConfigurationError
    {
+      putValues(null, document, xPathMap, values, namespaceAware, ignoreUnknownXPaths);
+   }
+   
+   public static void putValues(IModel model, Document document, IXPathMap xPathMap,
+         Map /*<String,Object>*/ values, boolean namespaceAware, boolean ignoreUnknownXPaths)
+         throws XPathException, ParserConfigurationException, FactoryConfigurationError
+   {
       for (Iterator i = values.keySet().iterator(); i.hasNext(); )
       {
          String xPath = (String)i.next();
@@ -1162,7 +1197,7 @@ public class StructuredDataXPathUtils
       }
 
       // now put the value to the prepared tree
-      StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
+      StructuredDataConverter converter = new StructuredDataConverter(xPathMap, model);
 
       for (Iterator ee = values.entrySet().iterator(); ee.hasNext(); )
       {
@@ -1515,13 +1550,26 @@ public class StructuredDataXPathUtils
     */
    public static XPathEvaluator createXPathEvaluator(String unqualifiedXPath, TypedXPath rootXPath, boolean namespaceAware)
    {
+      return createXPathEvaluator(null, unqualifiedXPath, rootXPath, namespaceAware);
+   }
+   
+   /**
+    * Creates an XPathEvaluator from an xpath supplied by the modeler
+    * @param unqualifiedXPath
+    * @param rootXPath
+    * @param namespaceAware if set to true, the unprefixed steps in the XPath will
+    * be prefixed with namespaces according to the XSD definition
+    * @return
+    */
+   public static XPathEvaluator createXPathEvaluator(StructuredDataConverter converter, String unqualifiedXPath, TypedXPath rootXPath, boolean namespaceAware)
+   {
       try
       {
          if (namespaceAware)
          {
             Map<String, String> nsMappings = newHashMap();
             String qualifiedXPath = NamespaceContextBuilder.toNamespaceQualifiedXPath(
-                  unqualifiedXPath, rootXPath, nsMappings);
+                  converter, unqualifiedXPath, rootXPath, nsMappings);
             return XPathEvaluator.compileXPath(qualifiedXPath, nsMappings);
          }
          else
@@ -1531,7 +1579,7 @@ public class StructuredDataXPathUtils
       }
       catch (Exception e)
       {
-         throw new PublicException("Could not create qualified XPath from xPath '"+unqualifiedXPath+"'", e);
+         throw new PublicException("Could not create qualified XPath from xPath '" + unqualifiedXPath + "'", e);
       }
    }
 

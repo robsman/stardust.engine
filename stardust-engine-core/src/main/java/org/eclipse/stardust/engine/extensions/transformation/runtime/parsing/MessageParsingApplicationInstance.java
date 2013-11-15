@@ -264,6 +264,6 @@ public class MessageParsingApplicationInstance implements
    
    /* package-private */ StructuredDataConverter newStructuredDataConverter(final IXPathMap xPathMap)
    {
-      return new StructuredDataConverter(xPathMap);
+      return new StructuredDataConverter(xPathMap, model);
    }
 }

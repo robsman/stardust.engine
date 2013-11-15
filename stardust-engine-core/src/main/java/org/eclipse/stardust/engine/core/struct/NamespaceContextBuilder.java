@@ -22,10 +22,15 @@ import org.apache.commons.jxpath.ri.compiler.NodeNameTest;
 import org.apache.commons.jxpath.ri.compiler.Step;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
 
-
 public class NamespaceContextBuilder
 {
    public static String toNamespaceQualifiedXPath(String unqualifiedXPath,
+         TypedXPath rootXPath, Map<String, String> nsMappings)
+   {
+      return toNamespaceQualifiedXPath(null, unqualifiedXPath, rootXPath, nsMappings);
+   }
+   
+   public static String toNamespaceQualifiedXPath(StructuredDataConverter converter, String unqualifiedXPath,
          TypedXPath rootXPath, Map<String, String> nsMappings)
    {
       LocationPath parsedUnqualifiedPath = XPathEvaluator.parseLocationPath(unqualifiedXPath);
@@ -33,7 +38,7 @@ public class NamespaceContextBuilder
       {
          String qualifiedPath = "";
 
-         NamespaceQualifier nsQualifier = new NamespaceQualifier(rootXPath, nsMappings);
+         NamespaceQualifier nsQualifier = new NamespaceQualifier(converter, rootXPath, nsMappings);
          if (parsedUnqualifiedPath.isAbsolute())
          {
             nsQualifier.startAbsoluteLocationPath();
@@ -85,6 +90,10 @@ public class NamespaceContextBuilder
                      qualifiedPath += step.toString();
                   }
                }
+               else
+               {
+                  qualifiedPath += step.toString();
+               }
                break;
 
             case Compiler.AXIS_PARENT:
@@ -134,43 +143,46 @@ public class NamespaceContextBuilder
        */
       private Map<String, String> nsMappings;
 
-      public NamespaceQualifier(TypedXPath rootXPath, Map<String, String> nsMappings)
+      private StructuredDataConverter converter;
+
+      public NamespaceQualifier(StructuredDataConverter converter, TypedXPath rootXPath, Map<String, String> nsMappings)
       {
+         this.converter = converter;
          this.rootXPath = rootXPath;
-         this.parentXPathStack = new Stack();
+         parentXPathStack = new Stack();
          this.nsMappings = nsMappings;
       }
 
       public void startAbsoluteLocationPath()
       {
-         this.parentXPathStack.push(this.rootXPath);
+         parentXPathStack.push(this.rootXPath);
       }
 
       public void endAbsoluteLocationPath()
       {
-         this.parentXPathStack.pop();
+         parentXPathStack.pop();
       }
 
       public void startRelativeLocationPath()
       {
-         if (this.parentXPathStack.isEmpty())
+         if (parentXPathStack.isEmpty())
          {
-            this.parentXPathStack.push(this.rootXPath);
+            parentXPathStack.push(rootXPath);
          }
          else
          {
-            this.parentXPathStack.push(this.parentXPathStack.peek());
+            parentXPathStack.push(parentXPathStack.peek());
          }
       }
 
       public void endRelativeLocationPath()
       {
-         this.parentXPathStack.pop();
+         parentXPathStack.pop();
       }
 
       public QName startNameStep(int axis, String prefix, String localName)
       {
-         TypedXPath parentXPath = (TypedXPath) this.parentXPathStack.pop();
+         TypedXPath parentXPath = (TypedXPath) parentXPathStack.pop();
          TypedXPath xPath = parentXPath.getChildXPath(localName);
          if (xPath == null)
          {
@@ -232,7 +244,8 @@ public class NamespaceContextBuilder
                return childXPath;
             }
          }
-         return null;
+         // (fh) wildcard ?
+         return converter == null ? null : converter.getRootXPath(step);
       }
    }
 }

@@ -99,6 +99,8 @@ public class TypedXPath implements Serializable
 
    private boolean isAttribute;
 
+   private boolean wildcards;
+
    public static class Builder
    {
       private final TypedXPath parentXPath;
@@ -434,5 +436,18 @@ public class TypedXPath implements Serializable
    public String toString()
    {
       return xPath;
+   }
+
+   /**
+    * For internal use only.
+    */
+   public void enableWildcards()
+   {
+      wildcards = true;
+   }
+
+   public boolean hasWildcards()
+   {
+      return wildcards;
    }
 }

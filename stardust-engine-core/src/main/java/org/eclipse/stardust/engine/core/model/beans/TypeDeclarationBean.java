@@ -203,7 +203,7 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
                      String typeId = location.substring(StructuredDataConstants.URN_INTERNAL_PREFIX.length());
                      QName qname = QName.valueOf(typeId);
                      model = getRefModel(model, qname);
-                     ModelElementList<TypeDeclarationBean> referedDeclarations = model.getTypeDeclarations();
+                     ModelElementList<ITypeDeclaration> referedDeclarations = model.getTypeDeclarations();
                      if (getTypeDeclaration(referedDeclarations, qname.getLocalPart()) == null)
                      {
                         BpmValidationError error = BpmValidationError.SDT_REFERENCED_PARENT_TYPE_NOT_FOUND.raise(
@@ -219,12 +219,12 @@ public class TypeDeclarationBean extends IdentifiableElementBean implements ITyp
       }
    }
 
-   private TypeDeclarationBean getTypeDeclaration(
-         ModelElementList<TypeDeclarationBean> referedDeclarations, String localPart)
+   private ITypeDeclaration getTypeDeclaration(
+         ModelElementList<ITypeDeclaration> referedDeclarations, String localPart)
    {
-      for (Iterator<TypeDeclarationBean> i = referedDeclarations.iterator(); i.hasNext();)
+      for (Iterator<ITypeDeclaration> i = referedDeclarations.iterator(); i.hasNext();)
       {
-         TypeDeclarationBean typeDeclaration = i.next();
+         ITypeDeclaration typeDeclaration = i.next();
          if (typeDeclaration.getId().equals(localPart))
          {
             return typeDeclaration;

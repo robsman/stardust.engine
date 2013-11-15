@@ -25,6 +25,8 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.OrTerm;
 import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
@@ -102,7 +104,16 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
       }
 
       final IXPathMap xPathMap = DataXPathMap.getXPathMap(accessPointDefinition);
-      StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
+      IModel model = null;
+      if (accessPointDefinition instanceof ModelElement)
+      {
+         model = (IModel) ((ModelElement) accessPointDefinition).getModel();
+      }
+      if (model == null && accessPathEvaluationContext != null && accessPathEvaluationContext.getActivity() != null)
+      {
+         model = (IModel) accessPathEvaluationContext.getActivity().getModel();
+      }
+      StructuredDataConverter converter = new StructuredDataConverter(xPathMap, model);
       Document document;
 
       if (accessPointDefinition instanceof IData)
@@ -379,7 +390,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
                trace.debug("document before change: " + document.toXML());
             }
 
-            StructuredDataXPathUtils.putValue(document, xPathMap, inPath, value,
+            StructuredDataXPathUtils.putValue((IModel) data.getModel(), document, xPathMap, inPath, value,
                   namespaceAware, accessPathEvaluationContext.isIgnoreUnknownValueParts());
 
             if (trace.isDebugEnabled())
@@ -507,13 +518,22 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
       }
       else
       {
+         IModel model = null;
+         if (accessPointDefinition instanceof ModelElement)
+         {
+            model = (IModel) ((ModelElement) accessPointDefinition).getModel();
+         }
+         if (model == null && accessPathEvaluationContext != null)
+         {
+            model = (IModel) accessPathEvaluationContext.getActivity().getModel();
+         }
          // data value is in accessPointInstance
          final IXPathMap xPathMap = DataXPathMap.getXPathMap(accessPointDefinition);
 
          // always operate with namespaceAware=true
          final boolean namespaceAware = true;
 
-         StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
+         StructuredDataConverter converter = new StructuredDataConverter(xPathMap, model);
          Document document;
          if (accessPointInstance == null)
          {
@@ -532,7 +552,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
             trace.debug("document before change: " + document.toXML());
          }
 
-         StructuredDataXPathUtils.putValue(document, xPathMap, inPath, value, namespaceAware,
+         StructuredDataXPathUtils.putValue(model, document, xPathMap, inPath, value, namespaceAware,
                accessPathEvaluationContext.isIgnoreUnknownValueParts());
 
          if (trace.isDebugEnabled())

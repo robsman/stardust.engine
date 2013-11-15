@@ -41,12 +41,40 @@ import org.eclipse.xsd.XSDSchema;
 
 public class StructuredDataConverterTest extends TestCase
 {
+   private static final String AGXML_PAYMENTS_SCHEMA =
+         "org/eclipse/stardust/engine/core/struct/agxml.payments.xsd";
    private final static SimpleDateFormat XSD_DATE_TIME_FORMAT = new SimpleDateFormat(
          "yyyy-MM-dd'T'hh:mm:ss");
 
    public StructuredDataConverterTest(String name)
    {
       super(name);
+   }
+
+   public void testAgXmlXsd() throws Exception
+   {
+      XSDSchema xsdSchema = StructuredTypeRtUtils.loadExternalSchema(AGXML_PAYMENTS_SCHEMA); 
+      Set xPaths = XPathFinder.findAllXPaths(xsdSchema, "AcctWithInstitution", false);
+
+      TestXPathMap xPathMap = new TestXPathMap(xPaths);
+
+      Document originalDocument = DocumentBuilder.buildDocument(
+            XPathFinderTest.class.getResource("agxml.payments.xml").openStream());
+
+      StructuredDataConverter structuredDataConverter = new StructuredDataConverter(xPathMap);
+      verifySimpleTypeWithAttributes(structuredDataConverter, originalDocument.getRootElement());
+   }
+
+   private void verifySimpleTypeWithAttributes(StructuredDataConverter converter, Element root)
+   {
+      Map accountNo = (Map) converter.toCollection(root, "AccountNo", true);
+
+      assertEquals(4, accountNo.size());
+
+      assertEquals("45123980", accountNo.get("@"));
+      assertEquals("Local", accountNo.get("@Usage"));
+      assertEquals("EMEA", accountNo.get("@Branch"));
+      assertEquals("Shared", accountNo.get("@Accounttype"));
    }
 
    public void testDomToCollectionWholeDocument() throws Exception

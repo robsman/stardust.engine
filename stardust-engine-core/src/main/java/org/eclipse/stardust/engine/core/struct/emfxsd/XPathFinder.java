@@ -48,7 +48,6 @@ import org.eclipse.xsd.util.XSDConstants;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-
 public class XPathFinder
 {
    private static final Logger trace = LogManager.getLogger(XPathFinder.class);
@@ -399,6 +398,7 @@ public class XPathFinder
       else if (xsdTerm instanceof XSDWildcard)
       {
          // ignore wildcards, no specific type information can be retrieved
+         parentXPath.enableWildcards();
       }
       else 
       {
@@ -559,6 +559,7 @@ public class XPathFinder
                addAttribute(parentXPath, use, allXPaths);
             }
          }
+         // (fh) TODO wildcard attributes
          else
          {
             throw new RuntimeException("Unsupported XSD: " + xsdAttributeGroupContent);

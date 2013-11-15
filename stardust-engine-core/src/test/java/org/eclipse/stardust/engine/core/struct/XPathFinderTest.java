@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
 
@@ -32,6 +35,51 @@ public class XPathFinderTest extends TestCase
    public XPathFinderTest(String name)
    {
       super(name);
+   }
+
+   public void testAgXmlXsd() throws Exception
+   {
+      XSDSchema xsdSchema = StructuredTypeRtUtils.loadExternalSchema("org/eclipse/stardust/engine/core/struct/agxml.payments.xsd"); 
+      Set<TypedXPath> xPaths = XPathFinder.findAllXPaths(xsdSchema, "AccountNo", false);
+
+      assertEquals(5, xPaths.size());
+      print(xPaths);
+      
+      xPaths = XPathFinder.findAllXPaths(xsdSchema, "AcctWithInstitution", false);
+      for (TypedXPath xPath : xPaths)
+      {
+         assertNotNull("No annotations for " + xPath, xPath.getAnnotations());
+      }
+      IXPathMap xPathMap = new ClientXPathMap(xPaths);
+
+      print(xPathMap.getRootXPath().getChildXPaths());
+      print(xPathMap.getXPath("AccountNo").getChildXPaths());
+      print(xPathMap.getXPath("BankCode").getChildXPaths());
+      print(xPathMap.getXPath("CompanyIdentifier").getChildXPaths());
+      print(xPathMap.getXPath("Reference").getChildXPaths());
+   }
+
+   private void print(Collection<TypedXPath> xPaths)
+   {
+      for (TypedXPath txp : xPaths)
+      {
+         print(txp);
+      }
+      System.out.println();
+   }
+
+   private void print(TypedXPath txp)
+   {
+      String name = txp.getXsdTypeName();
+      if (name == null)
+      {
+         System.out.println("'" + txp.getXPath() + "'");
+      }
+      else
+      {
+         QName qname = new QName(txp.getXsdTypeNs(), name == null ? "" : name);
+         System.out.println("'" + txp.getXPath() + "' [" +  qname  + "]");
+      }
    }
 
    public void testReportXsd() throws Exception

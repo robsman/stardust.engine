@@ -251,7 +251,7 @@ private String xPathToJavaScriptPath(String xPath)
       }
 
       int lastCharIndex = buffer.length() - 1;
-      if (buffer.charAt(lastCharIndex) == '.')
+      if (lastCharIndex >= 0 && buffer.charAt(lastCharIndex) == '.')
       {
          buffer.setLength(lastCharIndex);
       }

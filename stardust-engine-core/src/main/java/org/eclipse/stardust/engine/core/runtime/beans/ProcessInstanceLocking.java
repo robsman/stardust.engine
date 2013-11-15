@@ -1,9 +1,23 @@
+/*******************************************************************************
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Functor;
@@ -11,11 +25,7 @@ import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 
 /**
@@ -35,13 +45,13 @@ public class ProcessInstanceLocking implements Serializable
    /**
     *  cached PIs for complete sub process hierarchy. Filled in {@link #lockStartTokens}.
     */
-   private final List<IProcessInstance> piTransitionsCache = CollectionUtils.newArrayList();
+   private final Map<Long, IProcessInstance> piTransitionsCache = CollectionUtils.newMap();
 
    /**
     * @param pi the process instance to lock all transition tokens for, including subprocesses.
-    * @return list of process instances the transition tokens are locked for.
+    * @return collection of process instances the transition tokens are locked for.
     */
-   public List<IProcessInstance> lockAllTransitions(IProcessInstance processInstance)
+   public Collection<IProcessInstance> lockAllTransitions(IProcessInstance processInstance)
    {
       processInstance.lock();
 
@@ -52,7 +62,7 @@ public class ProcessInstanceLocking implements Serializable
       }
       while (foundNewTokens);
 
-      return piTransitionsCache;
+      return piTransitionsCache.values();
 
    }
 
@@ -67,47 +77,36 @@ public class ProcessInstanceLocking implements Serializable
                new Object[] {processInstance}));
       }
 
-      Iterator piOidIter;
-      PredicateTerm predicate = Predicates.isEqual(
-            ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE, processInstance.getOID());
-      if ( !piTransitionsCache.isEmpty())
-      {
-         piOidIter = new TransformingIterator(piTransitionsCache.iterator(), new Functor()
-         {
-            public Object execute(Object source)
-            {
-               ProcessInstanceBean pi = (ProcessInstanceBean) source;
+      // Search for all PIH entries for specific root PI. Not restricted by any notInList-predicate
+      // as this might exceed some SQL thresholds for huge PI hierarchies
+      ResultIterator<ProcessInstanceHierarchyBean> pihIter = session.getIterator(
+            ProcessInstanceHierarchyBean.class, QueryExtension.where(Predicates.isEqual(
+                  ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE,
+                  processInstance.getOID())));
 
-               return new Long(pi.getOID());
-            }
-         });
-
-         predicate = Predicates.andTerm( //
-               predicate, //
-               Predicates.notInList(
-                     ProcessInstanceHierarchyBean.FR__SUB_PROCESS_INSTANCE, piOidIter));
-      }
-      // Find already persisted subprocesses which are not loaded before.
-      ResultIterator pihIter = session.getIterator(ProcessInstanceHierarchyBean.class,
-            QueryExtension.where(predicate));
-
+      Set<Long> oldPis = CollectionUtils.newSetFromIterator(piTransitionsCache.keySet().iterator());
       // Create iterator returning the oids for the subprocesses.
-      piOidIter = new TransformingIterator(pihIter, new Functor()
-      {
-         public Object execute(Object source)
-         {
-            ProcessInstanceHierarchyBean pihItem = (ProcessInstanceHierarchyBean) source;
+      Iterator<Long> piOidIter = new TransformingIterator(pihIter,
+            new Functor<ProcessInstanceHierarchyBean, Long>()
+            {
+               public Long execute(ProcessInstanceHierarchyBean pih)
+               {
+                  ProcessInstanceHierarchyBean pihItem = (ProcessInstanceHierarchyBean) pih;
 
-            // cache the PI for later usage.
-            final IProcessInstance pi = pihItem.getSubProcessInstance();
-            piTransitionsCache.add(pi);
+                  // cache the PI for later usage.
+                  final IProcessInstance pi = pihItem.getSubProcessInstance();
+                  final Long piOid = Long.valueOf(pi.getOID());
+                  piTransitionsCache.put(piOid, pi) ;
 
-            return new Long(pi.getOID());
-         }
-      });
-      List newOids = CollectionUtils.newListFromIterator(piOidIter);
+                  return piOid;
+               }
+            });
+      Set<Long> latestPiOids = CollectionUtils.newSetFromIterator(piOidIter);
 
-      if ( !newOids.isEmpty())
+      // remove all already known piOids
+      latestPiOids.removeAll(oldPis);
+
+      if ( !latestPiOids.isEmpty())
       {
          if (trace.isDebugEnabled())
          {
@@ -116,23 +115,30 @@ public class ProcessInstanceLocking implements Serializable
                   new Object[] {processInstance}));
          }
 
-         // Select all start transition and unbound tokens for the sub process hierarchy.
-         ResultIterator ttIter = session.getIterator(
-               TransitionTokenBean.class,
-               QueryExtension.where( //
-               Predicates.andTerm( //
-                     Predicates.inList(TransitionTokenBean.FR__PROCESS_INSTANCE, newOids), //
-                     Predicates.orTerm(
-                           //
-                           Predicates.andTerm(
-                                 //
-                                 Predicates.isEqual(TransitionTokenBean.FR__SOURCE, 0),
-                                 Predicates.isNotNull(TransitionTokenBean.FR__TARGET)),
-                           Predicates.andTerm(
-                                 //
-                                 Predicates.isNotNull(TransitionTokenBean.FR__SOURCE),
-                                 Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED,
-                                       0))))));
+         // Select all start transition and unbound tokens for the sub process hierarchy...
+         final QueryExtension query = QueryExtension.where( //
+               Predicates.orTerm( //
+                     Predicates.andTerm( //
+                           Predicates.isEqual(TransitionTokenBean.FR__SOURCE, 0),
+                           Predicates.isNotNull(TransitionTokenBean.FR__TARGET)),
+                     Predicates.andTerm( //
+                           Predicates.isNotNull(TransitionTokenBean.FR__SOURCE),
+                           Predicates.isEqual(TransitionTokenBean.FR__IS_CONSUMED,
+                                 0))));
+
+         // ... which is defined by this join
+         Join pihJoin = new Join(ProcessInstanceHierarchyBean.class)
+               .on(TransitionTokenBean.FR__PROCESS_INSTANCE,
+                   ProcessInstanceHierarchyBean.FIELD__SUB_PROCESS_INSTANCE)
+               .where(Predicates.isEqual(ProcessInstanceHierarchyBean.FR__PROCESS_INSTANCE, 1));
+         pihJoin.isRequired();
+         query.addJoin(pihJoin);
+
+         TransTokenFetchPredicate fetchPredicate = new TransTokenFetchPredicate(latestPiOids);
+
+         // fetch all transition tokens which are not fetched in previous iteration
+         ResultIterator ttIter = session.getIterator(TransitionTokenBean.class, query, 0,
+               -1, fetchPredicate, false, Session.NO_TIMEOUT);
 
          while (ttIter.hasNext())
          {
@@ -141,7 +147,7 @@ public class ProcessInstanceLocking implements Serializable
          }
       }
 
-      return !newOids.isEmpty();
+      return !latestPiOids.isEmpty();
    }
 
    /**
@@ -150,5 +156,62 @@ public class ProcessInstanceLocking implements Serializable
    public void flushCaches()
    {
       piTransitionsCache.clear();
+   }
+
+   private static final class TransTokenFetchPredicate implements FetchPredicate
+   {
+      private static final FieldRef[] REFERENCED_TT_FIELDS = new FieldRef[] { TransitionTokenBean.FR__PROCESS_INSTANCE };
+
+      final Set processOIDs;
+
+      public TransTokenFetchPredicate(Set processOIDs)
+      {
+         this.processOIDs = processOIDs;
+      }
+
+      @Override
+      public boolean accept(Object o)
+      {
+         long piOid = 0;
+
+         if (o instanceof ResultSet)
+         {
+            ResultSet result = (ResultSet) o;
+
+            try
+            {
+               piOid = result.getLong(TransitionTokenBean.FIELD__PROCESS_INSTANCE);
+               return contains(piOid);
+            }
+            catch (SQLException e)
+            {
+               trace.warn(MessageFormat.format(
+                     "Ignoring transition token for process instance with oid 0 {0}.",
+                     new Object[] { piOid }), e);
+
+               return false;
+            }
+         }
+         else if (o instanceof TransitionTokenBean)
+         {
+            piOid = ((TransitionTokenBean) o).getProcessInstanceOID();
+            return contains(piOid);
+         }
+         else
+         {
+            return false;
+         }
+      }
+
+      @Override
+      public FieldRef[] getReferencedFields()
+      {
+         return REFERENCED_TT_FIELDS;
+      }
+
+      private boolean contains(Long piOid)
+      {
+         return processOIDs.contains(piOid);
+      }
    }
 }

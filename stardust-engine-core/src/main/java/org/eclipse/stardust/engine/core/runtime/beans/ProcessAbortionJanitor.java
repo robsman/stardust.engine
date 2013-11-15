@@ -11,9 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.beans;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.stardust.common.config.Parameters;
@@ -55,7 +53,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
       this.abortingUserOid = carrier.getAbortingUserOid();      
       this.triesLeft = carrier.getTriesLeft();
    }
-   
+
    private boolean canHandleExceptionOnAbort(Exception exception)
    {
       return exception instanceof ConcurrencyException;
@@ -81,7 +79,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
          pi = ProcessInstanceBean.findByOID(processInstanceOid);
          if ( !pi.isTerminated())
          {
-            List<IProcessInstance> pis = piLock.lockAllTransitions(pi);
+            Collection<IProcessInstance> pis = piLock.lockAllTransitions(pi);
 
             abortAllProcessInstances(pis);
             removePiFromAbortingList(pi);
@@ -141,7 +139,7 @@ public class ProcessAbortionJanitor extends SecurityContextAwareAction
 
 
 
-   private void abortAllProcessInstances(List<IProcessInstance> pis)
+   private void abortAllProcessInstances(Collection<IProcessInstance> pis)
    {
       for (Iterator piIter = pis.iterator(); piIter.hasNext();)
       {

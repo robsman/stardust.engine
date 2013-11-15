@@ -30,6 +30,7 @@ import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
+import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -955,6 +956,10 @@ public class ModelManagerBean implements ModelManager
                }
             }
          }
+         for (IModel model : models)
+         {
+            MonitoringUtils.partitionMonitors().modelLoaded(model);
+         }
       }
 
       private void addRelocationTransition(IModel model)
@@ -1235,6 +1240,12 @@ public class ModelManagerBean implements ModelManager
          {
             DeploymentUtils.attachDeploymentAttributes(
                   (DeploymentInfoDetails) infos.get(i), units.get(i).getModel());
+         }
+         
+         for (ParsedDeploymentUnit parsedDeploymentUnit : units)
+         {
+            MonitoringUtils.partitionMonitors().modelLoaded(
+                  parsedDeploymentUnit.getModel());
          }
 
          return infos;
@@ -1906,6 +1917,8 @@ public class ModelManagerBean implements ModelManager
          dependentObjectCache.reload(model);
          recomputeAlivenessCache();
 
+         MonitoringUtils.partitionMonitors().modelLoaded(model);
+         
          return info;
       }
 

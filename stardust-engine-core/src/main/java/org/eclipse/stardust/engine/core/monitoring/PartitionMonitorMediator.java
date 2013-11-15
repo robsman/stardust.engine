@@ -155,5 +155,27 @@ public class PartitionMonitorMediator implements IPartitionMonitor
             trace.warn("Failed broadcasting partition monitor event.", e);
          }
       }
+   }
+
+   @Override
+   public void modelLoaded(IModel model)
+   {
+      for (int i = 0; i < monitors.size(); ++i)
+      {
+         IPartitionMonitor monitor = monitors.get(i);
+         try
+         {
+            monitor.modelLoaded(model);
+         }
+         catch (DeploymentException e)
+         {
+            trace.error("Failed broadcasting partition monitor event.", e);
+            throw (DeploymentException) e;            
+         }         
+         catch (Exception e)
+         {
+            trace.warn("Failed broadcasting partition monitor event.", e);
+         }
+      }
    }  
 }

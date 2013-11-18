@@ -154,5 +154,7 @@ public class CamelPartitionMonitor implements IPartitionMonitor
 
    public void userRealmDropped(IUserRealm arg0)
    {}
+   
+   public void modelLoaded(IModel model){}
 
 }

@@ -1241,12 +1241,6 @@ public class ModelManagerBean implements ModelManager
             DeploymentUtils.attachDeploymentAttributes(
                   (DeploymentInfoDetails) infos.get(i), units.get(i).getModel());
          }
-         
-         for (ParsedDeploymentUnit parsedDeploymentUnit : units)
-         {
-            MonitoringUtils.partitionMonitors().modelLoaded(
-                  parsedDeploymentUnit.getModel());
-         }
 
          return infos;
       }
@@ -1916,8 +1910,6 @@ public class ModelManagerBean implements ModelManager
          models.set(index, model);
          dependentObjectCache.reload(model);
          recomputeAlivenessCache();
-
-         MonitoringUtils.partitionMonitors().modelLoaded(model);
          
          return info;
       }

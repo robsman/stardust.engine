@@ -1090,6 +1090,12 @@ public class StructuredDataXPathUtils
       }
    }
 
+   public static void putValue(Document document, IXPathMap xPathMap, String xPath,
+         Object value, boolean namespaceAware, boolean ignoreUnknownXPaths)
+   {
+      putValue(null, document, xPathMap, xPath, value, namespaceAware, ignoreUnknownXPaths);
+   }
+   
    public static void putValue(IModel model, Document document, IXPathMap xPathMap, String xPath,
          Object value, boolean namespaceAware, boolean ignoreUnknownXPaths)
    {

@@ -5,24 +5,6 @@
        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	 <bean id="camelTriggerLoader"
-		class="org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerLoader">
-	 	<property name="forkingService" ref="carnotForkingService" />
-		<property name="dataConverters">
-			<list>
-				<ref bean="documentDataConverter" />
-				<ref bean="sdtFileConverter" />
-				<ref bean="docListFileConverter" />
-			</list>
-		</property>
-
-	</bean>
-
-	<bean id="camelApplicationLoader"
-		class="org.eclipse.stardust.engine.extensions.camel.app.CamelApplicationLoader">
-		 <property name="forkingService" ref="carnotForkingService" />
-	</bean>
-
 	<bean id="documentDataConverter"
 		class="org.eclipse.stardust.engine.extensions.camel.converter.DocumentDataConverter">
 		<property name="fromEndpoint"

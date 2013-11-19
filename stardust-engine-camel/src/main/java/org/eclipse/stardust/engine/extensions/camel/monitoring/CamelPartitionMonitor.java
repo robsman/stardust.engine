@@ -173,19 +173,22 @@ public class CamelPartitionMonitor implements IPartitionMonitor
       if (ModelManagerFactory.getCurrent().isActive(model))
       {
          String partitionId = SecurityProperties.getPartition().getId();
-         logger.debug("Model " + model.getId() + " is loaded from Partition " + partitionId);
-
-         AbstractApplicationContext applicationContext = (AbstractApplicationContext) Parameters.instance().get(
-               CamelConstants.PRP_APPLICATION_CONTEXT);
-
+ 
+         logger.info("Model " + model.getId() + " is loaded from partition " + partitionId);
+        
+         AbstractApplicationContext applicationContext = (AbstractApplicationContext) 
+        		 Parameters.instance().get(CamelConstants.PRP_APPLICATION_CONTEXT);
+         
+         // create and start routes based on triggers
          ModelElementList<IProcessDefinition> processes = model.getProcessDefinitions();
          for (int pd = 0; pd < processes.size(); pd++)
          {
-
             IProcessDefinition process = model.getProcessDefinitions().get(pd);
-            createTriggerRoute(partitionId,process,applicationContext);
-            createApplicationRoute(partitionId,model.getApplications(),applicationContext);
+            createTriggerRoute(partitionId,process,applicationContext);  
          }
+         
+         // create and start routes based on applications
+         createApplicationRoute(partitionId,model.getApplications(),applicationContext);
       }
    }
 

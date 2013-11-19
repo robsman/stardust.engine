@@ -66,6 +66,10 @@
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jcr-jackrabbit-module-runtime" />
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->logging-slf4j-log4j-module-runtime" />
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="test->jms-activemq-module-runtime" />
+      <dependency org="org.eclipse.xsd" name="org.eclipse.xsd" rev="${org.eclipse.xsd.version}" transitive="false" conf="test->default"/>
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.common" rev="${org.eclipse.emf.common.version}" transitive="false" conf="test->default"/>
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore" rev="${org.eclipse.emf.ecore.version}" transitive="false" conf="test->default"/>
+      <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore.xmi" rev="${org.eclipse.emf.ecore.xmi.version}" transitive="false" conf="test->default"/>
       <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
       <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="${geronimo-j2ee-management_1.0_spec.version}" conf="test->default" />
       

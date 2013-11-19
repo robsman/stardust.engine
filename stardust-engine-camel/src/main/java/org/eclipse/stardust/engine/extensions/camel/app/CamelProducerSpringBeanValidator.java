@@ -1,32 +1,18 @@
 package org.eclipse.stardust.engine.extensions.camel.app;
 
 import static org.eclipse.stardust.engine.extensions.camel.Util.*;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.getRouteId;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
-
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.camel.CamelContext;
-import org.apache.camel.Route;
-import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
-import org.eclipse.stardust.engine.extensions.camel.util.CreateApplicationRouteAction;
-import org.springframework.context.support.AbstractApplicationContext;
 
 public class CamelProducerSpringBeanValidator implements ApplicationValidator, ApplicationValidatorEx
 {
@@ -55,8 +41,6 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
    // @Override
    public List validate(IApplication application)
    {
-
-      BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
 
       if (logger.isDebugEnabled())
       {
@@ -118,72 +102,6 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
                   + " contains Out AccessPoint while the Endpoint Pattern is set to " + invocationPattern, application,
                   Inconsistency.ERROR));
 
-         }
-      }
-
-      // TODO : consumer route validation
-
-      if (inconsistencies.isEmpty())
-      {
-
-         if (logger.isDebugEnabled())
-         {
-            logger.debug("No inconsistencies found for application: " + application);
-         }
-
-         try
-         {
-
-            AbstractApplicationContext applicationContext = (AbstractApplicationContext) Parameters.instance().get(
-                  CamelConstants.PRP_APPLICATION_CONTEXT);
-
-            if (applicationContext != null)
-            {
-
-               String partitionId = SecurityProperties.getPartition().getId();
-
-               CamelContext camelContext = (CamelContext) applicationContext.getBean(camelContextId);
-
-               if (logger.isDebugEnabled())
-               {
-                  logger.debug("Camel Context " + camelContextId + " used.");
-               }
-
-               List<Route> routesToBeStopped = new ArrayList<Route>();
-
-               // select routes that are running in the current partition
-               for (Route runningRoute : camelContext.getRoutes())
-               {
-                  if (runningRoute.getId().equalsIgnoreCase(
-                        getRouteId(partitionId, application.getModel().getId(), null, application.getId(), application
-                              .getType().getId().equalsIgnoreCase("camelSpringProducerApplication"))))
-                  {
-                     routesToBeStopped.add(runningRoute);
-                  }
-               }
-
-               // stop running routes to sync up with the deployed model
-               for (Route runningRoute : routesToBeStopped)
-               {
-
-                  // camelContext.removeRoute(runningRoute.getId());
-                  stopAndRemoveRunningRoute(camelContext, runningRoute.getId());
-                  if (logger.isDebugEnabled())
-                  {
-                     logger.debug("Route " + runningRoute.getId() + " is removed from context " + camelContext + ".");
-                  }
-               }
-
-               Action< ? > action = new CreateApplicationRouteAction(bpmRt, partitionId, applicationContext,
-                     application);
-
-               action.execute();
-
-            }
-         }
-         catch (Exception e)
-         {
-            throw new RuntimeException(e);
          }
       }
 

@@ -88,10 +88,6 @@ public class CamelTriggerRoute
             StringBuilder route = createRouteDefintion(providedRouteDefinition, getCurrentPartition(partition),
                   modelId, processId, trigger.getId(), getUserName(this.trigger), getPassword(this.trigger),
                   mappingExpression);
-            if (logger.isDebugEnabled())
-            {
-               logger.debug("Generated route:" + route);
-            }
             routeDefinition = route;
          }
       }

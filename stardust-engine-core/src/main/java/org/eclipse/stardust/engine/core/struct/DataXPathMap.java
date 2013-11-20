@@ -11,24 +11,19 @@
 package org.eclipse.stardust.engine.core.struct;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
+import javax.xml.namespace.QName;
+
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.RuntimeAttributeHolder;
-import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataLoader;
 
-/**
- *  
- */
 public class DataXPathMap implements IXPathMap, Serializable
 {
    private static final long serialVersionUID = 1632169933703923771L;
@@ -43,8 +38,10 @@ public class DataXPathMap implements IXPathMap, Serializable
 
    private final Set<TypedXPath> allXPaths;
 
-   private IData data;
-   
+   private IAccessPoint accessPoint;
+
+   private Map<String, TypedXPath> roots;
+
    public static IXPathMap getXPathMap(AccessPoint accessPoint)
    {
       // XPathMap is lazy loaded
@@ -53,7 +50,7 @@ public class DataXPathMap implements IXPathMap, Serializable
          ? (RuntimeAttributeHolder) accessPoint : null;
       if (rtah != null)
       {
-         xPathMap = (IXPathMap) rtah.getRuntimeAttribute(StructuredDataLoader.ALL_DATA_XPATHS_ATT);
+         xPathMap = rtah.getRuntimeAttribute(StructuredDataLoader.ALL_DATA_XPATHS_ATT);
       }
       if (xPathMap == null)
       {
@@ -61,16 +58,16 @@ public class DataXPathMap implements IXPathMap, Serializable
          {
             if (rtah != null)
             {
-               xPathMap = (IXPathMap) rtah.getRuntimeAttribute(StructuredDataLoader.ALL_DATA_XPATHS_ATT);
+               xPathMap = rtah.getRuntimeAttribute(StructuredDataLoader.ALL_DATA_XPATHS_ATT);
             }
             if (xPathMap == null)
             {
                StructuredDataLoader structuredDataLoader = new StructuredDataLoader();
                if (accessPoint instanceof IData)
                {
-                  IData data = (IData)accessPoint;
+                  IData data = (IData) accessPoint;
                   structuredDataLoader.loadData(data);
-                  xPathMap = (IXPathMap) data.getRuntimeAttribute(StructuredDataLoader.ALL_DATA_XPATHS_ATT);
+                  xPathMap = data.getRuntimeAttribute(StructuredDataLoader.ALL_DATA_XPATHS_ATT);
                }
                else
                {
@@ -87,7 +84,7 @@ public class DataXPathMap implements IXPathMap, Serializable
       this(xPaths, null);
    }
 
-   public DataXPathMap(Map<Long, TypedXPath> xPaths, IData data)
+   public DataXPathMap(Map<Long, TypedXPath> xPaths, IAccessPoint accessPoint)
    {
       oidToXPath = new HashMap(xPaths);
       
@@ -95,28 +92,27 @@ public class DataXPathMap implements IXPathMap, Serializable
       allXPathOids = new HashSet(xPaths.size());
       xPathToTypedXPath = new HashMap(xPaths.size());
       
-      for (Iterator i = xPaths.entrySet().iterator(); i.hasNext();)
+      for (Entry<Long, TypedXPath> e : xPaths.entrySet())
       {
-         Entry e = (Entry)i.next();
-         Long oid = (Long) e.getKey();
-         TypedXPath xPath = (TypedXPath) e.getValue();
+         Long oid = e.getKey();
+         TypedXPath xPath = e.getValue();
          xPathToOid.put(xPath.getXPath(), oid);
          xPathToTypedXPath.put(xPath.getXPath(), xPath);
          allXPathOids.add(oid);
       }
       
       allXPaths = Collections.unmodifiableSet(new HashSet(oidToXPath.values()));
-      this.data = data;
+      this.accessPoint = accessPoint;
    }
 
    public TypedXPath getXPath(long xPathOID)
    {
-      return (TypedXPath) this.oidToXPath.get(new Long(xPathOID));
+      return oidToXPath.get(xPathOID);
    }
    
    public TypedXPath getXPath(String xPath)
    {
-      TypedXPath typedPath = (TypedXPath) this.xPathToTypedXPath.get(xPath);
+      TypedXPath typedPath = xPathToTypedXPath.get(xPath);
       if (typedPath == null)
       {
          throw new IllegalOperationException(
@@ -128,32 +124,152 @@ public class DataXPathMap implements IXPathMap, Serializable
 
    public Long getXPathOID(String xPath)
    {
-      return (Long) this.xPathToOid.get(xPath);
+      return xPathToOid.get(xPath);
    }
 
    public Set getAllXPaths()
    {
-      return this.allXPaths;
+      return allXPaths;
    }
 
    public Long getRootXPathOID()
    {
-      return (Long) this.xPathToOid.get("");
+      return xPathToOid.get("");
    }
 
    public TypedXPath getRootXPath()
    {
-      return this.getXPath("");
+      return getXPath("");
    }
    
    public Set getAllXPathOids()
    {
-      return Collections.unmodifiableSet(this.allXPathOids);
+      return Collections.unmodifiableSet(allXPathOids);
    }
 
    public boolean containsXPath(String xPath)
    {
-      return this.xPathToOid.containsKey(xPath);
+      return xPathToOid.containsKey(xPath);
    }
 
+   TypedXPath findXPath(List<String> parts)
+   {
+      TypedXPath xPath = null;
+      if (parts != null)
+      {
+         xPath = xPathToTypedXPath.get("");
+         StringBuffer assembled = new StringBuffer();
+         boolean isAny = false;
+         for (String part : parts)
+         {
+            TypedXPath child = isAny
+                  ? xPath.getChildXPath(part)
+                  : xPathToTypedXPath.get((assembled.length() == 0
+                        ? assembled.append(part)
+                        : assembled.append('/').append(part)).toString());
+            if (child == null)
+            {
+               if (xPath.hasWildcards())
+               {
+                  child = getRootXPath(part);
+                  isAny = true;
+               }
+            }
+            xPath = child;
+            if (xPath == null)
+            {
+               break;
+            }
+         }
+      }
+      return xPath;
+   }
+
+   TypedXPath getRootXPath(String id)
+   {
+      TypedXPath xPath = null;
+      if (accessPoint != null)
+      {
+         if (roots == null)
+         {
+            roots = CollectionUtils.newMap();
+         }
+         if (roots.containsKey(id))
+         {
+            xPath = roots.get(id);
+         }
+         else
+         {
+            QName qId = QName.valueOf(id);
+            IModel model = (IModel) accessPoint.getModel();
+            for (ITypeDeclaration declaration : model .getTypeDeclarations())
+            {
+               IXpdlType type = declaration.getXpdlType();
+               // (fh) do not force loading all external schemas.
+               if (type instanceof IExternalReference)
+               {
+                  String xref = ((IExternalReference) type).getXref();
+                  if (xref == null)
+                  {
+                     continue;
+                  }
+                  int ix = xref.lastIndexOf('/');
+                  if (ix >= 0)
+                  {
+                     xref = xref.substring(ix + 1);
+                  }
+                  xref = xref.trim();
+                  if (xref.isEmpty())
+                  {
+                     continue;
+                  }
+                  QName qName = QName.valueOf(xref);
+                  if (id.equals(qName.getLocalPart()))
+                  {
+                     qId = new QName(qName.getNamespaceURI(), id);
+                  }
+                  else if (!qId.equals(qName))
+                  {
+                     continue;
+                  }
+               }
+               if (hasSchema(declaration))
+               {
+                  Set<TypedXPath> paths = null;
+                  try
+                  {
+                     paths = StructuredTypeRtUtils.getAllXPaths(model, declaration);
+                  }
+                  catch (Exception ex)
+                  {
+                     // (fh) just ignore and continue with next type declaration
+                  }
+                  if (paths != null && !paths.isEmpty())
+                  {
+                     for (TypedXPath path : paths)
+                     {
+                        if (path.getXPath().isEmpty() && qId.getLocalPart().equals(path.getXsdElementName()) && qId.getNamespaceURI().equals(path.getXsdElementNs()))
+                        {
+                           xPath = path;
+                           break;
+                        }
+                     }
+                  }
+                  if (xPath != null)
+                  {
+                     break;
+                  }
+               }
+            }
+            roots.put(qId.toString(), xPath);
+         }
+      }
+      return xPath;
+   }
+
+   private static boolean hasSchema(ITypeDeclaration declaration)
+   {
+      IXpdlType type = declaration.getXpdlType();
+      return type instanceof ISchemaType || type instanceof IExternalReference;
+   }
 }

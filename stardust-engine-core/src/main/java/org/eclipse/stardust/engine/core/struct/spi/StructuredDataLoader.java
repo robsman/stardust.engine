@@ -135,7 +135,7 @@ public class StructuredDataLoader implements DataLoader, Stateless
          String hash = accessPoint.getId() + "." + p.getXPath();
          xPathMap.put(new Long(hash.hashCode()), p);
       }
-      return new DataXPathMap(xPathMap);
+      return new DataXPathMap(xPathMap, accessPoint instanceof IAccessPoint ? (IAccessPoint) accessPoint : null);
    }
 
    private IXPathMap loadFullMode(ModelManager modelManager, IData data)

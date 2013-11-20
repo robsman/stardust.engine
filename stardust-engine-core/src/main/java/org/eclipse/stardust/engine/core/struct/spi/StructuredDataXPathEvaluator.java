@@ -13,11 +13,7 @@ package org.eclipse.stardust.engine.core.struct.spi;
 import java.io.StringReader;
 import java.util.*;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.Stateless;
-import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
@@ -25,36 +21,14 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.core.model.utils.ModelElement;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
-import org.eclipse.stardust.engine.core.persistence.Session;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
-import org.eclipse.stardust.engine.core.struct.DataXPathMap;
-import org.eclipse.stardust.engine.core.struct.IStructuredDataValueFactory;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
-import org.eclipse.stardust.engine.core.struct.StructuredDataConverter;
-import org.eclipse.stardust.engine.core.struct.StructuredDataReader;
-import org.eclipse.stardust.engine.core.struct.StructuredDataValueFactory;
-import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueLoader;
@@ -63,7 +37,6 @@ import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
 import org.eclipse.stardust.engine.core.struct.sxml.Element;
 import org.eclipse.stardust.engine.core.struct.sxml.Node;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathException;
-
 
 /**
  * Evaluates in- and out- datamappings for structured data
@@ -104,16 +77,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
       }
 
       final IXPathMap xPathMap = DataXPathMap.getXPathMap(accessPointDefinition);
-      IModel model = null;
-      if (accessPointDefinition instanceof ModelElement)
-      {
-         model = (IModel) ((ModelElement) accessPointDefinition).getModel();
-      }
-      if (model == null && accessPathEvaluationContext != null && accessPathEvaluationContext.getActivity() != null)
-      {
-         model = (IModel) accessPathEvaluationContext.getActivity().getModel();
-      }
-      StructuredDataConverter converter = new StructuredDataConverter(xPathMap, model);
+      StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
       Document document;
 
       if (accessPointDefinition instanceof IData)
@@ -390,7 +354,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
                trace.debug("document before change: " + document.toXML());
             }
 
-            StructuredDataXPathUtils.putValue((IModel) data.getModel(), document, xPathMap, inPath, value,
+            StructuredDataXPathUtils.putValue(document, xPathMap, inPath, value,
                   namespaceAware, accessPathEvaluationContext.isIgnoreUnknownValueParts());
 
             if (trace.isDebugEnabled())
@@ -518,22 +482,13 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
       }
       else
       {
-         IModel model = null;
-         if (accessPointDefinition instanceof ModelElement)
-         {
-            model = (IModel) ((ModelElement) accessPointDefinition).getModel();
-         }
-         if (model == null && accessPathEvaluationContext != null)
-         {
-            model = (IModel) accessPathEvaluationContext.getActivity().getModel();
-         }
          // data value is in accessPointInstance
          final IXPathMap xPathMap = DataXPathMap.getXPathMap(accessPointDefinition);
 
          // always operate with namespaceAware=true
          final boolean namespaceAware = true;
 
-         StructuredDataConverter converter = new StructuredDataConverter(xPathMap, model);
+         StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
          Document document;
          if (accessPointInstance == null)
          {
@@ -552,7 +507,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
             trace.debug("document before change: " + document.toXML());
          }
 
-         StructuredDataXPathUtils.putValue(model, document, xPathMap, inPath, value, namespaceAware,
+         StructuredDataXPathUtils.putValue(document, xPathMap, inPath, value, namespaceAware,
                accessPathEvaluationContext.isIgnoreUnknownValueParts());
 
          if (trace.isDebugEnabled())

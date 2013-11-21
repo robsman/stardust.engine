@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,56 +67,62 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
       TokenManagerRegistry.instance().removeSecondLevelCache(pi);
 
       ProcessInstanceUtils.cleanupProcessInstance(pi);
-      
-      if (!hasParent)
+
+      // not very intuitive to have _no_ parent but trying to resume it......
+      if ( !hasParent)
       {
-         IActivityInstance activityInstance = pi.getStartingActivityInstance();
-         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         ExecutionPlan plan = rtEnv.getExecutionPlan();
-         if (plan != null && !plan.isTerminated())
+         resumeParent(pi);
+      }
+   }
+
+   private void resumeParent(IProcessInstance pi)
+   {
+      IActivityInstance activityInstance = pi.getStartingActivityInstance();
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      ExecutionPlan plan = rtEnv.getExecutionPlan();
+      if (plan != null && !plan.isTerminated())
+      {
+         plan.checkNextStep(activityInstance);
+      }
+      if (activityInstance != null)
+      {
+         activityInstance.lock();
+         try
          {
-            plan.checkNextStep(activityInstance);
-         }
-         if (activityInstance != null)
-         {
-            activityInstance.lock();
-            try
+            ((IdentifiablePersistentBean) activityInstance).reloadAttribute(ActivityInstanceBean.FIELD__STATE);
+            if (!activityInstance.isTerminated() && !activityInstance.isAborting())
             {
-               ((IdentifiablePersistentBean) activityInstance).reloadAttribute(ActivityInstanceBean.FIELD__STATE);
-               if (!activityInstance.isTerminated() && !activityInstance.isAborting())
+               activityInstance.activate();
+               // do out data mappings if necessary
+               ActivityThread.schedule(null, null, activityInstance, true,
+                     null, Collections.EMPTY_MAP, false);
+            }
+            else
+            {
+               if (trace.isDebugEnabled())
                {
-                  activityInstance.activate();
-                  // do out data mappings if necessary
-                  ActivityThread.schedule(null, null, activityInstance, true,
-                        null, Collections.EMPTY_MAP, false);
-               }
-               else
-               {
-                  if (trace.isDebugEnabled())
-                  {
-                     trace.debug("Skipping recovery of concurrently completed starting "
-                           + "activity" + activityInstance);
-                  }
+                  trace.debug("Skipping recovery of concurrently completed starting "
+                        + "activity" + activityInstance);
                }
             }
-            catch (PhantomException e)
-            {
-               throw new InternalException(e);
-            }
          }
-         else
+         catch (PhantomException e)
          {
-            // No startingActivityInstance found, but this could be a spawned sub process.
-            // Lookup parent, complete parent process if possible.
-            if (pi.getRootProcessInstanceOID() != pi.getOID())
+            throw new InternalException(e);
+         }
+      }
+      else
+      {
+         // No startingActivityInstance found, but this could be a spawned sub process.
+         // Lookup parent, complete parent process if possible.
+         if (pi.getRootProcessInstanceOID() != pi.getOID())
+         {
+            IProcessInstance parentProcessInstance = ProcessInstanceHierarchyBean.findParentForSubProcessInstanceOid(pi.getOID());
+            if (parentProcessInstance != null)
             {
-               IProcessInstance parentProcessInstance = ProcessInstanceHierarchyBean.findParentForSubProcessInstanceOid(pi.getOID());
-               if (parentProcessInstance != null)
-               {
-                  ProcessCompletionJanitor processCompletionJanitor = new ProcessCompletionJanitor(
-                        new JanitorCarrier(parentProcessInstance.getOID()), hasParent);
-                  processCompletionJanitor.execute();
-               }
+               ProcessCompletionJanitor processCompletionJanitor = new ProcessCompletionJanitor(
+                     new JanitorCarrier(parentProcessInstance.getOID()), hasParent);
+               processCompletionJanitor.execute();
             }
          }
       }
@@ -126,7 +132,7 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
    {
       return execute(false);
    }
-   
+
    public Object execute(boolean forceSynchronous)
    {
       boolean performed = false;
@@ -158,7 +164,7 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
                      }
                      pi.restoreState(state);
                   }
-                  
+
                   if (!forceSynchronous && synchronous
                         && Parameters.instance().getBoolean(
                               KernelTweakingProperties.ASYNC_PROCESS_COMPLETION, false))
@@ -247,6 +253,11 @@ public class ProcessCompletionJanitor extends SecurityContextAwareAction
                   + " due to a locking conflict, scheduling a new one.");
             scheduleJanitor(new JanitorCarrier(processInstanceOID, count));
          }
+      }
+      else if (pi.isTerminated())
+      {
+         // PI itself is already terminated but its parent might still be pending
+         resumeParent(pi);
       }
 
       return performed ? Boolean.TRUE : Boolean.FALSE;

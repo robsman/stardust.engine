@@ -297,7 +297,7 @@ public class ModelBean extends RootElementBean
        }
        
          Set<String> configurationVariableReferences = getConfigurationVariableReferences();
-         Set<IConfigurationVariableDefinition> configurationVariableDefinitions = getConfigurationVariableDefinitions();
+         Set<IConfigurationVariableDefinition> configurationVariableDefinitions = getConfigurationVariableDefinitionsFullNames();
          Set<String> definedVarNames = CollectionUtils.newSet();
          for (IConfigurationVariableDefinition varDefinition : configurationVariableDefinitions)
          {
@@ -312,6 +312,12 @@ public class ModelBean extends RootElementBean
             if ( !configurationVariableReferences.contains(varDefinition.getName()))
             {
                BpmValidationError error = BpmValidationError.MDL_CONFIGURATION_VARIABLE_NEVER_USED.raise(varDefinition.getName());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+            }
+
+            if ( !ConfigurationVariableUtils.isValidName(varDefinition.getName()))
+            {
+               BpmValidationError error = BpmValidationError.MDL_CONFIGURATION_VARIABLE_IS_INVALID.raise(varDefinition.getName());
                inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
             }
          }
@@ -1387,6 +1393,33 @@ public class ModelBean extends RootElementBean
       return defs;
    }
    
+   public Set<IConfigurationVariableDefinition> getConfigurationVariableDefinitionsFullNames()
+   {
+      Set<IConfigurationVariableDefinition> defs = CollectionUtils.newSet();
+
+      boolean foundAttribute = true;
+      int i = 0;
+      while (foundAttribute)
+      {
+         String name = (String) getAttribute(IPP_VARIABLES + i + IPP_VARIABLES_NAME);
+         if (name == null)
+         {
+            foundAttribute = false;
+            continue;
+         }
+         String defaultValue = (String) getAttribute(IPP_VARIABLES + i
+               + IPP_VARIABLES_DEFAULT_VALUE);
+         String description = (String) getAttribute(IPP_VARIABLES + i
+               + IPP_VARIABLES_DESCRIPTION);
+
+         defs.add(new ConfigurationVariableDefinition(name,
+               ConfigurationVariableUtils.getType(name),
+               defaultValue, description, getModelOID()));
+         i++;
+      }
+      return defs;
+   }
+
    public Set<String> getConfigurationVariableReferences()
    {
       return Collections.unmodifiableSet(configurationVariableReferences);

@@ -52,6 +52,7 @@ public class BpmValidationError extends ErrorCase
    public static final Args1 MDL_PREDECESSOR_MODEL_NOT_FOUND = newArgs1("MDL01016", BpmValidationErrorMessages.getString("MDL01016"));
    public static final Args0 MDL_UNKNOWN_MODEL_VERSION = newArgs0("MDL01017", BpmValidationErrorMessages.getString("MDL01017"));
    public static final Args1 MDL_MODEL_VERSION = newArgs1("MDL01018", BpmValidationErrorMessages.getString("MDL01018"));
+   public static final Args1 MDL_CONFIGURATION_VARIABLE_IS_INVALID = newArgs1("MDL01019", BpmValidationErrorMessages.getString("MDL01019"));
 
    //Process Definiton related
    public static final Args0 PD_NO_START_ACTIVITY = newArgs0("PD01001", BpmValidationErrorMessages.getString("PD01001"));

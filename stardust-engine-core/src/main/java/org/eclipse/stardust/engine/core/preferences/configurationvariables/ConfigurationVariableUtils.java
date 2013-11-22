@@ -19,7 +19,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.emf.ecore.xml.type.internal.RegEx;
-
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -45,10 +44,10 @@ public class ConfigurationVariableUtils
    //    \\\\: variable is escaped, i.e starts with \
    //    (\\$\\{\\w+\\}): the escaped variable matches ${name} and group results in "${name}"
    private static Pattern escapedModelVars = Pattern.compile("\\\\(\\$\\{(\\w+)(:\\w+)?\\})");
-   
+
    /**
     * The moduleId of preferences used to store configuration variables.
-    * As preferencesId the modelId is used. 
+    * As preferencesId the modelId is used.
     */
    public static final String CONFIGURATION_VARIABLES = "configuration-variables";
 
@@ -58,11 +57,11 @@ public class ConfigurationVariableUtils
    {
       return getConfigurationVariables(preferenceStore, modelId, mergeDeployedModels, false);
    }
-      
+
    public static ConfigurationVariables getConfigurationVariables(
          IPreferenceStorageManager preferenceStore, String modelId,
          boolean mergeDeployedModels, boolean all)
-   {   
+   {
       List< ? extends ConfigurationVariableDefinitionProvider> providers;
 
       if (mergeDeployedModels)
@@ -90,7 +89,7 @@ public class ConfigurationVariableUtils
 
       return getConfigurationVariables(preferenceStore, modelId, providers, all);
    }
-   
+
    public static ConfigurationVariables getConfigurationVariables(
          IPreferenceStorageManager preferenceStore, IModel externalModel)
    {
@@ -108,7 +107,7 @@ public class ConfigurationVariableUtils
       final Map<String, Serializable> preferencesMap = preferences.getPreferences();
 
       Map<String, ConfigurationVariable> mergedConfigurationVariables = CollectionUtils.newHashMap();
-      
+
       if (providers.isEmpty())
       {
          for (Entry<String, Serializable> prefEntry : preferencesMap.entrySet())
@@ -140,9 +139,9 @@ public class ConfigurationVariableUtils
                // dont substitute default value here leave that to GUI.
                value = "";
             }
-            
+
             if(all || confVarDef.getType().equals(ConfigurationVariableScope.String))
-            {            
+            {
                ConfigurationVariable confVar = new ConfigurationVariable(confVarDef, value);
                mergedConfigurationVariables.put(confVarDef.getName(), confVar);
             }
@@ -179,7 +178,7 @@ public class ConfigurationVariableUtils
 
       Preferences preferences = new Preferences(PreferenceScope.PARTITION,
             CONFIGURATION_VARIABLES, configurationVariables.getModelId(), preferencesMap);
-      
+
       final List<ReconfigurationInfo> reconInfos = preferenceStore.savePreferences(
             preferences, force);
       final List<ModelReconfigurationInfo> modelReconInfos = CollectionUtils
@@ -201,7 +200,7 @@ public class ConfigurationVariableUtils
 
       return modelReconInfos;
    }
-   
+
    public static Matcher getConfigurationVariablesMatcher(String text)
    {
       return modelVars.matcher(text);
@@ -211,11 +210,11 @@ public class ConfigurationVariableUtils
    {
       return escapedModelVars.matcher(text);
    }
-   
+
    /**
     * Returns a representation of input string "literal" with all RegEx meta characters
     * quoted.
-    * 
+    *
     * @param literal the literal text used within regular expressions
     * @return quoted representation of literal in terms of regular expressions
     */
@@ -223,15 +222,15 @@ public class ConfigurationVariableUtils
    {
       return RegEx.REUtil.quoteMeta(literal);
    }
-   
+
    public static String replace(ConfigurationVariable modelVariable,
          String value)
    {
       String result;
-      
+
       String name = modelVariable.getName();
       ConfigurationVariableScope type = modelVariable.getType();
-      
+
       // pattern: description
       //    (?<!\\\\): Lookbehind assertion: variable shall not be escaped, i.e start with \
       //    (\\$\\{" + name + "\\}): the variable matches ${name}
@@ -245,24 +244,24 @@ public class ConfigurationVariableUtils
       }
       newValue = quoteMeta(newValue);
       result = value.replaceAll(tobeReplacedPattern, newValue);
-      
+
       return result;
    }
 
    public static String getName(String name)
    {
       String[] parts = name.split(":");
-      return parts[0];      
+      return parts[0];
    }
-   
+
    public static ConfigurationVariableScope getType(String name)
    {
       String[] parts = name.split(":");
       if(parts.length == 1)
       {
          return ConfigurationVariableScope.String;
-      }      
-      
+      }
+
       ConfigurationVariableScope[] scopes = ConfigurationVariableScope.values();
       for(ConfigurationVariableScope scope : scopes)
       {
@@ -271,7 +270,36 @@ public class ConfigurationVariableUtils
             return scope;
          }
       }
-      
+
       return ConfigurationVariableScope.String;
+   }
+
+   public static boolean isValidName(String name)
+   {
+      if (name == null)
+      {
+         return false;
+      }
+      if (name.startsWith("${")) //$NON-NLS-1$
+      {
+         name = name.substring(2, name.length() - 1);
+      }
+      if (name == "" || StringUtils.isEmpty(name)) //$NON-NLS-1$
+      {
+         return false;
+      }
+
+      String[] parts = name.split(":");
+      if (parts.length > 2)
+      {
+         return false;
+      }
+
+      name = getName(name);
+      if ( !StringUtils.isValidIdentifier(name))
+      {
+         return false;
+      }
+      return true;
    }
 }

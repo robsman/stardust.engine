@@ -161,145 +161,145 @@ public class Util
       return ai.getActivity().getApplicationContext("default");
    }
 
-   public static void createTriggerRoute(String partitionId, IProcessDefinition process,
-         AbstractApplicationContext springContext)
-   {
+//   public static void createTriggerRoute(String partitionId, IProcessDefinition process,
+//         AbstractApplicationContext springContext)
+//   {
+//
+//      for (int i = 0; i < process.getTriggers().size(); i++)
+//      {
+//
+//         ITrigger trigger = (ITrigger) process.getTriggers().get(i);
+//
+//         if (CAMEL_TRIGGER_TYPE.equals(trigger.getType().getId()))
+//         {
+//            createTriggerlRoute(partitionId, trigger, springContext);
+//         }
+//      }
+//   }
+//
+//   public static void createApplicationRoute(String partitionId,ModelElementList<IApplication> apps,AbstractApplicationContext springContext)
+//   {
+//      for (int ai = 0; ai < apps.size(); ai++)
+//      {
+//
+//         IApplication app = apps.get(ai);
+//
+//         if (app != null
+//               && app.getType() != null
+//               && (app.getType().getId().equals(CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE) || app.getType()
+//                     .getId().equals(CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE)))
+//         {
+//             createApplicationRoute(partitionId,app,springContext);
+//         }
+//
+//      }
+//   }
 
-      for (int i = 0; i < process.getTriggers().size(); i++)
-      {
-
-         ITrigger trigger = (ITrigger) process.getTriggers().get(i);
-
-         if (CAMEL_TRIGGER_TYPE.equals(trigger.getType().getId()))
-         {
-            createTriggerlRoute(partitionId, trigger, springContext);
-         }
-      }
-   }
-
-   public static void createApplicationRoute(String partitionId,ModelElementList<IApplication> apps,AbstractApplicationContext springContext)
-   {
-      for (int ai = 0; ai < apps.size(); ai++)
-      {
-
-         IApplication app = apps.get(ai);
-
-         if (app != null
-               && app.getType() != null
-               && (app.getType().getId().equals(CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE) || app.getType()
-                     .getId().equals(CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE)))
-         {
-             createApplicationRoute(partitionId,app,springContext);
-         }
-
-      }
-   }
-
-   private static void createApplicationRoute(String partition,IApplication application,AbstractApplicationContext springContext)
-   {
-
-      try
-      {
-         String contextId = getCamelContextId(application);
-
-         String springBeans = getAdditionalBeansDefinition(application);
-
-         String invocationPattern = getInvocationPattern(application);
-
-         CamelContext camelContext = (CamelContext) springContext.getBean(contextId);
-
-         if (!StringUtils.isEmpty(springBeans))
-         {
-            loadBeanDefinition(createSpringFileContent(springBeans, false, null),
-                  (AbstractApplicationContext) springContext);
-         }
-
-         if (isConsumerApplication(application))
-         {
-
-            if (StringUtils.isNotEmpty(invocationPattern)
-                  && CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern))
-            {
-               createAndStartProducerRoute(application, camelContext, partition);
-            }
-
-            createAndStartConsumerRoute(application, camelContext, partition);
-
-         }
-         else if (CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE.equals(application.getType().getId()))
-         {
-
-            createAndStartProducerRoute(application, camelContext, partition);
-
-         }
-         else
-         {
-
-            // old behaviour
-            createAndStartProducerRoute(application, camelContext, partition);
-
-         }
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Exception creating route for application " + application.getId(), e);
-      }
-   }
-
-   private static void createTriggerlRoute(String partitionId, ITrigger trigger,
-         AbstractApplicationContext springContext)
-   {
-      try
-      {
-
-         String contextId = (String) trigger.getAttribute(CAMEL_CONTEXT_ID_ATT);
-
-         if (StringUtils.isEmpty(contextId))
-         {
-            contextId = DEFAULT_CAMEL_CONTEXT_ID;
-            logger.warn("No context provided - the default context is used.");
-         }
-         Map<String,DataConverter> converters= springContext.getBeansOfType(DataConverter.class);
-         
-         CamelContext camelContext = (CamelContext) springContext.getBean(contextId);
-
-         String additionalBeanDefinition = (String) trigger.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
-
-         if (!StringUtils.isEmpty(additionalBeanDefinition))
-         {
-            loadBeanDefinition(createSpringFileContent(additionalBeanDefinition, false, null), springContext);
-         }
-
-         CamelTriggerRoute route = new CamelTriggerRoute(camelContext, trigger,new ArrayList<DataConverter>(converters.values()), SecurityProperties.getPartition()
-               .getId());
-
-         if (route.getRouteDefinition() != null && route.getRouteDefinition().length() > 0)
-         {
-
-            StringBuilder generatedXml = new StringBuilder(SPRING_XML_ROUTES_HEADER + route.getRouteDefinition()
-                  + SPRING_XML_ROUTES_FOOTER);
-
-            logger.info("Route for trigger " + trigger.getName() + " to be added to context " + contextId
-                  + " for partition " + partitionId + ".");
-
-            if (logger.isDebugEnabled())
-            {
-               logger.debug(route.getRouteDefinition());
-            }
-
-            RoutesDefinition routes = ((ModelCamelContext) camelContext).loadRoutesDefinition(IOUtils
-                  .toInputStream(generatedXml.toString()));
-
-            ((ModelCamelContext) camelContext).addRouteDefinitions(routes.getRoutes());
-         }
-         else
-         {
-            logger.warn("No route definition found.");
-         }
-      }
-      catch (Exception e)
-      {
-         throw new RuntimeException("Route creation for trigger " + trigger.getName() + " failed.", e);
-      }
-   }
+//   private static void createApplicationRoute(String partition,IApplication application,AbstractApplicationContext springContext)
+//   {
+//
+//      try
+//      {
+//         String contextId = getCamelContextId(application);
+//
+//         String springBeans = getAdditionalBeansDefinition(application);
+//
+//         String invocationPattern = getInvocationPattern(application);
+//
+//         CamelContext camelContext = (CamelContext) springContext.getBean(contextId);
+//
+//         if (!StringUtils.isEmpty(springBeans))
+//         {
+//            loadBeanDefinition(createSpringFileContent(springBeans, false, null),
+//                  (AbstractApplicationContext) springContext);
+//         }
+//
+//         if (isConsumerApplication(application))
+//         {
+//
+//            if (StringUtils.isNotEmpty(invocationPattern)
+//                  && CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern))
+//            {
+//               createAndStartProducerRoute(application, camelContext, partition);
+//            }
+//
+//            createAndStartConsumerRoute(application, camelContext, partition);
+//
+//         }
+//         else if (CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE.equals(application.getType().getId()))
+//         {
+//
+//            createAndStartProducerRoute(application, camelContext, partition);
+//
+//         }
+//         else
+//         {
+//
+//            // old behaviour
+//            createAndStartProducerRoute(application, camelContext, partition);
+//
+//         }
+//      }
+//      catch (Exception e)
+//      {
+//         throw new RuntimeException("Exception creating route for application " + application.getId(), e);
+//      }
+//   }
+//
+//   private static void createTriggerlRoute(String partitionId, ITrigger trigger,
+//         AbstractApplicationContext springContext)
+//   {
+//      try
+//      {
+//
+//         String contextId = (String) trigger.getAttribute(CAMEL_CONTEXT_ID_ATT);
+//
+//         if (StringUtils.isEmpty(contextId))
+//         {
+//            contextId = DEFAULT_CAMEL_CONTEXT_ID;
+//            logger.warn("No context provided - the default context is used.");
+//         }
+//         Map<String,DataConverter> converters= springContext.getBeansOfType(DataConverter.class);
+//         
+//         CamelContext camelContext = (CamelContext) springContext.getBean(contextId);
+//
+//         String additionalBeanDefinition = (String) trigger.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
+//
+//         if (!StringUtils.isEmpty(additionalBeanDefinition))
+//         {
+//            loadBeanDefinition(createSpringFileContent(additionalBeanDefinition, false, null), springContext);
+//         }
+//
+//         CamelTriggerRoute route = new CamelTriggerRoute(camelContext, trigger,new ArrayList<DataConverter>(converters.values()), SecurityProperties.getPartition()
+//               .getId());
+//
+//         if (route.getRouteDefinition() != null && route.getRouteDefinition().length() > 0)
+//         {
+//
+//            StringBuilder generatedXml = new StringBuilder(SPRING_XML_ROUTES_HEADER + route.getRouteDefinition()
+//                  + SPRING_XML_ROUTES_FOOTER);
+//
+//            logger.info("Route for trigger " + trigger.getName() + " to be added to context " + contextId
+//                  + " for partition " + partitionId + ".");
+//
+//            if (logger.isDebugEnabled())
+//            {
+//               logger.debug(route.getRouteDefinition());
+//            }
+//
+//            RoutesDefinition routes = ((ModelCamelContext) camelContext).loadRoutesDefinition(IOUtils
+//                  .toInputStream(generatedXml.toString()));
+//
+//            ((ModelCamelContext) camelContext).addRouteDefinitions(routes.getRoutes());
+//         }
+//         else
+//         {
+//            logger.warn("No route definition found.");
+//         }
+//      }
+//      catch (Exception e)
+//      {
+//         throw new RuntimeException("Route creation for trigger " + trigger.getName() + " failed.", e);
+//      }
+//   }
 }

@@ -17,7 +17,7 @@
 
    <import file="${project.dir}/../../build.tools/commons-build.xml" />
 
-   <property name="repository-timestamp" value="201306260900" />
+   <property name="repository-timestamp" value="201309270900" />
    <condition property="eclipse.download.base.url" value="${eclipse-site}" 
       else="${eclipse-site}/${repository-timestamp}">
       <contains string="${eclipse-site}" substring="staging" casesensitive="false" />

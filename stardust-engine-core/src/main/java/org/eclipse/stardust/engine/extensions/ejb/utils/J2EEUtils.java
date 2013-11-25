@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,12 +16,14 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.core.compatibility.spi.security.DefaultPrincipalNameProvider;
+import org.eclipse.stardust.engine.core.compatibility.spi.security.PrincipalNameProvider;
 
 
 public class J2EEUtils
 {
    private static final Logger trace = LogManager.getLogger(J2EEUtils.class);
-   
+
    public static String getPrincipalName(Principal principal)
    {
       if (null == principal)
@@ -35,7 +37,7 @@ public class J2EEUtils
       String principalNameProviderClassName = Parameters.instance().getString(
             PrincipalNameProvider.PRP_PRINCIPAL_NAME_PROVIDER,
             DefaultPrincipalNameProvider.class.getName());
-      
+
       Object rawPrincipalNameProvider = null;
       try
       {

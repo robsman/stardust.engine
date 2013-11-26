@@ -167,7 +167,7 @@ public class ExtractPageCommand implements ServiceCommand
          
          if(!page.isAbortProcessInstance())
          {
-            spawnProcesses.add(sf.getWorkflowService().spawnPeerProcessInstance(processInstance.getOID(), page.getProcessId(), page.isCopyData(), data, page.isAbortProcessInstance(), null));
+            spawnProcesses.add(sf.getWorkflowService().spawnPeerProcessInstance(processInstance.getOID(), page.getProcessId(), page.isCopyData(), data, page.isAbortProcessInstance(), page.getLinkComment()));
          }
          else
          {
@@ -276,6 +276,7 @@ public class ExtractPageCommand implements ServiceCommand
       private final boolean abortProcessInstance;
       private Document document;
       private ProcessInstance startedProcessInstance;
+      private String linkComment;
 
       public PageModel(byte[] content, String versionComment, String description, DocumentAnnotations annotations,
             String processId, boolean copyData, String dataId, boolean abortProcessInstance)
@@ -354,6 +355,16 @@ public class ExtractPageCommand implements ServiceCommand
       public boolean isAbortProcessInstance()
       {
          return abortProcessInstance;
+      }
+
+      public String getLinkComment()
+      {
+         return linkComment;
+      }
+
+      public void setLinkComment(String linkComment)
+      {
+         this.linkComment = linkComment;
       }
 
    }

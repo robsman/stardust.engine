@@ -13,8 +13,14 @@ package org.eclipse.stardust.common.log;
 import java.io.File;
 import java.net.URL;
 
+import org.apache.log4j.Hierarchy;
+import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.helpers.Loader;
+import org.apache.log4j.helpers.OptionConverter;
+import org.apache.log4j.spi.DefaultRepositorySelector;
+import org.apache.log4j.spi.LoggerRepository;
+import org.apache.log4j.spi.RootLogger;
 
 public class Log4j12Logger implements Logger
 {
@@ -24,9 +30,10 @@ public class Log4j12Logger implements Logger
 
    Log4j12Logger(String name)
    {
+      URL log4jProperties = getResource("log4j.properties");
       if (!ClientLogManager.isBootstrapped()
             && System.getProperty("log4j.configuration")== null
-            && getResource("log4j.properties") == null)
+            && log4jProperties == null)
       {
          String configFile = System.getProperty(LOGGER_CONFIG);
          if (configFile == null)
@@ -39,6 +46,22 @@ public class Log4j12Logger implements Logger
          }
       }
       l4jLogger = LogManager.getLogger(name);
+      // Workaround: JBoss 7.1.1 logging framework ignores deployment's log4j.properties.
+      if (l4jLogger != null
+            && "org.jboss.logmanager.log4j.BridgeLogger".equals(l4jLogger
+                  .getClass().getName()) && log4jProperties != null)
+      {
+         // Initialize log4j Logger with found log4j.properties.
+         Hierarchy h = new Hierarchy(new RootLogger((Level) Level.DEBUG));
+         DefaultRepositorySelector defaultRepositorySelector = new DefaultRepositorySelector(
+               h);
+         LoggerRepository loggerRepository = defaultRepositorySelector.getLoggerRepository();
+
+         OptionConverter.selectAndConfigure(log4jProperties, null,
+               loggerRepository);
+
+         l4jLogger = loggerRepository.getLogger(name);
+      }
    }
 
    public void debug(Object o)

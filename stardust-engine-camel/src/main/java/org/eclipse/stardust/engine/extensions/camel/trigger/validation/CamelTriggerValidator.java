@@ -12,6 +12,10 @@ package org.eclipse.stardust.engine.extensions.camel.trigger.validation;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_CONTEXT_ID_ATT;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ROUTE_EXT_ATT;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getModelId;
+import static org.eclipse.stardust.engine.extensions.camel.Util.getProcessId;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.getRouteId;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -166,7 +170,7 @@ public class CamelTriggerValidator implements TriggerValidator,
 
                     // select routes that are running in the current partition
                     for (Route runningRoute : camelContext.getRoutes()) {
-                        if (runningRoute.getId().startsWith(partitionId)) {
+                        if (runningRoute.getId().startsWith(getRouteId(partitionId, getModelId(trigger), getProcessId(trigger), trigger.getId(), false))) {
                             routesToBeStopped.add(runningRoute);
                         }
                     }
@@ -174,7 +178,7 @@ public class CamelTriggerValidator implements TriggerValidator,
                     // stop running routes to sync up with the deployed model
                     for (Route runningRoute : routesToBeStopped) {
 
-                        camelContext.removeRoute(runningRoute.getId());
+                       stopAndRemoveRunningRoute(camelContext, runningRoute.getId());
 
                         if (logger.isDebugEnabled()) {
                             logger.debug("Route " + runningRoute.getId()

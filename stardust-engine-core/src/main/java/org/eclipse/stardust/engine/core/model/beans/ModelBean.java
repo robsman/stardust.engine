@@ -299,6 +299,21 @@ public class ModelBean extends RootElementBean
          Set<String> configurationVariableReferences = getConfigurationVariableReferences();
          Set<IConfigurationVariableDefinition> configurationVariableDefinitions = getConfigurationVariableDefinitionsFullNames();
          Set<String> definedVarNames = CollectionUtils.newSet();
+
+         for (IConfigurationVariableDefinition varDefinition : configurationVariableDefinitions)
+         {
+            definedVarNames.add(varDefinition.getName());
+            if ( !ConfigurationVariableUtils.isValidName(varDefinition.getName()))
+            {
+               BpmValidationError error = BpmValidationError.MDL_CONFIGURATION_VARIABLE_IS_INVALID.raise(varDefinition.getName());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+            }
+         }
+
+         configurationVariableReferences = getConfigurationVariableReferences();
+         configurationVariableDefinitions = getConfigurationVariableDefinitions();
+         definedVarNames = CollectionUtils.newSet();
+
          for (IConfigurationVariableDefinition varDefinition : configurationVariableDefinitions)
          {
             definedVarNames.add(varDefinition.getName());

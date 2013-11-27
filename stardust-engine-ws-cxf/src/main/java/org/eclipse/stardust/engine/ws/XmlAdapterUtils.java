@@ -403,7 +403,6 @@ public class XmlAdapterUtils
 
       xto.setFirstName(u.getFirstName());
       xto.setLastName(u.getLastName());
-      // xto.setPassword(null);
 
       xto.setPreviousLoginTime(u.getPreviousLoginTime());
       xto.setEMail(u.getEMail());
@@ -421,7 +420,6 @@ public class XmlAdapterUtils
 
       xto.setGrants(marshalGrants(u.getAllGrants()));
 
-      // TODO marshal attributes for User
       xto.setAttributes(marshalAttributes(u.getAllAttributes()));
 
       xto.setPasswordExpired(u.isPasswordExpired());
@@ -445,7 +443,6 @@ public class XmlAdapterUtils
 
    private static GrantXto marshalGrant(Grant grant)
    {
-      // TODO: update
       GrantXto ret = null;
       if (grant != null)
       {
@@ -640,7 +637,6 @@ public class XmlAdapterUtils
          ret.setName(me.getName());
          ret.setId(me.getId());
          ret.setDescription(me.getDescription());
-         // ret.setElementOid(md.getElementOID());
          ret.setPartitionId(me.getPartitionId());
          ret.setPartitionOid(me.getPartitionOID());
          ret.setAttributes(marshalAttributes(me.getAllAttributes()));
@@ -800,8 +796,6 @@ public class XmlAdapterUtils
          XSDResourceImpl.serialize(bout, schema.getElement());
          byte[] schemaBytes = bout.toByteArray();
 
-         // byte[] schemaBytes2 =
-         // StructuredTypeRtUtils.serializeSchema(schema);
          String xmlString = new String(schemaBytes);
 
          Element element = XmlUtils.parseString(xmlString).getDocumentElement();
@@ -1047,7 +1041,6 @@ public class XmlAdapterUtils
                      marshalActions(eh.getAllUnbindActions()));
                xto.setUnbindActions(unbindActions);
             }
-            // TODO xto.setType(eh.getAllTypeAttributes());
 
             xto.setId(eh.getId());
             xto.setName(eh.getName());
@@ -1083,9 +1076,7 @@ public class XmlAdapterUtils
       ret.setId(eventAction.getId());
       ret.setName(eventAction.getName());
       ret.setModelOid(eventAction.getModelOID());
-      // TODO verify use of getElementOID as RtOid ?
       ret.setRtOid(eventAction.getElementOID());
-      // TODO ret.setType(eventAction.getAllTypeAttributes());
 
       ret.setDescription(eventAction.getDescription());
       ret.setPartitionId(eventAction.getPartitionId());
@@ -1176,7 +1167,7 @@ public class XmlAdapterUtils
          }
          QName qualifiedMetaDataSchema = QName.valueOf(metaDataSchema);
          String typeDeclarationModelId = qualifiedMetaDataSchema.getNamespaceURI();
-         
+
          String modelId = model.getId();
          Model modelWithTypeDeclaration;
          if (typeDeclarationModelId != null && !typeDeclarationModelId.isEmpty() && !modelId.equals(typeDeclarationModelId))
@@ -1201,7 +1192,6 @@ public class XmlAdapterUtils
       }
       else if (isEntityBeanType(model, data))
       {
-         // xto.setType();
       }
       else
       {
@@ -1240,11 +1230,8 @@ public static DataPathXto toWs(DataPath dp, Model model)
       res.setMappedJavaType(dp.getMappedType().getName());
       res.setKeyDescriptor(dp.isKeyDescriptor());
 
-      // res.setProcessDefinitionId(dp.getProcessDefinitionId());
-
       if (null != model)
       {
-         // TODO review type marshaling
          Data data = model.getData(dp.getData());
 
          if (isPrimitiveType(model, dp))
@@ -1343,7 +1330,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
    public static UserQueryResultXto toWs(Users users)
    {
       UserQueryResultXto ret = new UserQueryResultXto();
-      ret.setTotalCount(mapTotalCount(users));      
+      ret.setTotalCount(mapTotalCount(users));
       ret.setTotalCountThreshold(users.getTotalCountThreshold());
 
       ret.setUsers(new UsersXto());
@@ -1360,7 +1347,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
       UserGroupQueryResultXto ret = new UserGroupQueryResultXto();
       ret.setTotalCount(mapTotalCount(userGroups));
       ret.setTotalCountThreshold(userGroups.getTotalCountThreshold());
-      
+
       UserGroupsXto ug = new UserGroupsXto();
       for (Iterator< ? > iterator = userGroups.iterator(); iterator.hasNext();)
       {
@@ -1415,8 +1402,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
       ret.setValidFrom(userGroup.getValidFrom());
       ret.setValidTo(userGroup.getValidTo());
 
-      // TODO set userGroup attributes?
-      // ret.setAttribute(name, value)
       if (userGroup.getAttributes() != null)
       {
          for (AttributeXto element : userGroup.getAttributes().getAttribute())
@@ -1673,30 +1658,30 @@ public static DataPathXto toWs(DataPath dp, Model model)
    /**
     * Only use in WebService environment.
     * Model lookup is performed via {@link WebServiceEnv}.
-    * 
+    *
     * Also adds NO descriptors to calls that cannot contain DescriptorPolicy
     * because descriptors are NOT delivered by default for ProcessInstances
-    * 
+    *
     * @param pi
     * @return
     */
    public static ProcessInstanceXto toWs(ProcessInstance pi)
    {
       Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(pi.getModelOID());
-      
+
       // this adds NO descriptors to calls that cannot contain
       // DescriptorPolicy
       // because descriptors are NOT delivered by default for ProcessInstances
       return toWs(pi, null, model);
    }
-   
+
    /**
     * Usable even if {@link WebServiceEnv} is not available.
     * Because of this the model has to be specified.
-    * 
+    *
     * Also adds NO descriptors to calls that cannot contain DescriptorPolicy
     * because descriptors are NOT delivered by default for ProcessInstances
-    * 
+    *
     * @param pi
     * @param model model for lookups
     * @return
@@ -1709,7 +1694,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
    /**
     * Only use in WebService environment.
     * Model lookup is performed via {@link WebServiceEnv}.
-    * 
+    *
     * @param pi
     * @param query
     * @return
@@ -1717,14 +1702,14 @@ public static DataPathXto toWs(DataPath dp, Model model)
    public static ProcessInstanceXto toWs(ProcessInstance pi, Query query)
    {
       Model model = WebServiceEnv.currentWebServiceEnvironment().getModel(pi.getModelOID());
-      
+
       return toWs(pi,query, model);
    }
-   
+
    /**
     * Usable even if {@link WebServiceEnv} is not available.
     * Because of this the model has to be specified.
-    * 
+    *
     * @param pi
     * @param query
     * @param model model for lookups
@@ -1750,7 +1735,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
       res.setDetailsLevel(marshalProcessInstanceDetailsLevel(pi.getDetailsLevel()));
       res.setDetailsOptions(marshalProcessInstanceDetailsOptions(pi.getDetailsOptions()));
 
-      // TODO res.setStartingUser(marshal(pi.getStartingUser()));
       if (pi.getStartingUser() != null)
       {
          res.setStartingUser(toWs(pi.getStartingUser()));
@@ -1768,15 +1752,13 @@ public static DataPathXto toWs(DataPath dp, Model model)
       {
          res.setInstanceProperties(marshalInstanceProperties(pi, includeDescriptors,
                model));
-         
+
          if (includeDescriptors)
          {
             res.setDescriptorDefinitions(marshalDataPathList(
                   pi.getDescriptorDefinitions(), model));
          }
       }
-      
-      // TODO pi.getAttributes()
 
       res.setHistoricalEvents(marshalHistoricalEvents(pi.getHistoricalEvents()));
 
@@ -2205,7 +2187,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
             res.setPerformedOnBehalfOf((UserInfoXto) marshalParticipantInfo(ai.getPerformedOnBehalfOf(),
                   new UserInfoXto()));
          }
-         
+
          if (ai.getCurrentPerformer() != null)
          {
             res.setCurrentPerformer(toWs(ai.getCurrentPerformer()));
@@ -2223,8 +2205,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
          res.setStartTime(ai.getStartTime());
          res.setLastModificationTime(ai.getLastModificationTime());
-
-         // TODO add ActivityInstance attributes?
 
          DescriptorPolicy dp = (query == null)
                ? null
@@ -2470,12 +2450,12 @@ public static DataPathXto toWs(DataPath dp, Model model)
       }
       else if (participantInfo instanceof DynamicParticipantInfo)
       {
-         // fallback workaround just in case, should not be used
+         // fallback just in case, should not be used
          ret = marshalParticipantInfo(participantInfo, new DynamicParticipantInfoXto());
       }
       else if (participantInfo instanceof ParticipantInfo)
       {
-         // fallback workaround just in case, should not be used
+         // fallback just in case, should not be used
          ret = marshalParticipantInfo(participantInfo, new ParticipantInfoXto());
       }
       else
@@ -2506,13 +2486,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
          xto = marshalDynamicParticipantInfo((DynamicParticipantInfo) participantInfo,
                (DynamicParticipantInfoXto) xto);
       }
-      // else
-      // {
-      // throw new UnsupportedOperationException(
-      // "Marshaling of ParticipantInfo type not supported: " +
-      // participantInfo);
-      // }
-
       return xto;
    }
 
@@ -3177,7 +3150,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
       return folder;
    }
-   
+
    private static List<Map> fromXto(DocumentsXto documents, Model model,
          String metaDataTypeId)
    {
@@ -3269,9 +3242,9 @@ public static DataPathXto toWs(DataPath dp, Model model)
    public static FolderInfo unmarshalFolderInfo(FolderInfoXto xto)
    {
       FolderInfo folderInfo = unmarshalFolderInfoXto(xto, new DmsFolderBean());
-      
+
       unmarshalDmsMetaData(xto, folderInfo, null,(DocumentType)null);
-      
+
       return folderInfo;
    }
 
@@ -3313,7 +3286,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
       if (res instanceof DmsResourceBean)
       {
-         // TODO review
          @SuppressWarnings("unchecked")
          Map<String, Object> internals = ((DmsResourceBean) res).vfsResource();
 
@@ -3481,8 +3453,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
       if ((null != model) && !isEmpty(metaDataTypeId))
       {
-         // TODO verify meta data type passed in?
-
          Serializable metaData = unmarshalStructValue(model, metaDataTypeId, null,
                xto.getMetaData().getAny());
          if ((metaData instanceof Map) && !isEmpty((Map< ? , ? >) metaData))
@@ -3510,8 +3480,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
       Serializable metaData = null;
       if ( !isEmpty(xPaths))
       {
-         // TODO verify meta data type passed in?
-
          metaData = unmarshalStructValue(xPaths, null, xto.getMetaData().getAny());
       }
       else
@@ -3542,12 +3510,12 @@ public static DataPathXto toWs(DataPath dp, Model model)
    {
       final XSDSchema schema = DmsSchemaProvider.loadExternalSchema(DmsConstants.MONTAUK_SCHEMA_XSD);
 
-      @SuppressWarnings("unchecked")
       final Set<TypedXPath> xPaths = XPathFinder.findAllXPaths(schema,
             DmsSchemaProvider.RESOURCE_PROPERTIES_COMPLEX_TYPE_NAME, false);
       final Serializable metaData = unmarshalStructValue(xPaths, null, xto.getAny());
       if ((metaData instanceof Map) && !isEmpty((Map< ? , ? >) metaData))
       {
+         @SuppressWarnings("unchecked")
          final Map<String, Serializable> schemaUnawareMetaData = createSchemaUnawareMetaData((Map<String, List<Map<String, Serializable>>>) metaData);
          resource.setProperties(schemaUnawareMetaData);
       }
@@ -3624,11 +3592,42 @@ public static DataPathXto toWs(DataPath dp, Model model)
       return value;
    }
 
+   /**
+    * Infers the TypedXPaths from the QName of the type definition in all active models.
+    *
+    * @param typeName The qualified name of the xsd type definition.
+    * @return Inferred XPaths.
+    */
+   public static Set<TypedXPath> inferStructDefinition(QName typeName)
+   {
+      Set<TypedXPath> xPaths = null;
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+      Models activeModelDescriptions = wsEnv.getServiceFactory()
+            .getQueryService()
+            .getModels(DeployedModelQuery.findActive());
+      for (DeployedModelDescription deployedModelDescription : activeModelDescriptions)
+      {
+         Model model = wsEnv.getModel(deployedModelDescription.getModelOID());
+         xPaths = inferStructDefinition(typeName, model);
+         if (xPaths != null && !xPaths.isEmpty())
+         {
+            break;
+         }
+      }
+      return xPaths;
+   }
+
+   /**
+    * Infers the TypedXPaths from the QName of the type definition in the specified model.
+    *
+    * @param typeName The qualified name of the xsd type definition.
+    * @param model the model to look up in.
+    * @return Inferred XPaths.
+    */
    @SuppressWarnings("unchecked")
    public static Set<TypedXPath> inferStructDefinition(QName typeName, Model model)
    {
       Set<TypedXPath> xPaths = null;
-
       if (model != null)
       {
          for (TypeDeclaration type : (List<TypeDeclaration>) model.getAllTypeDeclarations())
@@ -3864,7 +3863,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
    {
       XmlValueXto ret = new XmlValueXto();
 
-      // TODO evaluate use of XmlUtils.parseString()
       ret.getAny().add(XmlUtils.parseString(xmlString).getDocumentElement());
 
       return ret;
@@ -4207,10 +4205,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
    public static AttributesXto marshalAttributes(Map< ? , ? > attributes)
    {
-      // FIXME attributes
-      // DefaultXMLWriter //588
-      // DefaultXMLReader // 1592
-      // name value type
       AttributesXto xto = null;
       if (attributes != null && !attributes.isEmpty())
       {
@@ -4957,7 +4951,7 @@ public static DataPathXto toWs(DataPath dp, Model model)
          variableXto.setDescription(variable.getDescription());
          variableXto.setModelOid(variable.getModelOid());
          variableXto.setName(variable.getName());
-         variableXto.setType(variable.getType().name());         
+         variableXto.setType(variable.getType().name());
          variableXto.setValue(variable.getValue());
 
       }
@@ -5014,8 +5008,8 @@ public static DataPathXto toWs(DataPath dp, Model model)
       if (variableXto != null)
       {
          ConfigurationVariableDefinition variableDefinition = new ConfigurationVariableDefinition(
-               variableXto.getName(), 
-               ConfigurationVariableUtils.getType(variableXto.getType()), 
+               variableXto.getName(),
+               ConfigurationVariableUtils.getType(variableXto.getType()),
                variableXto.getDefaultValue(), variableXto.getDescription(), variableXto.getModelOid());
 
          ret = new ConfigurationVariable(variableDefinition, variableXto.getValue());
@@ -5328,11 +5322,11 @@ public static DataPathXto toWs(DataPath dp, Model model)
 
       return documentType;
    }
-   
+
    public static DeputyXto marshalDeputy(Deputy deputy)
    {
       DeputyXto xto = null;
-      
+
       if (deputy != null)
       {
          xto = new DeputyXto();
@@ -5344,81 +5338,81 @@ public static DataPathXto toWs(DataPath dp, Model model)
          xto.setUser((UserInfoXto) marshalParticipantInfo(deputy.getUser(),
                new UserInfoXto()));
       }
-      
+
       return xto;
    }
-   
+
    public static ModelParticipantInfosXto marshalModelParticipantInfos(Set<ModelParticipantInfo> participants)
    {
       ModelParticipantInfosXto xto = null;
-      
+
       if (participants != null)
       {
          xto = new ModelParticipantInfosXto();
-         
+
          for (ModelParticipantInfo participant : participants)
          {
             xto.getModelparticipantInfo().add(
                   (ModelParticipantInfoXto) marshalParticipantInfo(participant,
                         new ModelParticipantInfoXto()));
          }
-         
+
          return xto;
-   
+
       }
-      
+
       return null;
-      
+
    }
-   
+
    public static Set<ModelParticipantInfo> unmarshalModelParticipantInfos(ModelParticipantInfosXto participantsXto)
    {
       Set<ModelParticipantInfo> participants = null;
-      
+
       if (participantsXto != null)
       {
          participants = CollectionUtils.newSet();
          List<ModelParticipantInfoXto> participantInfos = participantsXto.getModelparticipantInfo();
-         
+
          for (ModelParticipantInfoXto participantInfo : participantInfos)
          {
             participants.add((ModelParticipantInfo) unmarshalParticipantInfo(participantInfo));
          }
-         
+
       }
-      
+
       return participants;
    }
-   
+
    public static DeputyOptions unmarshalDeputyOptions(DeputyOptionsXto deputyOptionsXto)
    {
       DeputyOptions options = null;
-      
+
       if (deputyOptionsXto != null)
       {
          options = new DeputyOptions();
          options.setFromDate(deputyOptionsXto.getFromDate());
          options.setToDate(deputyOptionsXto.getToDate());
-         options.setParticipants(unmarshalModelParticipantInfos(deputyOptionsXto.getModelParticipantInfos()));         
+         options.setParticipants(unmarshalModelParticipantInfos(deputyOptionsXto.getModelParticipantInfos()));
       }
-      
+
       return options;
    }
-   
+
    public static DeputiesXto marshalDeputies(List<Deputy> deputies)
    {
       DeputiesXto deputiesXto = null;
-      
+
       if (deputies != null)
       {
          deputiesXto = new DeputiesXto();
-         
+
          for (Deputy deputy : deputies)
          {
             deputiesXto.getDeputy().add(marshalDeputy(deputy));
          }
       }
-      
-      return deputiesXto;      
+
+      return deputiesXto;
    }
 }

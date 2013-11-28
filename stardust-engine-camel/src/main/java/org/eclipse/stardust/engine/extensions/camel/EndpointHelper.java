@@ -35,6 +35,8 @@ public class EndpointHelper
          answer= answer.replaceAll("&lt;", "<");
       if(answer.contains("&gt;"))
          answer= answer.replaceAll("&gt;", ">");
+      if(answer.contains("&quot;"))
+    	  answer= answer.replaceAll("&quot;", "\"");
       
       return answer;
    }

@@ -12,13 +12,11 @@ package org.eclipse.stardust.engine.extensions.ejb.utils;
 
 import java.security.Principal;
 
-import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.core.compatibility.spi.security.DefaultPrincipalNameProvider;
 import org.eclipse.stardust.engine.core.compatibility.spi.security.PrincipalNameProvider;
-
 
 public class J2EEUtils
 {
@@ -34,32 +32,15 @@ public class J2EEUtils
 
       String result;
 
-      String principalNameProviderClassName = Parameters.instance().getString(
-            PrincipalNameProvider.PRP_PRINCIPAL_NAME_PROVIDER,
-            DefaultPrincipalNameProvider.class.getName());
-
-      Object rawPrincipalNameProvider = null;
-      try
+      PrincipalNameProvider principalNameProvider = ExtensionProviderUtils
+            .getFirstExtensionProvider(PrincipalNameProvider.class);
+      if (principalNameProvider == null)
       {
-         rawPrincipalNameProvider = Reflect
-               .createInstance(principalNameProviderClassName);
-      }
-      catch (Exception x)
-      {
-         trace.warn(
-               "Could not load PrincipalNameProvider. Will use principal.getName().", x);
+         trace.warn("Could not load PrincipalNameProvider. Will use default approach: principal.getName().");
+         principalNameProvider = new DefaultPrincipalNameProvider();
       }
 
-      if (rawPrincipalNameProvider instanceof PrincipalNameProvider)
-      {
-         PrincipalNameProvider principalNameProvider = (PrincipalNameProvider) rawPrincipalNameProvider;
-         result = principalNameProvider.getName(principal);
-      }
-      else
-      {
-         // default implementation
-         result = principal.getName();
-      }
+      result = principalNameProvider.getName(principal);
 
       return result;
    }

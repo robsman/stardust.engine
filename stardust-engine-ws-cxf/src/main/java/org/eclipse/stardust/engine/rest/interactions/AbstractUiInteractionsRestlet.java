@@ -234,7 +234,7 @@ public abstract class AbstractUiInteractionsRestlet
       {
          for (AccessPoint ap : (List<AccessPoint>) definition.getAllAccessPoints())
          {
-            if ((direction == ap.getDirection()) && parameterId.equals(ap.getId()))
+            if ((direction.isCompatibleWith(ap.getDirection())) && parameterId.equals(ap.getId()))
             {
                return ap;
             }

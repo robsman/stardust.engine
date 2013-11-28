@@ -60,7 +60,7 @@ public class MessageTransformationApplicationInstance
    }
 
    /**
-     * 
+     *
      */
    public void setInAccessPointValue(String name, Object value)
    {
@@ -93,7 +93,7 @@ public class MessageTransformationApplicationInstance
    }
 
    /**
-    * 
+    *
     * @param outDataTypes
     * @return
     * @throws InvocationTargetException
@@ -114,7 +114,7 @@ public class MessageTransformationApplicationInstance
    }
 
    /**
-    * 
+    *
     * @param name
     * @param allowReturnValue
     * @return
@@ -127,7 +127,7 @@ public class MessageTransformationApplicationInstance
    }
 
    /**
-    * 
+    *
     */
    public Map invoke(Set outDataTypes) throws InvocationTargetException
    {
@@ -150,13 +150,13 @@ public class MessageTransformationApplicationInstance
          {
             FieldMapping fieldMapping = (FieldMapping) jsContextProvider.getFieldMappings().get(i);
             if (fieldMapping.isContentMapping() && !fieldMapping.isAdvancedMapping()) {
-            	String targetPath = (String) fieldMapping.getFieldPath();            	                  
+            	String targetPath = (String) fieldMapping.getFieldPath();
                 String jsPath = xPathToJavaScriptPath(targetPath);
-            	fieldMapping.setMappingExpression(jsPath + ".setContent(" + fieldMapping.getMappingExpression() + ")"); 
-            }            
+            	fieldMapping.setMappingExpression(jsPath + ".setContent(" + fieldMapping.getMappingExpression() + ")");
+            }
             final Object result = jsManager.executeMapping(fieldMapping.getMappingExpression());
 
-            if (!fieldMapping.isAdvancedMapping() || this.isPrimitiveTarget(fieldMapping))            
+            if (!fieldMapping.isAdvancedMapping() || this.isPrimitiveTarget(fieldMapping))
             {
                // assign result to slot in target message
                String targetPath = (String) fieldMapping.getFieldPath();
@@ -165,16 +165,16 @@ public class MessageTransformationApplicationInstance
                {
                   targetPath = targetPath.substring(targetPath.indexOf("/") + 1,
                         targetPath.length());
-                  
+
                   String jsPath = xPathToJavaScriptPath(targetPath);
-                  
+
                   // directly assign to target message
-                  String path = outputTarget + "." + jsPath; 
+                  String path = outputTarget + "." + jsPath;
                   if (path.endsWith(".")) {
                      path = path.substring(0, path.length() - 1);
                      outputMessages.put(path, result);
                   } else {
-                     jsManager.executeTargetAssignment(path, result);                     
+                     jsManager.executeTargetAssignment(path, result);
                   }
                }
             }
@@ -188,7 +188,7 @@ public class MessageTransformationApplicationInstance
             Object values = outputMessages.get(accessPointID);
             /*if (values instanceof Map)
             {
-               Map mapValues = (Map) outputMessages.get(accessPointID);   
+               Map mapValues = (Map) outputMessages.get(accessPointID);
             }*/
             if (isJavaBeanAP(accessPointID))
             {
@@ -207,7 +207,7 @@ public class MessageTransformationApplicationInstance
          {
             Context.exit();
          }
-         catch (Exception ie) 
+         catch (Exception ie)
          {
             // log this exception...
             trace.warn("Exception during Context.exit()", ie);
@@ -230,12 +230,12 @@ public class MessageTransformationApplicationInstance
 	}
 	return false;
 }
-   
+
 	private boolean isPrimitiveTarget(FieldMapping fieldMapping) {
         String targetPath = (String) fieldMapping.getFieldPath();
         String outputTarget = targetPath.substring(0, targetPath.indexOf("/"));
         MessageTransformationScope scope = (MessageTransformationScope) jsManager.getScope();
-        Object outputAdapter = scope.getOutputMessagAdapters().get(outputTarget); 
+        Object outputAdapter = scope.getOutputMessagAdapters().get(outputTarget);
         return (outputAdapter instanceof String);
 	}
 
@@ -245,16 +245,20 @@ private String xPathToJavaScriptPath(String xPath)
 
       // TODO map attribute names (prefix attr instead of @)?
       // TODO map namespace prefixes
-      for (int i = buffer.indexOf("/"); -1 != i; i = buffer.indexOf("/", i))
+      if (buffer.length() > 0)
       {
-         buffer.replace(i, i + 1, ".");
+         for (int i = buffer.indexOf("/"); -1 != i; i = buffer.indexOf("/", i))
+         {
+            buffer.replace(i, i + 1, ".");
+         }
+
+         int lastCharIndex = buffer.length() - 1;
+         if (lastCharIndex >= 0 && buffer.charAt(lastCharIndex) == '.')
+         {
+            buffer.setLength(lastCharIndex);
+         }
       }
 
-      int lastCharIndex = buffer.length() - 1;
-      if (lastCharIndex >= 0 && buffer.charAt(lastCharIndex) == '.')
-      {
-         buffer.setLength(lastCharIndex);
-      }
       return buffer.toString();
    }
 

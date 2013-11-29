@@ -69,21 +69,21 @@ public class StructuredDataXPathUtils
 
       return xPath;
    }
-   
+
    /**
-     * checks if XPath is indexed 
+     * checks if XPath is indexed
      * @param XPath
      * @return
-     */   
-    public static boolean isIndexedXPath(String xPath) 
+     */
+    public static boolean isIndexedXPath(String xPath)
     {
        if (-1 == xPath.indexOf("[") && !isRootXPath(xPath))
        {
           return false;
        }
-       
+
        return true;
-    }   
+    }
 
    /**
     * Computes "indexed" XPath for given node
@@ -721,6 +721,15 @@ public class StructuredDataXPathUtils
          return null;
       case 1:
          Node child = node.getChild(0);
+         if(child instanceof Element)
+         {
+            int cl = child.getChildCount();
+            if(cl == 1)
+            {
+               child = child.getChild(0);
+            }
+         }
+
          if (child instanceof Text)
          {
             return child.getValue();
@@ -1517,7 +1526,7 @@ public class StructuredDataXPathUtils
    {
       return createXPathEvaluator(null, unqualifiedXPath, rootXPath, namespaceAware);
    }
-   
+
    private static XPathEvaluator createXPathEvaluator(IXPathMap map, String unqualifiedXPath, TypedXPath rootXPath, boolean namespaceAware)
    {
       try
@@ -1568,17 +1577,17 @@ public class StructuredDataXPathUtils
       return true;
 
    }
-   
+
    public static boolean isPrimitiveType(TypedXPath typedXPath)
-   {     
+   {
       return typedXPath.getType() != BigData.NULL;
    }
-   
+
    public static boolean isCollectionType(TypedXPath typedXPath)
    {
       return typedXPath.isList() || typedXPath.isEnumeration();
    }
-   
+
    public static boolean isMapType(TypedXPath typedXPath)
    {
       return (!isPrimitiveType(typedXPath) && !isCollectionType(typedXPath));

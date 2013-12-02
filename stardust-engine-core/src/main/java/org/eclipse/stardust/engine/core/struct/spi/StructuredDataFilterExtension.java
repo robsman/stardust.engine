@@ -143,7 +143,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
    private void validateXPath(String dataId, String xPath, boolean canReturnLists)
    {
-      if (StringUtils.isEmpty(xPath))
+      if (xPath == null)
       {
          throw new IllegalOperationException(
                BpmRuntimeError.QUERY_MISSING_XPATH_ON_NON_STRUCT_DATA
@@ -151,8 +151,8 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       }
 
       boolean isValid = false;
-
       Collection<IData> allData = this.findAllDatas(dataId, ModelManagerFactory.getCurrent());
+
       for (Iterator<IData> i = allData.iterator(); i.hasNext(); )
       {
          IData data = (IData) i.next();

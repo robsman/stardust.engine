@@ -19,7 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -27,17 +26,17 @@ import org.junit.Test;
  * This class contains methods for testing {@link GlobalParameters}
  * for thread-safety.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class GlobalParametersTest
 {
    private static final int THREAD_COUNT = 1000;
-   
+
    private static final String THREAD_ID_VALUE = "<a value>";
-   
-   @Ignore("CRNT-30059")
+
+   //@Ignore("CRNT-30059")
    @Test
    public void testConcurrentModificationViaSet() throws InterruptedException
    {
@@ -53,7 +52,7 @@ public class GlobalParametersTest
          }
       });
    }
-   
+
    @Test
    public void testConcurrentModificationViaGetOrInitialize() throws InterruptedException
    {
@@ -67,10 +66,10 @@ public class GlobalParametersTest
                executorService.submit(new GlobalParametersModifierViaGetOrInitialize(String.valueOf(i)));
             }
          }
-      });      
+      });
    }
-   
-   @Ignore("CRNT-30059")
+
+   //@Ignore("CRNT-30059")
    @Test
    public void testConcurrentModificationViaSetAndGetOrInitialize() throws InterruptedException
    {
@@ -87,7 +86,7 @@ public class GlobalParametersTest
          }
       });
    }
-   
+
    private void executeTest(final ThreadSubmission threadSubmission) throws InterruptedException
    {
       final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
@@ -98,51 +97,51 @@ public class GlobalParametersTest
       {
          Assert.fail("Timeout while waiting for executor service termination.");
       }
-      
+
       final GlobalParameters globals = GlobalParameters.globals();
       for (int i=0; i<THREAD_COUNT; i++)
       {
          assertThat("Thread ID: " + i, (String) globals.get(String.valueOf(i)), equalTo(THREAD_ID_VALUE));
       }
    }
-   
+
    private static interface ThreadSubmission
    {
       public void submitThreads(final ExecutorService executorService);
    }
-   
+
    private static final class GlobalParametersModifierViaSet implements Callable<Void>
    {
       private final String id;
-      
+
       public GlobalParametersModifierViaSet(final String id)
       {
          this.id = id;
       }
-      
+
       @Override
       public Void call() throws InterruptedException
       {
          GlobalParameters.globals().set(id, THREAD_ID_VALUE);
-         
+
          return null;
       }
    }
-   
+
    private static final class GlobalParametersModifierViaGetOrInitialize implements Callable<Void>
    {
       private final String id;
-      
+
       public GlobalParametersModifierViaGetOrInitialize(final String id)
       {
          this.id = id;
       }
-      
+
       @Override
       public Void call() throws InterruptedException
       {
          GlobalParameters.globals().getOrInitialize(id, THREAD_ID_VALUE);
-         
+
          return null;
       }
    }

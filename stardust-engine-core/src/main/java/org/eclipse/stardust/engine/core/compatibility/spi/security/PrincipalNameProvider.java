@@ -18,9 +18,6 @@ import java.security.Principal;
  */
 public interface PrincipalNameProvider
 {
-   public static final String PRP_PRINCIPAL_NAME_PROVIDER = PrincipalNameProvider.class
-         .getName();
-
    /**
     * Provides the name for a given principal. Default implementation would be to return principal.getName().
     * It is possible to test for a certain implementation and use method fo these implementation

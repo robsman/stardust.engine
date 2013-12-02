@@ -51,6 +51,7 @@ public class RuntimeJobs
             jobs.add(new R7_1_0from7_0_xRuntimeJob());
             jobs.add(new R7_1_4from7_1_0RuntimeJob());
             jobs.add(new R7_2_0from7_1_xRuntimeJob());
+            jobs.add(new R7_3_0from7_2_0RuntimeJob());
          }
          jobs.add(new R7_1_4from7_1_0RuntimeJob());
       }

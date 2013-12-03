@@ -53,6 +53,7 @@ public class GlobalParameters
    private static boolean constructing = false;
 
    private ConcurrentMap<String, Object> localProperties = CollectionUtils.newConcurrentHashMap();
+
    private final Map<String, Object> systemProperties;
 
    private Set<String> userBundleNames;
@@ -289,7 +290,12 @@ public class GlobalParameters
                   }
                   providerTrace.info(logMsg);
                }
-               this.localProperties.put(key, value);
+
+               if (value == null)
+               {
+                  trace.warn("Removing property with key '" + key + "' as value is null.");
+               }
+               set(key, value);
             }
 
             // for bundle based providers: register bundle as loaded
@@ -311,7 +317,7 @@ public class GlobalParameters
       {
          try
          {
-            addProperties(this.localProperties, dep, getClass().getClassLoader());
+            addProperties(dep, getClass().getClassLoader());
          }
          catch (Exception e)
          {
@@ -351,10 +357,10 @@ public class GlobalParameters
     */
    public synchronized void addProperties(String fileName)
    {
-      addProperties(localProperties, fileName, getClass().getClassLoader());
+      addProperties(fileName, getClass().getClassLoader());
    }
 
-   private void addProperties(Map<String, Object> properties, String fileName, ClassLoader classLoader)
+   private void addProperties(String fileName, ClassLoader classLoader)
    {
       if (userBundleNames.contains(fileName))
       {
@@ -373,7 +379,12 @@ public class GlobalParameters
          {
             String key = i.nextElement();
             Object value = bundle.getObject(key);
-            properties.put(key, value);
+
+            if (value == null)
+            {
+               trace.warn("Removing property with key '" + key + "' as value is null.");
+            }
+            set(key, value);
             trace.info("  " + key + " = " + value);
          }
          userBundleNames.add(fileName);
@@ -388,13 +399,26 @@ public class GlobalParameters
 
    public Object get(String name)
    {
-      final Object value = localProperties.get(name);
+      Object value = localProperties.get(name);
 
-      return value == null ? name == null ? null : systemProperties.get(name) : value;
+      if (value == null)
+      {
+         if (name != null)
+         {
+            value = systemProperties.get(name);
+         }
+      }
+
+      return value;
    }
 
    public void set(String name, Object value)
    {
+      if (name == null)
+      {
+         trace.warn("Undefinded Behavior for properties with name equal to null.");
+      }
+
       if (null != value)
       {
          localProperties.put(name, value);
@@ -441,9 +465,12 @@ public class GlobalParameters
          // perform initialization
 
          Object initialValue = initializationCallback.getValue();
-         if (null != localProperties.put(name, initialValue))
+         if (null != initialValue)
          {
-            trace.warn("Race condition while initializing property '" + name + "'.");
+            if (null != localProperties.putIfAbsent(name, initialValue))
+            {
+               trace.warn("Race condition while initializing property '" + name + "'.");
+            }
          }
       }
 

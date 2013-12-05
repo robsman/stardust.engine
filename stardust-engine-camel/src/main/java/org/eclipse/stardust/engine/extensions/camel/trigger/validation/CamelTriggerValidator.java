@@ -129,7 +129,7 @@ public class CamelTriggerValidator implements TriggerValidator,
     
             if (StringUtils.isEmpty(ctu) || StringUtils.isEmpty(ctp)
                     || ctu.equals("${camelTriggerUsername}")
-                    || ctp.equals("${camelTriggerPassword}")) {
+                    || ctp.equals("${camelTriggerPassword:Password}")) {
                 inconsistencies.add(new Inconsistency(
                         "User ID/ Password is not set for " + trigger.getName(),
                         trigger, Inconsistency.ERROR));

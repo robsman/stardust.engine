@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,68 +11,32 @@
 package org.eclipse.stardust.engine.api.dto;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.config.PropertyLayer;
-import org.eclipse.stardust.engine.api.model.Activity;
-import org.eclipse.stardust.engine.api.model.DataPath;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
-import org.eclipse.stardust.engine.api.model.IModelParticipant;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IRole;
-import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
-import org.eclipse.stardust.engine.api.model.ParticipantInfo;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.query.HistoricalEventPolicy;
 import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEvent;
-import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
-import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
-import org.eclipse.stardust.engine.api.runtime.LogType;
-import org.eclipse.stardust.engine.api.runtime.PermissionState;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssuranceState;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
-import org.eclipse.stardust.engine.api.runtime.UserInfo;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
+import org.eclipse.stardust.engine.core.model.utils.ModelElement;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ILogEntry;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
-import org.eclipse.stardust.engine.core.runtime.beans.IWorkItem;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 
 
 
@@ -94,11 +58,15 @@ import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
  * @see org.eclipse.stardust.engine.api.dto.DataMappingDetails
  */
 public class ActivityInstanceDetails extends RuntimeObjectDetails
-      implements ActivityInstance, IDescriptorProvider
+      implements ActivityInstance
 {
    private static final long serialVersionUID = 2L;
 
-   private static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm:ss");
+
+   // this pattern does define a group which will contain a long value: the handler oid
+   private static final Pattern handlerOidPattern = Pattern.compile("handlerOID *= *([0-9]+)");
+   private static final Pattern handlerModelElementOidPattern = Pattern.compile("handlerModelElementOID *= *([0-9]+)");
 
    private ActivityInstanceState state;
    private Date startTime;
@@ -116,16 +84,17 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
 
    private ParticipantInfo performer;
    private UserInfo performedBy;
+   private UserInfo performedOnBehalfOf;
    private User userPerformer;
 
    private List<HistoricalState> historicalStates = Collections.emptyList();
 
    private final List<HistoricalEvent> historicalEvents = CollectionUtils.newList();
-   
+
    private ActivityInstanceAttributes attributes;
    private QualityAssuranceState qualityAssuranceState = QualityAssuranceState.NO_QUALITY_ASSURANCE;
    private QualityAssuranceInfo qcInfo;
-   
+
    public ActivityInstanceDetails(final IWorkItem workItem)
    {
       this(new WorkItemAdapter(workItem));
@@ -233,33 +202,47 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       switch (historicalStatesPolicy)
       {
       case WITH_HIST_STATES:
-         Iterator histStatesIterator = ActivityInstanceHistoryBean
+         Iterator<ActivityInstanceHistoryBean> histStatesIterator = ActivityInstanceHistoryBean
                .getAllForActivityInstance(activityInstance, false);
          if (histStatesIterator.hasNext())
          {
-         historicalStates = Collections.<HistoricalState>unmodifiableList(DetailsFactory.createCollection(
-                  histStatesIterator, ActivityInstanceHistoryBean.class, HistoricalStateDetails.class));
+            List<HistoricalStateDetails> states = DetailsFactory.createCollection(
+                  histStatesIterator, ActivityInstanceHistoryBean.class,
+                  HistoricalStateDetails.class);
+            if (activityInstance.isTerminated())
+            {
+               HistoricalStateDetails first = states.get(0);
+               performedOnBehalfOf = first.getOnBehalfOfUser();
+               if (performedOnBehalfOf != null)
+               {
+                  states.remove(0);
+               }
+            }
+            historicalStates = Collections.<HistoricalState> unmodifiableList(states);
          }
          break;
       case WITH_LAST_HIST_STATE:
-         ActivityInstanceHistoryBean last = ActivityInstanceHistoryBean
+         Pair<ActivityInstanceHistoryBean, IUser> pair = ActivityInstanceHistoryBean
                .getLastForActivityInstance(activityInstance);
+         performedOnBehalfOf = DetailsFactory.create(pair.getSecond());
+         ActivityInstanceHistoryBean last = pair.getFirst();
          if (last != null)
          {
             historicalStates = Collections.<HistoricalState>singletonList(DetailsFactory.create(
-                  last, ActivityInstanceHistoryBean.class,
-               HistoricalStateDetails.class));
-      }
+                  pair, ActivityInstanceHistoryBean.class, HistoricalStateDetails.class));
+         }
          break;
       case WITH_LAST_USER_PERFORMER:
-         ActivityInstanceHistoryBean lastUserPerformer = ActivityInstanceHistoryBean
+         pair = ActivityInstanceHistoryBean
                .getLastUserPerformerForActivityInstance(activityInstance);
+         performedOnBehalfOf = DetailsFactory.create(pair.getSecond());
+         ActivityInstanceHistoryBean lastUserPerformer = pair.getFirst();
          if (lastUserPerformer != null)
-      {
-            historicalStates = Collections.<HistoricalState>singletonList(DetailsFactory.create(
+         {
+            historicalStates = Collections.<HistoricalState> singletonList(DetailsFactory.create(
                   lastUserPerformer, ActivityInstanceHistoryBean.class,
                   HistoricalStateDetails.class));
-      }
+         }
          break;
       }
 
@@ -289,7 +272,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       permissions.put(ctx.getPermissionId(), ps);
 
       try
-      {         
+      {
          // Skip process authorization check here, since it was already checked for the activity instance
          // Do overwrite level explicitly. Otherwise we would end in an infinity loop AI / PI / AI / ...
          Map<String, Object> props = CollectionUtils.newMap();
@@ -299,7 +282,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             props.put(IDescriptorProvider.PRP_PROPVIDE_DESCRIPTORS, true);
          }
          layer = ParametersFacade.pushLayer(props);
-         this.processInstance = DetailsFactory.create(processInstance);         
+         this.processInstance = DetailsFactory.create(processInstance);
       }
       finally
       {
@@ -308,7 +291,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             ParametersFacade.popLayer();
          }
       }
-      
+
       layer = null;
       try
       {
@@ -328,22 +311,22 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             ParametersFacade.popLayer();
          }
       }
-      
+
       if (QualityAssuranceUtils.isQualityAssuranceEnabled(activityInstance))
       {
          qualityAssuranceState = activityInstance.getQualityAssuranceState();
          attributes = QualityAssuranceUtils.getActivityInstanceAttributes(activityInstance);
          //build info object regarding qa workflow
-         if(qualityAssuranceState == QualityAssuranceState.IS_QUALITY_ASSURANCE 
+         if(qualityAssuranceState == QualityAssuranceState.IS_QUALITY_ASSURANCE
                || qualityAssuranceState == QualityAssuranceState.IS_REVISED)
          {
             qcInfo = QualityAssuranceUtils.getQualityAssuranceInfo(activityInstance);
          }
       }
-      
+
       //if note for the process instance exists, - potentially notes for this activity instance exists
       //load and set these note
-      final IProcessInstance scopeProcessInstance 
+      final IProcessInstance scopeProcessInstance
          = activityInstance.getProcessInstance().getScopeProcessInstance();
       if(ProcessInstanceUtils.isLoadNotesEnabled()
             && ProcessInstanceUtils.hasNotes(scopeProcessInstance))
@@ -356,7 +339,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             {
                attributes = new ActivityInstanceAttributesImpl(activityInstance.getOID());
             }
-            
+
             attributes.setNotes(aiNotes);
          }
       }
@@ -438,7 +421,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    {
       return performer instanceof UserInfo ? performer.getName() : null;
    }
-   
+
    public User getUserPerformer()
    {
       return userPerformer;
@@ -495,6 +478,11 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    public UserInfo getPerformedBy()
    {
       return performedBy;
+   }
+
+   public UserInfo getPerformedOnBehalfOf()
+   {
+      return performedOnBehalfOf;
    }
 
    public Object getDescriptorValue(String id)
@@ -587,7 +575,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          if (null != prevHistState
                && prevHistState.getState() != state
                && activityInstance.isTerminated())
-         {          
+         {
             UserDetails performedByDetails = null;
             IUser performedBy = activityInstance.getPerformedBy();
             if(performedBy != null)
@@ -595,7 +583,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                performedByDetails = (UserDetails) DetailsFactory.create(performedBy,
                      IUser.class, UserDetails.class);
             }
-            
+
             historicalEvents.add(new HistoricalEventDetails( //
                   HistoricalEventType.StateChange, //
                   activityInstance.getLastModificationTime(), //
@@ -605,24 +593,44 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          }
       }
 
-      if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION))
+      if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION)
+            || isEventTypeSet(eventTypes, HistoricalEventType.EVENT_EXECUTION))
       {
          Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          Iterator lIter = null;
+
+         // LogEntry has been already fetched in prefetch phase of query execution - take it from cache
          if (session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
          {
-            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session).getCache(LogEntryBean.class)
-                  .iterator();
+            lIter = ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) session)
+                  .getCache(LogEntryBean.class).iterator();
          }
+
+         ModelElementList<ModelElement> eventHandlers = null;
          while (lIter != null && lIter.hasNext())
          {
             PersistenceController pc = (PersistenceController) lIter.next();
             ILogEntry logEntry = (ILogEntry) pc.getPersistent();
-            LogType logtype = LogType.getKey(logEntry.getType());
-            if (logEntry.getActivityInstanceOID() == getOID()
-                  && !LogType.Debug.equals(logtype) && !LogType.Info.equals(logtype))
+
+            if (logEntry.getActivityInstanceOID() == getOID())
             {
-               historicalEvents.add(new HistoricalEventDetails(logEntry));
+               LogType logtype = LogType.getKey(logEntry.getType());
+               LogCode logCode = LogCode.getKey(logEntry.getCode());
+
+               if (isEventTypeSet(eventTypes, HistoricalEventType.EXCEPTION)
+                     // exceptions are represented by log entries logged with WARN, ERROR or even higher level
+                     && !LogType.Debug.equals(logtype) && !LogType.Info.equals(logtype))
+               {
+                  historicalEvents.add(new HistoricalEventDetails(logEntry));
+               }
+
+               if (isEventTypeSet(eventTypes, HistoricalEventType.EVENT_EXECUTION)
+                     // event execution is currently logged at INFO level
+                     && LogType.Info.equals(logtype) && LogCode.EVENT.equals(logCode))
+               {
+                  eventHandlers = addHistoricalEventExecution(activityInstance,
+                        eventHandlers, logEntry);
+               }
             }
          }
       }
@@ -632,7 +640,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       {
          final IProcessInstance scopeProcessInstance = activityInstance
                .getProcessInstance().getScopeProcessInstance();
-         List<Note> aiNotes = ProcessInstanceUtils.getNotes(scopeProcessInstance, this); 
+         List<Note> aiNotes = ProcessInstanceUtils.getNotes(scopeProcessInstance, this);
          for (Note note: aiNotes)
          {
             historicalEvents.add(new HistoricalEventDetails(note));
@@ -651,6 +659,65 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
    }
 
+   /**
+    * @param activityInstance the AI for which event execution will be added
+    * @param eventHandlers this will contain a list of event handlers for the current activity.
+    *          If null it will be initialized in the method call, otherwise its content will be used.
+    * @param logEntry the LogEntry which currently is inspected
+    * @return
+    */
+   private ModelElementList<ModelElement> addHistoricalEventExecution(
+         IActivityInstance activityInstance, ModelElementList<ModelElement> eventHandlers,
+         ILogEntry logEntry)
+   {
+      // retrieve event handlers for current AI once in this loop
+      if (eventHandlers == null)
+      {
+         eventHandlers = activityInstance.getActivity().getEventHandlers();
+      }
+      
+      // try to fetch event handler by event handler runtime oid
+      String subject = logEntry.getSubject();
+      Matcher matcher = handlerOidPattern.matcher(subject);
+      IEventHandler handler = null;
+      if (matcher.find())
+      {
+         long eventHandlerRuntimeOid = Long.valueOf(matcher.group(1));
+         if(eventHandlerRuntimeOid != Event.OID_UNDEFINED)
+         {
+            long modelOid = activityInstance.getActivity().getModel().getModelOID();
+            handler = EventUtils.getEventHandler(modelOid, eventHandlerRuntimeOid);
+         }
+      }
+      
+      //try to fetch event handler by event handler model element oid
+      if(handler == null)
+      {
+         matcher = handlerModelElementOidPattern.matcher(subject);
+         if(matcher.find())
+         {
+            long eventHandlerModelElementOid = Long.valueOf(matcher.group(1));
+            if(eventHandlerModelElementOid != Event.OID_UNDEFINED)
+            {
+               handler = EventUtils.getEventHandler(eventHandlers, eventHandlerModelElementOid);
+            }
+         }         
+      }
+            
+      if(handler != null)
+      {
+         EventHandler eventHandlerDetails = new EventHandlerDetails(
+               handler);
+         HistoricalEvent histEvent = new HistoricalEventDetails(
+               HistoricalEventType.EventExecution, logEntry.getTimeStamp(),
+               HistoricalEventDetails.getUser(logEntry.getUserOID()),
+               eventHandlerDetails);
+         historicalEvents.add(histEvent);
+      }
+         
+      return eventHandlers;
+   }
+
    private static boolean isEventTypeSet(int eventTypes, int eventType)
    {
       return (eventTypes & eventType) == eventType;
@@ -661,7 +728,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
    {
       if (histState.getState() == ActivityInstanceState.Suspended
             && histState.getParticipant() != null
-            && prevHistState.getParticipant() != null)
+            && histState.getParticipant() != null && prevHistState.getParticipant() != null)
       {
 
          if ( !(histState.getParticipant()).equals(prevHistState.getParticipant())
@@ -676,8 +743,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       }
       return false;
    }
-   
-   
+
+
 
    public PermissionState getPermission(String permissionId)
    {

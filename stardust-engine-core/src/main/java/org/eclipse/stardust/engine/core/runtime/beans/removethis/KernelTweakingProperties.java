@@ -112,6 +112,8 @@ public final class KernelTweakingProperties
    public static final String DESCRIPTOR_PREFETCH_STRUCT_INDEX =
       "Carnot.Engine.Tuning.Query.DescriptorPrefetchStructIndex";
 
+   public static final String QUERY_LOCK_TIMEOUT = "Infinity.Engine.Tuning.Query.LockTimeout";
+   
    /**
     * Perform prefetch of data values using existing data cluster tables. Default: false.
     */

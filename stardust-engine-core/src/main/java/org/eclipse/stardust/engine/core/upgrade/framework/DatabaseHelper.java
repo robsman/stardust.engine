@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.sql.Statement;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
@@ -34,6 +35,21 @@ import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.Inde
  */
 public final class DatabaseHelper
 {
+   public enum ColumnNameModificationMode
+   {
+      UPPER_CASE,
+      LOWER_CASE,
+      NONE
+   }
+   
+   public enum AlterMode
+   {
+      ALL,
+      ADDED_COLUMNS_ONLY,
+      ADDED_COLUMNS_IGNORED,
+   }
+   
+   
    private static final Logger trace = LogManager.getLogger(DatabaseHelper.class);
 
    /**
@@ -53,6 +69,10 @@ public final class DatabaseHelper
     * statement that does not exists.
     */
    public static final int ORACLE_ERROR_TABLE_NOT_EXIST = 942;
+
+
+   public static ColumnNameModificationMode columnNameModificationMode 
+      = ColumnNameModificationMode.UPPER_CASE; 
 
    /**
     * <p>Creates a table based on the passed {@link TableInfo} object.</p>
@@ -91,7 +111,7 @@ public final class DatabaseHelper
       String schema = getSchemaName();
       StringBuffer buffer = new StringBuffer(500);
       DBDescriptor dbDescriptor = item.getDbDescriptor();
-      
+
       buffer.append("CREATE TABLE ");
       if (StringUtils.isNotEmpty(schema))
       {
@@ -105,23 +125,23 @@ public final class DatabaseHelper
          FieldInfo field = tableInfo.getFields()[i];
          buffer.append(delimiter).append(getColumnName(dbDescriptor, field)).append(" ");
          buffer.append(dbDescriptor.getSQLType(field.type, field.size));
-         
+
          if (field.isPK && dbDescriptor.supportsIdentityColumns()
                && !StringUtils.isEmpty(tableInfo.getSequenceName()))
          {
             buffer.append(" ")
                   .append(dbDescriptor.getIdentityColumnQualifier());
          }
-         
+
          if(!field.isPK && !dbDescriptor.isColumnNullableByDefault())
          {
             buffer.append(" NULL");
          }
-         
+
          delimiter = ", ";
       }
       buffer.append(")");
-      
+
       try
       {
          executeDdlStatement(item, buffer.toString());
@@ -131,7 +151,7 @@ public final class DatabaseHelper
          // TODO handle DBMS specific error codes
          observer.warn("Couldn't create " + tableInfo.getTableName() + " table.", e);
       }
-      
+
       if (null != tableInfo.getIndexes())
       {
          // creating indexes
@@ -150,7 +170,7 @@ public final class DatabaseHelper
             }
          }
       }
-      
+
       // optionally creating the PK sequence on databases requiring it
       if (dbDescriptor.supportsSequences()
             && !StringUtils.isEmpty(tableInfo.getSequenceName()))
@@ -170,12 +190,36 @@ public final class DatabaseHelper
       }
    }
 
+   public static void alterTableAddColumns(RuntimeItem item, AlterTableInfo tableInfo,
+         UpgradeObserver observer)
+   {
+      
+   }
+   
    public static void alterTable(RuntimeItem item, AlterTableInfo tableInfo,
          UpgradeObserver observer)
    {
+      alterTable(item, tableInfo, observer, AlterMode.ALL);
+   }
+   
+   private static boolean canAddFields(AlterMode alterMode, AlterTableInfo tableInfo)
+   {
+      FieldInfo[] addedFields = tableInfo.getAddedFields();
+      if(alterMode != AlterMode.ADDED_COLUMNS_IGNORED && addedFields != null
+            && addedFields.length > 0)
+      {
+         return true;
+      }
+      
+      return false;
+   }
+   
+   public static void alterTable(RuntimeItem item, AlterTableInfo tableInfo,
+         UpgradeObserver observer, AlterMode alterMode)
+   {
       String schema = getSchemaName();
       DBDescriptor dbDescriptor = item.getDbDescriptor();
-      if ((null != tableInfo.getAddedFields()) && (0 < tableInfo.getAddedFields().length))
+      if (canAddFields(alterMode, tableInfo))
       {
          for (int i = 0; i < tableInfo.getAddedFields().length; i++)
          {
@@ -191,7 +235,7 @@ public final class DatabaseHelper
             buffer.append(tableInfo.getTableName()).append(" ADD ").append(
                   getColumnName(dbDescriptor, field)).append(" ").append(
                   dbDescriptor.getSQLType(field.type, field.size));
-            
+
             if(!field.isPK && !dbDescriptor.isColumnNullableByDefault())
             {
                buffer.append(" NULL");
@@ -209,7 +253,12 @@ public final class DatabaseHelper
             }
          }
       }
-
+      
+      if(alterMode == AlterMode.ADDED_COLUMNS_ONLY)
+      {
+         return;
+      }
+      
       if ((null != tableInfo.getModifiedFields()) && (0 < tableInfo.getModifiedFields().length))
       {
          for (int i = 0; i < tableInfo.getModifiedFields().length; i++)
@@ -239,6 +288,101 @@ public final class DatabaseHelper
                observer.warn("Couldn't modify attribute " + getColumnName(dbDescriptor, field)
                      + " of table " + tableInfo.getTableName() + ".", e);
             }
+         }
+      }
+      
+      // drop obsolete indexes before dropping any columns
+      if ((null != tableInfo.getDroppedIndexes())
+            && (0 < tableInfo.getDroppedIndexes().length))
+      {
+         for (int i = 0; i < tableInfo.getDroppedIndexes().length; i++)
+         {
+            final IndexInfo index = tableInfo.getDroppedIndexes()[i];
+
+            try
+            {
+               // TODO schema name
+               executeDdlStatement(item, dbDescriptor.getDropIndexStatement(
+                     schema, tableInfo.getTableName(), index.name));
+            }
+            catch (SQLException e)
+            {
+               // TODO handle DBMS specific error codes
+               observer.warn("Couldn't drop index " + index.name + " for table "
+                     + tableInfo.getTableName() + ".", e);
+            }
+         }
+      }
+
+      boolean performedDmlBeforeIndexCreation = false;
+      // alter indexes
+      if ((null != tableInfo.getAlteredIndexes())
+            && (0 < tableInfo.getAlteredIndexes().length))
+      {
+         // first step: drop all indexes which have to be altered
+         for (int i = 0; i < tableInfo.getAlteredIndexes().length; i++)
+         {
+            final IndexInfo index = tableInfo.getAlteredIndexes()[i];
+
+            try
+            {
+               // TODO schema name
+               executeDdlStatement(item, dbDescriptor.getDropIndexStatement(
+                     schema, tableInfo.getTableName(), index.name));
+            }
+            catch (SQLException e)
+            {
+               // TODO handle DBMS specific error codes
+               observer.warn("Couldn't drop index " + index.name + " for table "
+                     + tableInfo.getTableName() + ".", e);
+            }
+         }
+
+         // second step: do some necessary DML which for performance reasons has better to
+         // be done before the to be altered indexes get recreated.
+         try
+         {
+            tableInfo.executeDmlBeforeIndexCreation(item);
+            performedDmlBeforeIndexCreation = true;
+         }
+         catch (SQLException e)
+         {
+            // TODO handle DBMS specific error codes
+            observer.warn("Couldn't execute pre index creation DML for table "
+                  + tableInfo.getTableName() + ".", e);
+         }
+
+         // third step: recreate indexes
+         for (int i = 0; i < tableInfo.getAlteredIndexes().length; i++)
+         {
+            final IndexInfo index = tableInfo.getAlteredIndexes()[i];
+
+            try
+            {
+               // TODO schema name
+               createIndex(item, tableInfo, index);
+            }
+            catch (SQLException e)
+            {
+               // TODO handle DBMS specific error codes
+               observer.warn("Couldn't recreate index " + index.name + " for table "
+                     + tableInfo.getTableName() + ".", e);
+            }
+         }
+      }
+
+      if ( !performedDmlBeforeIndexCreation)
+      {
+         try
+         {
+            tableInfo.executeDmlBeforeIndexCreation(item);
+            performedDmlBeforeIndexCreation = true;
+         }
+         catch (SQLException e)
+         {
+            // TODO handle DBMS specific error codes
+            observer.warn("Couldn't execute pre index creation DML for table "
+                  + tableInfo.getTableName() + ".", e);
          }
       }
 
@@ -308,102 +452,6 @@ public final class DatabaseHelper
                observer.warn("Couldn't reset obsolete attributes for table "
                      + tableInfo.getTableName() + " to NULL.", e);
             }
-         }
-      }
-
-      // drop obsolete indexes
-      if ((null != tableInfo.getDroppedIndexes())
-            && (0 < tableInfo.getDroppedIndexes().length))
-      {
-         for (int i = 0; i < tableInfo.getDroppedIndexes().length; i++)
-         {
-            final IndexInfo index = tableInfo.getDroppedIndexes()[i];
-
-            try
-            {
-               // TODO schema name
-               executeDdlStatement(item, dbDescriptor.getDropIndexStatement(
-                     schema, tableInfo.getTableName(), index.name));
-            }
-            catch (SQLException e)
-            {
-               // TODO handle DBMS specific error codes
-               observer.warn("Couldn't drop index " + index.name + " for table "
-                     + tableInfo.getTableName() + ".", e);
-            }
-         }
-      }
-      
-      boolean performedDmlBeforeIndexCreation = false;
-
-      // alter indexes
-      if ((null != tableInfo.getAlteredIndexes())
-            && (0 < tableInfo.getAlteredIndexes().length))
-      {
-         // first step: drop all indexes which have to be altered
-         for (int i = 0; i < tableInfo.getAlteredIndexes().length; i++)
-         {
-            final IndexInfo index = tableInfo.getAlteredIndexes()[i];
-
-            try
-            {
-               // TODO schema name
-               executeDdlStatement(item, dbDescriptor.getDropIndexStatement(
-                     schema, tableInfo.getTableName(), index.name));
-            }
-            catch (SQLException e)
-            {
-               // TODO handle DBMS specific error codes
-               observer.warn("Couldn't drop index " + index.name + " for table "
-                     + tableInfo.getTableName() + ".", e);
-            }
-         }
-         
-         // second step: do some necessary DML which for performance reasons has better to 
-         // be done before the to be altered indexes get recreated.
-         try
-         {
-            tableInfo.executeDmlBeforeIndexCreation(item);
-            performedDmlBeforeIndexCreation = true;
-         }
-         catch (SQLException e)
-         {
-            // TODO handle DBMS specific error codes
-            observer.warn("Couldn't execute pre index creation DML for table "
-                  + tableInfo.getTableName() + ".", e);
-         }
-
-         // third step: recreate indexes
-         for (int i = 0; i < tableInfo.getAlteredIndexes().length; i++)
-         {
-            final IndexInfo index = tableInfo.getAlteredIndexes()[i];
-
-            try
-            {
-               // TODO schema name
-               createIndex(item, tableInfo, index);
-            }
-            catch (SQLException e)
-            {
-               // TODO handle DBMS specific error codes
-               observer.warn("Couldn't recreate index " + index.name + " for table "
-                     + tableInfo.getTableName() + ".", e);
-            }
-         }
-      }
-      
-      if ( !performedDmlBeforeIndexCreation)
-      {
-         try
-         {
-            tableInfo.executeDmlBeforeIndexCreation(item);
-            performedDmlBeforeIndexCreation = true;
-         }
-         catch (SQLException e)
-         {
-            // TODO handle DBMS specific error codes
-            observer.warn("Couldn't execute pre index creation DML for table "
-                  + tableInfo.getTableName() + ".", e);
          }
       }
 
@@ -479,7 +527,7 @@ public final class DatabaseHelper
       }
    }
 
-   public static String getSchemaName() 
+   public static String getSchemaName()
    {
       return (String) Parameters.instance().get(
             SessionFactory.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX);
@@ -528,7 +576,7 @@ public final class DatabaseHelper
          throws SQLException
    {
       executeDdlStatement(
-            item, "create sequence " + getQualifiedName(tableInfo.getSequenceName())); 
+            item, "create sequence " + getQualifiedName(tableInfo.getSequenceName()));
    }
 
    /**
@@ -622,7 +670,12 @@ public final class DatabaseHelper
       }
    }
 
-   public static String getQualifiedName(String name) 
+   public static String getQualifiedName(String name)
+   {
+      return getQualifiedName(name, null);
+   }
+
+   public static String getQualifiedName(String name, String alias)
    {
       String schema = getSchemaName();
       StringBuffer buffer = new StringBuffer(400);
@@ -631,9 +684,14 @@ public final class DatabaseHelper
          buffer.append(schema + ".");
       }
       buffer.append(name);
+
+      if(StringUtils.isNotEmpty(alias))
+      {
+         buffer.append(" ").append(alias);
+      }
       return buffer.toString();
    }
-   
+
    /**
     *
     */
@@ -672,25 +730,39 @@ public final class DatabaseHelper
       {
          fieldNames[i] = getColumnName(dbDescriptor, index.fields[i]);
       }
-      
+
       IndexDescriptor idxDesc = new IndexDescriptor(index.name, fieldNames, index.unique);
 
       // TODO schema name
       executeDdlStatement(item, dbDescriptor.getCreateIndexStatement(schema,
             table.getTableName(), idxDesc));
    }
-   
-   private static String getColumnName(DBDescriptor dbDescriptor, FieldInfo field)
+
+   protected static String getColumnName(DBDescriptor dbDescriptor, FieldInfo field)
    {
-      String colName = null;
-      if(DBMSKey.SYBASE.equals(dbDescriptor.getDbmsKey()))
+      if(columnNameModificationMode == ColumnNameModificationMode.UPPER_CASE)
       {
-         colName = field.name;
+         String colName = null;
+         if(DBMSKey.SYBASE.equals(dbDescriptor.getDbmsKey()))
+         {
+            colName = field.name;
+         }
+         else
+         {
+            colName = field.name.toUpperCase();
+         }
+         return dbDescriptor.quoteIdentifier(colName);
       }
-      else
+      else if(columnNameModificationMode == ColumnNameModificationMode.LOWER_CASE)
       {
-         colName = field.name.toUpperCase();
+         String colName = field.name.toLowerCase();
+         return dbDescriptor.quoteIdentifier(colName);
       }
-      return dbDescriptor.quoteIdentifier(colName);
+      else if(columnNameModificationMode == ColumnNameModificationMode.NONE)
+      {
+         return dbDescriptor.quoteIdentifier(field.name);
+      }
+      
+      throw new PublicException("unknow column modification type: "+columnNameModificationMode);
    }
 }

@@ -31,7 +31,10 @@ public final class DBMSKey extends StringKey
    public static final DBMSKey ORACLE9i = new DBMSKey("oracle9i", "Oracle RDBMS (9i or higher)");
    public static final DBMSKey DB2_UDB = new DBMSKey("db2", "IBM DB2 UDB");
    public static final DBMSKey DERBY = new DBMSKey("derby", "Apache Derby");
+   @Deprecated
    public static final DBMSKey MSSQL8 = new DBMSKey("mssql8", "Microsoft SQL Server 2000");
+   public static final DBMSKey MSSQL = new DBMSKey("mssql", "Microsoft SQL Server");
+   
    public static final DBMSKey MYSQL = new DBMSKey("mysql", "MySQL Server");
    public static final DBMSKey MYSQL_SEQ = new DBMSKey("mysql_seq", "MySQL Server with sequences");
    public static final DBMSKey POSTGRESQL = new DBMSKey("postgresql", "PostgreSQL ORDBMS");

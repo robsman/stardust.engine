@@ -10,8 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
@@ -91,7 +91,7 @@ public class DeclarativeSecurityDelegationTest
 
    private ActivityInstance ai;
 
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
    private final TestServiceFactory noneSf = new TestServiceFactory(new UsernamePasswordPair(NONE_USERNAME, NONE_USERNAME));

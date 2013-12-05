@@ -13,8 +13,6 @@ package org.eclipse.stardust.engine.core.upgrade.jobs;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.eclipse.stardust.engine.core.upgrade.jobs.m30.X3_0_0from2_5_0Converter;
-
 
 /**
  * @author fherinean
@@ -24,8 +22,7 @@ public class RepositoryJobs
 {
    public static List getRepositoryJobs()
    {
-      ArrayList jobs = new ArrayList(1);
-      jobs.add(new X3_0_0from2_5_0Converter());
+      ArrayList jobs = new ArrayList();
       return jobs;
    }
 }

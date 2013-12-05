@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.dto.RoleInfoDetails;
 import org.eclipse.stardust.engine.api.dto.UserGroupInfoDetails;
 import org.eclipse.stardust.engine.api.dto.UserInfoDetails;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.query.QueryUtils;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
@@ -343,11 +344,20 @@ public final class DepartmentUtils
    }
    
    public static IOrganization getOrganization(final IDepartment department, long modelOid) throws ObjectNotFoundException
-   {
+   {                       
+      
       final long orgOid = department.getRuntimeOrganizationOID();
       final ModelManager manager = ModelManagerFactory.getCurrent();
-      final IModelParticipant participant = manager.findModelParticipant(
+                  
+      IModelParticipant participant = manager.findModelParticipant(
             modelOid, orgOid);
+      
+      //PERF: If no participant can be found in the designated model, a lookup is performed through all models
+      if (participant == null)
+      {
+         participant = manager.findModelParticipant(PredefinedConstants.ANY_MODEL, orgOid);
+      }
+      
       if (participant instanceof IOrganization)
       {
          return (IOrganization) participant;

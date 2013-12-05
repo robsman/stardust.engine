@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Pair;
@@ -582,8 +584,22 @@ public class ConditionalPerformerBean extends ModelParticipantBean
       else if (performerHandle instanceof String)
       {
          String id = (String) performerHandle;
-         performer = ((IModel) processInstance.getProcessDefinition().getModel())
-               .findParticipant(id);
+         
+         QName idRef = QName.valueOf(id);
+         
+         if (idRef.getNamespaceURI().isEmpty())
+         {
+            performer = ((IModel) processInstance.getProcessDefinition().getModel()).findParticipant(id);
+         }
+         else
+         {
+            IModel model = ModelManagerFactory.getCurrent().findActiveModel(
+                  idRef.getNamespaceURI());
+                  
+            performer = model.findParticipant(idRef.getLocalPart());      
+                        
+         }
+               
       }
       else
       {

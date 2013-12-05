@@ -645,8 +645,21 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
             {
                IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
                TypedXPath typedXPath = xPathMap.getXPath(sdv.getXPathOID());
-               String xsdTypeName = typedXPath.getXsdTypeName();
-               tryParseDouble = "decimal".equals(xsdTypeName);
+               if (typedXPath == null)
+               {
+                  StringBuffer errorMsg = new StringBuffer();
+                  errorMsg.append("Could not find XPath for structured data: ");
+                  errorMsg.append(theData.getId());
+                  errorMsg.append(" for xpath oid ");
+                  errorMsg.append(sdv.getXPathOID());
+                  trace.warn(errorMsg);
+                  tryParseDouble = false;
+               }
+               else
+               {
+                  String xsdTypeName = typedXPath.getXsdTypeName();
+                  tryParseDouble = "decimal".equals(xsdTypeName);
+               }
             }
             else
             {

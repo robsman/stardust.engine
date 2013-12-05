@@ -34,6 +34,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.AndTerm;
 import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
 import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
@@ -58,6 +59,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBe
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
@@ -81,10 +83,17 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
    public static final String FIELD_GLUE_SCOPE_PROCESS_INSTANCE = ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE;
 
    private final DataCluster[] clusterSetup;
+   
+   /**
+    * The set of {@link ProcessInstanceState} the DataCluster must support 
+    * for fetching data values - see {@link DataCluster#getEnableStates()} 
+    */
+   private final Set<ProcessInstanceState> requiredClusterPiStates;
 
    public ClusterAwareInlinedDataFilterSqlBuilder()
    {
       this.clusterSetup = RuntimeSetup.instance().getDataClusterSetup();
+      this.requiredClusterPiStates = DataClusterHelper.getRequiredClusterPiStates();
    }
 
    public ParsedQuery buildSql(Query query, Class type,
@@ -92,7 +101,7 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
    {
       // advise data cluster candidates
       final Map<DataCluster, Set<DataAttributeKey>> clusterCandidates = CollectionUtils.newHashMap();
-      final ClusterAdvisor clusterAdvisor = new ClusterAdvisor(clusterSetup);
+      final ClusterAdvisor clusterAdvisor = new ClusterAdvisor(clusterSetup, requiredClusterPiStates);
       final ClusterAdvisor.Context clusterAdvisorContext = new ClusterAdvisor.Context(
             clusterCandidates, NO_DATA_ATTIBUTE_KEYS, evaluationContext.getModelManager());
       query.evaluateFilter(clusterAdvisor, clusterAdvisorContext);
@@ -736,10 +745,12 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
          OrderEvaluationVisitor
    {
       private final DataCluster[] clusters;
+      private final Set<ProcessInstanceState> piFilterStates;
 
-      public ClusterAdvisor(DataCluster[] clusters)
+      public ClusterAdvisor(DataCluster[] clusters, Set<ProcessInstanceState> piFilterStates)
       {
          this.clusters = clusters;
+         this.piFilterStates = piFilterStates;
       }
 
       public Object visit(FilterTerm filter, Object rawContext)
@@ -849,7 +860,11 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
          for (int i = 0; i < clusters.length; i++ )
          {
             final DataCluster cluster = clusters[i];
-
+            if(!cluster.isEnabledFor(piFilterStates))
+            {
+               continue;
+            }
+            
             Set<DataAttributeKey> referencedSlots = context.clusterCandidates.get(cluster);
             for (DataAttributeKey slotCandidate : context.slotCandidates)
             {
@@ -931,7 +946,11 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends SqlBuilderBase
          for (int i = 0; i < clusters.length; i++ )
          {
             final DataCluster cluster = clusters[i];
-
+            if(!cluster.isEnabledFor(piFilterStates))
+            {
+               continue;
+            }
+            
             Set<DataAttributeKey> referencedSlots = context.clusterCandidates.get(cluster);
             for (DataAttributeKey key : context.slotCandidates)
             {

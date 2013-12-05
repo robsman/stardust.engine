@@ -46,6 +46,8 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
 
    private static final String MAIL_SERVER = "mailServer";
 
+   private static final String JNDI_SESSION = "jndiSession";   
+   
    private static final String FROM_ADDRESS = "fromAddress";
 
    private static final String TO_ADDRESS = "toAddress";
@@ -70,6 +72,8 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
 
    private String mailServer;
 
+   private String jndiSession;   
+   
    private String urlPrefix;
 
    private String plainTextTemplate;
@@ -131,6 +135,9 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
       this.mailServer = (String) application
             .getAttribute(MailConstants.DEFAULT_MAIL_SERVER);
 
+      this.jndiSession = (String) application
+      .getAttribute(MailConstants.DEFAULT_JNDI_SESSION);      
+      
       this.urlPrefix = (String) application.getAttribute(MailConstants.URL_PREFIX);
       if (StringUtils.isEmpty(this.urlPrefix))
       {
@@ -291,6 +298,7 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
       try
       {
          String actualMailServer = retrieveParam(MAIL_SERVER, mailServer);
+         String actualJndiSession = retrieveParam(JNDI_SESSION, jndiSession);         
          String actualFromAddress = retrieveParam(FROM_ADDRESS, defaultFromAddress);
          String actualToAddress = retrieveParam(TO_ADDRESS, defaultToAddress);
          String actualCC = retrieveParam(CC_ADDRESS, defaultCC);
@@ -320,11 +328,11 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
                + activityInstanceOID + "] " + actualSubject + "(Activity " + activityName
                + ")" : actualSubject;
          
-         MailAssembler assembler = newMailAssembler(actualMailServer, actualFromAddress,
-                                                    actualToAddress, actualCC, actualBCC,
-                                                    actualPriority, actualSubject, inValues,
-                                                    attList);
-
+         MailAssembler assembler = newMailAssembler(actualMailServer, actualJndiSession, actualFromAddress,
+               actualToAddress, actualCC, actualBCC,
+               actualPriority, actualSubject, inValues,
+               attList);
+                  
          assembler.sendMail();
 
          if (trace.isDebugEnabled())
@@ -339,18 +347,19 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
          throw new InvocationTargetException(me);
       }
    }
-
+   
    /* package-private */ MailAssembler newMailAssembler(final String actualMailServer,
-                                          final String actualFromAddress,
-                                          final String actualToAddress,
-                                          final String actualCC,
-                                          final String actualBCC,
-                                          final String actualPriority,
-                                          final String actualSubject,
-                                          final Object[] inValues,
-                                          final List<?> attList)
+         final String actualJndiSession,
+         final String actualFromAddress,
+         final String actualToAddress,
+         final String actualCC,
+         final String actualBCC,
+         final String actualPriority,
+         final String actualSubject,
+         final Object[] inValues,
+         final List<?> attList)
    {
-      return new MailAssembler(actualMailServer, actualFromAddress,
+      return new MailAssembler(actualMailServer, actualJndiSession, actualFromAddress,
             actualToAddress, actualCC, actualBCC, actualPriority, actualSubject,
             plainTextTemplate, useHTML, htmlHeader, htmlTemplate, htmlFooter,
             createProcessHistoryLink, mailResponse, inValues, outValueSetMap,
@@ -366,11 +375,20 @@ public class MailApplicationInstance implements AsynchronousApplicationInstance
 
    private String retrieveParam(String key, String defaultValue)
    {
-      Pair parameter = findAccessPointValue(key);
-
-      return (null != parameter ? (String) parameter.getSecond() : defaultValue);
+      return String.valueOf(retrieveParamObject(key, defaultValue));
    }
 
+   private Object retrieveParamObject(String key, Object defaultValue)
+   {
+      Pair parameter = findAccessPointValue(key);
+
+      if (parameter != null) {
+        return parameter.getSecond();
+      } else {
+        return defaultValue;
+      }
+   }   
+   
    /**
     * 
     * @param outDataTypes

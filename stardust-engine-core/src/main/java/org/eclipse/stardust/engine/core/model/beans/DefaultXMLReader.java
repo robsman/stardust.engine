@@ -1093,17 +1093,20 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                for (int j = 0, nHandlerChildren = handlerChildren.getLength(); j < nHandlerChildren; j++)
                {
                   Node actionNode = handlerChildren.item(j);
-                  if (EVENT_ACTION.equals(actionNode.getNodeName()))
+                  if(node instanceof Element && node.getNamespaceURI().equals(NS_CARNOT_WORKFLOWMODEL_31))
                   {
-                     elementFactory.createEventAction(actionNode, handler);
-                  }
-                  else if (BIND_ACTION.equals(actionNode.getNodeName()))
-                  {
-                     elementFactory.createBindAction(actionNode, handler);
-                  }
-                  else if (UNBIND_ACTION.equals(actionNode.getNodeName()))
-                  {
-                     elementFactory.createUnbindAction(actionNode, handler);
+                     if (EVENT_ACTION.equals(actionNode.getLocalName()))
+                     {
+                        elementFactory.createEventAction(actionNode, handler);
+                     }
+                     else if (BIND_ACTION.equals(actionNode.getLocalName()))
+                     {
+                        elementFactory.createBindAction(actionNode, handler);
+                     }
+                     else if (UNBIND_ACTION.equals(actionNode.getLocalName()))
+                     {
+                        elementFactory.createUnbindAction(actionNode, handler);
+                     }
                   }
                }
             }
@@ -1895,12 +1898,30 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
          if (!StringUtils.isEmpty(rawSchemaLocationURI) && rawSchemaLocationURI.startsWith(StructuredDataConstants.URN_INTERNAL_PREFIX))
          {
             String typeId = rawSchemaLocationURI.substring(StructuredDataConstants.URN_INTERNAL_PREFIX.length());
-            ITypeDeclaration declaration = model.findTypeDeclaration(typeId);
-            if (declaration != null)
+            if (typeId != null && typeId.length() > 0)
             {
-               IXpdlType type = declaration.getXpdlType();
-               return type instanceof SchemaTypeBean
-                  ? ((SchemaTypeBean) type).getSchema() : null;
+               IModel model = this.model;
+               QName qname = QName.valueOf(typeId);
+               String refModelId = qname.getNamespaceURI();
+               if (refModelId != null && refModelId.length() > 0 && !refModelId.equals(model.getId()))
+               {
+                  IExternalPackage pkg = model.findExternalPackage(refModelId);
+                  if (pkg != null)
+                  {
+                     IModel refModel = pkg.getReferencedModel();
+                     if (refModel != null)
+                     {
+                        model = refModel;
+                     }
+                  }
+               }
+               ITypeDeclaration declaration = model.findTypeDeclaration(qname.getLocalPart());
+               if (declaration != null)
+               {
+                  IXpdlType type = declaration.getXpdlType();
+                  return type instanceof SchemaTypeBean
+                     ? ((SchemaTypeBean) type).getSchema() : null;
+               }
             }
          }
          return null;

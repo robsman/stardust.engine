@@ -99,6 +99,12 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
+     *     PerformingOnBehalfOfFilter is used
+     *        but activity instance history is disabled.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -145,6 +151,12 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
+     *     PerformingOnBehalfOfFilter is used
+     *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
@@ -290,7 +302,13 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
-     *         (XPath) specified in a DataFilter contains an invalid XPath
+     *        (XPath) specified in a DataFilter contains an invalid XPath
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
+     *     PerformingOnBehalfOfFilter is used
+     *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
@@ -339,7 +357,13 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
-     *         (XPath) specified in a DataFilter contains an invalid XPath
+     *        (XPath) specified in a DataFilter contains an invalid XPath
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
+     *     PerformingOnBehalfOfFilter is used
+     *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
@@ -506,6 +530,12 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
+     *     PerformingOnBehalfOfFilter is used
+     *        but activity instance history is disabled.
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -558,6 +588,12 @@ public class RemoteQueryServiceImpl extends org.eclipse.stardust.engine.api.ejb2
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if attributeName
      *        (XPath) specified in a DataFilter contains an invalid XPath
+     *     <em>Instances of {@link
+     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
+     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException if
+     *     PerformingOnBehalfOfFilter is used
+     *        but activity instance history is disabled.
      *     <em>Instances of {@link
      *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
      *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>

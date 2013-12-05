@@ -40,7 +40,7 @@ public class ItemLocatorUtils
 
    public static synchronized void registerDescription(String itemType, ItemDescription description)
    {
-      if (ModelManagerFactory.ITEM_NAME == itemType)
+      if (ModelManagerFactory.ITEM_NAME.equals(itemType))
       {
          mmDescription.set(description);
       }
@@ -59,7 +59,7 @@ public class ItemLocatorUtils
    
    public static synchronized void unregisterDescription(String itemType)
    {
-      if (ModelManagerFactory.ITEM_NAME == itemType)
+      if (ModelManagerFactory.ITEM_NAME.equals(itemType))
       {
          mmDescription.set(null);
       }

@@ -31,6 +31,8 @@ public class MailAccessPointProvider implements AccessPointProvider
 {
    private static final String MAIL_SERVER = "mailServer";
 
+   private static final String JNDI_SESSION = "JNDISession";   
+   
    private static final String FROM_ADDRESS = "fromAddress";
 
    private static final String TO_ADDRESS = "toAddress";
@@ -67,6 +69,11 @@ public class MailAccessPointProvider implements AccessPointProvider
             java.lang.String.class.getName(), Direction.IN, false, new String[] {
                   JavaAccessPointType.PARAMETER.getId(),
                   JavaAccessPointType.class.getName()}));
+      result.put(JNDI_SESSION, JavaDataTypeUtils.createIntrinsicAccessPoint(JNDI_SESSION,
+            JNDI_SESSION + ": " + String.class.getName(),
+               java.lang.String.class.getName(), Direction.IN, false, new String[] {
+                     JavaAccessPointType.PARAMETER.getId(),
+                     JavaAccessPointType.class.getName()}));
       result.put(FROM_ADDRESS, JavaDataTypeUtils.createIntrinsicAccessPoint(FROM_ADDRESS,
             FROM_ADDRESS + ": " + String.class.getName(), java.lang.String.class
                   .getName(), Direction.IN, false, new String[] {
@@ -103,11 +110,11 @@ public class MailAccessPointProvider implements AccessPointProvider
                   JavaAccessPointType.class.getName()}));
 
       result.put(PredefinedConstants.ATTACHMENTS, JavaDataTypeUtils.createIntrinsicAccessPoint(
-              PredefinedConstants.ATTACHMENTS, PredefinedConstants.ATTACHMENTS + ": "
-                    + java.util.List.class.getName(), java.util.List.class.getName(),
-              Direction.IN, false, new String[] {
-                    JavaAccessPointType.PARAMETER.getId(),
-                    JavaAccessPointType.class.getName()}));
+            PredefinedConstants.ATTACHMENTS, PredefinedConstants.ATTACHMENTS + ": "
+                  + java.util.List.class.getName(), java.util.List.class.getName(),
+            Direction.IN, false, new String[] {
+                  JavaAccessPointType.PARAMETER.getId(),
+                  JavaAccessPointType.class.getName()}));
 
       int count = getTemplateVariablesCount(context);
 
@@ -116,7 +123,7 @@ public class MailAccessPointProvider implements AccessPointProvider
          result.put(TEMPLATE_VARIABLE + i, JavaDataTypeUtils.createIntrinsicAccessPoint(
                TEMPLATE_VARIABLE + i, TEMPLATE_VARIABLE + i + ": "
                      + java.lang.String.class.getName(),
-               java.lang.String.class.getName(), Direction.IN, false, new String[] {
+               java.lang.Object.class.getName(), Direction.IN, false, new String[] {
                      JavaAccessPointType.PARAMETER.getId(),
                      JavaAccessPointType.class.getName()}));
       }

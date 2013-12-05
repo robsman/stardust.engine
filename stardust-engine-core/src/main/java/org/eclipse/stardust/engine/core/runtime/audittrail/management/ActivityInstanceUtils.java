@@ -129,15 +129,35 @@ public class ActivityInstanceUtils
    public static void assertNotActivatedByOther(IActivityInstance ai)
          throws AccessForbiddenException
    {
+      assertNotActivatedByOther(ai, false);
+   }
+
+   public static void assertNotActivatedByOther(IActivityInstance ai,
+         boolean ignoreDeputies) throws AccessForbiddenException
+   {
+
       if (ai.getActivity().isInteractive())
       {
          long current = ai.getCurrentUserPerformerOID();
          if (current != SecurityProperties.getUserOID()
-               && ai.getState() == ActivityInstanceState.Application)
+               && ai.getState() == ActivityInstanceState.Application
+               && (ignoreDeputies || !UserUtils.isDeputyOf(SecurityProperties.getUser(), current)))
          {
+            String account = null;
+            try
+            {
+               account = UserBean.findByOid(current).getAccount();
+            }
+            catch (ObjectNotFoundException ex)
+            {
+               account = "<not found>";
+            }
+            IActivity a = ai.getActivity();
+            IProcessDefinition p = a.getProcessDefinition();
             throw new AccessForbiddenException(
-                  BpmRuntimeError.BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER.raise(new Long(ai
-                        .getOID()), new Long(current)));
+                  BpmRuntimeError.BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER.raise(
+                        ai.getOID(), current, account, a.getId(), p.getId(), p.getModel()
+                              .getId()));
          }
       }
    }
@@ -148,8 +168,7 @@ public class ActivityInstanceUtils
       if (activityInstance.isTerminated())
       {
          throw new AccessForbiddenException(
-               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstance
-                     .getOID()));
+               BpmRuntimeError.BPMRT_AI_IS_ALREADY_TERMINATED.raise(activityInstance.getOID()));
       }
    }
    
@@ -159,8 +178,7 @@ public class ActivityInstanceUtils
       if (activityInstance.isAborting())
       {
          throw new AccessForbiddenException(
-               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstance
-                     .getOID()));
+               BpmRuntimeError.BPMRT_AI_IS_IN_ABORTING_PROCESS.raise(activityInstance.getOID()));
       }
    }
    
@@ -245,7 +263,8 @@ public class ActivityInstanceUtils
 
       long currentUserPerformerOid = activityInstance.getCurrentUserPerformerOID();
 
-      if (0 != currentUserPerformerOid && currentUserPerformerOid != currentUser.getOID())
+      if (0 != currentUserPerformerOid && currentUserPerformerOid != currentUser.getOID()
+            && !UserUtils.isDeputyOf(currentUser, currentUserPerformerOid))
       {
          boolean isAdmin = false;
          if (allowAdmin)

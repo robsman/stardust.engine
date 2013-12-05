@@ -10,13 +10,31 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.A_SCOPE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_U;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_V;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEP_ID_A;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEP_ID_B;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ON_EXCEPTION_HANDLER_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG1_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG3_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG4_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG5_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_8;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.READER_ORG_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ROLE_ADMIN_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.SUB_DEPT_ID_I;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.SUB_DEPT_ID_J;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.SUB_SUB_DEP_ID_M;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.SUB_SUB_DEP_ID_N;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.X_SCOPE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.Y_SCOPE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.Z_SCOPE;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import junit.framework.Assert;
 
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
@@ -33,6 +51,7 @@ import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -248,7 +267,7 @@ public class MethodExecutionAuthorizationTest
    
    private ActivityInstance ai;
 
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
 

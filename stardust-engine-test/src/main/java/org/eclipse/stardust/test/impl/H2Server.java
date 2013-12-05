@@ -17,7 +17,7 @@ import java.sql.DriverManager;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException;
@@ -56,6 +56,10 @@ public class H2Server
 {
    private static final Log LOG = LogFactory.getLog(H2Server.class);
 
+   private static final String DS_PORT_SUFFIX = ".Port";
+   
+   private static final String SERVER_TCP_PORT_PARAMETER = "-tcpPort";
+   
    private static final String ORACLE_MODE_URL_SUFFIX = ";MODE=ORACLE";
    private static final String MVCC_MODE_URL_SUFFIX = ";MVCC=TRUE";
    
@@ -63,22 +67,25 @@ public class H2Server
    private static final String DB_USER;
    private static final String DB_PASSWORD;
    
+   private static final String DBMS_PORT;
+   
    private final Server server;
    private Connection initialConnection;
    
    static
    {
-      final Parameters parameters = Parameters.instance();
-      DBMS_URL = (String) parameters.getString(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_URL_SUFFIX);
-      DB_USER = (String) parameters.getString(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX);
-      DB_PASSWORD = (String) parameters.getString(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_PASSWORD_SUFFIX);
+      final GlobalParameters parameters = GlobalParameters.globals();
+      DBMS_URL = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_URL_SUFFIX);
+      DB_USER = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX);
+      DB_PASSWORD = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_PASSWORD_SUFFIX);
+      DBMS_PORT = (String) parameters.get(SessionProperties.DS_NAME_AUDIT_TRAIL + DS_PORT_SUFFIX);
    }
    
    public H2Server() throws TestRtEnvException
    {
       try
       {
-         server = Server.createTcpServer();
+         server = Server.createTcpServer(SERVER_TCP_PORT_PARAMETER, DBMS_PORT);
       }
       catch (final Exception e)
       {

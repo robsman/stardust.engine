@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.security.utils;
 
+import java.security.SecureRandom;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.TreeMap;
 
 import org.eclipse.stardust.common.security.InvalidPasswordException;
@@ -32,7 +32,8 @@ public class PasswordGenerator
    public static char[] generatePassword(PasswordRules rules, List<String> previousPasswords)
    {
       boolean isValid = false;
-      Random randomGenerator = new Random();      
+      //Random randomGenerator = new Random(); 
+      SecureRandom randomGenerator = new SecureRandom();
 
       int length = 10;
       if(rules != null && rules.getMinimalPasswordLength() > length)
@@ -80,7 +81,7 @@ public class PasswordGenerator
    
    private static char getCharacter(Integer choice)
    {
-      Random randomGenerator = new Random();      
+      SecureRandom randomGenerator = new SecureRandom();      
 
       String letterCharactersLower = "abcdefghijklmnopqrstuvwxyz";
       String letterCharactersUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

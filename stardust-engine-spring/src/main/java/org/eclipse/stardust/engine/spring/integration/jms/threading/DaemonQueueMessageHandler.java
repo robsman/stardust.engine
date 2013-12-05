@@ -66,7 +66,6 @@ public class DaemonQueueMessageHandler extends AbstractMessageHandler
 
    private class DaemonQueueMsgDeliveryAction implements Action
    {
-
       private final Message message;
 
       public DaemonQueueMsgDeliveryAction(Message message)
@@ -78,65 +77,61 @@ public class DaemonQueueMessageHandler extends AbstractMessageHandler
       {
          if (message instanceof MapMessage)
          {
-            MapMessage mapMessage = (MapMessage) message;
-            if (ActionCarrier.extractMessageType(mapMessage) == ActionCarrier
-                  .DAEMON_MESSAGE_TYPE_ID)
+            final MapMessage mapMessage = (MapMessage) message;
+            if (ActionCarrier.extractMessageType(mapMessage) == ActionCarrier.DAEMON_MESSAGE_TYPE_ID)
             {
-               trace.info("Start Daemon message received.");
-
-               // rsauer: ensure model was bootstrapped before actually running daemon,
-               // as bootstrapping in daemon listener will fail because of a missing
-               // data source
-               ForkingServiceFactory factory = (ForkingServiceFactory)
-                     Parameters.instance().get(EngineProperties.FORKING_SERVICE_HOME);
-               ForkingService forkingService = factory.get();
                try
                {
-                  forkingService.isolate(new Action()
+                  final DaemonCarrier carrier = DaemonCarrier.extract(mapMessage);
+
+                  // rsauer: ensure model was bootstrapped before actually running daemon,
+                  // as bootstrapping in daemon listener will fail because of a missing
+                  // data source
+                  ForkingServiceFactory factory = (ForkingServiceFactory) Parameters
+                        .instance().get(EngineProperties.FORKING_SERVICE_HOME);
+                  ForkingService forkingService = factory.get();
+                  try
                   {
-                     public Object execute()
+                     forkingService.isolate(new Action()
                      {
-                        ModelManagerFactory.getCurrent().findActiveModel();
-                        return null;
-                     }
-                  });
-               }
-               finally
-               {
-                  factory.release(forkingService);
-               }
-
-               try
-               {
-                  DaemonCarrier carrier = DaemonCarrier.extract(mapMessage);
+                        public Object execute()
+                        {
+                           bootStrapEngine(carrier, mapMessage);
+                           ModelManagerFactory.getCurrent().findActiveModel();
+                           return null;
+                        }
+                     });
+                  }
+                  finally
+                  {
+                     factory.release(forkingService);
+                  }
+                  
                   // see CRNT-12082
                   ActionRunner runner = (ActionRunner) Proxy.newProxyInstance(
                         ActionRunner.class.getClassLoader(),
-                        new Class[] {ActionRunner.class}, new InvocationManager(
-                              new ActionRunner()
-                              {
-                                 public Object execute(Action action)
-                                 {
-                                    return action.execute();
-                                 }
-                              }, Arrays.asList(new MethodInterceptor[] {
-                                    new NonInteractiveSecurityContextInterceptor(),
-                                    new CallingInterceptor()})));
+                        new Class[] {ActionRunner.class},
+                        new InvocationManager(new ActionRunner()
+                        {
+                           public Object execute(Action action)
+                           {
+                              return action.execute();
+                           }
+                        }, Arrays.asList(new MethodInterceptor[] {
+                              new NonInteractiveSecurityContextInterceptor(),
+                              new CallingInterceptor()})));
                   runner.execute(carrier.createAction());
                }
                catch (JMSException e)
                {
                   throw new InternalException(e);
                }
-               finally
-               {
-                  trace.info("Daemon action ended.");
-               }
             }
             else
             {
-               trace.warn("Unknown message type " + ActionCarrier.extractMessageType(
-                     mapMessage) + ", message will be lost.");
+               trace.warn("Unknown message type "
+                     + ActionCarrier.extractMessageType(mapMessage)
+                     + ", message will be lost.");
             }
          }
          else
@@ -144,8 +139,8 @@ public class DaemonQueueMessageHandler extends AbstractMessageHandler
             trace.warn("JMS Message processed by message daemon is no map message, message "
                   + "will be lost.");
          }
+
          return null;
       }
    }
-
 }

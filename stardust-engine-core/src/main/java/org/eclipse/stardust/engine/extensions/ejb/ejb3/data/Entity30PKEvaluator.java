@@ -17,6 +17,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -47,7 +48,7 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
       Class targetClass = null;
       try
       {
-         targetClass = Class.forName(className);
+         targetClass = Reflect.getClassFromClassName(className);
       }
       catch (Exception ex)
       {
@@ -215,10 +216,10 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
       {
          String className = (String) attributes.get(
                EntityBeanConstants.CLASS_NAME_ATT);
-         Class<?> entityClass = Class.forName(className);
+         Class<?> entityClass = Reflect.getClassFromClassName(className);
          return em.find(entityClass, pk);
       }
-      catch (ClassNotFoundException e)
+      catch (InternalException e)
       {
          throw new PublicException("Failed retrieving entity bean.", e);
       }

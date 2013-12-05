@@ -60,6 +60,7 @@
       <dependency org="org.apache.cxf" name="cxf-rt-core" rev="${cxf-rt-core.version}" conf="jax-ws-cxf-provider-compile->default" >
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="org.apache.cxf" module="cxf-api" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
@@ -67,15 +68,18 @@
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />         
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="${cxf-rt-databinding-jaxb.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />         
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="${cxf-rt-transports-http.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="${cxf-rt-ws-addr.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />         
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="${cxf-rt-ws-policy.version}" conf="jax-ws-cxf-provider-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
@@ -108,7 +112,6 @@
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->
-      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
       <override org="com.sun.xml.bind" module="jaxb-impl" rev="${jaxb-impl.version}" />
       <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
       <override org="asm" module="asm" rev="${asm.version}" />

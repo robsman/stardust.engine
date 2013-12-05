@@ -52,7 +52,7 @@ public class SessionBeanAccessPointProvider implements AccessPointProvider
       {
          try
          {
-            Class clz = Class.forName(SESSION_BEAN_3_0_ACCESS_POINT_PROVIDER);
+            Class clz = Reflect.getClassFromClassName(SESSION_BEAN_3_0_ACCESS_POINT_PROVIDER);
             delegate = (AccessPointProvider) clz.newInstance();
          }
          catch (Throwable t)

@@ -10,17 +10,18 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.fail;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_2;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
@@ -28,10 +29,12 @@ import org.eclipse.stardust.engine.api.query.ParticipantWorklist;
 import org.eclipse.stardust.engine.api.query.Worklist;
 import org.eclipse.stardust.engine.api.query.WorklistQuery;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
@@ -56,7 +59,7 @@ public class NullScopeFallbackTest
    
    private static final String USER_ID = "User";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_ID, USER_ID));
 
@@ -95,9 +98,10 @@ public class NullScopeFallbackTest
     * </p>
     */
    @Test
-   public void testNullDepartmentAsynchronous()
+   public void testNullDepartmentAsynchronous() throws InterruptedException, TimeoutException
    {
-      userSf.getWorkflowService().startProcess(PROCESS_ID_2, null, false);
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PROCESS_ID_2, null, false);
+      ActivityInstanceStateBarrier.instance().awaitAlive(pi.getOID());
       
       ensureNullScope();
    }
@@ -126,10 +130,11 @@ public class NullScopeFallbackTest
     * </p>
     */
    @Test
-   public void testDepartmentNotFoundAsynchronous()
+   public void testDepartmentNotFoundAsynchronous() throws InterruptedException, TimeoutException
    {
       final Map<String, String> deptData = Collections.singletonMap("CountryCode", "N/A");
-      userSf.getWorkflowService().startProcess(PROCESS_ID_2, deptData, false);
+      final ProcessInstance pi = userSf.getWorkflowService().startProcess(PROCESS_ID_2, deptData, false);
+      ActivityInstanceStateBarrier.instance().awaitAlive(pi.getOID());
       
       ensureNullScope();
    }

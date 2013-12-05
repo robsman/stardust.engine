@@ -22,8 +22,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider;
 import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider;
+import org.eclipse.stardust.engine.runtime.utils.HazelcastUtils;
 
-import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Transaction;
 
 /**
@@ -38,15 +39,20 @@ import com.hazelcast.core.Transaction;
  */
 public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectProvider
 {
-   private static final HazelcastJcaConnectionFactoryProvider CONNECTION_FACTORY_PROVIDER;
+   private static final ConnectionFactory HZ_CONNECTION_FACTORY;
    
+   private static final HazelcastInstance HZ_INSTANCE;
+  
    static
    {
-      CONNECTION_FACTORY_PROVIDER = ExtensionProviderUtils.getFirstExtensionProvider(HazelcastJcaConnectionFactoryProvider.class, KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER);
-      if (CONNECTION_FACTORY_PROVIDER == null)
+      final HazelcastJcaConnectionFactoryProvider cfProvider = ExtensionProviderUtils.getFirstExtensionProvider(HazelcastJcaConnectionFactoryProvider.class, KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER);
+      if (cfProvider == null)
       {
          throw new IllegalStateException("No Hazelcast JCA connection factory provider could be found.");
       }
+      HZ_CONNECTION_FACTORY = cfProvider.connectionFactory();
+      
+      HZ_INSTANCE = HazelcastUtils.getHazelcastInstance();
    }
    
    /* (non-Javadoc)
@@ -60,7 +66,7 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
          throw new NullPointerException("Map ID for Hazelcast map must not be null.");
       }
       
-      return Hazelcast.getMap(mapId);
+      return HZ_INSTANCE.getMap(mapId);
    }
 
    /* (non-Javadoc)
@@ -70,15 +76,14 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
    public void beforeAccess()
    {
       final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      final ConnectionFactory connectionFactory = CONNECTION_FACTORY_PROVIDER.connectionFactory();
       
       try
       {
          /* Hazelcast can only cope with one transaction per thread */
-         if (Hazelcast.getTransaction().getStatus() != Transaction.TXN_STATUS_ACTIVE)
+         if (HZ_INSTANCE.getTransaction().getStatus() != Transaction.TXN_STATUS_ACTIVE)
          {
             /* enlists Hazelcast objects in the current tx */
-            rtEnv.retrieveJcaConnection(connectionFactory);
+            rtEnv.retrieveJcaConnection(HZ_CONNECTION_FACTORY);
          }
       }
       catch (final ResourceException e)

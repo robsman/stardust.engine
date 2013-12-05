@@ -11,12 +11,14 @@
 package org.eclipse.stardust.engine.core.model.beans;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITransition;
@@ -37,6 +39,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
 public class TransitionBean extends ConnectionBean implements ITransition
 {
    private static final Logger trace = LogManager.getLogger(TransitionBean.class);
+ 
+   public static final String ON_BOUNDARY_EVENT_PREDICATE = "ON_BOUNDARY_EVENT";
+   
+   /* package-private */ static final Pattern ON_BOUNDARY_EVENT_CONDITION = Pattern.compile(ON_BOUNDARY_EVENT_PREDICATE + "\\(.+\\)");
    
    private static final String PARSED_EL_EXPRESSION = "ParsedElExpression";
 
@@ -249,7 +255,16 @@ public class TransitionBean extends ConnectionBean implements ITransition
       
       IModel model = (IModel) getModel();
       String type = model.getScripting().getType();
-      if ("text/carnotEL".equals(type))
+      if (ON_BOUNDARY_EVENT_CONDITION.matcher(getCondition()).matches())
+      {
+         final String eventHandlerId = getCondition().substring(ON_BOUNDARY_EVENT_PREDICATE.length() + 1, getCondition().length() - 1);
+         final IEventHandler eventHandler = getFromActivity().findHandlerById(eventHandlerId);
+         if (eventHandler == null)
+         {
+            inconsistencies.add(new Inconsistency("No boundary event handler with ID '" + eventHandlerId + "' for exception transition with ID '" + getId() + "' found.", this, Inconsistency.WARNING));
+         }
+      }
+      else if ("text/carnotEL".equals(type))
       {
          validateELScript(inconsistencies);
       }

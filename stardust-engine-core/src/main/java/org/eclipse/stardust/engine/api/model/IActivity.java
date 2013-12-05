@@ -118,6 +118,10 @@ public interface IActivity extends IViewable, EventHandlerOwner
 
    ModelElementList getOutTransitions();
    
+   ITransition getExceptionTransition(String eventHandlerId);
+   
+   boolean hasExceptionTransitions();
+   
    /**
     *
     */

@@ -54,7 +54,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    private static final String PARTITION_CREATE = "createPartition";
    private static final String PARTITIONS_LIST = "listPartitions";
    private static final String PARTITION_DROP = "dropPartition";
-
+   
+   private static final String DATACLUSTER_UPGRADE = "upgradeDataClusters";
    private static final String DATACLUSTER_ENABLE = "enableDataClusters";
    private static final String DATACLUSTER_VERIFY = "verifyDataClusters";
    private static final String DATACLUSTER_DROP = "dropDataClusters";
@@ -96,6 +97,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
       argTypes.register("-" + DATACLUSTER_ENABLE, "-edc", DATACLUSTER_ENABLE,
             "Creates missing data cluster tables and synchronizes table content.", false);
+      
+      argTypes.register("-" + DATACLUSTER_UPGRADE, "-udc", DATACLUSTER_UPGRADE,
+            "Upgrades data cluster tables and synchronizes table content.", false);
+      
       argTypes.register("-" + DATACLUSTER_VERIFY, "-vdc", DATACLUSTER_VERIFY,
             "Verifies existence of data cluster tables and their consistency.", false);
       argTypes.register("-" + DATACLUSTER_DROP, "-ddc", DATACLUSTER_DROP,
@@ -115,7 +120,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
       argTypes.addExclusionRule(//
             new String[] { LOCKTABLE_ENABLE, LOCKTABLE_VERIFY, LOCKTABLE_DROP,//
-                  DATACLUSTER_ENABLE, DATACLUSTER_VERIFY, DATACLUSTER_DROP,//
+                  DATACLUSTER_ENABLE, DATACLUSTER_VERIFY, DATACLUSTER_DROP, DATACLUSTER_UPGRADE,//
                   PARTITION_CREATE, PARTITION_DROP, PARTITIONS_LIST, AUDITTRAIL_CHECK_CONSISTENCY,//
                   SEQ_TABLE_ENABLE, SEQ_TABLE_VERIFY, SEQ_TABLE_DROP}, true);
       argTypes.addExclusionRule(//
@@ -197,22 +202,26 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    {
       final String password = (String) globalOptions.get("password");
       final String statementDelimiter = (String) options.get(STATEMENT_DELIMITER);
-
+      boolean performUpgrade = options.containsKey(DATACLUSTER_UPGRADE);
 
       boolean optionHandled = false;
-      if (options.containsKey(DATACLUSTER_ENABLE))
+      if (options.containsKey(DATACLUSTER_ENABLE) || performUpgrade)
       {
          optionHandled = true;
+         if(performUpgrade)
+         {
+            print("Performing an upgrade");
+         }
          print("Creating missing data cluster tables and synchronizing their table content for Infinity schema.");
 
-         String configFileName = (String) options.get(DATACLUSTER_CONFIG_FILE);
+         String configFileName = (String) options.get(DATACLUSTER_CONFIG_FILE);  
          boolean skipDdl = options.containsKey(AUDITTRAIL_SKIPDDL);
          boolean skipDml = options.containsKey(AUDITTRAIL_SKIPDML);
-
+         
          try
          {
-            SchemaHelper.alterAuditTrailCreateDataClusterTables(password, configFileName,
-                  skipDdl, skipDml, spoolDevice, statementDelimiter);
+            SchemaHelper.alterAuditTrailDataClusterTables(password, configFileName,
+                  performUpgrade, skipDdl, skipDml, spoolDevice, statementDelimiter);
          }
          catch (SQLException e)
          {

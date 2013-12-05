@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 59246 
+ * Generated from Revision: 60537 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 59246
+ * @version 60537
  */
 public class WorkflowServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IWorkflowService
 {

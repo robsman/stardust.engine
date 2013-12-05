@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <bean id="jcrPassword" class="java.lang.String">
+      <constructor-arg index="0" value="jcr-password" />
+   </bean>
+
+   <!-- must be lazy-init="true" as the Jackrabbit startup servlet will be executed after the Spring context listener -->
+   <!-- 
+   <bean lazy-init="true" id="carnotJackrabbitRepository" class="org.springframework.jndi.JndiObjectFactoryBean">
+      <property name="jndiName" value="jackrabbit.repository" />
+   </bean>
+ 	-->
+
+	<!-- JackRabbit JCA specific configuration -->
+	<bean id="jcrManagedConnectionFactory"
+		class="org.apache.jackrabbit.jca.JCAManagedConnectionFactory">
+
+		<property name="homeDir" value="./target/jcr-test-repository" />
+		<property name="configFile" value="classpath:repository.xml" />
+		<property name="bindSessionToTransaction" value="true" />
+
+	</bean>
+
+   <bean id="jcrSessionFactory" class="org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory" lazy-init="true">
+      <property name="repository" ref="jcrRepository" />
+      <property name="credentials">
+         <bean id="creds" class="javax.jcr.SimpleCredentials">
+            <constructor-arg index="0" value="jcr-user" />
+            <constructor-arg index="1">
+               <bean factory-bean="jcrPassword" factory-method="toCharArray" />
+            </constructor-arg>
+         </bean>
+      </property>
+   </bean>
+
+   <!-- Wrap Jackrabbit repository as JCA resource to hook into JTA TX management. -->
+   <bean lazy-init="true"
+         id="jcrRepository" class="org.springframework.jca.support.LocalConnectionFactoryBean">
+
+      <property name="managedConnectionFactory" ref="jcrManagedConnectionFactory" />
+
+      <property name="connectionManager">
+         <bean class="org.jencks.factory.ConnectionManagerFactoryBean">
+            <property name="transactionManager" ref="xaTransactionManager" />
+            <property name="transaction" value="xa" />
+         </bean>
+      </property>
+	</bean>
+
+</beans>

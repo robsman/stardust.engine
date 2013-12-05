@@ -10,9 +10,17 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static junit.framework.Assert.assertEquals;
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_DE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_2;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_3;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.SUB_DEPT_ID_NORTH;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.SUB_ORG_ID_2;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.SUB_SUB_DEP_ID_HH;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.SUB_SUB_ORG_ID_2;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.eclipse.stardust.common.error.InvalidArgumentException;
@@ -26,10 +34,10 @@ import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.DepartmentExistsException;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
@@ -54,7 +62,7 @@ public class AdminServiceCrudTest
    
    private static final String DEPT_ID = "Dept";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule

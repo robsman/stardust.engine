@@ -342,7 +342,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
          String acceptorClassName = (String) trigger.getAttribute(
                PredefinedConstants.ACCEPTOR_CLASS_ATT);
 
-         Class acceptorClass = Class.forName(acceptorClassName);
+         Class acceptorClass = Reflect.getClassFromClassName(acceptorClassName);
 
          return (TriggerMessageAcceptor) acceptorClass.newInstance();
       }

@@ -10,16 +10,17 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.casepi;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
-import junit.framework.Assert;
-
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
@@ -29,21 +30,45 @@ import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
-import org.eclipse.stardust.engine.api.query.*;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.CasePolicy;
+import org.eclipse.stardust.engine.api.query.DataFilter;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
+import org.eclipse.stardust.engine.api.query.HierarchyDataFilter;
+import org.eclipse.stardust.engine.api.query.HistoricalStatesPolicy;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceDetailsPolicy;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceFilter;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceHierarchyFilter;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ProcessInstances;
+import org.eclipse.stardust.engine.api.query.SubProcessDataFilter;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.Department;
+import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
+import org.eclipse.stardust.engine.api.runtime.Models;
+import org.eclipse.stardust.engine.api.runtime.PermissionState;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
 import org.eclipse.stardust.engine.core.runtime.utils.ExecutionPermission;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
-import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestMethodSetup;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -53,7 +78,9 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * TODO javadoc
+ * This class contains tests for the <i>Case Process Instance</i> functionality,
+ * which allows for grouping process instances (refer to the Stardust documentation 
+ * for details about <i>Case Process Instances</i>).
  * </p>
  * 
  * @author Roland.Stamm
@@ -61,6 +88,8 @@ import org.junit.rules.TestRule;
  */
 public class CaseProcessInstanceTest
 {
+   private static final Log LOG = LogFactory.getLog(CaseProcessInstanceTest.class);
+   
    /* package-private */ static final String MODEL_NAME = "CaseModel";
 
    private static final String U1 = "u1";
@@ -70,7 +99,7 @@ public class CaseProcessInstanceTest
    
    private static final UsernamePasswordPair USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(USER_PWD_PAIR);
    
    @ClassRule
@@ -185,7 +214,8 @@ public class CaseProcessInstanceTest
       assertHierarchy(casePi, caseProcess2, true);
 
       wfService.abortProcessInstance(caseProcess1.getOID(), AbortScope.SubHierarchy);
-
+      ProcessInstanceStateBarrier.instance().await(caseProcess1.getOID(), ProcessInstanceState.Aborted);
+      
       ActivityInstance ai = wfService.activateNextActivityInstanceForProcessInstance(caseProcess2.getOID());
       wfService.complete(ai.getOID(), null, null);
 
@@ -360,7 +390,6 @@ public class CaseProcessInstanceTest
       long[] members2 = {caseProcess3.getOID(), caseProcess4.getOID()};
       wfService.createCase("Case2", null, members2);
 
-
       ProcessInstance joinProcessInstance = wfService.joinProcessInstance(caseProcess1.getOID(), caseProcess4.getOID(), "joined by test case");
       assertEquals(joinProcessInstance.getOID(), caseProcess4.getOID());
       
@@ -370,6 +399,7 @@ public class CaseProcessInstanceTest
       assertEquals(ProcessInstanceState.Active, getPiWithHierarchy(casePi.getOID(), sf.getQueryService()).getState());
 
       wfService.abortProcessInstance(caseProcess2.getOID(), AbortScope.SubHierarchy);
+      ProcessInstanceStateBarrier.instance().await(caseProcess2.getOID(), ProcessInstanceState.Aborted);
    }
 
    /**
@@ -492,7 +522,7 @@ public class CaseProcessInstanceTest
 
       ProcessInstance spawnedPi = wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2", true, null);
       /* make sure that spawning is completed before moving on */
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(spawnedPi.getOID());
+      ActivityInstanceStateBarrier.instance().awaitAlive(spawnedPi.getOID());
       
       wfService.leaveCase(casePi.getOID(), new long[]{caseProcess1.getOID()});
 
@@ -625,13 +655,13 @@ public class CaseProcessInstanceTest
       final String MANAGECASE = Permissions.PREFIX + "processDefinition" + '.' + ExecutionPermission.Id.modifyCase ;
 
       PermissionState permDelegatged = delegatedPi.getPermission(MANAGECASE);
-      System.out.println("permDelegated from motu to Org1 as motu - " + permDelegatged.getValue() + "  "  + permDelegatged.getName());
+      LOG.info("permDelegated from motu to Org1 as motu - " + permDelegatged.getValue() + "  "  + permDelegatged.getName());
 
       ServiceFactory sfU1 = ServiceFactoryLocator.get(U1, U1);
       ProcessInstance processInstanceU1 = sfU1.getWorkflowService().getProcessInstance(delegatedPi.getOID());
 
       PermissionState permDelegatged2 = processInstanceU1.getPermission(MANAGECASE);
-      System.out.println("permDelegated from motu to Org1 as user1 - " + permDelegatged2.getValue() + "  "  + permDelegatged2.getName());
+      LOG.info("permDelegated from motu to Org1 as user1 - " + permDelegatged2.getValue() + "  "  + permDelegatged2.getName());
 
       // DELEGATE to ScopedOrg1
       Organization scopedOrg = getTestModel().getOrganization("{CaseModel}ScopedOrg1");
@@ -641,13 +671,13 @@ public class CaseProcessInstanceTest
       sfU1.close();
 
       PermissionState permDelegatged3 = delegatedPi2.getPermission(MANAGECASE);
-      System.out.println("permDelegated from Org1 to ScopedOrg1 as user1 - " + permDelegatged3.getValue() + "  "  + permDelegatged3.getName());
+      LOG.info("permDelegated from Org1 to ScopedOrg1 as user1 - " + permDelegatged3.getValue() + "  "  + permDelegatged3.getName());
 
       ServiceFactory sfU2 = ServiceFactoryLocator.get(U2, U2);
       ProcessInstance processInstanceU2 = sfU2.getWorkflowService().getProcessInstance(delegatedPi.getOID());
 
       PermissionState permDelegatged4 = processInstanceU2.getPermission(MANAGECASE);
-      System.out.println("permDelegated from Org1 to ScopedOrg1 as user2 - " + permDelegatged4.getValue() + "  "  + permDelegatged4.getName());
+      LOG.info("permDelegated from Org1 to ScopedOrg1 as user2 - " + permDelegatged4.getValue() + "  "  + permDelegatged4.getName());
       sfU2.close();
    }
 
@@ -692,7 +722,7 @@ public class CaseProcessInstanceTest
     * Tests merging members of groups.
     */
    @Test
-   public void testMerge()
+   public void testMerge() throws InterruptedException, TimeoutException
    {
       ProcessInstance caseProcess1 = wfService.startProcess("{CaseModel}CaseProcess1", null,
             true);
@@ -715,6 +745,8 @@ public class CaseProcessInstanceTest
       assertHierarchy(rootCaseProcess3, caseProcess2, true);
 
       assertSameProcessInstance(rootCaseProcess2, rootCaseProcess3);
+      
+      ProcessInstanceStateBarrier.instance().await(rootCaseProcess1.getOID(), ProcessInstanceState.Aborted);
    }
 
    // ************************************************************************************

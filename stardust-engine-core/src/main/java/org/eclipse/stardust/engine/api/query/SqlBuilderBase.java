@@ -10,21 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
+import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.namespace.QName;
 
@@ -68,25 +57,7 @@ import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
-import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkTypeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
@@ -1120,15 +1091,28 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    {
       VisitationContext context = (VisitationContext) rawContext;
 
-      final long userOID;
+      List<Long> userOidList = CollectionUtils.newArrayList();
       if (PerformingUserFilter.CURRENT_USER.equals(filter)
             && (null != context.getEvaluationContext().getUser()))
       {
-         userOID = context.getEvaluationContext().getUser().getOID();
+         // add current user
+         userOidList.add(context.getEvaluationContext().getUser().getOID());
+
+         // if current user is deputy for other user add them as well
+         Date now = new Date();
+         IUser user = context.getEvaluationContext().getUser();
+         List<DeputyBean> deputies = UserUtils.getDeputies(user);
+         for (DeputyBean deputy : deputies)
+         {
+            if (deputy.isActive(now))
+            {
+               userOidList.add(deputy.user);
+            }
+         }
       }
       else
       {
-         userOID = filter.getUserOID();
+         userOidList.add(filter.getUserOID());
       }
 
       PredicateTerm term;
@@ -1136,12 +1120,12 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       {
          term = Predicates.andTerm( //
                Predicates.isEqual(WorkItemBean.FR__PERFORMER_KIND, PerformerType.USER), //
-               Predicates.isEqual(WorkItemBean.FR__PERFORMER, userOID));
+               Predicates.inList(WorkItemBean.FR__PERFORMER, userOidList));
       }
       else
       {
-         term = Predicates.isEqual(ActivityInstanceBean.FR__CURRENT_USER_PERFORMER,
-               userOID);
+         term = Predicates.inList(ActivityInstanceBean.FR__CURRENT_USER_PERFORMER,
+               userOidList);
       }
 
       return term;
@@ -1896,7 +1880,9 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       final String criterionFieldName = criterion.getFieldName();
       final Class queryResultType = context.getType();
       FieldRef fieldRef = null;
-
+      
+      Join piJoin = (Join) context.getPredicateJoins().get(ProcessInstanceBean.class);
+      
       boolean isAiQuery = ActivityInstanceBean.class.equals(queryResultType);
       boolean isAiQueryOnWorkItem = WorkItemBean.class.equals(queryResultType);
       if (isAiQuery || isAiQueryOnWorkItem)
@@ -1926,23 +1912,28 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
                fieldProcessInstance = WorkItemBean.FIELD__PROCESS_INSTANCE;
             }
 
-            AttributeJoinDescriptor joinDescr = new AttributeJoinDescriptor(
-                  ProcessInstanceBean.class, //
-                  fieldProcessInstance,
-                  ProcessInstanceBean.FIELD__OID, ProcessInstanceBean.FIELD__OID);
-            Join piJoin = (Join) processAttributeJoinDescriptor(joinDescr, context, false)
-                  .getType();
+               AttributeJoinDescriptor joinDescr = new AttributeJoinDescriptor(
+                     ProcessInstanceBean.class, //
+                     fieldProcessInstance, ProcessInstanceBean.FIELD__OID,
+                     ProcessInstanceBean.FIELD__OID);
+               
+               if (piJoin == null)
+               {
+                  piJoin = (Join) processAttributeJoinDescriptor(joinDescr, context, false).getType();
+               }
 
-            joinDescr = new AttributeJoinDescriptor(
-                  AuditTrailProcessDefinitionBean.class, //
-                  new Pair(ProcessInstanceBean.FIELD__PROCESS_DEFINITION,
-                        AuditTrailProcessDefinitionBean.FIELD__OID), //
-                  new Pair(ProcessInstanceBean.FIELD__MODEL,
-                        AuditTrailProcessDefinitionBean.FIELD__MODEL), criterionFieldName);
-            fieldRef = processAttributeJoinDescriptor(joinDescr, context, piJoin, false);
+               joinDescr = new AttributeJoinDescriptor(
+                     AuditTrailProcessDefinitionBean.class, //
+                     new Pair(ProcessInstanceBean.FIELD__PROCESS_DEFINITION,
+                           AuditTrailProcessDefinitionBean.FIELD__OID), //
+                     new Pair(ProcessInstanceBean.FIELD__MODEL,
+                           AuditTrailProcessDefinitionBean.FIELD__MODEL),
+                     criterionFieldName);
+               fieldRef = processAttributeJoinDescriptor(joinDescr, context, piJoin,
+                     false);
 
-            Join pdJoin = (Join) fieldRef.getType();
-            pdJoin.setDependency(piJoin);
+               Join pdJoin = (Join) fieldRef.getType();
+               pdJoin.setDependency(piJoin);            
          }
          else if (UserBean.class.equals(criterionType))
          {
@@ -2411,31 +2402,39 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
        *
        * @author Stephan.Born
        */
-   protected static class DataAttributeKey
+   public static class DataAttributeKey
    {
       private final String dataId;
 
       private final String attributeName;
-
+      
       public DataAttributeKey(DataOrder order)
       {
-         this(order.getDataID(), order.getAttributeName());
+         this(order.getDataID(), order.getAttributeName(), null);
       }
 
       public DataAttributeKey(AbstractDataFilter filter)
       {
-         this(filter.getDataID(), filter.getAttributeName());
+         this(filter.getDataID(), filter.getAttributeName(), filter.getOperand());
       }
 
       public DataAttributeKey(IData data, String attributeName)
       {
-         this(ModelUtils.getQualifiedId(data), attributeName);
+         this(ModelUtils.getQualifiedId(data), attributeName, null);
       }
 
       public DataAttributeKey(String dataId, String attributeName)
       {
+         this(dataId, attributeName, null);
+      }
+
+      private DataAttributeKey(String dataId, String attributeName, Serializable operand)
+      {
          this.dataId = dataId;
-         this.attributeName = attributeName;
+         this.attributeName = (operand != null)
+               && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId)
+               && PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName)
+               ? attributeName + '/' + operand : attributeName;
       }
 
       public String getDataId()
@@ -2454,11 +2453,6 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          {
             return true;
          }
-         if (PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId) &&
-             PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName))
-         {
-            return false;
-         }
          if (other instanceof DataAttributeKey)
          {
             final DataAttributeKey that = (DataAttributeKey) other;
@@ -2476,8 +2470,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          final int PRIME = 31;
          int result = 1;
          result = PRIME * result + ((dataId == null) ? 0 : dataId.hashCode());
-         result = PRIME * result
-               + ((attributeName == null) ? 0 : attributeName.hashCode());
+         result = PRIME * result + ((attributeName == null) ? 0 : attributeName.hashCode());
          return result;
       }
 

@@ -25,7 +25,7 @@
       <conf name="stardust-engine-ws-cxf-sources" description="EPM Engine - WS CXF Module - Sources" />
       <conf name="stardust-engine-ws-cxf-javadoc" description="EPM Engine - WS CXF Module - Javadoc" />
 
-      <conf name="stardust-engine-ws-cxf-codegen-runtime" visibility="private" description="Classpath for codegen tasks" />
+      <conf name="stardust-engine-ws-cxf-codegen-runtime" extends="stardust-engine-ws-cxf-runtime" visibility="private" description="Classpath for codegen tasks" /> 
             
       <conf name="ws-api-templates" description="WS-API Templates" />      
 
@@ -34,7 +34,7 @@
       <!-- compound configurations which encapsulates the above mentioned configs -->
       <conf name="provided" extends="stardust-engine-ws-cxf-provided" visibility="private" />
       <conf name="compile" extends="provided,stardust-engine-ws-cxf-compile" visibility="private" />
-      <conf name="runtime" extends="stardust-engine-ws-cxf-runtime,stardust-engine-ws-cxf-codegen-runtime" visibility="private" />
+      <conf name="runtime" extends="stardust-engine-ws-cxf-runtime" visibility="private" />
 
       <conf name="all" extends="compile, runtime, provided, test" visibility="private" />
 
@@ -77,10 +77,12 @@
          <exclude org="org.apache.geronimo.specs" module="geronimo-javamail_1.4_spec" />
          <exclude org="org.codehaus.woodstox" module="woodstox-core-asl" />
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-tools-wsdlto-frontend-jaxws" rev="${cxf-tools-wsdlto-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default">
          <exclude org="xml-resolver" module="xml-resolver" />
       </dependency>
+      <dependency org="com.sun.xml.bind" name="jaxb-xjc" rev="${jaxb-xjc.version}" conf="stardust-engine-ws-cxf-codegen-runtime->default" />
 
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-ws-cxf-codegen-runtime->xerces-module-runtime" />
    
@@ -97,18 +99,22 @@
       <dependency org="org.apache.cxf" name="cxf-rt-frontend-jaxws" rev="${cxf-rt-frontend-jaxws.version}" conf="stardust-engine-ws-cxf-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
          <exclude org="xml-resolver" module="xml-resolver" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-bindings-soap" rev="${cxf-rt-bindings-soap.version}" conf="stardust-engine-ws-cxf-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-databinding-jaxb" rev="${cxf-rt-databinding-jaxb.version}" conf="stardust-engine-ws-cxf-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-transports-http" rev="${cxf-rt-transports-http.version}" conf="stardust-engine-ws-cxf-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-ws-addr" rev="${cxf-rt-ws-addr.version}" conf="stardust-engine-ws-cxf-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
+         <exclude org="com.sun.xml.bind" module="jaxb-xjc" />
       </dependency>
       <dependency org="org.apache.cxf" name="cxf-rt-ws-policy" rev="${cxf-rt-ws-policy.version}" conf="stardust-engine-ws-cxf-compile->default">
          <exclude org="org.apache.cxf" module="cxf-api" />
@@ -159,7 +165,6 @@
       <override org="wsdl4j" module="wsdl4j" rev="${wsdl4j.version}" />
       <override org="commons-lang" module="commons-lang" rev="${commons-lang.version}" />
       <override org="com.sun.xml.bind" module="jaxb-impl" rev="${jaxb-impl.version}" />
-      <override org="com.sun.xml.bind" module="jaxb-xjc" rev="${jaxb-xjc.version}" />
       <override org="asm" module="asm" rev="${asm.version}" />
       <override org="aopalliance" module="aopalliance" rev="${aopalliance.version}" />
       <override org="org.objenesis" module="objenesis" rev="${objenesis.version}" />

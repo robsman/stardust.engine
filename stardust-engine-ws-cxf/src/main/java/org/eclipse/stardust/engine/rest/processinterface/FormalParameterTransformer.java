@@ -27,11 +27,13 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 
 import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.FormalParameter;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ProcessInterface;
+import org.eclipse.stardust.engine.api.model.Reference;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
@@ -116,15 +118,14 @@ public class FormalParameterTransformer
     * @param returnValues the map representation of the return values (formal parameter id |-> value)
     * @return the XML representation
     */
-   public Document marshalDocument(long piOID, final Map<String, Serializable> returnValues)
-   {
+   public Document marshalDocument(ProcessInstance processInstance, final Map<String, Serializable> returnValues)
+   { 
       Document doc = XmlUtils.newDocument();
 
       Element root = (Element) doc.appendChild(doc.createElementNS(ProcessesRestlet.TYPES_NS, ProcessesRestlet.RESULTS_ELEMENT_NAME));
 
       QName qualifiedProcessId = QName.valueOf(this.qualifiedProcessId);
 
-      ProcessInstance processInstance = sf.getWorkflowService().getProcessInstance(piOID);
       String processId = processInstance.getProcessID();
 
       DeployedModel implModel = sf.getQueryService().getModel(processInstance.getModelOID());
@@ -146,7 +147,7 @@ public class FormalParameterTransformer
       {
          final String errorMsg = "Target path incorrect. The target Process definition '"
                + qualifiedProcessId
-               + "' is not compatible with Process instance OID '" + piOID
+               + "' is not compatible with Process instance OID '" + processInstance.getOID()
                + "'. The correct Process definition is '" + resolvedProcessId
                + "'. Please correct the request path.";
          throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
@@ -236,8 +237,22 @@ public class FormalParameterTransformer
 
    private Serializable getUnmarshalledValue(final FormalParameter fp, final Model model, final Element element)
    {
-      final String typeDeclarationId = getStructTypeDeclarationId(fp);
       final Serializable value;
+      String typeDeclarationId = getStructTypeDeclarationId(fp);
+      Model resolvedModel = model;
+      if (typeDeclarationId == null)
+      {
+         // resolve external reference
+         Data data = model.getData(fp.getDataId());
+         
+         if (data != null && data.getReference() != null)
+         {
+            Reference reference = data.getReference();
+            resolvedModel = sf.getQueryService().getModel(reference.getModelOid());
+            typeDeclarationId = reference.getId();
+         }
+      }
+      
       if (typeDeclarationId == null)
       {
          final Type type = getPrimitiveType(fp);
@@ -250,7 +265,7 @@ public class FormalParameterTransformer
       }
       else
       {
-         value = DataFlowUtils.unmarshalStructValue(model, typeDeclarationId, null, getFirstChildElement(element));
+         value = DataFlowUtils.unmarshalStructValue(resolvedModel, typeDeclarationId, null, getFirstChildElement(element));
       }
       return value;
    }
@@ -272,7 +287,21 @@ public class FormalParameterTransformer
 
    private void addMarshalledValue(Element root, final FormalParameter fp, final Model model, final Serializable value)
    {
-      final String typeDeclarationId = getStructTypeDeclarationId(fp);
+      String typeDeclarationId = getStructTypeDeclarationId(fp);
+      Model resolvedModel = model;
+      if (typeDeclarationId == null)
+      {
+         // resolve external reference
+         Data data = model.getData(fp.getDataId());
+         
+         if (data != null && data.getReference() != null)
+         {
+            Reference reference = data.getReference();
+            resolvedModel = sf.getQueryService().getModel(reference.getModelOid());
+            typeDeclarationId = reference.getId();
+         }
+      }
+      
       Document doc = root.getOwnerDocument();
       if (typeDeclarationId == null)
       {
@@ -285,7 +314,7 @@ public class FormalParameterTransformer
          final Element formalParameterElement = doc.createElementNS(WADLGenerator.W3C_XML_SCHEMA, fp.getId());
          root.appendChild(formalParameterElement);         
          
-         final Element structElement = DataFlowUtils.marshalStructValue(model, typeDeclarationId, null, value).getAny().get(0);
+         final Element structElement = DataFlowUtils.marshalStructValue(resolvedModel, typeDeclarationId, null, value).getAny().get(0);
          Node importNode = doc.importNode(structElement, true);
          formalParameterElement.appendChild(importNode);
          formalParameterElement.appendChild(doc.createTextNode("\n"));
@@ -334,3 +363,4 @@ public class FormalParameterTransformer
       return (Type) fp.getAttribute(PredefinedConstants.TYPE_ATT);
    }
 }
+

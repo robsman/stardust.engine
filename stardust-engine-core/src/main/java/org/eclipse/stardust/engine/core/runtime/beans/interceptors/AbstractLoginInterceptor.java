@@ -48,7 +48,7 @@ import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
 
 // @todo (france, ub): should be three interceptors (?!)
 // - login interceptor for internal login
-// - login interceptor for principla login
+// - login interceptor for principal login
 // - synchronization interceptor
 
 /**
@@ -162,7 +162,9 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          {
             throw LoginUtils.createAccountExpiredException(user);
          }
-   
+                     
+         UserUtils.updateDeputyGrants(user);
+                                   
          setCurrentUser(layer, user);
          
          SessionManager.instance().updateLastModificationTime(user);

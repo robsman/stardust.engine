@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 59246 
+ * Generated from  Revision: 60537 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 59246
+ * @version 60537
  */
 public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.api.ejb2.tunneling.beans.AbstractTunnelingServiceImpl
 {
@@ -1615,6 +1615,49 @@ public class TunnelingWorkflowServiceImpl extends org.eclipse.stardust.engine.ap
     }
 
     /**
+     * Spawns a new root process and creates a link of type
+     * {@link ProcessInstanceLinkType#SWITCH} to the specified process instance.<br>
+     * Optionally existing data from the specified process instance can be copied to the
+     * newly spawned process.
+     * <p>
+     * Please note that currently the specified process instance has to be aborted by
+     * setting <code>abortProcessInstance</code> to <code>true</code>.
+     *
+     * @param processInstanceOid
+     *               The oid of the process to spawn from.
+     * @param spawnProcessID
+     *               The id of the process definition to spawn as a new root process.
+     * @param options          
+     *               Options that controls how the spawning operation has to be performed.
+     *
+     * @return The {@link org.eclipse.stardust.engine.api.runtime.ProcessInstance} that was spawned.
+     *
+     * @throws IllegalOperationException
+     *                if the process instance is terminated or not a root process instance.
+     *     if the process instance and the process definition are from different
+     *      different models.
+     *     if the process instances process definition is the same as the specified process
+     *     ed process definition.
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ObjectNotFoundException
+     *                if the process instance for the specified oid or the process definition
+     *                for the specified process id is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws InvalidArgumentException
+     *                if <code>abortProcessInstance</code> is false (currently not
+     *                implemented).
+     *     <em>Instances of {@link InvalidArgumentException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws ConcurrencyException
+     *                if a lock on process instances cannot be obtained.
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *

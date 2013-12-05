@@ -50,6 +50,7 @@ import org.apache.cxf.transport.servlet.ServletContextResourceResolver;
 import org.apache.cxf.transport.servlet.ServletController;
 import org.apache.cxf.transport.servlet.servicelist.ServiceListGeneratorServlet;
 import org.apache.cxf.wsdl.WSDLManager;
+import org.apache.cxf.wsdl11.WSDLManagerImpl;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
@@ -545,7 +546,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          String partitionId = null;
          String modelId = null;
          String pathInfo = request.getPathInfo();
-         Map parameterMap = request.getParameterMap();
+         Map<?, ?> parameterMap = request.getParameterMap();
          
          if (pathInfo == null || "/".equals(pathInfo) || parameterMap.containsKey("stylesheet"))
          {
@@ -876,7 +877,7 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
          }
 
          String wsdlBeanId = "wsdl:" + endpoint.id();
-         final WSDLManager wsdlManager = bus.getExtension(WSDLManager.class);
+         final WSDLManager wsdlManager = getWsdlManager(bus);
          wsdlManager.removeDefinition(wsdl);
          wsdlManager.addDefinition(wsdlBeanId, wsdl);
 
@@ -913,6 +914,22 @@ public class DynamicCXFServlet extends AbstractHTTPServlet
                .build();
 
          return dynamicWsProvider;
+      }
+
+      private WSDLManager getWsdlManager(Bus bus)
+      {
+         WSDLManager wsdlManager = bus.getExtension(WSDLManager.class);
+
+         if (wsdlManager instanceof WSDLManagerImpl)
+         {
+            WSDLManagerImpl wsdlManagerImpl = (WSDLManagerImpl) wsdlManager;
+            if ( !wsdlManagerImpl.isDisableSchemaCache())
+            {
+               wsdlManagerImpl.setDisableSchemaCache(true);
+            }
+         }
+
+         return wsdlManager;
       }
 
       private BeanDefinition createConfigurationEndpointBean(final Bus bus)

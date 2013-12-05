@@ -371,7 +371,7 @@ public class JMSApplicationInstanceTest
       /* nothing to do */
    }
    
-   private static final class TestMessageProvider extends DefaultMessageProvider {}
+   public static final class TestMessageProvider extends DefaultMessageProvider {}
    
    private static interface AdditionalStubbing
    {

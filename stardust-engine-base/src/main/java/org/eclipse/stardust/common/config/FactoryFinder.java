@@ -22,8 +22,10 @@ import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.common.reflect.Reflect;
 
 
 /**
@@ -436,9 +438,9 @@ public class FactoryFinder
                // try again
             }
          }
-         return Class.forName(className).newInstance();
+         return Reflect.getClassFromClassName(className).newInstance();
       }
-      catch (ClassNotFoundException x)
+      catch (InternalException x)
       {
          throw new ConfigurationError("Provider " + className + " not found", x);
       }

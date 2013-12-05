@@ -38,8 +38,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventHandlerInstance;
 
-
-
 /**
  * @author ubirkemeyer
  * @version $Revision$
@@ -860,7 +858,9 @@ public class ModelManagerBean implements ModelManager
 
          for (Iterator i = getModels().iterator(); i.hasNext();)
          {
-            ((MyDependentObjectsCache) getDependentCache()).reload((IModel) i.next());
+            IModel model = (IModel) i.next();
+            addRelocationTransition(model);
+            ((MyDependentObjectsCache) getDependentCache()).reload(model);
          }
 
          // initialize RT-OID reverse lookup
@@ -955,6 +955,33 @@ public class ModelManagerBean implements ModelManager
                      ITransition transition = (ITransition) process.getTransitions().get(
                            k);
                      byRtOid.transitions[(int) getRuntimeOid(transition)] = transition;
+                  }
+               }
+            }
+         }
+      }
+
+      private void addRelocationTransition(IModel model)
+      {
+         for (int p = 0; p < model.getProcessDefinitions().size(); ++p)
+         {            
+            IProcessDefinition process = (IProcessDefinition) model
+                  .getProcessDefinitions().get(p);
+            ITransition transition = process.findTransition(PredefinedConstants.RELOCATION_TRANSITION_ID);
+            if(transition == null)
+            {
+               for (int a = 0; a < process.getActivities().size(); ++a)
+               {
+                  IActivity activity = (IActivity) process.getActivities().get(a);
+                  if (activity.getBooleanAttribute(PredefinedConstants.ACTIVITY_IS_RELOCATE_SOURCE_ATT)
+                        || activity.getBooleanAttribute(PredefinedConstants.ACTIVITY_IS_RELOCATE_TARGET_ATT))
+                  {                   
+                     ITransition relocateTransition = process.createTransition(PredefinedConstants.RELOCATION_TRANSITION_ID, "Relocation Transition", "", null, null);
+                     relocateTransition.setForkOnTraversal(false);
+                     ITransition transition_ = process.findTransition(PredefinedConstants.RELOCATION_TRANSITION_ID);                     
+                     rtOidRegistry.registerNewRuntimeOid(
+                           IRuntimeOidRegistry.TRANSITION, RuntimeOidUtils.getFqId(transition_));                     
+                     break;
                   }
                }
             }

@@ -38,7 +38,7 @@ public class JFCValidator implements ApplicationContextValidator
       {
          try
          {
-            Class clazz = Class.forName(className);
+            Class clazz = Reflect.getClassFromClassName(className);
             String methodName = (String) attributes.get(PredefinedConstants.METHOD_NAME_ATT);
 
             if (methodName == null)
@@ -61,7 +61,7 @@ public class JFCValidator implements ApplicationContextValidator
                }
             }
          }
-         catch (ClassNotFoundException e)
+         catch (InternalException e)
          {
             // inconsistencies.add(new Inconsistency("Couldn't find class '" + className
             //      + "' for JFC application.", Inconsistency.WARNING));

@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -79,7 +79,7 @@ public class TransientProcessInstanceProfilingTest
    
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
 
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
 
    
@@ -100,7 +100,7 @@ public class TransientProcessInstanceProfilingTest
    {
       System.setProperty(TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_KEY, TransientProcessInstanceTest.HAZELCAST_LOGGING_TYPE_VALUE);
       
-      final Parameters params = Parameters.instance();
+      final GlobalParameters params = GlobalParameters.globals();
       params.set(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_ON);
       params.set(KernelTweakingProperties.TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE, false);
       params.set(KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER, SpringAppContextHazelcastJcaConnectionFactoryProvider.class.getName());
@@ -169,12 +169,12 @@ public class TransientProcessInstanceProfilingTest
       stmt.executeBatch();
    }
    
-   private static void injectSequenceGenerator(final Parameters params)
+   private static void injectSequenceGenerator(final GlobalParameters params)
    {
       params.set(KernelTweakingProperties.SEQUENCE_BATCH_SIZE, SEQUENCE_BATCH_SIZE);
       final SequenceGenerator sequenceGenerator = new FastCachingSequenceGenerator();
       final DBDescriptor dbDescriptor = DBDescriptor.create(SessionFactory.AUDIT_TRAIL);
-      final SqlUtils sqlUtils = new SqlUtils(params.getString(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX), dbDescriptor);
+      final SqlUtils sqlUtils = new SqlUtils((String) params.get(SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX), dbDescriptor);
       sequenceGenerator.init(dbDescriptor, sqlUtils);
       
       params.set(SequenceGenerator.UNIQUE_GENERATOR_PARAMETERS_KEY, sequenceGenerator);

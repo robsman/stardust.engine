@@ -68,7 +68,7 @@ public final class CacheHelper
          }
          catch (Exception ce)
          {
-            trace.info("No caching service is available.");
+            trace.warn("No caching service is available.");
          }
       }
    }

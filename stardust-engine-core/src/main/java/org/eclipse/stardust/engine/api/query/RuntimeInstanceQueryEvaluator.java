@@ -43,9 +43,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
-import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.utils.ActivityInstanceAuthorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
@@ -68,7 +66,6 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
    protected final Query query;
    private final Class type;
    private final EvaluationContext evaluationContext;
-   private final DataCluster[] dataClusterSetup;
 
    protected RuntimeInstanceQueryEvaluator(Query query, Class type,
          EvaluationContext context)
@@ -76,7 +73,12 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
       this.query = query;
       this.type = type;
       this.evaluationContext = context;
-      dataClusterSetup = RuntimeSetup.instance().getDataClusterSetup();
+      //set pi cluster restrictions - only cluster that supports that states can be used for fetching
+      //do this only once so the information don't gets modified/lost for subqueries
+      if(DataClusterHelper.isDataClusterPresent())
+      {
+         DataClusterHelper.setRequiredClusterPiStates(query);
+      } 
    }
 
    public Class getQueriedType()
@@ -303,31 +305,34 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
    private static void applyDistinctOnQueryExtension(QueryExtension queryExtension,
          SqlBuilder.ParsedQuery parsedQuery)
    {
-      // custom select alias needs distinct else the total count is calculated incorrectly.
-      if (includesOrderOnJoinedTable(parsedQuery.getOrderCriteria()) && StringUtils.isEmpty(queryExtension.getSelectAlias()))
+      // custom select alias needs distinct else the total count is calculated
+      // incorrectly.
+      if (includesOrderOnJoinedTable(parsedQuery.getOrderCriteria())
+            && StringUtils.isEmpty(queryExtension.getSelectAlias()))
       {
          queryExtension.setDistinct(false);
          queryExtension.setEngineDistinct(parsedQuery.useDistinct());
       }
       else
-         {
+      {
          queryExtension.setDistinct(parsedQuery.useDistinct());
          queryExtension.setEngineDistinct(false);
-         }
+      }
    }
 
    private static boolean includesOrderOnJoinedTable(OrderCriteria criteria)
-         {
+   {
       for (OrderCriterion criterion : criteria)
-            {
+      {
          if (criterion.getFieldRef().getType() instanceof Join)
-               {
-                  return true;
-               }
-            }
+         {
+            return true;
+         }
+      }
 
       return false;
    }
+
 
    /**
     * Factory method allowing for varying SQL building strategies.

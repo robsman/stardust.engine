@@ -447,7 +447,7 @@ public class AuthorizationContext
       {
          permissions = getDefinedGrants(permissionId);
       }
-      if (permissionId == permissionIds[0])
+      if (permissionId.equals(permissionIds[0]))
       {
          if (permissions == null || EMPTY == permissions)
          {
@@ -575,7 +575,15 @@ public class AuthorizationContext
       }
       else if (currentUserPerformer != 0)
       {
-         return getUser() == null || getUser().getOID() == currentUserPerformer;
+         if (getUser() == null || getUser().getOID() == currentUserPerformer)
+         {
+            return true;
+         }
+         if (UserUtils.isDeputyOf(getUser(), currentUserPerformer))
+         {
+            UserUtils.setOnBehalfOf(currentUserPerformer);
+            return true;
+         }
       }
       return false;
    }

@@ -83,13 +83,14 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
       if (accessPoint instanceof IData)
       {
          IData data = (IData)accessPoint;
-         String metadataComplexTypeName = (String)data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
-         ITypeDeclaration metadataTypeDeclaration = ((IModel)data.getModel()).findTypeDeclaration(metadataComplexTypeName);
+         IModel model = (IModel) data.getModel();
+         ITypeDeclaration metadataTypeDeclaration = StructuredTypeRtUtils.getTypeDeclaration(
+               data, model, DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
          
          XSDNamedComponent metadataXsdComponent = null;
          if (metadataTypeDeclaration != null)
          {
-            XSDSchema metadataSchema = StructuredTypeRtUtils.getXSDSchema((IModel)data.getModel(), metadataTypeDeclaration);
+            XSDSchema metadataSchema = StructuredTypeRtUtils.getXSDSchema(model, metadataTypeDeclaration);
             metadataXsdComponent = StructuredTypeRtUtils.findElementOrTypeDeclaration(metadataSchema, metadataTypeDeclaration.getId(), true);
          }
          Map parameters = CollectionUtils.newMap();
@@ -117,7 +118,7 @@ public class DmsSchemaProvider implements ISchemaTypeProvider
       }
       throw new InternalException("Unsupported accessPoint: '"+((accessPoint==null)?"null":accessPoint.getClass().getName())+"'");
    }
-   
+
    public static class Factory implements ISchemaTypeProvider.Factory
    {
       private static final DmsSchemaProvider INSTANCE = new DmsSchemaProvider();

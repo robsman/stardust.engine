@@ -10,7 +10,8 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
+import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_SYNC_MODEL_NAME;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
@@ -27,7 +28,16 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
-import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.*;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.AnnotationUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.DocumentAnnotations;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.Highlight;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.Note;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.PageBookmark;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.PageOrientation;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.PrintDocumentAnnotations;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.PrintDocumentAnnotationsImpl;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.Stamp;
+import org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument.TextStyle;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
@@ -52,28 +62,25 @@ public class DmsDocumentAnnotationsTest
  private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, DMS_SYNC_MODEL_NAME);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
-
+   
    @Test
    public void testAssignDocumentAnnotations1()
    {
       DocumentManagementService dms = sf.getDocumentManagementService();
       dms.removeDocument("/docAnnotations1.txt");
-
+      
       DocumentInfo doc = new DmsDocumentBean();
-
       doc.setName("docAnnotations1.txt");
       doc.setContentType("text/plain");
-
       DocumentAnnotations printDocumentAnnotations = getPrintDocumentAnnotations1();
-
       doc.setDocumentAnnotations(printDocumentAnnotations);
 
       Document createdDocument = dms.createDocument("/", doc);

@@ -10,23 +10,23 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertEquals;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_DE;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
 import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
-import junit.framework.Assert;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.OrganizationInfoDetails;
 import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
+import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.RtEnvHome;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
-import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class DepartmentCleanupTest
 {
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
@@ -94,7 +94,7 @@ public class DepartmentCleanupTest
    {
       DepartmentHome.create(sf, DEPT_ID_DE, ORG_ID_1, null);
       sf.getAdministrationService().cleanupRuntimeAndModels();
-      RtEnvHome.deploy(sf.getAdministrationService(), MODEL_NAME);
+      RtEnvHome.deploy(sf.getAdministrationService(), null, MODEL_NAME);
       ensureDepartmentCleanup();
    }
    

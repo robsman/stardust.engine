@@ -14,9 +14,11 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TableDescriptor;
 
 
@@ -34,20 +36,48 @@ public class DataCluster extends TableDescriptor
    private final List<DataSlot> slots;
    private final Map<String, DataClusterIndex> indexes;
    private final Map<String, Map<String, DataSlot>> slotsByDataAndAttribute;
+   private final Set<DataClusterEnableState> enableStates;
+   
+   public enum DataClusterEnableState {
+      ALL(ProcessInstanceState.Created, ProcessInstanceState.Active, 
+          ProcessInstanceState.Aborting, ProcessInstanceState.Aborted,
+          ProcessInstanceState.Interrupted, ProcessInstanceState.Completed),  
+      ALIVE(ProcessInstanceState.Created, ProcessInstanceState.Active, 
+            ProcessInstanceState.Aborting, ProcessInstanceState.Interrupted),  
+      CREATED(ProcessInstanceState.Created),      
+      ACTIVE(ProcessInstanceState.Active),   
+      ABORTING(ProcessInstanceState.Aborting),
+      ABORTED(ProcessInstanceState.Aborted),
+      INTERRUPTED(ProcessInstanceState.Interrupted),
+      COMPLETED(ProcessInstanceState.Completed);
+
+      private final ProcessInstanceState[] piStates;
+      DataClusterEnableState(ProcessInstanceState... piStates)
+      {
+         this.piStates = piStates;
+      }
+
+      public ProcessInstanceState[] getPiStates()
+      {
+         return piStates;
+      }
+   }
    
    public DataCluster(String schemaName, String tableName, String processInstanceColumn, DataSlot[] slots,
-         DataClusterIndex[] indexes)
+         DataClusterIndex[] indexes, Set<DataClusterEnableState> enableStates)
    {
       super(schemaName);
       
       this.tableName = tableName;
       this.processInstanceColumn = processInstanceColumn;
-
+      this.enableStates = enableStates;
       this.slots = new LinkedList();
       this.slotsByDataAndAttribute = CollectionUtils.newHashMap();
       for (int i = 0; i < slots.length; i++ )
       {
          DataSlot slot = slots[i];
+         slot.setParent(this);
+         
          this.slots.add(slot);
          
          Map<String, DataSlot> slotsByAttribute = this.slotsByDataAndAttribute.get(slot.getQualifiedDataId());
@@ -127,5 +157,42 @@ public class DataCluster extends TableDescriptor
    public Map<String, DataClusterIndex> getIndexes()
    {
       return Collections.unmodifiableMap(indexes);
+   }
+   
+   public boolean isEnabledFor(ProcessInstanceState piState)
+   {
+      for(DataClusterEnableState enableState: enableStates)
+      {
+         for(ProcessInstanceState enabledPiState: enableState.getPiStates())
+         {
+            if(enabledPiState == piState)
+            {
+               return true;
+            }
+         }
+      }
+      
+      return false;
+   }
+   
+   public boolean isEnabledFor(Set<ProcessInstanceState> piStates)
+   {
+      if(!piStates.isEmpty())
+      {
+         boolean enabled = true;
+         for(ProcessInstanceState piState: piStates)
+         {
+            enabled &= isEnabledFor(piState);
+         }
+         
+         return enabled;
+      }
+            
+      return true;
+   }
+   
+   public Set<DataClusterEnableState> getEnableStates()
+   {
+      return enableStates;
    }
 }

@@ -17,4 +17,5 @@ public final class MailConstants
    public static final String OUTPUT_VALUE = "outputValue";
    public static final String INVESTIGATE = "investigate";
    public static final String HASH_CODE = "hashCode";
+   public static final String PARTITION = "partition";
 }

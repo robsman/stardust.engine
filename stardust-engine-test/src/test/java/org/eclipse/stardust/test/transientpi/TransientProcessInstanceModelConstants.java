@@ -179,6 +179,11 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     */
    /* package-private */ static final String PROCESS_DEF_ID_RECOVERY = "Recovery";
 
+   /**
+    * the ID of the process definition used for multiple retry testing
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_MULTIPLE_RETRY = "MultipleRetry";
+   
    
    /**
     * the name of the process definition started by a timer trigger

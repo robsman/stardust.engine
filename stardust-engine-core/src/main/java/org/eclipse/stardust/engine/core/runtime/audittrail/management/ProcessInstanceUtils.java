@@ -45,6 +45,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafe
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
@@ -532,8 +533,10 @@ public class ProcessInstanceUtils
          // Mark this PI at its root PI as aborting
          final long piOid = processInstance.getOID();
          rootProcessInstance.addAbortingPiOid(piOid);
-
-         AbortionJanitorCarrier carrier = new AbortionJanitorCarrier(piOid);
+                                   
+         final long userOid = SecurityProperties.getUserOID();         
+         
+         AbortionJanitorCarrier carrier = new AbortionJanitorCarrier(piOid, userOid);
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          if (rtEnv.getExecutionPlan() != null)
          {

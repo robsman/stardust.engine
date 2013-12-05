@@ -13,7 +13,17 @@ import static org.eclipse.stardust.engine.core.runtime.audittrail.management.Pro
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -22,13 +32,82 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
+import org.eclipse.stardust.common.error.ApplicationException;
+import org.eclipse.stardust.common.error.ConcurrencyException;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.InvalidArgumentException;
+import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.error.ServiceCommandException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.dto.*;
-import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.query.*;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceAttributes;
+import org.eclipse.stardust.engine.api.dto.ActivityInstanceDetails;
+import org.eclipse.stardust.engine.api.dto.ContextKind;
+import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
+import org.eclipse.stardust.engine.api.dto.Note;
+import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetails;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributes;
+import org.eclipse.stardust.engine.api.dto.ProcessInstanceAttributesDetails;
+import org.eclipse.stardust.engine.api.dto.RoleInfoDetails;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.dto.UserInfoDetails;
+import org.eclipse.stardust.engine.api.model.ContextData;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IDataPath;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
+import org.eclipse.stardust.engine.api.model.IFormalParameter;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IParticipant;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.ParticipantInfo;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.ProcessDefinition;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
+import org.eclipse.stardust.engine.api.query.ActivityInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.query.EvaluationContext;
+import org.eclipse.stardust.engine.api.query.FilterOrTerm;
+import org.eclipse.stardust.engine.api.query.PerformingParticipantFilter;
+import org.eclipse.stardust.engine.api.query.PerformingUserFilter;
+import org.eclipse.stardust.engine.api.query.ProcessInstanceFilter;
+import org.eclipse.stardust.engine.api.query.Worklist;
+import org.eclipse.stardust.engine.api.query.WorklistQuery;
+import org.eclipse.stardust.engine.api.query.WorklistQueryEvaluator;
+import org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BindingException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DataCopyOptions;
+import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
+import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
+import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.LogType;
+import org.eclipse.stardust.engine.api.runtime.Permission;
+import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils;
+import org.eclipse.stardust.engine.api.runtime.ScanDirection;
+import org.eclipse.stardust.engine.api.runtime.SpawnOptions;
+import org.eclipse.stardust.engine.api.runtime.SubprocessSpawnInfo;
+import org.eclipse.stardust.engine.api.runtime.TransitionOptions;
+import org.eclipse.stardust.engine.api.runtime.TransitionTarget;
+import org.eclipse.stardust.engine.api.runtime.TransitionTargetFactory;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
+import org.eclipse.stardust.engine.api.runtime.UserInfo;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
@@ -604,15 +683,15 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       String processId = qname.getLocalPart();
       if (processId.equals(originatingProcessDefinition.getId()))
       {
-         if (model == originatingProcessDefinition.getModel())
+         /*if (model == originatingProcessDefinition.getModel())
          {
             throw new IllegalOperationException(
                   BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
          }
          else
-         {
+         {*/ 
             linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
-         }
+         /*}*/
       }
 
       IProcessDefinition processDefinition = model.findProcessDefinition(processId);
@@ -860,14 +939,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       ActivityInstanceUtils.assertNotOnOtherUserWorklist(activityInstance, false);
       ActivityInstanceUtils.assertNotDefaultCaseInstance(activityInstance);
 
-      if (activityInstance.getState() == ActivityInstanceState.Application)
-      {
-         return;
-      }
-
       IUser currentUser = SecurityProperties.getUser();
-      if (activityInstance.getActivity().isInteractive() && null != currentUser
-            && 0 != currentUser.getOID())
+      if (activityInstance.getActivity().isInteractive() && currentUser != null
+            && currentUser.getOID() != 0
+            && activityInstance.getCurrentUserPerformerOID() != currentUser.getOID())
       {
          if (activityInstance instanceof ActivityInstanceBean)
          {
@@ -879,8 +954,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
             activityInstance.delegateToUser(currentUser);
          }
       }
-
-      activityInstance.activate();
+      if (activityInstance.getState() != ActivityInstanceState.Application)
+      {
+         activityInstance.activate();
+      }
    }
 
    private void complete(IActivityInstance activityInstance, String context,
@@ -897,7 +974,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IUser user = SecurityProperties.getUser();
       if (null != user && 0 != user.getOID())
       {
-         ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
+         ActivityInstanceUtils.assertNotActivatedByOther(activityInstance, true);
       }
 
       if (activityInstance.getState() == ActivityInstanceState.Application)
@@ -930,7 +1007,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
    public ActivityInstance suspend(long activityInstanceOID, ContextData data)
          throws ObjectNotFoundException, AccessForbiddenException
    {
-      IActivityInstance activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
+      IActivityInstance activityInstance = ActivityInstanceUtils.lock(activityInstanceOID);
 
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
@@ -944,6 +1021,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       IParticipant participant = null;
       IDepartment department = null;
+      long currentUser = activityInstance.getCurrentUserPerformerOID();
 
       Iterator<ActivityInstanceHistoryBean> history = ActivityInstanceHistoryBean.getAllForActivityInstance(
             activityInstance, false);
@@ -952,9 +1030,17 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          ActivityInstanceHistoryBean aih = history.next();
          if (ActivityInstanceState.Application == aih.getState())
          {
-            continue;
+            IParticipant performer = aih.getPerformer();
+            if (performer instanceof IUser && ((IUser) performer).getOID() != currentUser)
+            {
+               participant = performer;
+            }
+            else
+            {
+               continue;
+            }
          }
-         if (ActivityInstanceState.Suspended == aih.getState())
+         else if (ActivityInstanceState.Suspended == aih.getState())
          {
             participant = aih.getPerformer();
             department = aih.getDepartment();
@@ -1008,7 +1094,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          ParticipantInfo participant, ContextData data) throws ObjectNotFoundException,
          AccessForbiddenException
    {
-      IActivityInstance activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
+      IActivityInstance activityInstance = ActivityInstanceUtils.lock(activityInstanceOID);
 
       ActivityInstanceUtils.assertNotTerminated(activityInstance);
       ActivityInstanceUtils.assertNotInAbortingProcess(activityInstance);
@@ -2351,7 +2437,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       IUser user = SecurityProperties.getUser();
       if (null != user && 0 != user.getOID())
       {
-         ActivityInstanceUtils.assertNotActivatedByOther(activityInstance);
+         ActivityInstanceUtils.assertNotActivatedByOther(activityInstance, complete);
       }
 
       boolean interactive = activityInstance.getActivity().isInteractive();

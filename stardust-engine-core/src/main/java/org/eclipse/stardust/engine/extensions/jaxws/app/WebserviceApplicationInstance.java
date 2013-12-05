@@ -306,7 +306,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
                   Class<?> exceptionClass = null;
                   try
                   {
-                     exceptionClass = Class.forName(exceptionMapping);
+                     exceptionClass = Reflect.getClassFromClassName(exceptionMapping);
                      WebFault wfa = exceptionClass.getAnnotation(WebFault.class);
                      if (wfa != null)
                      {
@@ -344,7 +344,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
                {
                   try
                   {
-                     Class<?> exceptionClass = Class.forName(mapping);
+                     Class<?> exceptionClass = Reflect.getClassFromClassName(mapping);
                      Constructor<?> constructor = getExceptionConstructor(exceptionClass);
                      if (constructor != null)
                      {
@@ -673,7 +673,7 @@ public class WebserviceApplicationInstance implements SynchronousApplicationInst
             try
             {
                String paramType = (String) typeMappings.get("input:" + name);
-               Class<?> paramClass = Class.forName(paramType);
+               Class<?> paramClass = Reflect.getClassFromClassName(paramType);
                if (null != paramClass)
                {
                   ret = paramClass.newInstance();

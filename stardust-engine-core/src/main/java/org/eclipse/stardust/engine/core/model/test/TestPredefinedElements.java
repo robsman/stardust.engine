@@ -15,6 +15,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 
 import junit.framework.TestCase;
@@ -44,9 +46,9 @@ public class TestPredefinedElements extends TestCase
             String className = (String) field.get(null);
             try
             {
-               Class.forName(className);
+               Reflect.getClassFromClassName(className);
             }
-            catch (ClassNotFoundException e)
+            catch (InternalException e)
             {
                evilStuff.add(className);
             }

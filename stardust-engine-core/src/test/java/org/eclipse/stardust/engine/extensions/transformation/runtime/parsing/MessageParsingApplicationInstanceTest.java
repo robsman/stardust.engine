@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.extensions.transformation.runtime.parsing;
 
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -30,7 +30,14 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.AccessPoint;
+import org.eclipse.stardust.engine.api.model.Activity;
+import org.eclipse.stardust.engine.api.model.Application;
+import org.eclipse.stardust.engine.api.model.ApplicationContext;
+import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactoryUtils;
@@ -112,7 +119,7 @@ public class MessageParsingApplicationInstanceTest
       final Map<?, ?> actualOutputValues = (Map<?, ?>) Reflect.getFieldValue(out, "outputValues");
       assertTrue(actualOutputValues.isEmpty());
       final IMessageFormat actualMessageFormat = (IMessageFormat) Reflect.getFieldValue(out, "messageFormat");
-      assertThat(actualMessageFormat, is(XMLMessageFormat.class));
+      assertThat(actualMessageFormat, instanceOf(XMLMessageFormat.class));
       final String actualSchema = (String) Reflect.getFieldValue(out, "schema");
       assertEquals(schema, actualSchema);
    }

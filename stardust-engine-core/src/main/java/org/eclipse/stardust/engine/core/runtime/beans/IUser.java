@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -196,6 +196,8 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
 
    void addToParticipants(IModelParticipant participant, IDepartment department);
 
+   void addToParticipants(IModelParticipant participant, IDepartment department, long onBehalfOf);
+   
    void removeFromParticipants(IModelParticipant participant, IDepartment department);
 
    boolean hasRole(String name);
@@ -237,4 +239,7 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
    public void setProfile(Map profile);
 
    public boolean hasGrant(IModelParticipant participant);
+   
+   boolean isPropertyAvailable(int pattern);
+   
 }

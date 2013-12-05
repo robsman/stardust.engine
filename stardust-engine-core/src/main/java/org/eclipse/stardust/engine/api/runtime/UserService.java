@@ -150,16 +150,21 @@ public interface UserService extends Service
 
    /**
     * Resets the password of specified user by generated password according to configured
-    * password rules.
+    * password rules. On synchronization with external repository the specified user will
+    * be created in audit trail if it is not already present there but exists in external
+    * repository. If the user exists in audit trail it will be updated on synchronization
+    * if there are any changes.
     * 
-    * @param account the user account to be modified.
-    * @param properties Map providing further login properties.
+    * @param account
+    *           the user account to be modified.
+    * @param properties
+    *           Map providing further login properties.
     * 
-    * @throws ConcurrencyException 
+    * @throws ConcurrencyException
     *            if another user operates on the specified one.
-    * @throws ObjectNotFoundException 
+    * @throws ObjectNotFoundException
     *            if the user or a given grant is not found.
-    * @throws IllegalOperationException 
+    * @throws IllegalOperationException
     *            if the authentication is not internal.
     */
    @ExecutionPermission(
@@ -260,14 +265,17 @@ public interface UserService extends Service
          throws UserExistsException, IllegalOperationException, InvalidPasswordException;
 
    /**
-    * Retrieves the user associated with the given account.
+    * Retrieves the user associated with the given account. On synchronization with
+    * external repository the specified user will be created in audit trail if it is not
+    * already present there but exists in external repository. If the user exists in audit
+    * trail it will be updated on synchronization if there are any changes.
     * 
     * @param account
     *           the account name of the user to retrieve.
     * 
     * @return the user.
     * 
-    * @throws ObjectNotFoundException 
+    * @throws ObjectNotFoundException
     *            if there is no user with the specified account.
     */
    @ExecutionPermission(
@@ -276,7 +284,10 @@ public interface UserService extends Service
    User getUser(String account) throws ObjectNotFoundException, IllegalOperationException;
 
    /**
-    * Retrieves the user associated with the given account.
+    * Retrieves the user associated with the given account. On synchronization with
+    * external repository the specified user will be created in audit trail if it is not
+    * already present there but exists in external repository. If the user exists in audit
+    * trail it will be updated on synchronization if there are any changes.
     * 
     * @param realm
     *           the realm ID of the user to retrieve.
@@ -294,14 +305,17 @@ public interface UserService extends Service
    User getUser(String realm, String account) throws ObjectNotFoundException;
 
    /**
-    * Retrieves the specified user.
+    * Retrieves the specified user. On synchronization the user with specified oid will be
+    * updated if this user exists in audit trail and there are any changes. If this user
+    * does not exist in audit trail but is present in external repository it will not be
+    * created in audit trail on synchronization with external repository.
     * 
     * @param userOID
     *           the OID of the user to retrieve.
     * 
     * @return the user.
     * 
-    * @throws ObjectNotFoundException 
+    * @throws ObjectNotFoundException
     *            if there is no user with the specified oid.
     */
    @ExecutionPermission(
@@ -383,7 +397,10 @@ public interface UserService extends Service
          InvalidPasswordException, InvalidArgumentException;
 
    /**
-    * Retrieves the user group associated with the given ID.
+    * Retrieves the user group associated with the given ID. On synchronization with
+    * external repository the specified user group will be created in audit trail if it is not
+    * already present there but exists in external repository. If the user group exists in audit
+    * trail it will be updated on synchronization if there are any changes.
     * 
     * @param id
     *           the id of the user group to retrieve.
@@ -399,15 +416,19 @@ public interface UserService extends Service
    UserGroup getUserGroup(String id) throws ObjectNotFoundException;
    
    /**
-    * Retrieves the specified user group.
+    * Retrieves the specified user group. On synchronization the user group with specified
+    * oid will be updated if this user group exists in audit trail and there are any
+    * changes. If this user group does not exist in audit trail but is present in external
+    * repository it will not be created in audit trail on synchronization with external
+    * repository.
     * 
     * @param oid
     *           the OID of the user group to retrieve.
     * 
     * @return the user group.
     * 
-    * @throws ObjectNotFoundException 
-    *           if there is no user group with the specified OID.
+    * @throws ObjectNotFoundException
+    *            if there is no user group with the specified OID.
     */
    @ExecutionPermission(
          id=ExecutionPermission.Id.readUserData,
@@ -523,4 +544,80 @@ public interface UserService extends Service
          id=ExecutionPermission.Id.readUserData,
          defaults={ExecutionPermission.Default.ALL})
    List getUserRealms() throws ConcurrencyException, IllegalOperationException;
+   
+   /**
+    * Adds a new deputy user for a given user. This deputy user inherits for the defined
+    * time frame all grants from given user. The deputy user has to login again before the
+    * inherited grants become active.
+    * 
+    * @param user
+    *           the user to which a deputy user shall be added.
+    * @param deputyUser
+    *           the deputy user.
+    * @param options
+    *           the options associated with the operation. Can be null, in which case the
+    *           default options will be used.
+    * @return the created deputy.
+    * @throws DeputyExistsException
+    *            if the requested deputy already exists.
+    */
+    Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options);
+
+   /**
+    * Modifies an existing deputy user for a given user. This deputy user inherits for the
+    * defined time frame all grants from given user. The deputy user has to login again
+    * before changes become active.
+    * 
+    * @param user
+    *           the user for which a deputy user shall be modified.
+    * @param deputyUser
+    *           the deputy user.
+    * @param fromDate
+    *           date from when deputy user inherits all grants of user. not allowed to be
+    *           null.
+    * @param toDate
+    *           date when inherited grants are revoked from deputy user. If date is null
+    *           then no upper limit exists.
+    * 
+    * @return the created deputy.
+    * @throws ObjectNotFoundException
+    *            if the requested deputy does not exists.
+    */
+    Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options) throws ObjectNotFoundException;
+
+   /**
+    * Removes an existing deputy user for a given user. All inherited grants from user are
+    * revoked from deputy user. The deputy user has to login again before changes become
+    * active.
+    * 
+    * @param user
+    *           the user for which a deputy user shall be removed.
+    * @param deputyUser
+    *           the deputy user.
+    * 
+    * @throws ObjectNotFoundException
+    *            if the requested deputy does not exists.
+    */
+    void removeDeputy(UserInfo user, UserInfo deputyUser) throws ObjectNotFoundException;
+
+   /**
+    * Returns a list of all deputy users for the given user.
+    * 
+    * @param user
+    *           the user whose deputy users shall be returned.
+    * 
+    * @return List of deputy users for given user.
+    */
+    List<Deputy> getDeputies(UserInfo user);
+
+   /**
+    * Returns a list of all users for which the given user is an deputy user.
+    * 
+    * @param deputyUser
+    *           the deputy user whose users shall be returned.
+    * 
+    * @return List of users for given deputy user.
+    */
+    List<Deputy> getUsersBeingDeputyFor(UserInfo deputyUser);
+
 }

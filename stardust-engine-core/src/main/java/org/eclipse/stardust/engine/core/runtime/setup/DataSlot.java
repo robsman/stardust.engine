@@ -19,6 +19,7 @@ import javax.xml.namespace.QName;
  */
 public class DataSlot
 {
+   private DataCluster parent;
    private final QName fqDataId;
    private final String attributeName; 
    
@@ -91,5 +92,15 @@ public class DataSlot
    public boolean isIgnorePreparedStatements()
    {
       return ignorePreparedStatements;
+   }
+
+   public DataCluster getParent()
+   {
+      return parent;
+   }
+
+   public void setParent(DataCluster parent)
+   {
+      this.parent = parent;
    }
 }

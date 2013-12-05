@@ -43,23 +43,24 @@ public class ItemLocator
 
    public Object get()
    {
-      Object result = item.get();
-      
-      if ((null == result) || watcher.isDirty())
+      if ((null == item.get()) || watcher.isDirty())
       {
          synchronized (initializationLock)
          {
-            if (initializationLock.compareAndSet(null, INITIALIZATION_LOCK))
+            if ((null == item.get()) || watcher.isDirty())
             {
-               final Object state = watcher.getGlobalState();
-               
-               item.set(loader.load());
-               watcher.updateState(state);
-               
-               if ( !initializationLock.compareAndSet(INITIALIZATION_LOCK, null))
+               if (initializationLock.compareAndSet(null, INITIALIZATION_LOCK))
                {
-                  trace.warn("Race condition while initializing item from loader '"
-                        + loader + "'.");
+                  final Object state = watcher.getGlobalState();
+
+                  item.set(loader.load());
+                  watcher.updateState(state);
+
+                  if (!initializationLock.compareAndSet(INITIALIZATION_LOCK, null))
+                  {
+                     trace.warn("Race condition while initializing item from loader '"
+                           + loader + "'.");
+                  }
                }
             }
          }

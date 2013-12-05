@@ -349,13 +349,24 @@ public class CollectionUtils
    {
       if (source instanceof List)
       {
-         return split((List) source, chunkSize);
+         return split((List<E>) source, chunkSize);
       }
       else
       {
-         List srcList = newArrayList(source);
+         List<E> srcList = newArrayList(source);
          return split(srcList, chunkSize);
       }
+   }
+   
+   public static <E> List<E> intersect(List<E> lhs, List<E> rhs)
+   {
+      if (isEmpty(lhs) || isEmpty(rhs))
+      {
+         return newList();
+      }
+      List<E> result = copyList(lhs);
+      result.retainAll(rhs);
+      return result;
    }
    
 
@@ -375,24 +386,50 @@ public class CollectionUtils
 
       return result;
    }
+   
+   public static <E> List<E> union(List<E> lhs, List<E> rhs, boolean addToLhs)
+   {
+      if (addToLhs)
+      {
+         return union(lhs, rhs);
+      }
+      
+      List<E> result;
 
+      if (Collections.emptyList().equals(lhs))
+      {
+         result = rhs;
+      }
+      else if (Collections.emptyList().equals(rhs))
+      {
+         result = lhs;
+      }
+      else
+      {
+         result = newArrayList();
+         result.addAll(lhs);
+         result.addAll(rhs);
+      }
+
+      return result;
+   }   
+   
    private CollectionUtils()
    {
       // utility class
    }
 
-   @SuppressWarnings("unchecked")
    public static Map<String, Object> convertToLegacyParameters(
          Map<String, ? extends Serializable> serializableMap)
    {
-      return Collections.unmodifiableMap((Map)serializableMap);
+      return Collections.unmodifiableMap((Map<String, ?>) serializableMap);
    }
 
    @SuppressWarnings("unchecked")
-   public static Map<String, Serializable> convertFromLegacyParameters(
+   public static Map<String, ? extends Serializable> convertFromLegacyParameters(
          Map<String, Object> legacyParams)
    {
-      if(legacyParams == null)
+      if (legacyParams == null)
       {
          return null;
       }
@@ -403,7 +440,8 @@ public class CollectionUtils
             throw new IllegalArgumentException("Legacy map contains unexpected values");
          }
       }
-      return (Map)legacyParams;
+      // (fh) double casting to avoid eclipse compiler errors
+      return (Map<String, ? extends Serializable>) ((Map<String, ?>) legacyParams);
    }
    
    public static <K, V> void remove(Map<K, V> map, Set<K> set)

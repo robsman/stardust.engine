@@ -19,16 +19,23 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.eclipse.stardust.engine.api.model.ContextData;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.DmsUtils;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserService;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -51,7 +58,7 @@ public class DmsSyncTypedDocumentTest
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
 
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, DMS_SYNC_MODEL_NAME);
@@ -89,7 +96,6 @@ public class DmsSyncTypedDocumentTest
    /**
     * Update via dms should also update all document and documentList data references to
     * the document in the workflow.
-    * ( with document security AccessDenied )
     */
    @Test
    public void testUpdateDocumentViaDms()
@@ -142,7 +148,6 @@ public class DmsSyncTypedDocumentTest
    /**
     * Update via workflow should update the document in the jcr and all references to the
     * same document in workflow document or documentList data.
-    * ( with document security AccessDenied )
     */
    @Test
    public void testUpdateDocumentViaWorkflow()
@@ -194,7 +199,6 @@ public class DmsSyncTypedDocumentTest
    /**
     * Removing the physical document should also remove all workflow document and
     * documentList data references to it.
-    * ( with document security AccessDenied )
     */
    @Test
    public void testDeleteDocumentViaDms()
@@ -243,7 +247,6 @@ public class DmsSyncTypedDocumentTest
    /**
     * Removing the document data in workflow should not delete the physical document and
     * it should not affect any other workflow data references to the same document.
-    * ( with document security: works because only removing a reference in the workflow )
     */
    @Test
    public void testRemoveDocumentInWorkflow()
@@ -294,7 +297,6 @@ public class DmsSyncTypedDocumentTest
 
    /**
     * Tests updates only targeting a specific xPath
-    * ( with document security AccessDenied )
     */
    @Test
    public void testPartialUpdateDocumentViaWorkflow()

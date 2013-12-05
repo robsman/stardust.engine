@@ -70,7 +70,7 @@
          <path refid="servlet.deps" />
          <path refid="ejb.deps" />
       </path>
-      
+
    </target>
 
 
@@ -140,7 +140,6 @@
       <ivy:publish resolver="buildenv" conf="*,!${jackrabbit.core.conf.counterpart}" overwrite="true" haltonmissing="true" 
          srcivypattern="${project.dir}/ivy.xml" update="true" merge="false">
          <artifacts pattern="${build.lib}/[artifact](-[classifier]).[ext]"/>
-         <artifacts pattern="${build.lib.src}/[artifact](-[classifier]).[ext]"/>
       </ivy:publish>
       
       <!-- retrieve dependencies for resolved Ivy: ivy.xml -->
@@ -206,6 +205,7 @@
             <include name="js-*.jar"/>
          </fileset>
       </delete>
+      <move file="${build.lib}/jcr-vfs-${ipp.version.full}.jar" tofile="${build.lib}/jcr-vfs.jar" />
       <move file="${build.lib}/spring/tranql-connector-${common.tranql-connector.version}.jar" todir="${build.lib}" failonerror="false" />
       <move file="${build.lib}/commons-httpclient-${common.commons-httpclient.version}.jar" todir="${build.lib}/dms" failonerror="false" />
       <move todir="${build.lib}/spring" failonerror="false">

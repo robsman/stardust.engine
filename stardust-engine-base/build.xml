@@ -4,7 +4,7 @@
     are made available under the terms of the Eclipse Public License v1.0
     which accompanies this distribution, and is available at
     http://www.eclipse.org/legal/epl-v10.html
-   
+
     Contributors:
        SunGard CSA LLC - initial API and implementation and/or initial documentation
  -->
@@ -24,7 +24,7 @@
    <property file="${project.etc}/private.properties" />
 
    <property name="artifactId" value="carnot-base" />
-   
+
    <!-- Following variables are possible in copyrightMessage:
         {0}: will be replaced by CurrentVersion.getVersionName(), i.e. major.minor.micro
         {1}: will be replaced by CurrentVersion.COPYRIGHT_YEARS, e.g. 2000-2012
@@ -44,15 +44,14 @@
    <target name="initOnProduction" unless="setup.development">
       <echo message="Performing a production build ..." />
 
-      <property name="javac.debuglevel" value="lines,source" />
+      <property name="javac.debuglevel" value="lines,source,vars" />
    </target>
 
    <target name="init">
       <property name="build.dir" value="${project.dir}/build" />
       <property name="build.classes" value="${build.dir}/classes" />
-      <property name="build.javadoc" value="${build.dir}/javadoc" />
+      <property name="build.javadoc" location="${build.dir}/javadoc" />
       <property name="build.lib" location="${build.dir}/lib" />
-      <property name="build.lib.src" value="${build.dir}/src" />
       <property name="build.src" value="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
       <property name="build.report" location="${build.dir}/report" />
@@ -72,14 +71,13 @@
       <property name="carnot-base-javadoc.jarfile" value="carnot-base-javadoc.jar" />
       <property name="carnot-base-javadoc.jar" value="${build.lib}/${carnot-base-javadoc.jarfile}" />
       <property name="carnot-base.src-jarfile" value="carnot-base-sources.jar" />
-      <property name="carnot-base.src-jar" value="${build.lib.src}/${carnot-base.src-jarfile}" />
+      <property name="carnot-base.src-jar" value="${build.lib}/${carnot-base.src-jarfile}" />
    </target>
 
    <target name="initBuildDirectories" depends="initBuild">
       <mkdir dir="${build.classes}" />
       <mkdir dir="${build.lib}" />
       <mkdir dir="${build.src}" />
-      <mkdir dir="${build.lib.src}" />
       <mkdir dir="${build.src.none}" />
    </target>
 
@@ -95,7 +93,7 @@
          <path refid="compile.deps" />
       </path>
    </target>
-   
+
    <target name="prepareSources" depends="initBuildDirectories, prepareSourcesForFastBuild, prepareSourcesForSafeBuild" />
 
    <target name="prepareSourcesForFastBuild" if="build.fast">
@@ -130,7 +128,7 @@
          <param name="destination" value="${build.src.generated}" />
       </antcall>
    </target>
-   
+
    <target name="copyVersionSourceFile">
       <copy todir="${destination}" overwrite="true">
          <fileset dir="${source}">
@@ -148,7 +146,7 @@
       </copy>
    </target>
 
-   <target name="compile" depends="prepareSources, initCompile" unless="skip.compile" 
+   <target name="compile" depends="prepareSources, initCompile" unless="skip.compile"
    	description="Compiles the project's Java classes">
       <!-- if build.fast property is set - only CurrentVersion class is compiled here. Otherwise all classes are compiled -->
       <ipp:javac-java6 destdir="${build.classes}"
@@ -179,8 +177,12 @@
 
    <target name="jar.src" depends="compile">
       <delete file="${carnot-base.src-jar}" />
-      <ipp:jar jarfile="${carnot-base.src-jar}" implementationTitle="Infinity Process Base - Base Packages">
-         <fileset dir="${project.src}">
+      <ipp:jar jarfile="${carnot-base.src-jar}" implementationTitle="Infinity Process Base - Base Packages (Sources)"
+         duplicate="preserve">
+         <fileset dir="${build.src.generated}">
+            <include name="**/*.java" />
+         </fileset>
+         <fileset dir="${build.src.static}">
             <include name="**/*.java" />
          </fileset>
       </ipp:jar>
@@ -196,34 +198,34 @@
             </classpath>
          </classpaths>
          <fileSets>
-            <fileset dir="${project.src}/org/eclipse/stardust">
-               <include name="common/DateUtils.java" />
-               <include name="common/Direction.java" />
-               <include name="common/Flushable.java" />
-               <include name="common/IntKey.java" />
+            <fileset dir="${project.src}">
+               <include name="org/eclipse/stardust/common/DateUtils.java" />
+               <include name="org/eclipse/stardust/common/Direction.java" />
+               <include name="org/eclipse/stardust/common/Flushable.java" />
+               <include name="org/eclipse/stardust/common/IntKey.java" />
                <!-- todo: rework that class before including again to javadoc -->
                <!--include name="base/Money.java"/ -->
-               <include name="common/Pair.java" />
-               <include name="common/Period.java" />
-               <include name="common/StringKey.java" />
-               <!-- to be clarified: <include name="common/log/Category.java" /> -->
-               <include name="common/log/LogManager.java" />
-               <include name="common/log/Logger.java" />
-               <include name="common/error/AccessForbiddenException.java" />
-               <include name="common/error/ApplicationException.java" />
-               <include name="common/error/ConcurrencyException.java" />
-               <include name="common/error/ErrorCase.java" />
-               <include name="common/error/InternalException.java" />
-               <include name="common/error/InvalidArgumentException.java" />
-               <include name="common/error/InvalidValueException.java" />
-               <include name="common/error/ObjectNotFoundException.java" />
-               <include name="common/error/PublicException.java" />
-               <include name="common/error/ServiceCommandException.java" />
-   
-               <include name="common/security/InvalidPasswordException.java" />
+               <include name="org/eclipse/stardust/common/Pair.java" />
+               <include name="org/eclipse/stardust/common/Period.java" />
+               <include name="org/eclipse/stardust/common/StringKey.java" />
+               <!-- to be clarified: <include name="org/eclipse/stardust/common/log/Category.java" /> -->
+               <include name="org/eclipse/stardust/common/log/LogManager.java" />
+               <include name="org/eclipse/stardust/common/log/Logger.java" />
+               <include name="org/eclipse/stardust/common/error/AccessForbiddenException.java" />
+               <include name="org/eclipse/stardust/common/error/ApplicationException.java" />
+               <include name="org/eclipse/stardust/common/error/ConcurrencyException.java" />
+               <include name="org/eclipse/stardust/common/error/ErrorCase.java" />
+               <include name="org/eclipse/stardust/common/error/InternalException.java" />
+               <include name="org/eclipse/stardust/common/error/InvalidArgumentException.java" />
+               <include name="org/eclipse/stardust/common/error/InvalidValueException.java" />
+               <include name="org/eclipse/stardust/common/error/ObjectNotFoundException.java" />
+               <include name="org/eclipse/stardust/common/error/PublicException.java" />
+               <include name="org/eclipse/stardust/common/error/ServiceCommandException.java" />
+
+               <include name="org/eclipse/stardust/common/security/InvalidPasswordException.java" />
                <include
-                  name="common/security/authentication/DefaultCallbackHandler.java" />
-               <include name="common/security/authentication/LoginFailedException.java" />
+                  name="org/eclipse/stardust/common/security/authentication/DefaultCallbackHandler.java" />
+               <include name="org/eclipse/stardust/common/security/authentication/LoginFailedException.java" />
             </fileset>
          </fileSets>
       </ipp:javadoc>
@@ -235,17 +237,18 @@
    <target name="build" depends="jar, jar.src, javadoc" xmlns:ivy="antlib:org.apache.ivy.ant">
       <ivy:resolve file="${project.dir}/base-interface-ivy.xml" />
       <ivy-publish-local ivyFile="${project.dir}/base-interface-ivy.xml" artifactId="base-artifacts" artifactDir="${build.lib}" publishPom="false" />
-      
+
       <ivy:resolve file="${project.dir}/ivy.xml" />
-      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" srcArtifactDir="${build.lib.src}" 
-         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional, stardust-engine-base-sources, stardust-engine-base-javadoc, logging-log4j-provider-compile" 
+      <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}"
+         conf="stardust-engine-base-compile, stardust-engine-base-runtime, stardust-engine-base-compile-optional,
+         stardust-engine-base-sources, stardust-engine-base-javadoc, logging-log4j-provider-compile"
          publishIvy="true" />
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" conf="pom" publishIvy="false" publishPom="false" />
 
       <ivy:resolve file="${project.dir}/module-ivy.xml" />
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="base-module" />
       <ivy-make-module-poms ivyFile="module-ivy.xml" pomFilePath="${build.lib}" moduleName="logging-log4j-module" />
-      
+
       <ivy-publish-local ivyFile="${project.dir}/module-ivy.xml" artifactId="stardust-engine-base-module" artifactDir="${build.lib}" publishPom="false">
          <additional-artifacts>
             <artifacts pattern="${build.lib}/base-module.pom" />
@@ -253,7 +256,7 @@
          </additional-artifacts>
       </ivy-publish-local>
 
-      <ivy:retrieve file="${build.lib}/carnot-base.ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]" 
+      <ivy:retrieve file="${build.lib}/carnot-base.ivy.xml" pattern="${build.lib}/[artifact]-[revision].[ext]"
          conf="stardust-engine-base-compile, logging-log4j-provider-compile" module="stardust-engine-base" />
    </target>
 
@@ -273,7 +276,7 @@
       <ipp:mvn-install pomFile="${build.lib}/base-module.pom" />
       <ipp:mvn-install pomFile="${build.lib}/logging-log4j-module.pom" />
    </target>
-	
+
    <target name="publish" depends="initBuild"
      description="publish artifacts into a remote Maven repository">
 
@@ -282,9 +285,9 @@
       <ipp:mvn-deploy pomFile="${build.lib}/base-module.pom" />
       <ipp:mvn-deploy pomFile="${build.lib}/logging-log4j-module.pom" />
    </target>
-   
+
    <!-- target is invoked by stardust-engine-nls project -->
-   <target name="copy-nls-resources" 
+   <target name="copy-nls-resources"
       description="copies the resources into a given folder">
       <copy todir="${build.nls.dir}">
          <fileset dir="${project.resources}">

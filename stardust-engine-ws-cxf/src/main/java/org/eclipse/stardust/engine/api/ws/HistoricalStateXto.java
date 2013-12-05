@@ -36,6 +36,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
  *         &lt;element name="until" type="{http://www.w3.org/2001/XMLSchema}dateTime"/>
  *         &lt;element name="participant" type="{http://eclipse.org/stardust/ws/v2012a/api}ParticipantInfo"/>
  *         &lt;element name="onBehalfOfParticipant" type="{http://eclipse.org/stardust/ws/v2012a/api}ParticipantInfo"/>
+ *         &lt;element name="onBehalfOfUser" type="{http://eclipse.org/stardust/ws/v2012a/api}UserInfo"/>
  *         &lt;element name="user" type="{http://eclipse.org/stardust/ws/v2012a/api}User"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
@@ -56,6 +57,7 @@ import org.eclipse.stardust.engine.api.ws.xsd.Adapter1;
     "until",
     "participant",
     "onBehalfOfParticipant",
+    "onBehalfOfUser",
     "user"
 })
 public class HistoricalStateXto {
@@ -81,6 +83,8 @@ public class HistoricalStateXto {
     protected ParticipantInfoXto participant;
     @XmlElement(required = true)
     protected ParticipantInfoXto onBehalfOfParticipant;
+    @XmlElement(required = true)
+    protected UserInfoXto onBehalfOfUser;
     @XmlElement(required = true)
     protected UserXto user;
 
@@ -282,6 +286,30 @@ public class HistoricalStateXto {
      */
     public void setOnBehalfOfParticipant(ParticipantInfoXto value) {
         this.onBehalfOfParticipant = value;
+    }
+
+    /**
+     * Gets the value of the onBehalfOfUser property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link UserInfoXto }
+     *     
+     */
+    public UserInfoXto getOnBehalfOfUser() {
+        return onBehalfOfUser;
+    }
+
+    /**
+     * Sets the value of the onBehalfOfUser property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link UserInfoXto }
+     *     
+     */
+    public void setOnBehalfOfUser(UserInfoXto value) {
+        this.onBehalfOfUser = value;
     }
 
     /**

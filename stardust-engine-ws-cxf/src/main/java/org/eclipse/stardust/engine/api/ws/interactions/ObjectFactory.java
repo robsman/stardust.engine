@@ -34,11 +34,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwnerResponse }
+     * Create an instance of {@link GetDefinitionResponse }
      * 
      */
-    public GetOwnerResponse createGetOwnerResponse() {
-        return new GetOwnerResponse();
+    public GetDefinitionResponse createGetDefinitionResponse() {
+        return new GetDefinitionResponse();
+    }
+
+    /**
+     * Create an instance of {@link SetOutputParametersResponse }
+     * 
+     */
+    public SetOutputParametersResponse createSetOutputParametersResponse() {
+        return new SetOutputParametersResponse();
     }
 
     /**
@@ -50,11 +58,19 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SetOutputParametersResponse }
+     * Create an instance of {@link GetDefinition }
      * 
      */
-    public SetOutputParametersResponse createSetOutputParametersResponse() {
-        return new SetOutputParametersResponse();
+    public GetDefinition createGetDefinition() {
+        return new GetDefinition();
+    }
+
+    /**
+     * Create an instance of {@link GetOwnerResponse }
+     * 
+     */
+    public GetOwnerResponse createGetOwnerResponse() {
+        return new GetOwnerResponse();
     }
 
     /**
@@ -74,22 +90,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link BpmInteractionFaultXto }
-     * 
-     */
-    public BpmInteractionFaultXto createBpmInteractionFaultXto() {
-        return new BpmInteractionFaultXto();
-    }
-
-    /**
-     * Create an instance of {@link GetDefinitionResponse }
-     * 
-     */
-    public GetDefinitionResponse createGetDefinitionResponse() {
-        return new GetDefinitionResponse();
-    }
-
-    /**
      * Create an instance of {@link GetOwner }
      * 
      */
@@ -98,11 +98,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetDefinition }
+     * Create an instance of {@link BpmInteractionFaultXto }
      * 
      */
-    public GetDefinition createGetDefinition() {
-        return new GetDefinition();
+    public BpmInteractionFaultXto createBpmInteractionFaultXto() {
+        return new BpmInteractionFaultXto();
     }
 
     /**

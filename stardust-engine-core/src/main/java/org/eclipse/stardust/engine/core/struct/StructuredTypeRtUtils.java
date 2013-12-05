@@ -22,6 +22,7 @@ import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.stardust.common.CompareHelper;
@@ -35,6 +36,7 @@ import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.struct.emfxsd.ClasspathUriConverter;
+import org.eclipse.stardust.engine.core.struct.emfxsd.CustomURIConverter;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.core.struct.spi.ISchemaTypeProvider;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
@@ -52,7 +54,15 @@ public class StructuredTypeRtUtils
    private static final String EXTERNAL_SCHEMA_MAP = "com.infinity.bpm.rt.data.structured.ExternalSchemaMap";
 
    private static final XSDResourceFactoryImpl XSD_RESOURCE_FACTORY = new XSDResourceFactoryImpl();
-   private static final ClasspathUriConverter CLASSPATH_URI_CONVERTER = new ClasspathUriConverter();
+   
+   public static ThreadLocal<URIConverter> uriConverters = new ThreadLocal<URIConverter>()
+   {
+      @Override
+      protected URIConverter initialValue()
+      {
+         return new ClasspathUriConverter();
+      }
+   };
 
    public static IXPathMap getXPathMap(IData data)
    {
@@ -673,7 +683,7 @@ public class StructuredTypeRtUtils
    {
       try
       {
-         return getSchema(schemaLocation, null);
+         return getSchema(schemaLocation, null, null);
       }
       catch (IOException e)
       {
@@ -688,10 +698,12 @@ public class StructuredTypeRtUtils
     * 
     * @param location the document location either as an absolute 
     * @param namespaceURI the namespace to match the schema agains or null if the first schema should be returned
+    * @param customMap - a map used for customizing the {@link CustomURIConverter}, it will be passed to the
+    * {@link CustomURIConverter} via {@link CustomURIConverter#setCustomMap(Map)}, can be null
     * @return the XSDSchema or null if no schema matches the criteria above.
     * @throws IOException
     */
-   public static XSDSchema getSchema(String location, String namespaceURI) throws IOException
+   public static XSDSchema getSchema(String location, String namespaceURI, Map customMap) throws IOException
    {
 	  Parameters parameters = Parameters.instance();
 	  Map loadedSchemas = null;
@@ -713,16 +725,27 @@ public class StructuredTypeRtUtils
 	  }
 	  
       ResourceSetImpl resourceSet = new ResourceSetImpl();
+      //prepare the uri converter
+      URIConverter uriConverter = uriConverters.get();
+      if (uriConverter != null)
+      {
+         if (uriConverter instanceof CustomURIConverter)
+         {
+            ((CustomURIConverter) uriConverter).setCustomMap(customMap);
+         }
+         resourceSet.setURIConverter(uriConverter);
+      }
+            
       URI uri = URI.createURI(location);
       if (uri.scheme() == null)
       {
-         resourceSet.setURIConverter(CLASSPATH_URI_CONVERTER);
          if(location.startsWith("/"))
          {
             location = location.substring(1);
          }
          uri = URI.createURI(ClasspathUriConverter.CLASSPATH_SCHEME + ":/" + location);
       }
+      
       // (fh) register the resource factory directly with the resource set and do not tamper with the global registry.
       resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(uri.scheme(), XSD_RESOURCE_FACTORY);
       resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xsd", XSD_RESOURCE_FACTORY);
@@ -937,6 +960,11 @@ public class StructuredTypeRtUtils
    
    public static ITypeDeclaration getTypeDeclaration(AccessPoint data, IModel model)
    {
+      return getTypeDeclaration(data, model, StructuredDataConstants.TYPE_DECLARATION_ATT);
+   }
+
+   public static ITypeDeclaration getTypeDeclaration(AccessPoint data, IModel model, String typeDeclarationAtt)
+   {
       ITypeDeclaration decl = null;
 
       if (data instanceof IData)
@@ -945,7 +973,6 @@ public class StructuredTypeRtUtils
          if (ref != null)
          {
             IExternalPackage pkg = ref.getExternalPackage();
-
             if (pkg != null)
             {
                // handle UnresolvedExternalReference               
@@ -953,13 +980,13 @@ public class StructuredTypeRtUtils
                decl = otherModel.findTypeDeclaration(ref.getId());
             }
          }         
-         
       }
 
       if (decl == null)
       {         
-         Object type = data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-         if (type != null) {                    
+         Object type = data.getAttribute(typeDeclarationAtt);
+         if (type != null)
+         {                    
             String typeString = type.toString();    
             if (data instanceof IData)
             {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,42 +15,48 @@ import org.eclipse.stardust.common.IntKey;
 /**
  * Wrapper class for the historical event types.
  * It provides human readable names for the historical event type codes.
- * 
+ *
  * @author Stephan.Born
  *
  */
 public class HistoricalEventType extends IntKey
 {
    private static final long serialVersionUID = 1L;
-   
+
    /**
     * The HistoricalEvent describes a note event.
     */
    public final static int NOTE = 1;
-   
+
    /**
     * The HistoricalEvent describes an exception event.
     */
    public final static int EXCEPTION = 2;
-   
+
    /**
     * The HistoricalEvent describes a state change event.
     */
    public final static int STATE_CHANGE = 4;
-   
+
    /**
     * The HistoricalEvent describes a delegation event.
     */
    public final static int DELEGATION = 8;
-   
+
+   /**
+    * The HistoricalEvent describes an event execution event.
+    */
+   public final static int EVENT_EXECUTION = 16;
+
    public final static HistoricalEventType Note = new HistoricalEventType(NOTE, "Note");
    public final static HistoricalEventType Exception = new HistoricalEventType(EXCEPTION, "Exception");
    public final static HistoricalEventType StateChange = new HistoricalEventType(STATE_CHANGE, "State Change");
    public final static HistoricalEventType Delegation = new HistoricalEventType(DELEGATION, "Delegation");
-   
+   public final static HistoricalEventType EventExecution = new HistoricalEventType(EVENT_EXECUTION, "EventExecution");
+
    /**
     * Factory method to get the HistoricalEventType object corresponding to the numerical code.
-    * 
+    *
     * @param value the numeric code of the HistoricalEventType.
     * @return the HistoricalEventType object.
     */
@@ -58,12 +64,12 @@ public class HistoricalEventType extends IntKey
    {
       return (HistoricalEventType) getKey(HistoricalEventType.class, value);
    }
-   
+
    protected Object readResolve()
    {
       return super.readResolve();
    }
-   
+
    private HistoricalEventType(int id, String defaultName)
    {
       super(id, defaultName);

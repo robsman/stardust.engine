@@ -27,9 +27,9 @@ import org.eclipse.stardust.engine.core.upgrade.framework.*;
 public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 {
    private static final Logger trace = LogManager.getLogger(R5_2_0from4_9_0RuntimeJob.class);
-   
+
    private static final Version VERSION = Version.createFixedVersion(5, 2, 0);
-   
+
    private static final String D_TABLE_NAME = "department";
    private static final String D_FIELD__OID = "oid";
    private static final String D_FIELD__ID = "id";
@@ -41,31 +41,31 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String D_PK_SEQUENCE = "department_seq";
    private static final String D_IDX1 = "department_idx1";
    private static final String D_IDX2 = "department_idx2";
-   
+
    private static final String DH_TABLE_NAME = "department_hierarchy";
    private static final String DH_FIELD__SUPERDEPARTMENT = "superDepartment";
    private static final String DH_FIELD__SUBDEPARTMENT = "subDepartment";
    private static final String DH_IDX1 = "department_hier_idx1";
    private static final String DH_IDX2 = "department_hier_idx2";
-   
+
    private static final String AI_TABLE_NAME = "activity_instance";
    private static final String AI_FIELD__CURRENT_PERFORMER = "currentPerformer";
    private static final String AI_FIELD__CURRENT_USER_PERFORMER = "currentUserPerformer";
    private static final String AI_FIELD__CURRENT_DEPARTMENT = "currentDepartment";
    private static final String AI_IDX2 = "activity_inst_idx2";
    private static final String AI_IDX3 = "activity_inst_idx3";
-   
+
    private static final String WI_TABLE_NAME = "workitem";
    private static final String WI_FIELD__PERFORMER_KIND = "performerKind";
    private static final String WI_FIELD__PERFORMER = "performer";
    private static final String WI_FIELD__DEPARTMENT = "department";
    private static final String WI_FIELD__STATE = "state";
    private static final String WI_IDX2 = "workitem_idx2";
-   
+
    private static final String AIH_TABLE_NAME = "act_inst_history";
    private static final String AIH_FIELD__DEPARTMENT = "department";
    private static final String AIH_FIELD__ON_BEHALF_OF_DEPARTMENT = "onBehalfOfDepartment";
-   
+
    private static final String UP_TABLE_NAME = "user_participant";
    private static final String UP_FIELD__MODEL = "model";
    private static final String UP_FIELD__PARTICIPANT = "participant";
@@ -74,7 +74,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String WU_TABLE_NAME = "workflowuser";
    private static final String WU_EXTENDED_STATE = "extendedState";
-   
+
    R5_2_0from4_9_0RuntimeJob()
    {
       super(new DBMSKey[] { DBMSKey.ORACLE, DBMSKey.ORACLE9i, DBMSKey.DB2_UDB, DBMSKey.MYSQL,
@@ -97,7 +97,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          private final FieldInfo PARENTDEPARTMENT = new FieldInfo(D_FIELD__PARENTDEPARTMENT, Long.TYPE);
          private final FieldInfo DESCRIPTION = new FieldInfo(D_FIELD__DESCRIPTION, String.class, 4000);
          private final FieldInfo ORGANIZATION = new FieldInfo(D_FIELD__ORGANIZATION, Long.TYPE);
-         
+
          private final IndexInfo IDX1 = new IndexInfo(D_IDX1,
                true, new FieldInfo[] { OID });
 
@@ -122,14 +122,14 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             return D_PK_SEQUENCE;
          }
-         
+
       }, this);
 
       DatabaseHelper.createTable(item, new CreateTableInfo(DH_TABLE_NAME)
       {
          private final FieldInfo SUPERDEPARTMENT = new FieldInfo(DH_FIELD__SUPERDEPARTMENT, Long.TYPE);
          private final FieldInfo SUBDEPARTMENT = new FieldInfo(DH_FIELD__SUBDEPARTMENT, Long.TYPE);
-         
+
          private final IndexInfo IDX1 = new IndexInfo(DH_IDX1,
                true, new FieldInfo[] { SUPERDEPARTMENT, SUBDEPARTMENT});
 
@@ -154,13 +154,13 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             return null;
          }
       }, this);
-      
+
       DatabaseHelper.alterTable(item, new AlterTableInfo(AI_TABLE_NAME)
       {
          private final FieldInfo CURRENT_USER_PERFORMER = new FieldInfo(AI_FIELD__CURRENT_USER_PERFORMER, Long.TYPE);
          private final FieldInfo CURRENT_PERFORMER = new FieldInfo(AI_FIELD__CURRENT_PERFORMER, Long.TYPE);
          private final FieldInfo CURRENT_DEPARTMENT = new FieldInfo(AI_FIELD__CURRENT_DEPARTMENT, Long.TYPE);
-         
+
          private final IndexInfo IDX2 = new IndexInfo(AI_IDX2, false,
                new FieldInfo[] { CURRENT_PERFORMER, CURRENT_DEPARTMENT });
 
@@ -173,30 +173,30 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             return new FieldInfo[] { CURRENT_DEPARTMENT };
          }
-         
+
          @Override
          public IndexInfo[] getAlteredIndexes()
          {
             return new IndexInfo[] { IDX2, IDX3 };
          }
-         
+
          @Override
          public void executeDmlBeforeIndexCreation(RuntimeItem item) throws SQLException
          {
             Connection connection = item.getConnection();
             connection.setAutoCommit(false);
-            
+
             setNewColumnToZero(item, getTableName(), AI_FIELD__CURRENT_DEPARTMENT);
          }
       }, this);
-      
+
       DatabaseHelper.alterTable(item, new AlterTableInfo(WI_TABLE_NAME)
       {
          private final FieldInfo PERFORMER_KIND = new FieldInfo(WI_FIELD__PERFORMER_KIND, Long.TYPE);
          private final FieldInfo PERFORMER = new FieldInfo(WI_FIELD__PERFORMER, Long.TYPE);
          private final FieldInfo DEPARTMENT = new FieldInfo(WI_FIELD__DEPARTMENT, Long.TYPE);
          private final FieldInfo STATE = new FieldInfo(WI_FIELD__STATE, Integer.TYPE);
-         
+
          private final IndexInfo IDX2 = new IndexInfo(WI_IDX2, false,
                new FieldInfo[] { PERFORMER, DEPARTMENT, PERFORMER_KIND, STATE });
 
@@ -206,34 +206,34 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             return new FieldInfo[] { DEPARTMENT };
          }
-         
+
          @Override
          public IndexInfo[] getAlteredIndexes()
          {
             return new IndexInfo[] { IDX2 };
          }
-         
+
          @Override
          public void executeDmlBeforeIndexCreation(RuntimeItem item) throws SQLException
          {
             Connection connection = item.getConnection();
             connection.setAutoCommit(false);
-            
+
             setNewColumnToZero(item, getTableName(), WI_FIELD__DEPARTMENT);
          }
       }, this);
-      
+
       DatabaseHelper.alterTable(item, new AlterTableInfo(AIH_TABLE_NAME)
       {
          private final FieldInfo DEPARTMENT = new FieldInfo(AIH_FIELD__DEPARTMENT, Long.TYPE);
          private final FieldInfo ON_BEHALF_OF_DEPARTMENT = new FieldInfo(AIH_FIELD__ON_BEHALF_OF_DEPARTMENT, Long.TYPE);
-         
+
          @Override
          public FieldInfo[] getAddedFields()
          {
             return new FieldInfo[] { DEPARTMENT, ON_BEHALF_OF_DEPARTMENT };
          }
-         
+
          @Override
          public void executeDmlBeforeIndexCreation(RuntimeItem item)
                throws SQLException
@@ -249,13 +249,13 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       }, this);
 
-      
+
       DatabaseHelper.alterTable(item, new AlterTableInfo(UP_TABLE_NAME)
       {
          private final FieldInfo MODEL = new FieldInfo(UP_FIELD__MODEL, Long.TYPE);
          private final FieldInfo PARTICIPANT = new FieldInfo(UP_FIELD__PARTICIPANT, Long.TYPE);
          private final FieldInfo DEPARTMENT = new FieldInfo(UP_FIELD__DEPARTMENT, Long.TYPE);
-         
+
          private final IndexInfo IDX2 = new IndexInfo(UP_IDX2, false,
                new FieldInfo[] { PARTICIPANT, DEPARTMENT, MODEL });
 
@@ -265,19 +265,19 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             return new FieldInfo[] { DEPARTMENT };
          }
-         
+
          @Override
          public IndexInfo[] getAlteredIndexes()
          {
             return new IndexInfo[] { IDX2 };
          }
-         
+
          @Override
          public void executeDmlBeforeIndexCreation(RuntimeItem item) throws SQLException
          {
             Connection connection = item.getConnection();
             connection.setAutoCommit(false);
-            
+
             setNewColumnToZero(item, getTableName(), UP_FIELD__DEPARTMENT);
          }
       }, this);
@@ -294,7 +294,7 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
 
       }, this);
-      
+
       try
       {
          setNewColumnToZero(item, WU_TABLE_NAME, WU_EXTENDED_STATE);
@@ -313,38 +313,18 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected void finalizeSchema(boolean recover) throws UpgradeException
    {
    }
-   
+
    protected void setNewColumnToZero(RuntimeItem item, String tableName, String columnName)
          throws SQLException
    {
       tableName = DatabaseHelper.getQualifiedName(tableName);
-      
+
       StringBuffer buffer = new StringBuffer(500);
       buffer.append("UPDATE ").append(tableName);
       buffer.append(" SET ").append(columnName).append(" = 0");
 
-      // Execute DML instead of DDL, but this DML is part of the DDL so it has to be handled the same way. 
+      // Execute DML instead of DDL, but this DML is part of the DDL so it has to be handled the same way.
       item.executeDdlStatement(buffer.toString(), false);
-   }
-   
-   private void reportExeption(SQLException sqle, String message)
-   {
-      SQLException ne = sqle;
-      do
-      {
-         trace.error(message, ne);
-      }
-      while (null != (ne = ne.getNextException()));
-
-      try
-      {
-         item.rollback();
-      }
-      catch (SQLException e1)
-      {
-         warn("Failed rolling back transaction.", e1);
-      }
-      error("Failed migrating runtime item tables.", sqle);
    }
 
    @Override
@@ -374,5 +354,11 @@ public class R5_2_0from4_9_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    @Override
    protected void printFinalizeSchemaInfo()
    {
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
    }
 }

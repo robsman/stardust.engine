@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_UNKNOWN_TYPE_DECLARATION_ID = newArgs1("MDL01182", BpmRuntimeErrorMessages.getString("MDL01182")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_UNKNOWN_DATA_TYPE_ID = newArgs1("MDL01183", BpmRuntimeErrorMessages.getString("MDL01183")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args0 MDL_NO_JAVA_APPLICATION_CLASS_PATH = newArgs0("MDL01191", BpmRuntimeErrorMessages.getString("MDL01191")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_NO_JAVA_APPLICATION_METHOD = newArgs0("MDL01192", BpmRuntimeErrorMessages.getString("MDL01192")); //$NON-NLS-1$ //$NON-NLS-2$
+      
    public static final Args1 MDL_DANGLING_DATA_PATH = newArgs1("MDL02021", BpmRuntimeErrorMessages.getString("MDL02021")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_DANGLING_IN_DATA_PATH = newArgs1("MDL02022", BpmRuntimeErrorMessages.getString("MDL02022")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_DANGLING_OUT_DATA_PATH = newArgs1("MDL02023", BpmRuntimeErrorMessages.getString("MDL02023")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -149,6 +152,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 DMS_SECURITY_ERROR_DMS_READONLY_FOR_PREFERENCES = newArgs0("DMS02002", BpmRuntimeErrorMessages.getString("DMS02002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_SECURITY_ERROR_WRITE_IN_ARCHIVE_MODE = newArgs0("DMS02003", BpmRuntimeErrorMessages.getString("DMS02003")); //$NON-NLS-1$ //$NON-NLS-2$
    
+   public static final Args1 DMS_SECURITY_ERROR_ACCESS_DENIED_ON_FOLDER = newArgs1("DMS02101", BpmRuntimeErrorMessages.getString("DMS02101")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_SECURITY_ERROR_ACCESS_DENIED_ON_DOCUMENT = newArgs1("DMS02102", BpmRuntimeErrorMessages.getString("DMS02102")); //$NON-NLS-1$ //$NON-NLS-2$
+   
    public static final Args1 DMS_ANNOTATIONS_ID_PRESENT = newArgs1("DMS03001", BpmRuntimeErrorMessages.getString("DMS03001")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Audittrail related
@@ -164,6 +170,13 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 ATDB_UNKNOWN_USER_ID = newArgs2("ATDB02113", BpmRuntimeErrorMessages.getString("ATDB02113")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 ATDB_USER_ID_EXISTS = newArgs2("ATDB02114", BpmRuntimeErrorMessages.getString("ATDB02114")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args2 ATDB_DEPUTY_EXISTS = newArgs2("ATDB02115", BpmRuntimeErrorMessages.getString("ATDB02115")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ATDB_DEPUTY_DOES_NOT_EXISTS = newArgs2("ATDB02116", BpmRuntimeErrorMessages.getString("ATDB02116")); //$NON-NLS-1$ //$NON-NLS-2$   
+   public static final Args1 ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED = newArgs1("ATDB02117", BpmRuntimeErrorMessages.getString("ATDB02117")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ATDB_ADDING_DEPUTY_FORBIDDEN = new Args2("ATDB02118", BpmRuntimeErrorMessages.getString("ATDB02118")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ATDB_MODIFYING_DEPUTY_FORBIDDEN = new Args2("ATDB02119", BpmRuntimeErrorMessages.getString("ATDB02119")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ATDB_REMOVING_DEPUTY_FORBIDDEN = new Args2("ATDB02120", BpmRuntimeErrorMessages.getString("ATDB02120")); //$NON-NLS-1$ //$NON-NLS-2$
+   
    public static final Args0 ATDB_NO_MATCHING_USER_DOMAIN = newArgs0("ATDB02121", BpmRuntimeErrorMessages.getString("ATDB02121")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_OID = newArgs1("ATDB02122", BpmRuntimeErrorMessages.getString("ATDB02122")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_ID = newArgs1("ATDB02123", BpmRuntimeErrorMessages.getString("ATDB02123")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -223,7 +236,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args2 AUTHx_SYNC_FAILED_IMPORTING_DEPARTMENT = newArgs2("AUTHx00585", BpmRuntimeErrorMessages.getString("AUTHx00585")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 AUTHx_AUTH_MISSING_GRANTS = newArgs2("AUTHx01000", BpmRuntimeErrorMessages.getString("AUTHx01000")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args AUTHx_AUTH_MISSING_GRANTS = newArgs("AUTHx01000"); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 AUTHx_AUTH_INVALID_GRANT = newArgs2("AUTHx01100", BpmRuntimeErrorMessages.getString("AUTHx01100")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -257,7 +270,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_AI_CURRENTLY_ACTIVATED_BY_SELF = newArgs1("BPMRT03101", BpmRuntimeErrorMessages.getString("BPMRT03101")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER = newArgs2("CONC03102", BpmRuntimeErrorMessages.getString("CONC03102")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args BPMRT_AI_CURRENTLY_ACTIVATED_BY_OTHER = newArgs("CONC03102"); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_AI_IS_ALREADY_TERMINATED = newArgs1("BPMRT03103", BpmRuntimeErrorMessages.getString("BPMRT03103")); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -598,6 +611,24 @@ public class BpmRuntimeError extends ErrorCase
          return buildError(new Object[] { new Long(arg1), new Long(arg2), new Long(arg3), new Long(arg4) });
       }
    }
+   
+   public static Args newArgs(String errorCode)
+   {
+      return new Args(errorCode, BpmRuntimeErrorMessages.getString(errorCode));
+   }
+
+   public static class Args extends AbstractErrorFactory
+   {
+      private Args(String errorCode, String defaultMessage)
+      {
+         super(errorCode, defaultMessage);
+      }
+
+      public BpmRuntimeError raise(Object ... arg)
+      {
+         return buildError(arg);
+      }
+   }   
 
    static abstract class AbstractErrorFactory
    {

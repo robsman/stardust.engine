@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IParticipant;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
@@ -43,6 +44,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    public static final String FIELD__ON_BEHALF_OF_KIND = "onBehalfOfKind";
    public static final String FIELD__ON_BEHALF_OF = "onBehalfOf";
    public static final String FIELD__ON_BEHALF_OF_DEPARTMENT = "onBehalfOfDepartment";
+   public static final String FIELD__ON_BEHALF_OF_USER = "onBehalfOfUser";   
    public static final String FIELD__USER = "workflowUser";
    
    public static final FieldRef FR__PROCESS_INSTANCE = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__PROCESS_INSTANCE);
@@ -57,6 +59,7 @@ public class ActivityInstanceHistoryBean extends PersistentBean
    public static final FieldRef FR__ON_BEHALF_OF_KIND = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF_KIND);
    public static final FieldRef FR__ON_BEHALF_OF = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF);
    public static final FieldRef FR__ON_BEHALF_OF_DEPARTMENT = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF_DEPARTMENT);
+   public static final FieldRef FR__ON_BEHALF_OF_USER = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__ON_BEHALF_OF_USER);   
    public static final FieldRef FR__USER = new FieldRef(ActivityInstanceHistoryBean.class, FIELD__USER);
 
    public static final String TABLE_NAME = "act_inst_history";
@@ -119,6 +122,12 @@ public class ActivityInstanceHistoryBean extends PersistentBean
     */
    private long onBehalfOfDepartment;
 
+   /**
+    * Contains the OID of the user this activity was executed on behalf of.
+    */
+   private long onBehalfOfUser;
+      
+   
    private long workflowUser;
    
    /**
@@ -134,54 +143,88 @@ public class ActivityInstanceHistoryBean extends PersistentBean
     * Gets last historic state instantiated on behalf of the activity instance 
     * <tt>activityInstance</tt> in given order with respect to field {@link #FR__FROM} . 
     */
-   public static ActivityInstanceHistoryBean getLastForActivityInstance(IActivityInstance activityInstance)
+   public static Pair<ActivityInstanceHistoryBean, IUser> getLastForActivityInstance(
+         IActivityInstance activityInstance)
    {
-      ComparisonTerm predicate = Predicates.isEqual(FR__ACTIVITY_INSTANCE, activityInstance.getOID());
-      QueryExtension qe = QueryExtension.where(predicate);
-      qe.getOrderCriteria().add(ActivityInstanceHistoryBean.FR__FROM, false);
-      Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      return session.findFirst(ActivityInstanceHistoryBean.class, qe);
+      return getLast(activityInstance, null);
    }
    
    /**
-    * Gets last historic state that contain a user performer instantiated on behalf of the activity instance
-    * <tt>activityInstance</tt> in given order with respect to field {@link #FR__FROM} . 
+    * Gets last historic state that contain a user performer instantiated on behalf of the
+    * activity instance <tt>activityInstance</tt> in given order with respect to field
+    * {@link #FR__FROM} .
     */
-   public static ActivityInstanceHistoryBean getLastUserPerformerForActivityInstance(IActivityInstance activityInstance)
+   public static Pair<ActivityInstanceHistoryBean, IUser> getLastUserPerformerForActivityInstance(
+         IActivityInstance activityInstance)
    {
-      ComparisonTerm aiPredicate = Predicates.isEqual(FR__ACTIVITY_INSTANCE, activityInstance.getOID());
-      ComparisonTerm statePredicate = Predicates.isEqual(FR__STATE, ActivityInstanceState.APPLICATION);
-      
-      QueryExtension qe = QueryExtension.where(
-            Predicates.andTerm(aiPredicate, statePredicate));
+      ComparisonTerm statePredicate = Predicates.isEqual(FR__STATE,
+            ActivityInstanceState.APPLICATION);
+      return getLast(activityInstance, statePredicate);
+   }
 
-      /*
-      ComparisonTerm statePredicate = Predicates.notEqual(FR__STATE, ActivityInstanceState.SUSPENDED);
-      ComparisonTerm kindPredicate = Predicates.isEqual(FR__PERFORMER_KIND, PerformerType.USER);
-      ComparisonTerm performerPredicate = Predicates.notEqual(FR__PERFORMER, 0);
-      ComparisonTerm user1Predicate = Predicates.notEqual(FR__USER, FR__PERFORMER);
-      ComparisonTerm user2Predicate = Predicates.notEqual(FR__USER, 0);
-      
-      QueryExtension qe = QueryExtension.where(
-            Predicates.andTerm(aiPredicate, kindPredicate, performerPredicate,
-                  Predicates.orTerm(statePredicate,
-                        Predicates.andTerm(user1Predicate, user2Predicate))));
-      */
-      
+   private static Pair<ActivityInstanceHistoryBean, IUser> getLast(
+         IActivityInstance activityInstance, ComparisonTerm filter)
+   {
+      ComparisonTerm oidPredicate = Predicates.isEqual(FR__ACTIVITY_INSTANCE,
+            activityInstance.getOID());
+      QueryExtension qe = QueryExtension.where(filter == null
+            ? oidPredicate
+            : Predicates.andTerm(oidPredicate, filter));
       qe.getOrderCriteria().add(ActivityInstanceHistoryBean.FR__FROM, false);
-      
       Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      return session.findFirst(ActivityInstanceHistoryBean.class, qe);
+      if ( !activityInstance.isTerminated())
+      {
+         return new Pair(session.findFirst(ActivityInstanceHistoryBean.class, qe), null);
+      }
+      else
+      {
+         ResultIterator<ActivityInstanceHistoryBean> i = session.getIterator(
+               ActivityInstanceHistoryBean.class, qe, 0, 2);
+         try
+         {
+            IUser onBehalfOf = null;
+            ActivityInstanceHistoryBean candidate = null;
+            if (i.hasNext())
+            {
+               candidate = i.next();
+               if (candidate.isTerminated())
+               {
+                  onBehalfOf = candidate.getOnBehalfOfUser();
+                  if (i.hasNext())
+                  {
+                     candidate = i.next();
+                  }
+                  else
+                  {
+                     candidate = null;
+                  }
+               }
+            }
+            return new Pair(candidate, onBehalfOf);
+         }
+         finally
+         {
+            i.close();
+         }
+      }
    }
    
-   public static Iterator getAllForActivityInstance(IActivityInstance activityInstance,
-         boolean ascending)
+      private boolean isTerminated()
+      {
+         ActivityInstanceState state = getState();
+         return (ActivityInstanceState.Completed == state)
+               || (ActivityInstanceState.Aborted == state);
+      }
+   
+   public static Iterator<ActivityInstanceHistoryBean> getAllForActivityInstance(
+         IActivityInstance activityInstance, boolean ascending)
    {
       QueryExtension qe = QueryExtension.where(Predicates.isEqual(FR__ACTIVITY_INSTANCE,
             activityInstance.getOID()));
       qe.getOrderCriteria().add(ActivityInstanceHistoryBean.FR__FROM, ascending);
-      return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).getVector(
-            ActivityInstanceHistoryBean.class, qe).iterator();
+      return SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
+            .getVector(ActivityInstanceHistoryBean.class, qe)
+            .iterator();
    }
    
    public static boolean existsForDepartment(long departmentOid)
@@ -200,7 +243,8 @@ public class ActivityInstanceHistoryBean extends PersistentBean
 
    public ActivityInstanceHistoryBean(IActivityInstance activityInstance, Date from,
          Date until, ActivityInstanceState state, IParticipant performer,
-         IDepartment department, EncodedPerformer encodedOnBehalfOf)
+         IDepartment department, EncodedPerformer encodedOnBehalfOf, long onBehalfOfUser,
+         long workflowUser)
    {
       this.processInstance = activityInstance.getProcessInstanceOID();
       this.activityInstance = activityInstance.getOID();
@@ -225,8 +269,9 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       this.onBehalfOfKind = encodedOnBehalfOf.kind.getValue();
       this.onBehalfOf = encodedOnBehalfOf.oid;
       this.onBehalfOfDepartment = encodedOnBehalfOf.departmentOid;
+      this.onBehalfOfUser = onBehalfOfUser;      
       
-      this.workflowUser = SecurityProperties.getUserOID();
+      this.workflowUser = workflowUser;
 
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }
@@ -336,49 +381,47 @@ public class ActivityInstanceHistoryBean extends PersistentBean
       return new PerformerUtils.EncodedPerformer(PerformerType.get(onBehalfOfKind),
             onBehalfOf, onBehalfOfDepartment);
    }
-
-   public void setOnBehalfOf(IParticipant onBehalfOf)
+   
+   public long getOnBehalfOfUserOid()
    {
-      PerformerUtils.EncodedPerformer encodedOnBehalfOf = PerformerUtils.encodeParticipant(onBehalfOf);
-      this.setEncodedOnBehalfOf(encodedOnBehalfOf);
+      fetch();
+      return onBehalfOfUser;
    }
 
-   public void setOnBehalfOf(IParticipant onBehalfOf, IDepartment onBehalfOfDepartment)
+   public IUser getOnBehalfOfUser()
    {
-      PerformerUtils.EncodedPerformer encodedOnBehalfOf = PerformerUtils
-            .encodeParticipant(onBehalfOf, onBehalfOfDepartment);
-      this.setEncodedOnBehalfOf(encodedOnBehalfOf);
+      fetch();
+      return onBehalfOfUser == 0 ? null : UserBean.findByOid(onBehalfOfUser);
    }
 
-   public void setEncodedOnBehalfOf(PerformerUtils.EncodedPerformer encodedOnBehalfOf)
-   {
-      if (null == encodedOnBehalfOf)
-      {
-         encodedOnBehalfOf = PerformerUtils.encodeParticipant(null);
-      }
-      
-      int newOnBehalfOfKind = encodedOnBehalfOf.kind.getValue();
-      long newOnBehalfOf = encodedOnBehalfOf.oid;
-      long newOnBehalfOfDepartment = encodedOnBehalfOf.departmentOid;
-
-      if (newOnBehalfOfKind != this.onBehalfOfKind)
-      {
-         markModified(FIELD__ON_BEHALF_OF_KIND);
-         this.onBehalfOfKind = newOnBehalfOfKind;
-      }
-      
-      if (newOnBehalfOf != this.onBehalfOf)
-      {
-         markModified(FIELD__ON_BEHALF_OF);
-         this.onBehalfOf = newOnBehalfOf;
-      }
-      
-      if (newOnBehalfOfDepartment != this.onBehalfOfDepartment)
-      {
-         markModified(FIELD__ON_BEHALF_OF_DEPARTMENT);
-         this.onBehalfOfDepartment = newOnBehalfOfDepartment;
-      }
-   }
+   /*
+    * public void setOnBehalfOf(IParticipant onBehalfOf) { PerformerUtils.EncodedPerformer
+    * encodedOnBehalfOf = PerformerUtils.encodeParticipant(onBehalfOf);
+    * this.setEncodedOnBehalfOf(encodedOnBehalfOf); }
+    * 
+    * public void setOnBehalfOf(IParticipant onBehalfOf, IDepartment onBehalfOfDepartment)
+    * { PerformerUtils.EncodedPerformer encodedOnBehalfOf = PerformerUtils
+    * .encodeParticipant(onBehalfOf, onBehalfOfDepartment);
+    * this.setEncodedOnBehalfOf(encodedOnBehalfOf); }
+    * 
+    * public void setEncodedOnBehalfOf(PerformerUtils.EncodedPerformer encodedOnBehalfOf)
+    * { if (null == encodedOnBehalfOf) { encodedOnBehalfOf =
+    * PerformerUtils.encodeParticipant(null); }
+    * 
+    * int newOnBehalfOfKind = encodedOnBehalfOf.kind.getValue(); long newOnBehalfOf =
+    * encodedOnBehalfOf.oid; long newOnBehalfOfDepartment =
+    * encodedOnBehalfOf.departmentOid;
+    * 
+    * if (newOnBehalfOfKind != this.onBehalfOfKind) {
+    * markModified(FIELD__ON_BEHALF_OF_KIND); this.onBehalfOfKind = newOnBehalfOfKind; }
+    * 
+    * if (newOnBehalfOf != this.onBehalfOf) { markModified(FIELD__ON_BEHALF_OF);
+    * this.onBehalfOf = newOnBehalfOf; }
+    * 
+    * if (newOnBehalfOfDepartment != this.onBehalfOfDepartment) {
+    * markModified(FIELD__ON_BEHALF_OF_DEPARTMENT); this.onBehalfOfDepartment =
+    * newOnBehalfOfDepartment; } }
+    */
 
    /*
     * Retrieves the user of the activity instance log context.

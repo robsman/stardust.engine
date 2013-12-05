@@ -23,8 +23,8 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.spi.cache.CacheAdapterBase;
+import org.eclipse.stardust.engine.runtime.utils.HazelcastUtils;
 
-import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.IMap;
 
 
@@ -54,7 +54,7 @@ public class HazelcastCacheAdapter extends CacheAdapterBase<IMap<Object, Object>
          cacheName = (String) config.get("name");
       }
 
-      this.delegate = Hazelcast.getMap(cacheName);
+      this.delegate = HazelcastUtils.getHazelcastInstance().getMap(cacheName);
       
       if (trace.isDebugEnabled())
       {

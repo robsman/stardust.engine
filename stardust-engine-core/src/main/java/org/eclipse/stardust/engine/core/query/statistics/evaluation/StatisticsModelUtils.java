@@ -344,10 +344,11 @@ public class StatisticsModelUtils
          String paramName, String parsedParamName)
    {
       Period duration = null;
-
+      
       if (null != modelElement)
       {
          Object durationValue = modelElement.getAttribute(paramName);
+         
          if (durationValue instanceof Period)
          {
             duration = (Period) durationValue;
@@ -355,7 +356,6 @@ public class StatisticsModelUtils
          else
          {
             duration = (Period) modelElement.getRuntimeAttribute(parsedParamName);
-
             if ((null == duration) && (null != durationValue))
             {
                Calendar calBase = Calendar.getInstance();
@@ -391,6 +391,19 @@ public class StatisticsModelUtils
                   }
                }
 
+               if (null != duration && modelElement instanceof IProcessDefinition)
+               {
+                  if(duration.get(Period.YEARS) == 0 &
+                        duration.get(Period.MONTHS) == 0 &
+                        duration.get(Period.DAYS) == 0 &
+                        duration.get(Period.HOURS) == 0 &
+                        duration.get(Period.MINUTES) == 0 &
+                        duration.get(Period.SECONDS) == 0)
+                  {
+                     duration = null;
+                  }
+               }
+               
                modelElement.setRuntimeAttribute(parsedParamName, duration);
             }
          }

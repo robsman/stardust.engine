@@ -10,6 +10,7 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
+import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_MODEL_NAME;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 
@@ -19,6 +20,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.query.FilterOrTerm;
 import org.eclipse.stardust.engine.api.query.SubsetPolicy;
@@ -28,10 +31,10 @@ import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
-import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -50,6 +53,8 @@ import org.junit.rules.TestRule;
  */
 public class DmsDocumentSearchTest
 {
+   private static final Log LOG = LogFactory.getLog(DmsDocumentSearchTest.class);
+   
    // doc 1
    private static final String DOC_NAME1 = "test.txt";
 
@@ -97,10 +102,10 @@ public class DmsDocumentSearchTest
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
    
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
-   private final DmsAwareTestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final DmsAwareTestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, DMS_MODEL_NAME);
    
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
@@ -195,10 +200,10 @@ public class DmsDocumentSearchTest
       Calendar cal = Calendar.getInstance();
       cal.add(Calendar.DATE, -1);
       Date date = cal.getTime();
-      System.out.println(date);
+      LOG.info(date);
       cal.add(Calendar.DATE, 2);
       Date date2 = cal.getTime();
-      System.out.println(date2);
+      LOG.info(date2);
 
       DocumentQuery query = DocumentQuery.findAll();
       query.where(DocumentQuery.DATE_CREATED.between(date.getTime(), date2.getTime()));
@@ -315,16 +320,28 @@ public class DmsDocumentSearchTest
    }
 
    @Test
-   public void testFindContentLike()
+   public void testFindContentLike() throws InterruptedException
    {
+      // final int expectedDocSize = 3;
+      // In Stardust only 2 is expected as
+      // pdf not available for full text search - needs to be refactored
+      final int expectedDocSize = 2;
+      final int retryCount = 3;
+      
       DocumentQuery query = DocumentQuery.findAll();
       query.where(DocumentQuery.CONTENT.like("this is a test content"));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
+      /* full text search indexers run asnychronously, and we don't have a means to determine   */
+      /* when they are completed ==> wait and retry seems dirty, but is the only option we have */
+      for (int i=0; docs.size() != expectedDocSize && i<retryCount; i++)
+      {
+         Thread.sleep(1000L);
+         docs = sf.getQueryService().getAllDocuments(query);
+      }
       
-      // should not find anything due to disabled full text search
-      // (see 'repository.xml')
-      assertEquals("Documents", 0, docs.size());
+      assertEquals("Documents", expectedDocSize, docs.size());
+      assertEquals("text/plain", docs.get(0).getContentType());
    }
 
    @Test

@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.upgrade.jobs;
 
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,8 +18,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-
-import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
@@ -67,6 +64,8 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String ACTIVITY_INSTANCE_TABLE_NAME = "activity_instance";
 
+   private static final String ACTIVITY_INSTANCE_FIELD_OID = "oid";
+
    private static final String ACTIVITY_INSTANCE_FIELD_CRITICALITY = "criticality";
 
    private static final String ACTIVITY_INSTANCE_FIELD_PROPERTIES = "propertiesAvailable";
@@ -74,6 +73,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String ACTIVITY_INSTANCE_FIELD_PI = "processInstance";
 
    private static final String ACTIVITY_INSTANCE_IDX9 = "activity_inst_idx9";
+
+   private static final String ACTIVITY_INSTANCE_PROP_TABLE_NAME = "act_inst_property";
+
+   private static final String ACTIVITY_INSTANCE_PROP_FIELD_OBJECT_OID = "objectOID";
 
    private static final String AUDIT_TRAIL_PARTITION_TABLE_NAME = "partition";
 
@@ -113,17 +116,15 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String WORK_ITEM_FIELD_CRITICALITY = "criticality";
 
-   // Constants for SQL building
-   private static final String SELECT = "SELECT ";
-
-   private static final String FROM = " FROM ";
+   private static final String PROPERTY_TABLE_NAME = "property";
+   private static final String PROPERTY_FIELD_NAME = "name";
 
    private static final Version VERSION = Version.createFixedVersion(7, 0, 0);
 
    private static final String AI_LCK_TABLE_NAME = "activity_instance_lck";
    private static final String P_LCK_TABLE_NAME = "partition_lck";
    private static final String P_LCK_FIELD__OID = "oid";
-   
+
    private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
 
 
@@ -134,7 +135,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             DBMSKey.DERBY, DBMSKey.POSTGRESQL, DBMSKey.SYBASE, DBMSKey.MSSQL8});
       initUpgradeTasks();
    }
-   
+
    public Version getVersion()
    {
       return VERSION;
@@ -152,7 +153,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private void initUpgradeSchemaTasks()
    {
       final R7_0_0from6_x_xRuntimeJob runtimeJob = this;
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -210,7 +211,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -239,10 +240,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             {
                reportExeption(e, "Could not update new column " + WORK_ITEM_TABLE_NAME + "."
                      + WORK_ITEM_FIELD_CRITICALITY + " to -1.");
-            }    
+            }
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -293,7 +294,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }, runtimeJob);
          }
       });
-      
+
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -339,36 +340,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }, runtimeJob);
          }
       });
-      
-      upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
-      {
-         @Override
-         public void execute()
-         {
-            // update datacluster setup key
-            StringBuffer dataClusterUpdateStatement = new StringBuffer();
-            dataClusterUpdateStatement.append("UPDATE property");
-            dataClusterUpdateStatement.append(" SET name=");
-            dataClusterUpdateStatement.append("'");
-            dataClusterUpdateStatement
-                  .append("org.eclipse.stardust.engine.core.runtime.setup_definition");
-            dataClusterUpdateStatement.append("'");
-            dataClusterUpdateStatement.append(" where name=");
-            dataClusterUpdateStatement.append("'");
-            dataClusterUpdateStatement.append("ag.carnot.workflow.runtime.setup_definition");
-            dataClusterUpdateStatement.append("'");
 
-            try
-            {
-               DatabaseHelper.executeUpdate(item, dataClusterUpdateStatement.toString());
-            }
-            catch (SQLException e)
-            {
-               reportExeption(e, "could not update data cluster setup");
-            }
-         }
-      });
-      
       upgradeTaskExecutor.addUpgradeSchemaTask(new UpgradeTask()
       {
          @Override
@@ -405,9 +377,39 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       });
    }
-   
+
    private void initMigrateDataTasks()
    {
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
+      {
+         private static final String oldDefinition = "ag.carnot.workflow.runtime.setup_definition";
+         private static final String newDefinition = "org.eclipse.stardust.engine.core.runtime.setup_definition";
+
+         @Override
+         public void execute()
+         {
+            // update data cluster setup key
+            // @formatter:off
+            StringBuffer dataClusterUpdateStatement = new StringBuffer();
+            dataClusterUpdateStatement
+                  .append(UPDATE).append(DatabaseHelper.getQualifiedName(PROPERTY_TABLE_NAME))
+                  .append(SET).append(PROPERTY_FIELD_NAME).append(EQUALS)
+                  .append(QUOTE).append(newDefinition).append(QUOTE)
+                  .append(WHERE).append(PROPERTY_FIELD_NAME).append(EQUALS)
+                  .append(QUOTE).append(oldDefinition).append(QUOTE);
+            // @formatter:on
+
+            try
+            {
+               DatabaseHelper.executeUpdate(item, dataClusterUpdateStatement.toString());
+            }
+            catch (SQLException e)
+            {
+               reportExeption(e, "could not update data cluster setup");
+            }
+         }
+      });
+
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
          @Override
@@ -420,11 +422,11 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             catch (SQLException e)
             {
                reportExeption(e,
-               "Failed init activity instance properties (nested exception).");
+                     "Failed init activity instance properties (nested exception).");
             }
          }
       });
-      
+
       upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
          @Override
@@ -436,16 +438,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
             catch (SQLException e)
             {
-               reportExeption(e,
-               "Failed upgrade data types (nested exception).");
+               reportExeption(e, "Failed upgrade data types (nested exception).");
             }
          }
       });
-   }
 
-   private void initFinalizeSchemaTasks()
-   {
-      upgradeTaskExecutor.addFinalizeSchemaTask(new UpgradeTask()
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
          @Override
          public void execute()
@@ -461,6 +459,11 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             }
          }
       });
+   }
+
+   private void initFinalizeSchemaTasks()
+   {
+      // no tasks for schema finalization
    }
 
    protected void upgradeSchema(boolean recover) throws UpgradeException
@@ -482,16 +485,16 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
          info("A new table 'partition_lck' with column 'oid' and index 'partition_lck_idx' will be created.");
       }
    }
-   
+
    @Override
    protected void printMigrateDataInfo()
    {
       info("Initializes the field 'propertiesAvailable' in table 'activity_instance'.");
       info("Missing XPaths which are needed to store the revisionComment will be created for Structured Datatypes.");
    }
-   
+
    @Override
-   protected void printFinalizeSchemaInfo() 
+   protected void printFinalizeSchemaInfo()
    {
       info("Default link types will be added.");
    }
@@ -510,10 +513,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       try
       {
          String partitionTableName = DatabaseHelper
-               .getQualifiedName(AuditTrailPartitionBean.TABLE_NAME);
+               .getQualifiedName(AUDIT_TRAIL_PARTITION_TABLE_NAME);
 
          StringBuffer selectCmd = new StringBuffer() //
-               .append(SELECT).append(AuditTrailPartitionBean.FIELD__ID) //
+               .append(SELECT).append(AUDIT_TRAIL_PARTITION_FIELD_ID) //
                .append(FROM).append(partitionTableName);
 
          Connection connection = item.getConnection();
@@ -527,7 +530,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             while (pendingRows.next())
             {
                upgradeDataTypesByPartition(pendingRows
-                     .getString(AuditTrailPartitionBean.FIELD__ID));
+                     .getString(AUDIT_TRAIL_PARTITION_FIELD_ID));
             }
          }
          finally
@@ -549,19 +552,10 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void upgradeDataTypesByPartition(String partition)
    {
-      Map props = CollectionUtils.newHashMap();
-      props.put("jdbc/" + SessionProperties.DS_NAME_AUDIT_TRAIL
-            + SessionProperties.DS_DATA_SOURCE_SUFFIX,
-            new ConnectionWrapper(item.getConnection()));
-      props.put(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, Boolean.TRUE);
-
-      Utils.initCarnotEngine(partition, props);
+      Utils.initCarnotEngine(partition, getRtJobEngineProperties());
 
       Map<Long, AuditTrailDataBean> dataDefRecords = loadModelElementDefinitions(1,
             AuditTrailDataBean.class, AuditTrailDataBean.FR__MODEL);
-
-      Session driver = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-
 
       Short partitionOid = (Short) Parameters.instance().get(
             SecurityProperties.CURRENT_PARTITION_OID);
@@ -610,22 +604,26 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private void initActivityInstanceProperties() throws SQLException
    {
+      final String aiAlias = "ai";
+      final String aipAlias = "aip";
+
       Connection connection = item.getConnection();
 
-      StringBuffer selectCmd = new StringBuffer() //
-            .append("SELECT DISTINCT ai.").append(ActivityInstanceBean.FIELD__OID) //
-            .append(" FROM ").append(ActivityInstanceBean.TABLE_NAME) //
-            .append(" ai ") //
-            .append(" INNER JOIN ").append(ActivityInstanceProperty.TABLE_NAME) //
-            .append(" aip ON aip.").append(ActivityInstanceProperty.FIELD__OBJECT_OID) //
-            .append(" = ai.").append(ActivityInstanceBean.FIELD__OID); //
+      // @formatter:off
+      StringBuffer selectCmd = new StringBuffer()
+            .append(SELECT_DISTINCT).append("ai.").append(ACTIVITY_INSTANCE_FIELD_OID)
+            .append(FROM).append(DatabaseHelper.getQualifiedName(ACTIVITY_INSTANCE_TABLE_NAME, aiAlias))
+            .append(INNER_JOIN).append(DatabaseHelper.getQualifiedName(ACTIVITY_INSTANCE_PROP_TABLE_NAME, aipAlias))
+            .append(ON).append(aipAlias).append(DOT).append(ACTIVITY_INSTANCE_PROP_FIELD_OBJECT_OID)
+            .append(EQUALS).append(aiAlias).append(DOT).append(ACTIVITY_INSTANCE_FIELD_OID);
 
-      StringBuffer updateCmd = new StringBuffer() //
-            .append("UPDATE ").append(ActivityInstanceBean.TABLE_NAME) //
-            .append(" SET ").append(ActivityInstanceBean.FIELD__PROPERTIES_AVAILABLE) //
-            .append(" = 1 ") //
-            .append(" WHERE ").append(ActivityInstanceBean.FIELD__OID) //
-            .append(" = ?"); //
+      StringBuffer updateCmd = new StringBuffer()
+            .append(UPDATE).append(DatabaseHelper.getQualifiedName(ACTIVITY_INSTANCE_TABLE_NAME))
+            .append(SET).append(ACTIVITY_INSTANCE_FIELD_PROPERTIES)
+            .append(EQUALS).append("1")
+            .append(WHERE).append(ACTIVITY_INSTANCE_FIELD_OID)
+            .append(EQUAL_PLACEHOLDER);
+      // @formatter:on
 
       PreparedStatement selectRowsStmt = connection
             .prepareStatement(selectCmd.toString());
@@ -661,8 +659,8 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       tableName = DatabaseHelper.getQualifiedName(tableName);
 
       StringBuffer buffer = new StringBuffer(500);
-      buffer.append("UPDATE ").append(tableName);
-      buffer.append(" SET ").append(columnName).append(" = ").append(defaultValue);
+      buffer.append(UPDATE).append(tableName);
+      buffer.append(SET).append(columnName).append(EQUALS).append(defaultValue);
 
       // Execute DML instead of DDL, but this DML is part of the DDL so it has to be
       // handled the same way.
@@ -682,7 +680,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          String nextOid = dbDescriptor.getNextValForSeqString(
                DatabaseHelper.getSchemaName(), PROCESS_INSTANCE_LINK_TYPE_PK_SEQUENCE);
-         insertCmd.append("INSERT INTO ").append(tableName).append(" (");
+         insertCmd.append(INSERT_INTO).append(tableName).append(" (");
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_OID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION).append(',');
@@ -691,7 +689,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
       else if (dbDescriptor.supportsIdentityColumns())
       {
-         insertCmd.append("INSERT INTO ").append(tableName).append(" (");
+         insertCmd.append(INSERT_INTO).append(tableName).append(" (");
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION).append(") ");
@@ -699,7 +697,7 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
       else
       {
-         insertCmd.append("INSERT INTO ").append(tableName).append(" (");
+         insertCmd.append(INSERT_INTO).append(tableName).append(" (");
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_ID).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_DESCRIPTION).append(',');
          insertCmd.append(PROCESS_INSTANCE_LINK_TYPE_FIELD_PARTITION).append(',');
@@ -714,9 +712,15 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
             && !dbDescriptor.supportsIdentityColumns();
       if (hasSequenceHelper)
       {
-         String update = "UPDATE " + DatabaseHelper.getQualifiedName("sequence_helper")
-               + " SET value=?" + " WHERE name='link_type_seq'";
-         updateStatement = connection.prepareStatement(update);
+         // @formatter:off
+         StringBuffer update = new StringBuffer();
+         update.append(UPDATE).append(DatabaseHelper.getQualifiedName("sequence_helper"))
+               .append(SET).append("value").append(EQUAL_PLACEHOLDER)
+               .append(WHERE).append("name")
+               .append(EQUALS).append(QUOTE).append("link_type_seq").append(QUOTE);
+         // @formatter:on
+
+         updateStatement = connection.prepareStatement(update.toString());
          updateStatement.setLong(1,
                PredefinedProcessInstanceLinkTypes.values().length + 1);
       }
@@ -761,11 +765,12 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       PreparedStatement selectRowsStmt = null;
       try
       {
+         // @formatter:off
          StringBuffer selectCmd = new StringBuffer()
-               //
-               .append("SELECT ").append(AUDIT_TRAIL_PARTITION_FIELD_OID).append(", ")
-               .append(AUDIT_TRAIL_PARTITION_FIELD_ID) //
-               .append(" FROM ").append(AUDIT_TRAIL_PARTITION_TABLE_NAME);
+               .append(SELECT).append(AUDIT_TRAIL_PARTITION_FIELD_OID)
+               .append(COMMA).append(AUDIT_TRAIL_PARTITION_FIELD_ID)
+               .append(FROM).append(DatabaseHelper.getQualifiedName(AUDIT_TRAIL_PARTITION_TABLE_NAME));
+         // @formatter:on
 
          Connection connection = item.getConnection();
 
@@ -798,81 +803,6 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
    protected void finalizeSchema(boolean recover) throws UpgradeException
    {
       upgradeTaskExecutor.executeFinalizeSchemaTasks();
-   }
-
-   private void reportExeption(SQLException sqle, String message)
-   {
-      SQLException ne = sqle;
-      do
-      {
-         trace.error(message, ne);
-      }
-      while (null != (ne = ne.getNextException()));
-
-      try
-      {
-         item.rollback();
-      }
-      catch (SQLException e1)
-      {
-         warn("Failed rolling back transaction.", e1);
-      }
-      error("Failed migrating runtime item tables.", sqle);
-   }
-
-   private static class ConnectionWrapper implements DataSource
-   {
-      Connection connection;
-
-      private ConnectionWrapper(Connection connection)
-      {
-         this.connection = connection;
-      }
-
-      public Connection getConnection() throws SQLException
-      {
-         return connection;
-      }
-
-      public Connection getConnection(String username, String password)
-            throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public int getLoginTimeout() throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public PrintWriter getLogWriter() throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public void setLoginTimeout(int seconds) throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public void setLogWriter(PrintWriter out) throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean isWrapperFor(Class< ? > iface) throws SQLException
-      {
-         // TODO Auto-generated method stub
-         return false;
-      }
-
-      @Override
-      public <T> T unwrap(Class<T> iface) throws SQLException
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
    }
 
    private static <T extends IdentifiablePersistent> Map<Long, T> loadModelElementDefinitions(
@@ -1053,5 +983,11 @@ public class R7_0_0from6_x_xRuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
 
       return result;
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
    }
 }

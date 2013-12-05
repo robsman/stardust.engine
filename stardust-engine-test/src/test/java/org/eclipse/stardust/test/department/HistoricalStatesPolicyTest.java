@@ -10,7 +10,13 @@
  **********************************************************************************/
 package org.eclipse.stardust.test.department;
 
-import static org.eclipse.stardust.test.department.DepartmentModelConstants.*;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.COUNTRY_CODE_DATA_NAME;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_DE;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.DEPT_ID_EN;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.FINAL_ACTIVITY_IN_PD_1_ID;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.MODEL_NAME;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.ORG_ID_1;
+import static org.eclipse.stardust.test.department.DepartmentModelConstants.PROCESS_ID_1;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -18,6 +24,7 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import org.eclipse.stardust.engine.api.dto.HistoricalState;
 import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
@@ -75,7 +82,7 @@ public class HistoricalStatesPolicyTest
 
    private ActivityInstance ai;
 
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory adminSf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final TestServiceFactory userSf = new TestServiceFactory(new UsernamePasswordPair(USER_NAME, USER_PWD));
 
@@ -92,7 +99,7 @@ public class HistoricalStatesPolicyTest
    {
       createUser();
       final long piOid = startProcess();
-      ActivityInstanceStateBarrier.instance().awaitAliveActivityInstance(piOid);
+      ActivityInstanceStateBarrier.instance().awaitAlive(piOid);
       ai = adminSf.getQueryService().findFirstActivityInstance(ActivityInstanceQuery.findAlive());
    }
 
@@ -175,11 +182,12 @@ public class HistoricalStatesPolicyTest
       UserHome.create(adminSf, USER_NAME, orgDe, orgEn);
    }
 
-   private long startProcess()
+   private long startProcess() throws InterruptedException, TimeoutException
    {
       /* start process in scope (DE) */
       final Map<String, String> ccData = Collections.singletonMap(COUNTRY_CODE_DATA_NAME, DEPT_ID_DE);
       final ProcessInstance pi = userSf.getWorkflowService().startProcess(PROCESS_ID_1, ccData, true);
+      ActivityInstanceStateBarrier.instance().awaitForId(pi.getOID(), FINAL_ACTIVITY_IN_PD_1_ID);
       return pi.getOID();
    }
 

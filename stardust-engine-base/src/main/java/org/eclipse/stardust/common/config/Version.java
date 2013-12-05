@@ -11,8 +11,10 @@
 package org.eclipse.stardust.common.config;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.StringTokenizer;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 
 
@@ -26,30 +28,37 @@ import org.eclipse.stardust.common.StringUtils;
 public class Version implements Comparable<Version>, Serializable
 {
    private static final long serialVersionUID = 2L;
-   
+
    private int major;
    private int minor;
    private int micro;
    private String build;
-   
+
+
    // This product name flags special comparison treatment on Version
    private static final String PRODUCT_NAME_STARDUST = "Eclipse Process Manager";
-   
-   // Diff between                                    IPP and Stardust
-   private static final int IPP_STARDUST_DIFF_MAJOR = 7 - Integer.parseInt(CurrentVersion.MAJOR_VERSION);
-   private static final int IPP_STARDUST_DIFF_MINOR = 1 - Integer.parseInt(CurrentVersion.MINOR_VERSION);
-   private static final int IPP_STARDUST_DIFF_MICRO = 0 - Integer.parseInt(CurrentVersion.MICRO_VERSION);
-   
-   // some Versions coded in product are fixed and are not allowed to be altered during compare 
+
+   private static final Map<Version, Version> mapStardust2Ipp = CollectionUtils.newHashMap();
+
+   static
+   {
+      mapStardust2Ipp.put(Version.createFixedVersion(1, 0, 0), Version.createFixedVersion(7, 1, 0));
+      mapStardust2Ipp.put(Version.createFixedVersion(1, 0, 1), Version.createFixedVersion(7, 1, 0));
+      mapStardust2Ipp.put(Version.createFixedVersion(1, 1, 0), Version.createFixedVersion(7, 2, 0));
+      // map DEV builds to latest IPP release
+      mapStardust2Ipp.put(Version.createFixedVersion(9, 9, 9), Version.createFixedVersion(7, 2, 0));
+   }
+
+   // some Versions coded in product are fixed and are not allowed to be altered during compare
    private boolean fixed = false;
-   
+
    /**
     * This creates a Version instance and marks it to be fixed.
-    *  
+    *
     * @param major
     * @param minor
     * @param micro
-    * 
+    *
     * @return
     */
    public static Version createFixedVersion(int major, int minor, int micro)
@@ -59,12 +68,12 @@ public class Version implements Comparable<Version>, Serializable
 
    /**
     * This creates a Version instance and marks it to be fixed.
-    *  
+    *
     * @param major
     * @param minor
     * @param micro
     * @param build
-    * 
+    *
     * @return
     */
    public static Version createFixedVersion(int major, int minor, int micro, String build)
@@ -73,14 +82,14 @@ public class Version implements Comparable<Version>, Serializable
       fixedVersion.setFixed(true);
       return fixedVersion;
    }
-   
+
    /**
     * Returns version based on models version string. This depends on the content of vendorString as
     * special comparison needs to be enabled for comparison of version from different vendors/products.
-    * 
+    *
     * @param versionString
     * @param vendorString
-    * 
+    *
     * @return
     */
    public static Version createModelVersion(String versionString, String vendorString)
@@ -121,7 +130,7 @@ public class Version implements Comparable<Version>, Serializable
          build = _tokenizer.nextToken();
       }
    }
-   
+
    public int getMajor()
    {
       return major;
@@ -136,7 +145,7 @@ public class Version implements Comparable<Version>, Serializable
    {
       return micro;
    }
-   
+
    public String getBuild()
    {
       return build;
@@ -146,7 +155,7 @@ public class Version implements Comparable<Version>, Serializable
    {
       return compareTo(otherVersion, true);
    }
-   
+
    public int compareTo(Version otherVersion, boolean includeMicro) throws ClassCastException
    {
       if (PRODUCT_NAME_STARDUST.equals(CurrentVersion.PRODUCT_NAME)
@@ -154,21 +163,14 @@ public class Version implements Comparable<Version>, Serializable
       {
          if (this.fixed)
          {
-            return compareTo(Version.createFixedVersion( //
-                  otherVersion.major + IPP_STARDUST_DIFF_MAJOR, //
-                  otherVersion.minor + IPP_STARDUST_DIFF_MINOR, //
-                  otherVersion.micro + IPP_STARDUST_DIFF_MICRO), includeMicro);
+            return compareTo(mapStardust2Ipp.get(otherVersion), includeMicro);
          }
-         else
-         // otherVersion.fixed
+         else // otherVersion.fixed
          {
-            return Version.createFixedVersion( //
-                  major + IPP_STARDUST_DIFF_MAJOR, //
-                  minor + IPP_STARDUST_DIFF_MINOR, //
-                  micro + IPP_STARDUST_DIFF_MICRO).compareTo(otherVersion, includeMicro);
+            return mapStardust2Ipp.get(this).compareTo(otherVersion, includeMicro);
          }
       }
-      
+
       if (major < otherVersion.major)
       {
          return -1;
@@ -211,7 +213,7 @@ public class Version implements Comparable<Version>, Serializable
       }
       return result;
    }
-   
+
    public int hashCode() {
       int result = 17;
       result += 37 * result + major;
@@ -231,7 +233,7 @@ public class Version implements Comparable<Version>, Serializable
    {
       StringBuffer buffer = new StringBuffer();
       buffer.append(major).append('.').append(minor).append('.').append(micro);
-      
+
       if (StringUtils.isNotEmpty(build))
       {
          buffer.append('.').append(build);

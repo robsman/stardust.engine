@@ -35,14 +35,14 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
    public List digestChangeLog(IActivityInstance ai, List changeLog)
    {
       HistoricState firstState = (HistoricState) changeLog.get(0);
-      if ( !ActivityInstanceState.Created.equals(firstState.getState()))
+      if (!ActivityInstanceState.Created.equals(firstState.getState()))
       {
          // there must be an open interval from the previous TX, this record causes an
          // update effectively closing the interval
          firstState.setUpdatedRecord();
       }
 
-      List result = CollectionUtils.createList();
+      List<ChangeLogDigester.HistoricState> result = CollectionUtils.newList();
       for (int i = 0; i < changeLog.size(); ++i)
       {
          ChangeLogDigester.HistoricState hs = (ChangeLogDigester.HistoricState) changeLog.get(i);
@@ -58,15 +58,15 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
             // to reduce number of historic entries
 
             final int idxMergeCandidate = result.size() - 1;
-            ChangeLogDigester.HistoricState candidateHs = (ChangeLogDigester.HistoricState) result.get(idxMergeCandidate);
-            ChangeLogDigester.HistoricState predecessorHs = (ChangeLogDigester.HistoricState) result.get(idxMergeCandidate - 1);
+            ChangeLogDigester.HistoricState candidateHs = result.get(idxMergeCandidate);
+            ChangeLogDigester.HistoricState predecessorHs = result.get(idxMergeCandidate - 1);
 
             if (isSameState(candidateHs, hs) && isSamePerformer(candidateHs, hs)
                   && !isOpenInterval(hs))
             {
                hs = new ChangeLogDigester.HistoricState(candidateHs.getFrom(), hs
                      .getUntil(), candidateHs.getState(), candidateHs.getPerformer(),
-                     candidateHs.getDepartment());
+                     candidateHs.getDepartment(), candidateHs.getWorkflowUserOid());
                result.remove(idxMergeCandidate);
             }
             else if (candidateHs.isNewRecord())
@@ -78,7 +78,7 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
                   predecessorHs.setUntil(candidateHs.getUntil());
 
                   hs = new ChangeLogDigester.HistoricState(hs.getFrom(), hs.getUntil(),
-                        candidateHs.getState(), hs.getPerformer(), hs.getDepartment());
+                        candidateHs.getState(), hs.getPerformer(), hs.getDepartment(), candidateHs.getWorkflowUserOid());
                   result.remove(idxMergeCandidate);
                }
                else if (isActivationSequence(candidateHs, hs))
@@ -88,7 +88,7 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
 
                   hs = new ChangeLogDigester.HistoricState(hs.getFrom(), hs.getUntil(),
                         hs.getState(), candidateHs.getPerformer(), candidateHs
-                              .getDepartment());
+                        .getDepartment(), candidateHs.getWorkflowUserOid());
                   result.remove(idxMergeCandidate);
                }
             }
@@ -149,11 +149,9 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
       return isSame;
    }
 
-   private boolean isFilteredState(ActivityInstanceState state)
+   private static boolean isFilteredState(ActivityInstanceState state)
    {
-      return ActivityInstanceState.Created.equals(state)
-            || ActivityInstanceState.Completed.equals(state)
-            || ActivityInstanceState.Aborted.equals(state);
+      return ActivityInstanceState.Created.equals(state);
    }
 
    private boolean isOpenInterval(ChangeLogDigester.HistoricState hs)

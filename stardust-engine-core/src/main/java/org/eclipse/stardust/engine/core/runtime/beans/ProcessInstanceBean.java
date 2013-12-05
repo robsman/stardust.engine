@@ -13,12 +13,28 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.Attribute;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.common.error.*;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.InvalidValueException;
+import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.common.error.UniqueConstraintViolatedException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -26,16 +42,36 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
 import org.eclipse.stardust.engine.api.dto.ContextKind;
 import org.eclipse.stardust.engine.api.dto.DeployedModelDescriptionDetails;
 import org.eclipse.stardust.engine.api.dto.EventHandlerBindingDetails;
-import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.model.EventType;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataMapping;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
+import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.compatibility.el.EvaluationError;
 import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
 import org.eclipse.stardust.engine.core.compatibility.el.Result;
 import org.eclipse.stardust.engine.core.compatibility.el.SyntaxError;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -44,12 +80,17 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterInstance;
 import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
-import org.eclipse.stardust.engine.core.spi.extensions.runtime.*;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
 import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 
@@ -74,6 +115,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    // TODO: property name "NOTE" is too simple.
    private static final String PI_NOTE = "NOTE";
    protected static final String ABORTING_PI_OID = "Infinity.RootProcessInstance.AbortingPiOid";
+   public static final String ABORTING_USER_OID = "Infinity.RootProcessInstance.AbortingUserOid";
    public static final String PI_NOTE_CONTEXT_PREFIX_PATTERN = "<context kind=\"{0}\" oid=\"{1}\" />";
 
    private static final int PI_PROPERTY_FLAG_ANY = 1;          // first bit
@@ -214,25 +256,31 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
    }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
+         IUser user, Map<String, ? > data, boolean isSubprocess)
+   {
+      return createInstance(processDefinition, null, null, user, data, isSubprocess);
+   }   
+   
+   public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          IUser user, Map<String, ? > data)
    {
-      return createInstance(processDefinition, null, null, user, data);
+      return createInstance(processDefinition, null, null, user, data, false);
    }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
          IProcessInstance parentProcessInstance, IUser user, Map<String, ?> data)
    {
-      return createInstance(processDefinition, null, parentProcessInstance, user, data);
+      return createInstance(processDefinition, null, parentProcessInstance, user, data, false);
    }
 
    public static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
-         ActivityInstanceBean parentActivityInstance, IUser user, Map<String, ? > data)
+         ActivityInstanceBean parentActivityInstance, IUser user, Map<String, ? > data, boolean isSubprocess)
    {
-      return createInstance(processDefinition, parentActivityInstance, null, user, data);
+      return createInstance(processDefinition, parentActivityInstance, null, user, data, isSubprocess);
    }
 
    private static ProcessInstanceBean createInstance(IProcessDefinition processDefinition,
-         ActivityInstanceBean parentActivityInstance, IProcessInstance spawnParentProcessInstance, IUser user, Map<String, ? > data)
+         ActivityInstanceBean parentActivityInstance, IProcessInstance spawnParentProcessInstance, IUser user, Map<String, ? > data, boolean isSubProcess)
    {
       IProcessInstance parentProcessInstance = spawnParentProcessInstance;
       if (parentActivityInstance != null)
@@ -339,9 +387,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       }
 
       processInstance.setState(ProcessInstanceState.ACTIVE);
-
-      processInstance.doBindAutomaticlyBoundEvents();
-
+      if(!isSubProcess)
+      {
+         processInstance.doBindAutomaticlyBoundEvents();
+      }
+         
       MonitoringUtils.processExecutionMonitors().processStarted(processInstance);
 
       return processInstance;
@@ -384,7 +434,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
    public String toString()
    {
-      return "Process instance = " + getOID() + " (" + getProcessDefinition() + ")";
+      ModelBean model = (ModelBean) getProcessDefinition().getModel();
+
+      return "Process instance = " + getOID() + " (" + getProcessDefinition() + ") "
+            + ModelUtils.getExtendedVersionString(model);
    }
 
    public Date getStartTime()
@@ -437,7 +490,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          if (getProcessDefinition().hasEventHandlers(
                PredefinedConstants.PROCESS_STATECHANGE_CONDITION))
          {
-            Event event = new Event(Event.PROCESS_INSTANCE, getOID(), 0,
+            Event event = new Event(Event.PROCESS_INSTANCE, getOID(), Event.OID_UNDEFINED, Event.OID_UNDEFINED,
                   Event.ENGINE_EVENT);
             event.setAttribute(PredefinedConstants.SOURCE_STATE_ATT, sourceState);
             event.setAttribute(PredefinedConstants.TARGET_STATE_ATT, targetState);
@@ -462,6 +515,12 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          {
             MonitoringUtils.processExecutionMonitors().processCompleted(this);
          }
+      }
+
+      IProcessInstance scopePi = getScopeProcessInstance();
+      if (this == scopePi)
+      {
+         DataClusterHelper.synchronizeDataCluster(scopePi);
       }
    }
    
@@ -579,9 +638,22 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
     */
    public long getStartingUserOID()
    {
-      fetchLink(FIELD__STARTING_USER);
+      fetch();
 
-      return startingUser == null ? 0 : startingUser.getOID();
+      if (null != startingUser)
+      {
+         return startingUser.getOID();
+      }
+      else if (isPersistent())
+      {
+         DefaultPersistenceController controller = (DefaultPersistenceController) getPersistenceController();
+
+         return ((Long) controller.getLinkFk(FIELD__STARTING_USER)).longValue();
+      }
+      else
+      {
+         return 0;
+      }
    }
 
    /**
@@ -1307,7 +1379,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return ProcessInstanceProperty.class;
    }
 
-   private void doBindAutomaticlyBoundEvents()
+   public void doBindAutomaticlyBoundEvents()
    {
       final IProcessDefinition processDefinition = getProcessDefinition();
 
@@ -1481,6 +1553,11 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return attributes;
    }
 
+   public void addAbortingUserOid(long oid)
+   {
+      setPropertyValue(ABORTING_USER_OID, new Long(oid));
+   }
+   
    public void addPropertyValues(Map attributes)
    {
       super.addPropertyValues(attributes);
@@ -1632,26 +1709,6 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       return AuditTrailPersistence.valueOf(auditTrailPersistence);
    }
    
-   private static boolean propertyExists(Attribute properties)
-   {
-      boolean result = false;
-
-      if (null != properties)
-      {
-         if (properties instanceof MultiAttribute)
-         {
-            MultiAttribute container = (MultiAttribute) properties;
-            result = !((List) container.getValue()).isEmpty();
-         }
-         else
-         {
-            result = true;
-         }
-      }
-
-      return result;
-   }
-
    /**
     * @throws ObjectNotFoundException
     * @throws InvalidValueException

@@ -34,12 +34,16 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentManagementServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.mail.MailConstants;
 import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtils;
 
@@ -49,6 +53,7 @@ public class MailAssembler
    private static final Logger trace = LogManager.getLogger(MailAssembler.class);
    
    private String mailHost;
+   private String jndiSession;
    private String fromSpec;
    private String toSpec;
    private String ccSpec;
@@ -70,7 +75,7 @@ public class MailAssembler
    private List attachmentList;
    private MimeMessage msg;
 
-   public MailAssembler(String mailHost, String from, String to,
+   public MailAssembler(String mailHost, String jndiSession, String from, String to,
          String cc, String bcc, String priority,
          String subject, String plainTextTemplate, boolean useHTML,
          String htmlHeader, String htmlTemplate, String htmlFooter,
@@ -81,6 +86,7 @@ public class MailAssembler
       super();
 
       this.mailHost = mailHost;
+      this.jndiSession = jndiSession;      
       this.fromSpec = from;
       this.toSpec = to;
       this.ccSpec = cc;
@@ -138,19 +144,44 @@ public class MailAssembler
       Transport.send(msg);
    }
 
+   /**
+    * Loads the mail session from JNFI (if {@link #jndiSession} is set)
+    * or based on the {@link #mailHost}.
+    */
+   private Session createSession() throws NamingException {
+      Session retValue;
+      if (StringUtils.isNotEmpty(jndiSession) && !jndiSession.equals("null")) {
+           InitialContext context = new InitialContext();
+           String jndiSessionPath = "java:comp/env/" + jndiSession;
+      Object session = context.lookup(jndiSessionPath);
+           if (session instanceof Session) {
+            retValue = (Session) session;
+           } else {
+            throw new NamingException(jndiSessionPath + " returned " + session + " but " + Session.class + " is expected!");
+           }
+      } else {
+         Properties props = new Properties();
+
+         props.put("mail.smtp.host", mailHost);
+         props.put("mail.debug", Boolean.getBoolean("mail.debug"));
+         retValue= Session.getInstance(props, null);
+      }
+      return retValue;
+   } 
    /** Sets smtp host, target mail adresses, priority, subject
     * @throws MessagingException
     */
    private void prepareMsg() throws MessagingException
    {
-      Properties props = new Properties();
-
-      props.put("mail.smtp.host", mailHost);
-      props.put("mail.debug", "true");
-      Session session = Session.getInstance(props, null);
+      Session session;
+      try {
+          session = createSession();
+      } catch (NamingException e) {
+          throw new MessagingException(e.getMessage(), e);
+      }
 
       msg = new MimeMessage(session);
-
+      
       InternetAddress fromAddress = new InternetAddress(fromSpec);
 
       // split multiple receivers
@@ -435,13 +466,13 @@ public class MailAssembler
    }
    
    /**
-    * This will return HTML query parameters. Always fields for process instance OID and activity instance OID
-    * will be added. If argument <code>investigate</code> is set to <code>true</code> then
-    * it will be added, <code>outputValue</code> will be ignored. 
-    * Otherwise if argument <code>investigate</code> is set to <code>false</code> then
-    * it will be ignored, but <code>outputValue</code> will be added.
-    * At the end field hashCode will be added which encodes all previous fields.   
-    *    
+    * This will return HTML query parameters. Always fields for process instance OID and
+    * activity instance OID will be added. If argument <code>investigate</code> is set to
+    * <code>true</code> then it will be added, <code>outputValue</code> will be ignored.
+    * Otherwise if argument <code>investigate</code> is set to <code>false</code> then it
+    * will be ignored, but <code>outputValue</code> will be added. At the end field
+    * hashCode will be added which encodes all previous fields.
+    * 
     * @param investigate
     * @param outputValue
     * 
@@ -450,24 +481,34 @@ public class MailAssembler
    private StringBuffer getHtmlQuery(final boolean investigate, final String outputValue)
    {
       StringBuffer buffer = new StringBuffer(200);
+      String partition = Parameters.instance().getString(
+            SecurityProperties.DEFAULT_PARTITION, "default");
+      if (SecurityProperties.getPartition() != null)
+      {
+         partition = SecurityProperties.getPartition().getId();
+      }
 
-      final int hashCode = MailValidationUtils.getQueryParametersHashCode(processInstanceOID,
-            activityInstanceOID, investigate, outputValue);
-      
-      buffer.append("?").append(MailConstants.PROCESS_INSTANCE_OID).append("=").append(processInstanceOID)
-            .append("&").append(MailConstants.ACTIVITY_INSTANCE_OID).append("=").append(activityInstanceOID);
-      
+      final int hashCode = MailValidationUtils.getQueryParametersHashCode(
+            processInstanceOID, activityInstanceOID, partition, investigate, outputValue);
+
+      buffer.append("?").append(MailConstants.PROCESS_INSTANCE_OID).append("=")
+            .append(processInstanceOID).append("&")
+            .append(MailConstants.ACTIVITY_INSTANCE_OID).append("=")
+            .append(activityInstanceOID);
+
       if (investigate)
       {
-         buffer.append("&").append(MailConstants.INVESTIGATE).append("=").append(investigate);
+         buffer.append("&").append(MailConstants.INVESTIGATE).append("=")
+               .append(investigate);
       }
       else
       {
-         buffer.append("&").append(MailConstants.OUTPUT_VALUE).append("=").append(outputValue);
+         buffer.append("&").append(MailConstants.OUTPUT_VALUE).append("=")
+               .append(outputValue);
       }
-      
-      buffer.append("&").append(MailConstants.HASH_CODE).append("=").append(hashCode);
 
+      buffer.append("&").append(MailConstants.PARTITION).append("=").append(partition);
+      buffer.append("&").append(MailConstants.HASH_CODE).append("=").append(hashCode);
       return buffer;
    }
 

@@ -62,6 +62,8 @@ public class MessageParsingApplicationInstance implements
    private String schema;
 
    private IModel model;
+   
+   private String outDataPath = "";
 
    public void bootstrap(ActivityInstance activityInstance)
    {
@@ -70,14 +72,22 @@ public class MessageParsingApplicationInstance implements
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       this.model = modelManager.findModel(activityInstance.getModelOID());
 
-      Application application = activityInstance.getActivity().getApplication();
 
+      Application application = activityInstance.getActivity().getApplication();
       List<DataMapping> allOutDataMappings = activityInstance.getActivity().getApplicationContext(
             PredefinedConstants.APPLICATION_CONTEXT).getAllOutDataMappings();
       if (allOutDataMappings.size() == 0)
       {
          throw new RuntimeException("Could not find OUT data mapping");
       }
+      
+      
+      DataMapping dataMapping = (DataMapping) allOutDataMappings.iterator().next();
+      if (dataMapping.getDataPath() != null)
+      {
+         this.outDataPath = dataMapping.getDataPath();
+      }
+      
       for (DataMapping mapping : allOutDataMappings)
       {
          outAccessPoints.put(mapping.getApplicationAccessPoint().getId(), mapping);
@@ -185,12 +195,15 @@ public class MessageParsingApplicationInstance implements
    public Map invoke(Set outDataTypes) throws InvocationTargetException
    {
       trace.info("invoke()");
+      
+      String outDataPath = "";
 
       try
       {
          DataMapping oudDataMapping = outAccessPoints.values().iterator().next();
-         
+                           
          IData data = model.findData(oudDataMapping.getDataId());
+         
 
          org.w3c.dom.Document schemaDocument = getSchemaDocument(data);
          String inputMessageString = null;
@@ -216,7 +229,7 @@ public class MessageParsingApplicationInstance implements
          StructuredDataConverter structuredDataConverter = newStructuredDataConverter(xPathMap);
          
          Map<String, Object> outputMessage = (Map<String, Object>) structuredDataConverter.toCollection(
-               document.getRootElement(), "", true);
+               document.getRootElement(), this.outDataPath, true);
 
          for (String accessPointID : outAccessPoints.keySet())
          {

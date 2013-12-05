@@ -41,8 +41,10 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterRuntimeInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
@@ -97,10 +99,14 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private ExecutionPlan executionPlan;
    
    private boolean deploymentBeanCreated = false;
+   
+   private long authorizedOnBehalfOf = 0;
 
    private EventBindingRecords eventBindingRecords;
    
    private ExtendedAccessPathEvaluatorRegistry evaluatorRegistry;
+   
+   private DataClusterRuntimeInfo dataClusterRuntimeInfo; 
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
@@ -127,6 +133,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       this.session = session;
    }
 
+   public long getAuthorizedOnBehalfOf()
+   {
+      return authorizedOnBehalfOf;
+   }
+
+   public void setAuthorizedOnBehalfOf(long authorizedOnBehalfOf)
+   {
+      this.authorizedOnBehalfOf = authorizedOnBehalfOf;
+   }      
+   
    public IDocumentRepositoryService getDocumentRepositoryService()
    {
       return documentRepositoryService;
@@ -638,5 +654,38 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          eventBindingRecords = new EventBindingRecords();
       }
       return eventBindingRecords;
+   }
+
+   public DataClusterRuntimeInfo getDataClusterRuntimeInfo()
+   {
+      return dataClusterRuntimeInfo;
+   }
+
+   public void setDataClusterRuntimeInfo(DataClusterRuntimeInfo dataClusterRuntimeInfo)
+   {
+      this.dataClusterRuntimeInfo = dataClusterRuntimeInfo;
+   }
+   
+   /**
+    * <p>
+    * Returns whether the {@link MultipleTryInterceptor} will trigger no additional retry. This may
+    * have two reasons
+    * <ul>
+    *    <li>there's no retry configured</li>
+    *    <li>the retry count has been exceeded</li>
+    * </ul>
+    * </p>
+    * 
+    * @return whether the {@link MultipleTryInterceptor} will trigger no additional retry
+    */
+   public boolean isLastTry()
+   {
+      final Integer triesLeft = (Integer) get(MultipleTryInterceptor.TRIES_LEFT_PROPERTY_KEY);
+      if (triesLeft == null)
+      {
+         return true;
+      }
+      
+      return triesLeft.intValue() <= 0;
    }
 }

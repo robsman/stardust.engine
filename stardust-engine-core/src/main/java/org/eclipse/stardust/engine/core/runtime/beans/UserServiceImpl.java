@@ -16,9 +16,11 @@ import java.util.*;
 
 import javax.xml.namespace.QName;
 
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.error.InvalidArgumentException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -40,6 +42,7 @@ import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
@@ -854,4 +857,172 @@ public class UserServiceImpl implements UserService, Serializable
    {
       return UserGroupDetailsLevel.Full == changes.getDetailsLevel();
    }
+   
+	@Override
+	public Deputy addDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
+	{
+      if (isAllowedToAddDeputy(user) && user.getOID() != deputyUser.getOID())
+      {
+         if (options == null)
+         {
+            options = DeputyOptions.DEFAULT;
+         }
+         UserBean userBean = UserBean.findByOid(user.getOID());
+         UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
+
+         UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
+
+         DeputyBean db = new DeputyBean(userBean.getOID(), options.getFromDate(),
+               options.getToDate(), options.getParticipants());
+
+         deputyUserBean.setPropertyValue(UserUtils.IS_DEPUTY_OF, db.toString());
+
+         UserUtils.updateDeputyGrants(deputyUserBean);
+
+         return db.createDeputyDetails(deputyUser);
+      }
+	   else
+	   {
+         throw new InvalidArgumentException(
+               BpmRuntimeError.ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED.raise(user.getOID()));
+	   }
+	}
+	
+	private boolean isAllowedToAddDeputy(UserInfo user)
+	{
+	   IUser addingUser = SecurityProperties.getUser(); 
+	   if (addingUser.getOID() == user.getOID())
+	   {
+	      return true;
+	   }
+	   else
+	   {
+         throw new AccessForbiddenException(
+               BpmRuntimeError.ATDB_ADDING_DEPUTY_FORBIDDEN.raise(user.getOID(),
+                     addingUser.getOID()));
+	   }
+	}
+	
+   private boolean isAllowedToModifyDeputy(UserInfo user)
+   {
+      IUser modifyingUser = SecurityProperties.getUser(); 
+      if (modifyingUser.getOID() == user.getOID())
+      {
+         return true;
+      }
+      else
+      {
+         throw new AccessForbiddenException(
+               BpmRuntimeError.ATDB_MODIFYING_DEPUTY_FORBIDDEN.raise(user.getOID(),
+                     modifyingUser.getOID()));
+      }
+   }
+
+   private boolean isAllowedToRemoveDeputy(UserInfo user)
+   {
+      IUser modifyingUser = SecurityProperties.getUser(); 
+      if (modifyingUser.getOID() == user.getOID())
+      {
+         return true;
+      }
+      else
+      {
+         throw new AccessForbiddenException(
+               BpmRuntimeError.ATDB_REMOVING_DEPUTY_FORBIDDEN.raise(user.getOID(),
+                     modifyingUser.getOID()));
+      }
+   }
+   
+   
+   @Override
+   public Deputy modifyDeputy(UserInfo user, UserInfo deputyUser, DeputyOptions options)
+   {
+      if (isAllowedToModifyDeputy(user))
+      {            
+         if (options == null)
+         {
+            options = DeputyOptions.DEFAULT;
+         }
+         
+         List<Deputy> deputies = getUsersBeingDeputyFor(deputyUser);
+         for (Deputy deputy : deputies)
+         {
+            if (deputy.getUser().equals(user))
+            {
+               removeDeputy(user, deputyUser);
+               return addDeputy(user, deputyUser, options);
+            }
+         }   
+      }
+      
+      throw new ObjectNotFoundException(
+            BpmRuntimeError.ATDB_DEPUTY_DOES_NOT_EXISTS.raise(deputyUser.getOID(),
+                  user.getOID()));
+   }
+
+   @Override
+   public void removeDeputy(UserInfo user, UserInfo deputyUser)
+   {
+      if (isAllowedToRemoveDeputy(user))
+      {      
+         UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
+         UserUtils.removeExistingDeputy(user.getOID(), deputyUserBean);
+         
+         UserUtils.updateDeputyGrants(deputyUserBean);
+      }
+   }
+
+	@Override
+	public List<Deputy> getDeputies(UserInfo user)
+	{
+      UserBean userBean = UserBean.findByOid(user.getOID());
+      
+      String likeOpPattern = MessageFormat.format(
+            UserUtils.IS_DEPUTY_OF_PROP_PREFIX_PATTERN,
+            new Object[] {Long.valueOf(userBean.getOID()).toString()});
+
+      ResultIterator<UserProperty> iterator = SessionFactory.getSession(
+            SessionFactory.AUDIT_TRAIL).getIterator(
+            UserProperty.class,
+            QueryExtension.where(Predicates.andTerm(
+                  Predicates.isEqual(UserProperty.FR__NAME, UserUtils.IS_DEPUTY_OF),
+                  Predicates.isLike(UserProperty.FR__STRING_VALUE, likeOpPattern))));
+
+      Map<Long, Deputy> deputyMap = CollectionUtils.newHashMap();
+      while (iterator.hasNext())
+      {
+         UserProperty userProperty = iterator.next();
+
+         final long deputyUserOid = userProperty.getObjectOID();
+         if ( !deputyMap.containsKey(deputyUserOid))
+         {
+            String stringValue = (String) userProperty.getValue();
+            DeputyBean deputyBean = DeputyBean.fromString(stringValue);
+
+            UserInfo deputyUserInfo = DetailsFactory.create(UserBean.findByOid(deputyUserOid));
+
+            deputyMap.put(deputyUserOid, deputyBean.createDeputyDetails(deputyUserInfo));
+         }
+
+      }
+
+		return CollectionUtils.newArrayList(deputyMap.values());
+
+	}
+
+	@Override
+	public List<Deputy> getUsersBeingDeputyFor(UserInfo deputyUser)
+	{
+      List<Deputy> result = CollectionUtils.newArrayList();
+
+      UserBean deputyUserBean = UserBean.findByOid(deputyUser.getOID());
+      List<DeputyBean> deputies = UserUtils.getDeputies(deputyUserBean);
+
+      for (DeputyBean deputy : deputies)
+      {
+         result.add(deputy.createDeputyDetails(deputyUser));
+      }
+
+      return result;
+	}
 }

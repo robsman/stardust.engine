@@ -12,23 +12,12 @@ package org.eclipse.stardust.engine.core.upgrade.jobs;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.FilteringIterator;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Version;
@@ -39,33 +28,17 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
-import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.preferences.XmlPreferenceWriter;
-import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
-import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelDeploymentBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
 import org.eclipse.stardust.engine.core.runtime.utils.Permissions;
-import org.eclipse.stardust.engine.core.upgrade.framework.AlterTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.CreateTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
-import org.eclipse.stardust.engine.core.upgrade.framework.DropTableInfo;
-import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeItem;
-import org.eclipse.stardust.engine.core.upgrade.framework.UpgradeException;
-
-
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
 
 
 /**
@@ -76,6 +49,12 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final Logger trace = LogManager.getLogger(R6_0_0from5_2_0RuntimeJob.class);
 
    private static final Version VERSION = Version.createFixedVersion(6, 0, 0);
+
+   private static final String RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION = "ag.carnot.workflow.runtime.setup_definition";
+
+   private static final String PI_TABLE_NAME = "process_instance";
+   private static final String PI_FIELD__DEPLOYMENT = "deployment";
+   private static final String PI_FIELD__MODEL = "model";
 
    private static final String P_TABLE_NAME = "preferences";
 
@@ -93,8 +72,6 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    private static final String P_IDX1 = "preferences_idx1";
 
-   private static final String COMMA = ",";
-
    private static final String PREFERENCES_MODULE_ID_PERMISSIONS = "permissions";
 
    private static final String PREFERENCES_PARTITION_SCOPE_TYPE = "PARTITION";
@@ -102,7 +79,12 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String MS_TABLE_NAME = "message_store";
    private static final String MS_SEQ_NAME = "message_store_seq";
 
-   //Model Ref Table
+   // Model Table
+   private static final String M_TABLE_NAME = "model";
+   private static final String M_FIELD__DEPLOYMENT_STAMP = "deploymentStamp";
+   private static final String M_FIELD__OID = "oid";
+
+   // Model Ref Table
 
    private static final String MODEL_REF_TABLE_NAME = "model_ref";
 
@@ -123,8 +105,10 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    //Model Dep Table
 
    private static final String MODEL_DEP_TABLE_NAME = "model_dep";
-      
-   private static final String MODEL_DEP_FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
+
+   private static final String MD_SEQ_NAME = "model_dep_seq";
+
+   private static final String MODEL_DEP_FIELD__OID = "oid";
 
    private static final String MODEL_DEP_FIELD__DEPLOYER = "deployer";
 
@@ -139,12 +123,28 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final String MODEL_DEP_IDX2 = "model_dep_idx2";
 
    private static final String MODEL_DEP_IDX3 = "model_dep_idx3";
-   
+
+   private static final String MD_LOCK_TABLE_NAME = "model_dep_lck";
+
+   private static final String MD_LOCK_INDEX_NAME = "model_dep_lck_idx";
+
    //User Participant Table
 
-   private static final String UP_MODEL = "model";
+   private static final String UP_TABLE_NAME = "user_participant";
 
-   private static final String UP_IDX2 = "user_particip_idx2";
+   private static final String UP_FIELD__MODEL = "model";
+
+   private static final String UP_FIELD__DEPARTMENT = "department";
+
+   private static final String UP_FIELD__PARTICIPANT = "participant";
+
+   private static final String UP_INDEX_IDX2 = "user_particip_idx2";
+
+   // partition table
+   private static final String AUDIT_TRAIL_PARTITION_TABLE_NAME = "partition";
+   private static final String AUDIT_TRAIL_PARTITION_FIELD_OID = "oid";
+   private static final String AUDIT_TRAIL_PARTITION_FIELD_ID = "id";
+
 
    R6_0_0from5_2_0RuntimeJob()
    {
@@ -293,24 +293,24 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          @Override
          public String getSequenceName()
          {
-            return ModelDeploymentBean.PK_SEQUENCE;
+            return MD_SEQ_NAME;
          }
 
       }, this);
-      
-      //Create MODEL_DEP_LCK table
+
+      // Create MODEL_DEP_LCK table
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       if (session.getDBDescriptor().getUseLockTablesDefault())
       {
          DatabaseHelper.createTable(item, new CreateTableInfo(
-               ModelDeploymentBean.LOCK_TABLE_NAME)
+               MD_LOCK_TABLE_NAME)
          {
             private final FieldInfo OID = new FieldInfo(MODEL_DEP_FIELD__OID, Long.TYPE,
                   0, true);
 
             private final IndexInfo IDX1 = new IndexInfo(
-                  ModelDeploymentBean.LOCK_INDEX_NAME, true, new FieldInfo[] {OID});
+                  MD_LOCK_INDEX_NAME, true, new FieldInfo[] {OID});
 
             @Override
             public FieldInfo[] getFields()
@@ -333,11 +333,11 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }, this);
       }
 
-      //Alter Process Instance Table
+      // Alter Process Instance Table
 
-      DatabaseHelper.alterTable(item, new AlterTableInfo(ProcessInstanceBean.TABLE_NAME)
+      DatabaseHelper.alterTable(item, new AlterTableInfo(PI_TABLE_NAME)
       {
-         private final FieldInfo DEPLOYMENT = new FieldInfo(ProcessInstanceBean.FIELD__DEPLOYMENT,
+         private final FieldInfo DEPLOYMENT = new FieldInfo(PI_FIELD__DEPLOYMENT,
                Long.TYPE);
 
          @Override
@@ -353,26 +353,25 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       try
       {
-         migrateDeployedModels();
+         migrateDeployedModels(recover);
          consolidateGrants();
-         migratePermissions();
+         migratePermissions(recover);
          migrateDataClusterDefinition();
       }
       catch (SQLException sqle)
       {
          reportExeption(sqle, "Failed migrating runtime item tables (nested exception).");
       }
-
    }
 
    private void consolidateGrants() throws SQLException
    {
-      //Keep only entries from the active models.
+      // Keep only entries from the active models.
       List<Long> activeModels = CollectionUtils.newList();
       for (Pair<Long, String> info : fetchListOfPartitionInfo())
       {
          String partitionId = info.getSecond();
-         Utils.initCarnotEngine(partitionId);
+         Utils.initCarnotEngine(partitionId, getRtJobEngineProperties());
          IModel model = ModelManagerFactory.getCurrent().findActiveModel();
          if (model == null)
          {
@@ -382,53 +381,45 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          {
             activeModels.add((long) model.getModelOID());
          }
+         Utils.flushSession();
       }
 
-      //No need to do anything if no models are deployed. 
+      // No need to do anything if no models are deployed.
       if (!activeModels.isEmpty())
       {
          Connection connection = item.getConnection();
-         Statement stmt = connection.createStatement();
-         stmt.executeUpdate(getDeleteGrantsSql(activeModels));
-         stmt.close();
-   
-         //Drop old index and create new one without model row.
-         DatabaseHelper.alterTable(item, new AlterTableInfo(UserParticipantLink.TABLE_NAME)
+         Statement stmt = null;
+         try
          {
-            private final FieldInfo PARTICIPANT = new FieldInfo(UserParticipantLink.FIELD__PARTICIPANT, Long.TYPE);
-            private final FieldInfo DEPARTMENT = new FieldInfo(UserParticipantLink.FIELD__DEPARTMENT, Long.TYPE);
-   
-            private final IndexInfo IDX2 = new IndexInfo(UP_IDX2, false,
-                  new FieldInfo[] {PARTICIPANT, DEPARTMENT});
-   
-            public FieldInfo[] getAddedFields()
+            stmt = connection.createStatement();
+
+            // delete grants for all but the active models
+            stmt.executeUpdate(getDeleteGrantsSql(activeModels));
+
+            // as columns cannot be dropped just set value to null
+            String tableName = DatabaseHelper
+                  .getQualifiedName(UP_TABLE_NAME);
+            StringBuffer buffer = new StringBuffer(500);
+            buffer.append(UPDATE).append(tableName);
+            buffer.append(SET).append(UP_FIELD__MODEL).append(EQUALS).append(NULL);
+
+            stmt.executeUpdate(buffer.toString());
+         }
+         finally
+         {
+            if (stmt != null)
             {
-               return null;
+               stmt.close();
             }
-   
-            public IndexInfo[] getAlteredIndexes()
-            {
-               return new IndexInfo[] {IDX2};
-            }
-   
-            public void executeDmlBeforeIndexCreation(RuntimeItem item) throws SQLException
-            {
-               Connection connection = item.getConnection();
-               connection.setAutoCommit(false);
-               String tableName = DatabaseHelper.getQualifiedName(UserParticipantLink.TABLE_NAME);
-               StringBuffer buffer = new StringBuffer(500);
-               buffer.append("UPDATE ").append(tableName);
-               buffer.append(" SET ").append(UP_MODEL).append(" = null");
-               item.executeDdlStatement(buffer.toString(), false);
-            }
-         }, this);
+         }
       }
    }
 
    private static String getDeleteGrantsSql(List<Long> activeModels)
    {
-      StringBuilder sql = new StringBuilder().append("DELETE FROM ").append(UserParticipantLink.TABLE_NAME)
-         .append(" WHERE ").append(UP_MODEL).append(" NOT IN (");
+      StringBuilder sql = new StringBuilder()
+         .append(DELETE_FROM).append(DatabaseHelper.getQualifiedName(UP_TABLE_NAME))
+         .append(WHERE).append(UP_FIELD__MODEL).append(" NOT IN (");
       for (int i = 0, l = activeModels.size(); i < l; i++)
       {
          if (i > 0)
@@ -441,42 +432,55 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return sql.toString();
    }
 
-   private void migrateDeployedModels() throws SQLException
+   private void migrateDeployedModels(boolean recover) throws SQLException
    {
       Connection connection = item.getConnection();
 
       //Populate MODEL_DEP
       StringBuffer selectCmd = new StringBuffer();
-      selectCmd.append(" SELECT ");
-      selectCmd.append(ModelPersistorBean.FIELD__DEPLOYMENT_STAMP).append(',');
-      selectCmd.append(MODEL_DEP_FIELD__VALID_FROM).append(',');
+      selectCmd.append(SELECT);
+      selectCmd.append(M_FIELD__DEPLOYMENT_STAMP).append(COMMA);
+      selectCmd.append(MODEL_DEP_FIELD__VALID_FROM).append(COMMA);
       selectCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_COMMENT);
-      selectCmd.append(" FROM ").append(ModelPersistorBean.TABLE_NAME);
+      selectCmd.append(FROM).append(DatabaseHelper.getQualifiedName(M_TABLE_NAME));
 
       PreparedStatement selectStatement = connection.prepareStatement(selectCmd.toString());
       ResultSet rs = selectStatement.executeQuery();
 
+      if (recover)
+      {
+         Statement delStmt = item.getConnection().createStatement();
+         StringBuffer deleteCmd = new StringBuffer();
+         deleteCmd.append(DELETE_FROM).append(DatabaseHelper.getQualifiedName(MODEL_DEP_TABLE_NAME));
+         delStmt.execute(deleteCmd.toString());
+      }
+
       StringBuffer insertCmd = new StringBuffer();
-      if (item.getDbDescriptor().supportsSequences()) {
-         String nextOid = item.getDbDescriptor().getNextValForSeqString(null, ModelDeploymentBean.PK_SEQUENCE);
-         insertCmd.append("INSERT INTO ").append(ModelDeploymentBean.TABLE_NAME).append(" (");
-         insertCmd.append(MODEL_DEP_FIELD__OID).append(',');
-         insertCmd.append(MODEL_DEP_FIELD__DEPLOYER).append(',');
-         insertCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_TIME).append(',');
-         insertCmd.append(MODEL_DEP_FIELD__VALID_FROM).append(',');
+      if (item.getDbDescriptor().supportsSequences())
+      {
+         String nextOid = item.getDbDescriptor()
+               .getNextValForSeqString(DatabaseHelper.getSchemaName(), MD_SEQ_NAME);
+         insertCmd.append(INSERT_INTO).append(DatabaseHelper.getQualifiedName(MODEL_DEP_TABLE_NAME)).append(" (");
+         insertCmd.append(MODEL_DEP_FIELD__OID).append(COMMA);
+         insertCmd.append(MODEL_DEP_FIELD__DEPLOYER).append(COMMA);
+         insertCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_TIME).append(COMMA);
+         insertCmd.append(MODEL_DEP_FIELD__VALID_FROM).append(COMMA);
          insertCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_COMMENT).append(") ");
          insertCmd.append("VALUES (").append(nextOid).append(",?,?,?,?)");
-      } else {
-         insertCmd.append("INSERT INTO ").append(ModelDeploymentBean.TABLE_NAME).append(" (");
-         insertCmd.append(MODEL_DEP_FIELD__DEPLOYER).append(',');
-         insertCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_TIME).append(',');
-         insertCmd.append(MODEL_DEP_FIELD__VALID_FROM).append(',');
+      }
+      else
+      {
+         insertCmd.append(INSERT_INTO).append(DatabaseHelper.getQualifiedName(MODEL_DEP_TABLE_NAME)).append(" (");
+         insertCmd.append(MODEL_DEP_FIELD__DEPLOYER).append(COMMA);
+         insertCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_TIME).append(COMMA);
+         insertCmd.append(MODEL_DEP_FIELD__VALID_FROM).append(COMMA);
          insertCmd.append(MODEL_DEP_FIELD__DEPLOYMENT_COMMENT).append(") ");
          insertCmd.append("VALUES (?,?,?,?)");
       }
       PreparedStatement insertStatement = connection.prepareStatement(insertCmd.toString());
 
-      while (rs.next()) {
+      while (rs.next())
+      {
          insertStatement.setLong(1, 0);
          insertStatement.setLong(2, rs.getLong(1));
          insertStatement.setLong(3, rs.getLong(2));
@@ -488,27 +492,36 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       //Populate MODEL_REF
       selectCmd = new StringBuffer();
-      selectCmd.append(" SELECT ");
-      selectCmd.append(ModelPersistorBean.FIELD__OID).append(',');
-      selectCmd.append(MODEL_REF_FIELD__ID).append(',');
-      selectCmd.append(ModelPersistorBean.FIELD__OID).append(',');
-      selectCmd.append(ModelPersistorBean.FIELD__OID);
-      selectCmd.append(" FROM ").append(ModelPersistorBean.TABLE_NAME);
+      selectCmd.append(SELECT);
+      selectCmd.append(M_FIELD__OID).append(COMMA);
+      selectCmd.append(MODEL_REF_FIELD__ID).append(COMMA);
+      selectCmd.append(M_FIELD__OID).append(COMMA);
+      selectCmd.append(M_FIELD__OID);
+      selectCmd.append(FROM).append(DatabaseHelper.getQualifiedName(M_TABLE_NAME));
 
       selectStatement = connection.prepareStatement(selectCmd.toString());
       rs = selectStatement.executeQuery();
 
+      if (recover)
+      {
+         Statement delStmt = item.getConnection().createStatement();
+         StringBuffer deleteCmd = new StringBuffer();
+         deleteCmd.append(DELETE_FROM).append(DatabaseHelper.getQualifiedName(MODEL_REF_TABLE_NAME));
+         delStmt.execute(deleteCmd.toString());
+      }
+
       insertCmd = new StringBuffer();
-      insertCmd.append("INSERT INTO ").append(ModelRefBean.TABLE_NAME).append(" (");
-      insertCmd.append(MODEL_REF_FIELD__CODE).append(',');
-      insertCmd.append(MODEL_REF_FIELD__MODEL_OID).append(',');
-      insertCmd.append(MODEL_REF_FIELD__ID).append(',');
-      insertCmd.append(MODEL_REF_FIELD__REF_OID).append(',');
+      insertCmd.append(INSERT_INTO).append(DatabaseHelper.getQualifiedName(MODEL_REF_TABLE_NAME)).append(" (");
+      insertCmd.append(MODEL_REF_FIELD__CODE).append(COMMA);
+      insertCmd.append(MODEL_REF_FIELD__MODEL_OID).append(COMMA);
+      insertCmd.append(MODEL_REF_FIELD__ID).append(COMMA);
+      insertCmd.append(MODEL_REF_FIELD__REF_OID).append(COMMA);
       insertCmd.append(MODEL_REF_FIELD__DEPLOYMENT).append(")");
       insertCmd.append("VALUES (?,?,?,?,?)");
       insertStatement = connection.prepareStatement(insertCmd.toString());
 
-      while (rs.next()) {
+      while (rs.next())
+      {
          insertStatement.setInt(1, 0);
          insertStatement.setInt(2, rs.getInt(1));
          insertStatement.setString(3, rs.getString(2));
@@ -520,19 +533,20 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
       //Populate field 'deployment' in Process Instance table
       selectCmd = new StringBuffer();
-      selectCmd.append("SELECT ");
-      selectCmd.append(MODEL_REF_FIELD__DEPLOYMENT).append(',');
+      selectCmd.append(SELECT);
+      selectCmd.append(MODEL_REF_FIELD__DEPLOYMENT).append(COMMA);
       selectCmd.append(MODEL_REF_FIELD__MODEL_OID);
-      selectCmd.append(" FROM ").append(ModelRefBean.TABLE_NAME);
+      selectCmd.append(FROM).append(DatabaseHelper.getQualifiedName(MODEL_REF_TABLE_NAME));
       selectStatement = connection.prepareStatement(selectCmd.toString());
       rs = selectStatement.executeQuery();
 
       StringBuffer updateCmd = new StringBuffer();
-      updateCmd.append("UPDATE ").append(ProcessInstanceBean.TABLE_NAME);
-      updateCmd.append(" SET ").append(ProcessInstanceBean.FIELD__DEPLOYMENT).append(" = ?");
-      updateCmd.append(" WHERE ").append(ProcessInstanceBean.FIELD__MODEL).append(" = ?");
+      updateCmd.append(UPDATE).append(DatabaseHelper.getQualifiedName(PI_TABLE_NAME));
+      updateCmd.append(SET).append(PI_FIELD__DEPLOYMENT).append(EQUAL_PLACEHOLDER);
+      updateCmd.append(WHERE).append(PI_FIELD__MODEL).append(EQUAL_PLACEHOLDER);
       PreparedStatement p2 = connection.prepareStatement(updateCmd.toString());
-      while (rs.next()) {
+      while (rs.next())
+      {
          p2.setLong(1, rs.getLong(1));
          p2.setLong(2, rs.getLong(2));
          p2.execute();
@@ -550,15 +564,10 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       {
          // any partition is OK for that migration step - get the first one
          Pair<Long, String> info = partitionInfo.iterator().next();
-         Map props = CollectionUtils.newHashMap();
-         props.put("jdbc/" + SessionProperties.DS_NAME_AUDIT_TRAIL
-               + SessionProperties.DS_DATA_SOURCE_SUFFIX,
-               new ConnectionWrapper(item.getConnection()));
-         props.put(Constants.FORCE_IMMEDIATE_INSERT_ON_SESSION, Boolean.TRUE);
-         Utils.initCarnotEngine(info.getSecond(), props);
+         Utils.initCarnotEngine(info.getSecond(), getRtJobEngineProperties());
 
          PropertyPersistor prop = PropertyPersistor
-               .findByName(RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
+               .findByName(RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
 
          if (null != prop)
          {
@@ -588,14 +597,14 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       }
    }
 
-   private void migratePermissions() throws SQLException
+   private void migratePermissions(boolean recover) throws SQLException
    {
       Set<Pair<Long, String>> partitionInfo = CollectionUtils.newSet();
       partitionInfo = fetchListOfPartitionInfo();
 
       for (Pair<Long, String> info : partitionInfo)
       {
-         migratePermissions(info.getSecond());
+         migratePermissions(info.getSecond(), recover);
       }
    }
 
@@ -605,9 +614,12 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       PreparedStatement selectRowsStmt = null;
       try
       {
-         StringBuffer selectCmd = new StringBuffer() //
-               .append("SELECT ").append(AuditTrailPartitionBean.FIELD__OID).append(", ").append(AuditTrailPartitionBean.FIELD__ID) //
-               .append(" FROM ").append(AuditTrailPartitionBean.TABLE_NAME);
+         // @formatter:off
+         StringBuffer selectCmd = new StringBuffer()
+               .append(SELECT).append(AUDIT_TRAIL_PARTITION_FIELD_OID)
+               .append(COMMA).append(AUDIT_TRAIL_PARTITION_FIELD_ID)
+               .append(FROM).append(DatabaseHelper.getQualifiedName(AUDIT_TRAIL_PARTITION_TABLE_NAME));
+         // @formatter:on
 
          Connection connection = item.getConnection();
 
@@ -619,8 +631,8 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             pendingRows = selectRowsStmt.executeQuery();
             while (pendingRows.next())
             {
-               Long oid = pendingRows.getLong(AuditTrailPartitionBean.FIELD__OID);
-               String id = pendingRows.getString(AuditTrailPartitionBean.FIELD__ID);
+               Long oid = pendingRows.getLong(AUDIT_TRAIL_PARTITION_FIELD_OID);
+               String id = pendingRows.getString(AUDIT_TRAIL_PARTITION_FIELD_ID);
                partitionInfo.add(new Pair(oid, id));
             }
          }
@@ -637,10 +649,10 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
       return partitionInfo;
    }
 
-   private void migratePermissions(String partitionId)
+   private void migratePermissions(String partitionId, boolean recover)
    {
       // init engine
-      Utils.initCarnotEngine(partitionId);
+      Utils.initCarnotEngine(partitionId, getRtJobEngineProperties());
 
       IModel model = ModelManagerFactory.getCurrent().findActiveModel();
 
@@ -659,6 +671,14 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
             if ( !allPermissions.isEmpty())
             {
+               if (recover)
+               {
+                  Statement delStmt = item.getConnection().createStatement();
+                  StringBuffer deleteCmd = new StringBuffer();
+                  deleteCmd.append(DELETE_FROM).append(DatabaseHelper.getQualifiedName(P_TABLE_NAME));
+                  delStmt.execute(deleteCmd.toString());
+               }
+
                String preferencesId = "global";
                insertPermissions(preferencesId, allPermissions);
 
@@ -778,8 +798,8 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
             P_FIELD__OWNER_ID, P_FIELD__OWNER_TYPE, P_FIELD__MODULE_ID,
             P_FIELD__PREFERENCES_ID, P_FIELD__PARTITION, P_FIELD__STRING_VALUE};
 
-      StringBuffer insertPrefCmd = new StringBuffer().append("INSERT INTO ")
-            .append(P_TABLE_NAME)
+      StringBuffer insertPrefCmd = new StringBuffer()
+            .append(INSERT_INTO).append(DatabaseHelper.getQualifiedName(P_TABLE_NAME))
             .append("(")
             .append(StringUtils.join(Arrays.asList(insertCols).iterator(), COMMA))
             .append(")")
@@ -874,81 +894,24 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    protected void finalizeSchema(boolean recover) throws UpgradeException
    {
-   }
-
-   private void reportExeption(SQLException sqle, String message)
-   {
-      SQLException ne = sqle;
-      do
+      // Drop old index and create new one without model column.
+      DatabaseHelper.alterTable(item, new AlterTableInfo(UP_TABLE_NAME)
       {
-         trace.error(message, ne);
-      }
-      while (null != (ne = ne.getNextException()));
+         private final FieldInfo PARTICIPANT = new FieldInfo(
+               UP_FIELD__PARTICIPANT, Long.TYPE);
 
-      try
-      {
-         item.rollback();
-      }
-      catch (SQLException e1)
-      {
-         warn("Failed rolling back transaction.", e1);
-      }
-      error("Failed migrating runtime item tables.", sqle);
-   }
+         private final FieldInfo DEPARTMENT = new FieldInfo(
+               UP_FIELD__DEPARTMENT, Long.TYPE);
 
-   private static class ConnectionWrapper implements DataSource
-   {
-      Connection connection;
+         private final IndexInfo IDX2 = new IndexInfo(UP_INDEX_IDX2, false, new FieldInfo[] {
+               PARTICIPANT, DEPARTMENT});
 
-      private ConnectionWrapper(Connection connection)
-      {
-         this.connection = connection;
-      }
-
-      public Connection getConnection() throws SQLException
-      {
-         return connection;
-      }
-
-      public Connection getConnection(String username, String password)
-            throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public int getLoginTimeout() throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public PrintWriter getLogWriter() throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public void setLoginTimeout(int seconds) throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      public void setLogWriter(PrintWriter out) throws SQLException
-      {
-         throw new UnsupportedOperationException();
-      }
-
-      @Override
-      public boolean isWrapperFor(Class< ? > iface) throws SQLException
-      {
-         // TODO Auto-generated method stub
-         return false;
-      }
-
-      @Override
-      public <T> T unwrap(Class<T> iface) throws SQLException
-      {
-         // TODO Auto-generated method stub
-         return null;
-      }
+         @Override
+         public IndexInfo[] getAlteredIndexes()
+         {
+            return new IndexInfo[] {IDX2};
+         }
+      }, this);
    }
 
    @Override
@@ -986,6 +949,12 @@ public class R6_0_0from5_2_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    @Override
    protected void printFinalizeSchemaInfo()
    {
-      
+
+   }
+
+   @Override
+   protected Logger getLogger()
+   {
+      return trace;
    }
 }

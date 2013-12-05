@@ -898,7 +898,7 @@ public abstract class SynchronizationService
          }
          else
          {
-            trace.info("Model participant " + participant.getId() + " (model OID "
+            trace.warn("Model participant " + participant.getId() + " (model OID "
                   + participant.getModel().getModelOID() + ") for department "
                   + (department != null ? department.getId() : "null") + " is no longer granted to user "
                   + user.getId());
@@ -972,10 +972,7 @@ public abstract class SynchronizationService
          }
          else
          {
-            if (trace.isDebugEnabled())
-            {
-               trace.debug("Skipping synchronization of invalid model participant (" + grant.getParticipantId() + ").");
-            }
+            trace.warn("Skipping synchronization of invalid model participant (" + grant.getParticipantId() + ").");
          }
       }
       return validGrants;
@@ -1001,10 +998,7 @@ public abstract class SynchronizationService
       }
       else
       {
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Skipping synchronization of invalid model participant (" + grant.getParticipantId() + ", " + departmentPair.getFirst() + ")");
-         }
+         trace.warn("Skipping synchronization of invalid model participant (" + grant.getParticipantId() + ", " + departmentPair.getFirst() + ")");
       }
    }
 

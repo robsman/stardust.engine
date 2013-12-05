@@ -36,6 +36,10 @@ public class EventHandlerBean extends IdentifiableElementBean implements IEventH
 {
    private static final Logger trace = LogManager.getLogger(EventHandlerBean.class);
    
+   public static final String BOUNDARY_EVENT_TYPE_KEY = "carnot:engine:event:boundaryEventType";
+   public static final String BOUNDARY_EVENT_TYPE_INTERRUPTING_VALUE = "Interrupting";
+   public static final String BOUNDARY_EVENT_TYPE_NON_INTERRUPTING_VALUE = "Non-interrupting";
+   
    static final String AUTO_BIND_ATT = "Automatic Binding At Runtime";
    private boolean autoBind;
 

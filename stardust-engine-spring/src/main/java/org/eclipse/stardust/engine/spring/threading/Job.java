@@ -22,4 +22,18 @@ public class Job
    {
       this.runnable = runnable;
    }
+   
+   @Override
+   public String toString()
+   {
+      final StringBuilder sb = new StringBuilder();
+      
+      sb.append("Job {");
+      sb.append("runnable = ").append(runnable).append(", ");
+      sb.append("done = ").append(done).append(", ");
+      sb.append("error = ").append(error);
+      sb.append("}");
+      
+      return sb.toString();
+   }
 }

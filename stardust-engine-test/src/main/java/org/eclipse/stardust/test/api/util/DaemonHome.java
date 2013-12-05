@@ -70,8 +70,7 @@ public class DaemonHome
       final List<Daemon> allDaemons = adminService.getAllDaemons(false);
       for (final Daemon d : allDaemons)
       {
-         final Daemon daemon = adminService.getDaemon(d.getType(), false);
-         if (daemon.isRunning())
+         if (d.isRunning())
          {
             stopDaemonInternal(adminService, d.getType());
          }

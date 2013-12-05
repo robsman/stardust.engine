@@ -116,6 +116,7 @@ import org.eclipse.stardust.engine.api.model.Trigger;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.DescriptorPolicy;
 import org.eclipse.stardust.engine.api.query.LogEntries;
 import org.eclipse.stardust.engine.api.query.ParticipantWorklist;
@@ -125,8 +126,70 @@ import org.eclipse.stardust.engine.api.query.QueryResult;
 import org.eclipse.stardust.engine.api.query.UserGroups;
 import org.eclipse.stardust.engine.api.query.Users;
 import org.eclipse.stardust.engine.api.query.Worklist;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.AccessControlEntry;
+import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
+import org.eclipse.stardust.engine.api.runtime.AcknowledgementState;
+import org.eclipse.stardust.engine.api.runtime.ActivityCompletionLog;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.ActivityScope;
+import org.eclipse.stardust.engine.api.runtime.AuditTrailHealthReport;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.Daemon;
+import org.eclipse.stardust.engine.api.runtime.DaemonExecutionState;
+import org.eclipse.stardust.engine.api.runtime.DataQueryResult;
+import org.eclipse.stardust.engine.api.runtime.Department;
+import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
+import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
+import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
+import org.eclipse.stardust.engine.api.runtime.Deputy;
+import org.eclipse.stardust.engine.api.runtime.DeputyOptions;
+import org.eclipse.stardust.engine.api.runtime.DmsUtils;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Documents;
+import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
+import org.eclipse.stardust.engine.api.runtime.Folder;
+import org.eclipse.stardust.engine.api.runtime.FolderInfo;
+import org.eclipse.stardust.engine.api.runtime.Grant;
+import org.eclipse.stardust.engine.api.runtime.HistoricalEvent;
+import org.eclipse.stardust.engine.api.runtime.HistoricalEventDescriptionDelegation;
+import org.eclipse.stardust.engine.api.runtime.HistoricalEventDescriptionStateChange;
+import org.eclipse.stardust.engine.api.runtime.HistoricalEventType;
+import org.eclipse.stardust.engine.api.runtime.ImplementationDescription;
+import org.eclipse.stardust.engine.api.runtime.ImplementationDescriptionDetails;
+import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.api.runtime.LogEntry;
+import org.eclipse.stardust.engine.api.runtime.LogType;
+import org.eclipse.stardust.engine.api.runtime.ModelReconfigurationInfo;
+import org.eclipse.stardust.engine.api.runtime.ModelScope;
+import org.eclipse.stardust.engine.api.runtime.Models;
+import org.eclipse.stardust.engine.api.runtime.PasswordRules;
+import org.eclipse.stardust.engine.api.runtime.Permission;
+import org.eclipse.stardust.engine.api.runtime.PermissionState;
+import org.eclipse.stardust.engine.api.runtime.Privilege;
+import org.eclipse.stardust.engine.api.runtime.ProcessDefinitions;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLink;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceLinkType;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.runtime.ProcessScope;
+import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationJobInfo;
+import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
+import org.eclipse.stardust.engine.api.runtime.ResourceInfo;
+import org.eclipse.stardust.engine.api.runtime.RuntimePermissions;
+import org.eclipse.stardust.engine.api.runtime.Scope;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.SubprocessSpawnInfo;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserGroup;
+import org.eclipse.stardust.engine.api.runtime.UserGroupInfo;
+import org.eclipse.stardust.engine.api.runtime.UserInfo;
+import org.eclipse.stardust.engine.api.runtime.UserRealm;
+import org.eclipse.stardust.engine.api.runtime.UserService;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.api.ws.*;
 import org.eclipse.stardust.engine.api.ws.ActivityDefinitionXto.InteractionContextsXto;
 import org.eclipse.stardust.engine.api.ws.DeploymentInfoXto.ErrorsXto;
@@ -143,8 +206,8 @@ import org.eclipse.stardust.engine.api.ws.PreferenceEntryXto.ValueListXto;
 import org.eclipse.stardust.engine.api.ws.ProcessDefinitionXto.ActivitiesXto;
 import org.eclipse.stardust.engine.api.ws.UserQueryResultXto.UsersXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto;
-import org.eclipse.stardust.engine.api.ws.WorklistXto.UserWorklistXto;
 import org.eclipse.stardust.engine.api.ws.WorklistXto.SharedWorklistsXto.SharedWorklistXto;
+import org.eclipse.stardust.engine.api.ws.WorklistXto.UserWorklistXto;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
@@ -159,20 +222,28 @@ import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
-import org.eclipse.stardust.engine.extensions.dms.data.*;
+import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsAccessControlEntry;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsAccessControlPolicy;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsPrincipal;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsPrivilege;
+import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
+import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
 import org.eclipse.stardust.engine.extensions.dms.data.emfxsd.DmsSchemaProvider;
 import org.eclipse.stardust.engine.ws.processinterface.DomUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
 import org.eclipse.xsd.XSDElementDeclaration;
 import org.eclipse.xsd.XSDNamedComponent;
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.util.XSDParser;
 import org.eclipse.xsd.util.XSDResourceImpl;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * @author Robert.Sauer
@@ -625,7 +696,7 @@ public class XmlAdapterUtils
          {
             Data data = (Data) model.getAllData().get(i);
 
-            xto.getGlobalVariables().getGlobalVariable().add(toWs(data, model));
+            xto.getGlobalVariables().getGlobalVariable().add(toWs(data));
          }
       }
 
@@ -1095,14 +1166,31 @@ public class XmlAdapterUtils
       {
          xto.setType(getDmsTypeName(model, data));
 
-         // TODO metadata type
          String metaDataSchema = (String) data.getAttribute(DmsConstants.RESOURCE_METADATA_SCHEMA_ATT);
          if ( !isEmpty(metaDataSchema))
          {
+         if (metaDataSchema.startsWith("typeDeclaration:"))
+         {
+            metaDataSchema = metaDataSchema.substring("typeDeclaration:".length());
+         }
+         QName qualifiedMetaDataSchema = QName.valueOf(metaDataSchema);
+         String typeDeclarationModelId = qualifiedMetaDataSchema.getNamespaceURI();
+         
+         String modelId = model.getId();
+         Model modelWithTypeDeclaration;
+         if (typeDeclarationModelId != null && !typeDeclarationModelId.isEmpty() && !modelId.equals(typeDeclarationModelId))
+         {
+            modelWithTypeDeclaration = getActiveModel(typeDeclarationModelId);
+         }
+         else
+         {
+            modelWithTypeDeclaration = model;
+         }
+
             AttributeXto metaData = new AttributeXto();
             metaData.setName("metaDataType");
             metaData.setType(QNameConstants.QN_QNAME.toString());
-            metaData.setValue(getStructuredTypeName(model, metaDataSchema).toString());
+            metaData.setValue(getStructuredTypeName(modelWithTypeDeclaration, qualifiedMetaDataSchema.getLocalPart()).toString());
             xto.getAttributes().getAttribute().add(metaData);
          }
       }
@@ -1125,7 +1213,21 @@ public class XmlAdapterUtils
       return xto;
    }
 
-   public static DataPathXto toWs(DataPath dp, Model model)
+   private static Model getActiveModel(String modelId)
+   {
+      Model model = null;
+      WebServiceEnv currentWebServiceEnvironment = WebServiceEnv.currentWebServiceEnvironment();
+      ServiceFactory sf = currentWebServiceEnvironment.getServiceFactory();
+      Models models = sf.getQueryService().getModels(DeployedModelQuery.findActiveForId(modelId));
+      if (!models.isEmpty())
+      {
+         DeployedModelDescription deployedModelDescription = models.get(0);
+         model = currentWebServiceEnvironment.getModel(deployedModelDescription.getModelOID());
+      }
+      return model;
+   }
+
+public static DataPathXto toWs(DataPath dp, Model model)
    {
       DataPathXto res = toWs(dp, new DataPathXto());
 
@@ -1665,6 +1767,12 @@ public class XmlAdapterUtils
       {
          res.setInstanceProperties(marshalInstanceProperties(pi, includeDescriptors,
                model));
+         
+         if (includeDescriptors)
+         {
+            res.setDescriptorDefinitions(marshalDataPathList(
+                  pi.getDescriptorDefinitions(), model));
+         }
       }
       
       // TODO pi.getAttributes()
@@ -2091,6 +2199,12 @@ public class XmlAdapterUtils
                   new UserInfoXto()));
          }
 
+         if (ai.getPerformedOnBehalfOf() != null)
+         {
+            res.setPerformedOnBehalfOf((UserInfoXto) marshalParticipantInfo(ai.getPerformedOnBehalfOf(),
+                  new UserInfoXto()));
+         }
+         
          if (ai.getCurrentPerformer() != null)
          {
             res.setCurrentPerformer(toWs(ai.getCurrentPerformer()));
@@ -2266,6 +2380,8 @@ public class XmlAdapterUtils
 
          ret.setParticipant(toWs(state.getParticipant()));
          ret.setOnBehalfOfParticipant(toWs(state.getOnBehalfOfParticipant()));
+         ret.setOnBehalfOfUser ((UserInfoXto) marshalParticipantInfo(state.getOnBehalfOfUser(),
+               new UserInfoXto()));
          ret.setUser(toWs(state.getUser()));
       }
       return ret;
@@ -5208,6 +5324,99 @@ public class XmlAdapterUtils
       }
 
       return documentType;
+   }
+   
+   public static DeputyXto marshalDeputy(Deputy deputy)
+   {
+      DeputyXto xto = null;
+      
+      if (deputy != null)
+      {
+         xto = new DeputyXto();
+         xto.setDeputyUser((UserInfoXto) marshalParticipantInfo(deputy.getDeputyUser(),
+               new UserInfoXto()));
+         xto.setFromDate(deputy.getFromDate());
+         xto.setUntilDate(deputy.getUntilDate());
+         xto.setParticipants(marshalModelParticipantInfos(deputy.getParticipints()));
+         xto.setUser((UserInfoXto) marshalParticipantInfo(deputy.getUser(),
+               new UserInfoXto()));
+      }
+      
+      return xto;
+   }
+   
+   public static ModelParticipantInfosXto marshalModelParticipantInfos(Set<ModelParticipantInfo> participants)
+   {
+      ModelParticipantInfosXto xto = null;
+      
+      if (participants != null)
+      {
+         xto = new ModelParticipantInfosXto();
+         
+         for (ModelParticipantInfo participant : participants)
+         {
+            xto.getModelparticipantInfo().add(
+                  (ModelParticipantInfoXto) marshalParticipantInfo(participant,
+                        new ModelParticipantInfoXto()));
+         }
+         
+         return xto;
+   
+      }
+      
+      return null;
+      
+   }
+   
+   public static Set<ModelParticipantInfo> unmarshalModelParticipantInfos(ModelParticipantInfosXto participantsXto)
+   {
+      Set<ModelParticipantInfo> participants = null;
+      
+      if (participantsXto != null)
+      {
+         participants = CollectionUtils.newSet();
+         List<ModelParticipantInfoXto> participantInfos = participantsXto.getModelparticipantInfo();
+         
+         for (ModelParticipantInfoXto participantInfo : participantInfos)
+         {
+            participants.add((ModelParticipantInfo) unmarshalParticipantInfo(participantInfo));
+         }
+         
+      }
+      
+      return participants;
+   }
+   
+   public static DeputyOptions unmarshalDeputyOptions(DeputyOptionsXto deputyOptionsXto)
+   {
+      DeputyOptions options = null;
+      
+      if (deputyOptionsXto != null)
+      {
+         options = new DeputyOptions();
+         options.setFromDate(deputyOptionsXto.getFromDate());
+         options.setToDate(deputyOptionsXto.getToDate());
+         options.setParticipants(unmarshalModelParticipantInfos(deputyOptionsXto.getModelParticipantInfos()));         
+      }
+      
+      return options;
+   }
+   
+   public static DeputiesXto marshalDeputies(List<Deputy> deputies)
+   {
+      DeputiesXto deputiesXto = null;
+      
+      if (deputies != null)
+      {
+         deputiesXto = new DeputiesXto();
+         
+         for (Deputy deputy : deputies)
+         {
+            deputiesXto.getDeputy().add(marshalDeputy(deputy));
+         }
+      }
+      
+      return deputiesXto;      
    }
 
 }

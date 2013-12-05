@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct.spi;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.RuntimeAttributeHolder;
@@ -21,9 +19,7 @@ import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.beans.AccessPointBean;
 import org.eclipse.stardust.engine.core.model.utils.RootElement;
@@ -132,19 +128,17 @@ public class StructuredDataLoader implements DataLoader, Stateless
       }
    }
 
-   private IXPathMap createXPathMap(Set /* <TypedXPath> */ allXPaths, AccessPoint accessPoint)
+   private IXPathMap createXPathMap(Set<TypedXPath> allXPaths, AccessPoint accessPoint)
    {
       // this is _only_ needed for debugger:
       // try to assign unique OIDs derived from hashcodes of XPaths 
       // No ModelManager is present in the debugger scenario, 
       // but process execution involving structured data requires having XPath OIDs
 
-      Map /*<Long,TypedXPath>*/xPathMap = CollectionUtils.newMap();
-      int cnt = 0;
-      for (Iterator i = allXPaths.iterator(); i.hasNext(); cnt++)
+      Map<Long,TypedXPath> xPathMap = CollectionUtils.newMap();
+      for (TypedXPath p : allXPaths)
       {
-         TypedXPath p = (TypedXPath)i.next();
-         String hash = accessPoint.getId()+"."+p.getXPath();
+         String hash = accessPoint.getId() + "." + p.getXPath();
          xPathMap.put(new Long(hash.hashCode()), p);
       }
       return new DataXPathMap(xPathMap);
@@ -155,16 +149,14 @@ public class StructuredDataLoader implements DataLoader, Stateless
       try
       {
          // create xpath mapping
-         Set /*<TypedXPath>*/xPaths = this.findAllXPaths(data, data.getModel());
+         Set<TypedXPath> xPaths = findAllXPaths(data, data.getModel());
          
-         Map /*<Long,TypedXPath>*/allXPaths = CollectionUtils.newMap();
+         Map<Long,TypedXPath> allXPaths = CollectionUtils.newMap();
 
          if (null != xPaths)
          {
-            for (Iterator i = xPaths.iterator(); i.hasNext(); )
+            for (TypedXPath xPath : xPaths)
             {
-               TypedXPath xPath = (TypedXPath) i.next();
-
                long xPathOid = modelManager.getRuntimeOid(data, xPath.getXPath());
                if (0 == xPathOid)
                {
@@ -191,17 +183,15 @@ public class StructuredDataLoader implements DataLoader, Stateless
       try
       {
          // create xpath mapping
-         Set /*<TypedXPath>*/xPaths = this.findAllXPaths(data, model);
+         Set<TypedXPath> xPaths = findAllXPaths(data, model);
 
          if (null != xPaths)
          {
             Map<Long, StructuredDataBean> structDataDefRecords = loadXPathDefinitions(modelOID, dataRtOid);
             
-            Map /*<Long,TypedXPath>*/allXPaths = CollectionUtils.newMap();
-            for (Iterator i = xPaths.iterator(); i.hasNext();)
+            Map<Long,TypedXPath> allXPaths = CollectionUtils.newMap();
+            for (TypedXPath xPath : xPaths)
             {
-               TypedXPath xPath = (TypedXPath) i.next();
-               
                // dataId and xPath must uniquely map to an xPathRtOid
                long xPathRtOid = rtOidRegistry.getRuntimeOid(
                      IRuntimeOidRegistry.STRUCTURED_DATA_XPATH, RuntimeOidUtils.getFqId(data, xPath.getXPath()));
@@ -244,42 +234,69 @@ public class StructuredDataLoader implements DataLoader, Stateless
    private Set<TypedXPath> findAllXPaths(IData data, RootElement model)
          throws Exception
    {
-      Set<TypedXPath> result = null;
-      
-      String declaredTypeId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-      if (null != declaredTypeId)
+      PluggableType type = data.getType();
+      if (type != null)
       {
-         return StructuredTypeRtUtils.getAllXPaths((IModel)model, declaredTypeId);
-      }
-      else
-      {
-         IReference ref = data.getExternalReference();
-         if (ref != null)
+         String typeId = type.getId();
+         if (StructuredTypeRtUtils.isStructuredType(typeId))
          {
-            return StructuredTypeRtUtils.getAllXPaths(ref);
-         }
-         for (Iterator i = ExtensionProviderUtils.getExtensionProviders(
-               ISchemaTypeProvider.Factory.class).iterator(); i.hasNext();)
-         {
-            ISchemaTypeProvider.Factory stpFactory = (ISchemaTypeProvider.Factory) i.next();
-            
-            ISchemaTypeProvider provider = stpFactory.getSchemaTypeProvider(data.getType().getId());
-            if (null != provider)
+            IReference ref = data.getExternalReference();
+            if (ref != null)
             {
-               result = provider.getSchemaType(data);
-               
-               if (null != result)
+               return StructuredTypeRtUtils.getAllXPaths(ref);
+            }
+            String declaredTypeId = (String) data.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+            if (declaredTypeId != null)
+            {
+               return StructuredTypeRtUtils.getAllXPaths((IModel)model, declaredTypeId);
+            }
+         }
+         else if (StructuredTypeRtUtils.isDmsType(typeId))
+         {
+            Iterator<ISchemaTypeProvider.Factory> it = getSchemaTypeProviderFactories();
+            while (it.hasNext())
+            {
+               try
                {
-                  return result;
+                  ISchemaTypeProvider.Factory stpFactory = it.next();
+                  ISchemaTypeProvider provider = stpFactory.getSchemaTypeProvider(typeId);
+                  if (provider != null)
+                  {
+                     Set result = provider.getSchemaType(data);
+                     if (result != null)
+                     {
+                        return result;
+                     }
+                  }
+               }
+               catch (ServiceConfigurationError cferr)
+               {
+                  // try next...
                }
             }
          }
-         throw new InternalException("Could not find predefined XPaths for data type '"
-               + data.getType()
-               + "'. Check if schema providers are configured correctly.");
       }
+      throw new InternalException("Could not find predefined XPaths for data type '"
+            + type
+            + "'. Check if schema providers are configured correctly.");
    }
 
+   private Iterator<ISchemaTypeProvider.Factory> getSchemaTypeProviderFactories()
+   {
+      try
+      {
+         // this will fail if run with jdk prior to 1.6
+         ServiceLoader<ISchemaTypeProvider.Factory> loader = java.util.ServiceLoader.load(ISchemaTypeProvider.Factory.class);
+         return loader.iterator();
+      }
+      catch (Exception ex)
+      {
+         // fallback
+         List<ISchemaTypeProvider.Factory> providers = ExtensionProviderUtils.getExtensionProviders(
+            ISchemaTypeProvider.Factory.class);
+         return providers.iterator();
+      }
+   }
    
    private static Map<Long, StructuredDataBean> loadXPathDefinitions(long modelOid, long dataRtOid)
    {

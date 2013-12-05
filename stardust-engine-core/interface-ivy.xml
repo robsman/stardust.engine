@@ -204,7 +204,7 @@
       <dependency org="commons-logging" name="commons-logging" rev="${commons-logging.version}" conf="jencks-provider-runtime->default"/>
 
       <!-- jcr-vfs-provider-compile -->
-      <dependency org="org.eclipse.stardust.components" name="jcr-vfs" rev="2.4.0" conf="jcr-vfs-provider-compile->default">
+      <dependency org="org.eclipse.stardust.components" name="jcr-vfs" rev="${ipp.version.full}" conf="jcr-vfs-provider-compile->default">
          <exclude org="commons-codec" module="commons-codec"/>
          <exclude org="aopalliance" module="aopalliance" />
       </dependency>
@@ -262,25 +262,71 @@
       <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="${jackrabbit-core.version}" conf="jackrabbit-core-with-full-text-search->default">
          <exclude org="org.apache.derby" module="derby"/>
          <exclude org="log4j" module="log4j"/>
+         <exclude org="org.apache.tika" module="tika-parsers"/>
+         <exclude org="org.apache.tika" module="tika-core"/>
          <!-- the following entries prevents version conflicts -->
-         <exclude org="asm" module="asm"/>
          <exclude org="commons-httpclient" module="commons-httpclient"/>
          <exclude org="commons-codec" module="commons-codec"/>
-         <exclude org="org.bouncycastle" module="bcprov-jdk15"/>
-         <exclude org="org.bouncycastle" module="bcmail-jdk15"/>
          <exclude org="commons-pool" module="commons-pool"/>
          <exclude org="commons-collections" module="commons-collections"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec"/>
+         <exclude org="org.slf4j" module="slf4j-api"/>
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>
       </dependency>
-      <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-with-full-text-search->default"/>
       
+      <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-with-full-text-search->default"/>
+      <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="jackrabbit-core-with-full-text-search->default" />
+      <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-with-full-text-search->default" />
+      
+      <dependency org="org.apache.tika" name="tika-parsers" rev="${tika-parsers.version}" conf="jackrabbit-core-with-full-text-search,jackrabbit-core-without-full-text-search->default">
+         <exclude org="org.gagravarr" module="vorbis-java-tika"/>
+         <exclude org="org.gagravarr" module="vorbis-java-core"/>
+         <exclude org="edu.ucar" module="netcdf"/>
+         <!-- the following entries prevents version conflicts -->
+         <exclude org="asm" module="asm"/>
+         <exclude org="org.bouncycastle" module="bcprov-jdk15"/>
+         <exclude org="org.bouncycastle" module="bcmail-jdk15"/>
+         <exclude org="xerces" module="xercesImpl"/>
+         <exclude org="commons-codec" module="commons-codec"/>
+         <!-- the following entries need to be used in a higher version as defined for tika 1.3 -->
+         <exclude org="org.apache.poi" module="poi"/>
+         <exclude org="org.apache.poi" module="poi-ooxml"/>
+         <exclude org="org.apache.poi" module="poi-scratchpad"/>
+         <exclude org="org.apache.commons" module="commons-compress"/>
+         <exclude org="org.apache.pdfbox" module="pdfbox"/>
+         <exclude org="com.googlecode.mp4parser" module="isoparser"/>
+         <exclude org="org.apache.james" module="apache-mime4j-core"/>
+         <exclude org="org.apache.james" module="apache-mime4j-dom"/>
+         <exclude org="com.drewnoakes" module="metadata-extractor" />
+      </dependency>
+      
+      <dependency org="org.apache.poi" name="poi" rev="${poi.version}" conf="jackrabbit-core-with-full-text-search->default">
+         <exclude org="commons-codec" module="commons-codec"/>
+      </dependency>
+      <dependency org="org.apache.poi" name="poi-scratchpad" rev="${poi-scratchpad.version}" conf="jackrabbit-core-with-full-text-search->default">
+         <exclude org="org.apache.poi" module="poi"/>
+      </dependency>
+      <dependency org="org.apache.poi" name="poi-ooxml" rev="${poi-ooxml.version}" conf="jackrabbit-core-with-full-text-search->default">
+         <exclude org="org.apache.poi" module="poi"/>
+         <exclude org="stax" module="stax-api"/>
+      </dependency>
+      <dependency org="org.apache.commons" name="commons-compress" rev="${commons-compress.version}" conf="jackrabbit-core-with-full-text-search->default">
+         <exclude org="org.tukaani" module="xz"/>
+      </dependency>
+      <dependency org="org.apache.pdfbox" name="pdfbox" rev="${pdfbox.version}" conf="jackrabbit-core-with-full-text-search->default"/>
+      <dependency org="com.googlecode.mp4parser" name="isoparser" rev="${isoparser.version}" conf="jackrabbit-core-with-full-text-search->default"/>
+      <dependency org="org.apache.james" name="apache-mime4j-core" rev="${apache-mime4j-core.version}" conf="jackrabbit-core-with-full-text-search->default"/>
+      <dependency org="org.apache.james" name="apache-mime4j-dom" rev="${apache-mime4j-dom.version}" conf="jackrabbit-core-with-full-text-search->default"/>
+      <dependency org="com.drewnoakes" name="metadata-extractor" rev="${metadata-extractor.version}" conf="jackrabbit-core-with-full-text-search->default">
+         <exclude org="xerces" module="xercesImpl"/>   
+      </dependency>
+
       <!-- jackrabbit-core-without-full-text-search -->
       <dependency org="org.apache.jackrabbit" name="jackrabbit-core" rev="${jackrabbit-core.version}" conf="jackrabbit-core-without-full-text-search->default">
          <exclude org="org.apache.derby" module="derby"/>
          <exclude org="log4j" module="log4j"/>
-         <exclude org="edu.ucar" module="netcdf"/>
-         <exclude org="org.apache.pdfbox" module="pdfbox"/>
-         <exclude org="com.drewnoakes" module="metadata-extractor" />
+         <exclude org="org.apache.tika" module="tika-parsers"/>
+         <exclude org="org.apache.tika" module="tika-core"/>
          <!-- the following entries prevents version conflicts -->
          <exclude org="asm" module="asm"/>
          <exclude org="commons-httpclient" module="commons-httpclient"/>
@@ -290,8 +336,12 @@
          <exclude org="commons-pool" module="commons-pool"/>
          <exclude org="commons-collections" module="commons-collections"/>
          <exclude org="org.apache.geronimo.specs" module="geronimo-stax-api_1.0_spec"/>
+         <exclude org="org.slf4j" module="slf4j-api"/>
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>   
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-without-full-text-search->default"/>
+      <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="jackrabbit-core-without-full-text-search->default" />
+      <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-without-full-text-search->default" />
       
       <!-- jackrabbit-provider-runtime -->
       <dependency org="commons-httpclient" name="commons-httpclient" rev="${commons-httpclient.version}" conf="jackrabbit-provider-runtime->default">
@@ -312,20 +362,36 @@
          <exclude org="javax.jms" module="jms"/>
          <exclude org="ch.qos.logback" module="logback-classic"/>
          <exclude org="org.slf4j" module="jcl-over-slf4j"/>
+         <exclude org="commons-codec" module="commons-codec"/>
+         <exclude org="org.apache.tika" module="tika-parsers"/>         
+         <exclude org="com.drewnoakes" module="metadata-extractor" />
       </dependency>
       
       <!-- jackrabbit-webapp-provider-runtime -->
       <dependency org="org.apache.jackrabbit" name="jackrabbit-webapp" rev="${jackrabbit-webapp.version}" conf="jackrabbit-webapp-provider-runtime->default">
          <artifact name="jackrabbit-webapp" type="jar"/>
          <exclude org="org.apache.jackrabbit" module="jackrabbit-core"/>
+         <exclude org="org.apache.jackrabbit" module="jackrabbit-spi-commons"/>
          <exclude org="org.apache.jackrabbit" module="jackrabbit-jcr-commons"/>
          <exclude org="org.apache.jackrabbit" module="jackrabbit-jcr-rmi"/>
          <exclude org="org.apache.derby" module="derby"/>
-         <exclude org="log4j" module="log4j"/>
-         <exclude org="org.slf4j" module="log4j-over-slf4j"/>
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>
          <exclude org="ch.qos.logback" module="logback-classic"/>
          <exclude org="junit" module="junit"/>
          <exclude org="commons-codec" module="commons-codec"/>
+         <exclude org="commons-httpclient" module="commons-httpclient"/>
+         <exclude org="com.drewnoakes" module="metadata-extractor" />
+         <exclude org="xerces" module="xercesImpl"/>
+         <exclude org="org.gagravarr" module="vorbis-java-tika"/>
+         <exclude org="org.gagravarr" module="vorbis-java-core"/>
+         <exclude org="org.bouncycastle" module="bcprov-jdk15"/>
+         <exclude org="org.bouncycastle" module="bcmail-jdk15"/>
+         <exclude org="org.tukaani" module="xz"/>
+         <exclude org="edu.ucar" module="netcdf"/>
+         <exclude org="org.slf4j" module="slf4j-api"/>
+         <exclude org="org.slf4j" module="jcl-over-slf4j"/>   
+         <exclude org="org.apache.tika" module="tika-parsers"/>
+         <exclude org="org.apache.tika" module="tika-core"/> 
       </dependency>
       <!-- force correct revision in POM -->
       <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}" conf="jackrabbit-webapp-provider-runtime->default"/>
@@ -333,14 +399,10 @@
       <!-- ******************** -->
       <!--    Override Rules    -->
       <!-- ******************** -->
-      <override org="commons-logging" module="commons-logging" rev="${commons-logging.version}" />
-      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
-      <override org="org.slf4j" module="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" />
       <override org="rome" module="rome" rev="${rome.version}" />
       <override org="jdom" module="jdom" rev="${jdom.version}" />
       <override org="de.l3s.boilerpipe" module="boilerpipe" rev="${boilerpipe.version}" />
-      <override org="org.apache.poi" module="poi-ooxml" rev="${poi-ooxml.version}" />
-      <override org="org.apache.poi" module="poi-scratchpad" rev="${poi-scratchpad.version}" />
+      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

@@ -21,6 +21,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
@@ -54,21 +55,7 @@ import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
-import org.eclipse.stardust.engine.core.runtime.beans.AbortScope;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
-import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
-import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
-import org.eclipse.stardust.engine.core.runtime.beans.UserUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -93,6 +80,8 @@ public class Authorization2
 
    public static void checkPermission(Method method, Object[] args)
    {
+      UserUtils.clearOnBehalfOf();
+      
       AuthorizationContext context = AuthorizationContext.create(method);
       ClientPermission permission = context.getPermission();
       if (permission != null)
@@ -329,8 +318,9 @@ public class Authorization2
          }
          if (requiredGrant != null)
          {
+            IUser user = context.getUser();
             throw new AccessForbiddenException(BpmRuntimeError.AUTHx_AUTH_MISSING_GRANTS.raise(
-                  context.getUser().getOID(), String.valueOf(permission)));
+                  user.getOID(), String.valueOf(permission), user.getAccount()));
          }
       }
    }
@@ -425,7 +415,7 @@ public class Authorization2
          {
             long department = getTargetDepartmentOid(context, restrictions, context.requiresNew());
             Iterator<UserParticipantLink> links = context.getUser().getAllParticipantLinks();
-            List<IDepartment> deps = CollectionUtils.newList();
+            List<Pair<IDepartment, Long>> deps = CollectionUtils.newList();
             // make a first iteration to check for a "perfect" match
             while (links.hasNext())
             {
@@ -438,6 +428,7 @@ public class Authorization2
                   {
                      if (department == 0)
                      {
+                        UserUtils.setOnBehalfOf(link.getOnBehalfOf());
                         return true;
                      }
                   }
@@ -445,11 +436,12 @@ public class Authorization2
                   {
                      if (department == dptmt.getOID())
                      {
+                        UserUtils.setOnBehalfOf(link.getOnBehalfOf());
                         return true;
                      }
                      else
                      {
-                        deps.add(dptmt);
+                        deps.add(new Pair(dptmt, link.getOnBehalfOf()));
                      }
                   }
                }
@@ -461,13 +453,15 @@ public class Authorization2
                IOrganization targetOrganization = context.findOrganization(targetDepartment, participant);
                if (targetOrganization == restrictions.get(restrictions.size() - 1))
                {
-                  for (IDepartment dptmt : deps)
+                  for (Pair<IDepartment, Long> pair : deps)
                   {
+                     IDepartment dptmt = pair.getFirst();
                      while (dptmt != null)
                      {
                         dptmt = dptmt.getParentDepartment();
                         if (dptmt != null && department == dptmt.getOID())
                         {
+                           UserUtils.setOnBehalfOf(pair.getSecond());
                            return true;
                         }
                      }

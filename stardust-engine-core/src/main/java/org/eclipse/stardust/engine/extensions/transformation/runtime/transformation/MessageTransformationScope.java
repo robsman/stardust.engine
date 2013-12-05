@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.dto.AccessPointDetails;
 import org.eclipse.stardust.engine.core.javascript.StaticJavaClassAccessor;
 import org.eclipse.stardust.engine.core.javascript.StructuredDataMapAccessor;
@@ -75,12 +77,12 @@ public class MessageTransformationScope extends ScriptableObject
             		if (apd.getAccessPathEvaluatorClass().indexOf("Java") > -1) {
             			String className = (String) apd.getAttribute("carnot:engine:className");
                     	try {
-             				outputMessagAdapters.put(msgId, Class.forName(className).newInstance());
+             				outputMessagAdapters.put(msgId, Reflect.getClassFromClassName(className).newInstance());
              			} catch (InstantiationException e) {
              				e.printStackTrace();
              			} catch (IllegalAccessException e) {
              				e.printStackTrace();
-             			} catch (ClassNotFoundException e) {
+             			} catch (InternalException e) {
              				e.printStackTrace();
              			}
             		} else {
@@ -96,11 +98,11 @@ public class MessageTransformationScope extends ScriptableObject
     	  String fullClassName = externalClass.getClassName();    	      	 
     	  String instanceName = externalClass.getInstanceName();	 
     	  try {
-			externalClassesAdapters.put(instanceName, Class.forName(fullClassName).newInstance());	
+			externalClassesAdapters.put(instanceName, Reflect.getClassFromClassName(fullClassName).newInstance());	
 		} catch (Throwable t) {
 			t.printStackTrace();
 			try {
-				externalClassesAdapters.put(instanceName, new StaticJavaClassAccessor(Class.forName(fullClassName)));				
+				externalClassesAdapters.put(instanceName, new StaticJavaClassAccessor(Reflect.getClassFromClassName(fullClassName)));				
 			}
 			catch(Throwable e) {
 				e.printStackTrace();

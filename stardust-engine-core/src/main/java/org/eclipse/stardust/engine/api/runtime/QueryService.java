@@ -663,8 +663,8 @@ public interface QueryService extends Service
          throws ObjectNotFoundException;
 
    /**
-    * Retrieves all the departments satisfying the search criteria. The search is performed
-    * as following:
+    * Retrieves all the departments satisfying the search criteria. The search is
+    * performed as following:
     * <ul>
     * <li>if both parent and organization are null, then the result contains all top level
     * departments, regardless of the organization to which they are assigned.</li>
@@ -677,13 +677,19 @@ public interface QueryService extends Service
     * departments assigned to the organization, that have as direct parent the specified
     * department.</li>
     * </ul>
-    *
-    * @param parent the parent department.
-    * @param organization the organization to which the retrieved departments are assigned.
-    * @return the list of departments. The list can be empty if no departments are matching
-    *       the search criteria.
+    * On synchronization departments will be updated when existing in audit trail and
+    * having any changes. If a department does not exist in audit trail but is present in
+    * external repository the department will not be created in audit trail on
+    * synchronization with external repository.
+    * 
+    * @param parent
+    *           the parent department.
+    * @param organization
+    *           the organization to which the retrieved departments are assigned.
+    * @return the list of departments. The list can be empty if no departments are
+    *         matching the search criteria.
     * @throws ObjectNotFoundException
-    *       if either the parent or the organization could not be resolved.
+    *            if either the parent or the organization could not be resolved.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.readDepartments,
          defaults={ExecutionPermission.Default.ALL})
@@ -708,17 +714,24 @@ public interface QueryService extends Service
          throws ObjectNotFoundException;*/
 
    /**
-    * Searches for a department having the specified id in the scope defined by the
-    * parent department.
-    *
-    * @param parent the search scope. It can be null, in which case the search scope
-    *       is the top level.
-    * @param id the id of the department. Must not be null or empty.
-    * @param organization the organization to which the retrieved departments are assigned.
+    * Searches for a department having the specified id in the scope defined by the parent
+    * department. On synchronization with external repository the specified department
+    * will be created in audit trail if it is not already present there but exists in
+    * external repository. If the department exists in audit trail it will be updated on
+    * synchronization if there are any changes.
+    * 
+    * @param parent
+    *           the search scope. It can be null, in which case the search scope is the
+    *           top level.
+    * @param id
+    *           the id of the department. Must not be null or empty.
+    * @param organization
+    *           the organization to which the retrieved departments are assigned.
     * @return the department having the specified id.
     * @throws ObjectNotFoundException
-    *       if the parent could not be resolved or if the specified id is null or empty
-    *       or if there is no department with the specified id in the parent scope.
+    *            if the parent could not be resolved or if the specified id is null or
+    *            empty or if there is no department with the specified id in the parent
+    *            scope.
     */
    @ExecutionPermission(id=ExecutionPermission.Id.readDepartments,
          defaults={ExecutionPermission.Default.ALL})

@@ -10,10 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.MapUtils;
+import org.eclipse.stardust.common.Procedure;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -25,17 +31,22 @@ import org.eclipse.stardust.engine.api.dto.EventBindingDetails;
 import org.eclipse.stardust.engine.api.model.EventHandlerOwner;
 import org.eclipse.stardust.engine.api.model.EventType;
 import org.eclipse.stardust.engine.api.model.IAction;
+import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IBindAction;
 import org.eclipse.stardust.engine.api.model.IEventAction;
 import org.eclipse.stardust.engine.api.model.IEventActionType;
 import org.eclipse.stardust.engine.api.model.IEventConditionType;
 import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.IUnbindAction;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.EventActionBinding;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.extensions.conditions.timer.TimeStampBinder;
+import org.eclipse.stardust.engine.core.model.beans.EventHandlerBean;
+import org.eclipse.stardust.engine.core.model.utils.ModelElement;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
@@ -66,6 +77,33 @@ public class EventUtils
    private static final String HANDLER_SCOPE = "handler.";
    private static int RETRY_FAILURE_MAX = Parameters.instance().getInteger("event.retry.failure", 5);
    public static int DEACTIVE_TYPE = 1024;
+   
+   public static IEventHandler getEventHandler(long modelOid, long eventHandlerOid)
+   {
+      try
+      {
+         return ModelManagerFactory.getCurrent().findEventHandler(modelOid, eventHandlerOid);
+      }
+      catch(Exception ignored)
+      {}
+      
+      return null;
+   }
+   
+   public static IEventHandler getEventHandler(ModelElementList<ModelElement> eventHandlers,
+         long eventHandlerModelElementOid)
+   {
+      for(ModelElement eventHandler: eventHandlers)
+      {
+         if(eventHandler.getOID() == eventHandlerModelElementOid 
+               && eventHandler instanceof IEventHandler)
+         {
+            return (IEventHandler) eventHandler;
+         }
+      }
+
+      return null;
+   }
    
    public static String getHandlerScope(IEventHandler handler)
    {
@@ -142,7 +180,8 @@ public class EventUtils
             continue;
          }
          
-         event.setHandlerOID(handler.getOID());
+         //set the oid of the element so that logging for that event will contain that information
+         event.setHandlerModelElementOID(handler.getOID());
 
          final EventHandlerInstance condition = cache.getHandlerInstance(handler);
          if (null == condition)
@@ -159,6 +198,7 @@ public class EventUtils
                AuditTrailLogger.getInstance(LogCode.EVENT, context).info(
                      "Processing event " + event + " for handler " + handler);
             }
+            processBoundaryEventActionIfNecessary(handler, context);
             for (Iterator j = handler.getAllEventActions(); j.hasNext();)
             {
                IEventAction action = (IEventAction) j.next();
@@ -252,6 +292,7 @@ public class EventUtils
                AuditTrailLogger.getInstance(LogCode.EVENT, context).info(
                      "Processing event " + event + "for handler " + handler);
             }
+            processBoundaryEventActionIfNecessary(handler, context);
             for (Iterator l = handler.getAllEventActions(); l.hasNext();)
             {
                IEventAction action = (IEventAction) l.next();
@@ -337,6 +378,53 @@ public class EventUtils
       });
    }
 
+   private static void processBoundaryEventActionIfNecessary(final IEventHandler eventHandler, final AttributedIdentifiablePersistent source)
+   {
+      if (!(source instanceof IActivityInstance))
+      {
+         return;
+      }
+      
+      final Object eventHandlerType = eventHandler.getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY);
+      if (eventHandlerType == null)
+      {
+         return;
+      }
+      
+      final IActivityInstance ai = (IActivityInstance) source;
+      if (EventHandlerBean.BOUNDARY_EVENT_TYPE_INTERRUPTING_VALUE.equals(eventHandlerType))
+      {
+         enableInterruptingExceptionFlow(ai, eventHandler.getId());
+      }
+      else if (EventHandlerBean.BOUNDARY_EVENT_TYPE_NON_INTERRUPTING_VALUE.equals(eventHandlerType))
+      {
+         triggerNonInterruptingExceptionFlow(ai, eventHandler.getId());
+      }
+      else
+      {
+         throw new IllegalArgumentException("Illegal boundary event type attribute '" + eventHandlerType + "'.");
+      }
+   }
+   
+   private static void enableInterruptingExceptionFlow(final IActivityInstance ai, final String eventHandlerId)
+   {
+      ai.setPropertyValue(ActivityInstanceBean.BOUNDARY_EVENT_HANDLER_ACTIVATED_PROPERTY_KEY, eventHandlerId);
+   }
+   
+   private static void triggerNonInterruptingExceptionFlow(final IActivityInstance ai, final String eventHandlerId)
+   {
+      final IActivity currentActivity = ai.getActivity();
+      final ITransition exceptionTransition = currentActivity.getExceptionTransition(eventHandlerId);
+      final IActivity exceptionFlowActivity = exceptionTransition.getToActivity();
+      
+      /* create the token to be consumed ... */
+      final TransitionTokenBean exceptionTransitionToken = new TransitionTokenBean(ai.getProcessInstance(), exceptionTransition, ai.getOID());
+      exceptionTransitionToken.persist();
+      
+      /* ... by the activity thread created */
+      ActivityThread.schedule(ai.getProcessInstance(), exceptionFlowActivity, null, false, null, null, false);
+   }
+   
    public static void bind(AttributedIdentifiablePersistent runtimeObject,
          IEventHandler handler, EventHandlerBinding bindParams)
    {
@@ -589,7 +677,7 @@ public class EventUtils
    private static void performBindActions(int objectType, IdentifiablePersistent source,
          IEventHandler handler, EventHandlerBinding binding)
    {
-      Event event = new Event(objectType, source.getOID(), handler.getOID(),
+      Event event = new Event(objectType, source.getOID(), Event.OID_UNDEFINED, handler.getOID(),
             Event.ENGINE_EVENT);
       // dynamically injecting targetTimestamp attribute
       if (PredefinedConstants.TIMER_CONDITION.equals(handler.getType().getId()))
@@ -644,7 +732,7 @@ public class EventUtils
    private static void performUnbindActions(int objectType,
          IdentifiablePersistent source, IEventHandler handler, EventHandlerBinding binding)
    {
-      Event event = new Event(objectType, source.getOID(), handler.getOID(),
+      Event event = new Event(objectType, source.getOID(), Event.OID_UNDEFINED, handler.getOID(),
             Event.ENGINE_EVENT);
       // dynamically injecting targetTimestamp attribute
       if (PredefinedConstants.TIMER_CONDITION.equals(handler.getType().getId()))

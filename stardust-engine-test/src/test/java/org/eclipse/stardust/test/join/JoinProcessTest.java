@@ -16,8 +16,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
@@ -32,6 +33,7 @@ import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.TestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -41,7 +43,9 @@ import org.junit.rules.TestRule;
 
 /**
  * <p>
- * TODO javadoc
+ * This class contains tests for the <i>Join Process</i> functionality,
+ * which allows for joining of process instances (refer to the Stardust documentation 
+ * for details about <i>Join Process</i>).
  * </p>
  * 
  * @author Roland.Stamm
@@ -55,7 +59,7 @@ public class JoinProcessTest
    
    private static final String PROCESS_ATTACHMENTS = "PROCESS_ATTACHMENTS";
    
-   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR);
+   private final TestMethodSetup testMethodSetup = new TestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    
    @ClassRule
@@ -69,7 +73,7 @@ public class JoinProcessTest
     * Data doc1 is copied to target process because outDataPath exists and it is not initialized.
     */
    @Test
-   public void testJoinProcessCopy()
+   public void testJoinProcessCopy() throws InterruptedException, TimeoutException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
@@ -95,13 +99,15 @@ public class JoinProcessTest
 
       ProcessInstances allProcessInstances = sf.getQueryService().getAllProcessInstances(query);
       Assert.assertEquals(1, allProcessInstances.getSize());
+      
+      ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
    }
 
    /**
     * Primitive1 is not copied, doc1 data gets attached to process attachments.
     */
    @Test
-   public void testJoinProcessToProcessAttachments()
+   public void testJoinProcessToProcessAttachments() throws InterruptedException, TimeoutException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
@@ -122,13 +128,15 @@ public class JoinProcessTest
       Assert.assertEquals("", wfs.getInDataValue(ai.getOID(), null, "Primitive1"));
 
       validateExistsInProcessAttachments(doc1, sf, joinedTargetProcess.getOID());
+      
+      ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
    }
 
    /**
     * Data doc1 is already initialized in target process. No overwrite.
     */
    @Test
-   public void testJoinProcessNoOverwrite()
+   public void testJoinProcessNoOverwrite() throws InterruptedException, TimeoutException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
@@ -151,13 +159,15 @@ public class JoinProcessTest
 
       Document inDataValue = (Document) wfs.getInDataValue(ai.getOID(), null, "Doc1");
       Assert.assertEquals(doc2.getId(), inDataValue.getId());
+      
+      ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
    }
 
    /**
     * Merge to target process attachments
     */
    @Test
-   public void testJoinProcessMergeProcessAttachments()
+   public void testJoinProcessMergeProcessAttachments() throws InterruptedException, TimeoutException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
@@ -181,13 +191,15 @@ public class JoinProcessTest
 
       validateExistsInProcessAttachments(doc1, sf, joinedTargetProcess.getOID());
       validateExistsInProcessAttachments(doc2, sf, joinedTargetProcess.getOID());
+      
+      ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
    }
 
    /**
     * Target process attachments empty.
     */
    @Test
-   public void testJoinProcessMergeProcessAttachments2()
+   public void testJoinProcessMergeProcessAttachments2() throws InterruptedException, TimeoutException
    {
       WorkflowService wfs = sf.getWorkflowService();
 
@@ -204,6 +216,8 @@ public class JoinProcessTest
 
       validateExistsInProcessAttachments(doc2, sf, sourceProcess.getOID());
       validateExistsInProcessAttachments(doc2, sf, joinedTargetProcess.getOID());
+      
+      ProcessInstanceStateBarrier.instance().await(sourceProcess.getOID(), ProcessInstanceState.Aborted);
 
    }
 

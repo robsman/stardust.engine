@@ -143,17 +143,20 @@
    
    <!-- init -->
    <target name="init">
-      <mkdir dir="${build.classes.dir}"/>
-      <mkdir dir="${build.dep-report.dir}"/>
-      <mkdir dir="${build.test-report.dir}"/>
+      <mkdir dir="${build.classes.dir}" />
+      <mkdir dir="${build.dep-report.dir}" />
+      <mkdir dir="${build.test-report.dir}" />
       
       <init-ivy/>
-      <init-ivy-classpath/>
+      <init-ivy-classpath conf="compile,test" />
+      
+      <property name="javac.debuglevel" value="lines,vars,source" />
    </target>
    
    <!-- execute-all-test-suites (macro) -->
    <macrodef name="execute-all-test-suites">
       <sequential>
+         <execute-test-suite name="Boundary Events" class="org.eclipse.stardust.test.boundaryevent.BoundaryEventTestSuite" />
          <execute-test-suite name="Example" class="org.eclipse.stardust.test.examples.MyTestSuite" />
          <execute-test-suite name="Basic Workflow" class="org.eclipse.stardust.test.workflow.BasicWorkflowTestSuite" />
          <execute-test-suite name="Case Process Instance" class="org.eclipse.stardust.test.casepi.CaseProcessInstanceTestSuite" />
@@ -177,7 +180,7 @@
       
       <sequential>
          <echo message="Executing the '@{name}' test suite ..." />
-         <junit fork="yes" maxmemory="512m" haltonfailure="off" haltonerror="off" printsummary="on" failureproperty="test.failure">
+         <junit fork="yes" maxmemory="512m" haltonfailure="off" haltonerror="off" printsummary="on" failureproperty="test.failure" timeout="3600000">
             <test name="@{class}" todir="${build.test-report.dir}" />
             <formatter type="xml" />
             <classpath refid="junit.rt.classpath" />

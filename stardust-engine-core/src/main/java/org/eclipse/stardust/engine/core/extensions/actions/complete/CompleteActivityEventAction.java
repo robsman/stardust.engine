@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.stardust.common.error.ConcurrencyException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.IllegalStateChangeException;
@@ -57,11 +56,6 @@ public class CompleteActivityEventAction implements EventActionInstance
                {
                   new WorkflowServiceImpl().activateAndComplete(ai.getOID(), null,
                         Collections.EMPTY_MAP, true);
-               }
-               catch (ConcurrencyException e)
-               {
-                  AuditTrailLogger.getInstance(LogCode.EVENT, ai).error(
-                        "Unable to complete activity due to concurrent operations.", e);
                }
                catch (IllegalStateChangeException e)
                {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,10 +32,14 @@ import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetup;
-import org.eclipse.stardust.engine.core.runtime.setup.RuntimeSetupDocumentBuilder;
+import org.eclipse.stardust.engine.core.runtime.setup.*;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.IClusterChangeObserver;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.eclipse.stardust.engine.core.upgrade.framework.AbstractTableInfo.FieldInfo;
+import org.eclipse.stardust.engine.core.upgrade.framework.*;
+import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper.AlterMode;
+import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper.ColumnNameModificationMode;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -269,7 +273,7 @@ public class SchemaHelper
 
          ddlManager.createGlobalSequenceIfNecessary(schemaName, session.getConnection());
          ddlManager.createSequenceStoredProcedureIfNecessary(schemaName, session.getConnection());
-         
+
          for (Iterator i = classes.iterator(); i.hasNext();)
          {
             Class clazz = (Class) i.next();
@@ -285,6 +289,7 @@ public class SchemaHelper
 
          new PropertyPersistor(Constants.SYSOP_PASSWORD, Constants.DEFAULT_PASSWORD);
          new PropertyPersistor(Constants.CARNOT_VERSION, CurrentVersion.getVersionName());
+         new PropertyPersistor(Constants.PRODUCT_NAME, CurrentVersion.PRODUCT_NAME);
 
          AuditTrailPartitionBean defaultPartitionBean = new AuditTrailPartitionBean(PredefinedConstants.DEFAULT_PARTITION_ID);
          Parameters.instance().set(SecurityProperties.CURRENT_PARTITION, defaultPartitionBean);
@@ -323,8 +328,8 @@ public class SchemaHelper
    public static final void validateBaseProperties()
    {
       validateBaseProperty(Constants.SYSOP_PASSWORD, Constants.DEFAULT_PASSWORD);
-
       validateBaseProperty(Constants.CARNOT_VERSION, CurrentVersion.getVersionName());
+      validateBaseProperty(Constants.PRODUCT_NAME, CurrentVersion.PRODUCT_NAME);
    }
 
    public static final void dropSchema(String sysconPassword)
@@ -371,7 +376,7 @@ public class SchemaHelper
 
             ddlManager.dropGlobalSequenceIfAny(schemaName, connection);
             ddlManager.dropSequenceStoredProcedureIfAny(schemaName, connection);
-            
+
             String tableDecorator = "";
             for (Iterator i = classes.iterator(); i.hasNext();)
             {
@@ -643,6 +648,7 @@ public class SchemaHelper
    public static final void setAuditTrailProperty(String name, String value)
    {
       if (Constants.SYSOP_PASSWORD.equals(name) || Constants.CARNOT_VERSION.equals(name)
+            || Constants.PRODUCT_NAME.equals(name)
             || RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION.equals(name))
       {
          throw new PublicException("Unable to set value of audit trail property '" + name
@@ -679,6 +685,7 @@ public class SchemaHelper
    public static final String deleteAuditTrailProperty(String name)
    {
       if (Constants.SYSOP_PASSWORD.equals(name) || Constants.CARNOT_VERSION.equals(name)
+            || Constants.PRODUCT_NAME.equals(name)
             || RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION.equals(name))
       {
          throw new PublicException("Unable to delete audit trail property '" + name
@@ -729,7 +736,7 @@ public class SchemaHelper
          new PropertyPersistor(name, defaultValue);
       }
    }
-   
+
    public static void alterAuditTrailCreateSequenceTable(String sysconPassword,
          boolean skipDdl, boolean skipDml, PrintStream spoolFile) throws SQLException
    {
@@ -782,7 +789,7 @@ public class SchemaHelper
          ParametersFacade.popLayer();
       }
    }
-   
+
    public static void alterAuditTrailDropSequenceTable(String sysconPassword,
          PrintStream spoolFile) throws SQLException
    {
@@ -822,7 +829,7 @@ public class SchemaHelper
          ParametersFacade.popLayer();
       }
    }
-   
+
    public static void alterAuditTrailVerifySequenceTable(String sysconPassword)
          throws SQLException
    {
@@ -1077,103 +1084,215 @@ public class SchemaHelper
          String configFileName, boolean skipDdl, boolean skipDml, PrintStream spoolFile)
          throws SQLException
    {
-      alterAuditTrailCreateDataClusterTables(sysconPassword, configFileName, skipDdl,
+      alterAuditTrailDataClusterTables(sysconPassword, configFileName, false, skipDdl,
             skipDml, spoolFile, DEFAULT_STATEMENT_DELIMITER);
    }
+   
+   private static TransientRuntimeSetup getTransientRuntimeSetup(String configFileName)
+   {
+      DocumentBuilder domBuilder = new RuntimeSetupDocumentBuilder();
+      File runtimeSetupFile = new File(configFileName);
+      try
+      {
+         Document setup = domBuilder.parse(new FileInputStream(runtimeSetupFile));
+         String xml = XmlUtils.toString(setup);
+         return new TransientRuntimeSetup(xml);
+      }
+      catch (SAXException x)
+      {
+         throw new PublicException("Invalid runtime setup configuration file.", x);
+      }
+      catch (IOException x)
+      {
+         throw new PublicException("Invalid runtime setup configuration file.", x);
+      }
+   }
+   
 
-   public static void alterAuditTrailCreateDataClusterTables(String sysconPassword,
-         String configFileName, boolean skipDdl, boolean skipDml, PrintStream spoolFile,
+   
+   private static void applyClusterChanges(Session session, IClusterChangeObserver clusterChanges, TransientRuntimeSetup newSetup, PrintStream sqlRecorder)
+   {
+      //when doing changes to the cluster table(columns), dont do anything strange
+      //and take the column names as they are defined in the xml
+      DatabaseHelper.columnNameModificationMode = ColumnNameModificationMode.NONE;
+      
+      RuntimeItem runtimeItem = new RuntimeItem(Parameters.instance().getString(
+            "AuditTrail.Type"),
+            Parameters.instance().getString("AuditTrail.DriverClass"), Parameters
+                  .instance().getString("AuditTrail.URL"), Parameters.instance()
+                  .getString("AuditTrail.User"), Parameters.instance().getString(
+                  "AuditTrail.Password"));
+      UpgradeObserver observer = new ErrorAwareObserver(); 
+      runtimeItem.setSqlSpoolDevice(sqlRecorder);
+      
+      final String schemaName = Parameters.instance().getString(
+            SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
+            Parameters.instance().getString(
+                  SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
+      
+      try
+      {
+         if (null != sqlRecorder)
+         {
+            sqlRecorder.println("/* DDL-statements for cluster tables */");
+         }
+         
+         //process all drop table change
+         Collection<DropTableInfo> dropChanges = clusterChanges.getDropInfos();
+         for(DropTableInfo dropInfo: dropChanges)
+         {
+            DatabaseHelper.dropTable(runtimeItem, dropInfo, observer);
+         }
+         
+         //process all create table change
+         Collection<CreateTableInfo> createChanges = clusterChanges.getCreateInfos();
+         for(CreateTableInfo createInfo: createChanges)
+         {
+            DatabaseHelper.createTable(runtimeItem, createInfo, observer);
+         }
+         
+         //do the renaming - renaming means here:
+         // 1) created the new column (already included in the {@link AlterTableInfo#getAddedFields()})
+         Collection<AlterTableInfo> alterChanges = clusterChanges.getAlterInfos();
+         for(AlterTableInfo alterInfo: alterChanges)
+         {
+            DatabaseHelper.alterTable(runtimeItem, alterInfo, observer, AlterMode.ADDED_COLUMNS_ONLY);
+         }
+                  
+         // 2) save it values from the old column to the new column
+         DataClusterSynchronizationInfo syncInfo 
+            = clusterChanges.getDataClusterSynchronizationInfo();
+         Map<String, Map<FieldInfo, FieldInfo>> columnRenames = syncInfo.getColumnRenames();
+         for(String clusterTableName: columnRenames.keySet())
+         {
+            StringBuilder builder = new StringBuilder();
+            builder.append("UPDATE ");
+            builder.append(schemaName);
+            builder.append(".");
+            builder.append(clusterTableName);
+            builder.append(" SET ");
+            
+            Map<FieldInfo, FieldInfo> columnMapping = columnRenames.get(clusterTableName);
+            Iterator<FieldInfo> columnIterator
+               = columnMapping.keySet().iterator();
+            while(columnIterator.hasNext())
+            {
+               FieldInfo oldColumn = columnIterator.next();
+               FieldInfo newColumn = columnMapping.get(oldColumn);
+               
+               builder.append(newColumn.name);
+               builder.append(" = ");
+               builder.append(oldColumn.name);
+               if(columnIterator.hasNext())
+               {
+                  builder.append(", ");
+               }
+            }
+            
+            //retrieve values form old column and insert into new column, after that commit to allow
+            //structural changes to the table
+            DDLManager.executeOrSpoolStatement(builder.toString(), session.getConnection(), sqlRecorder); 
+            session.save();
+         }
+         
+         // 3) drop the old column(already included in {@link AlterTableInfo#getDroppedFields()})
+         for(AlterTableInfo alterInfo: alterChanges)
+         {
+            DatabaseHelper.alterTable(runtimeItem, alterInfo, observer, AlterMode.ADDED_COLUMNS_IGNORED);
+         }
+                           
+         //delete old setup
+         DataClusterHelper.deleteDataClusterSetup();
+         
+         //insert new setup
+         PropertyPersistor newSetupPersistor 
+            = new PropertyPersistor(RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION, "dummy");
+         LargeStringHolder.setLargeString(newSetupPersistor.getOID(), PropertyPersistor.class,
+               newSetup.getXml());
+         session.save();
+         
+         //force loading of new setup - to verify its working without problems
+         Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);
+         RuntimeSetup.instance().getDataClusterSetup();
+      }
+      catch (SQLException e)
+      {
+         handClusterUpgradeException(session, e, true);
+      }
+      catch (PublicException e)
+      {
+         handClusterUpgradeException(session, e, false);
+         throw e;
+      }
+      finally
+      {
+         //clear old setup from memory
+         Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);
+      }
+   }
+   
+   private static void handClusterUpgradeException(Session session, Exception e, boolean propagate)
+   {
+      trace.error("Error during manipulating datacluster, removing invalid cluster setup: ", e);
+      //try to clear invalid setup from database
+      DataClusterHelper.deleteDataClusterSetup();
+      
+      if(propagate)
+      {
+         throw new PublicException(e);
+      }
+   }
+   
+   
+   public static void alterAuditTrailDataClusterTables(String sysconPassword,
+         String configFileName, boolean upgrade, boolean skipDdl, boolean skipDml, PrintStream spoolFile,
          String statementDelimiter) throws SQLException
    {
-      Session session = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
+      Session consoleSession = SessionFactory.createSession(SessionFactory.AUDIT_TRAIL);
+      
       Map locals = new HashMap();
-      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX, session);
+      locals.put(SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SESSION_SUFFIX, consoleSession);
 
       try
       {
          ParametersFacade.pushLayer(locals);
 
-         verifySysopPassword(session, sysconPassword);
+         verifySysopPassword(consoleSession, sysconPassword);
 
-         DBDescriptor dbDescriptor = session.getDBDescriptor();
+         DBDescriptor dbDescriptor = consoleSession.getDBDescriptor();
          DDLManager ddlManager = new DDLManager(dbDescriptor);
-
-         PropertyPersistor prop = PropertyPersistor
-               .findByName(RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION);
-
-         if (null != prop)
+         IClusterChangeObserver changeObserver = null;
+         if ( !StringUtils.isEmpty(configFileName))
          {
-            if ( !StringUtils.isEmpty(configFileName))
+            DataCluster[] oldSetup = RuntimeSetup.instance().getDataClusterSetup();
+            if(oldSetup != null && oldSetup.length > 0 && !upgrade)
             {
                throw new PublicException(
-                     "Cluster configuration already exists. Use option -dropDataClusters first.");
+                  "Cluster configuration already exists. Use option -dropDataClusters or -updateDataClusters first.");
             }
+            
+            TransientRuntimeSetup transientSetup = getTransientRuntimeSetup(configFileName);
+            DataCluster[] newSetup = transientSetup.getDataClusterSetup();
+            
+            DataClusterSetupAnalyzer analyzer = new DataClusterSetupAnalyzer();
+            changeObserver = analyzer.analyzeChanges(oldSetup, newSetup);
+            
+            if(!skipDdl)
+            {
+               applyClusterChanges(consoleSession, changeObserver, transientSetup, spoolFile);
+            }  
          }
          else
          {
-            if ( !StringUtils.isEmpty(configFileName))
-            {
-               DocumentBuilder domBuilder = new RuntimeSetupDocumentBuilder();
-               File runtimeSetupFile = new File(configFileName);
-               try
-               {
-                  Document setup = domBuilder.parse(new FileInputStream(runtimeSetupFile));
-                  String xml = XmlUtils.toString(setup);
-                  prop = new PropertyPersistor(
-                        RuntimeSetup.RUNTIME_SETUP_PROPERTY_CLUSTER_DEFINITION, "dummy");
-                  LargeStringHolder.setLargeString(prop.getOID(), PropertyPersistor.class,
-                        xml);
-                  session.save();
-               }
-               catch (SAXException x)
-               {
-                  throw new PublicException("Invalid runtime setup configuration file.", x);
-               }
-               catch (IOException x)
-               {
-                  throw new PublicException("Invalid runtime setup configuration file.", x);
-               }
-            }
-            else
-            {
-               throw new PublicException(
-                     "Cluster configuration does not exists. Provide valid configuration file.");
-            }
+            throw new PublicException(
+                  "Cluster configuration does not exists. Provide valid configuration file.");
          }
-
-         DataCluster[] cluster;
-         try
-         {
-            cluster = RuntimeSetup.instance().getDataClusterSetup();
-         }
-         catch (PublicException e)
-         {
-            LargeStringHolder.deleteAllForOID(prop.getOID(), PropertyPersistor.class);
-            prop.delete();
-            session.save();
-            throw e;
-         }
-
+         
+         
          final String schemaName = Parameters.instance().getString(
                SessionFactory.AUDIT_TRAIL + SessionProperties.DS_SCHEMA_SUFFIX,
                Parameters.instance().getString(
                      SessionFactory.AUDIT_TRAIL + SessionProperties.DS_USER_SUFFIX));
-
-         if ( !skipDdl)
-         {
-            if (null != spoolFile)
-            {
-               spoolFile
-                     .println("/* DDL-statements for creation of cluster tables and indexes */");
-            }
-
-            for (int idx = 0; idx < cluster.length; ++idx)
-            {
-               ddlManager.createDataClusterTable(cluster[idx], session.getConnection(),
-                     schemaName, spoolFile, statementDelimiter);
-            }
-         }
-
          if ( !skipDml)
          {
             if (null != spoolFile)
@@ -1183,11 +1302,7 @@ public class SchemaHelper
                      .println("/* DML-statements for synchronization of cluster tables */");
             }
 
-            for (int idx = 0; idx < cluster.length; ++idx)
-            {
-               ddlManager.synchronizeDataCluster(cluster[idx], session.getConnection(),
-                     schemaName, spoolFile, statementDelimiter);
-            }
+            ddlManager.synchronizeDataCluster(true, changeObserver.getDataClusterSynchronizationInfo(), consoleSession.getConnection(), schemaName, spoolFile, statementDelimiter);         
          }
 
          if (null != spoolFile)
@@ -1196,7 +1311,7 @@ public class SchemaHelper
             spoolFile.println("commit;");
          }
 
-         session.save();
+         consoleSession.save();
       }
       finally
       {
@@ -1318,6 +1433,7 @@ public class SchemaHelper
       finally
       {
          ParametersFacade.popLayer();
+         Parameters.instance().set(RuntimeSetup.RUNTIME_SETUP_PROPERTY, null);
       }
    }
 
@@ -1364,7 +1480,7 @@ public class SchemaHelper
          ParametersFacade.popLayer();
       }
    }
-   
+
    public static void alterAuditTrailDropPartition(String partitionId, String password)
    {
       IAuditTrailPartition partition = AuditTrailPartitionBean.findById(partitionId);
@@ -1459,6 +1575,19 @@ public class SchemaHelper
       finally
       {
          ParametersFacade.popLayer();
+      }
+   }
+      
+   private static class ErrorAwareObserver implements UpgradeObserver
+   {
+      @Override
+      public void warn(String warning, Throwable reason)
+      {
+         trace.warn(warning, reason);
+         if(reason != null)
+         {
+            throw new PublicException(warning, reason);
+         }
       }
    }
 }

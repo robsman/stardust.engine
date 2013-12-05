@@ -1073,6 +1073,7 @@
 			<element name="until" type="dateTime" />
 			<element name="participant" type="tns:ParticipantInfo" />
 			<element name="onBehalfOfParticipant" type="tns:ParticipantInfo" />
+			<element name="onBehalfOfUser" type="tns:UserInfo" />
 			<element name="user" type="tns:User" />
 		</sequence>
 	</complexType>
@@ -1172,6 +1173,7 @@
 			<element name="currentPerformer" type="tns:ParticipantInfo"
 				minOccurs="0" />
 			<element name="performedBy" type="tns:UserInfo" minOccurs="0" />
+			<element name="performedOnBehalfOf" type="tns:UserInfo" minOccurs="0" />
 			<element name="userPerformer" type="tns:User" minOccurs="0" />
 
 			<element name="assignedToModelParticipant" type="boolean" />
@@ -1263,6 +1265,8 @@
 			<!--
 				<element name="attributes" type="tns:Attributes" minOccurs="0" />
 			-->
+			
+			<element name="descriptorDefinitions" type="tns:DataPaths" minOccurs="0" />
 		</sequence>
 	</complexType>
 
@@ -2398,6 +2402,36 @@
 			<element name="valueList" type="tns:StringList" />
 		</sequence>
 	</complexType>
+	
+	<complexType name="DeputyOptions">
+		<sequence>
+			<element name="fromDate" type="dateTime" />
+			<element name="toDate" type="dateTime" />
+			<element name="modelParticipantInfos" type="tns:ModelParticipantInfos" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="Deputy">
+		<sequence>
+			<element name="user" type="tns:UserInfo" />
+			<element name="deputyUser" type="tns:UserInfo" />
+			<element name="fromDate" type="dateTime" />
+			<element name="untilDate" type="dateTime" />
+			<element name="participants" type="tns:ModelParticipantInfos" />
+		</sequence>
+	</complexType>
+	
+	<complexType name="Deputies">
+		<sequence>
+			<element name="deputy" type="tns:Deputy" minOccurs="0" maxOccurs="unbounded"/> 
+		</sequence>
+	</complexType>
+
+   <complexType name="ModelParticipantInfos">
+   		<sequence>
+   			<element name="modelparticipantInfo" type="tns:ModelParticipantInfo" minOccurs="0" maxOccurs="unbounded" />
+   		</sequence>
+   </complexType>	
 
 	<!--  Simple types -->
 

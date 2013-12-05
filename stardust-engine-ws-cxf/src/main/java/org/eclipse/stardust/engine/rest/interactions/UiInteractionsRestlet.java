@@ -51,7 +51,9 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.AccessPoint;
 import org.eclipse.stardust.engine.api.model.ApplicationContext;
+import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.ws.ParameterXto;
 import org.eclipse.stardust.engine.core.interactions.Interaction;
 import org.eclipse.stardust.engine.core.interactions.InteractionRegistry;
@@ -111,7 +113,7 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
    {
       return super.getOwner();
    }
-   
+
    @Path("embeddedMarkup")
    @GET
    @Produces(MediaType.TEXT_HTML)
@@ -188,7 +190,7 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
                      interaction.getInDataValue(parameterId));
 
                // Workaround, only first element used
-               Element e = result.getXml().getAny().size() > 0 
+               Element e = result.getXml().getAny().size() > 0
                      ? result.getXml().getAny().get(0)
                      : null;
                response = Response.ok(XmlUtils.toString(e),
@@ -248,6 +250,15 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
       }
       else if (isStructuredType(interaction.getModel(), dm))
       {
+         Model model = interaction.getModel();
+         Data data = model.getData(dm.getDataId());
+         if (data.getModelOID() != model.getModelOID())
+         {
+            model = interaction.getServiceFactory()
+                  .getQueryService()
+                  .getModel(data.getModelOID());
+         }
+
          List<Variant> providedMediaTypes = asList( //
                new Variant(APPLICATION_XML_TYPE, null, null), //
                new Variant(APPLICATION_JSON_TYPE, null, null) //
@@ -260,8 +271,7 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
             if (APPLICATION_XML_TYPE == selectedVariant.getMediaType())
             {
                // provide XML representation of structured data
-               ParameterXto result = marshalStructValue(interaction.getModel(), dm,
-                     inParamValue);
+               ParameterXto result = marshalStructValue(model, dm, inParamValue);
                // Workaround, only first element used
                Element e = result.getXml().getAny().size() > 0 ? result.getXml()
                      .getAny()

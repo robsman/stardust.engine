@@ -150,9 +150,29 @@ public abstract class Worklist extends AbstractList implements QueryResult
     */
    public int size()
    {
-      return items.size();
+      return size(null);
    }
 
+   private int size(List visited)
+   {
+      if(visited == null)
+      {
+         return items.size();
+      }
+      
+      int counter = 0;
+      for(Object item : items)
+      {
+         if(!visited.contains(item))
+         {
+            visited.add(item);
+            counter++;            
+         }
+      }
+      
+      return counter;
+   }   
+   
    public long getTotalCount() throws UnsupportedOperationException
    {
       if (null == totalCount)
@@ -222,17 +242,38 @@ public abstract class Worklist extends AbstractList implements QueryResult
     */
    public int getCumulatedSize()
    {
-      int totalSize = size();
+      List visited = new ArrayList();
+      return getCumulatedSize(visited);
+   }
 
+   private int getCumulatedSize(List visited)
+   {
+      boolean isMerged = true;
+      WorklistLayoutPolicy worklistLayoutPolicy = (WorklistLayoutPolicy) query.getPolicy(WorklistLayoutPolicy.class);
+      if(worklistLayoutPolicy != null)
+      {
+         isMerged = worklistLayoutPolicy.isMerged();
+      }
+      
+      int totalSize = 0;
+      if(!isMerged)
+      {
+         totalSize = size(visited);
+      }
+      else
+      {
+         totalSize = size();         
+      }
+      
       for (Iterator i = getSubWorklists(); i.hasNext();)
       {
          Worklist worklist = (Worklist) i.next();
-         totalSize += worklist.getCumulatedSize();
+         totalSize += worklist.getCumulatedSize(visited);
       }
 
       return totalSize;
    }
-
+      
    /**
     * Retrieves a cumulated view of items belonging directly and indirectly to this
     * worklist.

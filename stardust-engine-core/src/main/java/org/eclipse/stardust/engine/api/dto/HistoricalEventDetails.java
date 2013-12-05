@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,12 +28,12 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
 public class HistoricalEventDetails implements HistoricalEvent
 {
    private static final long serialVersionUID = 1L;
-   
+
    final private Serializable details;
    final private Date eventTime;
    final private HistoricalEventType eventType;
    final private User user;
-   
+
    public HistoricalEventDetails(HistoricalEventType eventType, Date eventTime,
          User user, Serializable details)
    {
@@ -55,7 +55,7 @@ public class HistoricalEventDetails implements HistoricalEvent
       this(HistoricalEventType.Note, note.getTimestamp(), note.getUser(),
             note.getText());
    }
-   
+
    public HistoricalEventDetails(HistoricalEventType eventType,
          HistoricalState histState, HistoricalState prevHistState)
    {
@@ -84,7 +84,7 @@ public class HistoricalEventDetails implements HistoricalEvent
       return user;
    }
 
-   private static User getUser(long userOid)
+   public static User getUser(long userOid)
    {
       User userDetails = null;
       if (0 != userOid)
@@ -105,10 +105,10 @@ public class HistoricalEventDetails implements HistoricalEvent
 
    private static User getUser(HistoricalState histState)
    {
-      final long userOid = (null == histState.getUser()) 
-            ? 0 
+      final long userOid = (null == histState.getUser())
+            ? 0
             : histState.getUser().getOID();
-      
+
       return getUser(userOid);
    }
 

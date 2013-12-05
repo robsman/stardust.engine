@@ -28,6 +28,7 @@ import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
@@ -51,6 +52,8 @@ import org.eclipse.stardust.engine.extensions.dms.data.VfsOperationAccessPointPr
 public class ActivityBean extends IdentifiableElementBean implements IActivity
 {
    private static final long serialVersionUID = 1L;
+   
+   private static final String TAG_INTERMEDIATE_EVENT_HOST = "stardust:bpmnIntermediateEventHost";
    
    public static final String IMPLEMENTATION_TYPE_ATT = "Implementation Type";
    private ImplementationType implementationType;
@@ -83,9 +86,11 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
 
    private IApplication application = null;
 
-   private List inTransitions = null;
+   private List<ITransition> inTransitions = null;
 
-   private List outTransitions = null;
+   private List<ITransition> outTransitions = null;
+   
+   private List<ITransition> exceptionTransitions = null;
 
    private List dataMappings = null;
    
@@ -349,6 +354,29 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       return ModelUtils.getModelElementList(outTransitions);
    }
 
+   public ITransition getExceptionTransition(final String eventHandlerId)
+   {
+      if (exceptionTransitions == null)
+      {
+         return null;
+      }
+      
+      final String condition = TransitionBean.ON_BOUNDARY_EVENT_PREDICATE + "(" + eventHandlerId + ")";
+      for (final ITransition t : exceptionTransitions)
+      {
+         if (condition.equals(t.getCondition()))
+         {
+            return t;
+         }
+      }
+      return null;
+   }
+   
+   public boolean hasExceptionTransitions()
+   {
+      return exceptionTransitions != null && !exceptionTransitions.isEmpty();
+   }
+   
    public IModelParticipant getPerformer()
    {
       return performer;
@@ -705,8 +733,12 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       {
          IEventHandler eventHandler = (IEventHandler) iterator.next();
          eventHandler.checkConsistency(inconsistencies);
+         
+         checkBoundaryEventConsistency(eventHandler, inconsistencies);
       }
-
+      checkBoundaryEventsConsistency(eventHandlers, inconsistencies);
+      checkIntermediateEventConsistency(inconsistencies);
+      
       // @todo laokoon (ub): temporarily disabled, leads to stack overflow in cycles
 
       // Rule: Activity network may not form a XOR-AND block
@@ -724,6 +756,98 @@ public class ActivityBean extends IdentifiableElementBean implements IActivity
       */
    }
 
+   /**
+    * if it's a boundary event, there SHOULD be a corresponding exception flow transition
+    */
+   private void checkBoundaryEventConsistency(final IEventHandler eventHandler, final List<Inconsistency> inconsitencies)
+   {
+      if (eventHandler.getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY) != null)
+      {
+         final ITransition exceptionTransition = getExceptionTransition(eventHandler.getId());
+         if (exceptionTransition == null)
+         {
+            inconsitencies.add(new Inconsistency("No exception flow transition for event handler with ID '" + eventHandler.getId() + "'.", eventHandler, Inconsistency.WARNING));
+         }
+      }
+   }
+
+   /**
+    * if there are multiple error boundary events, the exception hierarchies SHOULD be disjunct
+    */
+   private void checkBoundaryEventsConsistency(final Link eventHandlers, final List<Inconsistency> inconsistencies)
+   {
+      for (int i=0; i<eventHandlers.size(); i++)
+      {
+         final IEventHandler x = (IEventHandler) eventHandlers.get(i);
+         if ( !isErrorBoundaryEvent(x))
+         {
+            continue;
+         }
+         
+         for (int j=i+1; j<eventHandlers.size(); j++)
+         {
+            final IEventHandler y = (IEventHandler) eventHandlers.get(j);
+            if ( !isErrorBoundaryEvent(y))
+            {
+               continue;
+            }
+            
+            if ( !exceptionHierarchiesAreDisjunct(x, y))
+            {
+               inconsistencies.add(new Inconsistency("Multiple boundary events for exceptions not having disjunct type hierarchies ('"
+                                                      + x.getId() + "' and '" + y.getId() + "'). Only one will be processed during event handling.", 
+                                                      this, Inconsistency.WARNING));
+            }
+         }
+      }
+   }
+   
+   private boolean isErrorBoundaryEvent(final IEventHandler eventHandler)
+   {
+      if (eventHandler.getAttribute(EventHandlerBean.BOUNDARY_EVENT_TYPE_KEY) == null)
+      {
+         return false;
+      }
+      
+      if ( !PredefinedConstants.EXCEPTION_CONDITION.equals(eventHandler.getType().getId()))
+      {
+         return false;
+      }
+      
+      return true;
+   }
+   
+   private boolean exceptionHierarchiesAreDisjunct(final IEventHandler x, final IEventHandler y)
+   {
+      final String xExceptionName = (String) x.getAttribute(PredefinedConstants.EXCEPTION_CLASS_ATT);
+      final String yExceptionName = (String) y.getAttribute(PredefinedConstants.EXCEPTION_CLASS_ATT);
+      
+      final Class<?> xException = Reflect.getClassFromClassName(xExceptionName);
+      final Class<?> yException = Reflect.getClassFromClassName(yExceptionName);
+      
+      if (xException.isAssignableFrom(yException) || yException.isAssignableFrom(xException))
+      {
+         return false;
+      }
+      
+      return true;
+   }
+   
+   /**
+    * if it's an intermediate event, it SHOULD have one inbound and one outbound sequence flow
+    */
+   private void checkIntermediateEventConsistency(final List<Inconsistency> inconsistencies)
+   {
+      final Boolean isIntermediateEvent = (Boolean) getAttribute(TAG_INTERMEDIATE_EVENT_HOST);
+      if (isIntermediateEvent != null && isIntermediateEvent.booleanValue())
+      {
+         if (getInTransitions().size() != 1 || getOutTransitions().size() != 1)
+         {
+            inconsistencies.add(new Inconsistency("Intermediate events must have one inbound and one outbound sequence flow.", this, Inconsistency.WARNING));
+         }
+      }
+   }
+   
    /**
     * Checks, wether there is a path from <tt>startActivity</tt> to an activity
     * with AND join and another path back to <tt>startActivity</tt>.

@@ -41,6 +41,18 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 public class Utils
 {
 
+   public static void flushSession()
+   {
+      org.eclipse.stardust.engine.core.persistence.Session session 
+         = SessionFactory.getSession(SessionProperties.DS_NAME_AUDIT_TRAIL);
+      if(session instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+      {
+         org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession
+            = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) session;
+         jdbcSession.save(false);
+      }
+   }
+   
    public static void initCarnotEngine(String partitionId)
    {
       initCarnotEngine(partitionId, Collections.emptyMap());

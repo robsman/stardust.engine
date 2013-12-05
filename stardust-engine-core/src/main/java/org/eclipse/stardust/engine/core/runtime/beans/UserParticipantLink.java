@@ -23,13 +23,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.Joins;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -55,11 +49,13 @@ public class UserParticipantLink extends IdentifiablePersistentBean
    public static final String FIELD__USER = "workflowUser";
    public static final String FIELD__PARTICIPANT = "participant";
    public static final String FIELD__DEPARTMENT = "department";
+   public static final String FIELD__ON_BEHALF_OF = "onBehalfOf";
 
    public static final FieldRef FR__OID = new FieldRef(UserParticipantLink.class, FIELD__OID);
    public static final FieldRef FR__USER = new FieldRef(UserParticipantLink.class, FIELD__USER);
    public static final FieldRef FR__PARTICIPANT = new FieldRef(UserParticipantLink.class, FIELD__PARTICIPANT);
    public static final FieldRef FR__DEPARTMENT = new FieldRef(UserParticipantLink.class, FIELD__DEPARTMENT);
+   public static final FieldRef FR__ON_BEHALF_OF = new FieldRef(UserParticipantLink.class, FIELD__ON_BEHALF_OF);
 
    public static final String TABLE_NAME = "user_participant";
    public static final String DEFAULT_ALIAS = "ump";
@@ -77,6 +73,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
 
    private long participant;
    private long department;
+   private long onBehalfOf;
    
    private transient IModelParticipant cachedParticipant;
 
@@ -203,10 +200,16 @@ public class UserParticipantLink extends IdentifiablePersistentBean
 
    public UserParticipantLink(UserBean workflowUser, IModelParticipant participant)
    {
-      this(workflowUser, participant, null);
+      this(workflowUser, participant, null, 0);
    }
 
    public UserParticipantLink(UserBean workflowUser, IModelParticipant participant, IDepartment department)
+   {
+      this(workflowUser, participant, department, 0);
+   }
+
+   UserParticipantLink(UserBean workflowUser, IModelParticipant participant,
+         IDepartment department, long onBehalfOf)
    {
       this.workflowUser = workflowUser;
       
@@ -218,6 +221,7 @@ public class UserParticipantLink extends IdentifiablePersistentBean
       
       this.participant = rtOid;
       this.department = department == null ? 0 : department.getOID();
+      this.onBehalfOf = onBehalfOf;
    }
 
    /**
@@ -280,6 +284,12 @@ public class UserParticipantLink extends IdentifiablePersistentBean
       fetch();
       return department;
    }
+   
+   public long getOnBehalfOf()
+   {
+      fetch();
+      return onBehalfOf;
+   }   
 
    public static void deleteAllForDepartment(IDepartment department)
    {
@@ -295,4 +305,13 @@ public class UserParticipantLink extends IdentifiablePersistentBean
          ((UserBean) link.getUser()).removeFromParticipants(link.getParticipant(), link.getDepartment());
       }
    }
+     
+   public static ClosableIterator<UserParticipantLink> findForUsers(long[] others)
+   {
+      org.eclipse.stardust.engine.core.persistence.Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+      PredicateTerm predicate = Predicates.andTerm(
+            Predicates.isEqual(FR__ON_BEHALF_OF, 0), Predicates.inList(FR__USER, others));
+      return session.getIterator(UserParticipantLink.class,
+            QueryExtension.where(predicate));
+   }   
 }

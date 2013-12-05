@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 public interface Constants
 {
    String CARNOT_VERSION = "carnot.version";
+   String PRODUCT_NAME = "product.name";
    String CARNOT_ARCHIVE_AUDITTRAIL = "carnot.audittrail.archive";
    String UPGRADE_LOCK = "upgrade.lock";
    String SYSOP_PASSWORD = "sysop.password";

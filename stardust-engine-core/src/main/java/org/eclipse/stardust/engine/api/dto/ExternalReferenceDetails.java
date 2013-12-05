@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.api.dto;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Map;
 
 import org.eclipse.stardust.engine.api.model.ExternalReference;
 import org.eclipse.stardust.engine.api.model.IExternalReference;
@@ -32,17 +33,21 @@ public class ExternalReferenceDetails implements ExternalReference, Serializable
    private String location;
    private String xref;
    private String alternateLocation;
-
+   private Map typeDeclarationAttributes;
+   
    /**
     * The cached value of the '{@link #getSchema() <em>Schema</em>}' reference.
     */
    private transient XSDSchema schema = null;
+
+  
 
    public ExternalReferenceDetails(IExternalReference externalReference, TypeDeclaration parent)
    {
       this.xref = externalReference.getXref();
       this.location = externalReference.getLocation();
       this.namespace = externalReference.getNamespace();
+      this.typeDeclarationAttributes = parent.getAllAttributes();
       this.alternateLocation = (String) parent.getAttribute(StructuredDataConstants.RESOURCE_MAPPING_LOCAL_FILE);
    }
 
@@ -107,7 +112,7 @@ public class ExternalReferenceDetails implements ExternalReference, Serializable
          String url = alternateLocation == null ? location : alternateLocation;
          try
          {
-            schema = StructuredTypeRtUtils.getSchema(url, namespaceURI);
+            schema = StructuredTypeRtUtils.getSchema(url, namespaceURI, typeDeclarationAttributes);
          }
          catch (IOException e)
          {
@@ -116,7 +121,7 @@ public class ExternalReferenceDetails implements ExternalReference, Serializable
                // try to load from external url
                try
                {
-                  schema = StructuredTypeRtUtils.getSchema(location, namespaceURI);
+                  schema = StructuredTypeRtUtils.getSchema(location, namespaceURI, typeDeclarationAttributes);
                }
                catch (IOException e1)
                {

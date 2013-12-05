@@ -350,19 +350,18 @@ public class DeployCommand extends ConsoleCommand
          MyDeploymentCallback callback = new MyDeploymentCallback(ignoreWarnings);
          try
          {
+            DeploymentOptions deploymentOptions = new DeploymentOptions();
+            deploymentOptions.setValidFrom(validFrom);
+            deploymentOptions.setComment(deploymentComment);
+            deploymentOptions.setIgnoreWarnings(ignoreWarnings);
+            
             if (overwrite != 0)
             {
-               DeploymentOptions deploymentOptions = new DeploymentOptions();
-               deploymentOptions.setValidFrom(validFrom);
-               deploymentOptions.setComment(deploymentComment);
                DeploymentUtils.overwriteFromFile(serviceFactory, callback,
                      getUnits(units).get(0), overwrite, deploymentOptions);
             }
             else
             {
-               DeploymentOptions deploymentOptions = new DeploymentOptions();
-               deploymentOptions.setValidFrom(validFrom);
-               deploymentOptions.setComment(deploymentComment);
                DeploymentUtils.deployFromFiles(serviceFactory, callback, getUnits(units),
                      deploymentOptions);
             }

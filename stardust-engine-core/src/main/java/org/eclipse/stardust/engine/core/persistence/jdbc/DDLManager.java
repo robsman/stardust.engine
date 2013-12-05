@@ -15,10 +15,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Functor;
@@ -32,9 +41,27 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkTypeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
+import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
+import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo;
+import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterIndex;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
@@ -121,17 +148,31 @@ public class DDLManager
       return isPredefined;
    }
 
-   private static void executeOrSpoolStatement(String statement, Connection connection,
+   public static void executeOrSpoolStatement(String statement, Connection connection,
          PrintStream spoolFile) throws SQLException
    {
       if (null == spoolFile)
       {
+         org.eclipse.stardust.engine.core.persistence.Session auditTrailSession 
+            = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
+         org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = null;
+         if (auditTrailSession instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
+         {
+            jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) auditTrailSession;
+         }
+         
          Statement stmt = null;
-
          try
          {
             stmt = connection.createStatement();
+            
+            long start = System.currentTimeMillis();
             stmt.executeUpdate(statement);
+            long stop = System.currentTimeMillis();
+            if(jdbcSession != null)
+            {
+               jdbcSession.monitorSqlExecution(statement, start, stop);
+            }
          }
          finally
          {
@@ -1013,7 +1054,7 @@ public class DDLManager
                      "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
                      + buildColumnsFragment(dbDescriptor, columns) 
                      + "SELECT " + "p.oid " 
-                     + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                     + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME))  + " p "
                      + "WHERE p.id = 'default'");
                ps.println(statementDelimiter);
             }
@@ -1028,7 +1069,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "domain_seq") + ", 'default', p.oid, NULL, NULL "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                  + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1040,7 +1081,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "domain_hierarchy_seq") + ", d.oid, d.oid "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME) + " d "
+                  + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME)) + " d "
                   + "WHERE d.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1054,7 +1095,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "wfuser_realm_seq") + ", 'carnot', p.oid, 'CARNOT', NULL "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                  + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1077,7 +1118,7 @@ public class DDLManager
                   + "SELECT " + dbDescriptor.getNextValForSeqString(schemaName, "user_seq") + ", 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
                   + new Date().getTime() + ", "
                   + "0, NULL, 0, 0, r.oid "
-                  + "FROM " + dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME) + " r "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) + " r "
                   + "WHERE r.id = 'carnot'");
             ps.println(statementDelimiter);
          }
@@ -1119,7 +1160,7 @@ public class DDLManager
                      "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
                      + buildColumnsFragment(dbDescriptor, columns) 
                      + "SELECT " + "p.oid " 
-                     + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                     + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                      + "WHERE p.id = 'default'");
                ps.println(statementDelimiter);
             }
@@ -1133,7 +1174,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT 'default', p.oid, NULL, NULL "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1144,7 +1185,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainHierarchyBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT d.oid, d.oid "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME) + " d "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserDomainBean.TABLE_NAME)) + " d "
                   + "WHERE d.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1158,7 +1199,7 @@ public class DDLManager
                   "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME))
                   + buildColumnsFragment(dbDescriptor, columns)
                   + "SELECT 'carnot', p.oid, 'CARNOT', NULL "
-                  + "FROM " +  dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME) + " p "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                   + "WHERE p.id = 'default'");
             ps.println(statementDelimiter);
 
@@ -1181,7 +1222,7 @@ public class DDLManager
                   + "SELECT 'motu', 'Master', 'Of the Universe', 'motu', NULL, "
                   + new Date().getTime() + ", "
                   + "0, NULL, 0, 0, r.oid "
-                  + "FROM " + dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME) + " r "
+                  + "FROM " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(UserRealmBean.TABLE_NAME)) + " r "
                   + "WHERE r.id = 'carnot'");
             ps.println(statementDelimiter);
          }
@@ -1381,7 +1422,7 @@ public class DDLManager
       if (dbDescriptor.supportsSequences() || dbDescriptor.supportsIdentityColumns())
       {
          sb.append("p.oid FROM ");
-         sb.append(dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME));
+         sb.append(getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)));
          sb.append(" p WHERE p.id = '" + partitionId + "'");
       }
       else
@@ -1932,220 +1973,298 @@ public class DDLManager
                dataCluster.getTableName() + "'.", x);
       }
    }
-
-
-   public void synchronizeDataCluster(DataCluster dataCluster, Connection connection,
-         String schemaName, PrintStream spoolFile, String statementDelimiter)
+      
+   private String getDataValueField(DataSlotFieldInfo dataSlotField)
    {
-      final String processInstanceScopeTable = getQualifiedName(schemaName,
-            TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
-      final String processInstanceTable = getQualifiedName(schemaName, TypeDescriptor.get(
-            ProcessInstanceBean.class).getTableName());
-      final String dataValueTable = getQualifiedName(schemaName, TypeDescriptor.get(
-            DataValueBean.class).getTableName());
-      final String dataTable = getQualifiedName(schemaName, TypeDescriptor.get(
-            AuditTrailDataBean.class).getTableName());
-      final String modelTable = getQualifiedName(schemaName, TypeDescriptor.get(
-            ModelPersistorBean.class).getTableName());
-      final String structuredDataTable = getQualifiedName(schemaName, TypeDescriptor.get(
-            StructuredDataBean.class).getTableName());
-      final String structuredDataValueTable = getQualifiedName(schemaName, TypeDescriptor.get(
-            StructuredDataValueBean.class).getTableName());
-      final String clusterTable = getQualifiedName(schemaName, dataCluster.getTableName());
-
-      try
+      if(dataSlotField.isOidColumn())
       {
-         // Deleting obsolete entries
-         String syncDelSql = MessageFormat.format(
-                 "DELETE FROM {0}"
-               + " WHERE NOT EXISTS ("
-               + "  SELECT ''x'' "
-               + "    FROM {2} PIS "
-               + "   WHERE PIS.{3} = {0}.{1}"
-               +"  )",
-               new Object[] {
-                     clusterTable,
-                     dataCluster.getProcessInstanceColumn(),
-                     processInstanceScopeTable,
-                     ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE});
-
-         executeOrSpoolStatement(syncDelSql, connection, spoolFile);
-
-         // inserting rows for new process instances
-         String syncInsSql = MessageFormat.format(
-                 "INSERT INTO {0} ({1}) "
-               + "SELECT DISTINCT {3} "
-               + "  FROM {2} PIS "
-               + " WHERE NOT EXISTS ("
-               + "  SELECT ''x'' "
-               + "    FROM {0} DC "
-               + "   WHERE PIS.{3} = DC.{1}"
-               + " )",
-               new Object[] {
-                     clusterTable,
-                     dataCluster.getProcessInstanceColumn(),
-                     processInstanceScopeTable,
-                     ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE});
-
-         executeOrSpoolStatement(syncInsSql, connection, spoolFile);
-
-         // synchronizing slot values
-         for (DataSlot dataSlot : dataCluster.getAllSlots())
+         return DataValueBean.FIELD__OID;
+      }
+      else if(dataSlotField.isTypeColumn())
+      {
+         return DataValueBean.FIELD__TYPE_KEY;
+      }     
+      else if(dataSlotField.isSValueColumn())
+      {
+         return DataValueBean.FIELD__STRING_VALUE;
+      }      
+      else if(dataSlotField.isNValueColumn())
+      {
+         return DataValueBean.FIELD__NUMBER_VALUE;
+      } 
+      else if(dataSlotField.isDValueColumn())
+      {
+         return DataValueBean.FIELD__DOUBLE_VALUE;
+      } 
+      else
+      {
+         StringBuffer errorMsg = new StringBuffer();
+         errorMsg.append("Cannot create data value field for slot column: '");
+         errorMsg.append(dataSlotField.name);
+         errorMsg.append("'. ");
+         errorMsg.append(dataSlotField.getSlotType());
+         
+         throw new PublicException(errorMsg.toString());
+      }
+   }
+   
+   private String getColumnValuesSelect(Collection<DataSlotFieldInfo> columns, String dataValuePrefix, String dataValueSelect)
+   {
+      StringBuilder builder = new StringBuilder(); 
+      builder.append("SELECT ");
+      Iterator<DataSlotFieldInfo> i = columns.iterator();
+      while(i.hasNext())
+      {
+         DataSlotFieldInfo tmp = i.next();
+         builder.append(dataValuePrefix);
+         builder.append(".");
+         builder.append(getDataValueField(tmp));
+         if(i.hasNext())
          {
-            String subselectSql;
-            String dataValuePrefix;
-            if (StringUtils.isEmpty(dataSlot.getAttributeName()))
+            builder.append(", ");
+         }
+      }
+      
+      builder.append(dataValueSelect);
+      return builder.toString();
+   }
+   
+   private String getColumnValueSelect(DataSlotFieldInfo fieldInfo, String dataValuePrefix, String dataValueSelect)
+   {
+      StringBuilder builder = new StringBuilder();
+      builder.append(fieldInfo.name).append(" = ");
+      builder.append("(");
+      builder.append("SELECT ");
+      builder.append(dataValuePrefix);
+      builder.append(".");
+      builder.append(getDataValueField(fieldInfo));
+      builder.append(dataValueSelect);
+      builder.append(")");
+      return builder.toString();
+
+   }
+   
+   private static String getStateListValues(DataCluster dataCluster)
+   {
+      StringBuilder stateListBuilder = new StringBuilder();
+      Set<DataClusterEnableState> enableStates = dataCluster.getEnableStates();
+      for(DataClusterEnableState enableState:enableStates)
+      {
+         ProcessInstanceState[] piStates = enableState.getPiStates();
+         for(int i=0; i< piStates.length; i++)
+         {
+            ProcessInstanceState piState = piStates[i];
+            int stateValue = piState.getValue();        
+            stateListBuilder.append(stateValue);
+            if(i + 1 < piStates.length)
             {
-               // normal data
-               subselectSql = MessageFormat.format(
-                       "  FROM {3} dv, {4} d, {5} m"
-                     + " WHERE {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
-                     + "   AND dv." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
-                     + "   AND dv." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
-                     + "   AND d." + AuditTrailDataBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
-                     + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
-                     + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{6}''"
-                     ,
-                     new Object[] {
-                           clusterTable, // 0
-                           dataCluster.getProcessInstanceColumn(), // 1
-                           dataSlot.getDataId(), // 2
-                           dataValueTable, // 3
-                           dataTable, // 4
-                           modelTable, // 5
-                           dataSlot.getModelId() // 6
-                           });
-               dataValuePrefix = "dv";
-            }
-            else
+               stateListBuilder.append(", ");
+            } 
+         }
+      }
+      
+      return stateListBuilder.toString();
+   }
+      
+   public void synchronizeDataCluster(boolean performDeleteOrInsert, DataClusterSynchronizationInfo syncInfo, Connection connection,
+         String schemaName, PrintStream spoolFile, String statementDelimiter)
+   {     
+      for(DataCluster dataCluster : syncInfo.getClusters())
+      {
+         final String processInstanceScopeTable = getQualifiedName(schemaName,
+               TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
+         final String processInstanceTable = getQualifiedName(schemaName, TypeDescriptor.get(
+               ProcessInstanceBean.class).getTableName());         
+         final String dataValueTable = getQualifiedName(schemaName, TypeDescriptor.get(
+               DataValueBean.class).getTableName());
+         final String dataTable = getQualifiedName(schemaName, TypeDescriptor.get(
+               AuditTrailDataBean.class).getTableName());
+         final String modelTable = getQualifiedName(schemaName, TypeDescriptor.get(
+               ModelPersistorBean.class).getTableName());
+         final String structuredDataTable = getQualifiedName(schemaName, TypeDescriptor.get(
+               StructuredDataBean.class).getTableName());
+         final String structuredDataValueTable = getQualifiedName(schemaName, TypeDescriptor.get(
+               StructuredDataValueBean.class).getTableName());
+         final String clusterTable = getQualifiedName(schemaName, dataCluster.getTableName());
+
+         try
+         {       
+            if(performDeleteOrInsert)
             {
-               // structured data
-               subselectSql = MessageFormat.format(
-                     "  FROM {3} d, {4} sd, {5} sdv, {6} p, {8} m"
-                   + " WHERE {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-                   + "   AND sdv." + StructuredDataValueBean.FIELD__XPATH + " = sd." + StructuredDataBean.FIELD__OID
-                   + "   AND sd." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
-                   + "   AND sd." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
-                   + "   AND p." + ProcessInstanceBean.FIELD__OID + " = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
-                   + "   AND p." + ProcessInstanceBean.FIELD__MODEL + " = d." + DataValueBean.FIELD__MODEL
-                   + "   AND sd." + StructuredDataBean.FIELD__XPATH + " = ''{7}'' "
-                   + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
-                   + "   AND d."+ DataValueBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
-                   + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{9}''"
-                   ,
+               String syncDelSql = MessageFormat.format(
+                     "DELETE FROM {0}"
+                   + " WHERE NOT EXISTS ("
+                   + "  SELECT ''x'' "
+                   + "   FROM {2} PIS "
+                   + "    INNER JOIN {4} PI ON(" 
+                   + "     PI.{5} = PIS.{3}   " 
+                   + "      AND PI.{6} IN({7})    "
+                   + "    )"
+                   + "   WHERE PIS.{3} = {0}.{1}"
+                   +"  )",
                    new Object[] {
                          clusterTable,
                          dataCluster.getProcessInstanceColumn(),
-                         dataSlot.getDataId(),
-                         dataTable, // 3
-                         structuredDataTable, // 4
-                         structuredDataValueTable, // 5
-                         processInstanceTable, // 6
-                         dataSlot.getAttributeName(), // 7
-                         modelTable, // 8
-                         dataSlot.getModelId() // 9
-                         });
-               dataValuePrefix = "sdv";
+                         processInstanceScopeTable,
+                         ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE,
+                         processInstanceTable,
+                         ProcessInstanceBean.FIELD__OID,
+                         ProcessInstanceBean.FIELD__STATE,
+                         getStateListValues(dataCluster)
+                   });
+               syncDelSql = syncDelSql.trim();
+               executeOrSpoolStatement(syncDelSql, connection, spoolFile);
+                         
+               String syncInsSql = MessageFormat.format(
+                     "INSERT INTO {0} ({1}) "
+                   + "SELECT DISTINCT PIS.{3} "
+                   + "  FROM {2} PIS "
+                   + "   INNER JOIN {4} PI ON("
+                   + "    PI.{5} = PIS.{3}"
+                   + "      AND PI.{6} IN({7})" 
+                   + "   )                    "                  
+                   + " WHERE NOT EXISTS ("
+                   + "  SELECT ''x'' "
+                   + "    FROM {0} DC "
+                   + "   WHERE PIS.{3} = DC.{1}"
+                   + " )",
+                   new Object[] {
+                         clusterTable,
+                         dataCluster.getProcessInstanceColumn(),
+                         processInstanceScopeTable,
+                         ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE,
+                         processInstanceTable,
+                         ProcessInstanceBean.FIELD__OID,
+                         ProcessInstanceBean.FIELD__STATE,
+                         getStateListValues(dataCluster)});
+               executeOrSpoolStatement(syncInsSql, connection, spoolFile);
             }
-
-            StringBuffer buffer = new StringBuffer(1000);
-            buffer.append("UPDATE ").append(clusterTable)
-                  .append(" SET ");
-
-            if (dbDescriptor.supportsMultiColumnUpdates())
+                        
+            // synchronizing slot values
+            for (DataSlot dataSlot : syncInfo.getDataSlots(dataCluster))
             {
-               buffer.append("(")
-                     .append(dataSlot.getOidColumn())
-                     .append(", ").append(dataSlot.getTypeColumn());
-
-               if ( !StringUtils.isEmpty(dataSlot.getNValueColumn()))
+               String subselectSql;
+               String dataValuePrefix;
+               if (StringUtils.isEmpty(dataSlot.getAttributeName()))
                {
-                  buffer.append(", ").append(dataSlot.getNValueColumn());
+                  // normal data
+                  subselectSql = MessageFormat.format(
+                          "  FROM {3} dv, {4} d, {5} m"
+                        + " WHERE {0}.{1} = dv." + DataValueBean.FIELD__PROCESS_INSTANCE
+                        + "   AND dv." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
+                        + "   AND dv." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
+                        + "   AND d." + AuditTrailDataBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
+                        + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
+                        + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{6}''"
+                        ,
+                        new Object[] {
+                              clusterTable, // 0
+                              dataCluster.getProcessInstanceColumn(), // 1
+                              dataSlot.getDataId(), // 2
+                              dataValueTable, // 3
+                              dataTable, // 4
+                              modelTable, // 5
+                              dataSlot.getModelId() // 6
+                              });
+                  dataValuePrefix = "dv";
                }
-               if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
+               else
                {
-                  buffer.append(", ").append(dataSlot.getSValueColumn());
+                  // structured data
+                  subselectSql = MessageFormat.format(
+                        "  FROM {3} d, {4} sd, {5} sdv, {6} p, {8} m"
+                      + " WHERE {0}.{1} = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                      + "   AND sdv." + StructuredDataValueBean.FIELD__XPATH + " = sd." + StructuredDataBean.FIELD__OID
+                      + "   AND sd." + DataValueBean.FIELD__DATA + " = d." + AuditTrailDataBean.FIELD__OID
+                      + "   AND sd." + DataValueBean.FIELD__MODEL + " = d." + AuditTrailDataBean.FIELD__MODEL
+                      + "   AND p." + ProcessInstanceBean.FIELD__OID + " = sdv." + StructuredDataValueBean.FIELD__PROCESS_INSTANCE
+                      + "   AND p." + ProcessInstanceBean.FIELD__MODEL + " = d." + DataValueBean.FIELD__MODEL
+                      + "   AND sd." + StructuredDataBean.FIELD__XPATH + " = ''{7}'' "
+                      + "   AND d." + AuditTrailDataBean.FIELD__ID + " = ''{2}''"
+                      + "   AND d."+ DataValueBean.FIELD__MODEL + " = m." + ModelPersistorBean.FIELD__OID
+                      + "   AND m." + ModelPersistorBean.FIELD__ID + " = ''{9}''"
+                      ,
+                      new Object[] {
+                            clusterTable,
+                            dataCluster.getProcessInstanceColumn(),
+                            dataSlot.getDataId(),
+                            dataTable, // 3
+                            structuredDataTable, // 4
+                            structuredDataValueTable, // 5
+                            processInstanceTable, // 6
+                            dataSlot.getAttributeName(), // 7
+                            modelTable, // 8
+                            dataSlot.getModelId() // 9
+                            });
+                  dataValuePrefix = "sdv";
                }
-               if ( !StringUtils.isEmpty(dataSlot.getDValueColumn()))
-               {
-                  buffer.append(", ").append(dataSlot.getDValueColumn());
-               }
-
-               buffer.append(") = ")
-                     .append("(SELECT "+dataValuePrefix+".").append(DataValueBean.FIELD__OID)
-                     .append(", ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__TYPE_KEY);
-
-               if ( !StringUtils.isEmpty(dataSlot.getNValueColumn()))
-               {
-                  buffer.append(", ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__NUMBER_VALUE);
-               }
-               if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
-               {
-                  buffer.append(", ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__STRING_VALUE);
-               }
-               if ( !StringUtils.isEmpty(dataSlot.getDValueColumn()))
-               {
-                  buffer.append(", ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__DOUBLE_VALUE);
-               }
-
-               buffer.append(subselectSql).append(")");
+   
+               Collection<DataSlotFieldInfo> 
+                  dataSlotColumnsToSynch = syncInfo.getDataSlotColumns(dataSlot);
+               if(dataSlotColumnsToSynch.size() != 0)
+               {              
+                  StringBuffer buffer = new StringBuffer(1000);
+                  buffer.append("UPDATE ").append(clusterTable)
+                        .append(" SET ");
+                  
+                  if (dbDescriptor.supportsMultiColumnUpdates())
+                  {
+                     buffer.append("(");
+                     //which field need to be updated in the cluster table
+                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     while(i.hasNext())
+                     {
+                        DataSlotFieldInfo dataSlotColumn = i.next(); 
+                        buffer.append(dataSlotColumn.name); 
+                        if(i.hasNext())
+                        {
+                           buffer.append(", ");
+                        }
+                     }
+                     buffer.append(")");
+                     buffer.append(" = ");
+                     buffer.append("(");
+                     buffer.append(getColumnValuesSelect(dataSlotColumnsToSynch, dataValuePrefix, subselectSql));
+                     buffer.append(")");
+                  }
+                  else
+                  {
+                     Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
+                     while(i.hasNext())
+                     {
+                        DataSlotFieldInfo dataSlotColumn = i.next();
+                        String updateColumnValueStmt = getColumnValueSelect(dataSlotColumn, dataValuePrefix, subselectSql);
+                        buffer.append(updateColumnValueStmt); 
+                        if(i.hasNext())
+                        {
+                           buffer.append(", ");
+                        }
+                     }
+                  }
+   
+                  executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
+               }            
             }
-            else
-            {
-               buffer.append(dataSlot.getOidColumn()).append(" = ")
-                     .append("(SELECT "+dataValuePrefix+".").append(DataValueBean.FIELD__OID)
-                     .append(subselectSql).append(")");
-
-               buffer.append(", ")
-                     .append(dataSlot.getTypeColumn()).append(" = ")
-                     .append("(SELECT ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__TYPE_KEY)
-                     .append(subselectSql).append(")");
-
-               if ( !StringUtils.isEmpty(dataSlot.getNValueColumn()))
-               {
-                  buffer.append(", ")
-                        .append(dataSlot.getNValueColumn()).append(" = ")
-                        .append("(SELECT ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__NUMBER_VALUE)
-                        .append(subselectSql).append(")");
-               }
-               if ( !StringUtils.isEmpty(dataSlot.getSValueColumn()))
-               {
-                  buffer.append(", ")
-                     .append(dataSlot.getSValueColumn()).append(" = ")
-                     .append("(SELECT ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__STRING_VALUE)
-                     .append(subselectSql).append(")");
-               }
-               if ( !StringUtils.isEmpty(dataSlot.getDValueColumn()))
-               {
-                  buffer.append(", ")
-                     .append(dataSlot.getDValueColumn()).append(" = ")
-                     .append("(SELECT ").append(dataValuePrefix).append(".").append(DataValueBean.FIELD__DOUBLE_VALUE)
-                     .append(subselectSql).append(")");
-               }
-            }
-
-            executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
+         }
+         catch (SQLException x)
+         {
+            String message = "Couldn't synchronize data cluster table '" + clusterTable
+                  + "'. Reason: " + x.getMessage();
+            System.out.println(message);
+            trace.warn(message, x);
+            DataClusterHelper.deleteDataClusterSetup();
+         }
+         try
+         {
+            connection.commit();
+         }
+         catch (SQLException e)
+         {
+            throw new InternalException(e);
          }
       }
-      catch (SQLException x)
-      {
-         String message = "Couldn't synchronize data cluster table '" + clusterTable
-               + "'. Reason: " + x.getMessage();
-         System.out.println(message);
-         trace.warn(message, x);
-      }
-
-      try
-      {
-         connection.commit();
-      }
-      catch (SQLException e)
-      {
-         throw new InternalException(e);
-      }
    }
-
-
+   
    public String getGenericCreateTableStatementString(String schemaName, String tableName,
          List columnDescriptors)
    {
@@ -2164,7 +2283,6 @@ public class DDLManager
       }
 
       buffer.append(StringUtils.join(columnList.iterator(), ",")).append(")");
-
       final String tableOptions = dbDescriptor.getCreateTableOptions();
       if ( !StringUtils.isEmpty(tableOptions))
       {

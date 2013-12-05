@@ -14,20 +14,45 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.apache.commons.collections.IteratorUtils;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.CompareHelper;
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.config.Parameters;
-import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataPath;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IEventHandler;
+import org.eclipse.stardust.engine.api.model.IFormalParameter;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.ITransition;
+import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.api.model.ITriggerType;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.JoinSplitType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
-import org.eclipse.stardust.engine.core.model.utils.*;
+import org.eclipse.stardust.engine.core.model.utils.Connections;
+import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
+import org.eclipse.stardust.engine.core.model.utils.Link;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementBean;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.DeploymentUtils;
@@ -56,6 +81,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    private Link eventHandlers = new Link(this, "Event Handlers");
 
    private Connections transitions = new Connections(this, "Transitions", "outTransitions", "inTransitions");
+   private Connections exceptionTransitions = new Connections(this, "Exception Transitions", "exceptionTransitions", "inTransitions");
 
    private int defaultActivityId = -1;
    private int defaultTransitionId = -1;
@@ -88,21 +114,25 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       }
    }
 
-   public void addToTransitions(ITransition transition)
+   public void addToTransitions(ITransition transition, String condition)
    {
       markModified();
-      Iterator itr = transitions.iterator();
-      while (itr.hasNext())
+      
+      final Iterator iter1 = transitions.iterator();
+      checkForDuplicateTransition(iter1, transition);
+      
+      final Iterator iter2 = exceptionTransitions.iterator();
+      checkForDuplicateTransition(iter2, transition);
+      
+      if (condition != null && TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
       {
-         ITransition t = (ITransition) itr.next();
-         if (CompareHelper.areEqual(t.getFromActivity(), transition.getFromActivity()) &&
-             CompareHelper.areEqual(t.getToActivity(), transition.getToActivity()))
-         {
-            trace.warn("Duplicate transition: "
-                  + this + " - " + transition + " has the same source/target with " + t);
-         }
+         exceptionTransitions.add(transition);
       }
-      transitions.add(transition);
+      else
+      {
+         transitions.add(transition);
+      }
+      
       if (0 <= defaultTransitionId)
       {
          // avoid parsing the transition IDs at runtime as this is pretty CPU intensive
@@ -111,6 +141,20 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       }
    }
 
+   private void checkForDuplicateTransition(final Iterator<ITransition> iter, final ITransition transition)
+   {
+      while (iter.hasNext())
+      {
+         ITransition t = iter.next();
+         if (CompareHelper.areEqual(t.getFromActivity(), transition.getFromActivity()) &&
+             CompareHelper.areEqual(t.getToActivity(), transition.getToActivity()))
+         {
+            trace.warn("Duplicate transition: "
+                  + this + " - " + transition + " has the same source/target with " + t);
+         }
+      }
+   }
+   
    public void addToTriggers(ITrigger trigger)
    {
       markModified();
@@ -188,6 +232,19 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          // Check Implementation of Interface only if it is not a revalidation
          if (!isRevalidation) {
             checkImplementation(inconsistencies);
+            if(declaresInterface)
+            {
+               for(IFormalParameter formalParameter : formalParameters)
+               {
+                  IData data = formalParameter.getData();
+                  if(data == null)
+                  {
+                     inconsistencies.add(new Inconsistency("Invalid Formal Parameter: "
+                           + formalParameter + " has no data set.",
+                           this, Inconsistency.ERROR));                     
+                  }
+               }
+            }
          }
 
          // check Rules for Activities
@@ -372,12 +429,12 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    public ITransition createTransition(String id, String name, String description,
          IActivity fromActivity, IActivity toActivity)
    {
-      return createTransition(id, name, description, fromActivity, toActivity, 0);
+      return createTransition(id, name, description, fromActivity, toActivity, 0, null);
    }
 
    public ITransition createTransition(String id, String name, String description,
          IActivity fromActivity, IActivity toActivity,
-         int elementOID)
+         int elementOID, String condition)
    {
       if (findTransition(id) != null)
       {
@@ -416,7 +473,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          }
    
          if (fromActivity.getSplitType().equals(JoinSplitType.None) &&
-               !fromActivity.getOutTransitions().isEmpty())
+               !fromActivity.getOutTransitions().isEmpty() &&
+               !TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
          {
             throw new PublicException("Multiple outgoing transitions are only allowed for "
                   + "AND or XOR activity splits. Transition OID: " + elementOID
@@ -429,7 +487,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       TransitionBean transition = new TransitionBean(id, name, description,
             fromActivity, toActivity);
 
-      addToTransitions(transition);
+      addToTransitions(transition, condition);
       transition.register(elementOID);
 
       return transition;
@@ -455,7 +513,12 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
    public ITransition findTransition(String id)
    {
-      return (ITransition) transitions.findById(id);
+      ITransition result = (ITransition) transitions.findById(id);
+      if (result == null)
+      {
+         result = (ITransition) exceptionTransitions.findById(id);
+      }
+      return result;
    }
 
    public ITrigger findTrigger(String id)
@@ -494,12 +557,42 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
     */
    public Iterator getAllTransitions()
    {
-      return transitions.iterator();
+      return IteratorUtils.chainedIterator(transitions.iterator(), exceptionTransitions.iterator());
    }
 
    public ModelElementList<ITransition> getTransitions()
    {
-      return transitions;
+      return new ModelElementList<ITransition>()
+      {
+         @Override
+         public ITransition get(final int index)
+         {
+            if (index < transitions.size())
+            {
+               return (ITransition) transitions.get(index);
+            }
+            
+            return (ITransition) exceptionTransitions.get(index - transitions.size());
+         }
+         
+         @Override
+         public boolean isEmpty()
+         {
+            return transitions.isEmpty() && exceptionTransitions.isEmpty();
+         }
+         
+         @Override
+         public Iterator<ITransition> iterator()
+         {
+            return IteratorUtils.chainedIterator(transitions.iterator(), exceptionTransitions.iterator());
+         }
+         
+         @Override
+         public int size()
+         {
+            return transitions.size() + exceptionTransitions.size();
+         }
+      };
    }
 
    public Iterator getAllTriggers()
@@ -727,7 +820,14 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    {
       markModified();
 
-      transitions.remove(transition);
+      if (transitions.contains(transition))
+      {
+         transitions.remove(transition);
+      }
+      else
+      {
+         exceptionTransitions.remove(transition);
+      }
    }
 
    /**

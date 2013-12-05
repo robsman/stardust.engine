@@ -22,8 +22,8 @@ import javax.xml.ws.WebServiceException;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.ProcessInterfaceCommand;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.ws.WebServiceEnv;
@@ -69,13 +69,16 @@ public abstract class GenericWebServiceProvider implements Provider<Source>
       {
          Map<String, ? > dataMap = FormalParameterConverter.buildMap(modelId,
                env.processId(), argsDoc);
-
-         ProcessInstance pi = null;
+         
+         ProcessInterfaceCommand.Result result = null;
+         
          try
          {
             WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
-            pi = wsEnv.getServiceFactory().getWorkflowService().startProcess(
-                  qualifiedProcessId, dataMap, true);
+            
+            ProcessInterfaceCommand command = new ProcessInterfaceCommand(qualifiedProcessId, dataMap, true);
+            result = (ProcessInterfaceCommand.Result) 
+            	wsEnv.getServiceFactory().getWorkflowService().execute(command);
          }
          catch (final Throwable e)
          {
@@ -85,7 +88,7 @@ public abstract class GenericWebServiceProvider implements Provider<Source>
          }
 
          // Response
-         final Document returnDoc = createStartProcessResponse(modelId, env.processId(), pi);
+         final Document returnDoc = createStartProcessResponse(modelId, env.processId(), result);
          LOGGER.debug("<-- invoke()\n" + WsUtils.dom2String(returnDoc, XML_INDENT));
          return new DOMSource(returnDoc);
       }
@@ -169,7 +172,7 @@ public abstract class GenericWebServiceProvider implements Provider<Source>
    }
 
    private Document createStartProcessResponse(final String modelId, final String processId,
-         final ProcessInstance pi)
+         final ProcessInterfaceCommand.Result result)
    {
       String nsModelId = WsUtils.getNamespaceSafeModelID(modelId);
       final Document doc = XmlUtils.newDocument();
@@ -180,19 +183,17 @@ public abstract class GenericWebServiceProvider implements Provider<Source>
       doc.appendChild(root);
 
       Element processInstanceOid = doc.createElementNS(nsModelId, "ProcessInstanceOid");
-      processInstanceOid.setTextContent(Long.valueOf(pi.getOID()).toString());
+      processInstanceOid.setTextContent(Long.valueOf(result.getProcessInstance().getOID()).toString());
       root.appendChild(processInstanceOid);
 
       final Element returnElement = doc.createElementNS(nsModelId, "Return");
       root.appendChild(returnElement);
 
-      if (ProcessInstanceState.Completed.equals(pi.getState()))
+      if (ProcessInstanceState.Completed.equals(result.getProcessInstance().getState()) && result.getProcessResults() != null)
       {
          WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
 
-         Map<String, Serializable> dataMap = wsEnv.getServiceFactory()
-               .getWorkflowService()
-               .getProcessResults(pi.getOID());
+         Map<String, Serializable> dataMap = result.getProcessResults();
 
          FormalParameterConverter.buildNode(modelId, processId, doc, returnElement,
                dataMap);

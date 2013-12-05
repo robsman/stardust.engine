@@ -13,8 +13,6 @@ package org.eclipse.stardust.engine.core.upgrade.jobs;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.stardust.engine.core.upgrade.jobs.m30.M3_0_0from2_5_0Converter;
-
 
 /**
  * @author kberberich, ubirkemeyer
@@ -29,9 +27,7 @@ public class ModelJobs
       if (jobs == null)
       {
          jobs = new LinkedList();
-         jobs.add(new M2_5_0fromPre2_5_0Converter());
-         jobs.add(new M2_5_1from2_5_0Converter());
-         jobs.add(new M3_0_0from2_5_0Converter());
+
       }
       return jobs;
    }

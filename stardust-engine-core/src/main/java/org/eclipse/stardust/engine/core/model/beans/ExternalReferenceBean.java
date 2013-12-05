@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.model.beans;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -138,11 +139,13 @@ public class ExternalReferenceBean implements IExternalReference
    {
       if (schema == null)
       {
+         Map typeDeclarationAttributes = getParent().getAllAttributes();
          String namespaceURI = StructuredTypeRtUtils.parseNamespaceURI(xRef);
          String url = alternateLocation == null ? location : alternateLocation;
          try
          {
-            schema = StructuredTypeRtUtils.getSchema(url, namespaceURI);
+            
+            schema = StructuredTypeRtUtils.getSchema(url, namespaceURI, typeDeclarationAttributes);
             if (trace.isDebugEnabled())
             {
                trace.debug("Loaded schema from location: " + url);
@@ -155,7 +158,7 @@ public class ExternalReferenceBean implements IExternalReference
                // try to load from external url
                try
                {
-                  schema = StructuredTypeRtUtils.getSchema(location, namespaceURI);
+                  schema = StructuredTypeRtUtils.getSchema(location, namespaceURI, typeDeclarationAttributes);
                   if (trace.isDebugEnabled())
                   {
                      trace.debug("Loaded schema from location: " + location);

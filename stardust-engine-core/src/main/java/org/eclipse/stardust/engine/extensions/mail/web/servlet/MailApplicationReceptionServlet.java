@@ -22,9 +22,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.mail.MailConstants;
 import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtils;
 
@@ -48,6 +50,7 @@ public class MailApplicationReceptionServlet extends HttpServlet
       String outputValue = request.getParameter(MailConstants.OUTPUT_VALUE);
       String investigateString = request.getParameter(MailConstants.INVESTIGATE);
       String requestHashCodeString = request.getParameter(MailConstants.HASH_CODE);
+      String partition = request.getParameter(MailConstants.PARTITION);
       
       long processInstanceOID = Long.parseLong(processInstanceOIDString);
       long activityInstanceOID = Long.parseLong(activityInstanceOIDString);
@@ -55,8 +58,9 @@ public class MailApplicationReceptionServlet extends HttpServlet
       
       // compare hashCode retrieved from request with own computed hashCode and handle error if not equal
       int computedHashCode = MailValidationUtils.getQueryParametersHashCode(processInstanceOID,
-            activityInstanceOID, investigate, outputValue);
-      if ( !Integer.toString(computedHashCode).equals(requestHashCodeString))
+            activityInstanceOID, partition, investigate, outputValue);
+      
+      if (!Integer.toString(computedHashCode).equals(requestHashCodeString))
       {
          error(request, response, new Exception("provided hashCode not valid: "
                + requestHashCodeString), null, null, null);
@@ -68,10 +72,19 @@ public class MailApplicationReceptionServlet extends HttpServlet
 
       try
       {
-         String user = getInitParameter("user");
-         String password = getInitParameter("password");
+         if (StringUtils.isEmpty(partition))
+         {
+            partition = Parameters.instance().getString(
+                  SecurityProperties.DEFAULT_PARTITION, "default");
+         }
+         
+    	  Map<String, Object> properties = new HashMap<String, Object>();
+    	  properties.put(SecurityProperties.PARTITION, partition);
+    	  
+    	  String user = getInitParameter("user");
+    	  String password = getInitParameter("password");
 
-         serviceFactory = ServiceFactoryLocator.get(user, password);
+    	  serviceFactory = ServiceFactoryLocator.get(user, password, properties);
       }
       catch (Exception e)
       {
@@ -134,19 +147,20 @@ public class MailApplicationReceptionServlet extends HttpServlet
          out.println("<html>");
          out.println("<head>");
          out.println("<style type='text/css'>");
-         out.println("<!--");
-         out.println("body { background-color:#DBDBDB; font-weight:normal; font-family:Verdana; font-size:12px; }");
-         out.println("-->");
+         out.println("body { background-color:#FFFFFF; font-weight:normal; font-family:Verdana; font-size:12px; }");
          out.println("</style>");
-         out.println("<title>Infinity Mail Confirmation</title>");
+         out.println("<title>E-Mail Confirmation</title>");
          out.println("</head>");
          out.println("<body>");
-         out.println("<img src='images/logo.jpg'/>");
-         out.println("<h1>Mail Confirmation</h1>");
+         out.println("<img src='plugins/common/images/banner.jpg'/>");
+         out.println("<h2>E-Mail Confirmation</h2>");
 
-         out.println("<p>You decided to proceed with \""
-               + activityInstance.getActivity().getName() + "\" with ");
-         out.println("<p>outputValue: " + outputValue + "</p>");
+         out.println("<p>You decided to proceed with <b>"
+               + activityInstance.getActivity().getName() + "</b> and output <b>");
+         
+         out.println(outputValue);
+         
+         out.println("</b>.</p><br>");
          out.println("<p>Thank you for your feedback.</p>");
          out.println("</body>");
          out.println("</html>");
@@ -179,16 +193,14 @@ public class MailApplicationReceptionServlet extends HttpServlet
 
 		out.println("<html>");
 		out.println("<head>");
-      out.println("<style type='text/css'>");
-      out.println("<!--");
-      out.println("body { background-color:#DBDBDB; font-weight:normal; font-family:Verdana; font-size:12px; }");
-      out.println("-->");
-      out.println("</style>");
-		out.println("<title>Prozess History</title>");
+        out.println("<style type='text/css'>");
+        out.println("body { background-color:#FFFFFF; font-weight:normal; font-family:Verdana; font-size:12px; }");
+        out.println("</style>");
+		out.println("<title>Prozess Status</title>");
 		out.println("</head>");
 		out.println("<body>");
-		out.println("<img src='images/logo.jpg'/>");
-		out.println("<h1>Process Status</h1>");
+		out.println("<img src='plugins/common/images/banner.jpg'/>");
+		out.println("<h2>Process Status</h2>");
 		
 		out.println("<table>");		
 		out.println("<tr>");
@@ -266,19 +278,17 @@ public class MailApplicationReceptionServlet extends HttpServlet
          out.println("<html>");
          out.println("<head>");
          out.println("<style type='text/css'>");
-         out.println("<!--");
-         out.println("body { background-color:#DBDBDB; font-weight:normal; font-family:Verdana; font-size:12px; }");
-         out.println("-->");
+         out.println("body { background-color:#FFFFFF; font-weight:normal; font-family:Verdana; font-size:12px; }");
          out.println("</style>");
-         out.println("<title>Mail Confirmation Error</title>");
+         out.println("<title>E-Mail Confirmation Error</title>");
          out.println("</head>");
          out.println("<body>");
-         out.println("<img src='images/logo.jpg'/>");
-         out.println("<h1>Error</h1>");
+         out.println("<img src='plugins/common/images/banner.jpg'/>");
+         out.println("<h2>E-Mail Confirmation Error</h2>");
          out.println("<p>You may have answered the request already.</p>");
          if (StringUtils.isNotEmpty(e.getMessage()))
          {
-            out.println("<p>Error text: " + e.getMessage() + "</p>");
+            out.println("<p><b>Error text:</b> " + e.getMessage() + "</p>");
          }
          out.println("</body>");
          out.println("</html>");

@@ -1723,7 +1723,90 @@
 			</sequence>
 		</complexType>
 	</element>
+	
+	<element name="addDeputy">
+		<complexType>
+			<sequence>
+				<element name="user" type="bat:UserInfo" nillable="true"/>
+				<element name="deputyUser" type="bat:UserInfo" nillable="true"/>
+				<element name="options" type="bat:DeputyOptions" nillable="true"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="addDeputyResponse">
+		<complexType>
+			<sequence>
+				<element name="deputy" type="bat:Deputy" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="modifyDeputy">
+		<complexType>
+			<sequence>
+				<element name="user" type="bat:UserInfo" nillable="true"/>
+				<element name="deputyUser" type="bat:UserInfo" nillable="true"/>
+				<element name="options" type="bat:DeputyOptions" nillable="true"/>			</sequence>
+		</complexType>
+	</element>
 
+	<element name="modifyDeputyResponse">
+		<complexType>
+			<sequence>
+				<element name="deputy" type="bat:Deputy" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeDeputy">
+		<complexType>
+			<sequence>
+				<element name="user" type="bat:UserInfo" nillable="true"/>
+				<element name="deputyUser" type="bat:UserInfo" nillable="true"/>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="removeDeputyResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDeputies">
+		<complexType>
+			<sequence>
+				<element name="user" type="bat:UserInfo" nillable="true"/>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getDeputiesResponse">
+		<complexType>
+			<sequence>
+				<element name="deputies" type="bat:Deputies" nillable="true"/>
+			</sequence>
+		</complexType>
+	</element>
+	
+	<element name="getUsersBeingDeputyFor">
+		<complexType>
+			<sequence>
+				<element name="deputyUser" type="bat:UserInfo" nillable="true"/>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="getUsersBeingDeputyForResponse">
+		<complexType>
+			<sequence>
+				<element name="deputies" type="bat:Deputies" nillable="true"/>
+			</sequence>
+		</complexType>
+	</element>
+	
 	<!-- AdministrationService -->
 
 	<element name="getPasswordRules">

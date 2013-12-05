@@ -13,16 +13,28 @@ package org.eclipse.stardust.test.api.setup;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
+import org.eclipse.stardust.engine.api.runtime.DeploymentException;
+import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
+import org.eclipse.stardust.engine.api.runtime.DeploymentOptions;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.test.api.setup.TestRtEnvException.TestRtEnvAction;
+import org.eclipse.stardust.test.api.util.ActivityInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.DaemonHome;
+import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 
 /**
  * <p>
@@ -75,12 +87,15 @@ public class RtEnvHome
     * </p>
     * 
     * @param adminService an administration service of a user authorized to deploy models
+    * @param deploymentOptions the deployment options; may be null, in that case default deployment options are used
     * @param modelNames the names of the models without extension (which will be assumed to be <code>xpdl</code>)
+    * 
+    * @return deployment information, including possible errors or warnings, one {@link DeploymentInfo} per {@link DeploymentElement}
     * 
     * @throws ModelIOException if an exception occurs while reading the model from the file system
     * @throws DeploymentException if an exception occurs during model deployment
     */
-   public static void deploy(final AdministrationService adminService, final String ... modelNames) throws ModelIOException, DeploymentException
+   public static List<DeploymentInfo> deploy(final AdministrationService adminService, final DeploymentOptions deploymentOptions, final String ... modelNames) throws ModelIOException, DeploymentException
    {
       if (adminService == null)
       {
@@ -102,12 +117,32 @@ public class RtEnvHome
          deploymentElements.add(deploymentElement);
       }
       
-      adminService.deployModel(deploymentElements, DeploymentOptions.DEFAULT);
+      return adminService.deployModel(deploymentElements, deploymentOptions);
+   }
+   
+   /**
+    * Undeploys the model specified by the given OID.
+    *
+    * @param modelOid the runtime OID of the model to be deleted
+    *
+    * @return deployment information, including possible errors or warnings
+    * 
+    * @throws DeploymentException if an exception occurs during model undeployment
+    */
+   public static DeploymentInfo undeployModel(final AdministrationService adminService, final long modelOid)
+   {
+      if (adminService == null)
+      {
+         throw new NullPointerException("Administration Service must not be null.");
+      }
+      
+      return adminService.deleteModel(modelOid);
    }
    
    /**
     * <p>
-    * Cleans up the Audit Trail runtime and all deployed models.
+    * Cleans up the Audit Trail runtime and all deployed models. Plus, it cleans up the test
+    * data structures {@link ActivityInstanceStateBarrier} as well as {@link ProcessInstanceStateBarrier}.
     * </p>
     * 
     * @param adminService an administration service of a user authorized to clean up the runtime
@@ -115,6 +150,9 @@ public class RtEnvHome
     */
    public static void cleanUpRuntimeAndModels(final AdministrationService adminService) throws TestRtEnvException
    {
+      ActivityInstanceStateBarrier.instance().cleanUp();
+      ProcessInstanceStateBarrier.instance().cleanUp();
+      
       stopAllRunningDaemons(adminService);
       
       LOG.debug("Trying to clean up the Audit Trail runtime and all deployed models.");
@@ -130,7 +168,8 @@ public class RtEnvHome
 
    /**
     * <p>
-    * Cleans up the runtime (including user removal), but keeps the deployed models.
+    * Cleans up the runtime (including user removal), but keeps the deployed models. Plus, it cleans up the
+    * test data structures {@link ActivityInstanceStateBarrier} as well as {@link ProcessInstanceStateBarrier}.
     * </p>
     * 
     * @param adminService an administration service of a user authorized to clean up the runtime
@@ -138,6 +177,9 @@ public class RtEnvHome
     */
    public static void cleanUpRuntime(final AdministrationService adminService) throws TestRtEnvException
    {
+      ActivityInstanceStateBarrier.instance().cleanUp();
+      ProcessInstanceStateBarrier.instance().cleanUp();
+      
       stopAllRunningDaemons(adminService);
       
       LOG.debug("Trying to clean up the Audit Trail runtime.");

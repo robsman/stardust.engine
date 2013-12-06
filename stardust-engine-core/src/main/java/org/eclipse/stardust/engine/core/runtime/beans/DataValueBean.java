@@ -36,6 +36,8 @@ import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
 public class DataValueBean extends IdentifiablePersistentBean
       implements IDataValue, BigData
 {
+   static final long serialVersionUID = 4318266384828760674L;
+
    private static final Logger trace = LogManager.getLogger(DataValueBean.class);
 
    /**
@@ -414,12 +416,12 @@ public class DataValueBean extends IdentifiablePersistentBean
 
       if (this.data == 0)
       {
-    	  throw new InternalException(
-					MessageFormat
-							.format(
-									"DataValueBean for process instance {0} and data {1} cannot be created as the data reference cannot be resolved.",
-									new Object[] { processInstance.getOID(),
-											data.getId() }));
+         throw new InternalException(
+               MessageFormat
+                     .format(
+                           "DataValueBean for process instance {0} and data {1} cannot be created as the data reference cannot be resolved.",
+                           new Object[] { processInstance.getOID(),
+                                 data.getId() }));
       }
 
       if (trace.isDebugEnabled())
@@ -578,7 +580,7 @@ public class DataValueBean extends IdentifiablePersistentBean
    public String getShortStringValue()
    {
       fetch();
-      return string_value;
+      return string_value == null && type_key == BigData.STRING ? "" : string_value;
    }
 
    public void setShortStringValue(String value)

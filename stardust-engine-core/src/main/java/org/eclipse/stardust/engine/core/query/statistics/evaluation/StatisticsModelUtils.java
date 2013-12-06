@@ -116,9 +116,9 @@ public class StatisticsModelUtils
          final Set<ParticipantDepartmentPair> mpIds)
    {
       final ModelManager modelManager = ModelManagerFactory.getCurrent();
-      
+
       final Map<String, Set<ParticipantDepartmentPair>> lookup = CollectionUtils.newMap();
-      
+
       if(null != mpIds)
       {
          for(ParticipantDepartmentPair pdPair : mpIds)
@@ -147,13 +147,13 @@ public class StatisticsModelUtils
                {
                   Set<ParticipantDepartmentOidPair> oidPairs = CollectionUtils.newSet();
                   long runtimeOid = modelManager.getRuntimeOid(participant);
-                  
+
                   for(ParticipantDepartmentPair pdPair : pdPairs)
                   {
-                     oidPairs.add(new ParticipantDepartmentOidPair(runtimeOid, 
+                     oidPairs.add(new ParticipantDepartmentOidPair(runtimeOid,
                            pdPair.getDepartmentOid()));
                   }
-                  
+
                   resultTable.put(qPId, oidPairs);
                }
             }
@@ -344,11 +344,11 @@ public class StatisticsModelUtils
          String paramName, String parsedParamName)
    {
       Period duration = null;
-      
+
       if (null != modelElement)
       {
          Object durationValue = modelElement.getAttribute(paramName);
-         
+
          if (durationValue instanceof Period)
          {
             duration = (Period) durationValue;
@@ -391,7 +391,8 @@ public class StatisticsModelUtils
                   }
                }
 
-               if (null != duration && modelElement instanceof IProcessDefinition)
+               if (null != duration
+                     && (modelElement instanceof IProcessDefinition || modelElement instanceof IActivity))
                {
                   if(duration.get(Period.YEARS) == 0 &
                         duration.get(Period.MONTHS) == 0 &
@@ -416,7 +417,7 @@ public class StatisticsModelUtils
                      duration = null;
                   }
                }
-               
+
                modelElement.setRuntimeAttribute(parsedParamName, duration);
             }
          }

@@ -133,7 +133,7 @@
            org.eclipse.stardust.engine.extensions.dms.data.annotations.printdocument, org.eclipse.stardust.engine.api.web.dms,
            org.eclipse.stardust.engine.cli.security.authentication, org.eclipse.stardust.engine.core.spi.cluster, 
            org.eclipse.stardust.engine.core.spi.monitoring, org.eclipse.stardust.engine.core.spi.preferences, 
-           org.eclipse.stardust.engine.core.compatibility.ui.preferences.spi">
+           org.eclipse.stardust.engine.core.compatibility.ui.preferences.spi, org.eclipse.stardust.engine.core.compatibility.spi.security">
          <classpaths>
             <classpath>
                <path location="${build.classes}"/>
@@ -433,6 +433,7 @@
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IWorklistMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IPartitionMonitor.java" />           
                <include name="org/eclipse/stardust/engine/core/spi/preferences/IStaticConfigurationProvider.java" />
+               <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/DefaultPrincipalNameProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/PrincipalNameProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/ui/preferences/spi/IStaticConfigurationProvider.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/ExternalLoginProvider.java" />

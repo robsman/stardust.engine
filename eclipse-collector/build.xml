@@ -23,7 +23,6 @@
       <contains string="${eclipse-site}" substring="staging" casesensitive="false" />
    </condition>
    <property name="eclipse.download.dir" location="${buildtools.home}/lib/org/eclipse" />
-   <available file="${eclipse.download.dir}" type="dir" property="eclipse.artifacts.present"/>
 
    <target name="init">
       <property name="build.dir" value="${project.dir}/build" />
@@ -32,6 +31,14 @@
       <property name="build.lib.src" value="${build.dir}/src" />
       <property name="build.src" value="${build.dir}/src" />
       <property name="build.src.none" location="${build.dir}/src-none" />
+   </target>
+
+   <target name="clean" if="force.eclipse.download.cleanup" depends="init">
+      <delete dir="${eclipse.download.dir}" />
+   </target>
+
+   <target name="initDownloadDir">
+      <available file="${eclipse.download.dir}" type="dir" property="eclipse.artifacts.present"/>
    </target>
 
 	<target name="initIvy">
@@ -61,7 +68,7 @@
      <download-eclipse-artifact name="org.eclipse.equinox.registry" version="${common.org.eclipse.equinox.registry.version}" />
    </target>
    
-   <target name="deploy" depends="retrieve-eclipse-artifacts" />
+   <target name="deploy" depends="clean,initDownloadDir,retrieve-eclipse-artifacts" />
 
    <macrodef name="install-artifact">
       <attribute name="groupId" />

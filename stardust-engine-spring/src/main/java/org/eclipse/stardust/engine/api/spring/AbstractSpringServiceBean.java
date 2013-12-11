@@ -27,16 +27,16 @@ import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 
 public abstract class AbstractSpringServiceBean
-      implements ManagedService, ApplicationContextAware, BeanFactoryAware, InitializingBean, ISpringServiceBean
+      implements ManagedService, ApplicationContextAware, BeanFactoryAware, InitializingBean, DisposableBean, ISpringServiceBean
 {
    private final Class serviceInterfaceType;
 
@@ -49,15 +49,15 @@ public abstract class AbstractSpringServiceBean
    private PlatformTransactionManager txManager;
 
    private DataSource dataSource;
-   
+
    private IDocumentRepositoryService dmsProvider;
-   
+
    private IJmsResourceProvider jmsResourceProvider;
 
    private ForkingServiceFactory forkingServiceFactory;
-   
+
    private PrincipalProvider principalProvider;
-   
+
    private Properties properties;
 
    protected Object serviceProxy;
@@ -190,6 +190,12 @@ public abstract class AbstractSpringServiceBean
       }, invocationManager);
    }
 
+   @Override
+   public void destroy() throws Exception
+   {
+      serviceProxy = null;
+   }
+
    public void login(String username, String password)
    {
       login(username, password, Collections.EMPTY_MAP);
@@ -201,7 +207,7 @@ public abstract class AbstractSpringServiceBean
       try
       {
          InvokerPrincipalUtils.removeCurrent();
-         
+
          return ((ManagedService) serviceProxy).login(username, password, properties);
       }
       finally

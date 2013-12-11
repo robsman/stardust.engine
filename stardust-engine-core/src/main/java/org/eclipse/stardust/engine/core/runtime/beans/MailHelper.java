@@ -30,15 +30,27 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
-
 /**
- *@author mgille
+ * @author mgille
  */
 public class MailHelper
 {
    public static final Logger trace = LogManager.getLogger(MailHelper.class);
+
+   private static final String PROP_MAIL_SMTP_SOCKETFACTORY_PORT = "mail.smtp.socketFactory.port";
+
+   private static final String PROP_MAIL_SMTP_SOCKETFACTORY_CLASS = "mail.smtp.socketFactory.class";
+
+   private static final String PROP_MAIL_SMTP_AUTH_ENABLED = "mail.smtp.auth";
+
+   private static final String PROP_MAIL_SMTP_PORT = "mail.smtp.port";
+
+   private static final String PROP_MAIL_SMTP_USER = "mail.smtp.user";
+
+   private static final String PROP_MAIL_SMTP_PASSWORD = "mail.smtp.password";
 
    /**
     * Sends all CARNOT workflow engine mails
@@ -49,7 +61,8 @@ public class MailHelper
 
       if (from == null)
       {
-         throw new PublicException("No property '" + EngineProperties.MAIL_SENDER + "' specified.");
+         throw new PublicException("No property '" + EngineProperties.MAIL_SENDER
+               + "' specified.");
       }
 
       String host = Parameters.instance().getString(EngineProperties.MAIL_HOST);
@@ -59,16 +72,42 @@ public class MailHelper
          throw new PublicException("No property 'Mail.Host' specified.");
       }
 
-      boolean debug = Parameters.instance().getBoolean(EngineProperties.MAIL_DEBUG, false);
+      boolean debug = Parameters.instance()
+            .getBoolean(EngineProperties.MAIL_DEBUG, false);
 
       // Create properties and get the default session
 
       Properties properties = new Properties();
 
       properties.put("mail.smtp.host", host);
+      properties.put("mail.debug", debug);
 
-      Session session = Session.getInstance(properties);
+      Session session = null;
 
+      boolean smtpAuth = Parameters.instance().getBoolean(PROP_MAIL_SMTP_AUTH_ENABLED,
+            true);
+
+      addSmtpProperties(properties);
+
+      if (smtpAuth)
+      {
+         trace.info("SMTP Auth is set to :" + smtpAuth);
+         final String smtpUsername = Parameters.instance().getString(PROP_MAIL_SMTP_USER);
+         final String smtpPassword = Parameters.instance().getString(
+               PROP_MAIL_SMTP_PASSWORD);
+
+         session = Session.getInstance(properties, new javax.mail.Authenticator()
+         {
+            protected javax.mail.PasswordAuthentication getPasswordAuthentication()
+            {
+               return new javax.mail.PasswordAuthentication(smtpUsername, smtpPassword);
+            }
+         });
+      }
+      else
+      {
+         session = Session.getInstance(properties);
+      }
       session.setDebug(debug);
 
       try
@@ -79,7 +118,7 @@ public class MailHelper
 
          _message.setFrom(new InternetAddress(from));
 
-         //Separate nulls, If empty simply return.
+         // Separate nulls, If empty simply return.
          Collection _validaddresses = new LinkedList();
 
          for (int n = 0; n < receivers.length; ++n)
@@ -96,13 +135,15 @@ public class MailHelper
          if (_validAddressesCount == 0)
          {
             AuditTrailLogger.getInstance(LogCode.ENGINE).warn(
-                  "No participant email avaliable as receipient for the message: " + message);
+                  "No participant email avaliable as receipient for the message: "
+                        + message);
             return;
          }
 
          InternetAddress[] _internetAddresses = new InternetAddress[_validAddressesCount];
 
-         System.arraycopy(_validaddresses.toArray(), 0, _internetAddresses, 0, _validAddressesCount);
+         System.arraycopy(_validaddresses.toArray(), 0, _internetAddresses, 0,
+               _validAddressesCount);
 
          _message.setRecipients(Message.RecipientType.TO, _internetAddresses);
          _message.setSubject(subject);
@@ -133,5 +174,29 @@ public class MailHelper
          trace.warn("", x);
          throw new PublicException("Cannot send notification message: " + x);
       }
+   }
+
+   private static Properties addSmtpProperties(Properties properties)
+   {
+      String socketFactoryPort = Parameters.instance().getString(
+            PROP_MAIL_SMTP_SOCKETFACTORY_PORT, "465");
+      String socketFactoryClass = Parameters.instance().getString(
+            PROP_MAIL_SMTP_SOCKETFACTORY_CLASS, "javax.net.ssl.SSLSocketFactory");
+      String smtpAuth = Parameters.instance().getString(PROP_MAIL_SMTP_AUTH_ENABLED,
+            "true");
+      String smtpPort = Parameters.instance().getString(PROP_MAIL_SMTP_PORT, "465");
+      // properties.put("mail.smtp.starttls.enable","true");
+
+      properties.put("mail.smtp.socketFactory.port", socketFactoryPort);
+      properties.put("mail.smtp.socketFactory.class", socketFactoryClass);
+      properties.put("mail.smtp.auth", smtpAuth);
+      /*
+       * if(smtpAuth){ properties.put("mail.smtp.auth", "true"); } else{
+       * properties.put("mail.smtp.auth", "false"); }
+       */
+
+      properties.put("mail.smtp.port", smtpPort);
+
+      return properties;
    }
 }

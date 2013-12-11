@@ -249,26 +249,53 @@ public class RouteHelper
     */
    public static void stopAndRemoveRunningRoute(CamelContext camelContext, String routeId)
    {
-      if (camelContext != null && !camelContext.getRoutes().isEmpty())
-      {
-
-         try
-         {
-            stopRunningRoute(camelContext, routeId);
-
-            camelContext.removeRoute(routeId);
-
-            logger.info("Route " + routeId + " is removed from context " + camelContext.getName());
-
-         }
-         catch (Exception e)
-         {
-            logger.error("Failed removing route from context.", e);
-         }
-      }
+	   if (camelContext != null)
+	      {	  
+	    	  if(!camelContext.getRoutes().isEmpty())
+	    	  {
+		         try
+		         {
+		            stopRunningRoute(camelContext, routeId);
+		
+		            camelContext.removeRoute(routeId);
+		
+		            logger.info("Route " + routeId + " is removed from context " + camelContext.getName());
+		
+		         }
+		         catch (Exception e)
+		         {
+		            logger.error("Failed removing route from context.", e);
+		         }
+	    	  }
+	    	  else
+	    	  {
+	    		  // clear route definition related to the same routeId
+	    		  removeRouteDefinition(camelContext, routeId);
+	    	  }
+	      }
 
    }
-
+   
+   /**
+    * Removes a route definition in camelContext
+    * 
+    * @param camelContext
+    * @param routeId
+    */
+   @SuppressWarnings("deprecation")
+   private static void removeRouteDefinition(CamelContext camelContext, String routeId)
+   {
+	   RouteDefinition routeDefinition = camelContext.getRouteDefinition(routeId);
+	   try 
+	   {
+		camelContext.removeRouteDefinition(routeDefinition);
+	   } 
+	   catch (Exception e)
+       {
+          logger.error("Failed removing route definition from context.", e);
+       }
+   }
+   
    private static String value(String value)
    {
       return new StringBuilder(SPRING_XML_VALUE_ELT_HEADER + value + SPRING_XML_VALUE_ELT_FOOTER).toString();

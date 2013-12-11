@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import org.eclipse.stardust.common.Period;
+import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.pojo.data.QNameConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
@@ -33,6 +37,7 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
    private final static String XSD_DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
    // TODO remove this workaround for P&M
    private final static String P_AND_M_DATETIME_FORMAT = "EEE MMM dd HH:mm:ss z yyyy";
+   
    
    public static Object convertTo(int typeKey, String stringValue)
    {
@@ -141,6 +146,116 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       }
    }
    
+   public static Object convertTo(TypedXPath xPath, String stringValue)
+   {
+      try
+      {
+         if (stringValue == null)
+         {
+            return null;
+         }
+         else if (QNameConstants.QN_SHORT.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            return new Short(stringValue);
+         }
+         else if (QNameConstants.QN_INT.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            return new Integer(stringValue);
+         }
+         else if (QNameConstants.QN_LONG.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            return new Long(stringValue);
+         }
+         else if (QNameConstants.QN_BYTE.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            return new Byte(stringValue);
+         }
+         else if (QNameConstants.QN_BOOLEAN.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            return new Boolean(stringValue);
+         }
+         else if (QNameConstants.QN_DATE.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            SimpleDateFormat df;
+            try
+            {
+               df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
+               df.setLenient(false);
+               return df.parse(stringValue);
+            }
+            catch (Exception e1)
+            {
+               try
+               {
+                  // RPI: Workaround for CRNT-25389
+                  SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
+                  String dateString = sd.format(new Date());
+                  String tempStrValue = dateString + "T" + stringValue;
+                  df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
+                  df.setLenient(false);
+                  return df.parse(tempStrValue);
+               }
+               catch (Exception e2)
+               {
+                  try
+                  {
+                     df = new SimpleDateFormat(XSD_DATE_FORMAT);
+                     df.setLenient(false);
+                     return df.parse(stringValue);
+                  }
+                  catch (Exception e3)
+                  {
+                     try
+                     {
+                        df = new SimpleDateFormat(P_AND_M_DATETIME_FORMAT, Locale.US);
+                        df.setLenient(false);
+                        return df.parse(stringValue);
+                     }
+                     catch (Exception e4)
+                     {
+                        throw new PublicException("Could not parse date/time/datetime '"
+                              + stringValue
+                              + "' using standard XSD date/time/datetime formats '"
+                              + XSD_DATE_FORMAT + "', '" + XSD_TIME_FORMAT + "', '"
+                              + XSD_DATETIME_FORMAT + "' and additional format '"
+                              + P_AND_M_DATETIME_FORMAT + "'.");
+                     }
+                  }
+               }
+            }
+         }
+         else if (QNameConstants.QN_FLOAT.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            return new Float(stringValue);
+         }
+         else if (QNameConstants.QN_DOUBLE.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            return new Double(stringValue);
+         }
+         else if (QNameConstants.QN_STRING.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            return stringValue;
+         }
+         else if (QNameConstants.QN_DECIMAL.getLocalPart().equals(xPath.getXsdTypeName()))
+         {
+            new BigDecimal(stringValue);
+
+            return stringValue;
+         }
+         else
+         {
+            throw new PublicException("XSD type '" + xPath.getXsdTypeName()
+                  + "' is not supported yet");
+         }
+      }
+
+      catch (Exception e)
+      {
+         throw new InvalidValueException(
+               BpmRuntimeError.BPMRT_INCOMPATIBLE_TYPE_FOR_DATA.raise(xPath.getXsdElementName()), e);
+      }
+   }   
+   
    public static String convertToString(int typeKey, String xsdTypeName, Object value)
    {
       if (value == null)
@@ -215,6 +330,7 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       {
          throw new PublicException("BigData type '" + typeKey + "' is supported yet");
       }
+
    }
 
    public IStructuredDataValue createKeyedElementEntry(IProcessInstance scopeProcessInstance, long parentOid,

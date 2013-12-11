@@ -137,7 +137,7 @@
 		<ivy:resolve file="${project.dir}/ivy.xml" />
 		<ivy-make-module-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" moduleName="stardust-engine-camel-module" />
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" publishIvy="true" />
-      <ivy:retrieve file="${project.dir}/ivy.xml" conf="stardust-camel-module-runtime" 
+      <ivy:retrieve file="${project.dir}/ivy.xml" conf="stardust-engine-camel-module-runtime" 
          pattern="${build.lib}/[artifact]-[revision].[ext]" transitive="false" />
       <!-- remove duplicated dependencies -->
       <delete>

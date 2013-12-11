@@ -17,27 +17,27 @@
 	<info organisation="org.eclipse.stardust.engine" module="stardust-engine-camel" revision="${ipp.version.full}" />
 
 	<configurations>
-		<conf name="stardust-camel-compile" description="Stardust Camel Application Type RT - Compile Scope" />
-		<conf name="stardust-camel-compile-optional"	description="Stardust Camel Application Type RT - (Optional) Compile Scope" />
-		<conf name="stardust-camel-provided" description="Stardust Camel Application Type RT - Provided Scope" />
-		<conf name="stardust-camel-runtime" description="Stardust Camel Application Type RT - Runtime Scope" />
-		<conf name="stardust-camel-module-compile" extends="stardust-camel-compile" description="Stardust Camel Application Type RT Module - Compile Scope" />
-		<conf name="stardust-camel-module-runtime" extends="stardust-camel-module-compile, stardust-camel-runtime" description="Stardust Camel Application Type RT Module - Runtime Scope" />
-      <conf name="stardust-camel-sources" description="Stardust Camel Sources" />
+		<conf name="stardust-engine-camel-compile" description="Stardust Camel Application Type RT - Compile Scope" />
+		<conf name="stardust-engine-camel-compile-optional"	description="Stardust Camel Application Type RT - (Optional) Compile Scope" />
+		<conf name="stardust-engine-camel-provided" description="Stardust Camel Application Type RT - Provided Scope" />
+		<conf name="stardust-engine-camel-runtime" description="Stardust Camel Application Type RT - Runtime Scope" />
+		<conf name="stardust-engine-camel-module-compile" extends="stardust-engine-camel-compile" description="Stardust Camel Application Type RT Module - Compile Scope" />
+		<conf name="stardust-engine-camel-module-runtime" extends="stardust-engine-camel-module-compile, stardust-engine-camel-runtime" description="Stardust Camel Application Type RT Module - Runtime Scope" />
+      <conf name="stardust-engine-camel-sources" description="Stardust Camel Sources" />
       
-		<conf name="compile" extends="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided" visibility="private" description="Compile Time Dependencies" />
-    <conf name="runtime" extends="stardust-camel-runtime"  visibility="private" />
+		<conf name="compile" extends="stardust-engine-camel-compile, stardust-engine-camel-compile-optional, stardust-engine-camel-provided" visibility="private" description="Compile Time Dependencies" />
+    <conf name="runtime" extends="stardust-engine-camel-runtime"  visibility="private" />
 		<conf name="test" visibility="private" description="Test dependencies" />
 		<conf name="pom" description="Stardust Camel Application Type RT - POMs" />       
 		<conf name="module-pom" description="Stardust Module POMs" />
 
     <!-- Map configurations for ivy:makepom task -->
-    <conf name="ipp-camel-compile" extends="stardust-camel-compile" />
-		<conf name="ipp-camel-compile-optional"	extends="stardust-camel-compile-optional" />
-		<conf name="ipp-camel-provided" extends="stardust-camel-provided" />
-		<conf name="ipp-camel-runtime" extends="stardust-camel-runtime" />
-		<conf name="ipp-camel-module-compile" extends="stardust-camel-module-compile" />
-		<conf name="ipp-camel-module-runtime" extends="stardust-camel-module-runtime" />
+    <conf name="ipp-camel-compile" extends="stardust-engine-camel-compile" />
+		<conf name="ipp-camel-compile-optional"	extends="stardust-engine-camel-compile-optional" />
+		<conf name="ipp-camel-provided" extends="stardust-engine-camel-provided" />
+		<conf name="ipp-camel-runtime" extends="stardust-engine-camel-runtime" />
+		<conf name="ipp-camel-module-compile" extends="stardust-engine-camel-module-compile" />
+		<conf name="ipp-camel-module-runtime" extends="stardust-engine-camel-module-runtime" />
 
       <!-- compound configurations which encapsulates the above mentioned configs -->
       <conf name="all" visibility="private" extends="compile, runtime, test" />
@@ -45,9 +45,9 @@
 
 	<publications>
 		<artifact name="stardust-engine-camel" type="jar"
-			conf="stardust-camel-compile, stardust-camel-compile-optional, stardust-camel-provided, stardust-camel-runtime"
+			conf="stardust-engine-camel-compile, stardust-engine-camel-compile-optional, stardust-engine-camel-provided, stardust-engine-camel-runtime"
 			ext="jar" />
-		<artifact name="stardust-engine-camel" type="source" conf="stardust-camel-sources" ext="jar"  m:classifier="sources"/>
+		<artifact name="stardust-engine-camel" type="source" conf="stardust-engine-camel-sources" ext="jar"  m:classifier="sources"/>
 		<artifact name="stardust-engine-camel" type="pom" conf="pom" ext="pom" />
 		<artifact name="stardust-engine-camel-module" type="pom" conf="module-pom"
 			ext="pom" />
@@ -56,19 +56,19 @@
 	<dependencies>
 		<!-- stardust-engine-camel-compile -->
 		<dependency org="org.apache.camel" name="camel-core" rev="${camel-core.version}"
-			conf="stardust-camel-compile->default">
+			conf="stardust-engine-camel-compile->default">
 			<exclude org="org.slf4j" module="slf4j-api" />
 		</dependency>
 
 		<dependency org="org.apache.camel" name="camel-spring" rev="${camel-spring.version}"
-			conf="stardust-camel-compile->default">
+			conf="stardust-engine-camel-compile->default">
 			<exclude org="org.apache.camel" module="camel-core" />
 			<exclude org="org.springframework" module="spring-context" />
 			<exclude org="org.springframework" module="spring-aop" />
 			<exclude org="org.springframework" module="spring-tx" />
 		</dependency>
 		<dependency org="org.apache.camel" name="camel-jms" rev="${camel-jms.version}"
-			conf="stardust-camel-runtime->default">
+			conf="stardust-engine-camel-runtime->default">
 			<exclude org="org.apache.camel" module="camel-core" />
 			<exclude org="org.apache.camel" module="camel-spring" />
 			<exclude org="org.springframework" module="spring-jms" />
@@ -78,42 +78,42 @@
 			<exclude org="org.springframework" module="spring-beans" />
 		</dependency>
 		<dependency org="org.apache.camel" name="camel-quartz" rev="${camel-quartz.version}"
-			conf="stardust-camel-compile->default">
+			conf="stardust-engine-camel-compile->default">
 			<exclude org="org.apache.camel" module="camel-core" />
 			<exclude org="org.slf4j" module="slf4j-api" />
 			<exclude org="commons-collections" module="commons-collections" />
          <exclude org="javax.transaction" module="jta"/>
 		</dependency>
       <dependency org="commons-codec" name="commons-codec" rev="${commons-codec.version}"
-      conf="stardust-camel-runtime->default" />
+      conf="stardust-engine-camel-runtime->default" />
 		<dependency org="javax.mail" name="mail" rev="${mail.version}"
-			conf="stardust-camel-runtime->default" />
+			conf="stardust-engine-camel-runtime->default" />
 		<dependency org="org.apache.camel" name="camel-restlet"
-			rev="${camel-restlet.version}" conf="stardust-camel-compile->default">
+			rev="${camel-restlet.version}" conf="stardust-engine-camel-compile->default">
 			<exclude org="org.apache.camel" module="camel-core" />
 		</dependency>
 		<dependency org="jdom" name="jdom" rev="${jdom.version}"
-			conf="stardust-camel-compile->default" />
+			conf="stardust-engine-camel-compile->default" />
 		<dependency org="commons-io" name="commons-io" rev="${commons-io.version}"
-			conf="stardust-camel-compile->default" />
+			conf="stardust-engine-camel-compile->default" />
 
-	  <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->engine-module-compile" />
-		<dependency org="org.eclipse.stardust.engine" name="carnot-spring-module" rev="${ipp.version.full}" conf="stardust-camel-compile->spring-module-compile">
+	  <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-camel-compile->engine-module-compile" />
+		<dependency org="org.eclipse.stardust.engine" name="carnot-spring-module" rev="${ipp.version.full}" conf="stardust-engine-camel-compile->spring-module-compile">
 			<exclude org="org.springframework" module="spring-web" />
 			<exclude org="org.springframework" module="spring-jdbc" />
 			<exclude org="org.springframework" module="spring-jms" />
 			<exclude org="org.springframework" module="spring-context-support" />
 		</dependency>
-		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->jms-api-module-compile" />
-	  <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->ejb21-module-compile" />
-		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-compile->logging-slf4j-log4j-module-compile" />
+		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-camel-compile->jms-api-module-compile" />
+	  <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-camel-compile->ejb21-module-compile" />
+		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-camel-compile->logging-slf4j-log4j-module-compile" />
 
-		<dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="stardust-camel-compile->logging-log4j-module-runtime" />
+		<dependency org="org.eclipse.stardust.engine" name="stardust-engine-base-module" rev="${ipp.version.full}" conf="stardust-engine-camel-compile->logging-log4j-module-runtime" />
 
-		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-camel-provided->web-client-module-provided" />
-		<dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="stardust-camel-runtime->default" />
+		<dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="stardust-engine-camel-provided->web-client-module-provided" />
+		<dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="stardust-engine-camel-runtime->default" />
 
-		<dependency org="commons-lang" name="commons-lang" rev="${commons-lang.version}" conf="stardust-camel-compile->default" />
+		<dependency org="commons-lang" name="commons-lang" rev="${commons-lang.version}" conf="stardust-engine-camel-compile->default" />
 
 		<!-- package org.eclipse.xsd is mapped to com.infinity.bpm.thirdparty.xsd 
 			which is repackaged into carnot-engine. Therefore we doesn't need to include 
@@ -123,9 +123,9 @@
 			<artifact name="org.eclipse.xsd" type="jar" />
 		</dependency>
 		<dependency org="com.google.code.gson" name="gson" rev="${gson.version}"
-			conf="stardust-camel-compile->default" />
+			conf="stardust-engine-camel-compile->default" />
 		<dependency org="org.apache.camel" name="camel-script" rev="${camel-script.version}"
-			conf="stardust-camel-runtime->default" />
+			conf="stardust-engine-camel-runtime->default" />
 
 		<dependency org="junit" name="junit" rev="${junit.version}"
 			conf="test->default">

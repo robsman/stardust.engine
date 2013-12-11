@@ -173,11 +173,13 @@
   <target name="install" if="maven.localRepository" depends="initBuild" description="installs the artifacts into a local Maven repository">
     <ipp:init-mvn localMavenRepository="${maven.localRepository}" />
     <ipp:mvn-install file="${stardust-engine-camel.jar}" pomFile="${build.lib}/stardust-engine-camel.pom" />
+    <ipp:mvn-install pomFile="${build.lib}/stardust-engine-camel-module.pom" />
   </target>
 
   <target name="publish" depends="initBuild" description="publish artifacts into a remote Maven repository">
     <ipp:init-mvn />
     <ipp:mvn-deploy file="${stardust-engine-camel.jar}" pomFile="${build.lib}/stardust-engine-camel.pom" />
+    <ipp:mvn-deploy pomFile="${build.lib}/stardust-engine-camel-module.pom" />
   </target> 
   
   <target name="dependencies:report" depends="init,initIvy">

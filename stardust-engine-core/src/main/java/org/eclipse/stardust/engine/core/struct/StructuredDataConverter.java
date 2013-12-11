@@ -39,9 +39,17 @@ public class StructuredDataConverter
    public static final String NODE_VALUE_KEY = "@";
    private IXPathMap xPathMap;
 
+   private boolean validating;
+   
    public StructuredDataConverter(IXPathMap xPathMap)
    {
+      this(xPathMap, false);
+   }
+   
+   public StructuredDataConverter(IXPathMap xPathMap, boolean validating)
+   {
       this.xPathMap = xPathMap;
+      this.validating = validating;
    }
 
    /**
@@ -137,7 +145,7 @@ public class StructuredDataConverter
             {
                return null;
             }
-            return StructuredDataValueFactory.convertTo(typedXPath.getType(), StructuredDataXPathUtils.findNodeValue(node));
+            return StructuredDataValueFactory.convertTo(typedXPath, StructuredDataXPathUtils.findNodeValue(node));
          }
       }
       else if (StructuredDataXPathUtils.canReturnList(xPath, xPathMap))
@@ -157,7 +165,7 @@ public class StructuredDataConverter
             else
             {
                // primitive
-               list.add(StructuredDataValueFactory.convertTo(typedXPath.getType(), StructuredDataXPathUtils.findNodeValue(node)));
+               list.add(StructuredDataValueFactory.convertTo(typedXPath, StructuredDataXPathUtils.findNodeValue(node)));
             }
          }
          return list;
@@ -294,7 +302,7 @@ public class StructuredDataConverter
       if (parentXPath.getType() != BigData.NULL)
       {
          // there is a node value
-         complexType.put(NODE_VALUE_KEY, StructuredDataValueFactory.convertTo(parentXPath.getType(),
+         complexType.put(NODE_VALUE_KEY, StructuredDataValueFactory.convertTo(parentXPath,
                StructuredDataXPathUtils.findNodeValue(parentNode)));
       }
       else
@@ -303,7 +311,7 @@ public class StructuredDataConverter
          if (childXPath != null)
          {
             // there is a node value
-            complexType.put(NODE_VALUE_KEY, StructuredDataValueFactory.convertTo(childXPath.getType(),
+            complexType.put(NODE_VALUE_KEY, StructuredDataValueFactory.convertTo(childXPath,
                   StructuredDataXPathUtils.findNodeValue(parentNode)));
          }
       }
@@ -330,7 +338,7 @@ public class StructuredDataConverter
             // attributes are always primitives
             complexType.put(
                StructuredDataXPathUtils.getLastXPathPart(typedXPath.getXPath()),
-               StructuredDataValueFactory.convertTo(typedXPath.getType(), StructuredDataXPathUtils.findNodeValue(attribute)));
+               StructuredDataValueFactory.convertTo(typedXPath, StructuredDataXPathUtils.findNodeValue(attribute)));
          }
       }
 
@@ -378,12 +386,12 @@ public class StructuredDataConverter
                {
                   complexType.put(nodeName, new ArrayList());
                }
-               ((List)complexType.get(nodeName)).add(StructuredDataValueFactory.convertTo(typedXPath.getType(), StructuredDataXPathUtils.findNodeValue(childNode)));
+               ((List)complexType.get(nodeName)).add(StructuredDataValueFactory.convertTo(typedXPath, StructuredDataXPathUtils.findNodeValue(childNode)));
             }
             else
             {
                // primitive
-               complexType.put(nodeName, StructuredDataValueFactory.convertTo(typedXPath.getType(), StructuredDataXPathUtils.findNodeValue(childNode)));
+               complexType.put(nodeName, StructuredDataValueFactory.convertTo(typedXPath, StructuredDataXPathUtils.findNodeValue(childNode)));
             }
          }
       }

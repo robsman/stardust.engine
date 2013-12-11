@@ -2003,7 +2003,7 @@ public class DataFlowUtils
       {
          IXPathMap xPathMap = new ClientXPathMap(xPaths);
 
-         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
+         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
          String xmlValue = XmlUtils.toString((Element) value);
          org.eclipse.stardust.engine.core.struct.sxml.Document xomDoc;
@@ -2021,12 +2021,11 @@ public class DataFlowUtils
                result = (Serializable) ((List) result).get(0);
             }
          }
-         catch (Exception e)
+         catch (IOException ioex)
          {
-            trace.debug("Failed unmarshalling structured data value.", e);
-            throw new InvalidValueException(
-                  BpmRuntimeError.IPPWS_DATA_VALUE_INVALID.raise(value, rootXPath));
+            trace.debug("Failed unmarshalling structured data value.", ioex);
          }
+
       }
       else if (value instanceof String)
       {
@@ -2037,16 +2036,10 @@ public class DataFlowUtils
          IXPathMap xPathMap = new ClientXPathMap(xPaths);
 
          StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
-         try
-         {
-            result = (Serializable) structConverter.toCollection(element, rootXPath, true);
-         }
-         catch (Exception e)
-         {
-            trace.debug("Failed unmarshalling structured data value.", e);
-            throw new InvalidValueException(
-                  BpmRuntimeError.IPPWS_DATA_VALUE_INVALID.raise(value, rootXPath));
-         }
+
+         result = (Serializable) structConverter.toCollection(element, rootXPath, true);
+
+
       }
       else if (value instanceof List)
       {

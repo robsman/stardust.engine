@@ -159,8 +159,10 @@
 
       <!-- logging-slf4j-log4j-provider-compile -->
       <dependency org="org.slf4j" name="slf4j-log4j12" rev="${slf4j-log4j12.version}" conf="logging-slf4j-log4j-provider-compile->default">
-         <exclude org="log4j" module="log4j"/>
+         <exclude org="log4j" module="log4j" />
+         <exclude org="org.slf4j" module="slf4j-api" />
       </dependency>
+      <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="logging-slf4j-log4j-provider-compile->default"/>
 
       <!-- web-client-provider-runtime -->
       <dependency org="commons-fileupload" name="commons-fileupload" rev="${commons-fileupload.version}" conf="web-client-provider-runtime->default"/>

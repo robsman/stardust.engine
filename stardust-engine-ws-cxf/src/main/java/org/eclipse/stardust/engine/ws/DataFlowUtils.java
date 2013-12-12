@@ -1865,7 +1865,7 @@ public class DataFlowUtils
       XmlValueXto result = null;
       if (null != value)
       {
-         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
+         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
          Node[] dom = structConverter.toDom(value, derefPath, true);
 
@@ -1886,7 +1886,7 @@ public class DataFlowUtils
          if (null != value)
          {
             StructuredDataConverter structConverter = new StructuredDataConverter(
-                  xPathMap);
+                  xPathMap, true);
 
             Node[] dom = structConverter.toDom(value, derefPath, true);
 
@@ -1984,7 +1984,6 @@ public class DataFlowUtils
       return result;
    }
 
-   @SuppressWarnings("unchecked")
    public static Serializable unmarshalStructValue(Set<TypedXPath> xPaths,
          String rootXPath, Object value)
    {
@@ -2003,7 +2002,7 @@ public class DataFlowUtils
       {
          IXPathMap xPathMap = new ClientXPathMap(xPaths);
 
-         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
+         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
 
          String xmlValue = XmlUtils.toString((Element) value);
          org.eclipse.stardust.engine.core.struct.sxml.Document xomDoc;

@@ -37,15 +37,15 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
    private final static String XSD_DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
    // TODO remove this workaround for P&M
    private final static String P_AND_M_DATETIME_FORMAT = "EEE MMM dd HH:mm:ss z yyyy";
-   
-   
+
+
    public static Object convertTo(int typeKey, String stringValue)
    {
-      if (stringValue == null) 
+      if (stringValue == null)
       {
          return null;
       }
-      
+
       if (typeKey == BigData.NULL)
       {
          return "";
@@ -83,9 +83,9 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
          {
             try
             {
-               //RPI: Workaround for CRNT-25389  
+               //RPI: Workaround for CRNT-25389
                SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
-               String dateString = sd.format(new Date()); 
+               String dateString = sd.format(new Date());
                String tempStrValue = dateString + "T" + stringValue;
                df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
                df.setLenient(false);
@@ -135,127 +135,41 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       else if (typeKey == BigData.BIG_STRING)
       {
          return stringValue;
-      } 
+      }
       else if (typeKey == BigData.PERIOD)
       {
          return new Period(stringValue);
-      } 
-      else 
+      }
+      else
       {
          throw new PublicException("BigData type '"+typeKey+"' is supported yet");
       }
    }
-   
-   public static Object convertTo(TypedXPath xPath, String stringValue)
+
+   /**
+    * Validates the stringValue for a TypedXPath's XSD type which are not mapped to a specific
+    * BigData typeKey by parsing to the corresponding java type.
+    *
+    * @param xPath TypedXPath to determine target type.
+    * @param stringValue The value to validate.
+    */
+   public static void validate(TypedXPath xPath, String stringValue)
    {
       try
       {
-         if (stringValue == null)
-         {
-            return null;
-         }
-         else if (QNameConstants.QN_SHORT.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            return new Short(stringValue);
-         }
-         else if (QNameConstants.QN_INT.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            return new Integer(stringValue);
-         }
-         else if (QNameConstants.QN_LONG.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            return new Long(stringValue);
-         }
-         else if (QNameConstants.QN_BYTE.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            return new Byte(stringValue);
-         }
-         else if (QNameConstants.QN_BOOLEAN.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            return new Boolean(stringValue);
-         }
-         else if (QNameConstants.QN_DATE.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            SimpleDateFormat df;
-            try
-            {
-               df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
-               df.setLenient(false);
-               return df.parse(stringValue);
-            }
-            catch (Exception e1)
-            {
-               try
-               {
-                  // RPI: Workaround for CRNT-25389
-                  SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
-                  String dateString = sd.format(new Date());
-                  String tempStrValue = dateString + "T" + stringValue;
-                  df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
-                  df.setLenient(false);
-                  return df.parse(tempStrValue);
-               }
-               catch (Exception e2)
-               {
-                  try
-                  {
-                     df = new SimpleDateFormat(XSD_DATE_FORMAT);
-                     df.setLenient(false);
-                     return df.parse(stringValue);
-                  }
-                  catch (Exception e3)
-                  {
-                     try
-                     {
-                        df = new SimpleDateFormat(P_AND_M_DATETIME_FORMAT, Locale.US);
-                        df.setLenient(false);
-                        return df.parse(stringValue);
-                     }
-                     catch (Exception e4)
-                     {
-                        throw new PublicException("Could not parse date/time/datetime '"
-                              + stringValue
-                              + "' using standard XSD date/time/datetime formats '"
-                              + XSD_DATE_FORMAT + "', '" + XSD_TIME_FORMAT + "', '"
-                              + XSD_DATETIME_FORMAT + "' and additional format '"
-                              + P_AND_M_DATETIME_FORMAT + "'.");
-                     }
-                  }
-               }
-            }
-         }
-         else if (QNameConstants.QN_FLOAT.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            return new Float(stringValue);
-         }
-         else if (QNameConstants.QN_DOUBLE.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            return new Double(stringValue);
-         }
-         else if (QNameConstants.QN_STRING.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            return stringValue;
-         }
-         else if (QNameConstants.QN_DECIMAL.getLocalPart().equals(xPath.getXsdTypeName()))
+         // Decimal is handled as BigData.STRING so it needs explicit validation.
+         if (QNameConstants.QN_DECIMAL.getLocalPart().equals(xPath.getXsdTypeName()))
          {
             new BigDecimal(stringValue);
-
-            return stringValue;
-         }
-         else
-         {
-            throw new PublicException("XSD type '" + xPath.getXsdTypeName()
-                  + "' is not supported yet");
          }
       }
-
       catch (Exception e)
       {
          throw new InvalidValueException(
                BpmRuntimeError.BPMRT_INCOMPATIBLE_TYPE_FOR_DATA.raise(xPath.getXsdElementName()), e);
       }
-   }   
-   
+   }
+
    public static String convertToString(int typeKey, String xsdTypeName, Object value)
    {
       if (value == null)
@@ -265,7 +179,7 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
 
       if (value instanceof String)
       {
-         // no need to convert, since it is already a string 
+         // no need to convert, since it is already a string
          // (can occur if the map is filled by a JSF app)
          return (String)value;
       }

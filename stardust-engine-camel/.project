@@ -6,6 +6,11 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
+      <buildCommand>
+         <name>org.eclipse.jdt.core.javabuilder</name>
+         <arguments>
+         </arguments>
+      </buildCommand>
 			<name>org.eclipse.wst.jsdt.core.javascriptValidator</name>
 			<arguments>
 			</arguments>

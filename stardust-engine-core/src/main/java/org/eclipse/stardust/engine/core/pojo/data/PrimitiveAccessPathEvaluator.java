@@ -97,9 +97,10 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       {
          if (accessPointInstance != null && JavaDataTypeUtils.isJavaEnumeration(accessPointDefinition))
          {
-            if (accessPathEvaluationContext == null || accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint)
+            boolean javaExpected = isJavaExpected(accessPathEvaluationContext);
+            if (javaExpected)
             {
-               Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
+               Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, javaExpected);
                if (enumClass != null && enumClass.isEnum())
                {
                   if (accessPointInstance instanceof Number)
@@ -127,16 +128,24 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
    {
       try
       {
-         if (accessPointInstance != null && JavaDataTypeUtils.isJavaEnumeration(accessPointDefinition))
+         if (JavaDataTypeUtils.isJavaEnumeration(accessPointDefinition))
          {
-            if (value != null && value.getClass().isEnum())
+            if (value != null)
             {
-               if (accessPathEvaluationContext == null || accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint)
+               boolean javaExpected = isJavaExpected(accessPathEvaluationContext);
+               if (javaExpected)
                {
-                  Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
-                  if (enumClass != null && enumClass.isEnum() && enumClass.isInstance(value))
+                  Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, javaExpected);
+                  if (enumClass != null && enumClass.isEnum())
                   {
-                     value = ((Enum) value).name();
+                     if (enumClass.isInstance(value))
+                     {
+                        value = ((Enum) value).name();
+                     }
+                     else
+                     {
+                        value = Enum.valueOf(enumClass, value.toString()).name();
+                     }
                   }
                }
             }
@@ -147,6 +156,13 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       {
          throw new PublicException("Failed setting java value.", e.getTargetException());
       }
+   }
+
+   private boolean isJavaExpected(AccessPathEvaluationContext accessPathEvaluationContext)
+   {
+      return accessPathEvaluationContext == null
+            || accessPathEvaluationContext.getTargetAccessPointDefinition() == null
+            || accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint;
    }
 
    @Override

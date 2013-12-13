@@ -20,7 +20,6 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.core.model.beans.DataBean;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
@@ -36,6 +35,7 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       return true;
    }
 
+   @SuppressWarnings("deprecation")
    private Object newValueInstance(Type type)
    {
       if (type.equals(Type.Boolean))
@@ -95,21 +95,21 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
    {
       try
       {
-         if (JavaDataTypeUtils.isJavaEnumeration(accessPointDefinition))
+         if (accessPointInstance != null && JavaDataTypeUtils.isJavaEnumeration(accessPointDefinition))
          {
-            if (accessPointInstance instanceof Number)
+            if (accessPathEvaluationContext == null || accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint)
             {
-               if (accessPathEvaluationContext != null && accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint)
+               Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
+               if (enumClass != null && enumClass.isEnum())
                {
-                  Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
-                  if (enumClass != null && enumClass.isEnum())
+                  if (accessPointInstance instanceof Number)
                   {
                      accessPointInstance = enumClass.getEnumConstants()[((Number) accessPointInstance).intValue()];
                   }
-               }
-               else
-               {
-                  // TODO: provide the string value
+                  else
+                  {
+                     accessPointInstance = Enum.valueOf(enumClass, accessPointInstance.toString());
+                  }
                }
             }
          }
@@ -131,22 +131,14 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
          {
             if (value != null && value.getClass().isEnum())
             {
-               if (accessPathEvaluationContext != null && accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint)
+               if (accessPathEvaluationContext == null || accessPathEvaluationContext.getTargetAccessPointDefinition() instanceof JavaAccessPoint)
                {
                   Class enumClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
                   if (enumClass != null && enumClass.isEnum() && enumClass.isInstance(value))
                   {
-                     value = ((Enum) value).ordinal();
+                     value = ((Enum) value).name();
                   }
                }
-               else
-               {
-                  // TODO: provide the string value
-               }
-            }
-            else
-            {
-               // TODO:
             }
          }
          return JavaDataTypeUtils.evaluate(inPath, accessPointInstance, value);
@@ -175,23 +167,23 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       if (!StringUtils.isEmpty(defaultValue))
       {
          Type type = (Type) accessPointDefinition.getAttribute(PredefinedConstants.TYPE_ATT);
-         if (Type.Enumeration == type && accessPointDefinition instanceof DataBean)
+         if (Type.Enumeration == type)
          {
             Class refClass = JavaDataTypeUtils.getReferenceClass(accessPointDefinition, true);
             if (refClass.isEnum())
             {
                Object[] values = refClass.getEnumConstants();
-               for (int i = 0; i < values.length; i++)
+               for (Object o : values)
                {
-                  if (values[i] instanceof Enum && defaultValue.equals(((Enum) values[i]).name()))
+                  if (o instanceof Enum && defaultValue.equals(((Enum) o).name()))
                   {
-                     return i;
+                     return ((Enum) o).name();
                   }
                }
             }
             else
             {
-               
+               return defaultValue;
             }
          }
          try

@@ -52,7 +52,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
     * {@link org.eclipse.stardust.engine.core.runtime.beans.BigData#STRING_VALUE}s, {@link BigData#NULL_VALUE}s and
     * {@link BigData#UNKNOWN_VALUE}s. This classification gives a hint which
     * {@link BigData} representation will be used for the actual value.
-    * 
+    *
     * @param data The workflow data to be classified.
     * @return Either {@link BigData#NUMERIC_VALUE}, {@link BigData#STRING_VALUE},
     *         {@link BigData#NULL_VALUE} or {@link BigData#UNKNOWN_VALUE}.
@@ -67,12 +67,11 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                || type.equals(Type.Short)
                || type.equals(Type.Integer)
                || type.equals(Type.Long)
-               || type.equals(Type.Timestamp)
-               || type.equals(Type.Enumeration))
+               || type.equals(Type.Timestamp))
          {
             return BigData.NUMERIC_VALUE;
          }
-         else 
+         else
          {
             return BigData.STRING_VALUE;
          }
@@ -82,13 +81,13 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          return BigData.UNKNOWN_VALUE;
       }
    }
-   
+
    /**
     * Classifies workflow data type representation into {@link BigData#NUMERIC_VALUE}s,
     * {@link org.eclipse.stardust.engine.core.runtime.beans.BigData#STRING_VALUE}s, {@link BigData#NULL_VALUE}s and
     * {@link BigData#UNKNOWN_VALUE}s. This classification gives a hint which
     * {@link BigData} representation will be used for the actual value.
-    * 
+    *
     * @param data The workflow data to be classified.
     * @param attributeName The name of the data attribute to search for (XPath, etc.)
     * @return Either {@link BigData#NUMERIC_VALUE}, {@link BigData#STRING_VALUE},
@@ -101,14 +100,14 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          // not a structured data
          return classifyType(data);
       }
-      
+
       // and now special treatment for structured data
       if (attributeName == null)
       {
-         // whole value of structured data is returned, neither NUMERIC_VALUE, nor STRING_VALUE 
+         // whole value of structured data is returned, neither NUMERIC_VALUE, nor STRING_VALUE
          return BigData.UNKNOWN_VALUE;
       }
-      
+
       IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
       int dataType = xPathMap.getXPath(attributeName).getType();
       if (dataType == BigData.BOOLEAN || dataType == BigData.BYTE
@@ -128,7 +127,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
     * {@link org.eclipse.stardust.engine.core.runtime.beans.BigData#STRING_VALUE}s, {@link BigData#NULL_VALUE}s and
     * {@link BigData#UNKNOWN_VALUE}s. This classification gives a hint which
     * {@link BigData} representation will be used for the actual value.
-    * 
+    *
     * @param data The workflow data to be classified.
     * @return Either {@link BigData#NUMERIC_VALUE}, {@link BigData#STRING_VALUE},
     *         {@link BigData#NULL_VALUE} or {@link BigData#UNKNOWN_VALUE}.
@@ -143,8 +142,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                || type.equals(Type.Short)
                || type.equals(Type.Integer)
                || type.equals(Type.Long)
-               || type.equals(Type.Timestamp)
-               || type.equals(Type.Enumeration))
+               || type.equals(Type.Timestamp))
          {
             return BigData.NUMERIC_VALUE;
          }
@@ -154,7 +152,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          {
             return BigData.DOUBLE_VALUE;
          }
-         else 
+         else
          {
             return BigData.STRING_VALUE;
          }
@@ -164,13 +162,13 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          return BigData.UNKNOWN_VALUE;
       }
    }
-   
+
    /**
     * Classifies workflow data type representation into {@link BigData#NUMERIC_VALUE}s,
     * {@link org.eclipse.stardust.engine.core.runtime.beans.BigData#STRING_VALUE}s, {@link BigData#NULL_VALUE}s and
     * {@link BigData#UNKNOWN_VALUE}s. This classification gives a hint which
     * {@link BigData} representation will be used for the actual value.
-    * 
+    *
     * @param data The workflow data to be classified.
     * @param attributeName The name of the data attribute to search for (XPath, etc.)
     * @return Either {@link BigData#NUMERIC_VALUE}, {@link BigData#STRING_VALUE},
@@ -183,14 +181,14 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          // not a structured data
          return classifyTypeForSorting(data);
       }
-      
+
       // and now special treatment for structured data
       if (attributeName == null)
       {
-         // whole value of structured data is returned, neither NUMERIC_VALUE, nor STRING_VALUE 
+         // whole value of structured data is returned, neither NUMERIC_VALUE, nor STRING_VALUE
          return BigData.UNKNOWN_VALUE;
       }
-      
+
       IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
       int dataType = xPathMap.getXPath(attributeName).getType();
       String xsdTypeName = xPathMap.getXPath(attributeName).getXsdTypeName();
@@ -214,8 +212,8 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
 
    /**
     * Evaluates the canonical representation of the given data value.
-    * 
-    * @param dataValue 
+    *
+    * @param dataValue
     * @return <code>null</code>, a <code>Long</code> or a <code>String</code> representing
     *         the given data value.
     */
@@ -410,7 +408,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
    {
       return data.getOID();
    }
-   
+
    private boolean considerDisk()
    {
       return (data instanceof Persistent)
@@ -505,7 +503,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          while (triesLeft > 0)
          {
             --triesLeft;
-            
+
             String stringifiedValue = LargeStringHolder.getLargeString(getOID(),
                   persistentType, considerDisk());
             if ( !StringUtils.isEmpty(stringifiedValue))
@@ -537,7 +535,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                      throw new InternalException("Cannot deserialize value of data in " + maxTries + " tries.", e);
                   }
                }
-               
+
                trace.warn("Problems while deserializing data of type BIG_SERIALIZABLE. Try again.");
             }
             else
@@ -642,7 +640,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                   .getModelOID();
             IData theData = modelManager.findDataForStructuredData(modelOid,
                   sdv.getXPathOID());
-          
+
             if (theData != null)
             {
                IXPathMap xPathMap = DataXPathMap.getXPathMap(theData);
@@ -687,7 +685,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                }
             }
          }
-         
+
          writeStringValue((String) value, BigData.STRING, BigData.BIG_STRING,
                considerDisk());
       }

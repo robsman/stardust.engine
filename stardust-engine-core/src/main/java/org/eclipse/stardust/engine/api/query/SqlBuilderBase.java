@@ -22,7 +22,6 @@ import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
@@ -860,7 +859,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          for (; i.hasNext();)
          {
             IModel model = (IModel) i.next();
-            Iterator procDefIterator;
+            Iterable<IProcessDefinition> procDefs;
             if (null != processID)
             {
                if (pdModelId != null && !pdModelId.equals(model.getId()))
@@ -873,27 +872,25 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
                {
                   if (filter.isIncludingSubProcesses())
                   {
-                     Set hierarchy = QueryUtils.findProcessHierarchyClosure(process);
-                     procDefIterator = hierarchy.iterator();
+                     procDefs = QueryUtils.findProcessHierarchyClosure(process);
                   }
                   else
                   {
-                     procDefIterator = new OneElementIterator(process);
+                     procDefs = Collections.singleton(process);
                   }
                }
                else
                {
-                  procDefIterator = Collections.EMPTY_LIST.iterator();
+                  procDefs = Collections.emptySet();
                }
             }
             else
             {
-               procDefIterator = model.getAllProcessDefinitions();
+               procDefs = model.getProcessDefinitions();
             }
 
-            while (procDefIterator.hasNext())
+            for (IProcessDefinition process : procDefs)
             {
-               IProcessDefinition process = (IProcessDefinition) procDefIterator.next();
                if (aModelId != null && !aModelId.equals(process.getModel().getId()))
                {
                   continue;

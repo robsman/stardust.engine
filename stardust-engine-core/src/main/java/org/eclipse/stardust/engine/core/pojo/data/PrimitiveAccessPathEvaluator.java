@@ -17,9 +17,11 @@ import java.util.Date;
 import org.eclipse.stardust.common.Money;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
@@ -109,7 +111,14 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
                   }
                   else
                   {
-                     accessPointInstance = Enum.valueOf(enumClass, accessPointInstance.toString());
+                     try
+                     {
+                        accessPointInstance = Enum.valueOf(enumClass, accessPointInstance.toString());
+                     }
+                     catch (IllegalArgumentException ex)
+                     {
+                        throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ENUM_VALUE.raise(ex.getMessage()));
+                     }
                   }
                }
             }
@@ -119,10 +128,6 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       catch (InvocationTargetException e)
       {
          throw new PublicException("Failed reading java value.", e.getTargetException());
-      }
-      catch (Exception e)
-      {
-         throw new PublicException("Failed setting java value.", e);
       }
    }
 
@@ -148,7 +153,14 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
                      }
                      else
                      {
-                        value = Enum.valueOf(enumClass, value.toString()).name();
+                        try
+                        {
+                           value = Enum.valueOf(enumClass, value.toString()).name();
+                        }
+                        catch (IllegalArgumentException ex)
+                        {
+                           throw new InvalidValueException(BpmRuntimeError.BPMRT_INVALID_ENUM_VALUE.raise(ex.getMessage()));
+                        }
                      }
                   }
                }
@@ -159,10 +171,6 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       catch (InvocationTargetException e)
       {
          throw new PublicException("Failed setting java value.", e.getTargetException());
-      }
-      catch (Exception e)
-      {
-         throw new PublicException("Failed setting java value.", e);
       }
    }
 

@@ -351,6 +351,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args2 BPMRT_INVALID_ARGUMENT = newArgs2("BPMRT03820", "Argument ''{0}'' must not be ''{1}''.");
    public static final Args1 BPMRT_INVALID_VALUE = newArgs1("BPMRT03825", "Invalid Value for Argument ''{0}''."); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BPMRT_INVALID_ENUM_VALUE = newArgs1("BPMRT03830", "Invalid enumeration value: ''{0}''"); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args0 BPMRT_INVALID_ORGANIZATION_HIERARCHY = newArgs0("BPMRT03813", BpmRuntimeErrorMessages.getString("BPMRT03813")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 BPMRT_DEPARTMENT_HAS_ACTIVE_ACTIVITY_INSTANCES = newArgs1("BPMRT03814", BpmRuntimeErrorMessages.getString("BPMRT03814")); //$NON-NLS-1$ //$NON-NLS-2$

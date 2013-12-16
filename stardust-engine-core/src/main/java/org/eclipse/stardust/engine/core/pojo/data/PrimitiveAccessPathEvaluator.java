@@ -120,6 +120,10 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       {
          throw new PublicException("Failed reading java value.", e.getTargetException());
       }
+      catch (Exception e)
+      {
+         throw new PublicException("Failed setting java value.", e);
+      }
    }
 
    @Override
@@ -155,6 +159,10 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       catch (InvocationTargetException e)
       {
          throw new PublicException("Failed setting java value.", e.getTargetException());
+      }
+      catch (Exception e)
+      {
+         throw new PublicException("Failed setting java value.", e);
       }
    }
 

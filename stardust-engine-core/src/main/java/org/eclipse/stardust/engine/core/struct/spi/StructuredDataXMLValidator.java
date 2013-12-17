@@ -36,7 +36,7 @@ import org.w3c.dom.Element;
 
 /**
  * DataValidator for structured data
- * 
+ *
  * @version $Revision$
  */
 public class StructuredDataXMLValidator implements ExtendedDataValidator, Stateless
@@ -55,7 +55,7 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
 
    /**
     * Creates a bridge object for the given access point and path.
-    * 
+    *
     * @param point
     *           The access point.
     * @param path
@@ -63,7 +63,7 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
     * @param direction
     *           The data flow direction, either {@link Direction#In} if a LHS bridge is
     *           requested or {@link Direction#Out} if a RHS bridge is requested
-    * 
+    *
     * @return The corresponding bridge object.
     */
    public BridgeObject getBridgeObject(AccessPoint point, String path,
@@ -81,10 +81,10 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
       {
          return new XMLBridgeObject(Element.class, direction, context);
       }
-      
+
       IXPathMap xPathMap = DataXPathMap.getXPathMap(point);
 
-      if (Direction.IN.equals(direction)) 
+      if (Direction.IN.equals(direction))
       {
          // check for incompatible XPaths
          if ( !StructuredDataXPathUtils.canBeUsedForInDataMapping(path, xPathMap))
@@ -102,9 +102,9 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
       {
          return new XMLBridgeObject(Map.class, direction, context);
       }
-      
+
       // OTHERWISE XPath returns a primitive, compute its class:
-      
+
       String xPathWithoutIndexes = StructuredDataXPathUtils.getXPathWithoutIndexes(path);
 
       TypedXPath xPath = xPathMap.getXPath(xPathWithoutIndexes);
@@ -115,7 +115,7 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
                BpmRuntimeError.MDL_UNKNOWN_XPATH_FOR_DATA_ID.raise(xPath, path,
                      point.getId()));
       }
-      
+
       Class clazz = Utils.getJavaTypeForTypedXPath(xPath);
 
       return new XMLBridgeObject(clazz, direction, context);
@@ -135,10 +135,10 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
        * Performs a static check if this bridge is valid as a data sink for the data
        * source represented by rhs. Basic validity requires compatible data flow
        * directions and type compatibility (if available).
-       * 
+       *
        * @param rhs
        *           The data source to check compatibility against.
-       * 
+       *
        * @return true if this bridge may accept assignments from the given data source,
        *         false if not.
        */
@@ -154,7 +154,7 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
          {
             return false;
          }
-         
+
          if (null != context
                && StructDataMappingUtils.isVizRulesApplication(context.getActivity())
                && Map.class.isAssignableFrom(getEndClass())
@@ -165,6 +165,24 @@ public class StructuredDataXMLValidator implements ExtendedDataValidator, Statel
          }
          else
          {
+            if (context != null && rhs instanceof XMLBridgeObject)
+            {
+               String thisType = this.context.getTargetAccessPointDefinition()
+                     .getStringAttribute("carnot:engine:dataType");
+               XMLBridgeObject rhsBridgeObject = (XMLBridgeObject) rhs;
+               if (rhsBridgeObject.context != null)
+               {
+                  String rhsType = rhsBridgeObject.context.getTargetAccessPointDefinition()
+                        .getStringAttribute("carnot:engine:dataType");
+                  if (thisType != null && rhsType != null)
+                  {
+                     if ( !thisType.equals(rhsType))
+                     {
+                        return false;
+                     }
+                  }
+               }
+            }
             return Reflect.isAssignable(getEndClass(), rhs.getEndClass());
          }
       }

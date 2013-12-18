@@ -157,6 +157,7 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
    {
       try
       {
+         convertTo(xPath.getType(), stringValue);
          // Decimal is handled as BigData.STRING so it needs explicit validation.
          if (QNameConstants.QN_DECIMAL.getLocalPart().equals(xPath.getXsdTypeName()))
          {

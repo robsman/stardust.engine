@@ -2017,7 +2017,7 @@ public class DataFlowUtils
       {
          IXPathMap xPathMap = new ClientXPathMap(xPaths);
 
-         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
+         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
          String xmlValue = XmlUtils.toString((Element) value);
          org.eclipse.stardust.engine.core.struct.sxml.Document xomDoc;
@@ -2049,7 +2049,7 @@ public class DataFlowUtils
 
          IXPathMap xPathMap = new ClientXPathMap(xPaths);
 
-         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
+         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
          result = (Serializable) structConverter.toCollection(element, rootXPath, true);
 

@@ -189,13 +189,11 @@
          conf="test->default">
          <exclude org="org.hamcrest" module="hamcrest-core" />
       </dependency>
-
       <dependency org="org.hamcrest" name="hamcrest-core"
          rev="${hamcrest-core.version}" conf="test->default" />
-      <dependency org="org.hamcrest" name="hamcrest-library"
-         rev="${hamcrest-library.version}" conf="test->default" />
-
       <dependency org="org.springframework" name="spring-test"
          rev="${spring-test.version}" conf="test->default" />
+      <dependency org="org.hamcrest" name="hamcrest-library"
+         rev="${hamcrest-library.version}" conf="test->default" />
    </dependencies>
 </ivy-module>

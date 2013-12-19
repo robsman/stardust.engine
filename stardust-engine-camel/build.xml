@@ -160,8 +160,8 @@
 
 	<target name="dist" depends="build">
 		<property name="stardust.dir" value="../../../stardust" />
-		<copy file="${stardust-engine-camel.jar}" todir="${stardust.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
-		<copy file="${stardust-engine-camel.src-jar}" todir="${stardust.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
+		<copy file="${stardust-engine-camel.jar}" todir="${stardust.dir}/ide/modeling/org.eclipse.stardust.modeling.integration.camel/lib" />
+		<copy file="${stardust-engine-camel.src-jar}" todir="${stardust.dir}/ide/modeling/org.eclipse.stardust.modeling.integration.camel/lib" />
 	</target>
 
 	<target name="deploy" depends="build,dependencies:report " />

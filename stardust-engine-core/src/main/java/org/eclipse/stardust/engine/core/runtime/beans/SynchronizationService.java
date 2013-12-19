@@ -41,6 +41,7 @@ import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
 import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
@@ -439,7 +440,7 @@ public abstract class SynchronizationService
          throw new ObjectNotFoundException(
                BpmRuntimeError.AUTHx_SYNC_MISSING_SYNCHRONIZATION_PROVIDER.raise());
       }
-      
+
       ExtensionService.initializeRealmExtensions();
 
       String realmId = LoginUtils.getUserRealmId(properties);
@@ -844,19 +845,18 @@ public abstract class SynchronizationService
       user.setLastName(userConf.getLastName());
       user.setEMail(userConf.getEMail());
       user.setDescription(userConf.getDescription());
-      user.setSessionTokens(userConf.getSessionTokens());
-      
-      Map properties = userConf.getProperties();
+
+      Map<?, ?> properties = userConf.getProperties();
 
       if ((null != properties) && !properties.isEmpty())
       {
-         for (Iterator i = properties.entrySet().iterator(); i.hasNext();)
+         for (Map.Entry entry : properties.entrySet())
          {
-            Map.Entry entry = (Map.Entry) i.next();
-
             user.setPropertyValue((String) entry.getKey(), (String) entry.getValue());
          }
       }
+
+      SessionManager.instance().updateSessionTokens(user, userConf.getSessionTokens());
    }
 
    private void synchronizeModelParticipantGrants(final IUser user,
@@ -983,7 +983,7 @@ public abstract class SynchronizationService
          final IModelParticipant participant)
    {
       long modelOid = participant.getModel().getModelOID();
-      
+
       final Pair<IDepartment, Boolean> departmentPair = synchronizeDepartment(participant.getQualifiedId(), modelOid, grant.getDepartmentKey());
       final boolean isValid = departmentPair.getSecond() != null && departmentPair.getSecond();
 
@@ -1181,9 +1181,9 @@ public abstract class SynchronizationService
    private Pair<IDepartment, Boolean> importDepartmentHierarchy(final String participantId,
          final List<String> departmentKeys)
    {
-      //the department hierarchy is changed during import for computing reasons so create a copy 
+      //the department hierarchy is changed during import for computing reasons so create a copy
       List<String> departmentHierachy = new ArrayList<String>(departmentKeys);
-      
+
       IDepartment department;
       boolean validDepartment;
       try
@@ -1256,7 +1256,7 @@ public abstract class SynchronizationService
          {
             department = importExternalDepartment(departmentKey, parentDepartment, org);
          }
-         
+
          long modelOid = org.getModel().getModelOID();
          synchronizeUnguarded(department, modelOid);
          return department;

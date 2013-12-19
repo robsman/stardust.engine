@@ -56,14 +56,14 @@ import org.eclipse.stardust.engine.extensions.ejb.utils.J2EEUtils;
 public class AbstractLoginInterceptor implements MethodInterceptor
 {
    private static final Logger trace = LogManager.getLogger(AbstractLoginInterceptor.class);
-   
+
    public static final String METHODNAME_LOGIN = "login";
    public static final String METHODNAME_LOGOUT = "logout";
 
    public Object invoke(MethodInvocation invocation) throws Throwable
    {
       Object result = null;
-      
+
       Object principalProvider = invocation.getParameters().get(
             SecurityProperties.AUTHENTICATION_PRINCIPAL_PROVIDER_PROPERTY);
       if (principalProvider instanceof PrincipalProvider)
@@ -77,7 +77,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
             {
                trace.debug("Performing implicit login for user " + principalName);
             }
-            
+
             Map mergedProperties = new HashMap();
             if (principal instanceof PrincipalWithProperties)
             {
@@ -122,7 +122,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          else if (isLogoutCall(invocation.getMethod()))
          {
             performLogoutCall();
-            
+
             result = null;
          }
       }
@@ -130,7 +130,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       {
          result = performCall(invocation, null);
       }
-      
+
       return result;
    }
 
@@ -140,35 +140,34 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       if ((null != loggedInUser) && !StringUtils.isEmpty(loggedInUser.getUserId()))
       {
          final PropertyLayer layer = PropertyLayerProviderInterceptor.getCurrent();
-   
+
          // need to set partition or else model manager will not bootstrap
          setCurrentPartitionAndDomain(invocation.getParameters(), layer,
                loggedInUser.getProperties());
-         
+
          IModel model = ModelManagerFactory.getCurrent().findActiveModel();
          if (model == null)
          {
             model = ModelManagerFactory.getCurrent().findLastDeployedModel();
          }
-   
+
          IUser user = SynchronizationService.synchronize(loggedInUser.getUserId(),
                model, invocation.getParameters().getBoolean(
                      SecurityProperties.AUTHORIZATION_SYNC_LOGIN_PROPERTY, true),
                loggedInUser.getProperties());
-         
+
          if (null != user && LoginUtils.isUserExpired(user))
          {
             throw LoginUtils.createAccountExpiredException(user);
          }
-                     
+
          UserUtils.updateDeputyGrants(user);
-                                   
+
          setCurrentUser(layer, user);
-         
+
          SessionManager.instance().updateLastModificationTime(user);
-         SessionManager.instance().updateSessionTokens(user);         
       }
-      
+
       return invocation.proceed();
    }
 
@@ -177,29 +176,28 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       final PropertyLayer layer = PropertyLayerProviderInterceptor.getCurrent();
 
       Object[] args = invocation.getArguments();
-      
-      final Map loginProperties = (2 < args.length) ? (Map) args[2] : Collections.EMPTY_MAP; 
-      
+
+      final Map loginProperties = (2 < args.length) ? (Map) args[2] : Collections.EMPTY_MAP;
+
       // need to set partition or else model manager will not bootstrap
-      setCurrentPartitionAndDomain(invocation.getParameters(), layer, loginProperties);      
-      
-      LoggedInUser loggedInUser = doLogin(invocation);      
-      
+      setCurrentPartitionAndDomain(invocation.getParameters(), layer, loginProperties);
+
+      LoggedInUser loggedInUser = doLogin(invocation);
+
       IUser user = getUser(invocation, loggedInUser.getUserId(), loggedInUser.getProperties());
-      
+
       setCurrentUser(layer, user);
 
       SessionManager.instance().updateLastModificationTime(user);
-      SessionManager.instance().updateSessionTokens(user);      
-      
+
       if ( !LoginUtils.isLoginLoggingDisabled(user))
       {
          AuditTrailLogger.getInstance(LogCode.SECURITY).info("Logged in.");
       }
-      
+
       return loggedInUser;
    }
-   
+
    protected void performLogoutCall()
    {
    }
@@ -209,13 +207,13 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       return method.getDeclaringClass().getName().equals(ManagedService.class.getName())
             && METHODNAME_LOGIN.equals(method.getName());
    }
-   
+
    public static boolean isLogoutCall(Method method)
    {
       return method.getDeclaringClass().getName().equals(ManagedService.class.getName())
             && METHODNAME_LOGOUT.equals(method.getName());
    }
-   
+
    public static LoggedInUser doLogin(MethodInvocation invocation)
          throws LoginFailedException
    {
@@ -228,13 +226,13 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          service = factory.get();
 
          Object[] args = invocation.getArguments();
-         
+
          final String userId;
          final String originalUserId = (String) args[0];
          final String password = (String) args[1];
          final Map loginProperties = (2 < args.length)
                ? (Map) args[2]
-               : Collections.EMPTY_MAP; 
+               : Collections.EMPTY_MAP;
          result = (ExternalLoginResult) service.isolate(new LoginAction(originalUserId, password,
                loginProperties));
          //give the login provider the possebility to modify the user id
@@ -246,28 +244,28 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          {
             userId = originalUserId;
          }
-         
+
          if (!result.wasSuccessful())
          {
             if (result.getLoginFailedReason().getReason() == LoginFailedException.PASSWORD_EXPIRED
-               || result.getLoginFailedReason().getReason() == LoginFailedException.DISABLED_USER)               
-            {               
+               || result.getLoginFailedReason().getReason() == LoginFailedException.DISABLED_USER)
+            {
                final PropertyLayer layer = PropertyLayerProviderInterceptor.getCurrent();
                // need to set partition or else model manager will not bootstrap
                setCurrentPartitionAndDomain(invocation.getParameters(), layer,
-                     loginProperties);      
-               
+                     loginProperties);
+
                IUser user = getUser(invocation, userId, loginProperties);
-               
+
                if (result.getLoginFailedReason().getReason() == LoginFailedException.PASSWORD_EXPIRED)
                {
                   if(user != null)
                   {
-                     user.setPasswordExpired(true);                  
-                  }               
+                     user.setPasswordExpired(true);
+                  }
                }
                else if (result.getLoginFailedReason().getReason() == LoginFailedException.DISABLED_USER)
-               {                  
+               {
                   try
                   {
                      service.isolate(new DisableUserAction(user.getOID()));
@@ -275,24 +273,24 @@ public class AbstractLoginInterceptor implements MethodInterceptor
                   catch (LoginFailedException e)
                   {
                      throw e;
-                  }                  
+                  }
                   throw result.getLoginFailedReason();
-               }               
+               }
             }
             else
             {
                throw result.getLoginFailedReason();
             }
          }
-         
+
          if (result.isOverridingProperties())
          {
             loginProperties.putAll(result.getProperties());
          }
-         
+
          Map mergedProperties = new HashMap(loginProperties);
          LoginUtils.mergeDefaultCredentials(mergedProperties);
-         
+
          return new LoggedInUser(userId, mergedProperties);
       }
       finally
@@ -303,13 +301,13 @@ public class AbstractLoginInterceptor implements MethodInterceptor
 
    private static IUser getUser(MethodInvocation invocation, final String userId,
          final Map loginProperties)
-   {            
+   {
       IModel model = ModelManagerFactory.getCurrent().findActiveModel();
       if (model == null)
       {
          model = ModelManagerFactory.getCurrent().findLastDeployedModel();
       }
-      
+
       IUser user;
       try
       {
@@ -322,7 +320,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       {
          throw new LoginFailedException(e.getError(), LoginFailedException.UNKNOWN_REASON);
       }
-      
+
       return user;
    }
 
@@ -338,7 +336,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       layer.setProperty(SecurityProperties.CURRENT_DOMAIN, domain);
       layer.setProperty(SecurityProperties.CURRENT_DOMAIN_OID, new Long(domain.getOID()));
    }
-   
+
    public static void setCurrentUser(PropertyLayer layer, IUser user)
    {
       layer.setProperty(SecurityProperties.CURRENT_USER, user);
@@ -347,7 +345,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
    private static class DisableUserAction implements Action
    {
       long userOid;
-      
+
       public DisableUserAction(long oid)
       {
          userOid = oid;
@@ -362,17 +360,17 @@ public class AbstractLoginInterceptor implements MethodInterceptor
                   BpmRuntimeError.ATDB_UNKNOWN_USER_OID.raise(userOid),
                   LoginFailedException.SYSTEM_ERROR);
          }
-         user.setPasswordExpired(true);                  
-         user.setValidTo(new Date());                  
-         
+         user.setPasswordExpired(true);
+         user.setValidTo(new Date());
+
          return null;
       }
    }
-   
+
    private static class LoginAction implements Action
    {
       private String username;
-      private String password;     
+      private String password;
       private Map properties;
 
       public LoginAction(String user, String password, Map properties)
@@ -387,7 +385,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
          Map mergedProps = new HashMap(properties);
 
          LoginUtils.mergeDefaultCredentials(mergedProps);
-         
+
          ExternalLoginResult login = LoginServiceFactory.getService().login(username, password, mergedProps);
          if(login == null)
          {
@@ -395,7 +393,7 @@ public class AbstractLoginInterceptor implements MethodInterceptor
             sb.append("ExternalLoginProvider.login(String id, String password, Map properties) returned null.");
             return ExternalLoginResult.testifyFailure(new LoginFailedException(sb.toString(), LoginFailedException.SYSTEM_ERROR));
          }
-         
+
          return login;
       }
 

@@ -37,28 +37,28 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 public class SessionManager implements IDisposable
 {
    private static final Logger trace = LogManager.getLogger(SessionManager.class);
-   
+
    public static final String PRP_SESSION_MANAGER_INSTANCE = SessionManager.class.getName()
          + ".INSTANCE";
 
    public static final String PRP_SESSION_PREFIX = "Carnot.AuditTrail.Session";
 
    public static final String PRP_SESSION_EXPIRATION_INTERVAL = PRP_SESSION_PREFIX + ".ExpirationInterval";
-   
+
    public static final String PRP_SESSION_UPDATE_DELAY = PRP_SESSION_PREFIX + ".UserActivityUpdateDelay";
-   
+
    public static final String PRP_SESSION_NO_TRACKING = PRP_SESSION_PREFIX + ".NoSessionTracking";
-   
+
    private final int automaticSessionTimeout;
 
    private final Map/*<Long, Date>*/ lastModificationTimes;
-   
+
    private final int syncToDiskInterval;
-   
+
    private Long nextSynchToDiskTime;
-   
+
    private Map<Long, Map<String, String>> sessionTokens;
-   
+
    public static SessionManager instance()
    {
       GlobalParameters globals = GlobalParameters.globals();
@@ -101,20 +101,20 @@ public class SessionManager implements IDisposable
 
       this.syncToDiskInterval = Parameters.instance().getInteger(
             PRP_SESSION_UPDATE_DELAY, 10);
-      
-      this.lastModificationTimes = CollectionUtils.createMap();
+
+      this.lastModificationTimes = CollectionUtils.newMap();
       this.sessionTokens = CollectionUtils.newHashMap();
    }
-   
+
    public long getExpirationTime(long lastModificationTime)
    {
       final Calendar expirationTimeCalculator = Calendar.getInstance();
-      
+
       expirationTimeCalculator.setTimeInMillis(lastModificationTime);
       expirationTimeCalculator.add(Calendar.MINUTE, automaticSessionTimeout);
       return expirationTimeCalculator.getTimeInMillis();
    }
-   
+
    public synchronized void updateLastModificationTime(IUser user)
    {
       // no tracking for configured users
@@ -122,7 +122,7 @@ public class SessionManager implements IDisposable
       {
          return;
       }
-      
+
       Date lastSeen = (Date) lastModificationTimes.get(new Long(user.getOID()));
       if (null == lastSeen)
       {
@@ -134,30 +134,30 @@ public class SessionManager implements IDisposable
       synchToDiskIfNeeded();
    }
 
-   public Map<String, String> getSessionTokens()   
+   public Map<String, String> getSessionTokens()
    {
       IUser user = SecurityProperties.getUser();
-      return (Map<String, String>) sessionTokens.get(user.getOID());
-   }   
-   
-   public synchronized void updateSessionTokens(IUser user)
+      return sessionTokens.get(user.getOID());
+   }
+
+   public synchronized void updateSessionTokens(IUser user, Map<String, String> tokens)
    {
-      sessionTokens.put(new Long(user.getOID()), user.getSessionTokens());
-   }   
-   
+      sessionTokens.put(user.getOID(), tokens);
+   }
+
    private void synchToDiskIfNeeded()
    {
       if (null == nextSynchToDiskTime)
       {
          this.nextSynchToDiskTime = new Long(scheduleNextSyncToDisk(syncToDiskInterval));
       }
-      
+
       if (System.currentTimeMillis() >= nextSynchToDiskTime.longValue())
       {
          try
          {
             triggerSynchToDisk();
-            
+
             this.nextSynchToDiskTime = null;
          }
          catch (RuntimeException re)
@@ -166,12 +166,12 @@ public class SessionManager implements IDisposable
                   MessageFormat.format(
                         "Failed triggering asynchronous write of user session updates to the audit trail. Trying again in {0}ms.",
                         new Object[] {new Integer(syncToDiskInterval)}), re);
-            
+
             this.nextSynchToDiskTime = new Long(scheduleNextSyncToDisk(syncToDiskInterval));
          }
       }
    }
-   
+
    private synchronized void triggerSynchToDisk()
    {
       if ( !lastModificationTimes.isEmpty())
@@ -192,8 +192,8 @@ public class SessionManager implements IDisposable
                            CollectionUtils.copyMap(lastModificationTimes));
                   }
                });
-               
-               // if writing was successfully triggered clear transient cache 
+
+               // if writing was successfully triggered clear transient cache
                lastModificationTimes.clear();
             }
             finally
@@ -212,7 +212,7 @@ public class SessionManager implements IDisposable
 
       return nextSyncTimeCalculator.getTimeInMillis();
    }
-   
+
    public void dispose()
    {
       triggerSynchToDisk();

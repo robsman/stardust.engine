@@ -26,8 +26,13 @@ public class ListTypeConverter extends AbstractBpmTypeConverter
       if (value instanceof List< ? >)
       {
          Map<String, Object> dataTypeMap = new HashMap<String, Object>();
-         dataTypeMap.put(mapping.getApplicationAccessPoint().getId(), value);
-         this.replaceDataValue(mapping, dataTypeMap, extendedAttributes);
+         if (((List) value).size() == 1 && ((List) value).get(0) instanceof Map)
+            this.replaceDataValue(mapping, ((List) value).get(0), extendedAttributes);
+         else
+         {
+            dataTypeMap.put(mapping.getApplicationAccessPoint().getId(), value);
+            this.replaceDataValue(mapping, dataTypeMap, extendedAttributes);
+         }
       }
 
    }

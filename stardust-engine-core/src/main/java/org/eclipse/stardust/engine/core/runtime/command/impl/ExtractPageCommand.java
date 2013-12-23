@@ -179,8 +179,14 @@ public class ExtractPageCommand implements ServiceCommand
       // spawn process
       if(!infoList.isEmpty())
       {
-         spawnProcesses = workflowService.spawnSubprocessInstances(processInstance.getOID(),
-               infoList);   
+         if (spawnProcesses.isEmpty())
+         {
+            spawnProcesses = workflowService.spawnSubprocessInstances(processInstance.getOID(), infoList);
+         }
+         else
+         {
+            spawnProcesses.addAll(workflowService.spawnSubprocessInstances(processInstance.getOID(), infoList));
+         }
       }
       
 

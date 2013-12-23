@@ -3309,34 +3309,42 @@ public static DataPathXto toWs(DataPath dp, Model model)
     * @param documentType Specifying documentType leads to a dms call in {@link WebServiceEnv}.
     */
    public static ResourceInfoXto marshalDmsMetaData(ResourceInfo doc,
-         ResourceInfoXto xto, Model model, String metaDataTypeId, DocumentType documentType)
+         ResourceInfoXto xto, Model model, String metaDataTypeId,
+         DocumentType documentType)
    {
       if (isEmpty(doc.getProperties()))
       {
          return xto;
       }
-
-      if ((null != model) && !isEmpty(metaDataTypeId))
+      try
       {
-         xto.setMetaDataType(getStructuredTypeName(model, metaDataTypeId));
-         xto.setMetaData(marshalStructValue(model, metaDataTypeId, null,
-               (Serializable) doc.getProperties()));
-      }
-      else
-      {
-         if (documentType != null && !isEmpty(documentType.getSchemaLocation()))
+         if ((null != model) && !isEmpty(metaDataTypeId))
          {
-            xto.setMetaDataType(QName.valueOf(documentType.getDocumentTypeId()));
-
-            Set<TypedXPath> docTypeXPaths = retrieveXPathsFromDms(documentType);
-            xto.setMetaData(marshalStructValue(new ClientXPathMap(docTypeXPaths), null,
+            xto.setMetaDataType(getStructuredTypeName(model, metaDataTypeId));
+            xto.setMetaData(marshalStructValue(model, metaDataTypeId, null,
                   (Serializable) doc.getProperties()));
          }
          else
          {
-            trace.debug("Marshal properties based on default DMS meta data type.");
-            marshalDmsMetaDataDefaultType(xto, doc.getProperties());
+            if (documentType != null && !isEmpty(documentType.getSchemaLocation()))
+            {
+               xto.setMetaDataType(QName.valueOf(documentType.getDocumentTypeId()));
+
+               Set<TypedXPath> docTypeXPaths = retrieveXPathsFromDms(documentType);
+               xto.setMetaData(marshalStructValue(new ClientXPathMap(docTypeXPaths),
+                     null, (Serializable) doc.getProperties()));
+            }
+            else
+            {
+               trace.debug("Marshal properties based on default DMS meta data type.");
+               marshalDmsMetaDataDefaultType(xto, doc.getProperties());
+            }
          }
+      }
+      catch (NullPointerException npe)
+      {
+         trace.warn("Failed marshalling meta data properties using metaDataTypeId: "
+               + metaDataTypeId);
       }
 
       return xto;
@@ -3355,29 +3363,35 @@ public static DataPathXto toWs(DataPath dp, Model model)
       {
          return xto;
       }
-
-      if ( !isEmpty(xPaths))
+      try
       {
-         xto.setMetaDataType(typeId);
-         xto.setMetaData(marshalStructValue(new ClientXPathMap(xPaths), null,
-               (Serializable) doc.getProperties()));
-      }
-      else
-      {
-         if (documentType != null && !isEmpty(documentType.getSchemaLocation()))
+         if ( !isEmpty(xPaths))
          {
-            xto.setMetaDataType(QName.valueOf(documentType.getDocumentTypeId()));
-
-            Set<TypedXPath> docTypeXPaths = retrieveXPathsFromDms(documentType);
-            xto.setMetaData(marshalStructValue(new ClientXPathMap(docTypeXPaths), null,
+            xto.setMetaDataType(typeId);
+            xto.setMetaData(marshalStructValue(new ClientXPathMap(xPaths), null,
                   (Serializable) doc.getProperties()));
          }
          else
          {
-            trace.debug("Marshal properties based on default DMS meta data type.");
-            marshalDmsMetaDataDefaultType(xto, doc.getProperties());
-         }
+            if (documentType != null && !isEmpty(documentType.getSchemaLocation()))
+            {
+               xto.setMetaDataType(QName.valueOf(documentType.getDocumentTypeId()));
 
+               Set<TypedXPath> docTypeXPaths = retrieveXPathsFromDms(documentType);
+               xto.setMetaData(marshalStructValue(new ClientXPathMap(docTypeXPaths),
+                     null, (Serializable) doc.getProperties()));
+            }
+            else
+            {
+               trace.debug("Marshal properties based on default DMS meta data type.");
+               marshalDmsMetaDataDefaultType(xto, doc.getProperties());
+            }
+         }
+      }
+      catch (NullPointerException npe)
+      {
+         trace.warn("Failed marshalling meta data properties using metaDataTypeId: "
+               + typeId);
       }
 
       return xto;
@@ -3450,20 +3464,27 @@ public static DataPathXto toWs(DataPath dp, Model model)
       {
          return res;
       }
-
-      if ((null != model) && !isEmpty(metaDataTypeId))
+      try
       {
-         Serializable metaData = unmarshalStructValue(model, metaDataTypeId, null,
-               xto.getMetaData().getAny());
-         if ((metaData instanceof Map) && !isEmpty((Map< ? , ? >) metaData))
+         if ((null != model) && !isEmpty(metaDataTypeId))
          {
-            res.setProperties((Map< ? , ? >) metaData);
+            Serializable metaData = unmarshalStructValue(model, metaDataTypeId, null,
+                  xto.getMetaData().getAny());
+            if ((metaData instanceof Map) && !isEmpty((Map< ? , ? >) metaData))
+            {
+               res.setProperties((Map< ? , ? >) metaData);
+            }
+         }
+         else
+         {
+            trace.debug("Unmarshal properties based on default DMS meta data type.");
+            unmarshalDmsMetaDataDefaultType(xto.getMetaData(), res);
          }
       }
-      else
+      catch (NullPointerException npe)
       {
-         trace.debug("Unmarshal properties based on default DMS meta data type.");
-         unmarshalDmsMetaDataDefaultType(xto.getMetaData(), res);
+         trace.warn("Failed unmarshalling meta data properties using metaDataType: "
+               + xto.getMetaDataType());
       }
 
       return res;
@@ -3477,29 +3498,38 @@ public static DataPathXto toWs(DataPath dp, Model model)
          return res;
       }
 
-      Serializable metaData = null;
-      if ( !isEmpty(xPaths))
+      try
       {
-         metaData = unmarshalStructValue(xPaths, null, xto.getMetaData().getAny());
-      }
-      else
-      {
-         if (documentType != null && !isEmpty(documentType.getSchemaLocation()))
+
+         Serializable metaData = null;
+         if ( !isEmpty(xPaths))
          {
-            Set<TypedXPath> docTypeXPaths = retrieveXPathsFromDms(documentType);
-            metaData = unmarshalStructValue(docTypeXPaths, null, xto.getMetaData()
-                  .getAny());
+            metaData = unmarshalStructValue(xPaths, null, xto.getMetaData().getAny());
          }
          else
          {
+            if (documentType != null && !isEmpty(documentType.getSchemaLocation()))
+            {
+               Set<TypedXPath> docTypeXPaths = retrieveXPathsFromDms(documentType);
+               metaData = unmarshalStructValue(docTypeXPaths, null, xto.getMetaData()
+                     .getAny());
+            }
+            else
+            {
 
-            trace.debug("Unmarshal properties based on default DMS meta data type.");
-            unmarshalDmsMetaDataDefaultType(xto.getMetaData(), res);
+               trace.debug("Unmarshal properties based on default DMS meta data type.");
+               unmarshalDmsMetaDataDefaultType(xto.getMetaData(), res);
+            }
+         }
+         if ((metaData instanceof Map) && !isEmpty((Map< ? , ? >) metaData))
+         {
+            res.setProperties((Map< ? , ? >) metaData);
          }
       }
-      if ((metaData instanceof Map) && !isEmpty((Map< ? , ? >) metaData))
+      catch (NullPointerException npe)
       {
-         res.setProperties((Map< ? , ? >) metaData);
+         trace.warn("Failed unmarshalling meta data properties using metaDataType: "
+               + xto.getMetaDataType());
       }
 
       return res;

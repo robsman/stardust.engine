@@ -114,7 +114,12 @@ public class ConfigurationVariableUtils
          {
             if (prefEntry.getValue() != null)
             {
-               if(all || getType(prefEntry.getKey()).equals(ConfigurationVariableScope.String))
+               //In the version before fix for CRNT-31581 "Password" was excluded here from the if clause - reason?
+               if (all
+                     || getType(prefEntry.getKey()).equals(
+                           ConfigurationVariableScope.String)
+                     || getType(prefEntry.getKey()).equals(
+                           ConfigurationVariableScope.Password))
                {
                   ConfigurationVariableDefinition definition = new ConfigurationVariableDefinition(
                         getName(prefEntry.getKey()), getType(prefEntry.getKey()), "", "", -1);
@@ -136,8 +141,18 @@ public class ConfigurationVariableUtils
             String value = (String) preferencesMap.get(confVarDef.getName());
             if (isEmpty(value))
             {
-               // dont substitute default value here leave that to GUI.
-               value = "";
+               if ( !confVarDef.getType()
+                     .name()
+                     .equals(ConfigurationVariableScope.String))
+               {
+                  value = (String) preferencesMap.get(confVarDef.getName() + ":"
+                        + confVarDef.getType().name());
+               }
+               else
+               {
+                  // dont substitute default value here leave that to GUI.
+                  value = "";
+               }
             }
 
             if(all || confVarDef.getType().equals(ConfigurationVariableScope.String))
@@ -165,13 +180,21 @@ public class ConfigurationVariableUtils
 
       for (ConfigurationVariable configurationVariable : variableList)
       {
-         final String name = configurationVariable.getName();
+         String name = configurationVariable.getName();
          final String defaultValue = configurationVariable.getDefaultValue();
          String value = configurationVariable.getValue();
 
          // compare defaultValue and value to prevent saving defaultValue to store.
-         if (!isEmpty(value) && (defaultValue == null || !defaultValue.equals(value)))
+         if ( !isEmpty(value) && (defaultValue == null || !defaultValue.equals(value)))
          {
+            if ( !configurationVariable.getType().equals(
+                  ConfigurationVariableScope.String))
+            {
+               if (name.split(":").length == 1)
+               {
+                  name = name + ":" + configurationVariable.getType().name();
+               }
+            }
             preferencesMap.put(name, value);
          }
       }

@@ -19,8 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.eclipse.stardust.common.Assert;
@@ -46,18 +44,13 @@ import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 
 /**
- * <p>
- * This class is not part of the common sanity test suite (i.e. is not executed automatically on a regular basis),
- * but helps to profile transient process instance execution.
- * </p>
+ * TODO javadoc
  *
- * @author Nicolas.Werlein
+ * @author Stephan.Born
  * @version $Revision$
  */
 public class FastCachingSequenceGeneratorTest
 {
-   private static final Log LOG = LogFactory.getLog(FastCachingSequenceGeneratorTest.class);
-
    private static final String SEQUENCE_BATCH_SIZE_STRING = "5";
    private static final Long SEQUENCE_BATCH_SIZE = Long.valueOf(SEQUENCE_BATCH_SIZE_STRING);
    private static final String ALL_USERS_WILDCARD_PROPERTY_VALUE = "*";
@@ -69,7 +62,7 @@ public class FastCachingSequenceGeneratorTest
 
 
    @ClassRule
-   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.JMS, null);
+   public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING);
 
    @Rule
    public final TestRule chain = RuleChain.outerRule(sf)
@@ -89,7 +82,6 @@ public class FastCachingSequenceGeneratorTest
    @BeforeClass
    public static void setUpOnce() throws SQLException
    {
-
       incrementDbSequenceSize();
 
       aiDescr = TypeDescriptor.get(ActivityInstanceBean.class);
@@ -301,7 +293,7 @@ public class FastCachingSequenceGeneratorTest
       }
 
       @Override
-      public boolean isUsingPreparedStatements(Class persistentClass)
+      public boolean isUsingPreparedStatements(@SuppressWarnings("rawtypes") Class persistentClass)
       {
          return true;
       }

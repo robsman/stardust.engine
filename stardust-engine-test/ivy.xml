@@ -72,6 +72,5 @@
       <dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore.xmi" rev="${org.eclipse.emf.ecore.xmi.version}" transitive="false" conf="test->default"/>
       <dependency org="org.hamcrest" name="hamcrest-library" rev="${hamcrest-library.version}" conf="test->default" />
       <dependency org="org.apache.geronimo.specs" name="geronimo-j2ee-management_1.0_spec" rev="${geronimo-j2ee-management_1.0_spec.version}" conf="test->default" />
-      
    </dependencies>
 </ivy-module>

@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 59672 
+ * Generated from  Revision: 68817 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -17,7 +17,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 59672
+ * @version 68817
  */
 public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingLocalService
 {
@@ -1230,7 +1230,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          
     /**
      * Retrieves merged configuration variables from all models matching the specified
-     * modelId.
+     * modelId (without Password type).
      * The contained descriptions and default values are taken from the newest model version
      * the configuration variable exists in.
      *
@@ -1257,7 +1257,35 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          
     /**
      * Retrieves merged configuration variables from all models matching the specified
-     * modelIds.
+     * modelId.
+     * The contained descriptions and default values are taken from the newest model version
+     * the configuration variable exists in.
+     *
+     * @param modelId The modelId of the model(s) to retrieve the configuration variables from.
+     * @param all Indicates if to fetch all configuration variables, including Password type.
+     *
+     * @return A ConfigurationVariables object containing the merged configuration variables from all
+     *     model versions.
+     *
+     * @throws InvalidArgumentException if <tt>modelId</tt> is null or empty.
+     *     <em>Instances of {@link InvalidArgumentException} will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(
+     *     java.lang.String modelId, boolean all)
+     */
+    public
+         org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariables
+         getConfigurationVariables(
+         java.lang.String modelId, boolean all,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+         
+    /**
+     * Retrieves merged configuration variables from all models matching the specified
+     * modelIds (without Password type).
      * The contained descriptions and default values are taken from the newest model version
      * the configuration variable exists in.
      *
@@ -1284,7 +1312,7 @@ public interface TunnelingLocalAdministrationService extends javax.ejb.EJBLocalO
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
-     * Retrieves configuration variables from the given model.
+     * Retrieves configuration variables from the given model (without Password type).
      *
      * @param model The model xml representation in byte array form.
      *

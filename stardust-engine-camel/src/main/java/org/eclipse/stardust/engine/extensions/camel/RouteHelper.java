@@ -170,7 +170,7 @@ public class RouteHelper
       buffer.append(setHeader(CamelConstants.MessageProperty.ORIGIN, "<constant>"
             + CamelConstants.OriginValue.TRIGGER_CONSUMER + "</constant>"));
       buffer.append(setHeader(PASSWORD, "<constant>" + EndpointHelper.sanitizeUri(password) + "</constant>"));
-      buffer.append(setHeader(USER, "<constant>" + EndpointHelper.sanitizeUri(password) + "</constant>"));
+      buffer.append(setHeader(USER, "<constant>" + EndpointHelper.sanitizeUri(user) + "</constant>"));
       buffer.append(setHeader(PARTITION, "<constant>" + partition + "</constant>"));
       buffer.append(to("ipp:authenticate:setCurrent"));
       return buffer.toString();

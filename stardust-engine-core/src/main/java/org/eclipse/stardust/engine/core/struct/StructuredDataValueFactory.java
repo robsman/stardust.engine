@@ -160,18 +160,22 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
          // Validate default types by attempting java conversion.
          convertTo(xPath.getType(), stringValue);
 
-         if (QNameConstants.QN_DECIMAL.getLocalPart().equals(xPath.getXsdTypeName()))
+         if (stringValue != null)
          {
-            // Decimal is handled as BigData.STRING so it needs explicit validation.
-            new BigDecimal(stringValue);
-         }
-         else if (QNameConstants.QN_BOOLEAN.getLocalPart().equals(xPath.getXsdTypeName()))
-         {
-            // xsd:boolean is strict unlike java boolean which is false for any string
-            // input that does not matching: equalsIgnoreCase("true").
-            if ( !(stringValue.equalsIgnoreCase("true") || stringValue.equalsIgnoreCase("false")))
+            if (QNameConstants.QN_DECIMAL.getLocalPart().equals(xPath.getXsdTypeName()))
             {
-               throw new PublicException("Boolean value must be 'true' or 'false'.");
+               // Decimal is handled as BigData.STRING so it needs explicit validation.
+               new BigDecimal(stringValue);
+            }
+            else if (QNameConstants.QN_BOOLEAN.getLocalPart().equals(
+                  xPath.getXsdTypeName()))
+            {
+               // xsd:boolean is strict unlike java boolean which is false for any string
+               // input that does not matching: equalsIgnoreCase("true").
+               if ( !(stringValue.equalsIgnoreCase("true") || stringValue.equalsIgnoreCase("false")))
+               {
+                  throw new PublicException("Boolean value must be 'true' or 'false'.");
+               }
             }
          }
       }

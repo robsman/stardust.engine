@@ -14,7 +14,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -28,6 +27,7 @@ import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkType
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBMSKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.upgrade.framework.DatabaseHelper;
 import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgradeTaskExecutor;
 import org.eclipse.stardust.engine.core.upgrade.framework.RuntimeUpgrader;
@@ -67,8 +67,7 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    private static final Version VERSION = new Version(7, 1, 4);
 
    private RuntimeUpgradeTaskExecutor upgradeTaskExecutor;
-
-
+   
    R7_1_4from7_1_0RuntimeJob()
    {
       super(new DBMSKey[] {
@@ -86,12 +85,8 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
    {
       upgradeTaskExecutor = new RuntimeUpgradeTaskExecutor("R7_1_4from7_1_0RuntimeJob", Parameters.instance()
             .getBoolean(RuntimeUpgrader.UPGRADE_DATA, false));
-      initFinalizeSchemaTasks();
-   }
-
-   private void initFinalizeSchemaTasks()
-   {
-      upgradeTaskExecutor.addFinalizeSchemaTask(new UpgradeTask()
+ 
+      upgradeTaskExecutor.addMigrateDataTask(new UpgradeTask()
       {
          @Override
          public void execute()
@@ -108,7 +103,7 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
          }
       });
    }
-
+      
    protected void upgradeSchema(boolean recover) throws UpgradeException
    {
       upgradeTaskExecutor.executeUpgradeSchemaTasks();
@@ -134,6 +129,9 @@ public class R7_1_4from7_1_0RuntimeJob extends DbmsAwareRuntimeUpgradeJob
 
    protected void migrateData(boolean recover) throws UpgradeException
    {
+      upgradeTaskExecutor.executeMigrateDataTasks();
+      ((org.eclipse.stardust.engine.core.persistence.jdbc.Session) SessionFactory
+            .getSession(SessionFactory.AUDIT_TRAIL)).flush(); 
    }
    
    private void insertDefaultLinkTypes() throws SQLException

@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 59672 
+ * Generated from Revision: 68817 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -17,10 +17,11 @@ package org.eclipse.stardust.engine.api.spring;
  * assigned to the predefined role <tt>Administrator</tt>.</p>
  *
  * @author ubirkemeyer
- * @version 59672
+ * @version 68817
  */
 public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IAdministrationService
 {
+
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#setPasswordRules(org.eclipse.stardust.engine.api.runtime.PasswordRules rules)
     */
@@ -518,7 +519,7 @@ public class AdministrationServiceBean extends org.eclipse.stardust.engine.api.s
       return ((org.eclipse.stardust.engine.api.runtime.AdministrationService)
             serviceProxy).getConfigurationVariables(modelId, all);
    }
-      
+
    /**
     * @see org.eclipse.stardust.engine.api.runtime.AdministrationService#getConfigurationVariables(java.util.List modelIds)
     */

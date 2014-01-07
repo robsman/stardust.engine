@@ -2254,14 +2254,6 @@ public class DDLManager
             trace.warn(message, x);
             DataClusterHelper.deleteDataClusterSetup();
          }
-         try
-         {
-            connection.commit();
-         }
-         catch (SQLException e)
-         {
-            throw new InternalException(e);
-         }
       }
    }
    

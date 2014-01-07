@@ -55,8 +55,6 @@ public class AbortCommand extends ConsoleCommand
    {
       ServiceFactory serviceFactory = ServiceFactoryLocator.get(globalOptions);
 
-      print(options.get(INFO).toString());
-
       AbortScope scope = AbortScope.RootHierarchy;
 
       if (options.containsKey(ABORT_SCOPE))

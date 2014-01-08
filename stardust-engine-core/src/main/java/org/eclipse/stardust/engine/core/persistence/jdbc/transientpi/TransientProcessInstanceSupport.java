@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
@@ -49,7 +48,6 @@ import org.eclipse.stardust.engine.core.persistence.jms.ProcessBlobWriter;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ProcessInstanceUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 
 /**
  * <p>
@@ -64,8 +62,6 @@ public class TransientProcessInstanceSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(TransientProcessInstanceSupport.class);
 
-   private static final String LOCAL_BLOB = TransientProcessInstanceSupport.class.getName() + ".localBlob";
-   
    private final boolean enabled;
    
    private final Set<Long> rootPiOids = newHashSet();
@@ -337,16 +333,10 @@ public class TransientProcessInstanceSupport
     */
    public static Persistent loadProcessInstanceGraphIfExistent(final PersistentKey pk, final Session session)
    {
-      PropertyLayer env = PropertyLayerProviderInterceptor.getCurrent();
-      ProcessInstanceGraphBlob blob = (ProcessInstanceGraphBlob)env.get(LOCAL_BLOB);
+      final ProcessInstanceGraphBlob blob = TransientProcessInstanceStorage.instance().select(pk);
       if (blob == null)
       {
-         blob = TransientProcessInstanceStorage.instance()
-               .select(pk);
-         if (blob == null)
-         {
-            return null;
-         }
+         return null;
       }
       
       return loadProcessInstanceGraph(blob, session, pk);
@@ -510,9 +500,6 @@ public class TransientProcessInstanceSupport
    
    private static Persistent loadProcessInstanceGraph(final ProcessInstanceGraphBlob blob, final Session session, final PersistentKey pk)
    {
-      PropertyLayer env = PropertyLayerProviderInterceptor.getCurrent();
-      env.setProperty(LOCAL_BLOB, blob);
-      
       final ProcessBlobReader reader = new ProcessBlobReader(session);
       final Set<Persistent> persistents = reader.readProcessBlob(blob);
       
@@ -520,7 +507,7 @@ public class TransientProcessInstanceSupport
       Persistent result = null;
       for (final Persistent p : persistents)
       {
-         if (isPkNotSet(p, session))
+         if (isPkNotSet(p, session) || hasParents(p, session))
          {
             deferredPersistents.add(p);
             continue;
@@ -559,6 +546,13 @@ public class TransientProcessInstanceSupport
       }
       
       return false;
+   }
+   
+   private static boolean hasParents(final Persistent persistent, final Session session)
+   {
+      final TypeDescriptor typeDesc = session.getTypeDescriptor(persistent.getClass());
+      final List<LinkDescriptor> parents = typeDesc.getParents();
+      return !parents.isEmpty();
    }
    
    private static void ensurePkLinksAreFetched(final Persistent persistent, final Session session)

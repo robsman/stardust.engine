@@ -172,15 +172,6 @@ public class ConfigurationVariableUtils
          // compare defaultValue and value to prevent saving defaultValue to store.
          if (!isEmpty(value) && (defaultValue == null || !defaultValue.equals(value)))
          {
-            if ( !configurationVariable.getType().equals(
-                  ConfigurationVariableScope.String))
-            {
-               if (name.split(":").length == 1)
-               {
-                  name = name + ":" + configurationVariable.getType().name();
-               }
-            }
-
             preferencesMap.put(name, value);
          }
       }

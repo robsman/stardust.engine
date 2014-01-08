@@ -2222,11 +2222,11 @@ public class TransientProcessInstanceTest
     * </p>
     * 
     * <p>
-    * See also <a href="https://www.csa.sungard.com/jira/browse/CRNT-30812">CRNT-30812</a>
+    * See also <a href="https://www.csa.sungard.com/jira/browse/CRNT-30812">CRNT-30812</a>.
     * </p>
     */
    @Test
-   public void testDataAccessPriorToAndSplit() throws Exception
+   public void testDataAccessPriorToAndSplitHavingInMemStorageExposalDisabled() throws Exception
    {
       enableTransientProcessesSupport();
       disableInMemStorageExposal();

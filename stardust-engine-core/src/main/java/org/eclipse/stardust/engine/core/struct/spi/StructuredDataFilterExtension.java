@@ -131,7 +131,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       int id = cnt;
 
       StructuredDataFilterContext context = new StructuredDataFilterContext(id, filter);
-      validateXPath(filter.getDataID(), filter.getAttributeName(), true);
+      validateXPath(filter.getDataID(), filter.getNormalizedAttributeName(), true);
 
       Join join = joinFactory.createDataFilterJoins(filter.getFilterMode(), id,
             StructuredDataValueBean.class, StructuredDataValueBean.FR__PROCESS_INSTANCE);
@@ -143,13 +143,6 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
 
    private void validateXPath(String dataId, String xPath, boolean canReturnLists)
    {
-      if (xPath == null)
-      {
-         throw new IllegalOperationException(
-               BpmRuntimeError.QUERY_MISSING_XPATH_ON_NON_STRUCT_DATA
-                     .raise(dataId, xPath));
-      }
-
       boolean isValid = false;
       Collection<IData> allData = this.findAllDatas(dataId, ModelManagerFactory.getCurrent());
 
@@ -168,7 +161,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          catch (IllegalOperationException e)
          {
             // check if indexed
-            if(StructuredDataXPathUtils.isIndexedXPath(xPath))
+            if (StructuredDataXPathUtils.isIndexedXPath(xPath))
             {
                throw new IllegalOperationException(BpmRuntimeError.BPMRT_INVALID_INDEXED_XPATH.raise());
             }
@@ -193,7 +186,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          }
       }
 
-      if(!isValid)
+      if (!isValid)
       {
          throw new IllegalOperationException(
                BpmRuntimeError.MDL_UNKNOWN_XPATH
@@ -518,7 +511,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
          OrderCriteria orderCriteria, DataOrder order, Map<Long, IData> dataMap,
          Map<String, Join> dataOrderJoins)
    {
-      validateXPath(order.getDataID(), order.getAttributeName(), false);
+      validateXPath(order.getDataID(), order.getNormalizedAttributeName(), false);
 
       String alias = "DVO" + (dataOrderJoins.size() + 1);
       Join dvJoin;
@@ -596,7 +589,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
    public void appendDataIdTerm(AndTerm andTerm, Map<Long, IData> dataIds, Join dvJoin,
          AbstractDataFilter dataFilter)
    {
-      final String xPathString = dataFilter.getAttributeName();
+      final String xPathString = dataFilter.getNormalizedAttributeName();
       if (xPathString == null)
       {
          throw new InternalException(
@@ -660,7 +653,7 @@ public class StructuredDataFilterExtension implements DataFilterExtension, State
       // notAnyOf Filter definitively need their own join
       if (Operator.NOT_ANY_OF.equals(dataFilter.getOperator()))
       {
-         validateXPath(dataFilter.getDataID(), dataFilter.getAttributeName(), true);
+         validateXPath(dataFilter.getDataID(), dataFilter.getNormalizedAttributeName(), true);
          return joinFactory.createDataFilterJoins(dataFilter.getFilterMode(), index,
                StructuredDataValueBean.class,
                StructuredDataValueBean.FR__PROCESS_INSTANCE);

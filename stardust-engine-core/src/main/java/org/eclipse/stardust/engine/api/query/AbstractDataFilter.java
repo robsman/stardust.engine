@@ -32,14 +32,14 @@ public abstract class AbstractDataFilter
    public static final int MODE_ALL_FROM_SCOPE = 1;
    public static final int MODE_SUBPROCESSES = 2;
    public static final int MODE_ALL_FROM_HIERARCHY = 3;
-   
+
    private final Operator operator;
    private final String dataID;
    private final String attributeName;
    private final Serializable operand;
-   
+
    private final int filterMode;
-   
+
    private Map options;
 
    protected AbstractDataFilter(String dataID, String attributeName, Operator.Binary operator, Serializable value,
@@ -70,7 +70,7 @@ public abstract class AbstractDataFilter
    /**
     * Returns the single- or list-valued operand for unary operator filters, or a
     * {@link org.eclipse.stardust.common.Pair Pair} of operands for a binary operator filter.
-    *  
+    *
     * @return The operand.
     * @see #getOperator
     */
@@ -87,16 +87,25 @@ public abstract class AbstractDataFilter
    {
       return dataID;
    }
-   
+
    /**
     * Returns the name of the data attribute this filter is applying to.
     * @return
     */
    public String getAttributeName()
    {
-      return this.attributeName;
+      return attributeName;
    }
-   
+
+   /**
+    * Returns the name of the data attribute or an empty string if the name is null.
+    * @return
+    */
+   public String getNormalizedAttributeName()
+   {
+      return attributeName == null ? "" : attributeName;
+   }
+
    public int getFilterMode()
    {
       return filterMode;
@@ -106,7 +115,7 @@ public abstract class AbstractDataFilter
    {
       return visitor.visit(this, context);
    }
-   
+
    public Serializable getOption(EvaluationOption option)
    {
       return (null != options) ? (Serializable) options.get(option) : null;
@@ -118,7 +127,7 @@ public abstract class AbstractDataFilter
       {
          options = CollectionUtils.newMap();
       }
-      
+
       return (Serializable) options.put(option, value);
    }
 
@@ -130,12 +139,12 @@ public abstract class AbstractDataFilter
                BpmRuntimeError.QUERY_DATA_FILTER_EMPTY_VALUE_LIST_FOR_XXX_OPERATOR
                      .raise(operator));
       }
-   
+
       Set typeSet = new HashSet(values.size());
       for (Iterator i = values.iterator(); i.hasNext();)
       {
          typeSet.add(i.next().getClass());
-   
+
          if (typeSet.size() > 1)
          {
             throw new PublicException(
@@ -151,7 +160,7 @@ public abstract class AbstractDataFilter
    public String toString()
    {
       String attributeString = this.getAttributeName() == null ? "" : "("+this.getAttributeName()+")";
-      
+
       if (getOperator().isUnary())
       {
          return "data['" + getDataID() + "'"+attributeString+"] " + getOperator();

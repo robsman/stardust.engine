@@ -64,7 +64,7 @@ public class JsonTypeConverter extends AbstractBpmTypeConverter
 
                // TODO: is that the correct OID?
                long modelOid = new Long(dataMapping.getModelOID());
-               SDTConverter converter = new SDTConverter(typeDeclarationId, modelOid);
+               SDTConverter converter = new SDTConverter(dataMapping, modelOid);
 
                Map<String, Object> complexType = new HashMap<String, Object>();
 

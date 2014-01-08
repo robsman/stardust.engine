@@ -103,7 +103,7 @@ public class MapAppenderProcessor implements Processor
       else
       {
          // per default the process context headers are added.
-         addProcessContextHeaders(exchange.getIn());
+    	 // addProcessContextHeaders(exchange.getIn());
       }
    }
 

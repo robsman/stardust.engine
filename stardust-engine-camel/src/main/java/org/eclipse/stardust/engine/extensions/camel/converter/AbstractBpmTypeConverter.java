@@ -15,15 +15,20 @@ import java.util.Set;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.TypeConverter;
-
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.dto.ModelDetails;
 import org.eclipse.stardust.engine.api.model.AccessPoint;
+import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.DataMapping;
+import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
 import org.eclipse.stardust.engine.api.model.Model;
+import org.eclipse.stardust.engine.api.model.PluggableType;
+import org.eclipse.stardust.engine.api.model.Reference;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
+import org.eclipse.stardust.engine.api.model.Typeable;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
@@ -32,6 +37,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
+import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConverter;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.TypedXPath;
@@ -283,20 +289,7 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
    protected boolean isStuctured(DataMapping mapping)
    {
       String typeDeclarationId = this.getTypeDeclarationId(mapping);
-
-      if (typeDeclarationId != null)
-      {
-         Model model = lookupModel(mapping.getModelOID());
-         TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
-
-         if (typeDeclaration != null)
-         {
-            return true;
-         }
-
-      }
-
-      return false;
+      return typeDeclarationId != null;
    }
 
    protected boolean isPrimitive(DataMapping mapping)
@@ -308,6 +301,40 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
       }
 
       return false;
+   }
+   
+   protected Object getTypeDeclaration(IModel model, DataMapping mapping)
+   {
+	  IData data = model.findData(mapping.getDataId());  
+	  return StructuredTypeRtUtils.getTypeDeclaration(data, model);
+   }
+   
+   protected Object getTypeDeclaration(Model model, DataMapping mapping)
+   {
+	  TypeDeclaration td = null;
+	  String dataId = mapping.getDataId();
+	  Data data = model.getData(dataId);
+	  
+	  Reference ref = data.getReference();
+	  
+	  if (ref != null)
+	  {
+		  Model refModel = (Model) lookupModel(ref.getModelOid());
+		  td= refModel.getTypeDeclaration(ref.getId());
+	  }
+	  
+	  if (td == null)
+	  {
+		  String typeDeclarationId = (String) 
+				  mapping.getApplicationAccessPoint().getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+		  
+		  if (typeDeclarationId != null && data.getModelOID() == model.getModelOID())
+		  {
+			  td = model.getTypeDeclaration(typeDeclarationId);
+		  }
+	  }
+	  
+      return td;
    }
 
    protected String getTypeDeclarationId(DataMapping mapping)
@@ -325,16 +352,14 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
       return null;
    }
 
-   protected static Model lookupModel(long modelOid)
+   protected static Object lookupModel(long modelOid)
    {
-
       BpmRuntimeEnvironment bpmRt = PropertyLayerProviderInterceptor.getCurrent();
 
       if (bpmRt != null)
       {
          ModelManager modelManager = ModelManagerFactory.getCurrent();
-         IModel model = modelManager.findModel(modelOid);
-         return DetailsFactory.create(model, IModel.class, ModelDetails.class);
+         return modelManager.findModel(modelOid);
       }
       else
       {
@@ -342,34 +367,61 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
          return sf.getQueryService().getModel(modelOid);
       }
    }
+   
+   public static XSDSchema loadXsdSchema(IModel model, ITypeDeclaration typeDeclaration)
+   {
+ 	   if (model != null && typeDeclaration != null)
+       {
+          return StructuredTypeRtUtils.getXSDSchema(model, typeDeclaration);
+       }
+       else
+       {
+          throw new RuntimeException("Model: " + model.getOID() + " Type: " + typeDeclaration.getId());
+       }
+   }
+   
+   public static XSDSchema loadXsdSchema(Model model, TypeDeclaration typeDeclaration)
+   {
+	   if (model != null && typeDeclaration != null)
+       {
+          return StructuredTypeRtUtils.getXSDSchema(model, typeDeclaration);
+       }
+       else
+       {
+          throw new RuntimeException("Model: " + model.getModelOID() + " Type: " + typeDeclaration.getId());
+       }
+   }
 
    protected class SDTConverter
    {
       private StructuredDataConverter converter;
       private XSDSchema xsdSchema;
       private IXPathMap xPathMap;
-
-      protected SDTConverter(String typeDeclarationId, long modelOid)
+      
+      protected SDTConverter(DataMapping dataMapping, long modelOid)
       {
 
-         Model model = lookupModel(modelOid);
-
-         TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
-
-         if (model != null && typeDeclaration != null)
-         {
-            this.xsdSchema = StructuredTypeRtUtils.getXSDSchema(model, typeDeclaration);
+         Object obj = lookupModel(modelOid);
+         
+         XSDNamedComponent component = null;
+         
+         if (obj instanceof IModel) 
+         { 
+        	 IModel iModel = ((IModel) obj);
+        	 ITypeDeclaration iTypeDeclaration = (ITypeDeclaration) getTypeDeclaration(iModel, dataMapping);
+        	 this.xsdSchema = loadXsdSchema(iModel, iTypeDeclaration);
+        	 component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema, iTypeDeclaration.getId(), false);
          }
          else
          {
-            throw new RuntimeException("Model: " + modelOid + " Type: " + typeDeclarationId);
+        	 Model model = ((Model) obj);
+        	 TypeDeclaration typeDeclaration = (TypeDeclaration) getTypeDeclaration(model, dataMapping);
+        	 this.xsdSchema = loadXsdSchema(model, typeDeclaration);
+        	 component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema, typeDeclaration.getId(), false);
          }
 
-         XSDNamedComponent component = StructuredTypeRtUtils.findElementOrTypeDeclaration(xsdSchema,
-               typeDeclaration.getId(), false);
-
-         Set xPathSet = XPathFinder.findAllXPaths(xsdSchema,
-               component);
+         Set xPathSet = XPathFinder.findAllXPaths(xsdSchema, component);
+         
          this.xPathMap = new ClientXPathMap(xPathSet);
 
          this.converter = new StructuredDataConverter(xPathMap);

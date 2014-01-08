@@ -40,7 +40,7 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
          if (typeDeclarationId != null) // data is an SDT and needs to be converted
          {
              long modelOid = new Long(dataMapping.getModelOID());
-	         SDTConverter converter = new SDTConverter(typeDeclarationId, modelOid);
+	         SDTConverter converter = new SDTConverter(dataMapping, modelOid);
 	
 	         Node[] nodes = converter.toDom(dataMap, true);
 	         Document document = new Document((Element) nodes[0]);
@@ -72,7 +72,7 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
          String typeDeclarationId = this.getTypeDeclarationId(dataMapping);
 
          long modelOid = new Long(dataMapping.getModelOID());
-         SDTConverter converter = new SDTConverter(typeDeclarationId, modelOid);
+         SDTConverter converter = new SDTConverter(dataMapping, modelOid);
 
          Object dataMap = converter.toCollection(xml, true);
          replaceDataValue(dataMapping, dataMap, extendedAttributes);

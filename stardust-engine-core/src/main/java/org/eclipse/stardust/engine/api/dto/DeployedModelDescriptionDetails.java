@@ -43,7 +43,7 @@ public class DeployedModelDescriptionDetails extends ModelElementDetails
 
    public static enum LevelOfDetail
    {
-      NoProvidersNorConsumers,
+      NoProvidersNorConsumers
    }
 
    private final boolean active;

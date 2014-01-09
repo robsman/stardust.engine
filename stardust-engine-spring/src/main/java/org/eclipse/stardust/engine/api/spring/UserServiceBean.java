@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 64706 
+ * Generated from Revision: 66568 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 64706
+ * @version 66568
  */
 public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IUserService
 {

@@ -36,7 +36,7 @@ public class J2EEUtils
             .getFirstExtensionProvider(PrincipalNameProvider.class);
       if (principalNameProvider == null)
       {
-         trace.warn("Could not load PrincipalNameProvider. Will use default approach: principal.getName().");
+         trace.debug("Could not load PrincipalNameProvider. Will use default approach: principal.getName().");
          principalNameProvider = new DefaultPrincipalNameProvider();
       }
 

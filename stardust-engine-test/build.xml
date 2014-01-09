@@ -17,25 +17,25 @@
     in the etc folder of the project and put the property in there)
  -->
 <project name="stardust-engine-test" default="deploy" basedir="." xmlns:stardust="com.infinity.bpm.ant.macros" xmlns:ivy="antlib:org.apache.ivy.ant">
-   
+
    <property name="src.dir" value="${basedir}/src" />
    <property name="src.main.java.dir" value="${src.dir}/main/java" />
    <property name="src.main.resources.dir" value="${src.dir}/main/resources" />
    <property name="src.test.java.dir" value="${src.dir}/test/java" />
    <property name="src.test.resources.dir" value="${src.dir}/test/resources" />
-   
+
    <property name="build.dir" value="${basedir}/build" />
    <property name="build.classes.dir" value="${build.dir}/classes" />
    <property name="build.dep-report.dir" value="${build.dir}/dependency-report" />
    <property name="build.test-report.dir" value="${build.dir}/test-report" />
    <property name="build.report" location="${build.dir}/ivy-report" />
-   
+
    <property name="artifactId" value="stardust-engine-test" />
    <property name="artifact.jar" value="${artifactId}.jar" />
    <property name="source.artifact.jar" value="${artifactId}-sources.jar" />
-   
+
    <property file="${basedir}/etc/private.properties" />
-   
+
    <import file="../../build.tools/commons-build.xml" />
 
    <condition property="skip.tests" value="true">
@@ -52,15 +52,15 @@
          </and>
       </or>
    </condition>
-   
+
    <!-- clean -->
    <target name="clean" description="Cleans the project.">
       <delete dir="${build.dir}" />
    </target>
-   
+
    <!-- deploy -->
    <target name="deploy" description="Builds the whole project, runs all tests, builds the project's artifacts and publishes them." depends="build, test, jar, publish, dependencies:report" />
-   
+
    <!-- test -->
    <target name="test" description="Runs the functional tests." unless="skip.tests" depends="build">
       <!-- Runtime Classpath for JUnit tests -->
@@ -68,62 +68,62 @@
          <path refid="test" />
          <pathelement location="${build.classes.dir}" />
       </path>
-      
+
       <!-- Execute the test suites -->
       <execute-all-test-suites />
    </target>
-   
+
    <!-- dependency-report -->
    <target name="dependency-report" description="Creates a dependency report." depends="init">
       <ivy:report todir="${build.dep-report.dir}" />
    </target>
-   
+
    <!-- publish -->
    <target name="publish" depends="jar">
       <ivy-publish-local artifactId="${artifactId}" artifactDir="${build.dir}" publishPom="false" />
    </target>
-   
+
    <!-- jar -->
    <target name="jar" depends="build">
       <delete file="${build.dir}/${artifact.jar}" />
       <delete file="${build.dir}/${source.artifact.jar}" />
-      
+
       <stardust:jar jarfile="${build.dir}/${artifact.jar}" implementationTitle="Stardust Engine Test">
          <fileset dir="${build.classes.dir}">
             <include name="**/*.*" />
          </fileset>
       </stardust:jar>
-      
+
       <stardust:jar jarfile="${build.dir}/${source.artifact.jar}" implementationTitle="Stardust Engine Test - Sources">
          <fileset dir="${src.dir}">
             <include name="**/*.*" />
          </fileset>
       </stardust:jar>
    </target>
-   
+
    <!-- build -->
    <target name="build" depends="build-main, build-test" unless="skip.compile" />
-   
+
    <!-- build-main -->
    <target name="build-main" depends="init, compile-main, copy-resources-main" />
-   
+
    <!-- compile-main -->
    <target name="compile-main" depends="init">
       <stardust:javac-java6 srcdir="${src.main.java.dir}" destdir="${build.classes.dir}">
          <classpath refid="compile.deps" />
       </stardust:javac-java6>
    </target>
-   
+
    <!-- copy-resources-main -->
    <target name="copy-resources-main" depends="init">
       <copy todir="${build.classes.dir}">
          <fileset dir="${src.main.resources.dir}" />
       </copy>
    </target>
-   
+
    <!-- build-test -->
    <target name="build-test" depends="init, compile-test, copy-resources-test" />
-   
+
    <!-- compile-test -->
    <target name="compile-test" depends="init">
       <stardust:javac-java6 srcdir="${src.test.java.dir}" destdir="${build.classes.dir}">
@@ -133,26 +133,26 @@
          </classpath>
       </stardust:javac-java6>
    </target>
-   
+
    <!-- copy-resources-test -->
    <target name="copy-resources-test" depends="init">
       <copy todir="${build.classes.dir}">
          <fileset dir="${src.test.resources.dir}" />
       </copy>
    </target>
-   
+
    <!-- init -->
    <target name="init">
       <mkdir dir="${build.classes.dir}" />
       <mkdir dir="${build.dep-report.dir}" />
       <mkdir dir="${build.test-report.dir}" />
-      
+
       <init-ivy/>
       <init-ivy-classpath conf="compile,test" />
-      
+
       <property name="javac.debuglevel" value="lines,vars,source" />
    </target>
-   
+
    <!-- execute-all-test-suites (macro) -->
    <macrodef name="execute-all-test-suites">
       <sequential>
@@ -165,20 +165,21 @@
          <execute-test-suite name="Document Management" class="org.eclipse.stardust.test.dms.DmsTestSuite" />
          <execute-test-suite name="Document Management Synchronization" class="org.eclipse.stardust.test.dms.DmsSyncTestSuite" />
          <execute-test-suite name="Join Process" class="org.eclipse.stardust.test.join.JoinProcessTestSuite" />
+         <execute-test-suite name="Multi-Model" class="org.eclipse.stardust.test.multimodel.MultiModelTestSuite" />
          <execute-test-suite name="Quality Control" class="org.eclipse.stardust.test.qc.QualityControlTestSuite" />
          <execute-test-suite name="Spawn Process" class="org.eclipse.stardust.test.spawn.SpawnProcessTestSuite" />
          <execute-test-suite name="SPI" class="org.eclipse.stardust.test.spi.SpiTestSuite" />
          <execute-test-suite name="Transient Process Instance" class="org.eclipse.stardust.test.transientpi.TransientProcessInstanceTestSuite" />
-         
+
          <print-summary/>
       </sequential>
    </macrodef>
-   
+
    <!-- execute-test-suite (macro) -->
    <macrodef name="execute-test-suite">
       <attribute name="name" />
       <attribute name="class" />
-      
+
       <sequential>
          <echo message="Executing the '@{name}' test suite ..." />
          <junit fork="yes" maxmemory="512m" haltonfailure="off" haltonerror="off" printsummary="on" failureproperty="test.failure" timeout="3600000">
@@ -190,7 +191,7 @@
          <echo message="${line.separator}" />
       </sequential>
    </macrodef>
-   
+
    <!-- print-summary (macro) -->
    <macrodef name="print-summary">
       <sequential>
@@ -199,7 +200,7 @@
          <antcall target="print-failure-if-appropriate" inheritall="true" />
       </sequential>
    </macrodef>
-   
+
    <target name="print-success-if-appropriate" unless="test.failure">
       <echo message="All tests passed without any failures or errors." />
    </target>

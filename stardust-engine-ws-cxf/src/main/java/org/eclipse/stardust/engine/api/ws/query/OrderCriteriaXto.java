@@ -43,8 +43,8 @@ import javax.xml.bind.annotation.XmlType;
 public class OrderCriteriaXto {
 
     @XmlElements({
-        @XmlElement(name = "dataOrder", type = DataOrderXto.class),
-        @XmlElement(name = "attributeOrder", type = AttributeOrderXto.class)
+        @XmlElement(name = "attributeOrder", type = AttributeOrderXto.class),
+        @XmlElement(name = "dataOrder", type = DataOrderXto.class)
     })
     protected List<OrderCriterionXto> attributeOrderOrDataOrder;
 
@@ -66,8 +66,8 @@ public class OrderCriteriaXto {
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link DataOrderXto }
      * {@link AttributeOrderXto }
+     * {@link DataOrderXto }
      * 
      * 
      */

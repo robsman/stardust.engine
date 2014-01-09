@@ -79,34 +79,34 @@ public abstract class PredicateTermXto
 
     @XmlElements({
         @XmlElement(name = "forActivityDefinition", type = ActivityDefinitionFilterXto.class),
-        @XmlElement(name = "userState", type = UserStateFilterXto.class),
-        @XmlElement(name = "forActivity", type = ActivityInstanceFilterXto.class),
-        @XmlElement(name = "processesInHierarchy", type = ProcessInstanceHierarchyFilterXto.class),
-        @XmlElement(name = "activitiesInState", type = ActivityStateFilterXto.class),
-        @XmlElement(name = "performingParticipant", type = PerformingParticipantFilterXto.class),
-        @XmlElement(name = "performingUser", type = PerformingUserFilterXto.class),
-        @XmlElement(name = "participantAssociation", type = ParticipantAssociationFilterXto.class),
-        @XmlElement(name = "notEqual", type = NotEqualPredicateXto.class),
-        @XmlElement(name = "performingOnBehalfOf", type = PerformingOnBehalfOfFilterXto.class),
-        @XmlElement(name = "processesInState", type = ProcessStateFilterXto.class),
-        @XmlElement(name = "isLike", type = IsLikePredicateXto.class),
-        @XmlElement(name = "performedByUser", type = PerformedByUserFilterXto.class),
-        @XmlElement(name = "forProcess", type = ProcessInstanceFilterXto.class),
-        @XmlElement(name = "notNull", type = NotNullPredicateXto.class),
-        @XmlElement(name = "greaterThan", type = GreaterThanPredicateXto.class),
-        @XmlElement(name = "lessOrEqual", type = LessOrEqualPredicateXto.class),
-        @XmlElement(name = "lessThan", type = LessThanPredicateXto.class),
-        @XmlElement(name = "inList", type = InListPredicateXto.class),
+        @XmlElement(name = "greaterOrEqual", type = GreaterOrEqualPredicateXto.class),
         @XmlElement(name = "forProcessDefinition", type = ProcessDefinitionFilterXto.class),
         @XmlElement(name = "notAnyOf", type = NotAnyOfPredicateXto.class),
-        @XmlElement(name = "isNull", type = IsNullPredicateXto.class),
-        @XmlElement(name = "isEqual", type = IsEqualPredicateXto.class),
+        @XmlElement(name = "forProcess", type = ProcessInstanceFilterXto.class),
+        @XmlElement(name = "lessOrEqual", type = LessOrEqualPredicateXto.class),
+        @XmlElement(name = "notEqual", type = NotEqualPredicateXto.class),
+        @XmlElement(name = "processesInHierarchy", type = ProcessInstanceHierarchyFilterXto.class),
+        @XmlElement(name = "greaterThan", type = GreaterThanPredicateXto.class),
+        @XmlElement(name = "userState", type = UserStateFilterXto.class),
+        @XmlElement(name = "performingOnBehalfOf", type = PerformingOnBehalfOfFilterXto.class),
+        @XmlElement(name = "processesHavingLink", type = ProcessInstanceLinkFilterXto.class),
+        @XmlElement(name = "performedByUser", type = PerformedByUserFilterXto.class),
+        @XmlElement(name = "performingParticipant", type = PerformingParticipantFilterXto.class),
+        @XmlElement(name = "or", type = OrTermXto.class),
+        @XmlElement(name = "inList", type = InListPredicateXto.class),
+        @XmlElement(name = "lessThan", type = LessThanPredicateXto.class),
+        @XmlElement(name = "isLike", type = IsLikePredicateXto.class),
+        @XmlElement(name = "notNull", type = NotNullPredicateXto.class),
+        @XmlElement(name = "processesInState", type = ProcessStateFilterXto.class),
+        @XmlElement(name = "forActivity", type = ActivityInstanceFilterXto.class),
         @XmlElement(name = "startingUser", type = StartingUserFilterXto.class),
         @XmlElement(name = "notInList", type = NotInListPredicateXto.class),
-        @XmlElement(name = "greaterOrEqual", type = GreaterOrEqualPredicateXto.class),
         @XmlElement(name = "and", type = AndTermXto.class),
-        @XmlElement(name = "processesHavingLink", type = ProcessInstanceLinkFilterXto.class),
-        @XmlElement(name = "or", type = OrTermXto.class)
+        @XmlElement(name = "activitiesInState", type = ActivityStateFilterXto.class),
+        @XmlElement(name = "participantAssociation", type = ParticipantAssociationFilterXto.class),
+        @XmlElement(name = "isNull", type = IsNullPredicateXto.class),
+        @XmlElement(name = "isEqual", type = IsEqualPredicateXto.class),
+        @XmlElement(name = "performingUser", type = PerformingUserFilterXto.class)
     })
     protected List<PredicateBaseXto> andOrOrOrIsNull;
 
@@ -129,34 +129,34 @@ public abstract class PredicateTermXto
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link ActivityDefinitionFilterXto }
-     * {@link UserStateFilterXto }
-     * {@link ActivityInstanceFilterXto }
-     * {@link ProcessInstanceHierarchyFilterXto }
-     * {@link ActivityStateFilterXto }
-     * {@link PerformingParticipantFilterXto }
-     * {@link PerformingUserFilterXto }
-     * {@link ParticipantAssociationFilterXto }
-     * {@link NotEqualPredicateXto }
-     * {@link PerformingOnBehalfOfFilterXto }
-     * {@link ProcessStateFilterXto }
-     * {@link IsLikePredicateXto }
-     * {@link PerformedByUserFilterXto }
-     * {@link ProcessInstanceFilterXto }
-     * {@link NotNullPredicateXto }
-     * {@link GreaterThanPredicateXto }
-     * {@link LessOrEqualPredicateXto }
-     * {@link LessThanPredicateXto }
-     * {@link InListPredicateXto }
+     * {@link GreaterOrEqualPredicateXto }
      * {@link ProcessDefinitionFilterXto }
      * {@link NotAnyOfPredicateXto }
-     * {@link IsNullPredicateXto }
-     * {@link IsEqualPredicateXto }
+     * {@link ProcessInstanceFilterXto }
+     * {@link LessOrEqualPredicateXto }
+     * {@link NotEqualPredicateXto }
+     * {@link ProcessInstanceHierarchyFilterXto }
+     * {@link GreaterThanPredicateXto }
+     * {@link UserStateFilterXto }
+     * {@link PerformingOnBehalfOfFilterXto }
+     * {@link ProcessInstanceLinkFilterXto }
+     * {@link PerformedByUserFilterXto }
+     * {@link PerformingParticipantFilterXto }
+     * {@link OrTermXto }
+     * {@link InListPredicateXto }
+     * {@link LessThanPredicateXto }
+     * {@link IsLikePredicateXto }
+     * {@link NotNullPredicateXto }
+     * {@link ProcessStateFilterXto }
+     * {@link ActivityInstanceFilterXto }
      * {@link StartingUserFilterXto }
      * {@link NotInListPredicateXto }
-     * {@link GreaterOrEqualPredicateXto }
      * {@link AndTermXto }
-     * {@link ProcessInstanceLinkFilterXto }
-     * {@link OrTermXto }
+     * {@link ActivityStateFilterXto }
+     * {@link ParticipantAssociationFilterXto }
+     * {@link IsNullPredicateXto }
+     * {@link IsEqualPredicateXto }
+     * {@link PerformingUserFilterXto }
      * 
      * 
      */

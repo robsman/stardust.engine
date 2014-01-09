@@ -177,6 +177,14 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
                   throw new PublicException("Boolean value must be 'true' or 'false'.");
                }
             }
+            else if ( !xPath.getEnumerationValues().isEmpty())
+            {
+               /* make sure the given value matches one of the allowed enum values */
+               if ( !xPath.getEnumerationValues().contains(stringValue))
+               {
+                  throw new PublicException("The enum value '" + stringValue + "' is not allowed for element '" + xPath.getXsdElementName() + "'.");
+               }
+            }
          }
       }
       catch (Exception e)

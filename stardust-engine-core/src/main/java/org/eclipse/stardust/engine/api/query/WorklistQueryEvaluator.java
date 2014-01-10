@@ -347,7 +347,7 @@ public class WorklistQueryEvaluator
          
          if (totalCount > totalCountThreshold)
          {
-            totalCount = Long.MAX_VALUE;
+            totalCount = totalCountThreshold;
          }         
       }
       catch (SQLException e)

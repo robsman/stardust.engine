@@ -640,7 +640,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          Map<Integer,Model> modelCache = new HashMap<Integer,Model>();
          for (DeployedModelDescription md : models)
          {
-            DeployedModel model = qs.getModel(md.getModelOID());
+            Model model = wsEnv.getModel(md.getModelOID());
             modelCache.put(model.getModelOID(), model);
          }
 

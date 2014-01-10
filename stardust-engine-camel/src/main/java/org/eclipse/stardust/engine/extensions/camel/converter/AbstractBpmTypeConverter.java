@@ -35,6 +35,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.struct.ClientXPathMap;
 import org.eclipse.stardust.engine.core.struct.IXPathMap;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
@@ -157,7 +158,7 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
 	            	default:
 	            	   complexTypes.add(primitive.getAsString());
 	            	   break;
-            		}	
+            		}
             	}
          	}
       	}
@@ -302,38 +303,38 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
 
       return false;
    }
-   
+
    protected Object getTypeDeclaration(IModel model, DataMapping mapping)
    {
-	  IData data = model.findData(mapping.getDataId());  
+	  IData data = model.findData(mapping.getDataId());
 	  return StructuredTypeRtUtils.getTypeDeclaration(data, model);
    }
-   
+
    protected Object getTypeDeclaration(Model model, DataMapping mapping)
    {
 	  TypeDeclaration td = null;
 	  String dataId = mapping.getDataId();
 	  Data data = model.getData(dataId);
-	  
+
 	  Reference ref = data.getReference();
-	  
+
 	  if (ref != null)
 	  {
 		  Model refModel = (Model) lookupModel(ref.getModelOid());
 		  td= refModel.getTypeDeclaration(ref.getId());
 	  }
-	  
+
 	  if (td == null)
 	  {
-		  String typeDeclarationId = (String) 
+		  String typeDeclarationId = (String)
 				  mapping.getApplicationAccessPoint().getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-		  
+
 		  if (typeDeclarationId != null && data.getModelOID() == model.getModelOID())
 		  {
 			  td = model.getTypeDeclaration(typeDeclarationId);
 		  }
 	  }
-	  
+
       return td;
    }
 
@@ -364,10 +365,10 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
       else
       {
          ServiceFactory sf = ClientEnvironment.getCurrentServiceFactory();
-         return sf.getQueryService().getModel(modelOid);
+         return sf.getWorkflowService().execute(RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
       }
    }
-   
+
    public static XSDSchema loadXsdSchema(IModel model, ITypeDeclaration typeDeclaration)
    {
  	   if (model != null && typeDeclaration != null)
@@ -379,7 +380,7 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
           throw new RuntimeException("Model: " + model.getOID() + " Type: " + typeDeclaration.getId());
        }
    }
-   
+
    public static XSDSchema loadXsdSchema(Model model, TypeDeclaration typeDeclaration)
    {
 	   if (model != null && typeDeclaration != null)
@@ -397,16 +398,16 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
       private StructuredDataConverter converter;
       private XSDSchema xsdSchema;
       private IXPathMap xPathMap;
-      
+
       protected SDTConverter(DataMapping dataMapping, long modelOid)
       {
 
          Object obj = lookupModel(modelOid);
-         
+
          XSDNamedComponent component = null;
-         
-         if (obj instanceof IModel) 
-         { 
+
+         if (obj instanceof IModel)
+         {
         	 IModel iModel = ((IModel) obj);
         	 ITypeDeclaration iTypeDeclaration = (ITypeDeclaration) getTypeDeclaration(iModel, dataMapping);
         	 this.xsdSchema = loadXsdSchema(iModel, iTypeDeclaration);
@@ -421,7 +422,7 @@ public abstract class AbstractBpmTypeConverter implements IBpmTypeConverter
          }
 
          Set xPathSet = XPathFinder.findAllXPaths(xsdSchema, component);
-         
+
          this.xPathMap = new ClientXPathMap(xPathSet);
 
          this.converter = new StructuredDataConverter(xPathMap);

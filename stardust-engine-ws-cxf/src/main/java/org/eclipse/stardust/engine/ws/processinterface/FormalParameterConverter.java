@@ -215,11 +215,12 @@ public class FormalParameterConverter
       }
       return value;
    }
-   private static Model getModelForOid(long modelOid)
+
+   private static Model getModelForOid(int modelOid)
    {
-      WebServiceEnv currentWebServiceEnvironment = WebServiceEnv.currentWebServiceEnvironment();
-      WorkflowService wfService = currentWebServiceEnvironment.getServiceFactory().getWorkflowService();
-      return (Model) wfService.execute(RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+      return wsEnv.getModel(modelOid);
    }
 
    private static Model getActiveModelForId(String modelId)

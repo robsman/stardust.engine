@@ -196,7 +196,7 @@ public abstract class AbstractUiInteractionsRestlet
          {
             model = interaction.getServiceFactory()
                   .getQueryService()
-                  .getModel(data.getModelOID());
+                  .getModel(data.getModelOID(), false);
          }
       }
       Serializable decodedValue = unmarshalOutDataValue(model, dm, value);

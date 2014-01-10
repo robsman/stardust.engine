@@ -256,7 +256,7 @@ public class UiInteractionsRestlet extends AbstractUiInteractionsRestlet
          {
             model = interaction.getServiceFactory()
                   .getQueryService()
-                  .getModel(data.getModelOID());
+                  .getModel(data.getModelOID(), false);
          }
 
          List<Variant> providedMediaTypes = asList( //

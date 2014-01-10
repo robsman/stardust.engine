@@ -27,9 +27,9 @@ public class ActivityUtil
    private static Logger LOG = LogManager.getLogger(ActivityUtil.class);
 
    /**
-    * 
+    *
     * create and execute an activity instance query
-    * 
+    *
     * @param exchange
     * @param sf
     *           the service factory
@@ -172,7 +172,7 @@ public class ActivityUtil
          {
             Application application = activityInstance.getActivity().getApplication();
 
-            DeployedModel model = queryService.getModel(application.getModelOID());
+            DeployedModel model = queryService.getModel(application.getModelOID(), false);
 
             String id = getRouteId(application.getPartitionId(), model.getId(), null, application.getId(), false);
 

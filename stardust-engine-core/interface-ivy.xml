@@ -159,8 +159,10 @@
 
       <!-- logging-slf4j-log4j-provider-compile -->
       <dependency org="org.slf4j" name="slf4j-log4j12" rev="${slf4j-log4j12.version}" conf="logging-slf4j-log4j-provider-compile->default">
+         <exclude org="org.slf4j" module="slf4j-api"/>
          <exclude org="log4j" module="log4j"/>
       </dependency>
+      <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="logging-slf4j-log4j-provider-compile->default"/>
 
       <!-- web-client-provider-runtime -->
       <dependency org="commons-fileupload" name="commons-fileupload" rev="${commons-fileupload.version}" conf="web-client-provider-runtime->default"/>
@@ -341,7 +343,9 @@
       </dependency>
       <dependency org="commons-collections" name="commons-collections" rev="${commons-collections.version}" conf="jackrabbit-core-without-full-text-search->default"/>
       <dependency org="org.slf4j" name="slf4j-api" rev="${slf4j-api.version}" conf="jackrabbit-core-without-full-text-search->default" />
-      <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-without-full-text-search->default" />
+      <dependency org="org.slf4j" name="jcl-over-slf4j" rev="${jcl-over-slf4j.version}" conf="jackrabbit-core-without-full-text-search->default">
+         <exclude org="org.slf4j" module="slf4j-api"/>
+      </dependency>
       
       <!-- jackrabbit-provider-runtime -->
       <dependency org="commons-httpclient" name="commons-httpclient" rev="${commons-httpclient.version}" conf="jackrabbit-provider-runtime->default">
@@ -402,7 +406,6 @@
       <override org="rome" module="rome" rev="${rome.version}" />
       <override org="jdom" module="jdom" rev="${jdom.version}" />
       <override org="de.l3s.boilerpipe" module="boilerpipe" rev="${boilerpipe.version}" />
-      <override org="org.slf4j" module="slf4j-api" rev="${slf4j-api.version}" />
 
       <!-- *************** -->
       <!--    Conflicts    -->

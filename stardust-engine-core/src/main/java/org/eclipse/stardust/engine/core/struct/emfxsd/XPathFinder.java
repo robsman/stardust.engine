@@ -309,7 +309,7 @@ public class XPathFinder
       }
       else if ("decimal".equals(typeName))
       {
-         return BigData.STRING;
+         return BigData.DECIMAL;
       }
       else if ("short".equals(typeName))
       {

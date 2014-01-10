@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.*;
 
 import org.eclipse.stardust.common.*;
@@ -339,6 +340,11 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          return new Representation(BigData.STRING_VALUE, BigData.MONEY,
                dataValue.toString());
       }
+      else if (dataValue instanceof BigDecimal)
+      {
+    	  return new Representation(BigData.STRING_VALUE, BigData.STRING,
+    			  dataValue.toString());
+      }
       else if (dataValue instanceof String)
       {
          String stringValue = dataValue.toString();
@@ -627,6 +633,12 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
       {
          data.setShortStringValue(value.toString());
          data.setType(BigData.PERIOD);
+      }
+      else if (value instanceof BigDecimal)
+      {
+    	  data.setShortStringValue(value.toString());
+          data.setDoubleValue(((BigDecimal) value).doubleValue());    	  
+    	  data.setType(BigData.STRING);
       }
       else if (value instanceof String)
       {

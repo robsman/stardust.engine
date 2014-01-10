@@ -140,6 +140,10 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       {
          return new Period(stringValue);
       }
+      else if (typeKey == BigData.DECIMAL)
+      {
+    	  return new BigDecimal(stringValue);
+      }
       else
       {
          throw new PublicException("BigData type '"+typeKey+"' is supported yet");
@@ -263,6 +267,10 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
          SimpleDateFormat df = new SimpleDateFormat(dateFormatString);
          df.setLenient(false);
          return df.format(value);
+      }
+      else if (typeKey == BigData.DECIMAL)
+      {
+    	  return value.toString();
       }
       else
       {

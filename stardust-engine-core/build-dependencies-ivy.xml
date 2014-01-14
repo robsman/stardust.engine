@@ -100,13 +100,6 @@
       <ivy:cachepath pathid="servlet.deps" conf="web-client-interface-provided" />
       <ivy:cachepath pathid="ejb.deps" conf="ejb21-interface-provided" />
 
-      <ivy:retrieve pattern="${build.lib}/integration-jars/[artifact].[ext]"
-               conf="integration-jars"/>
-      
-      <property name="integration-jars.dir" value="${build.lib}/integration-jars"/>
-            
-      <property name="js.jar" location="${integration-jars.dir}/js.jar"/>
-      
       <ivy:cachepath pathid="test" conf="test" />
       <ivy:cachepath pathid="run.test" conf="base-provider-runtime" />
 
@@ -189,7 +182,6 @@
             <include name="jdom*.jar"/>
             <include name="xalan*.jar"/>
             <include name="jcchart-*.jar"/>
-            <include name="js-*.jar"/>
          </fileset>
       </delete>
       <move file="${build.lib}/jcr-vfs-${ipp.version.full}.jar" tofile="${build.lib}/jcr-vfs.jar" />

@@ -64,7 +64,7 @@
       <!-- ************** -->
       <!--    Internal    -->
       <!-- ************** -->
-      <conf name="carnot-engine-compile" extends="base-provider-compile,emf-xsd-provider-compile" visibility="public"/>
+      <conf name="carnot-engine-compile" extends="base-provider-compile,emf-xsd-provider-compile,js-provider-runtime" visibility="public"/>
       <conf name="carnot-engine-compile-optional" extends="qdox-provider-compile, jcr-interface-compile, jcr-vfs-provider-compile,
          ejb21-interface-provided, jta-interface-compile, ejb30-interface-compile" visibility="public"/>
       <conf name="carnot-engine-provided" extends="web-client-interface-provided" visibility="public"/>
@@ -87,10 +87,9 @@
       <conf name="compile-secret" extends="swing-client-provider-compile" visibility="private"/>
       <conf name="build-lib" visibility="private"/>
       <conf name="ant-build-runtime" visibility="public"/>
-      <conf name="integration-jars" extends="js-provider-runtime" visibility="private"/>
 
       <!-- compound configurations which encapsulates the above mentioned configs -->
-      <conf name="compile" extends="carnot-engine-compile, carnot-engine-compile-optional, carnot-client-compile, compile-secret, integration-jars" visibility="private"/>
+      <conf name="compile" extends="carnot-engine-compile, carnot-engine-compile-optional, carnot-client-compile, compile-secret" visibility="private"/>
       <conf name="runtime" extends="carnot-engine-runtime, carnot-engine-runtime-optional, carnot-client-runtime, build-lib,ant-build-runtime" visibility="private"/>
       <conf name="provided" extends="carnot-engine-provided" visibility="private"/>
 

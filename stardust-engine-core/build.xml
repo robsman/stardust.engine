@@ -40,10 +40,6 @@
    <target name="jar" depends="compile, checkCodeGen, init.jarjar">
       <ipp:jarjar jarfile="${carnot.client.jar}" implementationTitle="Infinity Process Engine - Client">
 
-         <rule pattern="org.mozilla.**" result="com.infinity.bpm.thirdparty.org.mozilla.@1" />
-
-         <zipfileset src="${js.jar}" excludes="META-INF/**" />
-
          <fileset dir="${build.classes}" id="fileset.carnot.client.jar">
 
             <include name="META-INF/resources/models/**" />
@@ -68,10 +64,6 @@
       </ipp:jarjar>
 
       <ipp:jarjar jarfile="${carnot.engine.jar}" implementationTitle="Infinity Process Engine - Runtime">
-
-         <rule pattern="org.mozilla.**" result="com.infinity.bpm.thirdparty.org.mozilla.@1" />
-
-         <zipfileset src="${js.jar}" excludes="META-INF/**" />
 
          <fileset dir="${build.classes}" id="fileset.carnot.engine.jar">
 

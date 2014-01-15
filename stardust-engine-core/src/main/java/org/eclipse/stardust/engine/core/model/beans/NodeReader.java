@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
+import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 
@@ -238,20 +240,27 @@ public class NodeReader
       // register names of potential variables
       Matcher varMatcher = ConfigurationVariableUtils
             .getConfigurationVariablesMatcher(text);
+      
+      Set<String> detectedCvNames = newHashSet();
+      
       while (varMatcher.find())
       {
          String varCandidate = varMatcher.group(1);
          confVarProvider.registerCandidate(varCandidate);
+         detectedCvNames.add(varCandidate);
       }
       
       // replace variables with values
       final List<ConfigurationVariable> configurationVariables = confVarProvider
             .getConfigurationVariables().getConfigurationVariables();
-      if ( !configurationVariables.isEmpty())
+      
+      if ( !detectedCvNames.isEmpty())
       {
          for (ConfigurationVariable var : configurationVariables)
          {
-            text = ConfigurationVariableUtils.replace(var, text);
+        	if (detectedCvNames.contains(var.getName())){
+        		text = ConfigurationVariableUtils.replace(var, text);
+        	}
          }
       }
       

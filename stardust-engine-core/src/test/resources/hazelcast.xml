@@ -20,7 +20,7 @@
    </group>
 
    <network>
-      <port auto-increment="false">5730</port>
+      <port auto-increment="false">5800</port>
       
       <join>
          <multicast enabled="false" />

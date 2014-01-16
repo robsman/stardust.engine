@@ -154,7 +154,7 @@ public class WorklistQueryEvaluator
       final Map<Long, WorklistCollector> userGroupRtOids = CollectionUtils.newHashMap();
       final List<WorklistCollector> allCollectors = CollectionUtils.newArrayList();
       final Set<IParticipant> participantClosure = QueryUtils.findScopedParticipantClosure(user, merged);
-      
+
       final SubsetPolicy subsetPolicy = (SubsetPolicy) query.getPolicy(SubsetPolicy.class);
 
       final WorklistQuery.UserContribution userContribution = query.getUserContribution();
@@ -163,7 +163,7 @@ public class WorklistQueryEvaluator
             && query.getUserGroupContributions().isEmpty())
       {
          // no contributions, return empty worklist
-         return createUserWorklist(user, subsetPolicy, Collections.EMPTY_LIST, null);
+         return createUserWorklist(user, subsetPolicy, Collections.EMPTY_LIST, null, Long.MAX_VALUE);
       }
 
       collectParticipantInfos(modelParticipantInfos, userGroupRtOids, allCollectors, user, merged);
@@ -210,7 +210,7 @@ public class WorklistQueryEvaluator
             Long participantOid = spInfo.getParticipantOid();
             Long depOid = spInfo.getDepartmentOid();
             spOrTerm.add(Predicates.andTerm( //
-                  Predicates.isEqual(WorkItemBean.FR__PERFORMER, participantOid), // 
+                  Predicates.isEqual(WorkItemBean.FR__PERFORMER, participantOid), //
                   Predicates.isEqual(WorkItemBean.FR__DEPARTMENT, depOid)));
          }
          PredicateTerm participantPredicate = Predicates.andTerm(Predicates.isEqual(
@@ -229,9 +229,9 @@ public class WorklistQueryEvaluator
                .inList(WorkItemBean.FR__PERFORMER, values));
          contributionsPredicate.add(participantPredicate);
       }
-      
+
       ActivityInstanceQuery userWorklistQuery = new ActivityInstanceQuery(query);
-      
+
       final BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
       boolean legacyEvaluation = false;
       Authorization2Predicate authorizationPredicate = runtimeEnvironment.getAuthorizationPredicate();
@@ -243,10 +243,10 @@ public class WorklistQueryEvaluator
       ParsedQuery parsedQuery = new WorkItemQueryEvaluator(userWorklistQuery, context)
             .parseQuery();
 
-      BoundFunction countFunction = parsedQuery.useDistinct() 
-            ? Functions.countDistinct(WorkItemBean.FR__ACTIVITY_INSTANCE) 
+      BoundFunction countFunction = parsedQuery.useDistinct()
+            ? Functions.countDistinct(WorkItemBean.FR__ACTIVITY_INSTANCE)
             : Functions.rowCount();
-            
+
       QueryDescriptor countWorkItems = QueryDescriptor
             .from(WorkItemBean.class)
             .select(assembleColumns(new Column[] {
@@ -275,24 +275,24 @@ public class WorklistQueryEvaluator
                   WorkItemBean.FR__PERFORMER_KIND,
                   WorkItemBean.FR__PERFORMER,
                   WorkItemBean.FR__DEPARTMENT);
-      
+
       countWorkItems.getQueryExtension().addJoins(Joins.newJoins(parsedQuery.getPredicateJoins()));
 
       Session jdbcSession = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       ResultSet countedWorkitems = jdbcSession.executeQuery(countWorkItems, QueryUtils
             .getTimeOut(query));
-      
+
       if(authorizationPredicate != null)
       {
          authorizationPredicate.setSelectionExtension(EXTENSION_IDX, parsedQuery.getSelectExtension());
       }
 
-      // Read values for each worklist and ignore workitems whose activities are 
+      // Read values for each worklist and ignore workitems whose activities are
       // restricted for the current user.
 
       long totalCountThreshold = QueryUtils.getTotalCountThreshold(authorizationPredicate);
       long totalCount = 0;
-      
+
       try
       {
          while (countedWorkitems.next())
@@ -302,7 +302,7 @@ public class WorklistQueryEvaluator
             {
                int performerKind = countedWorkitems.getInt(PERF_KIND_IDX);
                long count = countedWorkitems.getLong(COUNT_IDX);
-               
+
                if (PerformerType.USER == performerKind)
                {
                   totalCount += count;
@@ -313,7 +313,7 @@ public class WorklistQueryEvaluator
                   long performer = countedWorkitems.getLong(PERF_IDX);
                   long department = countedWorkitems.getLong(DEPARTMENT_IDX);
 
-                  WorklistCollector collector = (WorklistCollector) 
+                  WorklistCollector collector = (WorklistCollector)
                      (PerformerType.MODEL_PARTICIPANT == performerKind
                         ? modelParticipantInfos.get(new ScopedParticipantInfo(performer, department))
                         : userGroupRtOids.get(new Long(performer)));
@@ -332,7 +332,7 @@ public class WorklistQueryEvaluator
                      {
                         collector.addToTotalCount(count);
                      }
-                     collector.setTotalCountThreshold(totalCountThreshold);                  
+                     collector.setTotalCountThreshold(totalCountThreshold);
                   }
                   else
                   {
@@ -344,11 +344,11 @@ public class WorklistQueryEvaluator
                }
             }
          }
-         
+
          if (totalCount > totalCountThreshold)
          {
-            totalCount = totalCountThreshold;
-         }         
+            totalCount = Long.MAX_VALUE;
+         }
       }
       catch (SQLException e)
       {
@@ -366,24 +366,25 @@ public class WorklistQueryEvaluator
       {
          WorklistCollector collector = (WorklistCollector) iterator.next();
          Worklist participantWorklist = convertParticipantWorklist(collector);
-         ParticipantInfo participant = (ParticipantInfo) collector.getParticipant();            
-         
+         ParticipantInfo participant = (ParticipantInfo) collector.getParticipant();
+
          if(merged || QueryUtils.participantClosureContainsParticipant(participantClosure, participant))
-         {         
+         {
             subWorklists.add(participantWorklist);
          }
       }
 
-      return createUserWorklist(user, subsetPolicy, subWorklists, new Long(totalCount));
+      return createUserWorklist(user, subsetPolicy, subWorklists,
+            Long.valueOf(totalCount), totalCountThreshold);
    }
-   
+
    private UserWorklist createUserWorklist(IUser user, SubsetPolicy subsetPolicy, List subWorklists,
-         Long totalCount)
+         Long totalCount, long totalCountThreshold)
    {
       final UserInfo owner = DetailsFactory.create(user, IUser.class,
             UserInfoDetails.class);
       return new UserWorklist(owner, query, subsetPolicy, Collections.EMPTY_LIST, false,
-            subWorklists, totalCount);
+            subWorklists, totalCount, totalCountThreshold);
 
    }
 
@@ -396,7 +397,7 @@ public class WorklistQueryEvaluator
       {
          Date now = new Date();
          for (DeputyBean deputy : UserUtils.getDeputies(user))
-         {            
+         {
             if (deputy.isActive(now))
             {
                final UserWorklist deputeeUserWorklist = buildStandardWorklistForUser(
@@ -412,7 +413,7 @@ public class WorklistQueryEvaluator
    private UserWorklist buildStandardWorklistForUser(IUser user, boolean merged)
    {
       final WorklistCollector userWorklistCollector = collectUserWorklist(user, merged);
-      
+
       final List<WorklistCollector> participantWorklistCollectors = collectParticipantWorklists(user, merged);
       final List<Worklist> subWorklists = CollectionUtils.newArrayList();
       for (WorklistCollector participantWorklistCollector : participantWorklistCollectors)
@@ -422,10 +423,11 @@ public class WorklistQueryEvaluator
 
       final UserInfo owner = DetailsFactory.create(user, IUser.class,
             UserInfoDetails.class);
+      final Long totalCount = userWorklistCollector.hasTotalCount() ? Long
+            .valueOf(userWorklistCollector.getTotalCount()) : null;
       return new UserWorklist(owner, query, userWorklistCollector.subset,
             userWorklistCollector.retrievedItems, userWorklistCollector.hasMore,
-            subWorklists, userWorklistCollector.hasTotalCount() ? new Long(
-                  userWorklistCollector.getTotalCount()) : null);
+            subWorklists, totalCount, userWorklistCollector.getTotalCountThreshold());
    }
 
    /**
@@ -441,31 +443,31 @@ public class WorklistQueryEvaluator
       final ModelManager modelManager = context.getModelManager();
       final Set<IParticipant> participantClosure = QueryUtils
             .findScopedParticipantClosure(user, merged);
-      
+
       for (Iterator i = new SplicingIterator(query.getModelParticipantContributions()
             .iterator(), query.getUserGroupContributions().iterator()); i.hasNext();)
       {
          WorklistQuery.ParticipantContribution contrib = (WorklistQuery.ParticipantContribution) i
                .next();
          PerformingParticipantFilter filter = contrib.getFilter();
-         
+
          WorklistCollector collector = new WorklistCollector(filter,
                getContributionSubset(contrib));
          collector.setTotalCount(0);
          allCollectors.add(collector);
-         
+
          for (IParticipant contributor : participantClosure)
          {
             IParticipant rawParticipant = contributor;
             IDepartment department = null;
-            
+
             if(rawParticipant instanceof IScopedModelParticipant)
             {
                IScopedModelParticipant scopedModelParticipant = (IScopedModelParticipant) rawParticipant;
                rawParticipant = scopedModelParticipant.getModelParticipant();
                department = scopedModelParticipant.getDepartment();
             }
-            
+
             if ((rawParticipant instanceof IModelParticipant)
                   && PerformingParticipantFilter.FILTER_KIND_MODEL_PARTICIPANT
                         .equals(filter.getFilterKind()))
@@ -482,10 +484,10 @@ public class WorklistQueryEvaluator
                   {
                      IModelParticipant modelParticipant = modelManager
                            .findModelParticipant((ModelParticipantInfo) filterParticipant);
-                     
+
                      final long runtimeOid = modelManager.getRuntimeOid(modelParticipant);
                      final long departmentOid = department == null ? 0 : department.getOID();
-                     
+
                      modelParticipants.put(new ScopedParticipantInfo(runtimeOid,
                            departmentOid), collector);
                   }
@@ -532,28 +534,28 @@ public class WorklistQueryEvaluator
 
       return userWorklist;
    }
-   
+
 
    private List<WorklistCollector> collectParticipantWorklists(IUser user, boolean merged)
    {
       final List<WorklistCollector> participantWorklists = CollectionUtils.newArrayList();
       final Set<IParticipant> participantClosure = QueryUtils
             .findScopedParticipantClosure(user, merged);
-      
+
       for (Iterator i = new SplicingIterator(query.getModelParticipantContributions()
             .iterator(), query.getUserGroupContributions().iterator()); i.hasNext();)
       {
          WorklistQuery.ParticipantContribution contrib = (WorklistQuery.ParticipantContribution) i
                .next();
-         
+
          SubsetPolicy subset = getContributionSubset(contrib);
 
          PerformingParticipantFilter filter = contrib.getFilter();
          Set<IParticipant> contributors = new HashSet();
-         
+
          for (IParticipant contributor : participantClosure)
          {
-            // do contributors match the the filter and supported types?  
+            // do contributors match the the filter and supported types?
             IParticipant rawParticipant = contributor;
             IDepartment department = null;
             if(rawParticipant instanceof IScopedModelParticipant)
@@ -562,14 +564,14 @@ public class WorklistQueryEvaluator
                rawParticipant = scopedModelParticipant.getModelParticipant();
                department = scopedModelParticipant.getDepartment();
             }
-            
+
             if ((rawParticipant instanceof IModelParticipant)
                   && PerformingParticipantFilter.FILTER_KIND_MODEL_PARTICIPANT
                         .equals(filter.getFilterKind()))
             {
                final IModelParticipant participant = (IModelParticipant) rawParticipant;
                final ModelParticipantInfo filterParticipant = (ModelParticipantInfo) filter.getParticipant();
-               
+
                if (CompareHelper.areEqual((participant).getQualifiedId(), filterParticipant.getQualifiedId())
                      && DepartmentUtils.areEqual(department, filterParticipant.getDepartment()))
                {
@@ -587,14 +589,14 @@ public class WorklistQueryEvaluator
                }
             }
          }
-         
+
          ActivityInstanceQuery worklistQuery = new ActivityInstanceQuery(query,
                new PerformingParticipantFilter(contributors));
          worklistQuery.setPolicy(subset);
 
          WorklistCollector participantWorklistCollector = new WorklistCollector(filter, subset);
          collectWorklistItems(worklistQuery, participantWorklistCollector);
-         
+
          ParticipantInfo participantInfo = participantWorklistCollector.getParticipant();
          if(merged || QueryUtils.participantClosureContainsParticipant(participantClosure, participantInfo))
          {
@@ -635,10 +637,10 @@ public class WorklistQueryEvaluator
          worklist.addAll(worklistItems);
 
          worklist.hasMore = worklistItems.hasMore();
-         
+
          if (worklistItems.hasTotalCount())
          {
-            worklist.setTotalCount(worklistItems.getTotalCount());         
+            worklist.setTotalCount(worklistItems.getTotalCount());
             worklist.setTotalCountThreshold(worklistItems.getTotalCountThreshold());
          }
       }
@@ -661,11 +663,11 @@ public class WorklistQueryEvaluator
          IModel activeModel = null;
          if (StringUtils.isEmpty(modelId))
          {
-            activeModel = context.getModelManager().findActiveModel();            
+            activeModel = context.getModelManager().findActiveModel();
          }
          else
          {
-            activeModel = context.getModelManager().findActiveModel(modelId);                        
+            activeModel = context.getModelManager().findActiveModel(modelId);
          }
 
          // first try to resolve participant against active model
@@ -683,7 +685,7 @@ public class WorklistQueryEvaluator
             }
             catch (ObjectNotFoundException x)
             {
-               // if it cannot be found then participant shall stay null  
+               // if it cannot be found then participant shall stay null
             }
          }
       }
@@ -720,14 +722,14 @@ public class WorklistQueryEvaluator
       {
          return new ParticipantWorklist(owner, query, collector.subset,
                collector.retrievedItems, collector.hasMore,
-               collector.hasTotalCount() 
+               collector.hasTotalCount()
                ? new Long(collector.getTotalCount()) : null, collector.getTotalCountThreshold());
       }
       else
       {
          return new ParticipantWorklist(participant.getId(), query, collector.subset,
                collector.retrievedItems, collector.hasMore,
-               collector.hasTotalCount() ? new Long(collector.getTotalCount()) 
+               collector.hasTotalCount() ? new Long(collector.getTotalCount())
                : null, collector.getTotalCountThreshold());
       }
    }
@@ -767,7 +769,7 @@ public class WorklistQueryEvaluator
       {
          result.add(baseCols[i]);
       }
-   
+
       result.addAll(additionalCols);
       T[] target = (T[]) java.lang.reflect.Array.newInstance(baseCols.getClass()
             .getComponentType(), result.size());
@@ -876,16 +878,16 @@ public class WorklistQueryEvaluator
             totalCount = new Long(totalCount.longValue() + count);
          }
       }
-            
+
       public void setTotalCountThreshold(long totalCountThreshold)
       {
          this.totalCountThreshold = totalCountThreshold;
       }
-      
+
       public long getTotalCountThreshold()
       {
          return totalCountThreshold;
-      }      
+      }
    }
 
    private static final class ScopedParticipantInfo extends Pair<Long, Long> implements Comparable<ScopedParticipantInfo>

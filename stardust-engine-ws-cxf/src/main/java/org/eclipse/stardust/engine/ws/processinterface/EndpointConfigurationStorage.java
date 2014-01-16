@@ -29,28 +29,24 @@ import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.engine.api.model.FormalParameter;
+import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ProcessInterface;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet.ExecutionServiceProvider;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.QueryServiceImpl;
-import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.ws.servlet.DynamicCXFServlet;
-
 import org.eclipse.xsd.XSDSchema;
 import org.w3c.dom.Document;
 
@@ -151,7 +147,7 @@ public class EndpointConfigurationStorage
    {
       return !endpointConfs2Add.isEmpty() || !endpointConfs2Remove.isEmpty();
    }
-
+   
    public synchronized void syncProcessInterfaces(final String syncPartitionId,
          final String servletPath, final Set<Pair<AuthMode, String>> endpointNameSet)
    {
@@ -169,7 +165,6 @@ public class EndpointConfigurationStorage
                         AuditTrailPartitionBean.findById(syncPartitionId)));
 
                   final QueryService qs = new QueryServiceImpl();
-                  final WorkflowService wfs = new WorkflowServiceImpl();
                   Models allActiveModels = qs.getModels(DeployedModelQuery.findActive());
 
                   Set<DeployedModelDescription> addModels = new HashSet<DeployedModelDescription>();
@@ -279,25 +274,25 @@ public class EndpointConfigurationStorage
 
                      ISchemaResolver schemaResolver = new ISchemaResolver()
                      {
-
+                        
                         @Override
                         public XSDSchema resolveSchema(String modelId, String typeDecId)
                         {
-                           DeployedModel model = (DeployedModel) wfs.execute( //
-                                 RetrieveModelDetailsCommand
-                                       .retrieveActiveModelById(modelId).notThrowing());
-                           if (null != model)
+                           Models models = qs.getModels(DeployedModelQuery.findActiveForId(modelId));
+                           if (models.size() > 0)
                            {
+                              int modelOID = models.get(0).getModelOID();
+                              Model model = qs.getModel(modelOID);
                               TypeDeclaration toResolveTypeDef = model.getTypeDeclaration(typeDecId);
                               if (toResolveTypeDef != null)
                               {
                                  return StructuredTypeRtUtils.getXSDSchema(model, toResolveTypeDef);
                               }
                            }
-                           return null;
+                           return null; 
                         }
                      };
-
+                     
                      Document wsdl = new WSDLGenerator(modelString, schemaResolver).generateDocument();
 
                      for (Pair<AuthMode, String> pair : endpointNameSet)
@@ -356,7 +351,7 @@ public class EndpointConfigurationStorage
          throw e;
       }
    }
-
+   
    private ForkingService getForkingService()
    {
       ForkingServiceFactory factory = null;

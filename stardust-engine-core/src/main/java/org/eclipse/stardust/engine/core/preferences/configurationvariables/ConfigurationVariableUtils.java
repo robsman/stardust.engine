@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.emf.ecore.xml.type.internal.RegEx;
+
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -133,7 +134,15 @@ public class ConfigurationVariableUtils
          for (IConfigurationVariableDefinition confVarDef : provider
                .getConfigurationVariableDefinitions())
          {
-            String value = (String) preferencesMap.get(confVarDef.getName());
+            String name = confVarDef.getName();
+            ConfigurationVariableScope type = confVarDef.getType();
+            if (ConfigurationVariableScope.String != type)
+            {
+               name = name + ":" + type;  //$NON-NLS-1$
+            }
+
+            String value = (String) preferencesMap.get(name);
+
             if (isEmpty(value))
             {
                // dont substitute default value here leave that to GUI.
@@ -143,7 +152,7 @@ public class ConfigurationVariableUtils
             if(all || confVarDef.getType().equals(ConfigurationVariableScope.String))
             {
                ConfigurationVariable confVar = new ConfigurationVariable(confVarDef, value);
-               mergedConfigurationVariables.put(confVarDef.getName(), confVar);
+               mergedConfigurationVariables.put(name, confVar);
             }
          }
       }
@@ -172,7 +181,15 @@ public class ConfigurationVariableUtils
          // compare defaultValue and value to prevent saving defaultValue to store.
          if (!isEmpty(value) && (defaultValue == null || !defaultValue.equals(value)))
          {
-            preferencesMap.put(name, value);
+            ConfigurationVariableScope type = configurationVariable.getType();
+            if (ConfigurationVariableScope.String != type)
+            {
+               preferencesMap.put(name + ":" + type, value); //$NON-NLS-1$
+            }
+            else
+            {
+               preferencesMap.put(name, value);
+            }
          }
       }
 

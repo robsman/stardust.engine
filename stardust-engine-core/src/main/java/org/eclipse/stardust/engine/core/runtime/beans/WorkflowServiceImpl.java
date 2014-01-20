@@ -695,10 +695,10 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                throw new IllegalOperationException(
                      BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
             }
-            else*/ 
-            { 
+            else
+            {*/
                linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
-            }
+            /*}*/
          }
       }
       else

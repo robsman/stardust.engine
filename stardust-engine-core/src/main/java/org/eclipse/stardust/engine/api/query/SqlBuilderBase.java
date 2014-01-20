@@ -19,7 +19,6 @@ import javax.xml.namespace.QName;
 
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;

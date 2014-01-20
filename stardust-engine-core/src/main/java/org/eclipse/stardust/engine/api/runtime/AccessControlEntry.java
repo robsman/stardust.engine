@@ -39,13 +39,6 @@ public interface AccessControlEntry extends Serializable
    
    public EntryType getType();
 
-   public static enum EntryType 
-   {
-      ALLOW, DENY;
-   }
-  
-   public EntryType getType();
-   
    public static enum EntryType
    {
       ALLOW, DENY;

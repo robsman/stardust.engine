@@ -86,7 +86,7 @@ public class CurrentVersion
       return name.toString();
    }
 
-   public static void main(String[] args)
+   /*public static void main(String[] args)
    {
       String message = null;
       if (args.length == 0)
@@ -113,7 +113,7 @@ public class CurrentVersion
       }
 
       System.out.println(message);
-   }
+   }*/
 
    private static String getVerboseVersion()
    {

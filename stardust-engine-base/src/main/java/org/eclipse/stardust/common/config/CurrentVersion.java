@@ -86,7 +86,11 @@ public class CurrentVersion
       return name.toString();
    }
 
-   /*public static void main(String[] args)
+	/**
+	 * @param args
+	 * This main method is been used in projects IPP & Hydra_Test
+	 */
+   public static void main(String[] args)
    {
       String message = null;
       if (args.length == 0)
@@ -113,7 +117,7 @@ public class CurrentVersion
       }
 
       System.out.println(message);
-   }*/
+   }
 
    private static String getVerboseVersion()
    {

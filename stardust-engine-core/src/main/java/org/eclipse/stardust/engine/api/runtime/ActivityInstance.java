@@ -252,8 +252,9 @@ public interface ActivityInstance extends RuntimeObject, IDescriptorProvider
    List<HistoricalEvent> getHistoricalEvents();
 
    /**
-    * Gets the {@link PermissionState} for the given permission id for the current user<br />
-    * This information can be used to decide if the user has the permission to perform a certain operation. <br />
+    * Gets the {@link PermissionState} for the given permission id for the current user.<br />
+    * This information can be used to decide if the user has the permission to perform a certain operation on this
+    * activity instance.<br />
     *
     * @param permissionId - the id of the permission, valid values are: <br />
     * <ul>

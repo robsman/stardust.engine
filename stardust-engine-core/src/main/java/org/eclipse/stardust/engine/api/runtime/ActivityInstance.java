@@ -252,11 +252,19 @@ public interface ActivityInstance extends RuntimeObject, IDescriptorProvider
    List<HistoricalEvent> getHistoricalEvents();
 
    /**
-    * Returns the permission state of the given permission id for the current user.
+    * Gets the {@link PermissionState} for the given permission id for the current user<br />
+    * This information can be used to decide if the user has the permission to perform a certain operation. <br />
     *
-    * @param permissionId
-    * @return Granted if the the permission was granted to the user, Denied if the permission
-    *    was denied to the user or Unknown if the permission is invalid for this activity instance.
+    * @param permissionId - the id of the permission, valid values are: <br />
+    * <ul>
+    *    <li>delegateToUser</li> - if the user is allowed to delegate this activity instance to another user
+    *    <li>abortActivityInstance</li> - if the user is allowed to abort this activity instance
+    * </ul>
+    * @return 
+    * {@link PermissionState#Granted} - if the user has the specified permission <br />
+    * {@link PermissionState#Denied} - if the user has <strong>not</strong> the specified permission <br />
+    * {@link PermissionState#Unknown} if the permission is unknown. <br />
+    *  
     */
    PermissionState getPermission(String permissionId);
 

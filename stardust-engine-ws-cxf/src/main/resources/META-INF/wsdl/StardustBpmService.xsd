@@ -1102,7 +1102,6 @@
 			<xsd:enumeration value="UserGroupExistsException" />
 			<xsd:enumeration value="UserRealmExistsException" />
 			<xsd:enumeration value="ValidationException" />
-			<xsd:enumeration value="WfxmlException" />
 			<!-- ResourceException -->
 			<xsd:enumeration value="ResourceException" />
 			<xsd:enumeration value="TransactionFreezedException" />

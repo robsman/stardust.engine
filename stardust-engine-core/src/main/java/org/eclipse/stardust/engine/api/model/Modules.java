@@ -21,7 +21,6 @@ public enum Modules
    DMS ("DmsIntegration"),
    CALENDAR ("WorktimeCalendar"),
    WEBSERVICES ("WebServicesAdapter"),
-   WFXML ("Wf-XML"),
    JCA ("JCAAdapter"),
    PARTITIONS ("MultiPartitions"),
    DOMAINS ("MultiDomains"),

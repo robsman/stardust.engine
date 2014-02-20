@@ -319,7 +319,6 @@ public class CodeGen
          createSources(root, destinationRoot, destPackage, "UserService");
          createSources(root, destinationRoot, destPackage, "AdministrationService");
          createSources(root, destinationRoot, destPackage, "QueryService");
-         //createSources(root, destinationRoot, destPackage, "WfxmlService");
          createSources(root, destinationRoot, destPackage, "DocumentManagementService");
       }
    }

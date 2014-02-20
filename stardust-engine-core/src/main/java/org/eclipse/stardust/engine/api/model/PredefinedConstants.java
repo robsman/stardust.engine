@@ -36,7 +36,6 @@ public final class PredefinedConstants
    public static final String JMS_APPLICATION = "jms";
    public static final String SPRINGBEAN_APPLICATION = "springBean";
    public static final String WS_APPLICATION = "webservice";
-   public static final String WFXML_APPLICATION = "wfxml";
 
    // retry synchronous application
    public static final String SYNCHRONOUS_APPLICATION_RETRY_ENABLE = "synchronous:retry:enable";
@@ -81,7 +80,6 @@ public final class PredefinedConstants
    public static final String SCHEDULE_ACTIVITY_ACTION = "scheduleActivity";
    public static final String ABORT_PROCESS_ACTION = "abortProcess";
    public static final String ABORT_ACTIVITY_ACTION = "abortActivity";
-   public static final String NOTIFY_OBSERVERS_ACTION = "notifyWfXMLObserversActivity";
    public static final String COMPLETE_ACTIVITY_ACTION = "completeActivity";
    public static final String ACTIVATE_ACTIVITY_ACTION = "activateActivity";
    public static final String SET_DATA_ACTION = "setData";
@@ -184,7 +182,7 @@ public final class PredefinedConstants
 
    public static final String HIBERNATE_DELETE_IF_NULL_ATT = ENGINE_SCOPE + "hibernate:deleteIfNull";
 
-   // common for generic WebService application and WfXML application types.
+   // common for generic WebService application types.
    public static final String AUTHENTICATION_ATT = ENGINE_SCOPE + "wsAuthentication";
    public static final String BASIC_AUTHENTICATION = "basic";
    public static final String WS_SECURITY_AUTHENTICATION = "ws-security";
@@ -217,23 +215,6 @@ public final class PredefinedConstants
    public static final String WS_FAULT_NAME_ATT = ENGINE_SCOPE + "wsFaultName:";
    public static final String WS_FAULT_TYPE_ATT = ENGINE_SCOPE + "wsFaultType:";
    public static final String WS_FAULT_STYLE_ATT = ENGINE_SCOPE + "wsFaultStyle:";
-
-   // attributes
-   public static final String WFXML_SCOPE = ENGINE_SCOPE + "wfxml:";
-   public static final String WFXML_IS_CARNOT_ATT = WFXML_SCOPE + "isCarnot";
-   public static final String WFXML_RESOURCE_ATT = WFXML_SCOPE + "resource";
-   public static final String WFXML_OPERATION_SCOPE = WFXML_SCOPE + "operation:";
-   public static final String WFXML_OPERATION_ATT = WFXML_SCOPE + "operation";
-   public static final String WFXML_ENDPOINT_ID = "endpoint";
-   public static final String WFXML_ENDPOINT_SCOPE = WFXML_SCOPE + WFXML_ENDPOINT_ID + ":";
-   public static final String WFXML_ENDPOINT_ADDRESS_ATT = "address";
-   public static final String WFXML_ENDPOINT_SERVICE_NAME_ATT = "service:name";
-   public static final String WFXML_ENDPOINT_SERVICE_PORT_ATT = "service:port";
-   public static final String WFXML_ENDPOINT_PORT_TYPE_ATT = "port:type";
-   public static final String WFXML_ENDPOINT_PARAMETER_NAME_SCOPE = WFXML_ENDPOINT_SCOPE + "parameter:name:";
-   public static final String WFXML_ENDPOINT_PARAMETER_VALUE_SCOPE = WFXML_ENDPOINT_SCOPE + "parameter:value:";
-   public static final String WFXML_ENDPOINT_PROPERTY_NAME_SCOPE = WFXML_ENDPOINT_SCOPE + "property:name:";
-   public static final String WFXML_ENDPOINT_PROPERTY_VALUE_SCOPE = WFXML_ENDPOINT_SCOPE + "property:value:";
 
    public static final String FLAVOR_ATT = ENGINE_SCOPE + "flavor";
    public static final String BROWSABLE_ATT = ENGINE_SCOPE + "browsable";
@@ -378,11 +359,6 @@ public final class PredefinedConstants
    public static final String WS_APPLICATION_PANEL_CLASS = "ag.carnot.workflow.spi.providers.applications.ws.gui.WebserviceApplicationPanel";
    public static final String WS_APPLICATION_ICON_LOCATION = "/ag/carnot/workflow/spi/providers/applications/ws/gui/icon.gif";
 
-   public static final String WFXML_APPLICATION_INSTANCE_CLASS = "ag.carnot.workflow.spi.providers.applications.wfxml.WfXMLApplicationInstance";
-   public static final String WFXML_APPLICATION_VALIDATOR_CLASS = "ag.carnot.workflow.spi.providers.applications.wfxml.WfXMLApplicationValidator";
-   public static final String WFXML_APPLICATION_PANEL_CLASS = "ag.carnot.workflow.spi.providers.applications.wfxml.gui.WfXMLApplicationPanel";
-   public static final String WFXML_APPLICATION_ICON_LOCATION = "/ag/carnot/workflow/spi/providers/applications/wfxml/gui/icon.gif";
-
    public static final String JFC_CONTEXT_ACCESSPOINT_PROVIDER_CLASS = "ag.carnot.workflow.spi.providers.contexts.jfc.JFCAccessPointProvider";
    public static final String JFC_CONTEXT_VALIDATOR_CLASS = "ag.carnot.workflow.spi.providers.contexts.jfc.JFCValidator";
    public static final String JFC_CONTEXT_PANEL_CLASS = "ag.carnot.workflow.spi.providers.contexts.jfc.JFCContextTypePanel";
@@ -483,9 +459,6 @@ public final class PredefinedConstants
    public static final String ABORT_PROCESS_ACTION_CLASS = "ag.carnot.workflow.spi.providers.actions.abort.AbortProcessEventAction";
    public static final String ABORT_PROCESS_ACTION_ICON_LOCATION = "/ag/carnot/workflow/spi/providers/actions/abort/icon.gif";
 
-   public static final String NOTIFY_OBSERVERS_ACTION_CLASS = "ag.carnot.workflow.wfxml.spi.actions.NotifyObserversEventAction";
-   public static final String NOTIFY_OBSERVERS_ACTION_ICON_LOCATION = "/ag/carnot/workflow/wfxml/spi/actions/icon.gif";
-
    public static final String COMPLETE_ACTIVITY_ACTION_CLASS = "ag.carnot.workflow.spi.providers.actions.complete.CompleteActivityEventAction";
    public static final String COMPLETE_ACTIVITY_ACTION_ICON_LOCATION = "/ag/carnot/workflow/spi/providers/actions/complete/icon.gif";
 
@@ -496,12 +469,6 @@ public final class PredefinedConstants
 
    public static final String EXTERNAL_CONDITION_CLASS = "ag.carnot.workflow.spi.providers.conditions.simplepush.PushCondition";
    public static final String EXTERNAL_CONDITION_ICON_LOCATION = "/ag/carnot/workflow/spi/providers/conditions/simplepush/icon.gif";
-
-   public static final String OBSERVER_CONDITION_RULE_CLASS = "ag.carnot.workflow.wfxml.spi.conditions.ObserverNotificationCondition";
-   public static final String OBSERVER_CONDITION_PANEL_CLASS = "ag.carnot.workflow.wfxml.spi.conditions.ObserverNotificationPropertiesPanel";
-   public static final String OBSERVER_CONDITION_VALIDATOR_CLASS = "ag.carnot.workflow.wfxml.spi.conditions.ObserverNotificationValidator";
-   public static final String OBSERVER_CONDITION_ACCESS_POINT_PROVIDER_CLASS = "ag.carnot.workflow.wfxml.spi.conditions.ObserverNotificationAccessPointProvider";
-   public static final String OBSERVER_CONDITION_ICON_LOCATION = "/ag/carnot/workflow/wfxml/spi/conditions/icon.gif";
 
    // random constants
    // @todo (france, ub): exploit in the queryservice
@@ -602,9 +569,6 @@ public final class PredefinedConstants
 
    public static final String PLAINXML_SCHEMA_URL_ATT = ENGINE_SCOPE + "schemaURL";
    public static final String PLAINXML_TYPE_ID_ATT = ENGINE_SCOPE + "typeId";
-   public static final String WFXML_EPR_PARAMETER = "parameter";
-   public static final String WFXML_EPR_PROPERTY = "property";
-
    public static final String XML_ENCODING = "carnot.engine.xml.encoding";
 
    private static final String[] META_DATA_IDS_ARRAY = {STARTING_USER, ROOT_PROCESS_ID, CURRENT_USER,

@@ -25,7 +25,6 @@
          <enumeration value="Recovery" />
          <enumeration value="Daemon" />
          <enumeration value="Event" />
-         <enumeration value="WfXML" />
          <enumeration value="External" />
          <enumeration value="Administration" />
       </restriction>

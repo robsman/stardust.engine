@@ -1970,10 +1970,6 @@ public static DataPathXto toWs(DataPath dp, Model model)
       {
          return LogCodeXto.UNKNOWN;
       }
-      else if (lc.getValue() == LogCode.WFXML.getValue())
-      {
-         return LogCodeXto.WF_XML;
-      }
       else
       {
          trace.error("Error marshaling LogCode: LogCode mapping not implemented for: "

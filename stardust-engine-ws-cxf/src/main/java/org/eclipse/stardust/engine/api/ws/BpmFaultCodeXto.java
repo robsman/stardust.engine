@@ -46,7 +46,6 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;enumeration value="UserGroupExistsException"/>
  *     &lt;enumeration value="UserRealmExistsException"/>
  *     &lt;enumeration value="ValidationException"/>
- *     &lt;enumeration value="WfxmlException"/>
  *     &lt;enumeration value="ResourceException"/>
  *     &lt;enumeration value="TransactionFreezedException"/>
  *     &lt;enumeration value="UniqueConstraintViolatedException"/>
@@ -125,8 +124,6 @@ public enum BpmFaultCodeXto {
     USER_REALM_EXISTS_EXCEPTION("UserRealmExistsException"),
     @XmlEnumValue("ValidationException")
     VALIDATION_EXCEPTION("ValidationException"),
-    @XmlEnumValue("WfxmlException")
-    WFXML_EXCEPTION("WfxmlException"),
     @XmlEnumValue("ResourceException")
     RESOURCE_EXCEPTION("ResourceException"),
     @XmlEnumValue("TransactionFreezedException")

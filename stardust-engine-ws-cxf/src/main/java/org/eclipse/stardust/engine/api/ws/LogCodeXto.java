@@ -21,7 +21,6 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;enumeration value="Recovery"/>
  *     &lt;enumeration value="Daemon"/>
  *     &lt;enumeration value="Event"/>
- *     &lt;enumeration value="WfXML"/>
  *     &lt;enumeration value="External"/>
  *     &lt;enumeration value="Administration"/>
  *   &lt;/restriction>
@@ -47,8 +46,6 @@ public enum LogCodeXto {
     DAEMON("Daemon"),
     @XmlEnumValue("Event")
     EVENT("Event"),
-    @XmlEnumValue("WfXML")
-    WF_XML("WfXML"),
     @XmlEnumValue("External")
     EXTERNAL("External"),
     @XmlEnumValue("Administration")

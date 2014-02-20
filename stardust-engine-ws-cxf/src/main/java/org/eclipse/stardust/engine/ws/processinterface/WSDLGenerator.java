@@ -581,10 +581,20 @@ public class WSDLGenerator
       if (isPrimitiveType(f.getData()))
       {
          Type primitiveType = (Type) f.getData().getAttribute(TYPE_ATT);
-         QName type = DataFlowUtils.marshalPrimitiveType(primitiveType);
+         
+         if (Type.Enumeration.equals(primitiveType))
+         {
+            element.setAttribute("name", f.getId());
+            
+            
+         }
+         else
+         {
+            QName type = DataFlowUtils.marshalPrimitiveType(primitiveType);
 
-         element.setAttribute("name", f.getId());
-         element.setAttribute("type", "xsd" + ":" + type.getLocalPart());
+            element.setAttribute("name", f.getId());
+            element.setAttribute("type", "xsd" + ":" + type.getLocalPart());
+         }
       }
       else if (StructuredTypeRtUtils.isStructuredType(f.getData().getType().getId()))
       {

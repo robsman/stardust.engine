@@ -429,7 +429,6 @@ public class DefaultModelBuilder implements ModelBuilder
                PredefinedConstants.ACTIVITY_ON_ASSIGNMENT_CONDITION_ICON_LOCATION);
       }
 
-      ExtensionService.createExtendedEventConditionTypes(model);
    }
 
    public static void createPredefinedEventActionTypes(IModel model)
@@ -588,7 +587,6 @@ public class DefaultModelBuilder implements ModelBuilder
          supportAllConditionTypes(model, setdataActionType);
       }
       
-      ExtensionService.createExtendedEventActionTypes(model);
    }
 
    public static void createPredefinedData(IModel model)

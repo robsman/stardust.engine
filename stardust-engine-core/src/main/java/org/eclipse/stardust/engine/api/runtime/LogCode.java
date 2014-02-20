@@ -49,10 +49,6 @@ public class LogCode extends IntKey
     * The LogEntry was created during event handling.
     */
    public static final LogCode EVENT = new LogCode(6, "Event");
-   /**
-    * The LogEntry was created during wfxml invocation.
-    */
-   public static final LogCode WFXML = new LogCode(7, "WfXML");
    
    /**
     * The LogEntry was created by an external invocation.

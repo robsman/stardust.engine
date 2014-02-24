@@ -66,7 +66,7 @@
          <exclude org="org.codehaus.woodstox" module="wstx-asl" />
          <exclude org="javax.xml.bind" module="jaxb-api" />
          <exclude org="stax" module="stax-api" />
-         <exclude org="org.eclipse.stardust.engine" module="jcr-vfs" />
+         <exclude org="org.eclipse.stardust.components" module="jcr-vfs" />
       </dependency>
          
       <dependency org="org.eclipse.xsd" name="org.eclipse.xsd" rev="${org.eclipse.xsd.version}" conf="stardust-engine-ws-cxf-compile->default" />

@@ -23,7 +23,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
  * <br>
  * To publish an implementor to the engine a file named by the interface's factory has to be created in
  * the '/META-INF/services' folder of the jar.<br>
- * In this case: <b>com.infinity.bpm.rt.monitoring.IWorklistMonitor</b><br>
+ * In this case: <b>org.eclipse.stardust.engine.core.spi.monitoring.IWorklistMonitor</b><br>
  * This file needs to contain the qualified class name of the implementor of this interface.<br>
  * <br>
  * This pattern follows the concept of the JDK6 <code>ServiceLoader.</code>

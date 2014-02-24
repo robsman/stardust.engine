@@ -15,7 +15,7 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 
    <info organisation="org.eclipse.stardust.engine" module="infinity-process-engine" revision="${ipp.version.full}">
-      <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="${ipp.version.full}"
+      <extends organisation="org.eclipse.stardust.engine" module="infinity-common-artifacts" revision="latest.integration"
          extendType="configurations,dependencies" location="interface-ivy.xml"/>
    </info>
 

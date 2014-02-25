@@ -34,14 +34,6 @@
       <conf name="pom" description="Stardust Camel Application Type RT - POMs" />
       <conf name="module-pom" description="Stardust Module POMs" />
 
-    <!-- Map configurations for ivy:makepom task -->
-      <conf name="ipp-camel-compile" extends="stardust-engine-camel-compile" />
-      <conf name="ipp-camel-compile-optional"   extends="stardust-engine-camel-compile-optional" />
-      <conf name="ipp-camel-provided" extends="stardust-engine-camel-provided" />
-      <conf name="ipp-camel-runtime" extends="stardust-engine-camel-runtime" />
-      <conf name="ipp-camel-module-compile" extends="stardust-engine-camel-module-compile" />
-      <conf name="ipp-camel-module-runtime" extends="stardust-engine-camel-module-runtime" />
-
       <!-- compound configurations which encapsulates the above mentioned configs -->
       <conf name="all" visibility="private" extends="compile, runtime, test" />
    </configurations>

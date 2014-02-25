@@ -23,7 +23,7 @@
 	<property name="project.etc" value="${project.dir}/etc" />
 	<property file="${project.etc}/private.properties" />
 
-	<property name="artifactId" value="stardust-engine-camel" />
+   <property name="artifactId" value="stardust-engine-camel" />
 	<import file="${project.dir}/../../build.tools/commons-build.xml" />
 	<target name="initOnDevelopment" if="setup.development">
 		<echo message="Performing a development build ..." />
@@ -131,7 +131,7 @@
 
 	<target name="build" depends="jar, jar.src" xmlns:ivy="antlib:org.apache.ivy.ant">
 		<ivy:resolve file="${project.dir}/ivy.xml" />
-		<ivy-make-module-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" moduleName="stardust-engine-camel-module" />
+      <ivy-make-module-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" moduleName="stardust-engine-camel-module" />
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" publishIvy="true" />
       <ivy:retrieve file="${project.dir}/ivy.xml" conf="stardust-engine-camel-module-runtime" 
          pattern="${build.lib}/[artifact]-[revision].[ext]" transitive="false" />

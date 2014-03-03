@@ -141,7 +141,7 @@ public class UserServiceFacade implements IUserService
          
          UserService us = wsEnv.getServiceFactory().getUserService();
          
-         us.resetPassword(account, XmlAdapterUtils.unmarshalMap(properties, String.class, String.class));
+         us.resetPassword(account, XmlAdapterUtils.unmarshalMap(properties, String.class, String.class), null);
       }
       catch (ApplicationException e)
       {

@@ -104,15 +104,24 @@ public class UserServiceBean extends org.eclipse.stardust.engine.api.spring.Abst
    }
 
    /**
+    * @see org.eclipse.stardust.engine.api.runtime.UserService#generatePasswordResetToken(java.lang.String account)
+    */
+   public void generatePasswordResetToken(java.lang.String account)
+   {
+	      ((org.eclipse.stardust.engine.api.runtime.UserService)
+	              serviceProxy).generatePasswordResetToken(account);
+   }
+   
+   /**
     * @see org.eclipse.stardust.engine.api.runtime.UserService#resetPassword(java.lang.String account, java.util.Map properties)
     */
-   public void resetPassword(java.lang.String account, java.util.Map properties)
+   public void resetPassword(java.lang.String account, java.util.Map properties, java.lang.String token)
          throws org.eclipse.stardust.common.error.ConcurrencyException,
          org.eclipse.stardust.common.error.ObjectNotFoundException,
          org.eclipse.stardust.engine.api.runtime.IllegalOperationException
    {
       ((org.eclipse.stardust.engine.api.runtime.UserService)
-            serviceProxy).resetPassword(account, properties);
+            serviceProxy).resetPassword(account, properties, token);
    }
 
    /**

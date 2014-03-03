@@ -34,7 +34,8 @@ public final class UserUtils
    public static final List<String> PROTECTED_ATTRIBUTES = Arrays.asList(new String[] {
          SecurityUtils.LAST_PASSWORDS, 
          QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY,
-         IS_DEPUTY_OF
+         IS_DEPUTY_OF,
+         SecurityUtils.PASSWORD_RESET_TOKEN
    });
 
    /**

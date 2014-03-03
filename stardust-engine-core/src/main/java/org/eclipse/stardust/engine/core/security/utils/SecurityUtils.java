@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.security.utils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.ArrayList;
@@ -24,10 +25,9 @@ import org.eclipse.stardust.common.Attribute;
 import org.eclipse.stardust.common.Base64;
 import org.eclipse.stardust.common.Serialization;
 import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.security.DesEncrypter;
 import org.eclipse.stardust.common.security.HMAC;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -39,10 +39,10 @@ import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.MailHelper;
 import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.spi.security.CredentialDeliveryStrategy;
 
 
 
@@ -52,6 +52,8 @@ public class SecurityUtils
    public static String PASSWORD_RULES = "Infinity.Security.PasswordRules";
    public static String PASSWORD_ENCRYPTION = "Security.Password.Encryption";
    public static String LOGIN_DIALOG_URL = "Security.Password.LoginDialogUrl";
+   public static String RESET_SERVLET_URL = "Security.Password.ResetServletUrl";
+   public static String PASSWORD_RESET_TOKEN = "Security.Password.ResetToken";
    
    private static String splitExpression = ";";
 
@@ -75,11 +77,7 @@ public class SecurityUtils
          throw new InternalException(x.getMessage(), x);
       }
    }
-   
-   private static String getLoginUrl()
-   {
-      return Parameters.instance().getString(LOGIN_DIALOG_URL, "").trim();
-   }   
+    
    
    public static List getPreviousPasswords(IUser user, String password)
    {
@@ -304,28 +302,20 @@ public class SecurityUtils
       return false;
    }
    
-   public static void sendGeneratedPassword(IUser user, String generatedPassword)
+   public static void publishGeneratedPassword(IUser user, String generatedPassword)
    {
-      if(!StringUtils.isEmpty(user.getEMail()))
-      {      
-         try
-         {
-            String loginUrl = getLoginUrl();
-            String message = "Dear user '" + user.getAccount() + "'!\n\n" +
-               "Your password has been changed to \"" + generatedPassword + "\". Please change your password or contact an Administrator.\n" +
-               "Login with your new password, the Dialog will force you next to change your password.\n\n";
-            if(!StringUtils.isEmpty(loginUrl))
-            {
-               message += loginUrl;
-            }            
-            
-            MailHelper.sendSimpleMessage(new String[] {user.getEMail()}, "Password has been changed!", message);
-         }
-         catch (PublicException e)
-         {
-            throw e;
-         }
-      }
+		CredentialDeliveryStrategy deliveryStrategy = ExtensionProviderUtils
+				.getFirstExtensionProvider(CredentialDeliveryStrategy.class);
+		
+		if (deliveryStrategy != null)
+		{
+			deliveryStrategy.deliverNewPassword(user, generatedPassword);
+		}
+		else
+		{
+			throw new InternalException(
+					"Couldn't deliver password: no implementation for CredentialDeliveryStrategy provided.");
+		}
    }
    
    public static boolean isPasswordExpired(IUser user)
@@ -430,16 +420,77 @@ public class SecurityUtils
       return true;
    }  
    
+   public static void generatePasswordResetToken(IUser user)
+   {
+		String plainToken = user.getOID() + "-" + new Date().getTime();
+		try
+		{
+			MessageDigest md = MessageDigest.getInstance("SHA-1");
+			byte[] tokenBytes = md.digest(plainToken.getBytes());
+
+			StringBuffer tokenBuffer = new StringBuffer();
+			for (int i = 0; i < tokenBytes.length; i++) {
+				tokenBuffer.append(Integer.toString(
+						(tokenBytes[i] & 0xff) + 0x100, 16).substring(1));
+			}
+			
+			publishGeneratedResetToken(user, tokenBuffer.toString());
+			user.setPropertyValue(PASSWORD_RESET_TOKEN, tokenBuffer.toString(), true);
+		}
+		catch (NoSuchAlgorithmException nsaEx)
+		{
+			throw new InternalException("Encryption of token failed.", nsaEx);
+		}
+   }
+   
+	public static void generatePassword(IUser user, String token) {
+		if (isTokenValid(user, token)) {
+			generatePassword(user);
+			user.removeProperty(PASSWORD_RESET_TOKEN);
+		} else {
+			user.removeProperty(PASSWORD_RESET_TOKEN);
+			throw new AccessForbiddenException(
+					BpmRuntimeError.AUTHx_CHANGE_PASSWORD_IVALID_TOKEN.raise());
+		}
+	}
+   
    public static void generatePassword(IUser user)
    {
-      PasswordRules rules = getPasswordRules(SecurityProperties.getPartitionOid()); 
-      String previousPassword = user.getPassword();
-      List<String> history = getPreviousPasswords(user, previousPassword);               
-      String newPassword = new String(PasswordGenerator.generatePassword(rules, history));
-      user.setPassword(newPassword);
-      sendGeneratedPassword(user, newPassword);
-      
-      user.setPasswordExpired(true);               
-      changePassword(user, previousPassword, newPassword);            
+			PasswordRules rules = getPasswordRules(SecurityProperties
+					.getPartitionOid());
+			String previousPassword = user.getPassword();
+			List<String> history = getPreviousPasswords(user, previousPassword);
+			String newPassword = new String(PasswordGenerator.generatePassword(
+					rules, history));
+			user.setPassword(newPassword);
+			publishGeneratedPassword(user, newPassword);
+
+			user.setPasswordExpired(true);
+			changePassword(user, previousPassword, newPassword);
+   }
+   
+   public static void publishGeneratedResetToken(IUser user, String tokenString)
+   {
+		CredentialDeliveryStrategy deliveryStrategy = ExtensionProviderUtils
+				.getFirstExtensionProvider(CredentialDeliveryStrategy.class);
+		
+		if (deliveryStrategy != null)
+		{
+			deliveryStrategy.deliverPasswordResetToken(user, tokenString);
+		}
+		else
+		{
+			throw new InternalException(
+					"Couldn't deliver password reset token: no implementation for CredentialDeliveryStrategy provided.");
+		}
+   }
+   
+   private static boolean isTokenValid (IUser user, String token)
+   {
+		if (user.getPropertyValue(PASSWORD_RESET_TOKEN) != null
+				&& user.getPropertyValue(PASSWORD_RESET_TOKEN).equals(token)) {
+			return true;
+		}
+		return false;
    }
 }

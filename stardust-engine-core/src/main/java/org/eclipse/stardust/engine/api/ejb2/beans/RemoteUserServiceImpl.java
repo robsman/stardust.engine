@@ -340,13 +340,13 @@ public class RemoteUserServiceImpl extends org.eclipse.stardust.engine.api.ejb2.
      * @see org.eclipse.stardust.engine.api.runtime.UserService#resetPassword(
      *     java.lang.String account, java.util.Map properties)
      */
-    public void resetPassword(java.lang.String account, java.util.Map properties)
+    public void resetPassword(java.lang.String account, java.util.Map properties, String token)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
     {
       try
       {
          ((org.eclipse.stardust.engine.api.runtime.UserService)
-            service).resetPassword(account, properties);
+            service).resetPassword(account, properties, token);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

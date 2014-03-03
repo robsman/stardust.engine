@@ -404,7 +404,7 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
      *     java.lang.String account, java.util.Map properties)
      */
     public void resetPassword(
-         java.lang.String account, java.util.Map properties,
+         java.lang.String account, java.util.Map properties, java.lang.String token,
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
     {
@@ -413,7 +413,7 @@ public class TunnelingUserServiceImpl extends org.eclipse.stardust.engine.api.ej
       {
          __invocationContextBackup = initInvocationContext(__tunneledContext);
          ((org.eclipse.stardust.engine.api.runtime.UserService)
-            service).resetPassword(account, properties);
+            service).resetPassword(account, properties, token);
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

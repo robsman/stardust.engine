@@ -39,6 +39,7 @@ import org.eclipse.stardust.engine.core.runtime.internal.SessionManager;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
+import org.eclipse.stardust.engine.core.security.utils.SecurityUtils;
 import org.eclipse.stardust.engine.core.spi.security.ExternalLoginResult;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalWithProperties;
@@ -185,7 +186,9 @@ public class AbstractLoginInterceptor implements MethodInterceptor
       LoggedInUser loggedInUser = doLogin(invocation);
 
       IUser user = getUser(invocation, loggedInUser.getUserId(), loggedInUser.getProperties());
-
+      
+      user.removeProperty(SecurityUtils.PASSWORD_RESET_TOKEN);
+      
       setCurrentUser(layer, user);
 
       SessionManager.instance().updateLastModificationTime(user);

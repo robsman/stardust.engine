@@ -221,6 +221,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_VERIFICATION_FAILED = newArgs0("AUTHx00128", BaseErrorCaseMessages.getString("AUTHx00128")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_CHANGE_PASSWORD_NEW_PW_MISSING = newArgs0("AUTHx00129", BpmRuntimeErrorMessages.getString("AUTHx00129")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_USER_ID_PASSWORD_EXPIRED = newArgs1("AUTHx00130", BpmRuntimeErrorMessages.getString("AUTHx00130")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 AUTHx_CHANGE_PASSWORD_IVALID_TOKEN = newArgs0("AUTHx00131", BpmRuntimeErrorMessages.getString("AUTHx00131")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_OPERATION_FAILED_USER_OID_NOT_FULLY_INITIALIZED = newArgs1("AUTHx00301", BpmRuntimeErrorMessages.getString("AUTHx00301")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 AUTHx_OPERATION_FAILED_USER_GROUP_OID_NOT_FULLY_INITIALIZED = newArgs1("AUTHx00302", BpmRuntimeErrorMessages.getString("AUTHx00302")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 AUTHx_OPERATION_FAILED_REQUIRES_INTERNAL_AUTH = newArgs0("AUTHx00303", BpmRuntimeErrorMessages.getString("AUTHx00303")); //$NON-NLS-1$ //$NON-NLS-2$

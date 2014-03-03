@@ -285,7 +285,7 @@ public class UserServiceImpl implements UserService, Serializable
          if(generatePassword)
          {
             user.setPassword(newPassword);
-            SecurityUtils.sendGeneratedPassword(user, newPassword);
+            SecurityUtils.publishGeneratedPassword(user, newPassword);
 
             user.setPasswordExpired(true);
             SecurityUtils.changePassword(user, previousPassword, newPassword);
@@ -400,7 +400,15 @@ public class UserServiceImpl implements UserService, Serializable
       return (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
    }
 
-   public void resetPassword(String account, Map properties) throws ConcurrencyException,
+   public void generatePasswordResetToken(String account)
+   {
+	   IUserRealm realm = SecurityProperties.getUserRealm();
+	   IUser user = UserBean.findByAccount(account, realm);
+	   
+	   SecurityUtils.generatePasswordResetToken(user);
+   }
+   
+   public void resetPassword(String account, Map properties, String token) throws ConcurrencyException,
          ObjectNotFoundException, IllegalOperationException
    {
       if ( !isInternalAuthentication())
@@ -429,7 +437,7 @@ public class UserServiceImpl implements UserService, Serializable
 
       if (isInternalAuthentication())
       {
-         SecurityUtils.generatePassword(user);
+         SecurityUtils.generatePassword(user, token);
       }
    }
 

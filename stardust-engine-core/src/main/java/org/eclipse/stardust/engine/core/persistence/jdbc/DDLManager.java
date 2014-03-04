@@ -2980,7 +2980,6 @@ public class DDLManager
          String message = MessageFormat.format(
                "Could not create partition ''{0}''. Reason: {1}.", new Object[] {
                      partitionId, x.getMessage() });
-         System.out.println(message);
          trace.warn(message, x);
       }
 

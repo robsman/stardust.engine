@@ -1547,11 +1547,27 @@
 		</complexType>
 	</element>
 
+	<element name="generatePasswordResetToken">
+		<complexType>
+			<sequence>
+				<element name="account" type="xsd:string" nillable="true" />
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="generatePasswordResetTokenResponse">
+		<complexType>
+			<sequence>
+			</sequence>
+		</complexType>
+	</element>
+
 	<element name="resetPassword">
 		<complexType>
 			<sequence>
 				<element name="account" type="xsd:string" nillable="true" />
 				<element name="properties" type="bat:Map" nillable="true" />
+				<element name="token" type="xsd:string" nillable="true" />
 			</sequence>
 		</complexType>
 	</element>

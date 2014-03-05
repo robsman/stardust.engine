@@ -673,6 +673,14 @@
       <wsdl:part element="impl:modifyUserResponse" name="parameters"/>
    </wsdl:message>
 
+   <wsdl:message name="generatePasswordResetTokenRequest">
+      <wsdl:part element="impl:generatePasswordResetToken" name="parameters"/>
+   </wsdl:message>
+
+   <wsdl:message name="generatePasswordResetTokenResponse">
+      <wsdl:part element="impl:generatePasswordResetTokenResponse" name="parameters"/>
+   </wsdl:message>
+
    <wsdl:message name="resetPasswordRequest">
       <wsdl:part element="impl:resetPassword" name="parameters"/>
    </wsdl:message>
@@ -1940,6 +1948,15 @@ The MigrationReport returned by each call contains information about: Total reso
          </wsdl:documentation>
          <wsdl:input message="impl:modifyUserRequest" />
          <wsdl:output message="impl:modifyUserResponse" />
+         <wsdl:fault message="impl:bpmFault" name="fault" />
+      </wsdl:operation>
+
+      <wsdl:operation name="generatePasswordResetToken" parameterOrder="parameters">
+         <wsdl:documentation>
+         Generates a token which is required to perform resetPassword.
+         </wsdl:documentation>
+         <wsdl:input message="impl:generatePasswordResetTokenRequest" />
+         <wsdl:output message="impl:generatePasswordResetTokenResponse" />
          <wsdl:fault message="impl:bpmFault" name="fault" />
       </wsdl:operation>
 
@@ -3587,6 +3604,19 @@ The MigrationReport returned by each call contains information about: Total reso
 
       <wsdl:operation name="modifyUser">
          <wsdlsoap:operation soapAction="modifyUser" style="document"/>
+         <wsdl:input>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body use="literal"/>
+         </wsdl:output>
+         <wsdl:fault name="fault">
+            <wsdlsoap:fault name="fault" use="literal" />
+         </wsdl:fault>
+      </wsdl:operation>
+
+      <wsdl:operation name="generatePasswordResetToken">
+         <wsdlsoap:operation soapAction="generatePasswordResetToken" style="document"/>
          <wsdl:input>
             <wsdlsoap:body use="literal"/>
          </wsdl:input>

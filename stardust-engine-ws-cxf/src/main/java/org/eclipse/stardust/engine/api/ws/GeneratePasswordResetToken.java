@@ -19,8 +19,6 @@ import javax.xml.bind.annotation.XmlType;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
  *         &lt;element name="account" type="{http://www.w3.org/2001/XMLSchema}string"/>
- *         &lt;element name="properties" type="{http://eclipse.org/stardust/ws/v2012a/api}Map"/>
- *         &lt;element name="token" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -31,19 +29,13 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "", propOrder = {
-    "account",
-    "properties",
-    "token"
+    "account"
 })
-@XmlRootElement(name = "resetPassword")
-public class ResetPassword {
+@XmlRootElement(name = "generatePasswordResetToken")
+public class GeneratePasswordResetToken {
 
     @XmlElement(required = true, nillable = true)
     protected String account;
-    @XmlElement(required = true, nillable = true)
-    protected MapXto properties;
-    @XmlElement(required = true, nillable = true)
-    protected String token;
 
     /**
      * Gets the value of the account property.
@@ -67,54 +59,6 @@ public class ResetPassword {
      */
     public void setAccount(String value) {
         this.account = value;
-    }
-
-    /**
-     * Gets the value of the properties property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link MapXto }
-     *     
-     */
-    public MapXto getProperties() {
-        return properties;
-    }
-
-    /**
-     * Sets the value of the properties property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link MapXto }
-     *     
-     */
-    public void setProperties(MapXto value) {
-        this.properties = value;
-    }
-
-    /**
-     * Gets the value of the token property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getToken() {
-        return token;
-    }
-
-    /**
-     * Sets the value of the token property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setToken(String value) {
-        this.token = value;
     }
 
 }

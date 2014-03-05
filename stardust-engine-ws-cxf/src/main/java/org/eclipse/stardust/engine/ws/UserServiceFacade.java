@@ -133,7 +133,7 @@ public class UserServiceFacade implements IUserService
       return null;
    }   
    
-   public void resetPassword(String account, MapXto properties) throws BpmFault
+   public void resetPassword(String account, MapXto properties, String token) throws BpmFault
    {
       try
       {
@@ -141,7 +141,7 @@ public class UserServiceFacade implements IUserService
          
          UserService us = wsEnv.getServiceFactory().getUserService();
          
-         us.resetPassword(account, XmlAdapterUtils.unmarshalMap(properties, String.class, String.class), null);
+         us.resetPassword(account, XmlAdapterUtils.unmarshalMap(properties, String.class, String.class), token);
       }
       catch (ApplicationException e)
       {
@@ -479,6 +479,20 @@ public class UserServiceFacade implements IUserService
       }
       return null;
    }
+
+	@Override
+	public void generatePasswordResetToken(String account) throws BpmFault {
+		try {
+			WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+			
+			UserService us = wsEnv.getServiceFactory().getUserService();
+
+			us.generatePasswordResetToken(account);
+		} catch (ApplicationException e) {
+			XmlAdapterUtils.handleBPMException(e);
+		}
+
+	}
 
 
 

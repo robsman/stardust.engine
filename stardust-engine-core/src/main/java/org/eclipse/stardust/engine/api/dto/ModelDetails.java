@@ -67,11 +67,11 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
    final Map indexedOrgs;
    final Map indexedData;
    final Map indexedTypeDecls;
-   
+
    private Set<QualityAssuranceCode> qualityAssuranceCodes;
 
    private final Boolean alive;
-   
+
    public ModelDetails(IModel model)
    {
       super(model);
@@ -91,7 +91,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       indexedTypeDecls = new LinkedHashMap();
 
       qualityAssuranceCodes = CollectionUtils.newSet();
-      
+
       alive = null;
 
       ModelElementList definitions = model.getProcessDefinitions();
@@ -154,7 +154,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
          typeDeclarations.add(typeDeclarationDetails);
          indexedTypeDecls.put(composeId(typeDeclarationDetails.getId()), typeDeclarationDetails);
       }
-      
+
       IQualityAssurance qualityAssurance = model.getQualityAssurance();
       if(qualityAssurance != null)
       {
@@ -163,8 +163,8 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
          {
             QualityAssuranceCode qualityAssuranceCodeDetails = DetailsFactory.create(code, IQualityAssuranceCode.class, QualityAssuranceCodeDetails.class);
             qualityAssuranceCodes.add(qualityAssuranceCodeDetails);
-         }         
-      }      
+         }
+      }
 
       unmodifiableProcesses = Collections.unmodifiableList(processes);
       unmodifiableRoles = Collections.unmodifiableList(roles);
@@ -202,7 +202,7 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
       unmodifiableTypeDeclarations = Collections.unmodifiableList(typeDeclarations);
 
       qualityAssuranceCodes = template.qualityAssuranceCodes;
-      
+
       this.alive = alive;
    }
 
@@ -428,8 +428,15 @@ public class ModelDetails extends DeployedModelDescriptionDetails implements Dep
                if (typeId.equals(declaration.getId()))
                {
                   XpdlType type = declaration.getXpdlType();
-                  return type instanceof SchemaTypeDetails
-                     ? ((SchemaTypeDetails) type).getSchema() : null;
+                  if (type instanceof SchemaTypeDetails)
+                  {
+                     return ((SchemaTypeDetails) type).getSchema();
+                  }
+                  if (type instanceof ExternalReferenceDetails)
+                  {
+                     return ((ExternalReferenceDetails) type).getSchema(model);
+                  }
+                  return null;
                }
             }
          }

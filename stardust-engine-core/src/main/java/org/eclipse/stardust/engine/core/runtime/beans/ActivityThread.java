@@ -15,11 +15,7 @@ import static org.eclipse.stardust.engine.core.runtime.audittrail.management.Pro
 
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
+import java.util.*;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
@@ -105,6 +101,8 @@ public class ActivityThread implements Runnable
    private final ProcessCompletionJanitor janitor;
    private Throwable interruption;
 
+   private boolean checkForEnabledInclusiveORVertexes;
+
    public static void schedule(IProcessInstance processInstance, IActivity activity,
          IActivityInstance activityInstance,
          boolean synchronously,
@@ -112,8 +110,6 @@ public class ActivityThread implements Runnable
          Map data,
          boolean hasParent)
    {
-
-
       if (synchronously)
       {
          ActivityThread thread = new ActivityThread(
@@ -224,6 +220,15 @@ public class ActivityThread implements Runnable
    
    public void run()
    {
+      if (activityInstance == null)
+      {
+         trace.info("Started thread on " + activity);
+      }
+      else
+      {
+         trace.info("Started thread on " + activityInstance);
+      }
+
       if (isInAbortingPiHierarchy())
       {         
          Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
@@ -302,6 +307,7 @@ public class ActivityThread implements Runnable
          {
             int count = 0;
             long start = System.currentTimeMillis();
+
             while (!enableVertex())
             {
                count++;
@@ -315,6 +321,7 @@ public class ActivityThread implements Runnable
                            + (System.currentTimeMillis() - start)
                            + " ms, giving up.");
                   }
+                  trace.info("Ended thread, no free tokens.");
                   return;
                }
 
@@ -388,6 +395,11 @@ public class ActivityThread implements Runnable
          throw new InternalException("Unexpected activity thread state.");
       }
    
+      if (checkForEnabledInclusiveORVertexes)
+      {
+         startEnabledOrGateways();
+      }
+
       tokenCache.flush();
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       ExecutionPlan plan = rtEnv.getExecutionPlan();
@@ -398,6 +410,7 @@ public class ActivityThread implements Runnable
          throw new PublicException(interruption);
       }
    
+      trace.info("Ended thread, last executed was " + activity);
    }
 
    public IProcessInstance processInstance()
@@ -449,7 +462,7 @@ public class ActivityThread implements Runnable
          {
             tokenCache.consumeToken(freeToken);
          }
-         if (JoinSplitType.Xor.equals(activity.getJoinType()))
+         if (activity.getJoinType() == JoinSplitType.Xor)
          {
             break;
          }
@@ -561,6 +574,7 @@ public class ActivityThread implements Runnable
             }
 
             tokenCache.consumeToken(boundToken);
+            trace.info("Removed " + boundToken);
             removedTokens++;
 
             getCurrentActivityThreadContext().completingTransition(boundToken);
@@ -574,6 +588,7 @@ public class ActivityThread implements Runnable
          
          BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
          ExecutionPlan plan = rtEnv.getExecutionPlan();
+         JoinSplitType splitType = activity.getSplitType();
          if (plan != null && !plan.isTerminated())
          {
             if (plan.hasNextActivity())
@@ -628,8 +643,7 @@ public class ActivityThread implements Runnable
                   ITransition transition = (ITransition) outTransitions.get(i);
                   if (transition.isEnabled(symbolTable))
                   {
-                     if ((1 == outTransitions.size())
-                           || (JoinSplitType.Xor == activity.getSplitType()))
+                     if (outTransitions.size() == 1 || JoinSplitType.Xor == splitType)
                      {
                         enabledTransitions = Collections.singletonList(transition);
                         break;
@@ -692,16 +706,24 @@ public class ActivityThread implements Runnable
             {
                plan.setToken(token);
             }
+            trace.info("Created " + token);
             addedTokens++;
 
             getCurrentActivityThreadContext().enteringTransition(token);
 
-            if (JoinSplitType.Xor == activity.getSplitType() && exceptionTransition == null)
+            if (JoinSplitType.Xor == splitType && exceptionTransition == null)
             {
                break;
             }
          }
          
+         if (exceptionTransition != null
+               || JoinSplitType.Xor == splitType //|| isInclusiveOr(activity)
+               || enabledOutTransitions.isEmpty() && !activity.getOutTransitions().isEmpty())
+         {
+            checkForEnabledInclusiveORVertexes  = true;
+         }
+
          janitor.incrementCount(addedTokens - removedTokens);
 
          if (addedTokens == 0 && (plan == null || !plan.hasMoreSteps()))
@@ -746,7 +768,7 @@ public class ActivityThread implements Runnable
                   }
                   else
                   {
-                     if (isSerialExecutionScenario(processInstance) && isAndJoinAI())
+                     if (isSerialExecutionScenario(processInstance) && activity.getJoinType() == JoinSplitType.And)
                      {
                         /* do not schedule a new activity thread for every single incoming */
                         /* thread - the serial execution ensures that the last thread is   */
@@ -773,10 +795,88 @@ public class ActivityThread implements Runnable
       }
    }
    
+   private Set<ITransition> getExclusionList(ITransition transition)
+   {
+      Set<ITransition> excluded = transition.getRuntimeAttribute("INCLUSIVE_OR_EXCLUSION_SET");
+      if (excluded == null)
+      {
+         synchronized(transition)
+         {
+            excluded = CollectionUtils.newSet();
+            IActivity activity = transition.getToActivity();
+            ModelElementList<ITransition> inTransitions = activity.getInTransitions();
+            for (ITransition other : inTransitions)
+            {
+               if (other != transition)
+               {
+                  excluded.addAll(getTransitionsPath(other));
+                  trace.info(transition + " excluded: " + excluded);
+               }
+            }
+            excluded.removeAll(getTransitionsPath(transition));
+            trace.info(transition + " general exclusion set: " + excluded);
+            transition.setRuntimeAttribute("INCLUSIVE_OR_EXCLUSION_SET", excluded);
+         }
+      }
+      return excluded;
+   }
+
+   private Set<ITransition> getTransitionsPath(ITransition transition)
+   {
+      Set<ITransition> result = CollectionUtils.newSet();
+      getParents(result, transition, transition.getToActivity());
+      return result;
+   }
+
+   private void getParents(Set<ITransition> result, ITransition transition, IActivity stopAt)
+   {
+      if (!result.contains(transition))
+      {
+         result.add(transition);
+         IActivity from = transition.getFromActivity();
+         if (from != stopAt)
+         {
+            ModelElementList<ITransition> incomming = from.getInTransitions();
+            for (ITransition parent : incomming)
+            {
+               getParents(result, parent, stopAt);
+            }
+         }
+      }
+   }
+
+   private void startEnabledOrGateways()
+   {
+      System.err.println("Checking for enabled gateways");
+      for (IActivity activity : getInclusiveOrActivities())
+      {
+         activityInstance = null;
+         this.activity = activity;
+         if (enableVertex())
+         {
+            schedule(processInstance, null, activityInstance,
+                  false, null, Collections.EMPTY_MAP, false);
+         }
+      }
+   }
+
+   private List<IActivity> getInclusiveOrActivities()
+   {
+      List<IActivity> gateways = CollectionUtils.newList();
+      ModelElementList<IActivity> activities = processInstance.getProcessDefinition().getActivities();
+      for (IActivity activity : activities)
+      {
+         if (activity.getJoinType() == JoinSplitType.Or)
+         {
+            gateways.add(activity);
+         }
+      }
+      return gateways;
+   }
+
    private boolean isMultiInstance()
    {
-      ILoopCharacteristics loop = activity.getLoopCharacteristics();
-      return loop instanceof IMultiInstanceLoopCharacteristics;
+      return activity.getLoopCharacteristics() instanceof IMultiInstanceLoopCharacteristics;
    }
 
    private boolean isSequential()
@@ -837,63 +937,111 @@ public class ActivityThread implements Runnable
       }
    }
 
-   private boolean isAndJoinAI()
-   {
-      if (activity.getJoinType() == JoinSplitType.And)
-      {
-         return true;
-      }
-      
-      return false;
-   }
-   
    private boolean enableVertex()
    {
-      List<TransitionTokenBean> freeTokens = null;
+      JoinSplitType joinType = activity.getJoinType();
+      List<TransitionTokenBean> freeTokens =
+            joinType == JoinSplitType.And ? enableAnd() :
+            joinType == JoinSplitType.Or ? enableOr() :
+            /* default */ enableXor();
 
-      for (int i = 0; i < activity.getInTransitions().size(); ++i)
-      {
-         ITransition transition = (ITransition) activity.getInTransitions().get(i);
-
-         // TODO (ab) wenn nicht die erste activityInstance (fork, recovery) UND XOR, dann nehme "current" (muss im local cache sein)
-         TransitionTokenBean freeToken = tokenCache.lockFreeToken(transition);
-         if (null != freeToken)
-         {
-            if ((1 == activity.getInTransitions().size())
-                  || JoinSplitType.Xor.equals(activity.getJoinType()))
-            {
-               // found the one sufficient token to proceed
-               freeTokens = Collections.singletonList(freeToken);
-               break;
-            }
-            else
-            {
-               if (null == freeTokens)
-               {
-                  freeTokens = CollectionUtils.newList();
-               }
-               freeTokens.add(freeToken);
-            }
-         }
-         else if (JoinSplitType.And.equals(activity.getJoinType()))
-         {
-            // AND join will not be satisfied as at least one token is missing
-            if (null != freeTokens)
-            {
-               tokenCache.unlockTokens(freeTokens);
-            }
-            return false;
-         }
-      }
-      if ((null == freeTokens) || freeTokens.isEmpty())
+      // need at least a token to continue
+      if (freeTokens == null || freeTokens.isEmpty())
       {
          return false;
       }
-
+      
       tokenCache.registerPersistenceControllers(freeTokens);
       createActivityInstance(freeTokens);
 
       return true;
+   }
+   
+   private List<TransitionTokenBean> enableXor()
+   {
+      ModelElementList<ITransition> inTransitions = activity.getInTransitions();
+      for (ITransition transition : inTransitions)
+      {
+         TransitionTokenBean freeToken = tokenCache.lockFreeToken(transition);
+         if (freeToken != null)
+         {
+            return Collections.singletonList(freeToken);
+         }
+      }
+      return null;
+   }
+
+   private List<TransitionTokenBean> enableAnd()
+   {
+      List<TransitionTokenBean> freeTokens = null;
+      ModelElementList<ITransition> inTransitions = activity.getInTransitions();
+      for (ITransition transition : inTransitions)
+      {
+         TransitionTokenBean freeToken = tokenCache.lockFreeToken(transition);
+         if (freeToken != null)
+         {
+            if (freeTokens == null)
+            {
+               freeTokens = CollectionUtils.newList();
+            }
+            freeTokens.add(freeToken);
+         }
+         else
+         {
+            // AND join will not be satisfied as at least one token is missing
+            if (freeTokens != null)
+            {
+               tokenCache.unlockTokens(freeTokens);
+            }
+            return null;
+         }
+      }
+      return freeTokens;
+   }
+
+   private List<TransitionTokenBean> enableOr()
+   {
+      Set<ITransition> excluded = null;
+
+      List<TransitionTokenBean> freeTokens = null;
+      ModelElementList<ITransition> inTransitions = activity.getInTransitions();
+      for (ITransition transition : inTransitions)
+      {
+         TransitionTokenBean freeToken = tokenCache.lockFreeToken(transition);
+         if (freeToken != null)
+         {
+            if (freeTokens == null)
+            {
+               freeTokens = CollectionUtils.newList();
+            }
+            freeTokens.add(freeToken);
+            if (excluded == null)
+            {
+               excluded = getExclusionList(transition);
+            }
+            else
+            {
+               excluded.retainAll(getExclusionList(transition));
+            }
+            trace.info(activity + " exclusion list " + excluded);
+         }
+      }
+      trace.info(activity + " final exclusion list " + excluded);
+
+      // OR join will not be satisfied as at least one token is missing
+      if (freeTokens != null)
+      {
+         if (excluded.isEmpty() || !tokenCache.hasUnconsumedTokens(excluded))
+         {
+            trace.info("Activating " + activity + " with " + freeTokens);
+            return freeTokens;
+         }
+
+         tokenCache.unlockTokens(freeTokens);
+      }
+
+      trace.info("Could not activate " + activity + " yet.");
+      return null;
    }
 
    private boolean isValidLoopCondition()
@@ -1090,6 +1238,7 @@ public class ActivityThread implements Runnable
       return threadContext;
    }
  
+   // TODO: refactor, should not extend ActivityInstanceBean but directly implement IActivityInstance
    private static class PhantomActivityInstance extends ActivityInstanceBean
    {
       PhantomActivityInstance(IActivity activity)
@@ -1102,11 +1251,13 @@ public class ActivityThread implements Runnable
 
       public void start()
       {
+         //state = ActivityInstanceState.APPLICATION;
          setState(ActivityInstanceState.APPLICATION);
       }
 
       public void complete()
       {
+         //state = ActivityInstanceState.COMPLETED;
          setState(ActivityInstanceState.COMPLETED);
       }
    }

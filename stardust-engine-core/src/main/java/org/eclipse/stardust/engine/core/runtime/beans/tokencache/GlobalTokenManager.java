@@ -239,6 +239,33 @@ public class GlobalTokenManager implements ITokenManager
       return lockNextToken(sourceToken, filter(sourceToken, tokenList));
    }
 
+   @Override
+   public boolean hasUnconsumedTokens(Set<ITransition> transitions)
+   {
+      for (ITransition transition : transitions)
+      {
+         Object tokens = getTokenMap(transition);
+         if (tokens != null)
+         {
+            if (tokens instanceof TransitionTokenBean)
+            {
+               if (!((TransitionTokenBean) tokens).isConsumed())
+               {
+                  return true;
+               }
+            }
+            else if (tokens instanceof List)
+            {
+               if (TokenCache.containsUnconsumedToken((List) tokens))
+               {
+                  return true;
+               }
+            }
+         }
+      }
+      return false;
+   }
+
    static TransitionTokenBean[] filter(final TransitionTokenBean sourceToken,
          Collection<TransitionTokenBean> tokenList)
    {

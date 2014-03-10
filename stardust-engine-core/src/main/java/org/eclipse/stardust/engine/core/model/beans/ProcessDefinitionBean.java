@@ -458,7 +458,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
                   + ". Activity OID: " + toActivity);
          }
 
-         if (toActivity.getJoinType().equals(JoinSplitType.None) &&
+         if (toActivity.getJoinType() == JoinSplitType.None &&
                !toActivity.getInTransitions().isEmpty())
          {
             throw new PublicException("Multiple incoming transitions are only allowed for "
@@ -466,7 +466,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
                   + ", target activity OID: " + toActivity.getElementOID());
          }
 
-         if (fromActivity.getSplitType().equals(JoinSplitType.None) &&
+         if (fromActivity.getSplitType() == JoinSplitType.None &&
                !fromActivity.getOutTransitions().isEmpty() &&
                !TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
          {

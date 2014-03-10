@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.tokencache;
 
+import java.util.Set;
+
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
 
@@ -21,4 +23,5 @@ public interface ITokenManager
    public void flush();
    public TransitionTokenBean getTokenForTarget(ITransition transition, long targetActivityInstanceOid);
    public TransitionTokenBean lockSourceAndOtherToken(TransitionTokenBean token);
+   public boolean hasUnconsumedTokens(Set<ITransition> excluded);
 }

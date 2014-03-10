@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans.tokencache;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
@@ -300,5 +302,38 @@ public class TokenCache
    public void registerPersistenceControllers(List tokens)
    {
       secondLevelCache.registerPersistenceControllers(tokens);
+   }
+
+   public boolean hasUnconsumedTokens(Set<ITransition> transitions)
+   {
+      boolean hasUnconsumedTokens = localTokenCache.hasUnconsumedTokens(transitions);
+
+      if (!hasUnconsumedTokens)
+      {
+         hasUnconsumedTokens = secondLevelCache.hasUnconsumedTokens(transitions);
+      }
+
+      // in single-node scenario, rely on results from 2ndlevel cache
+      if (!hasUnconsumedTokens && !secondLevelCache.hasCompleteInformation())
+      {
+         hasUnconsumedTokens = globalTokenCache.hasUnconsumedTokens(transitions);
+      }
+
+      return hasUnconsumedTokens;
+   }
+
+   public static boolean containsUnconsumedToken(Collection<TransitionTokenBean> tokens)
+   {
+      if (tokens != null)
+      {
+         for (TransitionTokenBean token : tokens)
+         {
+            if (!token.isConsumed())
+            {
+               return true;
+            }
+         }
+      }
+      return false;
    }
 }

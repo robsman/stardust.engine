@@ -36,6 +36,19 @@ public class LocalTokenManager implements ITokenManager
       return tokensByTransition.get(transition);
    }
 
+   @Override
+   public boolean hasUnconsumedTokens(Set<ITransition> transitions)
+   {
+      for (ITransition transition : transitions)
+      {
+         if (TokenCache.containsUnconsumedToken(getTokenSet(transition)))
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
    public void registerToken(ITransition transition, TransitionTokenBean token)
    {
       Set<TransitionTokenBean> tokensForTransition = getTokenSet(transition);

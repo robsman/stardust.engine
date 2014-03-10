@@ -32,7 +32,6 @@ import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.XMLResource;
-
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Pair;
@@ -1939,8 +1938,15 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                if (declaration != null)
                {
                   IXpdlType type = declaration.getXpdlType();
-                  return type instanceof SchemaTypeBean
-                     ? ((SchemaTypeBean) type).getSchema() : null;
+                  if (type instanceof ISchemaType)
+                  {
+                     return ((ISchemaType) type).getSchema();
+                  }
+                  if (type instanceof IExternalReference)
+                  {
+                     return ((IExternalReference) type).getSchema(model);
+                  }
+                  return null;
                }
             }
          }

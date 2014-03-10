@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.runtime.beans.tokencache;
 
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
@@ -79,5 +80,11 @@ public class NullTokenManager implements ISecondLevelTokenCache
    public TransitionTokenBean lockSourceAndOtherToken(TransitionTokenBean token)
    {
       return null;
+   }
+
+   @Override
+   public boolean hasUnconsumedTokens(Set<ITransition> transitions)
+   {
+      return false;
    }
 }

@@ -146,6 +146,21 @@ public class SecondLevelTokenManager implements ISecondLevelTokenCache
       }
    }
 
+   @Override
+   public boolean hasUnconsumedTokens(Set<ITransition> transitions)
+   {
+      for (ITransition transition : transitions)
+      {
+         Map<Long,TransitionTokenBean> tokens = getTokenMap(transition);
+         if (tokens != null && !tokens.isEmpty()
+               && TokenCache.containsUnconsumedToken(tokens.values()))
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
    public synchronized TransitionTokenBean lockFirstAvailableToken(ITransition transition)
    {
       Map<Long,TransitionTokenBean> tokensForTransition = getTokenMap(transition);

@@ -186,7 +186,7 @@ public class DmsFileArchiver
             if (log.isDebugEnabled())
                log.debug("Updating test file: " + targetFolder.getPath() + "/" + filename + ".");
 
-            document = dmService.updateDocument(document, fileContent, null, false, null, false);
+            document = dmService.updateDocument(document, fileContent, null, false, null, null, false);
          }
 
          return document;

@@ -1,9 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.util.test;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -12,7 +9,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.log.LogManager;
@@ -21,13 +17,12 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.DefaultPropertiesProvider;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.ProcessInstances;
-import org.eclipse.stardust.engine.api.runtime.AdministrationService;
-import org.eclipse.stardust.engine.api.runtime.DeploymentInfo;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
+import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DDLManager;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -35,6 +30,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -44,7 +40,11 @@ import org.springframework.core.io.Resource;
 
 public class SpringTestUtils implements InitializingBean, ApplicationContextAware
 {
-
+   private static final DeploymentOptions DEFAULT_DEPLOYMENT_OPTIONS;
+   static {
+      DEFAULT_DEPLOYMENT_OPTIONS = new DeploymentOptions();
+      DEFAULT_DEPLOYMENT_OPTIONS.setIgnoreWarnings(true);
+   }
    /**
     * Instance of this class for static access.
     */
@@ -132,7 +132,8 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
          {
             // use QueryService to avoid ObjectNotFoundException
             QueryService qService = sf.getQueryService();
-            if (qService.getAllModelDescriptions().size() == 0)
+            Models models = qService.getModels(DeployedModelQuery.findAll());
+            if (models.size() == 0)
                deployModel();
          }
          finally
@@ -179,14 +180,16 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
       try
       {
          AdministrationService admin = sf.getAdministrationService();
-
-         // TODO : change to new model deployment approach
-         DeploymentInfo info = admin.deployModel(modelXml, null, 0, null, null, null, false, true);
-         if (info.getErrors().size() > 0)
+         List<DeploymentElement> deploymentelements=new ArrayList<DeploymentElement>();
+         final DeploymentElement element = new DeploymentElement(getModelByteStream(modelXml));
+         deploymentelements.add(element);
+         List<DeploymentInfo> deploymentInfos=  admin.deployModel(deploymentelements, DEFAULT_DEPLOYMENT_OPTIONS);
+         DeploymentInfo deploymentInfo = deploymentInfos.get(0);
+         if (deploymentInfo.getErrors().size() > 0)
             throw new Exception("Errors during deployment of model.");
          // Save the deployed model OID for this test run
-         testProcessModelOID = info.getModelOID();
-         log.info("Deployed model ID: " + info.getId() + " with OID: " + info.getModelOID());
+         testProcessModelOID = deploymentInfo.getModelOID();
+         log.info("Deployed model ID: " + deploymentInfo.getId() + " with OID: " + deploymentInfo.getModelOID());
       }
       finally
       {
@@ -199,6 +202,15 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
    {
       log.info("Bootstrapping IPP Spring application context from: carnot-spring-context.xml");
       this.applicationContext = new ClassPathXmlApplicationContext("classpath:carnot-spring-context.xml");
+   }
+   
+   private byte[] getModelByteStream(final String modelXml) {
+      try {
+         final String encoding = Parameters.instance().getObject(PredefinedConstants.XML_ENCODING, XpdlUtils.ISO8859_1_ENCODING);
+         return modelXml.getBytes(encoding);
+      } catch (final UnsupportedEncodingException e) {
+         throw new RuntimeException("Unsupported encoding for model set in '" + PredefinedConstants.XML_ENCODING + "'.");
+      }
    }
 
    /**

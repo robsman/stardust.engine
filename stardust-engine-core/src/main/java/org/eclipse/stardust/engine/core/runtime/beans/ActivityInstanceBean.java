@@ -197,7 +197,7 @@ public class ActivityInstanceBean extends AttributedIdentifiablePersistentBean
 
    protected long activity;
 
-   private ProcessInstanceBean processInstance;
+   ProcessInstanceBean processInstance;
 
    static final String processInstance_EAGER_FETCH = Boolean.TRUE.toString();
 

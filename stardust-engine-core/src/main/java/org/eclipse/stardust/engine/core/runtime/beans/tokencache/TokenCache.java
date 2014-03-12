@@ -304,22 +304,30 @@ public class TokenCache
       secondLevelCache.registerPersistenceControllers(tokens);
    }
 
-   public boolean hasUnconsumedTokens(Set<ITransition> transitions)
+   public static enum TokenLocation
    {
-      boolean hasUnconsumedTokens = localTokenCache.hasUnconsumedTokens(transitions);
+      local, cache, global
+   }
 
-      if (!hasUnconsumedTokens)
+   public TokenLocation hasUnconsumedTokens(Set<ITransition> transitions)
+   {
+      if (localTokenCache.hasUnconsumedTokens(transitions))
       {
-         hasUnconsumedTokens = secondLevelCache.hasUnconsumedTokens(transitions);
+         return TokenLocation.local;
+      }
+
+      if (secondLevelCache.hasUnconsumedTokens(transitions))
+      {
+         return TokenLocation.cache;
       }
 
       // in single-node scenario, rely on results from 2ndlevel cache
-      if (!hasUnconsumedTokens && !secondLevelCache.hasCompleteInformation())
+      if (!secondLevelCache.hasCompleteInformation() && globalTokenCache.hasUnconsumedTokens(transitions))
       {
-         hasUnconsumedTokens = globalTokenCache.hasUnconsumedTokens(transitions);
+         return TokenLocation.global;
       }
 
-      return hasUnconsumedTokens;
+      return null;
    }
 
    public static boolean containsUnconsumedToken(Collection<TransitionTokenBean> tokens)

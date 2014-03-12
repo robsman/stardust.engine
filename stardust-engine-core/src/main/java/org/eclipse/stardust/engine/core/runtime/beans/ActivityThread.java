@@ -52,6 +52,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger.LoggingBe
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache;
+import org.eclipse.stardust.engine.core.runtime.beans.tokencache.TokenCache.TokenLocation;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 /**
@@ -102,6 +103,8 @@ public class ActivityThread implements Runnable
    private Throwable interruption;
 
    private boolean checkForEnabledInclusiveORVertexes;
+
+   private TokenLocation tokenLocation;
 
    public static void schedule(IProcessInstance processInstance, IActivity activity,
          IActivityInstance activityInstance,
@@ -220,15 +223,6 @@ public class ActivityThread implements Runnable
    
    public void run()
    {
-      if (activityInstance == null)
-      {
-         trace.info("Started thread on " + activity);
-      }
-      else
-      {
-         trace.info("Started thread on " + activityInstance);
-      }
-
       if (isInAbortingPiHierarchy())
       {         
          Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
@@ -321,7 +315,10 @@ public class ActivityThread implements Runnable
                            + (System.currentTimeMillis() - start)
                            + " ms, giving up.");
                   }
-                  trace.info("Ended thread, no free tokens.");
+                  if (trace.isDebugEnabled())
+                  {
+                     trace.debug("Ended thread, no free tokens.");
+                  }
                   return;
                }
 
@@ -410,7 +407,10 @@ public class ActivityThread implements Runnable
          throw new PublicException(interruption);
       }
    
-      trace.info("Ended thread, last executed was " + activity);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Ended thread, last executed was " + activity);
+      }
    }
 
    public IProcessInstance processInstance()
@@ -443,7 +443,7 @@ public class ActivityThread implements Runnable
          if (LoopType.While.equals(activity.getLoopType())
                && !processInstance.validateLoopCondition(activity.getLoopCondition()))
          {
-            activityInstance = new PhantomActivityInstance(activity);
+            activityInstance = new PhantomActivityInstance(activity, processInstance);
          }
          else
          {
@@ -574,7 +574,10 @@ public class ActivityThread implements Runnable
             }
 
             tokenCache.consumeToken(boundToken);
-            trace.info("Removed " + boundToken);
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Removed " + boundToken);
+            }
             removedTokens++;
 
             getCurrentActivityThreadContext().completingTransition(boundToken);
@@ -706,7 +709,10 @@ public class ActivityThread implements Runnable
             {
                plan.setToken(token);
             }
-            trace.info("Created " + token);
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Created " + token);
+            }
             addedTokens++;
 
             getCurrentActivityThreadContext().enteringTransition(token);
@@ -775,9 +781,13 @@ public class ActivityThread implements Runnable
                         /* able to pass the join gateway (no contention).                  */
                         continue;
                      }
-                     
-                     schedule(processInstance, targetActivity, null,
-                           false, null, Collections.EMPTY_MAP, false);
+                     /* do not schedule a new activity thread if the blocking token resides */
+                     /* in the local cache.                                                 */
+                     if (tokenLocation != TokenLocation.local)
+                     {
+                        schedule(processInstance, targetActivity, null,
+                              false, null, Collections.EMPTY_MAP, false);
+                     }
                   }
                }
                else
@@ -810,11 +820,13 @@ public class ActivityThread implements Runnable
                if (other != transition)
                {
                   excluded.addAll(getTransitionsPath(other));
-                  trace.info(transition + " excluded: " + excluded);
                }
             }
             excluded.removeAll(getTransitionsPath(transition));
-            trace.info(transition + " general exclusion set: " + excluded);
+            if (trace.isDebugEnabled())
+            {
+               trace.debug(transition + " exclusion set: " + excluded);
+            }
             transition.setRuntimeAttribute("INCLUSIVE_OR_EXCLUSION_SET", excluded);
          }
       }
@@ -847,31 +859,23 @@ public class ActivityThread implements Runnable
 
    private void startEnabledOrGateways()
    {
-      System.err.println("Checking for enabled gateways");
-      for (IActivity activity : getInclusiveOrActivities())
-      {
-         activityInstance = null;
-         this.activity = activity;
-         if (enableVertex())
-         {
-            schedule(processInstance, null, activityInstance,
-                  false, null, Collections.EMPTY_MAP, false);
-         }
-      }
-   }
-
-   private List<IActivity> getInclusiveOrActivities()
-   {
-      List<IActivity> gateways = CollectionUtils.newList();
+      IActivity lastActivity = activity;
       ModelElementList<IActivity> activities = processInstance.getProcessDefinition().getActivities();
       for (IActivity activity : activities)
       {
-         if (activity.getJoinType() == JoinSplitType.Or)
+         /* do not check the gateway if it was the last activity because it was already checked */
+         if (activity.getJoinType() == JoinSplitType.Or && activity != lastActivity)
          {
-            gateways.add(activity);
+            activityInstance = null;
+            this.activity = activity;
+            if (enableVertex())
+            {
+               schedule(processInstance, null, activityInstance,
+                     false, null, Collections.EMPTY_MAP, false);
+            }
          }
       }
-      return gateways;
+      activity = lastActivity;
    }
 
    private boolean isMultiInstance()
@@ -939,6 +943,7 @@ public class ActivityThread implements Runnable
 
    private boolean enableVertex()
    {
+      tokenLocation = null;
       JoinSplitType joinType = activity.getJoinType();
       List<TransitionTokenBean> freeTokens =
             joinType == JoinSplitType.And ? enableAnd() :
@@ -1023,25 +1028,39 @@ public class ActivityThread implements Runnable
             {
                excluded.retainAll(getExclusionList(transition));
             }
-            trace.info(activity + " exclusion list " + excluded);
          }
       }
-      trace.info(activity + " final exclusion list " + excluded);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug(activity + " exclusion set: " + excluded);
+      }
 
       // OR join will not be satisfied as at least one token is missing
       if (freeTokens != null)
       {
-         if (excluded.isEmpty() || !tokenCache.hasUnconsumedTokens(excluded))
+         if (excluded.isEmpty() || !hasUnconsumedTokens(excluded))
          {
-            trace.info("Activating " + activity + " with " + freeTokens);
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Activating " + activity + " with " + freeTokens);
+            }
             return freeTokens;
          }
 
          tokenCache.unlockTokens(freeTokens);
       }
 
-      trace.info("Could not activate " + activity + " yet.");
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Could not activate " + activity + ".");
+      }
       return null;
+   }
+
+   private boolean hasUnconsumedTokens(Set<ITransition> excluded)
+   {
+      tokenLocation = tokenCache.hasUnconsumedTokens(excluded);
+      return tokenLocation != null;
    }
 
    private boolean isValidLoopCondition()
@@ -1241,23 +1260,24 @@ public class ActivityThread implements Runnable
    // TODO: refactor, should not extend ActivityInstanceBean but directly implement IActivityInstance
    private static class PhantomActivityInstance extends ActivityInstanceBean
    {
-      PhantomActivityInstance(IActivity activity)
+      private static final long serialVersionUID = 1L;
+
+      PhantomActivityInstance(IActivity activity, IProcessInstance processInstance)
       {
          super();
          setOID(-1);
          this.model = activity.getModel().getModelOID();
          this.activity = ModelManagerFactory.getCurrent().getRuntimeOid(activity);
+         this.processInstance = (ProcessInstanceBean) processInstance;
       }
 
       public void start()
       {
-         //state = ActivityInstanceState.APPLICATION;
          setState(ActivityInstanceState.APPLICATION);
       }
 
       public void complete()
       {
-         //state = ActivityInstanceState.COMPLETED;
          setState(ActivityInstanceState.COMPLETED);
       }
    }

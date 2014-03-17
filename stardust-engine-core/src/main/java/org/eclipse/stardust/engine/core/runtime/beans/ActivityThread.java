@@ -43,6 +43,7 @@ import org.eclipse.stardust.engine.api.runtime.QualityAssuranceUtils.QualityAssu
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable;
 import org.eclipse.stardust.engine.core.compatibility.el.SymbolTable.SymbolTableFactory;
 import org.eclipse.stardust.engine.core.model.beans.TransitionBean;
+import org.eclipse.stardust.engine.core.model.utils.ExclusionComputer;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.ClusterSafeObjectProviderHolder;
@@ -812,17 +813,15 @@ public class ActivityThread implements Runnable
       {
          synchronized(transition)
          {
-            excluded = CollectionUtils.newSet();
-            IActivity activity = transition.getToActivity();
-            ModelElementList<ITransition> inTransitions = activity.getInTransitions();
-            for (ITransition other : inTransitions)
+            ExclusionComputer<IActivity, ITransition> computer = new ExclusionComputer<IActivity, ITransition>()
             {
-               if (other != transition)
-               {
-                  excluded.addAll(getTransitionsPath(other));
-               }
-            }
-            excluded.removeAll(getTransitionsPath(transition));
+               protected IActivity getFrom(ITransition transition) {return transition.getFromActivity();}
+               protected IActivity getTo(ITransition transition) {return transition.getToActivity();}
+               protected Iterable<ITransition> getIn(IActivity activity) {return activity.getInTransitions();}
+               protected boolean isInclusiveJoin(IActivity activity) {return activity.getJoinType() == JoinSplitType.And
+                     || activity.getJoinType() == JoinSplitType.Or;}
+            };
+            excluded = computer.getExclusionSet(transition);
             if (trace.isDebugEnabled())
             {
                trace.debug(transition + " exclusion set: " + excluded);
@@ -831,30 +830,6 @@ public class ActivityThread implements Runnable
          }
       }
       return excluded;
-   }
-
-   private Set<ITransition> getTransitionsPath(ITransition transition)
-   {
-      Set<ITransition> result = CollectionUtils.newSet();
-      getParents(result, transition, transition.getToActivity());
-      return result;
-   }
-
-   private void getParents(Set<ITransition> result, ITransition transition, IActivity stopAt)
-   {
-      if (!result.contains(transition))
-      {
-         result.add(transition);
-         IActivity from = transition.getFromActivity();
-         if (from != stopAt)
-         {
-            ModelElementList<ITransition> incomming = from.getInTransitions();
-            for (ITransition parent : incomming)
-            {
-               getParents(result, parent, stopAt);
-            }
-         }
-      }
    }
 
    private void startEnabledOrGateways()

@@ -209,7 +209,7 @@
    </target>
 	
 	<target name="dist-moonglow" if="moonglow.home.present">
-	   <property name="hib-modeling-ide.lib.dir" value="${moonglow.home}/ag.carnot.workflow.modeling.hibernate/lib" />
+	   <property name="hib-modeling-ide.lib.dir" value="${moonglow.home}/../sungard/ide/modeling/ag.carnot.workflow.modeling.hibernate/lib" />
 		<mkdir dir="${hib-modeling-ide.lib.dir}" />
 		<copy todir="${hib-modeling-ide.lib.dir}" overwrite="true" verbose="true" >
          <fileset dir="${build.lib}">

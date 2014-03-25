@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.internal.changelog;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -61,7 +62,8 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
             ChangeLogDigester.HistoricState candidateHs = result.get(idxMergeCandidate);
             ChangeLogDigester.HistoricState predecessorHs = result.get(idxMergeCandidate - 1);
 
-            if (isSameState(candidateHs, hs) && isSamePerformer(candidateHs, hs)
+            if (candidateHs.getState() == hs.getState()
+                  && isSamePerformer(candidateHs, hs)
                   && !isOpenInterval(hs))
             {
                hs = new ChangeLogDigester.HistoricState(candidateHs.getFrom(), hs
@@ -72,7 +74,8 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
             else if (candidateHs.isNewRecord())
             {
                if (isSuspendSequence(candidateHs, hs)
-                     || isCompleteSequence(candidateHs, hs))
+                     || isCompleteSequence(candidateHs, hs)
+                     || isAbortSequence(candidateHs, hs))
                {
                   // extend predecessor interval to make sure lastModificationTime matches
                   predecessorHs.setUntil(candidateHs.getUntil());
@@ -108,11 +111,6 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
       }
 
       return result;
-   }
-
-   private static boolean isSameState(ChangeLogDigester.HistoricState lhs, ChangeLogDigester.HistoricState rhs)
-   {
-      return CompareHelper.areEqual(lhs.getState(), rhs.getState());
    }
 
    private static boolean isSamePerformer(ChangeLogDigester.HistoricState lhs, ChangeLogDigester.HistoricState rhs)
@@ -156,32 +154,41 @@ public class DefaultChangeLogDigestionStrategy implements IChangeLogDigestionStr
 
    private boolean isOpenInterval(ChangeLogDigester.HistoricState hs)
    {
-      return (null == hs.getUntil()) || (0 == hs.getUntil().getTime());
+      Date until = hs.getUntil();
+      return until == null || until.getTime() == 0;
    }
 
    private boolean isActivationSequence(ChangeLogDigester.HistoricState hs1, ChangeLogDigester.HistoricState hs2)
    {
-      return ActivityInstanceState.Suspended.equals(hs1.getState())
-            && ActivityInstanceState.Application.equals(hs2.getState())
-            && hs1.getPerformer() instanceof IUser && isSamePerformer(hs1, hs2);
+      return ActivityInstanceState.Suspended == hs1.getState()
+            && ActivityInstanceState.Application == hs2.getState()
+            && hs1.getPerformer() instanceof IUser
+            && isSamePerformer(hs1, hs2);
    }
 
    private boolean isSuspendSequence(ChangeLogDigester.HistoricState hs1, ChangeLogDigester.HistoricState hs2)
    {
-      return ActivityInstanceState.Suspended.equals(hs1.getState())
-            && isSameState(hs1, hs2)
+      return ActivityInstanceState.Suspended == hs1.getState()
+            && hs1.getState() == hs2.getState()
             && hs1.getPerformer() instanceof IUser
             && !isSamePerformer(hs1, hs2);
    }
 
    private boolean isCompleteSequence(ChangeLogDigester.HistoricState hs1, ChangeLogDigester.HistoricState hs2)
    {
-      return ActivityInstanceState.Completed.equals(hs1.getState())
-            && isSameState(hs1, hs2)
+      return ActivityInstanceState.Completed == hs1.getState()
+            && hs1.getState() == hs2.getState()
             && hs1.getPerformer() instanceof IUser
             && !isSamePerformer(hs1, hs2);
    }
-   
+
+   private boolean isAbortSequence(ChangeLogDigester.HistoricState hs1, ChangeLogDigester.HistoricState hs2)
+   {
+      return ActivityInstanceState.Aborted == hs1.getState()
+            && hs1.getState() == hs2.getState()
+            && !isSamePerformer(hs1, hs2);
+   }
+
    public static class Factory implements IChangeLogDigestionStrategyFactory
    {
       public IChangeLogDigestionStrategy createDigester()

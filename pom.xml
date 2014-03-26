@@ -16,8 +16,10 @@
 
   <modules>
     <module>eclipse-collector</module>
+    <module>modules</module>
     <module>stardust-engine-base</module>
     <module>stardust-engine-core</module>
+    <module>stardust-engine-client</module>
     <module>stardust-engine-spring</module>
     <module>stardust-engine-test</module>
     <module>stardust-engine-ws-cxf</module>

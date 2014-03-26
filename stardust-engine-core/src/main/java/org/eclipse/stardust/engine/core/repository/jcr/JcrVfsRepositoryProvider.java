@@ -50,12 +50,6 @@ public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositor
       defaultInstance.put(JcrVfsRepositoryConfiguration.IS_DEFAULT_REPOSITORY, "true");
       configurations.add(new JcrVfsRepositoryConfiguration(defaultInstance));
 
-      Map<String, Serializable> inMemTestRepo = CollectionUtils.newHashMap();
-      inMemTestRepo.put(IRepositoryConfiguration.PROVIDER_ID, PROVIDER_ID);
-      inMemTestRepo.put(IRepositoryConfiguration.REPOSITORY_ID, "inMem");
-      inMemTestRepo.put(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO, "true");
-      configurations.add(new JcrVfsRepositoryConfiguration(inMemTestRepo));
-
       return configurations;
    }
    

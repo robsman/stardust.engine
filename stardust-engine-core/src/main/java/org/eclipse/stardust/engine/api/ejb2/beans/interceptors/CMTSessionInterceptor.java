@@ -28,6 +28,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.RuntimeActivityThreadConte
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.AuditTrailPropertiesInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 
 
 /**
@@ -46,8 +47,6 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
    private final EjbTxPolicy ejbTxPolicy;
 
    private final EJBContext context;
-   
-   private transient EjbDocumentRepositoryService dmsServiceProvider;
    
    public CMTSessionInterceptor(String sessionName, EJBContext context)
    {
@@ -77,25 +76,9 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
 
       rtEnv.setActivityThreadContext(new RuntimeActivityThreadContext());
       rtEnv.setAuditTrailSession(session);
-
-      // repository will be retrieved from bean local JNDI location java:comp/env/jcr/ContentRepository
-      Object contentRepositoryRes = invocation.getParameters().get("jcr/ContentRepository");
-      if (null != contentRepositoryRes)
-      {
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Retrieved JCR repository from JNDI: " + contentRepositoryRes);
-         }
-
-         if (null == dmsServiceProvider)
-         {
-            this.dmsServiceProvider = new EjbDocumentRepositoryService();
-         }
-         dmsServiceProvider.setRepository((javax.jcr.Repository) contentRepositoryRes);
-         
-         // provide DMS service
-         rtEnv.setDocumentRepositoryService(dmsServiceProvider);
-      }
+        
+      // provide DMS service
+      RepositoryProviderManager.initEjb(invocation.getParameters());
       
       rtEnv.setProperty("ActivityThread.Context", rtEnv.getActivityThreadContext());
 
@@ -144,7 +127,7 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
 
          rtEnv.setActivityThreadContext(null);
          rtEnv.setAuditTrailSession(null);
-         rtEnv.setDocumentRepositoryService(null);
+         RepositoryProviderManager.cleanupEJB();
       }
    }
    

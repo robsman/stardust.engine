@@ -55,6 +55,11 @@ public abstract class DmsResourceBean implements Resource, ResourceInfo, Seriali
    {
       return (String) vfsResource().get(AuditTrailUtils.RES_ID);
    }
+   
+   public void setId(String id)
+   {
+     vfsResource().put(AuditTrailUtils.RES_ID, id);    
+   }
 
    public String getPath()
    {

@@ -10,34 +10,33 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.query;
 
-public class DocumentFilter implements FilterCriterion
+import java.util.Collections;
+import java.util.List;
+
+public class RepositoryPolicy implements EvaluationPolicy
 {
+   private static final long serialVersionUID = -4922399462085360884L;
+   
+   private List<String> repositoryIds;
 
-   private static final long serialVersionUID = 987920689518801181L;
-
-   private String documentId;
-
-   private final String modelId;
-
-   public DocumentFilter(String documentId, String modelId)
+   public static RepositoryPolicy includeAllRepositories()
    {
-      this.documentId = documentId;
-      this.modelId = modelId;
+      return new RepositoryPolicy(Collections.EMPTY_LIST);
    }
-
-   public Object accept(FilterEvaluationVisitor visitor, Object context)
+   
+   public static RepositoryPolicy includeRepositories(List<String> repositoryIds)
    {
-      return visitor.visit(this, context);
+      return new RepositoryPolicy(repositoryIds);
    }
-
-   public String getDocumentId()
+   
+   public RepositoryPolicy(List<String> repositoryIds)
    {
-      return documentId;
+      this.repositoryIds = repositoryIds;
    }
-
-   public String getModelId()
+   
+   public List<String> getRepositoryIds()
    {
-      return modelId;
+      return repositoryIds;
    }
 
 }

@@ -385,33 +385,33 @@ public class VfsOperationApplicationInstance
                result.put(VfsOperationAccessPointProvider.AP_ID_FOLDER, folder);
             }
          }
-         else if (DmsOperation.OP_LOCK_DOCUMENT == operation)
-         {
-            String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT_ID);
-            if (dms instanceof DocumentManagementServiceImpl)
-            {
-               ((DocumentManagementServiceImpl) dms).lockDocument(id);
-            }
-            else
-            {
-               throw new InternalException(
-                     "Lock document not available for implementation: " + dms.getClass());
-            }
-         }
-         else if (DmsOperation.OP_UNLOCK_DOCUMENT == operation)
-         {
-            String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT_ID);
-            if (dms instanceof DocumentManagementServiceImpl)
-            {
-               ((DocumentManagementServiceImpl) dms).unlockDocument(id);
-            }
-            else
-            {
-               throw new InternalException(
-                     "Unlock document not available for implementation: "
-                           + dms.getClass());
-            }
-         }
+//         else if (DmsOperation.OP_LOCK_DOCUMENT == operation)
+//         {
+//            String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT_ID);
+//            if (dms instanceof DocumentManagementServiceImpl)
+//            {
+//               ((DocumentManagementServiceImpl) dms).lockDocument(id);
+//            }
+//            else
+//            {
+//               throw new InternalException(
+//                     "Lock document not available for implementation: " + dms.getClass());
+//            }
+//         }
+//         else if (DmsOperation.OP_UNLOCK_DOCUMENT == operation)
+//         {
+//            String id = (String) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT_ID);
+//            if (dms instanceof DocumentManagementServiceImpl)
+//            {
+//               ((DocumentManagementServiceImpl) dms).unlockDocument(id);
+//            }
+//            else
+//            {
+//               throw new InternalException(
+//                     "Unlock document not available for implementation: "
+//                           + dms.getClass());
+//            }
+//         }
          else if (DmsOperation.OP_LOCK_FOLDER == operation)
          {
             throw new RuntimeException("lockFolder is not implemented yet");

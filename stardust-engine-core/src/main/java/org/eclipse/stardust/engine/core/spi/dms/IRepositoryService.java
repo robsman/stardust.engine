@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2014 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,17 +8,25 @@
  * Contributors:
  *    SunGard CSA LLC - initial API and implementation and/or initial documentation
  *******************************************************************************/
-package org.eclipse.stardust.engine.api.runtime;
+package org.eclipse.stardust.engine.core.spi.dms;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
+import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
+import org.eclipse.stardust.engine.api.runtime.Documents;
+import org.eclipse.stardust.engine.api.runtime.Folder;
+import org.eclipse.stardust.engine.api.runtime.FolderInfo;
+import org.eclipse.stardust.engine.api.runtime.Privilege;
+import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
-import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
-import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
-import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
 
 
 
@@ -34,9 +42,9 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
  * </ul>
  *
  * @author rsauer
- * @version $Revision$
+ * @version $Revision: 56243 $
  */
-public interface DocumentManagementService extends Service
+public interface IRepositoryService extends IRepositoryInstance
 {
 
    ///////////////////////////////////////////////////////////////////////////////////////
@@ -59,7 +67,7 @@ public interface DocumentManagementService extends Service
     * @return list of document versions found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
-   List<Document> getDocumentVersions(String documentId) throws DocumentManagementServiceException;
+   List<? extends Document> getDocumentVersions(String documentId) throws DocumentManagementServiceException;
 
    /**
     * Gets multiple documents by ID or path.
@@ -68,36 +76,7 @@ public interface DocumentManagementService extends Service
     * @return list of documents found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
-   List<Document> getDocuments(List<String> documentIds) throws DocumentManagementServiceException;
-
-   /**
-    * Gets documents based on the name pattern search.
-    *
-    * @param namePattern the name pattern to search for.
-    * @return list of documents found.
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-   @Deprecated
-   List<Document> findDocumentsByName(String namePattern) throws DocumentManagementServiceException;
-
-   /**
-    * Gets documents based on the XPath query.
-    *
-    * @param xpathQuery the XPath query.
-    * @return list of documents found.
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-   @Deprecated
-   List<Document> findDocuments(String xpathQuery) throws DocumentManagementServiceException;
-   
-   /**
-    * Retrieves all documents satisfying the criteria specified in the provided query.
-    *
-    * @param query the document query.
-    *
-    * @return a List of Document objects.
-    */
-   Documents findDocuments(DocumentQuery query);
+   List<? extends Document> getDocuments(List<String> documentIds) throws DocumentManagementServiceException;
 
    /**
     * Retrieves the content of the document identified by <code>documentId</code>.
@@ -117,15 +96,12 @@ public interface DocumentManagementService extends Service
    byte[] retrieveDocumentContent(String documentId) throws DocumentManagementServiceException;
 
    /**
-    * Initiates document content download via {@link DmsContentServlet}. The
-    * returned token should be used as relative URI for the content Servlet and will be
-    * valid as long as the session associated with this service is alive.
-    *
-    * @param documentId The ID or path of the document content should be retrieved for.
-    * @return A download token valid for the lifetime of this service's session.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * 
+    * TODO documentation
+    * 
     */
-   String requestDocumentContentDownload(String documentId) throws DocumentManagementServiceException;
+   public void retrieveDocumentContentStream(String documentId, OutputStream target) throws DocumentManagementServiceException;
+   
 
    ///////////////////////////////////////////////////////////////////////////////////////
    // Folder retrieval.
@@ -165,31 +141,9 @@ public interface DocumentManagementService extends Service
     * @return list of folders found.
     * @throws DocumentManagementServiceException on DMS specific errors
     */
-   List<Folder> getFolders(List<String> folderIds, int levelOfDetail) throws DocumentManagementServiceException;
+   List<? extends Folder> getFolders(List<String> folderIds, int levelOfDetail) throws DocumentManagementServiceException;
 
-   /**
-    * Gets folders based on the name pattern search.
-    *
-    * @param namePattern the name pattern to search for.
-    * @param levelOfDetail one of <code>Folder.LOD_NO_MEMBERS</code>, <code>Folder.LOD_LIST_MEMBERS</code>
-    * or <code>Folder.LOD_LIST_MEMBERS_OF_MEMBERS</code>.
-    * @return list of folders found.
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-   @Deprecated
-   List<Folder> findFoldersByName(String namePattern, int levelOfDetail) throws DocumentManagementServiceException;
-
-   /**
-    * Gets folders based on the name XPath query.
-    *
-    * @param xpathQuery the XPath query.
-    * @param levelOfDetail one of <code>Folder.LOD_NO_MEMBERS</code>, <code>Folder.LOD_LIST_MEMBERS</code>
-    * or <code>Folder.LOD_LIST_MEMBERS_OF_MEMBERS</code>.
-    * @return list of folders found.
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-   @Deprecated
-   List<Folder> findFolders(String xpathQuery, int levelOfDetail) throws DocumentManagementServiceException;
+   
 
    ///////////////////////////////////////////////////////////////////////////////////////
    // Document manipulation.
@@ -237,18 +191,6 @@ public interface DocumentManagementService extends Service
     * Creates a new version of the document.
     *
     * @param documentId ID or path of the document to be versioned
-    * @param versionLabel label for the new revision. The label must be unique per document.
-    * @return document describing the new document version
-    * @throws DocumentManagementServiceException on DMS specific errors
-    * @deprecated since 7.0 use {@link #versionDocument(String, String, String)}
-    */
-   @Deprecated
-   Document versionDocument(String documentId, String versionLabel) throws DocumentManagementServiceException;
-
-   /**
-    * Creates a new version of the document.
-    *
-    * @param documentId ID or path of the document to be versioned
     * @param versionComment comment for the new revision
     * @param versionLabel label for the new revision. The label must be unique per document.
     * @return document describing the new document version
@@ -281,38 +223,6 @@ public interface DocumentManagementService extends Service
    Document moveDocument(final String documentId, final String targetPath) throws DocumentManagementServiceException;
 
    /**
-    * Locks the document for exclusive access.
-    *
-    * @param documentId ID or path of the document to be locked
-    * @return the locked document
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-//   Document lockDocument(String documentId) throws DocumentManagementServiceException;
-
-   /**
-    * Unlocks the document previously locked by <code>lockDocument</code>.
-    *
-    * @param documentId ID or path of the document to be locked
-    * @return the unlocked document
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-   //Document unlockDocument(String documentId) throws DocumentManagementServiceException;
-
-   /**
-    * Updates document (except document content).
-    *
-    * @param document document to update.
-    * @param createNewRevision if true, new revision of the document will be created
-    * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
-    * @param keepLocked if true, the document will be kept locked after update.
-    * @return the updated document
-    * @throws DocumentManagementServiceException on DMS specific errors
-    * @deprecated since 7.0 use {@link #updateDocument(Document, boolean, String, String, boolean)}
-    */
-   @Deprecated
-   Document updateDocument(Document document, boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
-
-   /**
     * Updates document (except document content).
     *
     * @param document document to update.
@@ -325,31 +235,6 @@ public interface DocumentManagementService extends Service
     */
    Document updateDocument(Document document, boolean createNewRevision, String versionComment, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
-
-   /**
-    * Updates document.
-    *
-    * <p>
-    * Warning: this method should only be used for documents of reasonable size as the
-    * full content will be materialized in memory both on the server as well as on the
-    * client. It is recommended to us the facilities provided by
-    * {@link DmsContentServlet} for memory efficient content access.
-
-    * @param document document to update.
-    * @param content new document content.
-    * @param encoding encoding of the new document content.
-    * @param createNewRevision if true, new revision of the document will be created
-    * @param versionLabel if createNewRevision is true, the new revision will be labeled with this label. The label must be unique per document.
-    * @param keepLocked if true, the document will be kept locked after update.
-    * @return the updated document
-    * @throws DocumentManagementServiceException on DMS specific errors
-    *
-    * @see #requestDocumentContentUpload(String)
-    * @deprecated since 7.0 use {@link #updateDocument(Document, byte[], String, boolean, String, String, boolean)}
-    */
-   @Deprecated
-   Document updateDocument(Document document, byte[] content, String encoding,
-         boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
 
    /**
     * Updates document.
@@ -377,15 +262,13 @@ public interface DocumentManagementService extends Service
 
 
    /**
-    * Initiates document content upload via {@link DmsContentServlet}. The
-    * returned token should be used as relative URI for the content Servlet and will be
-    * valid as long as the session associated with this service is alive.
-    *
-    * @param documentId The ID/path of the document content should be retrieved for.
-    * @return An upload token valid for the lifetime of this service's session.
-    * @throws DocumentManagementServiceException on DMS specific errors
+    * TODO documentation
+    * 
+    * @param documentId
+    * @param source
+    * @throws DocumentManagementServiceException
     */
-   String requestDocumentContentUpload(String documentId) throws DocumentManagementServiceException;
+   void uploadDocumentContentStream(String documentId, InputStream source, String contentType, String contentEncoding) throws DocumentManagementServiceException;
 
    /**
     * Removes document.
@@ -538,30 +421,16 @@ public interface DocumentManagementService extends Service
     * @throws ObjectNotFoundException
     *            if the specified schema location cannot be found
     */
-   // TODO deprecate?
    byte[] getSchemaDefinition(String schemaLocation) throws ObjectNotFoundException;
 
-   ///////////////////////////////////////////////////////////////////////////////////////
-   // Repository Management.
-   ///////////////////////////////////////////////////////////////////////////////////////
-   
-   void bindRepository(IRepositoryConfiguration configuration);
-
-   void unbindRepository(String repositoryId);
-
-   List<IRepositoryInstanceInfo> getRepositoryInstanceInfos();
-
-   List<IRepositoryProviderInfo> getRepositoryProviderInfos();
-
-   ///////////////////////////////////////////////////////////////////////////////////////
-   // Repository specific methods.
-   ///////////////////////////////////////////////////////////////////////////////////////   
-   
-   // TODO needed?
-   byte[] getSchemaDefinition(String schemaLocation, String repositoryId)
-         throws ObjectNotFoundException;
-   
-   RepositoryMigrationReport migrateRepository(int batchSize, boolean evaluateTotalCount, String repositoryId)
-         throws DocumentManagementServiceException;
+   /**
+    * Retrieves all documents satisfying the criteria specified in the provided query.
+    *
+    * @param query the document query.
+    *
+    * @return a List of Document objects.
+    */
+   Documents findDocuments(DocumentQuery query);
 
 }
+

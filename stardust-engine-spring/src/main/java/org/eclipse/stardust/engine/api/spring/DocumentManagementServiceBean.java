@@ -35,7 +35,8 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDocumentVersions(java.lang.String documentId)
     */
-   public java.util.List getDocumentVersions(java.lang.String documentId)
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
+         getDocumentVersions(java.lang.String documentId)
          throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
    {
       return
@@ -46,7 +47,8 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDocuments(java.util.List documentIds)
     */
-   public java.util.List getDocuments(java.util.List documentIds)
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
+         getDocuments(java.util.List documentIds)
          throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
    {
       return
@@ -57,7 +59,8 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocumentsByName(java.lang.String namePattern)
     */
-   public java.util.List findDocumentsByName(java.lang.String namePattern)
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
+         findDocumentsByName(java.lang.String namePattern)
          throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
    {
       return
@@ -68,12 +71,24 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocuments(java.lang.String xpathQuery)
     */
-   public java.util.List findDocuments(java.lang.String xpathQuery)
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Document>
+         findDocuments(java.lang.String xpathQuery)
          throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
    {
       return
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             serviceProxy).findDocuments(xpathQuery);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
+    */
+   public org.eclipse.stardust.engine.api.runtime.Documents
+         findDocuments(org.eclipse.stardust.engine.api.query.DocumentQuery query)
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).findDocuments(query);
    }
 
    /**
@@ -126,7 +141,8 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getFolders(java.util.List folderIds, int levelOfDetail)
     */
-   public java.util.List getFolders(java.util.List folderIds, int levelOfDetail)
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
+         getFolders(java.util.List folderIds, int levelOfDetail)
          throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
    {
       return
@@ -137,8 +153,8 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findFoldersByName(java.lang.String namePattern, int levelOfDetail)
     */
-   public java.util.List findFoldersByName(
-         java.lang.String namePattern, int levelOfDetail)
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
+         findFoldersByName(java.lang.String namePattern, int levelOfDetail)
          throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
    {
       return
@@ -149,8 +165,8 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
    /**
     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#findFolders(java.lang.String xpathQuery, int levelOfDetail)
     */
-   public java.util.List findFolders(
-         java.lang.String xpathQuery, int levelOfDetail)
+   public java.util.List<org.eclipse.stardust.engine.api.runtime.Folder>
+         findFolders(java.lang.String xpathQuery, int levelOfDetail)
          throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
    {
       return
@@ -436,6 +452,75 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
       return
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             serviceProxy).getSchemaDefinition(schemaLocation);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#bindRepository(org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration configuration)
+    */
+   public void
+         bindRepository(
+         org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration configuration)
+   {
+      ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).bindRepository(configuration);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#unbindRepository(java.lang.String repositoryId)
+    */
+   public void unbindRepository(java.lang.String repositoryId)
+   {
+      ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).unbindRepository(repositoryId);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getRepositoryInstanceInfos()
+    */
+   public
+         java.util.List<org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo>
+         getRepositoryInstanceInfos()
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).getRepositoryInstanceInfos();
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getRepositoryProviderInfos()
+    */
+   public
+         java.util.List<org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo>
+         getRepositoryProviderInfos()
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).getRepositoryProviderInfos();
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getSchemaDefinition(java.lang.String schemaLocation, java.lang.String repositoryId)
+    */
+   public byte[] getSchemaDefinition(
+         java.lang.String schemaLocation, java.lang.String repositoryId)
+         throws org.eclipse.stardust.common.error.ObjectNotFoundException
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).getSchemaDefinition(schemaLocation, repositoryId);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#migrateRepository(int batchSize, boolean evaluateTotalCount, java.lang.String repositoryId)
+    */
+   public org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport
+         migrateRepository(
+         int batchSize, boolean evaluateTotalCount, java.lang.String repositoryId)
+         throws org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).migrateRepository(batchSize, evaluateTotalCount, repositoryId);
    }
 
 	public DocumentManagementServiceBean()

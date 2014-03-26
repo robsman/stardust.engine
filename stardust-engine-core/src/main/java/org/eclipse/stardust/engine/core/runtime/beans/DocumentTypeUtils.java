@@ -13,48 +13,67 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 import static org.eclipse.stardust.engine.core.struct.StructuredDataConstants.URN_INTERNAL_PREFIX;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.*;
-import org.eclipse.stardust.engine.api.runtime.*;
+import org.eclipse.stardust.engine.api.model.Data;
+import org.eclipse.stardust.engine.api.model.ExternalReference;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IExternalReference;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IReference;
+import org.eclipse.stardust.engine.api.model.ISchemaType;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.IXpdlType;
+import org.eclipse.stardust.engine.api.model.Model;
+import org.eclipse.stardust.engine.api.model.Reference;
+import org.eclipse.stardust.engine.api.model.SchemaType;
+import org.eclipse.stardust.engine.api.model.TypeDeclaration;
+import org.eclipse.stardust.engine.api.model.XpdlType;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.DeployedModel;
+import org.eclipse.stardust.engine.api.runtime.DmsUtils;
+import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils;
+import org.eclipse.stardust.engine.api.runtime.Document;
+import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
+import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory.EmbeddedInvocationManager;
-import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
 import org.eclipse.stardust.engine.extensions.dms.data.VfsMediator;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.VfsUtils;
 import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDSchemaDirective;
 import org.eclipse.xsd.XSDTypeDefinition;
-
-
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-import org.eclipse.stardust.vfs.IFolder;
-import org.eclipse.stardust.vfs.VfsUtils;
 
 public final class DocumentTypeUtils
 {
@@ -248,7 +267,7 @@ public final class DocumentTypeUtils
     * @param documentInfo
     * @return
     */
-   protected static boolean isValidForDeployment(DocumentInfo documentInfo)
+   public static boolean isValidForDeployment(DocumentInfo documentInfo)
    {
       DocumentType documentType = documentInfo.getDocumentType();
       if (documentType == null)
@@ -508,49 +527,65 @@ public final class DocumentTypeUtils
          log("UnversionedPath: " + getUnversionedInfoPath(documentTypeId));
       }
 
-      ForkingDmsFacade dmsFacade = ForkingDmsFacadeFactory.getInstance();
-
-      Document existingDoc = dmsFacade.getDocument(xsdPath + "/" + xsdDocumentName);
-      final String xsdString = XmlUtils.toString(xsdSchema.getDocument()
-            .getDocumentElement());
-      if (existingDoc == null)
+      PropertyLayer layer = null;
+      if (isSecurityEnabled())
       {
-         final DocumentInfo doc = new DmsDocumentBean();
-
-         doc.setName(xsdDocumentName);
-         doc.setContentType("text/xml");
-
-         dmsFacade.ensureFolderHierarchyExists(xsdPath);
-         Document createdDocument = dmsFacade.createDocument(xsdPath, doc,
-               xsdString.getBytes(), null);
-         dmsFacade.versionDocument(createdDocument.getId(), null);
-
+         layer = ParametersFacade.pushLayer(new HashMap<String, Serializable>());
+         RepositoryProviderUtils.setAdminSessionFlag(true, layer);
       }
-      else
-      {
-         byte[] retrievedDocumentContent = dmsFacade.retrieveDocumentContent(existingDoc.getPath());
-         org.w3c.dom.Document w3cSchemaDocument = XmlUtils.parseString(new String(
-               retrievedDocumentContent));
-         XSDSchema existingXsdSchema = XSDFactory.eINSTANCE.createXSDSchema();
-         existingXsdSchema.setElement(w3cSchemaDocument.getDocumentElement());
 
-         // if (typeDeclarationId == null)
-         // {
-         if ( !schemaEquals(xsdSchema, existingXsdSchema))
+      ServiceFactory sf = null;
+      try
+      {
+         sf = EmbeddedServiceFactory.CURRENT_TX();
+         DocumentManagementService dms = sf.getDocumentManagementService();
+
+         Document existingDoc = dms.getDocument(xsdPath + "/" + xsdDocumentName);
+         final String xsdString = XmlUtils.toString(xsdSchema.getDocument()
+               .getDocumentElement());
+         if (existingDoc == null)
          {
-            dmsFacade.updateDocument(existingDoc, xsdString.getBytes(), (String) null,
-                  true, (String) null, false);
+            final DocumentInfo doc = new DmsDocumentBean();
+
+            doc.setName(xsdDocumentName);
+            doc.setContentType("text/xml");
+
+            DmsUtils.ensureFolderHierarchyExists(xsdPath, dms);
+            Document createdDocument = dms.createDocument(xsdPath, doc,
+                  xsdString.getBytes(), null);
+            dms.versionDocument(createdDocument.getId(), null, null);
+
          }
-         // }
-         // else
-         // {
-         // if ( !transitiveSchemaEquals(xsdSchema, existingXsdSchema, typeDeclarationId))
-         // {
-         // dmsFacade.updateDocument(existingDoc, xsdString.getBytes(), (String) null,
-         // true, (String) null, false);
-         // }
-         // }
+         else
+         {
+            byte[] retrievedDocumentContent = dms.retrieveDocumentContent(existingDoc.getPath());
+            org.w3c.dom.Document w3cSchemaDocument = XmlUtils.parseString(new String(
+                  retrievedDocumentContent));
+            XSDSchema existingXsdSchema = XSDFactory.eINSTANCE.createXSDSchema();
+            existingXsdSchema.setElement(w3cSchemaDocument.getDocumentElement());
+
+            if ( !schemaEquals(xsdSchema, existingXsdSchema))
+            {
+               dms.updateDocument(existingDoc, xsdString.getBytes(), (String) null, true,
+                     (String) null, (String) null, false);
+            }
+         }
       }
+      finally
+      {
+         if (layer != null)
+         {
+            ParametersFacade.popLayer();
+         }
+         sf.close();
+      }
+   }
+
+   private static boolean isSecurityEnabled()
+   {
+      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
+      IDocumentRepositoryService documentRepositoryService = rtEnv.getDocumentRepositoryService();
+      return DmsVfsConversionUtils.isSecurityEnabled(documentRepositoryService, VfsUtils.REPOSITORY_ROOT);
    }
 
    private static boolean schemaEquals(XSDSchema xsdSchema, XSDSchema existingXsdSchema)
@@ -914,336 +949,6 @@ public final class DocumentTypeUtils
    {
 
       return "/documentTypes/schemas/" + encodeUrl(schemaLocation);
-   }
-
-   private static class ForkingDmsFacadeFactory
-   {
-      private final static ThreadLocal<ForkingDmsFacade> INSTANCE = new ThreadLocal<ForkingDmsFacade>();
-
-      public static ForkingDmsFacade getInstance()
-      {
-         ForkingDmsFacade forkingDmsFacade = INSTANCE.get();
-         if (forkingDmsFacade == null)
-         {
-            forkingDmsFacade = new ForkingDmsFacade();
-            INSTANCE.set(forkingDmsFacade);
-         }
-
-         return forkingDmsFacade;
-      }
-
-   }
-
-   private static class ForkingDmsFacade
-   {
-      private DocumentManagementService dms;
-
-      private IDocumentRepositoryService adminVfs;
-
-      private boolean securityEnabled = false;
-
-      public ForkingDmsFacade()
-      {
-         EmbeddedServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
-
-         this.dms = sf.getDocumentManagementService();
-
-         if (dms instanceof Proxy)
-         {
-            InvocationHandler invocationHandler = Proxy.getInvocationHandler(dms);
-
-            if (invocationHandler instanceof EmbeddedInvocationManager)
-            {
-               Object dmsServiceImpl = Reflect.getFieldValue(invocationHandler, "service");
-               if (dmsServiceImpl instanceof DocumentManagementServiceImpl)
-               {
-                  try
-                  {
-                     Method getVfsMethod = DocumentManagementServiceImpl.class.getDeclaredMethod("getVfs");
-                     getVfsMethod.setAccessible(true);
-                     IDocumentRepositoryService vfs = (IDocumentRepositoryService) getVfsMethod.invoke(dmsServiceImpl);
-
-                     this.securityEnabled = DmsVfsConversionUtils.isSecurityEnabled(vfs,
-                           VfsUtils.REPOSITORY_ROOT);
-
-                     if (securityEnabled)
-                     {
-                        Method getAdminVfsMethod = DocumentManagementServiceImpl.class.getDeclaredMethod("getAdminVfs");
-                        getAdminVfsMethod.setAccessible(true);
-                        this.adminVfs = (IDocumentRepositoryService) getAdminVfsMethod.invoke(dmsServiceImpl);
-                     }
-                  }
-                  catch (SecurityException e)
-                  {
-                     throw new InternalException(e);
-                  }
-                  catch (NoSuchMethodException e)
-                  {
-                     throw new InternalException(e);
-                  }
-                  catch (IllegalArgumentException e)
-                  {
-                     throw new InternalException(e);
-                  }
-                  catch (IllegalAccessException e)
-                  {
-                     throw new InternalException(e);
-                  }
-                  catch (InvocationTargetException e)
-                  {
-                     throw new InternalException(e);
-                  }
-               }
-            }
-         }
-
-         if (securityEnabled)
-         {
-            log("DmsSecurity is enabled, using internal admin jcr session for dms access.");
-         }
-         else
-         {
-            log("DmsSecurity is disabled, using DocumentManagementService for dms access.");
-         }
-
-      }
-
-      public Folder ensureFolderHierarchyExists(String folderPath)
-      {
-         if (StringUtils.isEmpty(folderPath))
-         {
-            // special handling for root folder
-            return null;
-         }
-         else
-         {
-            Folder folder = getFolder(folderPath, IFolder.LOD_NO_MEMBERS);
-
-            if (null == folder)
-            {
-               // folder does not exist yet, create it
-               String parentPath = folderPath.substring(0, folderPath.lastIndexOf('/'));
-               String childName = folderPath.substring(folderPath.lastIndexOf('/') + 1);
-               Folder parentFolder = ensureFolderHierarchyExists(parentPath);
-               if (null == parentFolder)
-               {
-                  return createFolder(VfsUtils.REPOSITORY_ROOT,
-                        DmsUtils.createFolderInfo(childName));
-               }
-               else
-               {
-                  return createFolder(parentFolder.getId(),
-                        DmsUtils.createFolderInfo(childName));
-               }
-            }
-            else
-            {
-               return folder;
-            }
-         }
-      }
-
-      public Document createDocument(final String parentFolderId,
-            final DocumentInfo documentInfo, final byte[] content, final String encoding)
-      {
-         return runIsolateAction(new Action<Document>()
-         {
-            public Document execute()
-            {
-               if (securityEnabled)
-               {
-                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, getPartitionPrefix());
-                  return DmsVfsConversionUtils.fromVfs(adminVfs.createFile(
-                        decodeResourceId(parentFolderId),
-                        DmsVfsConversionUtils.toVfs(documentInfo), content, encoding),
-                        getPartitionPrefix());
-               }
-               else
-               {
-                  return dms.createDocument(parentFolderId, documentInfo, content,
-                        encoding);
-               }
-            }
-         });
-      }
-
-      public Document getDocument(final String documentId)
-      {
-         return runIsolateAction(new Action<Document>()
-         {
-            public Document execute()
-            {
-               if (securityEnabled)
-               {
-                  return DmsVfsConversionUtils.fromVfs(
-                        adminVfs.getFile(decodeResourceId(documentId)), getPartitionPrefix());
-               }
-               else
-               {
-                  return dms.getDocument(documentId);
-               }
-            }
-         });
-      }
-
-      public void updateDocument(final Document document, final byte[] content,
-            final String encoding, final boolean createNewRevision,
-            final String versionLabel, final boolean keepLocked)
-      {
-         runIsolateAction(new Action<Object>()
-         {
-            public Object execute()
-            {
-               if (securityEnabled)
-               {
-                  adminVfs.updateFile(
-                        DmsVfsConversionUtils.toVfs(document, getPartitionPrefix()), content,
-                        encoding, createNewRevision, null, versionLabel, keepLocked);
-               }
-               else
-               {
-                  dms.updateDocument(document, content, encoding, createNewRevision,
-                        null, versionLabel, keepLocked);
-               }
-               return null;
-            }
-         });
-      }
-
-      public void versionDocument(final String documentId, final String versionLabel)
-      {
-         runIsolateAction(new Action<Object>()
-         {
-            public Object execute()
-            {
-               if (securityEnabled)
-               {
-                  adminVfs.createFileVersion(decodeResourceId(documentId), null, versionLabel,
-                        false);
-               }
-               else
-               {
-                  dms.versionDocument(documentId, null, versionLabel);
-               }
-               return null;
-            }
-         });
-      }
-
-      public byte[] retrieveDocumentContent(final String documentId)
-      {
-         return runIsolateAction(new Action<String>()
-         {
-            public String execute()
-            {
-               if (securityEnabled)
-               {
-                  return new String(
-                        adminVfs.retrieveFileContent(decodeResourceId(documentId)));
-               }
-               else
-               {
-                  return new String(dms.retrieveDocumentContent(documentId));
-               }
-            }
-         }).getBytes();
-      }
-
-      public Folder createFolder(final String parentFolderId, final FolderInfo folderInfo)
-      {
-         return runIsolateAction(new Action<Folder>()
-         {
-            public Folder execute()
-            {
-               if (securityEnabled)
-               {
-                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, getPartitionPrefix());
-                  return DmsVfsConversionUtils.fromVfs(adminVfs.createFolder(
-                        decodeResourceId(parentFolderId),
-                        DmsVfsConversionUtils.toVfs(folderInfo)), getPartitionPrefix());
-               }
-               else
-               {
-                  return dms.createFolder(parentFolderId, folderInfo);
-               }
-            }
-         });
-
-      }
-
-      public Folder getFolder(final String folderPath, final int lodNoMembers)
-      {
-         return runIsolateAction(new Action<Folder>()
-         {
-            public Folder execute()
-            {
-               if (securityEnabled)
-               {
-                  DmsVfsConversionUtils.ensureFolderHierarchyExists(adminVfs, getPartitionPrefix());
-                  return DmsVfsConversionUtils.fromVfs(
-                        adminVfs.getFolder(decodeResourceId(folderPath), lodNoMembers),
-                        getPartitionPrefix());
-               }
-               else
-               {
-                  return dms.getFolder(folderPath, lodNoMembers);
-               }
-            }
-         });
-      }
-
-      private String decodeResourceId(String string)
-      {
-         if (string != null)
-         {
-            // remove tailing "/"
-            if (string.length() > 1 && string.endsWith("/"))
-            {
-               string = string.substring(0, string.length() - 1);
-            }
-
-            final String partitionPrefix = this.getPartitionPrefix();
-            if (string.startsWith("/"))
-            {
-               if ( !string.startsWith(partitionPrefix))
-               {
-                  if (string.length() == 1)
-                  {
-                     return partitionPrefix;
-                  }
-                  return partitionPrefix.concat(string);
-               }
-            }
-         }
-         return string;
-      }
-      
-      private String getPartitionPrefix()
-      {
-         return DocumentManagementServiceImpl.getPartitionPrefix();
-      }
-
-      @SuppressWarnings("unchecked")
-      private <T extends Object> T runIsolateAction(Action<T> action)
-      {
-         ForkingServiceFactory factory = null;
-         ForkingService service = null;
-         try
-         {
-            factory = (ForkingServiceFactory) Parameters.instance().get(
-                  EngineProperties.FORKING_SERVICE_HOME);
-            service = factory.get();
-            return (T) service.isolate(action);
-         }
-         finally
-         {
-            if (null != factory)
-            {
-               factory.release(service);
-            }
-         }
-
-      }
    }
 
 }

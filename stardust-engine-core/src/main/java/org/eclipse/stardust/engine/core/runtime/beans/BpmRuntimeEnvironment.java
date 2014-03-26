@@ -15,11 +15,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.jcr.Credentials;
-import javax.jcr.LoginException;
-import javax.jcr.Repository;
-import javax.jcr.RepositoryException;
-import javax.jcr.SimpleCredentials;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.QueueConnectionFactory;
@@ -44,16 +39,14 @@ import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.runtime.DefaultQueueConnectionProvider;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryInterceptor;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterRuntimeInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.core.spi.jms.IQueueConnectionProvider;
-import org.eclipse.stardust.engine.extensions.dms.data.JcrSecurityUtils;
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-import org.eclipse.stardust.vfs.impl.utils.SessionUtils;
 
 
 
@@ -86,8 +79,6 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private Map<QueueConnection, QueueSession> jmsQueueSessions = Collections.emptyMap();
 
    private Map<QueueSession, QueueSender> jmsQueueSenders = Collections.emptyMap();
-
-   private Map<String, javax.jcr.Session> jcrSessions = Collections.emptyMap();
    
    private Map<ConnectionFactory, Connection> jcaConnections = Collections.emptyMap();
    
@@ -109,7 +100,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    
    private ExtendedAccessPathEvaluatorRegistry evaluatorRegistry;
    
-   private DataClusterRuntimeInfo dataClusterRuntimeInfo; 
+   private DataClusterRuntimeInfo dataClusterRuntimeInfo;
 
    public BpmRuntimeEnvironment(PropertyLayer predecessor)
    {
@@ -344,116 +335,6 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       return sender;
    }
 
-   /**
-    * Supplies the credentials for login into a jcrSession. The ipp userId is used as
-    * jcrUsername by default. The password always is "ipp-jcr-password" and is not used by
-    * the current jcr-security implementation. Both can be modified by using the
-    * properties 'ContentRepository.User' and 'ContentRepository.Password'. <br>
-    * Ipp users with Administrator role get the "administrators" group assigned to join
-    * the jcr-security group for administrators.
-    *
-    * @return the SimpleCredentials for login into a jcrSession.
-    */
-   public Credentials getJcrCredentials()
-   {
-      SimpleCredentials credentials;
-      String jcrUser = getJcrUserProperty();
-      String jcrPassword = getJcrPasswordProperty();
-
-      if (isJcrSecurityEnabled())
-      {
-         credentials = getIppCredentials(jcrPassword);
-      }
-      else
-      {
-         credentials = new SimpleCredentials(jcrUser, jcrPassword.toCharArray());
-      }
-
-      return credentials;
-   }
-
-   public static SimpleCredentials getIppCredentials(String jcrPassword)
-   {
-      IUser user = SecurityProperties.getUser();
-
-      return JcrSecurityUtils.getCredentialsIncludingParticipantHierarchy(user, jcrPassword);
-   }
-
-   private boolean isJcrSecurityEnabled()
-   {
-      return "{JCR_SECURITY}".equals(getJcrUserProperty());
-   }
-
-   private String getJcrUserProperty()
-   {
-      final Parameters params = Parameters.instance();
-      return params.getString("ContentRepository.User", "ipp-jcr-user");
-   }
-
-   private String getJcrPasswordProperty()
-   {
-      final Parameters params = Parameters.instance();
-      return params.getString("ContentRepository.Password", "ipp-jcr-password");
-   }
-
-   public javax.jcr.Session retrieveJcrSession(Repository repository)
-         throws LoginException, RepositoryException
-   {
-      javax.jcr.Session session = null;
-
-      String key;
-      if (isJcrSecurityEnabled())
-      {
-         key = repository.hashCode() + SecurityProperties.getUser().getId();
-      }
-      else
-      {
-         key = "" + repository.hashCode();
-      }
-
-      if ( !jcrSessions.isEmpty())
-      {
-         session = (javax.jcr.Session) jcrSessions.get(key);
-         try
-         {
-            if (session != null && !session.isLive())
-            {
-               session.logout();
-            }
-         }
-         catch (Throwable e)
-         {
-            trace.warn("Could not logout existing jcr session. Cause: " + e.getMessage());
-         }
-         finally
-         {
-            jcrSessions = Collections.EMPTY_MAP;
-            session = null;
-         }
-      }
-
-      if (null == session)
-      {
-
-         session = repository.login(getJcrCredentials());
-
-         if (jcrSessions.isEmpty())
-         {
-            this.jcrSessions = Collections.singletonMap(key, session);
-         }
-         else
-         {
-            if (1 == jcrSessions.size())
-            {
-               this.jcrSessions = CollectionUtils.copyMap(jcrSessions);
-            }
-            jcrSessions.put(key, session);
-         }
-      }
-
-      return session;
-   }
-
    public Connection retrieveJcaConnection(final ConnectionFactory connectionFactory) throws ResourceException
    {
       Connection connection = null;
@@ -491,9 +372,9 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       closeQueueSenders();
       closeQueueSessions();
       closeQueueConnections();
-
-      closeJcrSessions();
       closeJcaConnections();
+      
+      RepositoryProviderManager.closeEjb();
    }
 
    private void closeQueueConnections()
@@ -573,22 +454,6 @@ public class BpmRuntimeEnvironment extends PropertyLayer
          }
 
          this.jmsQueueSenders = Collections.EMPTY_MAP;
-      }
-   }
-
-   private void closeJcrSessions()
-   {
-      if ( !jcrSessions.isEmpty())
-      {
-         for (Iterator i = jcrSessions.values().iterator(); i.hasNext();)
-         {
-            final javax.jcr.Session sender = (javax.jcr.Session) i.next();
-            // This call checks if JTA handles exist and ensures no logout is performed if
-            // no handles exist. (Prevents stuck sessions on Weblogic)
-            SessionUtils.logout(sender);
-         }
-
-         this.jcrSessions = Collections.EMPTY_MAP;
       }
    }
 

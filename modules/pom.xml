@@ -31,6 +31,8 @@
       <module>ant-module</module>
       <module>ejb21-module</module>
       <module>ejb30-module</module>
+      <module>jax-rs-cxf-module</module>
+      <module>jax-ws-cxf-module</module>
       <module>jcr-api-module</module>
       <module>jcr-jackrabbit-module</module>
       <module>jcr-jackrabbit-webapp-module</module>

@@ -22,6 +22,8 @@ public class JcrVfsRepositoryConfiguration
    
    private Map<String, Serializable> attributes;
 
+   public static final String REPOSITORY_CONFIG_LOCATION = "repositoryConfigLocation";
+
    public static final String CONFIG_DISABLE_VERSIONING = "disableVersioning";
    
    public static final String CONFIG_JNDI_NAME = "jndiName";

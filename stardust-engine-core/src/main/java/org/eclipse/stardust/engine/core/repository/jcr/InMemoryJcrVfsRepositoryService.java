@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.repository.jcr;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import javax.jcr.Repository;
 import javax.jcr.RepositoryException;
@@ -27,12 +28,16 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.vfs.impl.utils.RepositoryHelper;
 
 public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
-{   
+{
 
    private static final long serialVersionUID = -2431625190427787667L;
-   private static Logger trace = LogManager.getLogger(InMemoryJcrVfsRepositoryService.class); 
-   
-   public InMemoryJcrVfsRepositoryService(IRepositoryConfiguration configuration, String partitionId)
+
+   private static Logger trace = LogManager.getLogger(InMemoryJcrVfsRepositoryService.class);
+
+   private String repositoryConfigLocation;
+
+   public InMemoryJcrVfsRepositoryService(IRepositoryConfiguration configuration,
+         String partitionId)
    {
       super(configuration, partitionId);
    }
@@ -40,9 +45,13 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
    @Override
    protected void initRepositoryInfo(IRepositoryConfiguration configuration)
    {
+      this.repositoryConfigLocation = (String) configuration.getAttributes().get(
+            JcrVfsRepositoryConfiguration.REPOSITORY_CONFIG_LOCATION);
+
       Repository repository = initVfs();
-      
-      repositoryInfo = new JcrVfsRepositoryInstanceInfo(repositoryId, repository, configuration);
+
+      this.repositoryInfo = new JcrVfsRepositoryInstanceInfo(repositoryId, repository,
+            configuration);
    }
 
    private Repository initVfs()
@@ -50,7 +59,7 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
       Repository repository;
       try
       {
-         repository = connect(repositoryId);
+         repository = connect(repositoryId, repositoryConfigLocation);
       }
       catch (IOException e)
       {
@@ -60,19 +69,20 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
       {
          throw new PublicException("In Memory Repository Init failed!", e);
       }
-      
+
       EjbDocumentRepositoryService repoService = new EjbDocumentRepositoryService();
-      
+
       repoService.setRepository(repository);
       repoService.setRepositoryId(repositoryId);
       repoService.setRepositoryName("InMemory Jackrabbit");
       repoService.setRepositoryDescription("InMemory Jackrabbit");
-      
+
       setVfs(repoService);
       return repository;
    }
-   
-   private Repository connect(String repositoryId) throws IOException, URISyntaxException
+
+   private Repository connect(String repositoryId, String repositoryConfigLocation)
+         throws IOException, URISyntaxException
    {
       jndiName = "jndi-in-mem-jcr-" + repositoryId;
       Repository repository;
@@ -85,21 +95,29 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
       {
          repository = null;
       }
-      
+
       if (repository == null)
       {
-
-         File configFile = new File(Thread.currentThread()
+         URL resource = Thread.currentThread()
                .getContextClassLoader()
-               .getResource("/in-mem-repo.xml")
-               .toURI());
+               .getResource(repositoryConfigLocation);
+         File configFile = null;
+         if (resource != null)
+         {
+            configFile = new File(resource.toURI());
+         }
+         else
+         {
+            throw new PublicException("Repository Configuration not found at: " + repositoryConfigLocation);
+         }
 
          String actualWorkspace = getTmpFolder().getCanonicalPath();
 
          try
          {
             String configFilePath = configFile.getCanonicalPath();
-            trace.info("Bootstraping Embedded Repository at jndiName: " + jndiName + " configFile: " + configFilePath);
+            trace.info("Bootstraping Embedded Repository at jndiName: " + jndiName
+                  + " configFile: " + configFilePath);
             RepositoryHelper.registerRepository(context, jndiName, configFilePath,
                   actualWorkspace, true);
 
@@ -118,7 +136,7 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
 
       return repository;
    }
-   
+
    public void shutdown()
    {
       try
@@ -132,7 +150,8 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
       }
    }
 
-   public static File getTmpFolder() throws IOException{
+   public static File getTmpFolder() throws IOException
+   {
       final File tmpFile = File.createTempFile("jcr-vfs-test-", null);
       tmpFile.delete();
       tmpFile.mkdir();

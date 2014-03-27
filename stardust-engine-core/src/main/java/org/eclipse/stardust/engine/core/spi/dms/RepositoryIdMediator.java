@@ -33,7 +33,7 @@ import org.eclipse.stardust.engine.api.runtime.Privilege;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 import org.eclipse.stardust.engine.api.runtime.User;
 
-public class RepositoryIdMediator implements IRepositoryService
+public class RepositoryIdMediator implements ILegacyRepositoryService
 {
    private RepositoryProviderManager manager;
 

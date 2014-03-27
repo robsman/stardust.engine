@@ -82,9 +82,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
+import org.eclipse.stardust.engine.core.spi.dms.ILegacyRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
-import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.ISO9075;
 import org.eclipse.stardust.engine.extensions.dms.data.AuditTrailUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
@@ -117,7 +117,7 @@ import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
  * @version $Revision: 71122 $
  */
 public abstract class AbstractJcrVfsRepositoryService
-      implements Serializable, IRepositoryService, IVfsHolder
+      implements Serializable, ILegacyRepositoryService, IVfsHolder
 {
    static final long serialVersionUID = 1L;
 

@@ -21,8 +21,8 @@ import org.eclipse.stardust.engine.core.persistence.Operator;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.Text;
-
 import org.eclipse.stardust.vfs.MetaDataLocation;
 import org.eclipse.stardust.vfs.impl.jcr.JcrVfsOperations;
 
@@ -336,8 +336,11 @@ public class DocumentXPathQueryTermFactory
       String ret = null;
       if (jcrString != null)
       {
+         // strip jcr-vfs specific prefixes.
          ret = jcrString.replace(JcrVfsOperations.PREFIX_JCR_UUID, "").replace(
                JcrVfsOperations.PREFIX_JCR_REVISION, "");
+         // strip repositoryId prefix.
+         ret = RepositoryIdUtils.stripRepositoryId(ret);
       }
 
       if (ret == null)

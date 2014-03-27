@@ -38,7 +38,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 import org.eclipse.stardust.vfs.IFile;
 import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
@@ -339,6 +339,9 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                {
                   result.timestamp = Long.parseLong(decodedToken.substring(0, splitIdx));
                   result.resourceId = decodedToken.substring(splitIdx + 1);
+                  // Workaround for backwards compatiblity.
+                  // TODO remove workaround and use the DMS SPI's streaming API.
+                  result.resourceId = RepositoryIdUtils.stripRepositoryId(result.resourceId);
                }
             }
          }

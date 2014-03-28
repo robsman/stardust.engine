@@ -1,7 +1,18 @@
+/**********************************************************************************
+ * Copyright (c) 2014 SunGard CSA LLC and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    SunGard CSA LLC - initial API and implementation and/or initial documentation
+ **********************************************************************************/
 package org.eclipse.stardust.test.dms;
 
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +32,7 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+import org.eclipse.stardust.test.impl.ClassPathFile;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.FixMethodOrder;
@@ -29,6 +41,7 @@ import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
 import org.junit.runners.MethodSorters;
+import org.springframework.core.io.ClassPathResource;
 
 @FixMethodOrder(MethodSorters.JVM)
 public class DmsMultiRepositoryTest
@@ -63,9 +76,21 @@ public class DmsMultiRepositoryTest
       attributes.put(IRepositoryConfiguration.PROVIDER_ID, TEST_PROVIDER_ID);
       attributes.put(IRepositoryConfiguration.REPOSITORY_ID, TEST_REPO_ID);
       attributes.put(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO, "true");
-      attributes.put(JcrVfsRepositoryConfiguration.REPOSITORY_CONFIG_LOCATION, "test-repo-no-sec.xml");
+      attributes.put(JcrVfsRepositoryConfiguration.REPOSITORY_CONFIG_LOCATION, getClasspathPath("test-repo-no-sec.xml"));
       attributes.put(JcrVfsRepositoryConfiguration.CONFIG_DISABLE_VERSIONING, "true");
       return new JcrVfsRepositoryConfiguration(attributes);
+   }
+
+   private String getClasspathPath(String classpathResource)
+   {
+      try
+      {
+         return new ClassPathFile(new ClassPathResource(classpathResource)).file().toURI().toString();
+      }
+      catch (IOException e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 
    @Test

@@ -12,6 +12,7 @@ package org.eclipse.stardust.engine.core.repository.jcr;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
@@ -104,11 +105,18 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
          File configFile = null;
          if (resource != null)
          {
-            configFile = new File(resource.toURI());
+            try
+            {
+               configFile = new File(resource.toURI());
+            }
+            catch (Exception e)
+            {
+               configFile = null;
+            }
          }
-         else
+         if (configFile == null)
          {
-            throw new PublicException("Repository Configuration not found at: " + repositoryConfigLocation);
+            configFile = new File(new URI(repositoryConfigLocation));
          }
 
          String actualWorkspace = getTmpFolder().getCanonicalPath();

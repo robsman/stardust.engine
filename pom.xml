@@ -23,7 +23,7 @@
     <module>stardust-engine-spring</module>
     <module>stardust-engine-test</module>
     <module>stardust-engine-ws-cxf</module>
-    <module>stardust-engine-camel/pom-stardust.xml</module> 
+    <module>stardust-engine-camel</module> 
     
   </modules>
 

@@ -59,6 +59,11 @@ public class DmsDocumentBean extends DmsResourceBean
             ? ((Long) vfsResource().get(AuditTrailUtils.FILE_SIZE)).longValue()
             : 0l;
    }
+   
+   public void setSize(long size)
+   {
+      vfsResource().put(AuditTrailUtils.FILE_SIZE, size);
+   }
 
    public String getContentType()
    {
@@ -74,15 +79,30 @@ public class DmsDocumentBean extends DmsResourceBean
    {
       return (String) vfsResource().get(AuditTrailUtils.FILE_REVISION_ID);
    }
+   
+   public void setRevisionId(String revisionId)
+   {
+      vfsResource().put(AuditTrailUtils.FILE_REVISION_ID, revisionId);
+   }   
 
    public String getRevisionName()
    {
       return (String) vfsResource().get(AuditTrailUtils.FILE_REVISION_NAME);
    }
 
+   public void setRevisionName(String revisionName)
+   {
+      vfsResource().put(AuditTrailUtils.FILE_REVISION_NAME, revisionName);
+   }
+   
    public String getRevisionComment()
    {
       return (String) vfsResource().get(AuditTrailUtils.FILE_REVISION_COMMENT);
+   }
+   
+   public void setRevisionComment(String revisionComment)
+   {
+      vfsResource().put(AuditTrailUtils.FILE_REVISION_COMMENT, revisionComment);
    }
 
    public List getVersionLabels()
@@ -90,9 +110,12 @@ public class DmsDocumentBean extends DmsResourceBean
       return (List) vfsResource().get(AuditTrailUtils.FILE_VERSION_LABELS);
    }
 
-   /*
-    * TODO not yet implemented
-    */
+   public void setVersionLabels(List<String> versionLabels)
+   {
+      vfsResource().put(AuditTrailUtils.FILE_VERSION_LABELS, versionLabels);
+   }   
+   
+   @Deprecated
    public String getLockOwner()
    {
       return (String) vfsResource().get(AuditTrailUtils.FILE_LOCK_OWNER);
@@ -101,6 +124,11 @@ public class DmsDocumentBean extends DmsResourceBean
    public String getEncoding()
    {
       return (String) vfsResource().get(AuditTrailUtils.FILE_ENCODING);
+   }
+   
+   public void setEncoding(String encoding)
+   {
+      vfsResource().put(AuditTrailUtils.FILE_ENCODING, encoding);
    }
 
    public DocumentAnnotations getDocumentAnnotations()

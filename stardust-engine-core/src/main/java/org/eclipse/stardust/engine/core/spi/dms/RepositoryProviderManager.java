@@ -18,22 +18,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.api.dto.UserDetails;
-import org.eclipse.stardust.engine.api.runtime.User;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.EjbDocumentRepositoryService;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider.Factory;
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 public class RepositoryProviderManager
 {
-//   private static Logger trace = LogManager.getLogger(DocumentManagementProviderManager.class);
    
    private static String INSTANCE_CACHE_KEY = IRepositoryInstance.class.getName()
          + ".cache";

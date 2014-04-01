@@ -19,7 +19,6 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;

@@ -11,12 +11,14 @@
 package org.eclipse.stardust.engine.extensions.dms.data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.FolderInfo;
 
@@ -31,6 +33,8 @@ public class DmsFolderBean extends DmsResourceBean implements Folder, Serializab
 
    private static final long serialVersionUID = 1L;
    
+   private int levelOfDetail = Folder.LOD_LIST_MEMBERS;
+   
    public DmsFolderBean(Map legoFolder)
    {
       super(legoFolder);
@@ -43,8 +47,12 @@ public class DmsFolderBean extends DmsResourceBean implements Folder, Serializab
 
    public int getLevelOfDetail()
    {
-      // TODO support other than default levels
-      return Folder.LOD_LIST_MEMBERS;
+      return levelOfDetail;
+   }
+
+   public void setLevelOfDetail(int levelOfDetail)
+   {
+      this.levelOfDetail = levelOfDetail;
    }
 
    public int getDocumentCount()
@@ -53,12 +61,22 @@ public class DmsFolderBean extends DmsResourceBean implements Folder, Serializab
             ? ((Integer) vfsResource().get(AuditTrailUtils.FOLDER_DOCUMENT_COUNT)).intValue()
             : 0;
    }
+   
+   public void setDocumentCount(int documentCount)
+   {
+      vfsResource().put(AuditTrailUtils.FOLDER_DOCUMENT_COUNT, documentCount); 
+   }
 
    public int getFolderCount()
    {
       return (null != vfsResource().get(AuditTrailUtils.FOLDER_FOLDER_COUNT))
             ? ((Integer) vfsResource().get(AuditTrailUtils.FOLDER_FOLDER_COUNT)).intValue()
             : 0;
+   }
+
+   public void setFolderCount(int folderCount)
+   {
+      vfsResource().put(AuditTrailUtils.FOLDER_FOLDER_COUNT, folderCount);
    }
 
    public List/*<Folder>*/ getFolders()
@@ -76,6 +94,24 @@ public class DmsFolderBean extends DmsResourceBean implements Folder, Serializab
       return Collections.unmodifiableList(folders);
    }
 
+   public void setFolders(List<Folder> folders)
+   {
+      List /* <Map> */auditTrailSubFolders = null;
+      if (folders != null)
+      {
+         auditTrailSubFolders = new ArrayList();
+         for (Folder folder : folders)
+         {
+            if (folder instanceof DmsFolderBean)
+            {
+               auditTrailSubFolders.add(((DmsFolderBean) folder).vfsResource());
+            }
+         }
+         vfsResource().put(AuditTrailUtils.FOLDER_FOLDER_COUNT, auditTrailSubFolders.size());
+      }
+      vfsResource().put(AuditTrailUtils.FOLDER_SUB_FOLDERS, auditTrailSubFolders);
+   }
+
    public List/*<Document>*/ getDocuments()
    {
       List /* <Map> */ auditTrailDocuments = (List)vfsResource().get(AuditTrailUtils.FOLDER_DOCUMENTS);
@@ -90,6 +126,24 @@ public class DmsFolderBean extends DmsResourceBean implements Folder, Serializab
       }
 
       return Collections.unmodifiableList(documents);
+   }
+
+   public void setDocuments(List<Document> documents)
+   {
+      List /* <Map> */auditTrailDocuments = null;
+      if (documents != null)
+      {
+         auditTrailDocuments = new ArrayList();
+         for (Document document : documents)
+         {
+            if (document instanceof DmsDocumentBean)
+            {
+               auditTrailDocuments.add(((DmsDocumentBean) document).vfsResource());
+            }
+         }
+         vfsResource().put(AuditTrailUtils.FOLDER_DOCUMENT_COUNT, auditTrailDocuments.size());
+      }
+      vfsResource().put(AuditTrailUtils.FOLDER_DOCUMENTS, auditTrailDocuments);
    }
 
 }

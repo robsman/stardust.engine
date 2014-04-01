@@ -65,6 +65,11 @@ public abstract class DmsResourceBean implements Resource, ResourceInfo, Seriali
    {
       return (String) vfsResource().get(AuditTrailUtils.RES_PATH);
    }
+   
+   public void setPath(String path)
+   {
+      vfsResource().put(AuditTrailUtils.RES_PATH, path);   
+   }
 
    public String getName()
    {
@@ -100,11 +105,22 @@ public abstract class DmsResourceBean implements Resource, ResourceInfo, Seriali
    {
       return (Date)vfsResource().get(AuditTrailUtils.RES_DATE_CREATED);
    }
+   
+   public void setDateCreated(Date date)
+   {
+      vfsResource().put(AuditTrailUtils.RES_DATE_CREATED, date);
+   }
 
    public Date getDateLastModified()
    {
       return (Date)vfsResource().get(AuditTrailUtils.RES_DATE_LAST_MODIFIED);
    }
+   
+   public void setDateLastModified(Date date)
+   {
+      vfsResource().put(AuditTrailUtils.RES_DATE_LAST_MODIFIED, date);
+   }
+
 
    public Map getProperties()
    {

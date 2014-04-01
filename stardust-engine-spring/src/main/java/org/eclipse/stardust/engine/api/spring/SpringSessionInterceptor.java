@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.jcr.Repository;
 import javax.sql.DataSource;
 
 import org.eclipse.stardust.common.config.ParametersFacade;
@@ -35,6 +36,10 @@ import org.eclipse.stardust.engine.core.runtime.beans.RuntimeActivityThreadConte
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.AuditTrailPropertiesInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
+import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.stardust.vfs.jcr.ISessionFactory;
+import org.eclipse.stardust.vfs.jcr.JcrDocumentRepositoryServiceBean;
+import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -106,6 +111,8 @@ public class SpringSessionInterceptor extends AuditTrailPropertiesInterceptor
          if (null != serviceBean.getDmsProvider())
          {
             rtEnv.setDocumentRepositoryService(serviceBean.getDmsProvider());
+            // TODO cleaner solution for "jcr/ContentRepository"
+            initializeDefaultRepositoryContext(props, serviceBean.getDmsProvider());
          }
          
          if (null != serviceBean.getJmsResourceProvider())
@@ -203,6 +210,24 @@ public class SpringSessionInterceptor extends AuditTrailPropertiesInterceptor
          
          rtEnv.setActivityThreadContext(null);
          rtEnv.setAuditTrailSession(null);
+      }
+   }
+
+   private void initializeDefaultRepositoryContext(PropertyLayer props,
+         IDocumentRepositoryService dmsProvider)
+   {
+      if (dmsProvider instanceof JcrDocumentRepositoryServiceBean)
+      {
+         ISessionFactory sessionFactory = ((JcrDocumentRepositoryServiceBean) dmsProvider).getSessionFactory();
+         if (sessionFactory instanceof JcrSpringSessionFactory)
+         {
+            Repository repo = ((JcrSpringSessionFactory) sessionFactory).getRepository();
+            props.setProperty("jcr/ContentRepository", repo);
+            if (sessionFactory instanceof IppJcrSessionFactory)
+            {
+               props.setProperty("ContentRepository.User", "{JCR_SECURITY}");
+            }
+         }
       }
    }
 

@@ -51,6 +51,7 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
       this.streamingIOSupported = true;
       this.transactionSupported = true;
       this.versioningSupported = true;
+      this.writeSupported = true;
    }
 
    public JcrVfsRepositoryInstanceInfo(String repositoryId, Repository repository, IRepositoryConfiguration configuration)
@@ -67,7 +68,8 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
       this.streamingIOSupported = true;
       this.transactionSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_TRANSACTIONS_SUPPORTED));
       this.versioningSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_VERSIONING_SUPPORTED))
-            && !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.CONFIG_DISABLE_VERSIONING);
+            && !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.DISABLE_CAPABILITY_VERSIONING);
+      this.writeSupported = !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.DISABLE_CAPABILITY_WRITE);
    }
 
    @Override

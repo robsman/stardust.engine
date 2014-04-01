@@ -29,9 +29,9 @@ public interface IRepositoryProvider
    
    public List<IRepositoryConfiguration> getDefaultConfigurations();
    
-   public IRepositoryService createService(IRepositoryConfiguration configuration, String partitionId);
+   public IRepositoryInstance createInstance(IRepositoryConfiguration configuration, String partitionId);
 
-   public void destroyService(IRepositoryService service);
+   public void destroyInstance(IRepositoryInstance instance);
    
    public IRepositoryProviderInfo getProviderInfo();
 

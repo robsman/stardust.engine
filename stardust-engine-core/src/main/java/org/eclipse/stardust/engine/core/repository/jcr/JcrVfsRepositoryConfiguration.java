@@ -22,15 +22,23 @@ public class JcrVfsRepositoryConfiguration
    
    private Map<String, Serializable> attributes;
 
-   public static final String REPOSITORY_CONFIG_LOCATION = "repositoryConfigLocation";
+   // Public use
+   public static final String JNDI_NAME = "jndiName";
+   
+   public static final String USER_LEVEL_AUTHORIZATION = "userLevelAuthorization";
 
-   public static final String CONFIG_DISABLE_VERSIONING = "disableVersioning";
+   // Internal use
+   public static final String IS_DEFAULT_REPOSITORY = "isDefaultRepository";
    
-   public static final String CONFIG_JNDI_NAME = "jndiName";
-   
+   // Test use
    public static final String IS_IN_MEMORY_TEST_REPO = "inMemoryTestRepo";
    
-   public static final String IS_DEFAULT_REPOSITORY = "isDefaultRepository";
+   public static final String REPOSITORY_CONFIG_LOCATION = "repositoryConfigLocation";
+
+   public static final String DISABLE_CAPABILITY_VERSIONING = "disableVersioning";
+   
+   public static final String DISABLE_CAPABILITY_WRITE = "disableWrite";
+
 
    public JcrVfsRepositoryConfiguration(Map<String, Serializable> attributes)
    {
@@ -42,6 +50,29 @@ public class JcrVfsRepositoryConfiguration
    public Map<String, Serializable> getAttributes()
    {
       return attributes;
+   }
+   
+   public static boolean getBoolean(IRepositoryConfiguration configuration, String key,
+         boolean defaultValue)
+   {
+      boolean ret = defaultValue;
+      if (configuration != null)
+      {
+         Serializable serializable = configuration.getAttributes().get(key);
+         if (serializable == null)
+         {
+            // use default value
+         }
+         else if (serializable instanceof Boolean)
+         {
+            ret = (Boolean) serializable;
+         }
+         else if (serializable instanceof String)
+         {
+            ret = Boolean.valueOf((String) serializable);
+         }
+      }
+      return ret;
    }
 
 }

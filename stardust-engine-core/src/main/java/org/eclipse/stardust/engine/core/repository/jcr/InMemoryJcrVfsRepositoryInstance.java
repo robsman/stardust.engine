@@ -24,20 +24,19 @@ import javax.naming.NamingException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.runtime.beans.EjbDocumentRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.vfs.impl.utils.RepositoryHelper;
 
-public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
+public class InMemoryJcrVfsRepositoryInstance extends JcrVfsRepositoryInstance
 {
 
    private static final long serialVersionUID = -2431625190427787667L;
 
-   private static Logger trace = LogManager.getLogger(InMemoryJcrVfsRepositoryService.class);
+   private static Logger trace = LogManager.getLogger(InMemoryJcrVfsRepositoryInstance.class);
 
    private String repositoryConfigLocation;
 
-   public InMemoryJcrVfsRepositoryService(IRepositoryConfiguration configuration,
+   public InMemoryJcrVfsRepositoryInstance(IRepositoryConfiguration configuration,
          String partitionId)
    {
       super(configuration, partitionId);
@@ -49,13 +48,15 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
       this.repositoryConfigLocation = (String) configuration.getAttributes().get(
             JcrVfsRepositoryConfiguration.REPOSITORY_CONFIG_LOCATION);
 
-      Repository repository = initVfs();
+      Repository repository = initEmbeddedJNDIRepo();
+      
+      this.repository = repository;
 
       this.repositoryInfo = new JcrVfsRepositoryInstanceInfo(repositoryId, repository,
             configuration);
    }
 
-   private Repository initVfs()
+   private Repository initEmbeddedJNDIRepo()
    {
       Repository repository;
       try
@@ -71,14 +72,6 @@ public class InMemoryJcrVfsRepositoryService extends JcrVfsRepositoryService
          throw new PublicException("In Memory Repository Init failed!", e);
       }
 
-      EjbDocumentRepositoryService repoService = new EjbDocumentRepositoryService();
-
-      repoService.setRepository(repository);
-      repoService.setRepositoryId(repositoryId);
-      repoService.setRepositoryName("InMemory Jackrabbit");
-      repoService.setRepositoryDescription("InMemory Jackrabbit");
-
-      setVfs(repoService);
       return repository;
    }
 

@@ -77,9 +77,6 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
       rtEnv.setActivityThreadContext(new RuntimeActivityThreadContext());
       rtEnv.setAuditTrailSession(session);
         
-      // provide DMS service
-      RepositoryProviderManager.initEjb(invocation.getParameters());
-      
       rtEnv.setProperty("ActivityThread.Context", rtEnv.getActivityThreadContext());
 
       final String keySessionProperty = SessionProperties.DS_NAME_AUDIT_TRAIL.equals(sessionName)
@@ -127,7 +124,6 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
 
          rtEnv.setActivityThreadContext(null);
          rtEnv.setAuditTrailSession(null);
-         RepositoryProviderManager.cleanupEJB();
       }
    }
    

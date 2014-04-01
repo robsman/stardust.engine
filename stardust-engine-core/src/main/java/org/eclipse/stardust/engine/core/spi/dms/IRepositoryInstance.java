@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.dms;
 
-import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.runtime.User;
 
 
@@ -25,10 +24,8 @@ public interface IRepositoryInstance
 
    public IRepositoryInstanceInfo getRepositoryInstanceInfo();
 
-   public void initialize(Parameters parameters, User user);
+   public IRepositoryService getService(User user);
 
-   public void cleanup(User user);
-
-   public void close(User user);
+   public void close(IRepositoryService repositoryService);
 
 }

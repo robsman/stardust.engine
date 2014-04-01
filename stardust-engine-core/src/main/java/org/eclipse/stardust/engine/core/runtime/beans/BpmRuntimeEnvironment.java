@@ -42,7 +42,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.MultipleTryIn
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterRuntimeInfo;
 import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.core.spi.jms.IQueueConnectionProvider;
@@ -79,6 +80,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private Map<QueueConnection, QueueSession> jmsQueueSessions = Collections.emptyMap();
 
    private Map<QueueSession, QueueSender> jmsQueueSenders = Collections.emptyMap();
+
+   private Map<IRepositoryInstance, IRepositoryService> jcrServices = Collections.emptyMap();
    
    private Map<ConnectionFactory, Connection> jcaConnections = Collections.emptyMap();
    
@@ -372,9 +375,9 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       closeQueueSenders();
       closeQueueSessions();
       closeQueueConnections();
+
+      closeJcrServices();
       closeJcaConnections();
-      
-      RepositoryProviderManager.closeEjb();
    }
 
    private void closeQueueConnections()
@@ -455,6 +458,40 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
          this.jmsQueueSenders = Collections.EMPTY_MAP;
       }
+   }
+   
+   public void registerJcrService(IRepositoryInstance instance, IRepositoryService service)
+   {
+      if (jcrServices.isEmpty())
+      {
+         this.jcrServices = Collections.singletonMap(instance, service);
+      }
+      else
+      {
+         if (1 == jcrServices.size())
+         {
+            this.jcrServices = CollectionUtils.copyMap(jcrServices);
+         }
+         jcrServices.put(instance, service);
+      }
+   }
+   
+   public IRepositoryService getJcrService(IRepositoryInstance instance)
+   {
+      return jcrServices.get(instance);
+   }
+
+   private void closeJcrServices()
+   {
+      if ( !jcrServices.isEmpty())
+      {
+         for (Entry<IRepositoryInstance, IRepositoryService> entry : jcrServices.entrySet())
+         {
+            entry.getKey().close(entry.getValue());
+         }
+      }
+
+      this.jcrServices = Collections.EMPTY_MAP;
    }
 
    private void closeJcaConnections()

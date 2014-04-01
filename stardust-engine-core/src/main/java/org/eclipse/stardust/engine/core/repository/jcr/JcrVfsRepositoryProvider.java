@@ -16,9 +16,9 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider;
-import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
 
 public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositoryProvider.Factory
@@ -48,30 +48,31 @@ public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositor
       defaultInstance.put(IRepositoryConfiguration.PROVIDER_ID, PROVIDER_ID);
       defaultInstance.put(IRepositoryConfiguration.REPOSITORY_ID, DEFAULT_REPOSITORY_ID);
       defaultInstance.put(JcrVfsRepositoryConfiguration.IS_DEFAULT_REPOSITORY, "true");
+      defaultInstance.put(JcrVfsRepositoryConfiguration.JNDI_NAME, "jcr/ContentRepository");
       configurations.add(new JcrVfsRepositoryConfiguration(defaultInstance));
 
       return configurations;
    }
    
    @Override
-   public IRepositoryService createService(IRepositoryConfiguration configuration, String partitionId)
+   public IRepositoryInstance createInstance(IRepositoryConfiguration configuration, String partitionId)
    {
       if (configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO))
       {
-         return new InMemoryJcrVfsRepositoryService(configuration, partitionId);
+         return new InMemoryJcrVfsRepositoryInstance(configuration, partitionId);
       }
-      else if (configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.IS_DEFAULT_REPOSITORY))
+      else if (configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.JNDI_NAME))
       {
-         return new JcrVfsRepositoryService(configuration, partitionId);
+         return new JcrVfsRepositoryInstance(configuration, partitionId);
       }
       else
       {
-         throw new UnsupportedOperationException("This repository configuration is not supported yet.");
+         throw new UnsupportedOperationException("This repository configuration is not supported yet.");         
       }
    }
    
    @Override
-   public void destroyService(IRepositoryService instance)
+   public void destroyInstance(IRepositoryInstance instance)
    {
       if (DEFAULT_REPOSITORY_ID.equals(instance.getRepositoryId()))
       {
@@ -80,9 +81,9 @@ public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositor
       
       instance.close(null);
       
-      if (instance instanceof InMemoryJcrVfsRepositoryService)
+      if (instance instanceof InMemoryJcrVfsRepositoryInstance)
       {
-         ((InMemoryJcrVfsRepositoryService) instance).shutdown();
+         ((InMemoryJcrVfsRepositoryInstance) instance).shutdown();
       }
    }
    

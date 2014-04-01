@@ -44,7 +44,7 @@ import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
  * @author rsauer
  * @version $Revision: 56243 $
  */
-public interface IRepositoryService extends IRepositoryInstance
+public interface IRepositoryService
 {
 
    ///////////////////////////////////////////////////////////////////////////////////////

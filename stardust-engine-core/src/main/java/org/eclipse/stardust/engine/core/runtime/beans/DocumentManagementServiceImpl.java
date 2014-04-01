@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
 import org.eclipse.stardust.engine.api.runtime.Document;
@@ -26,6 +27,8 @@ import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.FolderInfo;
 import org.eclipse.stardust.engine.api.runtime.Privilege;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.dms.ILegacyRepositoryService;
@@ -407,14 +410,20 @@ public class DocumentManagementServiceImpl
    public RepositoryMigrationReport migrateRepository(int batchSize,
          boolean evaluateTotalCount, String repositoryId) throws DocumentManagementServiceException
    {
-      return getProvider().getInstance(repositoryId).migrateRepository(batchSize, evaluateTotalCount);
+      return getProvider().getInstance(repositoryId).getService(getUser()).migrateRepository(batchSize, evaluateTotalCount);
    }
    
    @Override
    public byte[] getSchemaDefinition(String schemaLocation, String repositoryId)
          throws ObjectNotFoundException
    {
-      return getProvider().getInstance(repositoryId).getSchemaDefinition(schemaLocation);
+      return getProvider().getInstance(repositoryId).getService(getUser()).getSchemaDefinition(schemaLocation);
+   }
+   
+   private User getUser()
+   {
+      return (User) DetailsFactory.create(SecurityProperties.getUser(),
+            IUser.class, UserDetails.class);
    }
 
    // /////////////////////////////////////////////////////////////////////////////////////

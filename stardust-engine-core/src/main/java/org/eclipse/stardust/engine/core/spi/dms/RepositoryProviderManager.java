@@ -42,7 +42,7 @@ public class RepositoryProviderManager
    
    private Map<String, IRepositoryProvider> providers = CollectionUtils.newHashMap();
    
-   private ConcurrentHashMap<String, IRepositoryService> instances;
+   private ConcurrentHashMap<String, IRepositoryInstance> instances;
    
    private String defaultRepositoryId = "default";
 
@@ -93,7 +93,7 @@ public class RepositoryProviderManager
             }
          }
       }
-      this.instances = (ConcurrentHashMap<String, IRepositoryService>) instanceCache;
+      this.instances = (ConcurrentHashMap<String, IRepositoryInstance>) instanceCache;
    }
    
    private void registerDefaultInstances()
@@ -143,7 +143,7 @@ public class RepositoryProviderManager
       {
          if ( !instances.containsKey(repositoryId))
          {
-            IRepositoryService instance = provider.createService(configuration, SecurityProperties.getPartition().getId());
+            IRepositoryInstance instance = provider.createInstance(configuration, SecurityProperties.getPartition().getId());
             instances.put(repositoryId, instance);
          }
          else
@@ -161,14 +161,14 @@ public class RepositoryProviderManager
          throw new PublicException("Unbinding the default repository is not allowed!");
       }
       
-      IRepositoryService instance = instances.get(repositoryId);
+      IRepositoryInstance instance = instances.get(repositoryId);
       if (instance == null)
       {
          throw new PublicException("This repositoryId '" + repositoryId
                + "' is not bound: ");
       }
       IRepositoryProvider provider = providers.get(instance.getProviderId());
-      provider.destroyService(instance);
+      provider.destroyInstance(instance);
       instances.remove(repositoryId);
    }
 
@@ -177,11 +177,11 @@ public class RepositoryProviderManager
       return new RepositoryIdMediator(this);
    }
 
-   public IRepositoryService getInstance(String repositoryId)
+   public IRepositoryInstance getInstance(String repositoryId)
    {
       String repoId = repositoryId == null ? defaultRepositoryId : repositoryId;
 
-      IRepositoryService instance = instances.get(repoId);
+      IRepositoryInstance instance = instances.get(repoId);
       if (instance != null)
       {
          return instance;
@@ -211,102 +211,6 @@ public class RepositoryProviderManager
          repositoryInfos.add(provider.getProviderInfo());
       }
       return repositoryInfos;
-   }
-
-   public void init(Parameters parameters)
-   {
-      User user = (User) DetailsFactory.create(SecurityProperties.getUser(),
-            IUser.class, UserDetails.class);
-      
-      for (IRepositoryInstance instance : instances.values())
-      {
-         instance.initialize(parameters, user);
-      }
-   }
-
-   public void cleanup()
-   {
-      User user = (User) DetailsFactory.create(SecurityProperties.getUser(),
-            IUser.class, UserDetails.class);
-      
-      for (IRepositoryInstance instance : instances.values())
-      {
-         instance.cleanup(user);
-      }
-   }
-   
-   public void close()
-   { 
-      User user = (User) DetailsFactory.create(SecurityProperties.getUser(),
-            IUser.class, UserDetails.class);
-      
-      for (IRepositoryInstance instance : instances.values())
-      {
-         instance.close(user);
-      }
-   }
-
-   public static void initEjb(Parameters parameters)
-   {
-      // repository will be retrieved from bean local JNDI location
-      // java:comp/env/jcr/ContentRepository
-      Object contentRepositoryRes = parameters.get("jcr/ContentRepository");
-      if (null != contentRepositoryRes)
-      {
-         // if (trace.isDebugEnabled())
-         // {
-         // trace.debug("Retrieved JCR repository from JNDI: " + contentRepositoryRes);
-         // }
-         BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         if (null == rtEnv.getDocumentRepositoryService())
-         {
-            EjbDocumentRepositoryService dmsServiceProvider = new EjbDocumentRepositoryService();
-            dmsServiceProvider.setRepository((javax.jcr.Repository) contentRepositoryRes);
-   
-            // provide default DMS service
-            rtEnv.setDocumentRepositoryService(dmsServiceProvider);
-         }
-      }
-      
-      
-      getInstance().init(parameters);
-   }
-
-   public static void cleanupEJB()
-   {
-      // cleanup default instance
-      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      rtEnv.setDocumentRepositoryService(null);
-      
-      synchronized (RepositoryProviderManager.class)
-      {
-         if (INSTANCE != null)
-         {
-            INSTANCE.cleanup();
-         }
-      }
-   }
-
-   public static void closeEjb()
-   {
-      // close connections for default instance
-      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      if (rtEnv != null)
-      {
-         IDocumentRepositoryService documentRepositoryService = rtEnv.getDocumentRepositoryService();
-         if (documentRepositoryService instanceof EjbDocumentRepositoryService)
-         {
-            ((EjbDocumentRepositoryService) documentRepositoryService).closeJcrSessions();
-         }
-      }
-      // user already destroyed
-//      synchronized (RepositoryProviderManager.class)
-//      {
-//         if (INSTANCE != null)
-//         {
-//            INSTANCE.close();
-//         }
-//      }
    }
 
 }

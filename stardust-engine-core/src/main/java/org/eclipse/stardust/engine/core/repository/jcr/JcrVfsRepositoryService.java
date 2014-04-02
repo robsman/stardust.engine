@@ -68,7 +68,6 @@ import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.FolderInfo;
 import org.eclipse.stardust.engine.api.runtime.Privilege;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
-import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
 import org.eclipse.stardust.engine.core.extensions.ExtensionService;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
@@ -344,44 +343,6 @@ public class JcrVfsRepositoryService
                vfs.retrieveFileContent(doc, target);
             }
             return null;
-         }
-      });
-   }
-
-   @Deprecated
-   public String requestDocumentContentDownload(final String docId)
-         throws DocumentManagementServiceException
-   {
-      return (String) adaptVfsCall(new IVfsOperationCallback()
-      {
-         public Object withVfs(IDocumentRepositoryService vfs)
-               throws RepositoryOperationFailedException
-         {
-            String docIdWithPrefix = decodeResourceName(docId);
-
-            IFile file = vfs.getFile(docIdWithPrefix);
-
-            if (null != file)
-            {
-               if (hasValidPartitionPrefix(file.getPath(), getPartitionPrefix(),
-                     AccessMode.Read))
-               {
-                  // TODO encode sessionId/fileId
-                  return DmsContentServlet.encodeDmsServletToken(docIdWithPrefix,
-                        DmsContentServlet.OP_DOWNLOAD, SecurityProperties.getUserOID(),
-                        System.currentTimeMillis());
-               }
-               else
-               {
-                  throw new ObjectNotFoundException(
-                        BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(docId));
-               }
-            }
-            else
-            {
-               throw new ObjectNotFoundException(
-                     BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(docId));
-            }
          }
       });
    }
@@ -819,43 +780,6 @@ public class JcrVfsRepositoryService
             {
                throw new DocumentManagementServiceException(
                      BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(document.getId()));
-            }
-         }
-      });
-   }
-
-   public String requestDocumentContentUpload(final String docId)
-         throws DocumentManagementServiceException
-   {
-      return (String) adaptVfsCall(new IVfsWriteOperationCallback()
-      {
-         public Object withVfs(IDocumentRepositoryService vfs)
-               throws RepositoryOperationFailedException
-         {
-            String documentIdWithPrefix = decodeResourceName(docId);
-            IFile file = vfs.getFile(documentIdWithPrefix);
-
-            if (null != file)
-            {
-               // TODO encode sessionId/fileId
-
-               if (hasValidPartitionPrefix(file.getPath(), getPartitionPrefix(),
-                     AccessMode.Write))
-               {
-                  return DmsContentServlet.encodeDmsServletToken(documentIdWithPrefix,
-                        DmsContentServlet.OP_UPLOAD, SecurityProperties.getUserOID(),
-                        System.currentTimeMillis());
-               }
-               else
-               {
-                  throw new ObjectNotFoundException(
-                        BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(docId));
-               }
-            }
-            else
-            {
-               throw new ObjectNotFoundException(
-                     BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(documentIdWithPrefix));
             }
          }
       });

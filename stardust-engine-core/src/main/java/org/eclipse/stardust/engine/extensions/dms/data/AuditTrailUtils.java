@@ -40,6 +40,7 @@ public class AuditTrailUtils
 
    public static final String FOLDERS_FOLDERS = "folders";
 
+   @Deprecated
    public static final String RES_REPOSITORY_ID = "repositoryId";
 
    public static final String RES_ID = "id";

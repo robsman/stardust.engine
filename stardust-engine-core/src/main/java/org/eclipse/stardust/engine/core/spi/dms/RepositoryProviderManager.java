@@ -162,7 +162,7 @@ public class RepositoryProviderManager
       instances.remove(repositoryId);
    }
 
-   public IRepositoryService getImplicitInstance()
+   public IRepositoryService getImplicitService()
    {
       return new RepositoryIdMediator(this);
    }

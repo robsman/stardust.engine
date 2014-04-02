@@ -17,6 +17,7 @@ import java.util.Map;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.runtime.Resource;
 import org.eclipse.stardust.engine.api.runtime.ResourceInfo;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 
 
 /**
@@ -48,7 +49,7 @@ public abstract class DmsResourceBean implements Resource, ResourceInfo, Seriali
 
    public String getRepositoryId()
    {
-      return (String) vfsResource().get(AuditTrailUtils.RES_REPOSITORY_ID);
+      return RepositoryIdUtils.extractRepositoryId(getId());
    }
 
    public String getId()

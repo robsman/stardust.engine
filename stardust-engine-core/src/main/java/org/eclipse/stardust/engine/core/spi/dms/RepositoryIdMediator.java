@@ -138,22 +138,6 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       instance.getService(getUser()).retrieveDocumentContentStream(stripRepositoryId(documentId), target);
    }
 
-   @Deprecated
-   public String requestDocumentContentDownload(String documentId)
-         throws DocumentManagementServiceException
-   {
-      IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      IRepositoryService service = instance.getService(getUser());
-      if (service instanceof ILegacyRepositoryService)
-      {
-         return ((ILegacyRepositoryService) service).requestDocumentContentDownload(stripRepositoryId(documentId));
-      }
-      else
-      {
-         throw new UnsupportedOperationException();
-      }
-   }
-
    @Override
    public Folder getFolder(String folderId) throws DocumentManagementServiceException
    {
@@ -363,23 +347,6 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
             content, encoding, createNewRevision, versionComment, versionLabel,
             keepLocked);
       return addRepositoryId(updatedDocument, instance.getRepositoryId());
-   }
-
-   @Deprecated
-   public String requestDocumentContentUpload(String documentId)
-         throws DocumentManagementServiceException
-   {
-      IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      IRepositoryService service = instance.getService(getUser());
-      if (service instanceof ILegacyRepositoryService)
-      {
-         return ((ILegacyRepositoryService) service).requestDocumentContentUpload(stripRepositoryId(documentId));
-      }
-      else
-      {
-         throw new UnsupportedOperationException();
-
-      }
    }
 
    @Override

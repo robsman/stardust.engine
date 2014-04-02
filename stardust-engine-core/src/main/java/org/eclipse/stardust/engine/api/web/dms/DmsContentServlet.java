@@ -31,16 +31,20 @@ import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
+import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.SynchronizationService;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-import org.eclipse.stardust.vfs.IFile;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 import org.eclipse.stardust.vfs.RepositoryOperationFailedException;
 import org.eclipse.stardust.vfs.impl.jcr.web.AbstractVfsContentServlet;
 
@@ -105,29 +109,23 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                      
                      // as token still seems to be valid, verify file exists and if yes,
                      // provide its content
-                     BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-                     IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
-                     if (vfs == null)
-                     {
-                        throw new PublicException(
-                              "No JCR document repository service is set. Check the configuration.");
-                     }
-
                      try
                      {
-                        IFile file = vfs.getFile(request.resourceId);
-                        if (null != file)
+                        RepositoryProviderManager provider = RepositoryProviderManager.getInstance();
+                        IRepositoryService service = provider.getImplicitService();
+                        Document document = service.getDocument(request.resourceId);
+                        if (null != document)
                         {
-                           downloadManager.setContentLength((int) file.getSize());
-                           downloadManager.setContentType(file.getContentType());
+                           downloadManager.setContentLength((int) document.getSize());
+                           downloadManager.setContentType(document.getContentType());
 
-                           if ( !StringUtils.isEmpty(file.getEncoding()))
+                           if ( !StringUtils.isEmpty(document.getEncoding()))
                            {
-                              downloadManager.setContentEncoding(file.getEncoding());
+                              downloadManager.setContentEncoding(document.getEncoding());
                            }
-                           downloadManager.setFilename(file.getName());
+                           downloadManager.setFilename(document.getName());
 
-                           vfs.retrieveFileContent(request.resourceId,
+                           service.retrieveDocumentContentStream(request.resourceId,
                                  downloadManager.getContentOutputStream());
 
                            result = HttpServletResponse.SC_OK;
@@ -206,23 +204,15 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                   }
                   try
                   {
-                                       
-                     BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-                     IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
-                     if (vfs == null)
-                     {
-                        throw new PublicException(
-                              "No JCR document repository service is set. Check the configuration.");
-                     }
-   
+                                          
                      try
                      {
-                        IFile file = vfs.getFile(request.resourceId);
-                        if (null != file)
-                        {
-                           file.setContentType(contentType);
-   
-                           vfs.updateFile(file, contentStream, contentEncoding, false, false);
+                        RepositoryProviderManager provider = RepositoryProviderManager.getInstance();
+                        IRepositoryService service = provider.getImplicitService();
+                        Document document = service.getDocument(request.resourceId);
+                        if (null != document)
+                        {   
+                           service.uploadDocumentContentStream(request.resourceId, contentStream, contentType, contentEncoding);
    
                            result = HttpServletResponse.SC_OK;
                         }
@@ -276,6 +266,9 @@ public class DmsContentServlet extends AbstractVfsContentServlet
             .getOID());
       pushLayer.setProperty(SecurityProperties.CURRENT_DOMAIN_OID, user.getDomainOid());
 
+      pushLayer.setProperty(SecurityProperties.CURRENT_PARTITION, user.getRealm().getPartition());
+      pushLayer.setProperty(SecurityProperties.CURRENT_PARTITION_OID, user.getRealm().getPartition().getOID());
+      
       pushLayer.setProperty(SynchronizationService.PRP_DISABLE_SYNCHRONIZATION, true);
       pushLayer.setProperty(SecurityProperties.AUTHORIZATION_SYNC_LOAD_PROPERTY, false);
    }
@@ -339,9 +332,6 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                {
                   result.timestamp = Long.parseLong(decodedToken.substring(0, splitIdx));
                   result.resourceId = decodedToken.substring(splitIdx + 1);
-                  // Workaround for backwards compatiblity.
-                  // TODO remove workaround and use the DMS SPI's streaming API.
-                  result.resourceId = RepositoryIdUtils.stripRepositoryId(result.resourceId);
                }
             }
          }

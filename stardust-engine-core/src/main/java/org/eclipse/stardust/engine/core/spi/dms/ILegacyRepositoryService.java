@@ -130,36 +130,6 @@ public abstract interface ILegacyRepositoryService extends IRepositoryService
     */
    @Deprecated
    Document updateDocument(Document document, byte[] content, String encoding,
-         boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
-
-   /**
-    * TODO REMOVE
-    * 
-    * Initiates document content download via {@link DmsContentServlet}. The
-    * returned token should be used as relative URI for the content Servlet and will be
-    * valid as long as the session associated with this service is alive.
-    *
-    * @param documentId The ID or path of the document content should be retrieved for.
-    * @return A download token valid for the lifetime of this service's session.
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-   @Deprecated
-   String requestDocumentContentDownload(String documentId) throws DocumentManagementServiceException;
-
-   /**
-    * TODO REMOVE
-    * 
-    * Initiates document content upload via {@link DmsContentServlet}. The
-    * returned token should be used as relative URI for the content Servlet and will be
-    * valid as long as the session associated with this service is alive.
-    *
-    * @param documentId The ID/path of the document content should be retrieved for.
-    * @return An upload token valid for the lifetime of this service's session.
-    * @throws DocumentManagementServiceException on DMS specific errors
-    */
-   @Deprecated
-   String requestDocumentContentUpload(String documentId) throws DocumentManagementServiceException;
-   
-   
+         boolean createNewRevision, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;   
 
 }

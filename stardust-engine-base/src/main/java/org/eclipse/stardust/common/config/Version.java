@@ -125,7 +125,7 @@ public class Version implements Comparable<Version>, Serializable
       StringTokenizer _tokenizer = new StringTokenizer(versionString, ".");
       major = Integer.parseInt(_tokenizer.nextToken());
       minor = Integer.parseInt(_tokenizer.nextToken());
-      micro = Integer.parseInt(_tokenizer.nextToken().replaceFirst("-SNAPSHOT", ""));
+      micro = Integer.parseInt(_tokenizer.nextToken().replaceFirst("-.*SNAPSHOT", ""));
       build = "";
       if (_tokenizer.hasMoreTokens())
       {

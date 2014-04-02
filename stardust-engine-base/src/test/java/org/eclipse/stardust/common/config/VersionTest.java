@@ -34,7 +34,7 @@ public class VersionTest
    {
       Version currentVersion = CurrentVersion.getVersion();
       String plainVersion = versionBundle.getString("version");
-      plainVersion = plainVersion.replaceAll("-SNAPSHOT", "");
+      plainVersion = plainVersion.replaceAll("-.*SNAPSHOT", "");
       Version createdVersion = new Version(plainVersion);
       assertEquals(createdVersion, currentVersion);
    }

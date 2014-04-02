@@ -87,9 +87,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
             .getDefaultRepositoryId();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         List< ? extends Document> documents = ((ILegacyRepositoryService) instance).findDocumentsByName(namePattern);
+         List< ? extends Document> documents = ((ILegacyRepositoryService) service).findDocumentsByName(namePattern);
          return addRepositoryId(documents, instance.getRepositoryId());
       }
       else
@@ -108,9 +109,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
             .getDefaultRepositoryId();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         List< ? extends Document> documents = ((ILegacyRepositoryService) instance).findDocuments(xpathQuery);
+         List< ? extends Document> documents = ((ILegacyRepositoryService) service).findDocuments(xpathQuery);
          return addRepositoryId(documents, instance.getRepositoryId());
       }
       else
@@ -141,9 +143,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) instance).requestDocumentContentDownload(stripRepositoryId(documentId));
+         return ((ILegacyRepositoryService) service).requestDocumentContentDownload(stripRepositoryId(documentId));
       }
       else
       {
@@ -193,9 +196,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
             .getDefaultRepositoryId();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         List< ? extends Folder> folders = ((ILegacyRepositoryService) instance).findFoldersByName(
+         List< ? extends Folder> folders = ((ILegacyRepositoryService) service).findFoldersByName(
                namePattern, levelOfDetail);
          return addRepositoryId(folders, instance.getRepositoryId());
       }
@@ -214,9 +218,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       String repositoryId = RepositoryProviderManager.getInstance()
             .getDefaultRepositoryId();
       IRepositoryInstance instance = manager.getInstance(repositoryId);
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         List< ? extends Folder> folders = ((ILegacyRepositoryService) instance).findFolders(
+         List< ? extends Folder> folders = ((ILegacyRepositoryService) service).findFolders(
                xpathQuery, levelOfDetail);
          return addRepositoryId(folders, instance.getRepositoryId());
       }
@@ -252,9 +257,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         Document versionedDocument = ((ILegacyRepositoryService) instance).versionDocument(
+         Document versionedDocument = ((ILegacyRepositoryService) service).versionDocument(
                stripRepositoryId(documentId), versionLabel);
          return addRepositoryId(versionedDocument, instance.getRepositoryId());
       }
@@ -301,9 +307,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(document));
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         Document updatedDocument = ((ILegacyRepositoryService) instance).updateDocument(
+         Document updatedDocument = ((ILegacyRepositoryService) service).updateDocument(
                stripRepositoryId(document), createNewRevision, versionLabel, keepLocked);
          return addRepositoryId(updatedDocument, instance.getRepositoryId());
       }
@@ -331,9 +338,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(document));
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         Document updatedDocument = ((ILegacyRepositoryService) instance).updateDocument(
+         Document updatedDocument = ((ILegacyRepositoryService) service).updateDocument(
                stripRepositoryId(document), content, encoding, createNewRevision,
                versionLabel, keepLocked);
          return addRepositoryId(updatedDocument, instance.getRepositoryId());
@@ -362,9 +370,10 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
          throws DocumentManagementServiceException
    {
       IRepositoryInstance instance = manager.getInstance(extractRepositoryId(documentId));
-      if (instance instanceof ILegacyRepositoryService)
+      IRepositoryService service = instance.getService(getUser());
+      if (service instanceof ILegacyRepositoryService)
       {
-         return ((ILegacyRepositoryService) instance).requestDocumentContentUpload(stripRepositoryId(documentId));
+         return ((ILegacyRepositoryService) service).requestDocumentContentUpload(stripRepositoryId(documentId));
       }
       else
       {

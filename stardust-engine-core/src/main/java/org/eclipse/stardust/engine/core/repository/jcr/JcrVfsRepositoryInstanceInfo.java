@@ -110,7 +110,7 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
    }
 
    @Override
-   public boolean isMetaDataStorageSupported()
+   public boolean isMetaDataWriteSupported()
    {
       return metaDataStorageSupported;
    }
@@ -155,8 +155,8 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
       builder.append(isStreamingIOSupported());
       builder.append(", isMetaDataSearchSupported()=");
       builder.append(isMetaDataSearchSupported());
-      builder.append(", isMetaDataStorageSupported()=");
-      builder.append(isMetaDataStorageSupported());
+      builder.append(", isMetaDataWriteSupported()=");
+      builder.append(isMetaDataWriteSupported());
       builder.append(", isFullTextSearchSupported()=");
       builder.append(isFullTextSearchSupported());
       builder.append(", isAccessControlPolicySupported()=");

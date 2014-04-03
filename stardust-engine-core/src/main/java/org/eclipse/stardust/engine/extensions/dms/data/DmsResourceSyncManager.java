@@ -28,11 +28,14 @@ import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
+import org.eclipse.stardust.engine.api.runtime.Resource;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.DataQueryEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.spi.dms.IDmsResourceSyncListener;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
 /**
@@ -99,7 +102,7 @@ public class DmsResourceSyncManager
                   if (value instanceof Document)
                   {
                      Document existingDocument = (Document) value;
-                     if (existingDocument.getId().equals(oldDocument.getId()))
+                     if (resourceIdEquals(existingDocument.getId(), oldDocument.getId()))
                      {
                         // needs update
                         piBean.setOutDataValue(iData, "", newDocument);
@@ -125,7 +128,7 @@ public class DmsResourceSyncManager
                      List<Document> documentList = CollectionUtils.newArrayList();
                      for (Document existingDocument : existingDocumentList)
                      {
-                        if (existingDocument.getId().equals(oldDocument.getId()))
+                        if (resourceIdEquals(existingDocument.getId(), oldDocument.getId()))
                         {
                            if (newDocument != null)
                            {
@@ -176,6 +179,34 @@ public class DmsResourceSyncManager
          ParametersFacade.popLayer();
       }
 
+   }
+
+   /**
+    * Compares {@link Resource} Ids considering legacy Ids without repositoryId prefix.<br>
+    * The prefix pointing to the repositoryId {@link RepositoryProviderManager#DEFAULT_REPOSITORY_ID} is optional.
+    * <p>
+    * For example: <br>
+    * '{urn:repository:default}{jcr-uuid}ABC' == '{jcr-uuid}ABC'.<br>
+    * However: <br>
+    * '{urn:repository:newRepository}{jcr-uuid}ABC' != '{jcr-uuid}ABC'
+    */
+   private boolean resourceIdEquals(String id1, String id2)
+   {
+      String repositoryId1 = RepositoryIdUtils.extractRepositoryId(id1);
+      String repositoryId2 = RepositoryIdUtils.extractRepositoryId(id2);
+      if (repositoryId1 == null && repositoryId2 != null && RepositoryProviderManager.DEFAULT_REPOSITORY_ID.equals(repositoryId2))
+      {
+         return id1.equals(RepositoryIdUtils.stripRepositoryId(id2));
+      }
+      else if (repositoryId1 != null && repositoryId2 == null && RepositoryProviderManager.DEFAULT_REPOSITORY_ID.equals(repositoryId1))
+      {
+         return RepositoryIdUtils.stripRepositoryId(id1).equals(id2);
+      }
+      else
+      {
+         return id1.equals(id2);
+      }
+      
    }
 
    public void folderChanged(Folder oldFolder, Folder newFolder)

@@ -69,7 +69,7 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
    }
    
    @Override
-   public boolean isMetaDataStorageSupported()
+   public boolean isMetaDataWriteSupported()
    {
       return true;
    }
@@ -110,8 +110,8 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
       builder.append(isStreamingIOSupported());
       builder.append(", isMetaDataSearchSupported()=");
       builder.append(isMetaDataSearchSupported());
-      builder.append(", isMetaDataStorageSupported()=");
-      builder.append(isMetaDataStorageSupported());
+      builder.append(", isMetaDataWriteSupported()=");
+      builder.append(isMetaDataWriteSupported());
       builder.append(", isFullTextSearchSupported()=");
       builder.append(isFullTextSearchSupported());
       builder.append(", isAccessControlPolicySupported()=");

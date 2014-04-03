@@ -34,6 +34,7 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.internal.changelog.ChangeLogDigester;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
@@ -1625,19 +1626,27 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             for (IData iData : data)
             {
                String dataTypeId = iData.getType().getId();
+               String xPath = null;
                if (DmsConstants.DATA_TYPE_DMS_DOCUMENT.equals(dataTypeId))
                {
-                  String xPath = AuditTrailUtils.RES_ID;
-                  DataFilter dataFilter = DataFilter.isEqual(getQualifiedId(iData), xPath , filter.getDocumentId());
-                  dataFiltersOrTerm.add(dataFilter);
-                  dataFilters.add(dataFilter);
+                  xPath = AuditTrailUtils.RES_ID;
                }
                else if (DmsConstants.DATA_TYPE_DMS_DOCUMENT_LIST.equals(dataTypeId))
                {
-                  String xPath = AuditTrailUtils.DOCS_DOCUMENTS + "/" + AuditTrailUtils.RES_ID;
-                  DataFilter dataFilter = DataFilter.isEqual(getQualifiedId(iData), xPath , filter.getDocumentId());
+                  xPath = AuditTrailUtils.DOCS_DOCUMENTS + "/" + AuditTrailUtils.RES_ID;
+
+               }
+               if (xPath != null)
+               {
+                  DataFilter dataFilter = DataFilter.isEqual(getQualifiedId(iData), xPath, filter.getDocumentId());
                   dataFiltersOrTerm.add(dataFilter);
                   dataFilters.add(dataFilter);
+                  if (RepositoryIdUtils.extractRepositoryId(filter.getDocumentId()) != null)
+                  {
+                     DataFilter legacyIdDataFilter = DataFilter.isEqual(getQualifiedId(iData), xPath, RepositoryIdUtils.stripRepositoryId(filter.getDocumentId()));
+                     dataFiltersOrTerm.add(legacyIdDataFilter);
+                     dataFilters.add(legacyIdDataFilter);
+                  }
                }
             };
          }

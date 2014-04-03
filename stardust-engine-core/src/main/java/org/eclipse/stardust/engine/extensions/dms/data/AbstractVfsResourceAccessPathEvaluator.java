@@ -29,6 +29,10 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.EmbeddedServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
+import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.struct.spi.StructuredDataXPathEvaluator;
@@ -66,7 +70,8 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
    {
       boolean isInternalDocumentSyncCall = Parameters.instance().getBoolean(
             IS_INTERNAL_DOCUMENT_SYNC_CALL, false);
-      if ( !isInternalDocumentSyncCall && document != null && document.getId() != null)
+      String documentId = document.getId();
+      if ( !isInternalDocumentSyncCall && document != null && documentId != null)
       {
          Map<String, Object> props = CollectionUtils.newHashMap();
          props.put(DMS_SYNC_CURRENT_ACCESS_POINT, accessPointDefinition);
@@ -81,33 +86,38 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
                Parameters.instance().set(SecurityProperties.CURRENT_USER,
                      TransientUser.getInstance());
             }
-
-            DocumentManagementService dms = null;
-            try
+   
+            RepositoryProviderManager repositoryProviderManager = RepositoryProviderManager.getInstance();
+            String repositoryId = RepositoryIdUtils.extractRepositoryId(documentId);
+            Document prefixedDocument = document;
+            // synchronization for legacy documents has to point to RepositoryProviderManager.DEFAULT_REPOSITORY_ID.
+            if (repositoryId == null)
             {
-               ServiceFactory sf = EmbeddedServiceFactory.CURRENT_TX();
-               dms = sf.getDocumentManagementService();
+               repositoryId = RepositoryProviderManager.DEFAULT_REPOSITORY_ID;
+               documentId = RepositoryIdUtils.addRepositoryId(documentId, repositoryId);
+               prefixedDocument = RepositoryIdUtils.addRepositoryId(document, repositoryId);
             }
-            catch (Throwable t)
-            {
-               trace.warn("Document data to repository synchronization failed.", t);
-            }
+            
+            IRepositoryInstance repositoryInstance = repositoryProviderManager
+                  .getInstance(repositoryId);
+            boolean synchronizationSupported = repositoryInstance.getRepositoryInstanceInfo()
+                  .isWriteSupported();
 
-            if (dms != null)
+            if (synchronizationSupported)
             {
+               IRepositoryService dms = repositoryProviderManager.getImplicitService();
                try
                {
-                  Document existingDocument = dms.getDocument(document.getId());
-                  if (existingDocument != null && !existingDocument.equals(document))
+                  Document existingDocument = dms.getDocument(documentId);
+                  if (existingDocument != null && !existingDocument.equals(prefixedDocument))
                   {
-                     mergeNonUpdatableProperties(document, existingDocument);
+                     mergeNonUpdatableProperties(prefixedDocument, existingDocument);
 
-                     dms.updateDocument(document, false, null, null, false);
+                     dms.updateDocument(prefixedDocument, false, null, null, false);
                   }
                }
                catch (Exception e)
                {
-                  trace.error("Synchronization of document data to repository failed.", e);
                   Throwable cause = e.getCause();
                   for (int i = 0; i < 5; i++ )
                   {
@@ -115,15 +125,17 @@ public abstract class AbstractVfsResourceAccessPathEvaluator
                      {
                         if (cause instanceof AccessDeniedException)
                         {
+                           trace.error("Synchronization of document data to repository failed.", e);
                            throw new AccessForbiddenException(
-                                 BpmRuntimeError.BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED.raise(document.getId()));
+                                 BpmRuntimeError.BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED.raise(documentId));
                         }
                         cause = cause.getCause();
                      }
 
                   }
+                  trace.error("Synchronization of document data to repository failed.", e);
                   throw new PublicException(
-                        BpmRuntimeError.BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED.raise(document.getId()));
+                        BpmRuntimeError.BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED.raise(documentId));
                }
             }
          }

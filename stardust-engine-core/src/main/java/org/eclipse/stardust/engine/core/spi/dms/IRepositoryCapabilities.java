@@ -18,7 +18,7 @@ public abstract interface IRepositoryCapabilities extends Serializable
 
    public boolean isMetaDataSearchSupported();
    
-   public boolean isMetaDataStorageSupported();
+   public boolean isMetaDataWriteSupported();
 
    public boolean isVersioningSupported();
 

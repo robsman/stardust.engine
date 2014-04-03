@@ -35,6 +35,16 @@ public class DataCopyUtils
    private DataCopyUtils()
    {
    }
+   
+   protected static void copyNotes(IProcessInstance srcProcessInstance,
+         IProcessInstance processInstance)
+   {
+      List<ProcessInstanceProperty> notesAsProperties = srcProcessInstance.getNotes();
+      for (ProcessInstanceProperty srcPiNote : notesAsProperties)
+      {
+         processInstance.addExistingNote(srcPiNote);
+      }
+   }
 
    protected static void copyDataUsingDocumentCopyHeuristics(
          IProcessInstance sourceProcessInstance, IProcessInstance targetProcessInstance,

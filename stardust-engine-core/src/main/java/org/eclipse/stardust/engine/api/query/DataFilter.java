@@ -13,9 +13,6 @@ package org.eclipse.stardust.engine.api.query;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -368,21 +365,7 @@ public class DataFilter extends AbstractDataFilter
     */
    public static DataFilter in(String dataID, String attributeName, Collection values)
    {
-      if (values.isEmpty())
-      {
-         throw new PublicException("Empty value list for IN operator");
-      }
-
-      Set typeSet = new HashSet(values.size());
-      for (Iterator i = values.iterator(); i.hasNext();)
-      {
-         typeSet.add(i.next().getClass());
-
-         if (typeSet.size() > 1)
-         {
-            throw new PublicException("Value types are inhomogeneous: " + typeSet);
-         }
-      }
+      checkCollectionValues(values, Operator.IN);
 
       return new DataFilter(dataID, attributeName, Operator.IN, new ArrayList(values),
             MODE_ALL_FROM_SCOPE);
@@ -416,26 +399,33 @@ public class DataFilter extends AbstractDataFilter
     */
    public static DataFilter notIn(String dataID, String attributeName, Collection values)
    {
-      if (values.isEmpty())
-      {
-         throw new PublicException("Empty value list for NOT_IN operator");
-      }
-
-      Set typeSet = new HashSet(values.size());
-      for (Iterator i = values.iterator(); i.hasNext();)
-      {
-         typeSet.add(i.next().getClass());
-
-         if (typeSet.size() > 1)
-         {
-            throw new PublicException("Value types are inhomogeneous: " + typeSet);
-         }
-      }
+      checkCollectionValues(values, Operator.NOT_IN);
 
       return new DataFilter(dataID, attributeName, Operator.NOT_IN, new ArrayList(values),
             MODE_ALL_FROM_SCOPE);
    }
-   
+
+   /**
+    * Creates a filter excluding PIs / AIs if any of workflow data matches one of the given
+    * <code>values</code> list. This filter only applies for SDV list nodes.
+    *
+    *
+    * @param dataID The ID of the workflow data to be matched against.
+    * @param attributeName The name of the data attribute to search for (XPath, etc.). Only SDV list nodes.
+    * @param values The list of values to match with which will exclude from result set.
+    * @return The readily configured data filter.
+    * @throws PublicException If not all elements of <code>values</code> are instances of
+    *                         exactly the same Java class.
+    * @throws PublicException If list of values is empty.
+    */
+   public static DataFilter notAnyOf(String dataID, String attributeName, Collection values)
+   {
+      checkCollectionValues(values, Operator.NOT_ANY_OF);
+
+      return new DataFilter(dataID, attributeName, Operator.NOT_ANY_OF, new ArrayList(values),
+            MODE_ALL_FROM_SCOPE);
+   }
+
    /**
     * Creates a filter matching workflow data being both greater than or equal the given
     * <code>lowerBound</code> and less than or equal the given <code>upperBound</code>.

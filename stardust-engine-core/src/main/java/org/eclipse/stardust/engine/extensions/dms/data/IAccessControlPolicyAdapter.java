@@ -44,7 +44,7 @@ public class IAccessControlPolicyAdapter implements IAccessControlPolicy
    {
       throw new RuntimeException("Not implemented.");
    }
-   
+
    public Set<IAccessControlEntry> getAccessControlEntries()
    {
       Set<IAccessControlEntry> result = CollectionUtils.newSet();

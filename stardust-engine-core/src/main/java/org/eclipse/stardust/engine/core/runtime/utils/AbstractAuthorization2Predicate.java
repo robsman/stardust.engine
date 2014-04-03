@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2012 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,13 +14,7 @@ import static org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTw
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.Pair;
@@ -30,64 +24,24 @@ import org.eclipse.stardust.common.error.AccessForbiddenException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.engine.api.model.EventType;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IEventAction;
-import org.eclipse.stardust.engine.api.model.IEventConditionType;
-import org.eclipse.stardust.engine.api.model.IEventHandler;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IOrganization;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.PluggableType;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQuery;
-import org.eclipse.stardust.engine.api.query.ActivityInstanceQueryEvaluator;
-import org.eclipse.stardust.engine.api.query.DataPrefetchHint;
-import org.eclipse.stardust.engine.api.query.EvaluationContext;
-import org.eclipse.stardust.engine.api.query.ExcludeUserPolicy;
-import org.eclipse.stardust.engine.api.query.FilterAndTerm;
-import org.eclipse.stardust.engine.api.query.Query;
-import org.eclipse.stardust.engine.api.query.QueryServiceUtils;
-import org.eclipse.stardust.engine.api.query.RuntimeInstanceQueryEvaluator;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.query.*;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.UserPK;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.JoinElement;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.beans.BigData;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
-import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
-import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluator;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SpiUtils;
-import org.eclipse.stardust.engine.core.struct.DataXPathMap;
-import org.eclipse.stardust.engine.core.struct.IXPathMap;
-import org.eclipse.stardust.engine.core.struct.StructuredDataXPathUtils;
-import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.stardust.engine.core.struct.TypedXPath;
+import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 
 /**
@@ -110,12 +64,10 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
    private List<FieldRef> selectExtension;
 
    private List<Pair<String, String>> orderedPrefetchData = Collections.EMPTY_LIST;
-   
    private Set<Pair<String, String>> distinctData = CollectionUtils.newHashSet();
+   protected Map<String, DataPrefetchHint> dataPrefetchHintFilter = CollectionUtils.newMap();
 
    private ModelManager modelManager;
-
-   Map<String, DataPrefetchHint> dataPrefetchHintFilter = CollectionUtils.newMap();
 
    public AbstractAuthorization2Predicate(AuthorizationContext context)
    {
@@ -174,24 +126,38 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
       return dataPrefetchHintFilter != null && !dataPrefetchHintFilter.isEmpty();
    }
 
+   protected static boolean isAiQueryWithExcludeUserPolicyApplied(Query query)
+   {
+      if (query instanceof ActivityInstanceQuery
+            && query.getPolicy(ExcludeUserPolicy.class) != null)
+      {
+         return true;
+      }
+
+      return false;
+   }
+
+   protected boolean queryRequiresExcludeUserHandling(Query query)
+   {
+      return isAiQueryWithExcludeUserPolicyApplied(query);
+   }
+
    public boolean addPrefetchDataHints(Query query)
    {
       String evaluationProfile = RuntimeInstanceQueryEvaluator.getEvaluationProfile(query);
       boolean isLegacyEvaluation = QUERY_EVALUATION_PROFILE_LEGACY
             .equals(evaluationProfile);      
             
-      if (!isLegacyEvaluation)
+      if ( !isLegacyEvaluation)
       {         
+         this.distinctData = CollectionUtils.newHashSet();
          this.orderedPrefetchData = CollectionUtils.newArrayList();
          FilterAndTerm queryFilter = query.getFilter();      
          
-         if(query instanceof ActivityInstanceQuery)
+         if (queryRequiresExcludeUserHandling(query))
          {
-            if (query.getPolicy(ExcludeUserPolicy.class) != null)
-            {
-               getExcludeUserFilter(queryFilter);
-            }      
-         }      
+            applyDataPrefetchHintsForExcludeUser(queryFilter);
+         }
          
          Collection<IOrganization> restricted = context.getRestricted();
          for (IOrganization organization : restricted)
@@ -501,10 +467,11 @@ public abstract class AbstractAuthorization2Predicate implements Authorization2P
       return newTerm;
    }
    
-   public void getExcludeUserFilter(FilterAndTerm queryFilter)
+   protected void applyDataPrefetchHintsForExcludeUser(FilterAndTerm queryFilter)
    {
       if (isExcludeUserEvaluationEnabled())
       {
+         this.distinctData = CollectionUtils.newHashSet();
          List<IModel> activeModels = ModelManagerFactory.getCurrent().findActiveModels();
          for (IModel model : activeModels)
          {

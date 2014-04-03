@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PluggableType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -83,8 +84,8 @@ public class ApplicationBean extends IdentifiableElementBean
       IApplication app = ((IModel) getModel()).findApplication(getId());
       if (app != null && app != this)
       {
-         inconsistencies.add(new Inconsistency("Duplicate ID for application '" +
-               getName() + "'.", this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.APP_DUPLICATE_ID.raise(getName());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
 
       if (getType() != null)
@@ -101,8 +102,17 @@ public class ApplicationBean extends IdentifiableElementBean
                Collection c = validator.validate(getAllAttributes(), getType().getAllAttributes(), getAllAccessPoints());
                for (Iterator i = c.iterator(); i.hasNext();)
                {
-                  Inconsistency x = (Inconsistency) i.next();
-                  inconsistencies.add(new Inconsistency(x.getMessage(), this, x.getSeverity()));
+                  Inconsistency inc = (Inconsistency) i.next();
+                  if (inc.getError() != null)
+                  {
+                     inconsistencies.add(new Inconsistency(inc.getError(), this,
+                           inc.getSeverity()));
+                  }
+                  else
+                  {
+                     inconsistencies.add(new Inconsistency(inc.getMessage(), this,
+                           inc.getSeverity()));
+                  }
                }
             }
          }
@@ -177,7 +187,7 @@ public class ApplicationBean extends IdentifiableElementBean
    }
 
    public AccessPoint findAccessPoint(String id, Direction direction)
-   {       
+   {
       return getAccessPointLink().findAccessPoint(id, direction);
    }
 

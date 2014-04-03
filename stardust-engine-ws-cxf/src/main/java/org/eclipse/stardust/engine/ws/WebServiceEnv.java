@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.api.web.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 
 
 
@@ -152,7 +153,7 @@ public class WebServiceEnv
 
    public Model getModel(int modelOid)
    {
-      DeployedModel model = null;
+      Model model = null;
 
       if (null != modelCache)
       {
@@ -161,12 +162,16 @@ public class WebServiceEnv
 
       if (null == model)
       {
-         model = serviceFactory.getQueryService().getModel(modelOid, false);
+         DeployedModel deployedModel = (DeployedModel) serviceFactory
+               .getWorkflowService().execute(
+                     RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
 
-         if ((null != model) && (null != modelCache))
+         if ((null != deployedModel) && (null != modelCache))
          {
-            modelCache.putModel(model);
+            modelCache.putModel(deployedModel);
          }
+
+         model = modelCache.getModel(modelOid);
       }
 
       return model;

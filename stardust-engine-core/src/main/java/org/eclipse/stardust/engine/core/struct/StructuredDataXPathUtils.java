@@ -13,16 +13,7 @@ package org.eclipse.stardust.engine.core.struct;
 import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Map.Entry;
+import java.util.*;
 
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,13 +32,13 @@ import org.eclipse.stardust.engine.core.struct.sxml.*;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathException;
 
-
 /**
  * Searches for XPaths in an XSD
  */
 public class StructuredDataXPathUtils
 {
 
+   private static final Node[] EMPTY_NODES = new Node[0];
    private static final Logger trace = LogManager.getLogger(StructuredDataXPathUtils.class);
 
    /**
@@ -56,7 +47,7 @@ public class StructuredDataXPathUtils
     * @param rootNode root to use for computing
     * @return
     */
-   public static String getNodeXPath(org.eclipse.stardust.engine.core.struct.sxml.Node node, org.eclipse.stardust.engine.core.struct.sxml.Node rootNode)
+   public static String getNodeXPath(Node node, Node rootNode)
    {
       if (rootNode == node)
       {
@@ -65,7 +56,7 @@ public class StructuredDataXPathUtils
 
       String xPath = getXPathPart(node);
 
-      org.eclipse.stardust.engine.core.struct.sxml.Node parentNode = node.getParent();
+      Node parentNode = node.getParent();
       while (parentNode != null)
       {
          if (parentNode.equals(rootNode))
@@ -78,21 +69,21 @@ public class StructuredDataXPathUtils
 
       return xPath;
    }
-   
+
    /**
-     * checks if XPath is indexed 
+     * checks if XPath is indexed
      * @param XPath
      * @return
-     */   
-    public static boolean isIndexedXPath(String xPath) 
+     */
+    public static boolean isIndexedXPath(String xPath)
     {
        if (-1 == xPath.indexOf("[") && !isRootXPath(xPath))
        {
           return false;
        }
-       
+
        return true;
-    }   
+    }
 
    /**
     * Computes "indexed" XPath for given node
@@ -100,11 +91,11 @@ public class StructuredDataXPathUtils
     * @param rootNode root to use for computing
     * @return
     */
-   public static String getIndexedNodeXPath(org.eclipse.stardust.engine.core.struct.sxml.Node node, NamedNode element)
+   public static String getIndexedNodeXPath(Node node, NamedNode element)
    {
       String xPath = getXPathPart(node) + "["+getNodeIndex(node)+"]";
 
-      org.eclipse.stardust.engine.core.struct.sxml.Node parentNode = node.getParent();
+      Node parentNode = node.getParent();
       while (parentNode != null)
       {
          if (parentNode.equals(element))
@@ -118,17 +109,12 @@ public class StructuredDataXPathUtils
       return xPath;
    }
 
-   private static int getNodeIndex(org.eclipse.stardust.engine.core.struct.sxml.Node node)
+   private static int getNodeIndex(Node node)
    {
       int positionInEquallyNamedNodes = 1;
-      org.eclipse.stardust.engine.core.struct.sxml.Node parentNode = node.getParent();
+      Node parentNode = node.getParent();
 
-      if (node instanceof org.eclipse.stardust.engine.core.struct.sxml.Document)
-      {
-         return 1;
-      }
-
-      if (node instanceof org.eclipse.stardust.engine.core.struct.sxml.Attribute)
+      if (node instanceof Document || node instanceof Attribute || node instanceof Text)
       {
          return 1;
       }
@@ -137,7 +123,7 @@ public class StructuredDataXPathUtils
 
       for (int i=0; i<parentNode.getChildCount(); i++)
       {
-         org.eclipse.stardust.engine.core.struct.sxml.Node child = parentNode.getChild(i);
+         Node child = parentNode.getChild(i);
          if (child.equals(node))
          {
             return positionInEquallyNamedNodes;
@@ -150,22 +136,26 @@ public class StructuredDataXPathUtils
       throw new InternalException("Should never reach. Node is not inside its parent.");
    }
 
-   private static String getXPathPart(org.eclipse.stardust.engine.core.struct.sxml.Node node)
+   static String getXPathPart(Node node)
    {
-      if (node instanceof org.eclipse.stardust.engine.core.struct.sxml.Attribute)
+      if (node instanceof Attribute)
       {
          StringBuffer sb = new StringBuffer();
          sb.append('@');
-         sb.append(((org.eclipse.stardust.engine.core.struct.sxml.Attribute)node).getLocalName());
+         sb.append(((Attribute)node).getLocalName());
          return sb.toString();
       }
       else if (node instanceof Element)
       {
          return ((NamedNode)node).getLocalName();
       }
-      else if (node instanceof org.eclipse.stardust.engine.core.struct.sxml.Document)
+      else if (node instanceof Document)
       {
          return "";
+      }
+      else if (node instanceof Text)
+      {
+         return "@";
       }
       else
       {
@@ -391,14 +381,7 @@ public class StructuredDataXPathUtils
       if (isRootXPath(xPath))
       {
          TypedXPath rootXPath = xPathMap.getRootXPath();
-         if (rootXPath.getType() == BigData.NULL)
-         {
-            return false;
-         }
-         else
-         {
-            return true;
-         }
+         return rootXPath.getType() != BigData.NULL;
       }
 
       if (hasMultipleSteps(xPath))
@@ -414,10 +397,14 @@ public class StructuredDataXPathUtils
             {
                currentXPathWithoutIndexes.append("/");
             }
-            currentXPathWithoutIndexes.append(getXPathPartNode(xPathPart));
+            String id = getXPathPartNode(xPathPart);
+            currentXPathWithoutIndexes.append(id);
 
-            TypedXPath typedXPath = xPathMap.getXPath(currentXPathWithoutIndexes
-                  .toString());
+            TypedXPath typedXPath = getTypedXPath(currentXPathWithoutIndexes.toString(), xPathMap);
+            if (typedXPath == null)
+            {
+               break;
+            }
 
             String index = getXPathPartIndex(xPathPart);
             if (canIndexReturnList(index, typedXPath))
@@ -428,9 +415,9 @@ public class StructuredDataXPathUtils
       }
 
       // check that the last part type is a primitive
-      String xPathWithoutIndexes = getXPathWithoutIndexes(xPath);
-      TypedXPath typedXPath = xPathMap.getXPath(xPathWithoutIndexes);
-      if (typedXPath.getType() == BigData.NULL || !isIndexedXPath(xPath) && typedXPath.isList())
+      TypedXPath typedXPath = getTypedXPath(getXPathWithoutIndexes(xPath), xPathMap);
+      if (typedXPath == null || typedXPath.getType() == BigData.NULL || !isIndexedXPath(xPath) && typedXPath.isList()
+            || !typedXPath.getChildXPaths().isEmpty())
       {
          return false;
       }
@@ -438,6 +425,15 @@ public class StructuredDataXPathUtils
       {
          return true;
       }
+   }
+
+   private static TypedXPath getTypedXPath(String xPath, IXPathMap xPathMap)
+   {
+      return xPathMap instanceof DataXPathMap
+            ? ((DataXPathMap) xPathMap).findXPath(Arrays.asList(xPath.split("/")))
+            : xPathMap.containsXPath(xPath)
+                  ? xPathMap.getXPath(xPath)
+                  : null;
    }
 
    public static XPathAnnotations getXPathAnnotations(String xPath, IXPathMap xPathMap)
@@ -571,11 +567,10 @@ public class StructuredDataXPathUtils
          return false;
       }
 
-      if ( !hasMultipleSteps(xPath))
+      if (!hasMultipleSteps(xPath))
       {
-         TypedXPath typedXPath = xPathMap.getXPath(getXPathWithoutIndexes(xPath));
-
-         return canIndexReturnList(getXPathPartIndex(xPath), typedXPath);
+         TypedXPath typedXPath = getTypedXPath(getXPathWithoutIndexes(xPath), xPathMap);
+         return typedXPath != null && canIndexReturnList(getXPathPartIndex(xPath), typedXPath);
       }
 
       StringTokenizer xPathParts = getXPathPartTokenizer(xPath);
@@ -590,10 +585,10 @@ public class StructuredDataXPathUtils
          }
          currentXPathWithoutIndexes.append(getXPathPartNode(xPathPart));
 
-         TypedXPath typedXPath = xPathMap.getXPath(currentXPathWithoutIndexes.toString());
+         TypedXPath typedXPath = getTypedXPath(currentXPathWithoutIndexes.toString(), xPathMap);
 
          String index = getXPathPartIndex(xPathPart);
-         if (canIndexReturnList(index, typedXPath))
+         if (typedXPath != null && canIndexReturnList(index, typedXPath))
          {
             return true;
          }
@@ -701,11 +696,11 @@ public class StructuredDataXPathUtils
    }
 
    /**
-    * Searches for the subnode of type TEXT_NODE
+    * Returns the content of the node as plain text or an xml fragment if the node contains child elements.
     * @param node
-    * @return text node value or null if no subnode of type TEXT_NODE found
+    * @return the text value or null if the text value is empty and the node is not an attribute or
+    * an empty string if the text value is empty and the node is an attribute.
     */
-   // TODO: fh - the javadoc is no longer correct
    public static String findNodeValue(Node node)
    {
       String nodeValue = node instanceof LeafNode ? node.getValue() : getComposedValue(node);
@@ -726,6 +721,15 @@ public class StructuredDataXPathUtils
          return null;
       case 1:
          Node child = node.getChild(0);
+         if(child instanceof Element)
+         {
+            int cl = child.getChildCount();
+            if(cl == 1)
+            {
+               child = child.getChild(0);
+            }
+         }
+
          if (child instanceof Text)
          {
             return child.getValue();
@@ -989,23 +993,14 @@ public class StructuredDataXPathUtils
       return parent;
    }
 
-   private static Element[] toArray(List<Element> elements)
+   private static Node[] toArray(List<? extends Node> elements)
    {
-      if (elements == null)
-      {
-         return new Element[0];
-      }
-      Element[] nodes = new Element[elements.size()];
-      for (int i = 0; i < elements.size(); i++ )
-      {
-         nodes[i] = elements.get(i);
-      }
-      return nodes;
+      return elements == null ? EMPTY_NODES : elements.toArray(EMPTY_NODES);
    }
 
    private static boolean isSameOrigin(List nodelist, IXPathMap xPathMap)
    {
-      org.eclipse.stardust.engine.core.struct.sxml.Node firstNode = (org.eclipse.stardust.engine.core.struct.sxml.Node) nodelist.get(0);
+      Node firstNode = (Node) nodelist.get(0);
       TypedXPath firstXPath = xPathMap.getXPath(getNodeXPath(
             firstNode, firstNode.getDocument().getRootElement()));
       for (int i = 1; i < nodelist.size(); i++ )
@@ -1020,7 +1015,7 @@ public class StructuredDataXPathUtils
       return true;
    }
 
-   private static void replaceChildren(Element contextElement, org.eclipse.stardust.engine.core.struct.sxml.Node[] newChildren)
+   private static void replaceChildren(Element contextElement, Node[] newChildren)
    {
       // remove all children
       contextElement.removeChildren();
@@ -1042,7 +1037,7 @@ public class StructuredDataXPathUtils
       }
    }
 
-   private static Element findElement(org.eclipse.stardust.engine.core.struct.sxml.Document document, String xPath,
+   private static Element findElement(Document document, String xPath,
          IXPathMap xPathMap, boolean namespaceAware) throws XPathException
    {
       if (isSimpleElementAccess(xPath))
@@ -1078,7 +1073,7 @@ public class StructuredDataXPathUtils
       }
    }
 
-   public static void putValue(org.eclipse.stardust.engine.core.struct.sxml.Document document, IXPathMap xPathMap, String xPath,
+   public static void putValue(Document document, IXPathMap xPathMap, String xPath,
          Object value, boolean namespaceAware, boolean ignoreUnknownXPaths)
    {
       try
@@ -1167,26 +1162,24 @@ public class StructuredDataXPathUtils
       parent.appendChild(child);
    }
 
-   public static void putValues(org.eclipse.stardust.engine.core.struct.sxml.Document document, IXPathMap xPathMap,
-         Map /*<String,Object>*/ values, boolean namespaceAware, boolean ignoreUnknownXPaths)
+   public static void putValues(Document document, IXPathMap xPathMap,
+         Map<String,Object> values, boolean namespaceAware, boolean ignoreUnknownXPaths)
          throws XPathException, ParserConfigurationException, FactoryConfigurationError
    {
-      for (Iterator i = values.keySet().iterator(); i.hasNext(); )
+      for (String xPath : values.keySet())
       {
-         String xPath = (String)i.next();
          createTree(xPathMap, document, xPath, namespaceAware);
       }
 
       // now put the value to the prepared tree
       StructuredDataConverter converter = new StructuredDataConverter(xPathMap);
 
-      for (Iterator ee = values.entrySet().iterator(); ee.hasNext(); )
+      for (Map.Entry<String,Object> e : values.entrySet())
       {
-         Entry e = (Entry)ee.next();
-         String xPath = (String)e.getKey();
+         String xPath = e.getKey();
          Object value = e.getValue();
 
-         org.eclipse.stardust.engine.core.struct.sxml.Node[] newNodes = converter.toDom(value, xPath, namespaceAware, ignoreUnknownXPaths);
+         Node[] newNodes = converter.toDom(value, xPath, namespaceAware, ignoreUnknownXPaths);
 
          if (isRootXPath(xPath))
          {
@@ -1198,16 +1191,16 @@ public class StructuredDataXPathUtils
             else
             {
                Assert.condition(newNodes.length == 1);
-               org.eclipse.stardust.engine.core.struct.sxml.Node newNode = newNodes[0];
-               if (newNode instanceof org.eclipse.stardust.engine.core.struct.sxml.Text)
+               Node newNode = newNodes[0];
+               if (newNode instanceof Text)
                {
                   // special case - enumeration as top-level element
-                  replaceChildren(document.getRootElement(), new org.eclipse.stardust.engine.core.struct.sxml.Node[]{newNode});
+                  replaceChildren(document.getRootElement(), new Node[]{newNode});
                }
                else
                {
                   replaceChildren(document.getRootElement(),
-                        toArray(((Element)newNode).getChildElements()));
+                        toArray(((Element)newNode).getChildren()));
                   copyAttributes(document.getRootElement(), (Element)newNode);
                }
             }
@@ -1263,7 +1256,7 @@ public class StructuredDataXPathUtils
                if (nodelist.size() == 1)
                {
                   // target is a single node
-                  org.eclipse.stardust.engine.core.struct.sxml.Node contextElement = (org.eclipse.stardust.engine.core.struct.sxml.Node) nodelist.get(0);
+                  Node contextElement = (Node) nodelist.get(0);
 
                   if (contextElement instanceof Element)
                   {
@@ -1278,18 +1271,18 @@ public class StructuredDataXPathUtils
 
                      parentNode.removeChild(contextElement);
                   }
-                  else if (contextElement instanceof org.eclipse.stardust.engine.core.struct.sxml.Text)
+                  else if (contextElement instanceof Text)
                   {
                      if (newNodes.length > 1)
                      {
                         throw new PublicException("XPath '" + xPath
                               + "' can not be assigned multiple values");
                      }
-                     ((org.eclipse.stardust.engine.core.struct.sxml.Text) contextElement).setValue(findNodeValue(newNodes[0]));
+                     ((Text) contextElement).setValue(findNodeValue(newNodes[0]));
                   }
                   else if (contextElement instanceof Attribute)
                   {
-                     ((org.eclipse.stardust.engine.core.struct.sxml.Attribute)contextElement).setValue(findNodeValue(newNodes[0]));
+                     ((Attribute)contextElement).setValue(findNodeValue(newNodes[0]));
                   }
                   else
                   {
@@ -1314,7 +1307,7 @@ public class StructuredDataXPathUtils
                                  + "' can not be used to set data value since it returns nodes from different origins");
                   }
 
-                  Element parentNode = (Element)((org.eclipse.stardust.engine.core.struct.sxml.Node) nodelist.get(0)).getParent();
+                  Element parentNode = (Element)((Node) nodelist.get(0)).getParent();
 
                   // append new children
                   for (int i = 0; i < newNodes.length; i++ )
@@ -1326,7 +1319,7 @@ public class StructuredDataXPathUtils
                   // remove all that must be replaced
                   for (int i = 0; i < nodelist.size(); i++ )
                   {
-                     parentNode.removeChild((org.eclipse.stardust.engine.core.struct.sxml.Node) nodelist.get(i));
+                     parentNode.removeChild((Node) nodelist.get(i));
                   }
                }
             }
@@ -1339,7 +1332,7 @@ public class StructuredDataXPathUtils
       }
    }
 
-   private static void createTree(IXPathMap xPathMap, org.eclipse.stardust.engine.core.struct.sxml.Document document, String xPath,
+   private static void createTree(IXPathMap xPathMap, Document document, String xPath,
          boolean namespaceAware) throws XPathException, ParserConfigurationException, FactoryConfigurationError
    {
       if (isRootXPath(xPath))
@@ -1511,7 +1504,7 @@ public class StructuredDataXPathUtils
     */
    public static boolean canHaveContentAndAttributes(TypedXPath typedXPath)
    {
-      if (typedXPath.getChildXPaths().size() > 0 && typedXPath.getType() != BigData.NULL)
+      if (typedXPath.getChildXPaths().size() > 0 && typedXPath.getType() != BigData.NULL || typedXPath.getChildXPath("@") != null)
       {
          return true;
       }
@@ -1531,13 +1524,18 @@ public class StructuredDataXPathUtils
     */
    public static XPathEvaluator createXPathEvaluator(String unqualifiedXPath, TypedXPath rootXPath, boolean namespaceAware)
    {
+      return createXPathEvaluator(null, unqualifiedXPath, rootXPath, namespaceAware);
+   }
+
+   private static XPathEvaluator createXPathEvaluator(IXPathMap map, String unqualifiedXPath, TypedXPath rootXPath, boolean namespaceAware)
+   {
       try
       {
          if (namespaceAware)
          {
             Map<String, String> nsMappings = newHashMap();
             String qualifiedXPath = NamespaceContextBuilder.toNamespaceQualifiedXPath(
-                  unqualifiedXPath, rootXPath, nsMappings);
+                  map, unqualifiedXPath, rootXPath, nsMappings);
             return XPathEvaluator.compileXPath(qualifiedXPath, nsMappings);
          }
          else
@@ -1547,7 +1545,7 @@ public class StructuredDataXPathUtils
       }
       catch (Exception e)
       {
-         throw new PublicException("Could not create qualified XPath from xPath '"+unqualifiedXPath+"'", e);
+         throw new PublicException("Could not create qualified XPath from xPath '" + unqualifiedXPath + "'", e);
       }
    }
 
@@ -1579,19 +1577,32 @@ public class StructuredDataXPathUtils
       return true;
 
    }
-   
+
    public static boolean isPrimitiveType(TypedXPath typedXPath)
-   {     
+   {
       return typedXPath.getType() != BigData.NULL;
    }
-   
+
    public static boolean isCollectionType(TypedXPath typedXPath)
    {
       return typedXPath.isList() || typedXPath.isEnumeration();
    }
-   
+
    public static boolean isMapType(TypedXPath typedXPath)
    {
       return (!isPrimitiveType(typedXPath) && !isCollectionType(typedXPath));
+   }
+
+   public static XPathEvaluator getXPathEvaluator(IXPathMap map, String xPath, boolean namespaceAware)
+   {
+      if (map.containsXPath(xPath))
+      {
+         // reuse cached xPath
+         return map.getXPath(xPath).getCompiledXPath(namespaceAware);
+      }
+      else
+      {
+         return createXPathEvaluator(map, xPath, map.getRootXPath(), namespaceAware);
+      }
    }
 }

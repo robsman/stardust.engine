@@ -35,7 +35,12 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityPropert
 public class MapAppenderProcessor implements Processor
 {
    private static String EMAIL_OVERLAY_ATTRIBUTE = "stardust:emailOverlay";
-
+   private static String REST_OVERLAY_ATTRIBUTE = "stardust:restServiceOverlay";
+   private static String MESSAGE_TRANSFORMATION_PROPERTY_ATTRIBUTE = "messageTransformation:TransformationProperty";
+   private static String SYNCHRONOUS_RETRY_ENABLED_ATTRIBUTE = "synchronous:retry:enable";
+   private static String APPLICATION_INTEGRATION_OVERLAY_ATTRIBUTE = "carnot:engine:camel::applicationIntegrationOverlay";
+   public static final String SQL_ROW_COUNT = "CamelSqlRowCount";
+   public static final String SQL_UPDATE_COUNT = "CamelSqlUpdateCount";
    // TODO : add otheres such as REST and Script.
 
    private BpmRuntimeEnvironment bpmRt;
@@ -73,7 +78,11 @@ public class MapAppenderProcessor implements Processor
       }
 
       exchange.getIn().setHeaders(currentHeaders);
-
+      if(exchange.getIn().getHeaders().containsKey(SQL_ROW_COUNT))
+        exchange.getIn().removeHeader(SQL_ROW_COUNT);
+      if(exchange.getIn().getHeaders().containsKey(SQL_UPDATE_COUNT))
+        exchange.getIn().removeHeader(SQL_UPDATE_COUNT);
+      
       if (attributes.containsKey(PROCESS_CONTEXT_HEADERS_EXT_ATT)
             && attributes.get(PROCESS_CONTEXT_HEADERS_EXT_ATT) != null)
       {
@@ -94,7 +103,7 @@ public class MapAppenderProcessor implements Processor
       else
       {
          // per default the process context headers are added.
-         addProcessContextHeaders(exchange.getIn());
+    	 // addProcessContextHeaders(exchange.getIn());
       }
    }
 
@@ -124,6 +133,26 @@ public class MapAppenderProcessor implements Processor
       if (key.startsWith(EMAIL_OVERLAY_ATTRIBUTE))
       {
          return true;
+      }
+      
+      if (key.startsWith(REST_OVERLAY_ATTRIBUTE))
+      {
+         return true;
+      }
+      
+      if (key.equals(APPLICATION_INTEGRATION_OVERLAY_ATTRIBUTE))
+      {
+    	  return true;
+      }
+      
+      if (key.equals(MESSAGE_TRANSFORMATION_PROPERTY_ATTRIBUTE))
+      {
+    	  return true;
+      }
+      
+      if (key.equals(SYNCHRONOUS_RETRY_ENABLED_ATTRIBUTE))
+      {
+    	  return true;
       }
 
       if (key.equals(PRODUCER_ROUTE_ATT))

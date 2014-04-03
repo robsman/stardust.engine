@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="CamelApplicationTestModel" Name="CamelApplicationTestModel">
+<?xml version="1.0" encoding="UTF-8"?><Package xmlns:carnot="http://www.carnot.ag/xpdl/3.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.wfmc.org/2008/XPDL2.1" xsi:schemaLocation="http://www.wfmc.org/2008/XPDL2.1 http://www.wfmc.org/standards/docs/bpmnxpdl_31.xsd" Id="CamelApplicationTestModel" Name="CamelApplicationTestModel">
    <PackageHeader>
       <XPDLVersion>2.1</XPDLVersion>
       <Vendor>SunGard CSA LLC</Vendor>
@@ -213,7 +212,7 @@
       <Application Id="testHeaderInOutMappingPrimitive" Name="testHeaderInOutMappingPrimitive">
          <ExtendedAttributes>
             <ExtendedAttribute Name="CarnotExt">
-               <carnot:Application Oid="144" Type="camelConsumerApplication">
+               <carnot:Application Oid="144" Type="camelSpringProducerApplication">
                   <carnot:ApplicationContexts/>
                   <carnot:AccessPoints>
                      <carnot:AccessPoint Oid="187" Id="input1" Name="input1" Direction="IN" Type="primitive">
@@ -245,9 +244,12 @@
                      <carnot:Attribute Name="carnot:engine:camel::applicationIntegrationOverlay" Value="genericEndpointOverlay"/>
                      <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;mock:switch&quot; /&gt;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;mock:switch&quot; /&gt;&#13;&#10;&lt;to uri=&quot;mock:result&quot; /&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="sendReceive"/>
-                     <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="asynchronous"/>
+                     <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;/&gt;&#13;&#10;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::processContextHeaders" Value="true"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -294,14 +296,27 @@
             <ExtendedAttribute Name="CarnotExt">
                <carnot:Application Oid="1030" Type="camelSpringProducerApplication">
                   <carnot:ApplicationContexts/>
-                  <carnot:AccessPoints/>
+                  <carnot:AccessPoints>
+                     <carnot:AccessPoint Oid="1140" Id="input" Name="input (Person)" Direction="IN" Type="struct">
+                        <carnot:Attributes>
+                           <carnot:Attribute Name="carnot:engine:dataType" Value="Person"/>
+                           <carnot:Attribute Name="carnot:engine:path:separator" Value="/"/>
+                           <carnot:Attribute Name="carnot:engine:data:bidirectional" Value="true" Type="boolean"/>
+                           <carnot:Attribute Name="RootElement" Value="input"/>
+                        </carnot:Attributes>
+                     </carnot:AccessPoint>
+                  </carnot:AccessPoints>
                   <carnot:Attributes>
                      <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
                      <carnot:Attribute Name="synchronous:retry:enable" Value="false" Type="boolean"/>
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot; /&gt;&#13;&#10;&lt;to uri=&quot;jms:queue:outbound&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toJSON&quot;/&gt;&#13;&#10;&lt;to uri=&quot;vm:outboundvm&quot;/&gt;"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="send"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="synchronous"/>
+                     <carnot:Attribute Name="carnot:engine:camel::supportsMultipleAccessPoints" Value="true" Type="boolean"/>
+                     <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;/&gt;&#13;&#10;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::processContextHeaders" Value="true"/>
+                     <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="input" Type="String"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -336,10 +351,13 @@
                      <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationPattern" Value="sendReceive"/>
                      <carnot:Attribute Name="carnot:engine:camel::invocationType" Value="asynchronous"/>
-                     <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Person"/>
-                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Address"/>
-                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toXML&quot; /&gt;&#10;&lt;to uri=&quot;direct:outbound&quot; /&gt;"/>
-                     <carnot:Attribute Name="carnot:engine:camel::consumerRoute" Value="&lt;from uri=&quot;direct:inbound&quot; /&gt;&#10;&lt;to uri=&quot;ipp:authenticate:setCurrent?user=motu&amp;password=motu&quot; /&gt;&#10;&lt;to uri=&quot;ipp:activity:find?dataFiltersMap=$simple{header.ippDataFiltersMap}&quot; /&gt;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromXML&quot; /&gt;&#10;&lt;to uri=&quot;ipp:activity:complete&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::inBodyAccessPoint" Value="Person" Type="String"/>
+                     <carnot:Attribute Name="carnot:engine:camel::outBodyAccessPoint" Value="Address" Type="String"/>
+                     <carnot:Attribute Name="carnot:engine:camel::routeEntries" Value="&lt;to uri=&quot;bean:bpmTypeConverter?method=toXML&quot; /&gt;&#13;&#10;&lt;to uri=&quot;direct:outbound&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::consumerRoute" Value="&lt;from uri=&quot;direct:inbound&quot; /&gt;&#13;&#10;&lt;to uri=&quot;log:-- $simple{body}&quot;/&gt;&#13;&#10;&lt;to uri=&quot;ipp:authenticate:setCurrent?user=motu&amp;password=motu&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:activity:find?dataFiltersMap=$simple{header.ippDataFiltersMap}&quot; /&gt;&#13;&#10;&lt;to uri=&quot;bean:bpmTypeConverter?method=fromXML&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:activity:complete&quot; /&gt;"/>
+                     <carnot:Attribute Name="carnot:engine:visibility" Value="Public"/>
+                     <carnot:Attribute Name="messageTransformation:TransformationProperty" Value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;ASCII&quot;?&gt;&#13;&#10;&lt;mapping:TransformationProperty xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:mapping=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model&quot; xsi:schemaLocation=&quot;java://org.eclipse.stardust.engine.extensions.transformation.model java://org.eclipse.stardust.engine.extensions.transformation.model.mapping.MappingPackage&quot;/&gt;&#13;&#10;"/>
+                     <carnot:Attribute Name="carnot:engine:camel::processContextHeaders" Value="true"/>
                   </carnot:Attributes>
                </carnot:Application>
             </ExtendedAttribute>
@@ -1168,23 +1186,23 @@
                   <carnot:Diagrams>
                      <carnot:Diagram Oid="212" Name="&lt;Default&gt;" Orientation="Vertical" Mode="MODE_4_5_0">
                         <carnot:Symbols>
-                           <carnot:Symbol Kind="POOL" Oid="211" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="650" Height="935">
+                           <carnot:Symbol Kind="POOL" Oid="211" Id="_default_pool__1" Name="Default Pool" X="0" Y="0" Width="670" Height="935">
                               <carnot:Symbols>
-                                 <carnot:Symbol Kind="LANE" Oid="214" Id="_Lane_1" Name="&lt;Lane&gt; 1" X="5" Y="7" Width="630" Height="895" ParentLane="211">
+                                 <carnot:Symbol Kind="LANE" Oid="214" Id="_Lane_1" Name="&lt;Lane&gt; 1" X="5" Y="7" Width="650" Height="895" ParentLane="211">
                                     <carnot:Symbols>
-                                       <carnot:Symbol Kind="ACTIVITY" Oid="216" X="210" Y="100" Width="180" Height="50" ModelElement="Test"/>
-                                       <carnot:Symbol Kind="DATA" Oid="217" X="505" Y="105" Width="50" Height="70" ModelElement="Person"/>
-                                       <carnot:Symbol Kind="APPLICATION" Oid="220" X="25" Y="105" Width="130" Height="40" ModelElement="testLegacyInMapping"/>
-                                       <carnot:Symbol Kind="DATA" Oid="1004" X="87" Y="105" Width="120" Height="70" ModelElement="ID"/>
-                                       <carnot:Symbol Kind="DATA" Oid="1068" X="490" Y="256" Width="100" Height="70" ModelElement="Address"/>
+                                       <carnot:Symbol Kind="ACTIVITY" Oid="216" X="230" Y="102" Width="180" Height="50" ModelElement="Test"/>
+                                       <carnot:Symbol Kind="DATA" Oid="217" X="490" Y="45" Width="50" Height="70" ModelElement="Person"/>
+                                       <carnot:Symbol Kind="DATA" Oid="1004" X="145" Y="262" Width="120" Height="70" ModelElement="ID"/>
+                                       <carnot:Symbol Kind="DATA" Oid="1068" X="455" Y="170" Width="100" Height="70" ModelElement="Address"/>
+                                       <carnot:Symbol Kind="APPLICATION" Oid="1138" X="25" Y="105" Width="170" Height="40" ModelElement="testRequestReponseMessage"/>
                                     </carnot:Symbols>
                                     <carnot:Connections/>
                                  </carnot:Symbol>
                               </carnot:Symbols>
                               <carnot:Connections>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="219" SourceSymbol="217" TargetSymbol="216"/>
-                                 <carnot:Connection Kind="EXECUTED_BY" Oid="221" SourceSymbol="220" TargetSymbol="216"/>
                                  <carnot:Connection Kind="DATA_FLOW" Oid="1070" SourceSymbol="1068" TargetSymbol="216" SourceAnchor="left" TargetAnchor="right"/>
+                                 <carnot:Connection Kind="EXECUTED_BY" Oid="1139" SourceSymbol="1138" TargetSymbol="216"/>
                               </carnot:Connections>
                            </carnot:Symbol>
                         </carnot:Symbols>
@@ -1326,21 +1344,21 @@
                         <carnot:DataFlows>
                            <carnot:DataFlow Oid="1037" Id="Person" Name="Person" Direction="IN" Context="application">
                               <carnot:DataRef Id="Person"/>
-                              <carnot:AccessPointRef Id="oParam1"/>
+                              <carnot:AccessPointRef Id="input"/>
                            </carnot:DataFlow>
                         </carnot:DataFlows>
                         <carnot:Attributes>
                            <carnot:Attribute Name="carnot:pwh:includeTime" Value="false" Type="boolean"/>
-                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
-                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
-                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
                            <carnot:Attribute Name="carnot:engine:relocate:source" Value="false" Type="boolean"/>
                            <carnot:Attribute Name="carnot:pwh:targetProcessingTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetExecutionTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetIdleTime" Value="000:00:000:00:00:00"/>
                            <carnot:Attribute Name="carnot:pwh:targetWaitingTime" Value="000:00:000:00:00:00"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToOther" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.delegateToDepartment[0]" Value="Administrator"/>
+                           <carnot:Attribute Name="authorization:activity.manageEventHandlers" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.readActivityInstanceData" Value="__carnot_internal_all_permissions__"/>
+                           <carnot:Attribute Name="authorization:activity.abortActivityInstances" Value="__carnot_internal_owner_permission__"/>
                         </carnot:Attributes>
                      </carnot:Activity>
                   </ExtendedAttribute>
@@ -1454,7 +1472,8 @@
                            <carnot:Attribute Name="carnot:engine:camel::username" Value="${camelTriggerUsername}"/>
                            <carnot:Attribute Name="carnot:engine:camel::password" Value="${camelTriggerPassword}"/>
                            <carnot:Attribute Name="carnot:engine:camel::camelContextId" Value="defaultCamelContext"/>
-                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;jms:queue:outbound&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:direct&quot; /&gt;"/>
+                           <carnot:Attribute Name="carnot:engine:camel::camelRouteExt" Value="&lt;from uri=&quot;vm:outboundvm&quot; /&gt;&#13;&#10;&lt;to uri=&quot;ipp:direct&quot; /&gt;"/>
+                           <carnot:Attribute Name="eventClass" Value="message"/>
                         </carnot:Attributes>
                      </carnot:Trigger>
                   </carnot:Triggers>
@@ -1769,7 +1788,7 @@
    </WorkflowProcesses>
    <ExtendedAttributes>
       <ExtendedAttribute Name="CarnotExt">
-         <carnot:Package Oid="0" CarnotVersion="7.1.2" ModelOid="0">
+         <carnot:Package Oid="0" CarnotVersion="7.2.0" ModelOid="0">
             <carnot:MetaTypes>
                <carnot:DataTypes>
                   <carnot:DataType Oid="1" Id="primitive" Name="Primitive Data" IsPredefined="true">
@@ -1945,6 +1964,22 @@
                   <carnot:ApplicationContextType Oid="16" Id="externalWebApp" Name="External Web Application" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
                   <carnot:ApplicationContextType Oid="17" Id="application" Name="Noninteractive Application Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
                   <carnot:ApplicationContextType Oid="18" Id="processInterface" Name="Process Interface Context" IsPredefined="true" HasApplicationPath="true" HasMappingId="false"/>
+                  <carnot:ApplicationContextType Oid="1136" Id="jfc" Name="JFC Application" IsPredefined="true" HasApplicationPath="true" HasMappingId="false">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/contexts/jfc/icon.gif"/>
+                        <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCContextTypePanel"/>
+                        <carnot:Attribute Name="carnot:engine:accessPointProvider" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCAccessPointProvider"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCValidator"/>
+                        <carnot:Attribute Name="carnot:exdesk:instance" Value="org.eclipse.stardust.engine.core.extensions.interactive.contexts.jfc.JFCApplicationInstance"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationContextType>
+                  <carnot:ApplicationContextType Oid="1137" Id="jsp" Name="JSP Application" IsPredefined="true" HasApplicationPath="false" HasMappingId="true">
+                     <carnot:Attributes>
+                        <carnot:Attribute Name="carnot:defdesk:icon" Value="/ag/carnot/workflow/spi/providers/contexts/jsp/icon.gif"/>
+                        <carnot:Attribute Name="carnot:defdesk:panel" Value="org.eclipse.stardust.engine.extensions.web.jsp.contexts.JSPContextTypePanel"/>
+                        <carnot:Attribute Name="carnot:engine:validator" Value="org.eclipse.stardust.engine.extensions.web.jsp.contexts.JSPValidator"/>
+                     </carnot:Attributes>
+                  </carnot:ApplicationContextType>
                </carnot:ApplicationContextTypes>
                <carnot:TriggerTypes>
                   <carnot:TriggerType Oid="19" Id="manual" Name="Manual Trigger" IsPredefined="true" IsPullTrigger="false">

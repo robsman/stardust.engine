@@ -10,30 +10,26 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.pojo.data;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.List;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
-import org.eclipse.stardust.engine.core.spi.extensions.model.DataValidator;
+import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
 
-
-public class PrimitiveValidator implements DataValidator, Stateless
+public class PrimitiveValidator implements ExtendedDataValidator, Stateless
 {
 
    public boolean isStateless()
    {
       return true;
-   }
-
-   public BridgeObject getBridgeObject(AccessPoint point, String path, Direction direction)
-   {
-      return JavaDataTypeUtils.getBridgeObject(point, path);
    }
 
    public List validate(Map attributes)
@@ -43,10 +39,16 @@ public class PrimitiveValidator implements DataValidator, Stateless
 
       if (null == type)
       {
-         inconsistencies.add(new Inconsistency("Unspecified type for primitive data",
-               Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.DATA_UNSPECIFIED_TYPE_FOR_PRIMITIVE_DATA.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
       return inconsistencies;
    }
 
+   @Override
+   public BridgeObject getBridgeObject(AccessPoint point, String path, Direction direction,
+         AccessPathEvaluationContext context)
+   {
+      return JavaDataTypeUtils.getBridgeObject(point, path, context);
+   }
 }

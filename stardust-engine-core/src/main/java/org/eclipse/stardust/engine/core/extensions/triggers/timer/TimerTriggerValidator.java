@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.ITrigger;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.TriggerValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.TriggerValidatorEx;
 
@@ -29,19 +30,19 @@ public class TimerTriggerValidator implements TriggerValidator, TriggerValidator
    {
       throw new UnsupportedOperationException();
    }
-   
+
    public List validate(ITrigger trigger)
    {
       List inconsistencies = CollectionUtils.newList();
-      
+
       if (trigger.getAttribute(PredefinedConstants.TIMER_TRIGGER_START_TIMESTAMP_ATT) == null)
       {
-         inconsistencies.add(new Inconsistency("Unspecified start time for timer trigger",
-               trigger, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.TRIGG_UNSPECIFIED_START_TIME_FOR_TRIGGER.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
       }
-      
+
       // todo: (fh) access points
-      
+
       return inconsistencies;
    }
 }

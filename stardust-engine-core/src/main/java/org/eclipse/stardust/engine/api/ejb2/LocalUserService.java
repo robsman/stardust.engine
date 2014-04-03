@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 64706 
+ * Generated from  Revision: 66568 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -13,7 +13,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author ubirkemeyer
- * @version 64706
+ * @version 66568
  */
 public interface LocalUserService extends javax.ejb.EJBLocalObject
 {
@@ -189,25 +189,31 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
          
     /**
      * Resets the password of specified user by generated password according to configured
-     * password rules.
+     * password rules. On synchronization with external repository the specified user will
+     * be created in audit trail if it is not already present there but exists in external
+     * repository. If the user exists in audit trail it will be updated on synchronization
+     * if there are any changes.
      *
-     * @param account the user account to be modified.
-     * @param properties Map providing further login properties.
+     * @param account
+     *               the user account to be modified.
+     * @param properties
+     *               Map providing further login properties.
      *
-     * @throws org.eclipse.stardust.common.error.ConcurrencyException 
+     * @throws ConcurrencyException
      *                if another user operates on the specified one.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ConcurrencyException} will
-     *     be wrapped inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException 
-     *                if the user or a given grant is not found.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ConcurrencyException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
-     * @throws org.eclipse.stardust.engine.api.runtime.IllegalOperationException 
+     * @throws ObjectNotFoundException
+     *                if the user or a given grant is not found.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     * @throws IllegalOperationException
      *                if the authentication is not internal.
-     *     <em>Instances of {@link
-     *     org.eclipse.stardust.engine.api.runtime.IllegalOperationException} will be wrapped
-     *     inside {@link org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
+     *     <em>Instances of {@link IllegalOperationException
+     *     } will be wrapped inside {@link
+     *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
      *
@@ -360,17 +366,20 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
-     * Retrieves the user associated with the given account.
+     * Retrieves the user associated with the given account. On synchronization with
+     * external repository the specified user will be created in audit trail if it is not
+     * already present there but exists in external repository. If the user exists in audit
+     * trail it will be updated on synchronization if there are any changes.
      *
      * @param account
      *               the account name of the user to retrieve.
      *
      * @return the user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException 
+     * @throws ObjectNotFoundException
      *                if there is no user with the specified account.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
@@ -382,7 +391,10 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
-     * Retrieves the user associated with the given account.
+     * Retrieves the user associated with the given account. On synchronization with
+     * external repository the specified user will be created in audit trail if it is not
+     * already present there but exists in external repository. If the user exists in audit
+     * trail it will be updated on synchronization if there are any changes.
      *
      * @param realm
      *               the realm ID of the user to retrieve.
@@ -407,17 +419,20 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
-     * Retrieves the specified user.
+     * Retrieves the specified user. On synchronization the user with specified oid will be
+     * updated if this user exists in audit trail and there are any changes. If this user
+     * does not exist in audit trail but is present in external repository it will not be
+     * created in audit trail on synchronization with external repository.
      *
      * @param userOID
      *               the OID of the user to retrieve.
      *
      * @return the user.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException 
+     * @throws ObjectNotFoundException
      *                if there is no user with the specified oid.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
@@ -547,7 +562,12 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
-     * Retrieves the user group associated with the given ID.
+     * Retrieves the user group associated with the given ID. On synchronization with
+     * external repository the specified user group will be created in audit trail if it is
+     * not
+     * already present there but exists in external repository. If the user group exists in
+     * audit
+     * trail it will be updated on synchronization if there are any changes.
      *
      * @param id
      *               the id of the user group to retrieve.
@@ -569,17 +589,21 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          
     /**
-     * Retrieves the specified user group.
+     * Retrieves the specified user group. On synchronization the user group with specified
+     * oid will be updated if this user group exists in audit trail and there are any
+     * changes. If this user group does not exist in audit trail but is present in external
+     * repository it will not be created in audit trail on synchronization with external
+     * repository.
      *
      * @param oid
      *               the OID of the user group to retrieve.
      *
      * @return the user group.
      *
-     * @throws org.eclipse.stardust.common.error.ObjectNotFoundException 
-     *               if there is no user group with the specified OID.
-     *     <em>Instances of {@link org.eclipse.stardust.common.error.ObjectNotFoundException}
-     *     will be wrapped inside {@link
+     * @throws ObjectNotFoundException
+     *                if there is no user group with the specified OID.
+     *     <em>Instances of {@link ObjectNotFoundException
+     *     } will be wrapped inside {@link
      *     org.eclipse.stardust.engine.api.ejb2.WorkflowException}.</em>
      * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
      *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
@@ -777,7 +801,9 @@ public interface LocalUserService extends javax.ejb.EJBLocalObject
      *               the user to which a deputy user shall be added.
      * @param deputyUser
      *               the deputy user.
-     * @param options TODO
+     * @param options
+     *               the options associated with the operation. Can be null, in which case the
+     *               default options will be used.
      *
      * @return the created deputy.
      *

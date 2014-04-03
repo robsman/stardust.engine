@@ -26,13 +26,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.SchemaType;
 import org.eclipse.stardust.engine.api.model.TypeDeclaration;
 import org.eclipse.stardust.engine.api.model.XpdlType;
-import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.Models;
+import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
+
 import org.w3c.dom.Document;
 
 
@@ -41,7 +41,7 @@ import org.w3c.dom.Document;
  * This class represents a RESTful Web Service that exposes the XML Schema Definition for
  * a particular Type Declaration in an XPDL Model.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision: $
  */
@@ -63,7 +63,7 @@ public class TypeDeclarationsRestlet extends EnvironmentAware
       }
 
       final String modelId = getModelId();
-      final DeployedModel model = getModel(modelId);
+      final Model model = getModel(modelId);
 
       final TypeDeclaration typeDeclaration = model.getTypeDeclaration(typeDeclarationId);
       if (typeDeclaration == null)
@@ -76,20 +76,18 @@ public class TypeDeclarationsRestlet extends EnvironmentAware
       return getXSDDocument(typeDeclaration.getXpdlType());
    }
 
-   private DeployedModel getModel(final String modelId)
+   private Model getModel(final String modelId)
    {
-      final Models models = serviceFactory().getQueryService().getModels(
-            DeployedModelQuery.findActiveForId(modelId));
-      if (models.isEmpty())
+      DeployedModel model = (DeployedModel) serviceFactory().getWorkflowService()
+            .execute(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId).notThrowing());
+      if (null == model)
       {
          final String errorMsg = "No active model was found for modelId '" + modelId
                + "'.";
          throw new WebApplicationException(Response.status(Status.NOT_FOUND).entity(
                errorMsg).build());
       }
-      final DeployedModelDescription modelDesc = models.get(0);
-      final int modelOID = modelDesc.getModelOID();
-      return serviceFactory().getQueryService().getModel(modelOID);
+      return model;
    }
 
    private Document getXSDDocument(final XpdlType xpdlType)

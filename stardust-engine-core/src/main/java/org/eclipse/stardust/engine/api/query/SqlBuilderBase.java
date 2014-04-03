@@ -17,43 +17,17 @@ import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.CompareHelper;
-import org.eclipse.stardust.common.FilteringIterator;
-import org.eclipse.stardust.common.Functor;
-import org.eclipse.stardust.common.OneElementIterator;
-import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.Predicate;
-import org.eclipse.stardust.common.TransformingIterator;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.IActivity;
-import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.api.model.IParticipant;
-import org.eclipse.stardust.engine.api.model.IProcessDefinition;
-import org.eclipse.stardust.engine.api.model.IScopedModelParticipant;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
-import org.eclipse.stardust.engine.api.runtime.PerformerType;
-import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -884,7 +858,7 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
          for (; i.hasNext();)
          {
             IModel model = (IModel) i.next();
-            Iterator procDefIterator;
+            Iterable<IProcessDefinition> procDefs;
             if (null != processID)
             {
                if (pdModelId != null && !pdModelId.equals(model.getId()))
@@ -897,27 +871,25 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
                {
                   if (filter.isIncludingSubProcesses())
                   {
-                     Set hierarchy = QueryUtils.findProcessHierarchyClosure(process);
-                     procDefIterator = hierarchy.iterator();
+                     procDefs = QueryUtils.findProcessHierarchyClosure(process);
                   }
                   else
                   {
-                     procDefIterator = new OneElementIterator(process);
+                     procDefs = Collections.singleton(process);
                   }
                }
                else
                {
-                  procDefIterator = Collections.EMPTY_LIST.iterator();
+                  procDefs = Collections.emptySet();
                }
             }
             else
             {
-               procDefIterator = model.getAllProcessDefinitions();
+               procDefs = model.getProcessDefinitions();
             }
 
-            while (procDefIterator.hasNext())
+            for (IProcessDefinition process : procDefs)
             {
-               IProcessDefinition process = (IProcessDefinition) procDefIterator.next();
                if (aModelId != null && !aModelId.equals(process.getModel().getId()))
                {
                   continue;
@@ -2322,11 +2294,21 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       public void pushFilterKind(FilterTerm.Kind filterKind)
       {
          filterKinds.addLast(filterKind);
+         if (dataFilterExtensionContext != null)
+         {
+            dataFilterExtensionContext.setFilterUsedInAndTerm(FilterTerm.AND
+                  .equals(filterKind));
+         }
       }
 
       public void popFilterKind()
       {
          filterKinds.removeLast();
+         if (dataFilterExtensionContext != null)
+         {
+            dataFilterExtensionContext.setFilterUsedInAndTerm(FilterTerm.AND
+                  .equals(peekLastFilterKind()));
+         }
       }
 
       public FilterTerm.Kind peekLastFilterKind()
@@ -2405,36 +2387,45 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
    public static class DataAttributeKey
    {
       private final String dataId;
-
       private final String attributeName;
       
+      private final boolean notAnyOfFilter;
+
       public DataAttributeKey(DataOrder order)
       {
-         this(order.getDataID(), order.getAttributeName(), null);
+         this(order.getDataID(), order.getAttributeName(), null, false);
       }
 
       public DataAttributeKey(AbstractDataFilter filter)
       {
-         this(filter.getDataID(), filter.getAttributeName(), filter.getOperand());
+         this(filter.getDataID(), filter.getAttributeName(), filter.getOperand(), Operator.NOT_ANY_OF
+               .equals(filter.getOperator()));
+      }
+
+      public DataAttributeKey(AbstractDataFilter filter, boolean notAnyOfFilter)
+      {
+         this(filter.getDataID(), filter.getAttributeName(), null, notAnyOfFilter);
       }
 
       public DataAttributeKey(IData data, String attributeName)
       {
-         this(ModelUtils.getQualifiedId(data), attributeName, null);
+         this(ModelUtils.getQualifiedId(data), attributeName, null, false);
       }
 
       public DataAttributeKey(String dataId, String attributeName)
       {
-         this(dataId, attributeName, null);
+         this(dataId, attributeName, null, false);
       }
 
-      private DataAttributeKey(String dataId, String attributeName, Serializable operand)
+      private DataAttributeKey(String dataId, String attributeName,
+            Serializable operand, boolean notAnyOfFilter)
       {
          this.dataId = dataId;
          this.attributeName = (operand != null)
                && PredefinedConstants.QUALIFIED_CASE_DATA_ID.equals(dataId)
                && PredefinedConstants.CASE_DESCRIPTOR_VALUE_XPATH.equals(attributeName)
                ? attributeName + '/' + operand : attributeName;
+         this.notAnyOfFilter = notAnyOfFilter;
       }
 
       public String getDataId()
@@ -2445,6 +2436,11 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       public String getAttributeName()
       {
          return attributeName;
+      }
+
+      public boolean isNotAnyOfFilter()
+      {
+         return notAnyOfFilter;
       }
 
       public boolean equals(Object other)
@@ -2459,7 +2455,8 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
             return (this.dataId != null ? this.dataId.equals(that.dataId)
                   : that.dataId == null)
                   && (this.attributeName != null ? this.attributeName
-                        .equals(that.attributeName) : that.attributeName == null);
+                        .equals(that.attributeName) : that.attributeName == null)
+                  && this.notAnyOfFilter == that.notAnyOfFilter;
          }
 
          return false;

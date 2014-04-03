@@ -1,7 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
 
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.ATTACHMENT_FILE_CONTENT;
-import static org.eclipse.stardust.engine.extensions.camel.component.CamelHelper.extractTokenFromExpression;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.parseSimpleExpression;
 import java.util.ArrayList;
 import java.util.List;
@@ -216,7 +215,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     *           (boolean)
     * @return the value of the ProcessInstanceOid attribute
     */
-   protected Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
+   public Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
    {
       if (null != this.processInstanceOid){
          logger.info("Simple Expression detected for Process Instance OID attribute, Expression evaluated to  < " + this.processInstanceOid.evaluate(exchange, Long.class)+">");
@@ -241,7 +240,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     *           (boolean)
     * @return File Name
     */
-   protected String evaluateFileName(Exchange exchange, boolean strict)
+   public String evaluateFileName(Exchange exchange, boolean strict)
    {
 
       if (null != this.ippAttachmentFileName)
@@ -266,7 +265,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     *           (boolean)
     * @return Folder Name
     */
-   protected String evaluateFolderName(Exchange exchange, boolean strict)
+   public String evaluateFolderName(Exchange exchange, boolean strict)
    {
 
       if (null != this.ippAttachmentFolderName)
@@ -295,7 +294,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     * @throws IllegalStateException
     *            if the process ID cannot be found and strict evaluation was requested
     */
-   protected String evaluateProcessId(Exchange exchange, boolean strict)
+   public String evaluateProcessId(Exchange exchange, boolean strict)
    {
       if (null != this.processId){
          logger.info("Simple Expression detected for ProcessId attribute, Expression evaluated to  <" + this.processId.evaluate(exchange, String.class)+">");
@@ -434,10 +433,11 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setProcessId(String processId)
    {
-      if (processId.startsWith("${") && processId.endsWith("}"))
-         this.processId = SimpleLanguage.simple(extractTokenFromExpression(processId));
-      else
-         this.processId = new ConstantExpression(processId); // SimpleLanguage.simple(processId);
+//      if (processId.startsWith("${") && processId.endsWith("}"))
+//         this.processId = SimpleLanguage.simple(extractTokenFromExpression(processId));
+//      else
+//         this.processId = new ConstantExpression(processId); // SimpleLanguage.simple(processId);
+      this.processId = parseSimpleExpression(processId);
    }
 
    /**
@@ -509,11 +509,12 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setDataMap(String dataMap)
    {
-      if (dataMap.startsWith("${") && dataMap.endsWith("}"))
-
-         this.dataMap = SimpleLanguage.simple(extractTokenFromExpression(dataMap));
-      else
-         this.dataMap = SimpleLanguage.simple(dataMap);
+//      if (dataMap.startsWith("${") && dataMap.endsWith("}"))
+//
+//         this.dataMap = SimpleLanguage.simple(extractTokenFromExpression(dataMap));
+//      else
+//         this.dataMap = SimpleLanguage.simple(dataMap);
+      this.dataMap = parseSimpleExpression(dataMap);
    }
 
    /**
@@ -521,10 +522,11 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setDataOutputMap(String dataOutputMap)
    {
-      if (dataOutputMap.startsWith("${") && dataOutputMap.endsWith("}"))
-         this.dataOutputMap = SimpleLanguage.simple(extractTokenFromExpression(dataOutputMap));
-      else
-         this.dataOutputMap = SimpleLanguage.simple(dataOutputMap);
+//      if (dataOutputMap.startsWith("${") && dataOutputMap.endsWith("}"))
+//         this.dataOutputMap = SimpleLanguage.simple(extractTokenFromExpression(dataOutputMap));
+//      else
+//         this.dataOutputMap = SimpleLanguage.simple(dataOutputMap);
+      this.dataOutputMap  = parseSimpleExpression(dataOutputMap);
    }
 
    /**
@@ -532,10 +534,11 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setPropertiesMap(String propertiesMap)
    {
-      if (propertiesMap.startsWith("${") && propertiesMap.endsWith("}"))
-         this.propertiesMap = SimpleLanguage.simple(extractTokenFromExpression(propertiesMap));
-      else
-         this.propertiesMap = SimpleLanguage.simple(propertiesMap);
+//      if (propertiesMap.startsWith("${") && propertiesMap.endsWith("}"))
+//         this.propertiesMap = SimpleLanguage.simple(extractTokenFromExpression(propertiesMap));
+//      else
+//         this.propertiesMap = SimpleLanguage.simple(propertiesMap);
+      this.propertiesMap  = parseSimpleExpression(propertiesMap);
    }
 
    /**
@@ -543,10 +546,11 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setProcessInstanceOid(String processInstanceOid)
    {
-      if (processInstanceOid.startsWith("${") && processInstanceOid.endsWith("}"))
-         this.processInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(processInstanceOid));
-      else
-         this.processInstanceOid = SimpleLanguage.simple(processInstanceOid);
+//      if (processInstanceOid.startsWith("${") && processInstanceOid.endsWith("}"))
+//         this.processInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(processInstanceOid));
+//      else
+//         this.processInstanceOid = SimpleLanguage.simple(processInstanceOid);
+      this.processInstanceOid = parseSimpleExpression(processInstanceOid);
    }
 
    /**
@@ -623,7 +627,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     *           (boolean)
     * @return ModelId
     */
-   protected String evaluateModelId(Exchange exchange, boolean strict)
+   public String evaluateModelId(Exchange exchange, boolean strict)
    {
       logger.debug("evaluateProcessId(" + exchange + ", " + strict + ") - start"); //$NON-NLS-1$
 
@@ -659,10 +663,11 @@ public class ProcessEndpoint extends AbstractIppEndpoint
     */
    public void setModelId(String modelId)
    {
-      if (modelId.startsWith("${") && modelId.endsWith("}"))
-         this.modelId = SimpleLanguage.simple(extractTokenFromExpression(modelId));
-      else
-         this.modelId = new ConstantExpression(modelId); // SimpleLanguage.simple(processId);
+//      if (modelId.startsWith("${") && modelId.endsWith("}"))
+//         this.modelId = SimpleLanguage.simple(extractTokenFromExpression(modelId));
+//      else
+//         this.modelId = new ConstantExpression(modelId); // SimpleLanguage.simple(processId);
+      this.modelId = parseSimpleExpression(modelId);
    }
 
    public void setState(String state)
@@ -731,7 +736,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
          return null;
       }
    }
-   protected Long evaluateParentProcessInstanceOid(Exchange exchange, boolean strict)
+   public Long evaluateParentProcessInstanceOid(Exchange exchange, boolean strict)
    {
       if (null != this.parentProcessInstanceOid)
       {
@@ -769,7 +774,7 @@ public class ProcessEndpoint extends AbstractIppEndpoint
    {
       this.spawnProcessID = spawnProcessID;
    }
-   protected Boolean evaluateCopyData(Exchange exchange, boolean strict)
+   public Boolean evaluateCopyData(Exchange exchange, boolean strict)
    {
       if (null != this.copyData)
       {

@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.spring.SpringConstants;
 import org.eclipse.stardust.engine.core.pojo.app.PlainJavaValidator;
 
@@ -36,8 +37,8 @@ public class SpringBeanValidator extends PlainJavaValidator
 
       if (className == null)
       {
-         inconsistencies.add(new Inconsistency("Bean type is not specified.",
-               Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.JAVA_BEAN_TYPE_NOT_SPECIFIED.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
       else
       {
@@ -48,8 +49,8 @@ public class SpringBeanValidator extends PlainJavaValidator
 
             if (methodName == null)
             {
-               inconsistencies.add(new Inconsistency("Completion method not specified.",
-                     Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.JAVA_COMPLETION_METHOD_NOT_SPECIFIED.raise();
+               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
             }
             else
             {
@@ -59,9 +60,9 @@ public class SpringBeanValidator extends PlainJavaValidator
                }
                catch (InternalException e)
                {
-                  inconsistencies.add(new Inconsistency("Couldn't find method '"
-                        + methodName + "' in class '" + clazz.getName() + "'.",
-                        Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.JAVA_COULD_NOT_FIND_METHOD_IN_CLASS.raise(
+                        methodName, clazz.getName());
+                  inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
                }
             }
 
@@ -69,19 +70,19 @@ public class SpringBeanValidator extends PlainJavaValidator
 
             if (beanId == null)
             {
-               inconsistencies.add(new Inconsistency("Bean ID was not specified.",
-                     Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.JAVA_BEAN_ID_NOT_SPECIFIED.raise();
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
          }
          catch (ClassNotFoundException e)
          {
-            inconsistencies.add(new Inconsistency("Class '" + className + "' not found.",
-                  Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.JAVA_CLASS_NOT_FOUND.raise(className);
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
          catch (NoClassDefFoundError e)
          {
-            inconsistencies.add(new Inconsistency("Class '" + className
-                  + "' could not be loaded.", Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.JAVA_CLASS_COULD_NOT_BE_LOADED.raise(className);
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
       return inconsistencies;

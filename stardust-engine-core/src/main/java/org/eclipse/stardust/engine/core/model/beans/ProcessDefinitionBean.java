@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import javax.xml.namespace.QName;
 
@@ -45,6 +44,7 @@ import org.eclipse.stardust.engine.api.model.ImplementationType;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.JoinSplitType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.model.utils.Connections;
@@ -59,12 +59,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.DeploymentUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 
 /**
- * @author mgille
+ * @author pielmann
  */
 public class ProcessDefinitionBean extends IdentifiableElementBean
       implements IProcessDefinition
 {
-   private static final String PROCESS_INTERFACE_NOT_RESOLVED = "Unresolved reference to process interface ''{0}''.";
 
    private static final long serialVersionUID = 1L;
 
@@ -117,13 +116,13 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    public void addToTransitions(ITransition transition, String condition)
    {
       markModified();
-      
+
       final Iterator iter1 = transitions.iterator();
       checkForDuplicateTransition(iter1, transition);
-      
+
       final Iterator iter2 = exceptionTransitions.iterator();
       checkForDuplicateTransition(iter2, transition);
-      
+
       if (condition != null && TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
       {
          exceptionTransitions.add(transition);
@@ -132,7 +131,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       {
          transitions.add(transition);
       }
-      
+
       if (0 <= defaultTransitionId)
       {
          // avoid parsing the transition IDs at runtime as this is pretty CPU intensive
@@ -154,7 +153,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          }
       }
    }
-   
+
    public void addToTriggers(ITrigger trigger)
    {
       markModified();
@@ -183,7 +182,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             return true;
          }
       }
-      
+
       return false;
    }
 
@@ -206,27 +205,25 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
       {
          super.checkConsistency(inconsistencies);
          checkId(inconsistencies);
-         
+
          if (getId() != null)
          {
             // check for unique Id
             IProcessDefinition pd = ((IModel) getModel()).findProcessDefinition(getId());
             if (pd != null && pd != this)
             {
-               inconsistencies.add(new Inconsistency("Duplicate ID for process definition '" +
-                     getName() + "'.", this, Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.PD_DUPLICATE_ID.raise(getName());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
-    
+
             // check id to fit in maximum length
             if (getId().length() > AuditTrailProcessDefinitionBean.getMaxIdLength())
             {
-               inconsistencies.add(new Inconsistency("ID for process definition '"
-                     + getName() + "' exceeds maximum length of "
-                     + AuditTrailProcessDefinitionBean.getMaxIdLength() + " characters.",
-                     this, Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.PD_ID_EXCEEDS_LENGTH.raise(getName(), AuditTrailProcessDefinitionBean.getMaxIdLength());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
          }
-         
+
          boolean isRevalidation = Parameters.instance().getBoolean(
                ModelElementBean.PRP_REVALIDATE_ELEMENTS, false);
          // Check Implementation of Interface only if it is not a revalidation
@@ -239,9 +236,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
                   IData data = formalParameter.getData();
                   if(data == null)
                   {
-                     inconsistencies.add(new Inconsistency("Invalid Formal Parameter: "
-                           + formalParameter + " has no data set.",
-                           this, Inconsistency.ERROR));                     
+                     BpmValidationError error = BpmValidationError.PD_FORMAL_PARAMETER_NO_DATA_SET.raise(formalParameter);
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
                   }
                }
             }
@@ -283,16 +279,13 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
                if (CompareHelper.areEqual(t.getFromActivity(), transition.getFromActivity()) &&
                    CompareHelper.areEqual(t.getToActivity(), transition.getToActivity()))
                {
-                  inconsistencies.add(new Inconsistency("Duplicate transition: "
-                        + t + " has the same source/target with " + transition,
-                        t, Inconsistency.ERROR));
-                  inconsistencies.add(new Inconsistency("Duplicate transition: "
-                        + transition + " has the same source/target with " + t,
-                        transition, Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.PD_DUPLICATE_TRANSITION_SAME_SOURCE_OR_TARGET.raise(transition, t);
+                  inconsistencies.add(new Inconsistency(error, transition, Inconsistency.ERROR));
                }
             }
             v.add(transition);
          }
+
 
          // Rule 1: Process definitions should have precisely one root activity
 
@@ -324,15 +317,15 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
          if (startActivity == null)
          {
-            inconsistencies.add(new Inconsistency("No start activity defined.",
-                  this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.PD_NO_START_ACTIVITY.raise();
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
 
          if (otherStartActivities != null)
          {
-            inconsistencies.add(new Inconsistency("Multiple start activities, " +
-                  otherStartActivities + " defined for process definition '" +
-                  getName() + "'.", this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.PD_MULTIPLE_START_ACTIVYTIES.raise(
+                  otherStartActivities, getName());
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
 
          // Rule 2: Process definitions need to have either a trigger or should be used as a subprocess activity
@@ -345,8 +338,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
 
          if (getActivities().isEmpty())
          {
-            inconsistencies.add(new Inconsistency("No activities defined for process definition '" +
-                  getName() + "'.", this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.PD_NO_ACTIVITIES_DEFINED.raise(getName());
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
       }
       catch (Exception e)
@@ -366,7 +359,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             IProcessDefinition refProcess = refModel.findProcessDefinition(externalReference.getId());
             if (refProcess == null)
             {
-               inconsistencies.add(new Inconsistency(Inconsistency.ERROR, this, PROCESS_INTERFACE_NOT_RESOLVED, qname));
+               BpmValidationError error = BpmValidationError.PD_PROCESS_INTERFACE_NOT_RESOLVED.raise(qname);
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             else
             {
@@ -441,7 +435,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
          throw new PublicException("There is already a transition with ID '" + id + "'."
                + ". Transition OID: " + elementOID);
       }
-      
+
       if (PredefinedConstants.RELOCATION_TRANSITION_ID.equals(id))
       {
          if (fromActivity != null || toActivity != null)
@@ -457,13 +451,13 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             throw new PublicException("From Activity does not belong to " + this
                   + ". Activity OID: " + fromActivity);
          }
-   
+
          if (toActivity.getProcessDefinition() != this)
          {
             throw new PublicException("To Activity does not belong to " + this
                   + ". Activity OID: " + toActivity);
          }
-   
+
          if (toActivity.getJoinType().equals(JoinSplitType.None) &&
                !toActivity.getInTransitions().isEmpty())
          {
@@ -471,7 +465,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
                   + "AND or XOR activity joins. Transition OID: " + elementOID
                   + ", target activity OID: " + toActivity.getElementOID());
          }
-   
+
          if (fromActivity.getSplitType().equals(JoinSplitType.None) &&
                !fromActivity.getOutTransitions().isEmpty() &&
                !TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
@@ -571,22 +565,22 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
             {
                return (ITransition) transitions.get(index);
             }
-            
+
             return (ITransition) exceptionTransitions.get(index - transitions.size());
          }
-         
+
          @Override
          public boolean isEmpty()
          {
             return transitions.isEmpty() && exceptionTransitions.isEmpty();
          }
-         
+
          @Override
          public Iterator<ITransition> iterator()
          {
             return IteratorUtils.chainedIterator(transitions.iterator(), exceptionTransitions.iterator());
          }
-         
+
          @Override
          public int size()
          {
@@ -894,7 +888,7 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    {
       return formalParameterMappings.get(parameterId);
    }
-   
+
    public IReference getExternalReference()
    {
       return externalReference;

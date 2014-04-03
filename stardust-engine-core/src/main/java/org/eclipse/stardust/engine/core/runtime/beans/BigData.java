@@ -63,6 +63,7 @@ public interface BigData
    int BIG_SERIALIZABLE = 13;
    int NULL = -1;
    int PERIOD = 14;
+   int DECIMAL = 15;
 
    void setShortStringValue(String value);
 

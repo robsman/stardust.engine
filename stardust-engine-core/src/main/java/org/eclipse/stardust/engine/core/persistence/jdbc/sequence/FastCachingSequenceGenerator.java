@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011, 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,7 +45,7 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
    private DBDescriptor dbDescriptor;
 
    private SqlUtils sqlUtils;
-   
+
    private final int sequenceBatchSize;
 
    public FastCachingSequenceGenerator()
@@ -76,12 +76,12 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
    {
       // retrieve thread local sequence cache registry
       final Map sequenceCacheRegistry = (Map) get();
-      
+
       SequenceCache sequenceCache = (SequenceCache) sequenceCacheRegistry.get(typeDescriptor);
       if (null == sequenceCache)
       {
          sequenceCache = new SequenceCache(sequenceBatchSize);
-         
+
          sequenceCacheRegistry.put(typeDescriptor, sequenceCache);
       }
 
@@ -90,8 +90,8 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
       {
          // obtain fresh set of IDs from the DB
          fillSequenceCache(typeDescriptor, session, sequenceCache);
-         
-         Assert.condition(0 == sequenceCache.idxNextVal);
+
+         Assert.condition( !sequenceCache.isEmpty());
       }
 
       final long sequenceValue = sequenceCache.getNext();
@@ -100,7 +100,7 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
       {
          trace.debug("Returning unique ID: " + sequenceValue);
       }
-      
+
       return sequenceValue;
    }
 
@@ -112,7 +112,7 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
       Assert.condition(1 == pkFields.length,
             "Automatic PK values are only supported for types with a single PK field.");
 
-      // pretend to only fetch one sequence value, but we will assume the sequence increment is at least sequenceBatchSize 
+      // pretend to only fetch one sequence value, but we will assume the sequence increment is at least sequenceBatchSize
       String createPKStmt = dbDescriptor.getCreatePKStatement(sqlUtils.getSchemaName(),
             typeDescriptor.getPkSequence(), 1);
 
@@ -143,12 +143,7 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
          if (rs.next())
          {
             final long newPk = rs.getLong(1);
-            
-            for (int i = 0; i < sequenceBatchSize; i++ )
-            {
-               sequenceCache.cachedValues[i] = (newPk + i);
-            }
-            sequenceCache.idxNextVal = 0;
+            sequenceCache.setNewCacheRange(newPk);
          }
          else
          {
@@ -167,22 +162,47 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
 
    private static class SequenceCache
    {
-      private int idxNextVal;
-      
-      private final long[] cachedValues;
-      
+      private final int cacheSize;
+
+      private long nextVal;
+      private long maxVal;
+
       public SequenceCache(int cacheSize)
       {
-         this.cachedValues = new long[cacheSize];
-         
-         this.idxNextVal = cachedValues.length;
+         this.cacheSize = cacheSize;
+
+         // this marks the cache as being empty
+         this.maxVal = -1;
+         this.nextVal = 0;
       }
-      
+
+      public void setNewCacheRange(long startingValue)
+      {
+         if ( !isEmpty())
+         {
+            throw new InternalException(
+                  "Must not set new range for non-empty sequence cache.");
+         }
+
+         if(startingValue < nextVal)
+         {
+            throw new InternalException(
+                  "New range mast start ahead of current range.");
+         }
+
+         this.nextVal = startingValue;
+         this.maxVal = startingValue + cacheSize - 1;
+      }
+
       public boolean isEmpty()
       {
-         return (idxNextVal == cachedValues.length);
+         return (nextVal > maxVal);
       }
-      
+
+      /**
+       * @return next value. Subsequent call will return a value increased by 1 or throws an
+       *         exception if previous call emptied the cache.
+       */
       public long getNext()
       {
          if (isEmpty())
@@ -190,9 +210,22 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
             throw new InternalException(
                   "Must not retrieve a value from empty sequence cache.");
          }
-         
-         return cachedValues[idxNextVal++];
+
+         return nextVal++;
+      }
+
+      /**
+       * @return next value or exception if cache is empty. Subsequent call will return the same result.
+       */
+      public long peekNext()
+      {
+         if (isEmpty())
+         {
+            throw new InternalException(
+                  "Must not retrieve a value from empty sequence cache.");
+         }
+
+         return nextVal;
       }
    }
-   
 }

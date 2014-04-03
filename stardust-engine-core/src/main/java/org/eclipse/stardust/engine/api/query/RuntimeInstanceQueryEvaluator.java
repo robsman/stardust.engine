@@ -27,14 +27,9 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.SqlBuilder.ParsedQuery;
 import org.eclipse.stardust.engine.api.runtime.IDescriptorProvider;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.core.persistence.EmptyResultSetIterator;
-import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.OrderCriteria;
 import org.eclipse.stardust.engine.core.persistence.OrderCriterion;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SqlUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -206,7 +201,7 @@ public class RuntimeInstanceQueryEvaluator implements QueryEvaluator
             List<FieldRef> selection = SqlUtils.getDefaultSelectFieldList(TypeDescriptor.get(type));
             int size = selection.size();
             selection.addAll(selectExtension);
-            queryExtension.setSelection(selection.toArray(new FieldRef[size]));
+            queryExtension.setSelection(selection.toArray(new FieldRef[selection.size()]));
             authorizationPredicate.setSelectionExtension(size + 1, selectExtension);
          }
          fetchPredicate = authorizationPredicate;

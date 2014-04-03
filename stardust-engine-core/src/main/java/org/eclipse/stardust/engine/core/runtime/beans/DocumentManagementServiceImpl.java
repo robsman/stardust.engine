@@ -834,7 +834,6 @@ public class DocumentManagementServiceImpl
             IFolder parentFolder = vfs.getFolder(parentFolderIdWithPrefix,
                   IFolder.LOD_NO_MEMBERS);
 
-                        
             if (parentFolder == null)
             {
                // folder does not exist, maybe it is a virtual folder

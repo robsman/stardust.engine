@@ -2254,14 +2254,6 @@ public class DDLManager
             trace.warn(message, x);
             DataClusterHelper.deleteDataClusterSetup();
          }
-         try
-         {
-            connection.commit();
-         }
-         catch (SQLException e)
-         {
-            throw new InternalException(e);
-         }
       }
    }
    
@@ -2717,6 +2709,9 @@ public class DDLManager
          // insert entry into partition's lock table if required
          if (isUsingLockTables() && typeManager.isDistinctLockTableName())
          {
+            String lockTableName = typeManager.getLockTableName();
+            lockTableName = getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(lockTableName));
+            
             List columns = new ArrayList();
             columns.add(AuditTrailPartitionBean.FIELD__OID);
 
@@ -2726,7 +2721,7 @@ public class DDLManager
             
             insBuffer = new StringBuffer(200);
             insBuffer//
-                  .append("INSERT INTO ").append(typeManager.getLockTableName()).append(columnPart)//
+                  .append("INSERT INTO ").append(lockTableName).append(columnPart)//
                   .append(" SELECT ").append(valuesPart)
                   .append(" FROM ").append(partitionTableName)
                   .append(" WHERE ")

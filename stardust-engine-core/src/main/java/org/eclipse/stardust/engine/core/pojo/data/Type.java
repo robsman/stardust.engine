@@ -10,13 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.pojo.data;
 
+import java.util.List;
+
 import org.eclipse.stardust.common.StringKey;
 
 /**
  * @author mgille
  */
+@SuppressWarnings("serial")
 public class Type extends StringKey
 {
+   //static final long serialVersionUID = 2709154543029381649L;
+   
    public static final Type Boolean = new Type("boolean");
    public static final Type Char = new Type("char");
    public static final Type Byte = new Type("byte");
@@ -28,11 +33,18 @@ public class Type extends StringKey
    public static final Type String = new Type("String");
    // @todo (france, ub): leave this out but instead maybe offer period?
    public static final Type Calendar = new Type("Calendar");
+   @Deprecated
    public static final Type Money = new Type("Money");
    public static final Type Timestamp = new Type("Timestamp");
+   public static final Type Enumeration = new Type("Enumeration");
 
    private Type(String id)
    {
       super(id, id);
+   }
+   
+   public static List<Type> getTypes()
+   {
+      return getKeys(Type.class, false);
    }
 }

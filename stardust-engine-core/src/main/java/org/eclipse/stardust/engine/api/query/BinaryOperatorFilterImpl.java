@@ -88,4 +88,10 @@ final class BinaryOperatorFilterImpl extends ScopedFilterImpl
    {
       return visitor.visit(this, context);
    }
+
+   @Override
+   public String toString()
+   {
+      return attribute + ' ' + operator + ' ' + value;
+   }
 }

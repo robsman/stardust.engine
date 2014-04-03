@@ -22,18 +22,24 @@ import org.apache.commons.jxpath.ri.compiler.NodeNameTest;
 import org.apache.commons.jxpath.ri.compiler.Step;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
 
-
 public class NamespaceContextBuilder
 {
    public static String toNamespaceQualifiedXPath(String unqualifiedXPath,
          TypedXPath rootXPath, Map<String, String> nsMappings)
    {
+      return toNamespaceQualifiedXPath(null, unqualifiedXPath, rootXPath, nsMappings);
+   }
+   
+   static String toNamespaceQualifiedXPath(IXPathMap map, String unqualifiedXPath,
+         TypedXPath rootXPath, Map<String, String> nsMappings)
+   {
+      unqualifiedXPath = extractEmbeddedNamespaces(unqualifiedXPath, nsMappings);
       LocationPath parsedUnqualifiedPath = XPathEvaluator.parseLocationPath(unqualifiedXPath);
       if (null != parsedUnqualifiedPath)
       {
          String qualifiedPath = "";
 
-         NamespaceQualifier nsQualifier = new NamespaceQualifier(rootXPath, nsMappings);
+         NamespaceQualifier nsQualifier = new NamespaceQualifier(map, rootXPath, nsMappings);
          if (parsedUnqualifiedPath.isAbsolute())
          {
             nsQualifier.startAbsoluteLocationPath();
@@ -85,6 +91,10 @@ public class NamespaceContextBuilder
                      qualifiedPath += step.toString();
                   }
                }
+               else
+               {
+                  qualifiedPath += step.toString();
+               }
                break;
 
             case Compiler.AXIS_PARENT:
@@ -119,6 +129,71 @@ public class NamespaceContextBuilder
       }
    }
 
+   private static String extractEmbeddedNamespaces(String unqualifiedXPath, Map<String, String> nsMappings)
+   {
+      boolean hasMore;
+      unqualifiedXPath = unqualifiedXPath.trim();
+      do
+      {
+         hasMore = false;
+         int ix = unqualifiedXPath.indexOf(' ');
+         if (ix >= 0)
+         {
+            String def = unqualifiedXPath.substring(0,  ix);
+            unqualifiedXPath = unqualifiedXPath.substring(ix + 1).trim();
+            ix = def.indexOf('=');
+            String prefix = def.substring(0, ix).trim();
+            String namespace = def.substring(ix + 1).trim();
+            if (!prefix.isEmpty() && !namespace.isEmpty())
+            {
+               nsMappings.put(prefix, namespace);
+            }
+            hasMore = true;
+         }
+         else
+         {
+            ix = unqualifiedXPath.indexOf('{');
+            if (ix >= 0)
+            {
+               int iy = unqualifiedXPath.indexOf('}', ix);
+               if (iy >= 0)
+               {
+                  String namespace = unqualifiedXPath.substring(ix + 1, iy);
+                  if (namespace.isEmpty())
+                  {
+                     break;
+                  }
+                  String prefix = null;
+                  if (nsMappings.containsValue(namespace))
+                  {
+                     prefix = extractPrefix(nsMappings, namespace);
+                  }
+                  else
+                  {
+                     prefix = "ns" + Integer.toString(nsMappings.size());
+                     nsMappings.put(prefix, namespace);
+                  }
+                  unqualifiedXPath = unqualifiedXPath.replace(unqualifiedXPath.substring(ix, iy + 1), prefix + ':');
+                  hasMore = true;
+               }
+            }
+         }
+      } while (hasMore);
+      return unqualifiedXPath;
+   }
+
+   private static String extractPrefix(Map<String, String> nsMappings, String namespace)
+   {
+      for (Map.Entry<String, String> nsMapping : nsMappings.entrySet())
+      {
+         if (namespace.equals(nsMapping.getValue()))
+         {
+            return nsMapping.getKey();
+         }
+      }
+      return null;
+   }
+
    /**
     * Tries to qualify all XPath steps with a prefix, creates a NamespaceContext that can
     * be used during the XPath evaluation
@@ -134,43 +209,46 @@ public class NamespaceContextBuilder
        */
       private Map<String, String> nsMappings;
 
-      public NamespaceQualifier(TypedXPath rootXPath, Map<String, String> nsMappings)
+      private IXPathMap map;
+
+      public NamespaceQualifier(IXPathMap map, TypedXPath rootXPath, Map<String, String> nsMappings)
       {
+         this.map = map;
          this.rootXPath = rootXPath;
-         this.parentXPathStack = new Stack();
+         parentXPathStack = new Stack();
          this.nsMappings = nsMappings;
       }
 
       public void startAbsoluteLocationPath()
       {
-         this.parentXPathStack.push(this.rootXPath);
+         parentXPathStack.push(this.rootXPath);
       }
 
       public void endAbsoluteLocationPath()
       {
-         this.parentXPathStack.pop();
+         parentXPathStack.pop();
       }
 
       public void startRelativeLocationPath()
       {
-         if (this.parentXPathStack.isEmpty())
+         if (parentXPathStack.isEmpty())
          {
-            this.parentXPathStack.push(this.rootXPath);
+            parentXPathStack.push(rootXPath);
          }
          else
          {
-            this.parentXPathStack.push(this.parentXPathStack.peek());
+            parentXPathStack.push(parentXPathStack.peek());
          }
       }
 
       public void endRelativeLocationPath()
       {
-         this.parentXPathStack.pop();
+         parentXPathStack.pop();
       }
 
       public QName startNameStep(int axis, String prefix, String localName)
       {
-         TypedXPath parentXPath = (TypedXPath) this.parentXPathStack.pop();
+         TypedXPath parentXPath = (TypedXPath) parentXPathStack.pop();
          TypedXPath xPath = parentXPath.getChildXPath(localName);
          if (xPath == null)
          {
@@ -192,23 +270,17 @@ public class NamespaceContextBuilder
                }
             }
          }
-         if (isEmpty(prefix) && !isEmpty(xPath.getXsdElementNs()))
+         String namespace = xPath.getXsdElementNs();
+         if (isEmpty(prefix) && !isEmpty(namespace))
          {
-            if (nsMappings.containsValue(xPath.getXsdElementNs()))
+            if (nsMappings.containsValue(namespace))
             {
-               for (Map.Entry<String, String> nsMapping : nsMappings.entrySet())
-               {
-                  if (xPath.getXsdElementNs().equals(nsMapping.getValue()))
-                  {
-                     prefix = nsMapping.getKey();
-                     break;
-                  }
-               }
+               prefix = extractPrefix(nsMappings, namespace);
             }
             else
             {
                prefix = "ns" + Integer.toString(nsMappings.size());
-               nsMappings.put(prefix, xPath.getXsdElementNs());
+               nsMappings.put(prefix, namespace);
             }
          }
 
@@ -232,7 +304,7 @@ public class NamespaceContextBuilder
                return childXPath;
             }
          }
-         return null;
+         return parentXPath.hasWildcards() && map instanceof DataXPathMap ? ((DataXPathMap) map).getRootXPath(step) : null;
       }
    }
 }

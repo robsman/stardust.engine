@@ -79,7 +79,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args0 MDL_NO_JAVA_APPLICATION_CLASS_PATH = newArgs0("MDL01191", BpmRuntimeErrorMessages.getString("MDL01191")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 MDL_NO_JAVA_APPLICATION_METHOD = newArgs0("MDL01192", BpmRuntimeErrorMessages.getString("MDL01192")); //$NON-NLS-1$ //$NON-NLS-2$
-      
+
    public static final Args1 MDL_DANGLING_DATA_PATH = newArgs1("MDL02021", BpmRuntimeErrorMessages.getString("MDL02021")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_DANGLING_IN_DATA_PATH = newArgs1("MDL02022", BpmRuntimeErrorMessages.getString("MDL02022")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_DANGLING_OUT_DATA_PATH = newArgs1("MDL02023", BpmRuntimeErrorMessages.getString("MDL02023")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -89,8 +89,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_INVALID_DOCUMENT_ROOT_TYPE = newArgs1("MDL03003", BpmRuntimeErrorMessages.getString("MDL03003")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 MDL_INVALID_QA_CODE_ID = newArgs1("MDL03004", BpmRuntimeErrorMessages.getString("MDL03004")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 MDL_DUPLICATE_QA_CODE = newArgs2("MDL03005", BpmRuntimeErrorMessages.getString("MDL03005")); //$NON-NLS-1$ //$NON-NLS-2$ 
-   
+   public static final Args2 MDL_DUPLICATE_QA_CODE = newArgs2("MDL03005", BpmRuntimeErrorMessages.getString("MDL03005")); //$NON-NLS-1$ //$NON-NLS-2$
+
    //// Audittrail related
 
    public static final Args0 ATDB_AUDIT_TRAIL_UNAVAILABLE = newArgs0("ATDB00001", BpmRuntimeErrorMessages.getString("ATDB00001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -151,10 +151,10 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 DMS_SECURITY_ERROR_ADMIN_REQUIRED = newArgs0("DMS02001", BpmRuntimeErrorMessages.getString("DMS02001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_SECURITY_ERROR_DMS_READONLY_FOR_PREFERENCES = newArgs0("DMS02002", BpmRuntimeErrorMessages.getString("DMS02002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_SECURITY_ERROR_WRITE_IN_ARCHIVE_MODE = newArgs0("DMS02003", BpmRuntimeErrorMessages.getString("DMS02003")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    public static final Args1 DMS_SECURITY_ERROR_ACCESS_DENIED_ON_FOLDER = newArgs1("DMS02101", BpmRuntimeErrorMessages.getString("DMS02101")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_SECURITY_ERROR_ACCESS_DENIED_ON_DOCUMENT = newArgs1("DMS02102", BpmRuntimeErrorMessages.getString("DMS02102")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    public static final Args1 DMS_ANNOTATIONS_ID_PRESENT = newArgs1("DMS03001", BpmRuntimeErrorMessages.getString("DMS03001")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Audittrail related
@@ -171,12 +171,12 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 ATDB_USER_ID_EXISTS = newArgs2("ATDB02114", BpmRuntimeErrorMessages.getString("ATDB02114")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args2 ATDB_DEPUTY_EXISTS = newArgs2("ATDB02115", BpmRuntimeErrorMessages.getString("ATDB02115")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 ATDB_DEPUTY_DOES_NOT_EXISTS = newArgs2("ATDB02116", BpmRuntimeErrorMessages.getString("ATDB02116")); //$NON-NLS-1$ //$NON-NLS-2$   
+   public static final Args2 ATDB_DEPUTY_DOES_NOT_EXISTS = newArgs2("ATDB02116", BpmRuntimeErrorMessages.getString("ATDB02116")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_DEPUTY_SELF_REFERENCE_NOT_ALLOWED = newArgs1("ATDB02117", BpmRuntimeErrorMessages.getString("ATDB02117")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 ATDB_ADDING_DEPUTY_FORBIDDEN = new Args2("ATDB02118", BpmRuntimeErrorMessages.getString("ATDB02118")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 ATDB_MODIFYING_DEPUTY_FORBIDDEN = new Args2("ATDB02119", BpmRuntimeErrorMessages.getString("ATDB02119")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 ATDB_REMOVING_DEPUTY_FORBIDDEN = new Args2("ATDB02120", BpmRuntimeErrorMessages.getString("ATDB02120")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    public static final Args0 ATDB_NO_MATCHING_USER_DOMAIN = newArgs0("ATDB02121", BpmRuntimeErrorMessages.getString("ATDB02121")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_OID = newArgs1("ATDB02122", BpmRuntimeErrorMessages.getString("ATDB02122")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_DOMAIN_ID = newArgs1("ATDB02123", BpmRuntimeErrorMessages.getString("ATDB02123")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -298,8 +298,8 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_INTERACTIVE_AI_CAN_NOT_BE_FORCED_TO_COMPLETION = newArgs1("BPMRT03115", BpmRuntimeErrorMessages.getString("BPMRT03115")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER = newArgs1("BPMRT03116", BpmRuntimeErrorMessages.getString("BPMRT03116")); //$NON-NLS-1$ //$NON-NLS-2$   
-   
+   public static final Args1 BPMRT_AI_CAN_NOT_BE_DELEGATED_TO_NON_USERGROUP_MEMBER = newArgs1("BPMRT03116", BpmRuntimeErrorMessages.getString("BPMRT03116")); //$NON-NLS-1$ //$NON-NLS-2$
+
    public static final Args1 BPMRT_AI_AND_HANDLER_BINDING_FRM_DIFF_MODELS = newArgs1("BPMRT03201", BpmRuntimeErrorMessages.getString("BPMRT03201")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_PI_AND_SPAWN_PROCESS_FRM_DIFF_MODELS = newArgs1("BPMRT03251", "Process instance with OID {0} and the process to spawn are from a different model.");
@@ -351,6 +351,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args2 BPMRT_INVALID_ARGUMENT = newArgs2("BPMRT03820", "Argument ''{0}'' must not be ''{1}''.");
    public static final Args1 BPMRT_INVALID_VALUE = newArgs1("BPMRT03825", "Invalid Value for Argument ''{0}''."); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BPMRT_INVALID_ENUM_VALUE = newArgs1("BPMRT03830", "Invalid enumeration value: ''{0}''"); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args0 BPMRT_INVALID_ORGANIZATION_HIERARCHY = newArgs0("BPMRT03813", BpmRuntimeErrorMessages.getString("BPMRT03813")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 BPMRT_DEPARTMENT_HAS_ACTIVE_ACTIVITY_INSTANCES = newArgs1("BPMRT03814", BpmRuntimeErrorMessages.getString("BPMRT03814")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -360,7 +361,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 BPMRT_ILLEGAL_AI_STATE_CHANGE = newArgs2("BPMRT03901", BpmRuntimeErrorMessages.getString("BPMRT03901")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args3 BPMRT_ILLEGAL_AI_STATE_CHANGE_FOR_AI = newArgs3("BPMRT03902", BpmRuntimeErrorMessages.getString("BPMRT03902")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args4 BPMRT_ILLEGAL_AI_STATE_CHANGE_FOR_AI_WITH_PI_STATE = newArgs4("BPMRT03903", BpmRuntimeErrorMessages.getString("BPMRT03903")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args2 BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE = newArgs2("BPMRT03904", "Cannot run activity thread for activity instance {0} because process instance {1} is aborted.");
+   public static final Args2 BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE = newArgs2("BPMRT03904", BpmRuntimeErrorMessages.getString("BPMRT03904")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_CANNOT_RUN_A_INVALID_PI_STATE = newArgs2("BPMRT03905", BpmRuntimeErrorMessages.getString("BPMRT03905")); //$NON-NLS-1$ //$NON-NLS-2$
 
    public static final Args1 BPMRT_INCOMPATIBLE_TYPE_FOR_DATA = newArgs1("BPMRT04002", BpmRuntimeErrorMessages.getString("BPMRT04002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 BPMRT_INCOMPATIBLE_TYPE_FOR_DATA_WITH_PATH = newArgs2("BPMRT04003", BpmRuntimeErrorMessages.getString("BPMRT04003")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -380,9 +382,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 BPMRT_PI_NOT_MEMBER = newArgs2("BPMRT03835"); //$NON-NLS-1$
 
    public static final Args1 BPMRT_PI_IS_TRANSIENT = newArgs1("BPMRT03840", BpmRuntimeErrorMessages.getString("BPMRT03840")); //$NON-NLS-1$ //$NON-NLS-2$
-   
+
    public static final Args1 BPMRT_NO_CHANGES_TO_MODEL = newArgs1("BPMRT03850"); //$NON-NLS-1$
-   
+
    public static final Args1 BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED = newArgs1("BPMRT05001", BpmRuntimeErrorMessages.getString("BPMRT05001")); //$NON-NLS-1$
 
    //// JMS related
@@ -404,6 +406,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 QUERY_FILTER_IS_XXX_FOR_QUERY = newArgs2("QUERY02001", BpmRuntimeErrorMessages.getString("QUERY02001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 QUERY_FILTER_IS_NOT_AVAILABLE_WITH_DISABLED_AI_HISTORY = newArgs1("QUERY02010", BpmRuntimeErrorMessages.getString("QUERY02010")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 QUERY_DATA_FILTER_EMPTY_VALUE_LIST_FOR_XXX_OPERATOR = newArgs1("QUERY02020", BpmRuntimeErrorMessages.getString("QUERY02020")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 QUERY_DATA_FILTER_VALUE_TYPES_ARE_INHOMOGENEOUS = newArgs1("QUERY02021", BpmRuntimeErrorMessages.getString("QUERY02021")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    //// IPP WS related
 
@@ -417,7 +422,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 IPPWS_ENV_CREATION_FAILED_SESSION_PROPS_NULL = newArgs0("IPPWS02002", BpmRuntimeErrorMessages.getString("IPPWS02002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 IPPWS_ENV_CREATION_FAILED_ALL_NULL = newArgs0("IPPWS02003", BpmRuntimeErrorMessages.getString("IPPWS02003")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args2 IPPWS_META_DATA_TYPE_INVALID = newArgs2("IPPWS03001", "The specified metaDataType ''{0}'' does not match the type defined for data ''{1}''."); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 IPPWS_META_DATA_TYPE_INVALID = newArgs2("IPPWS03001", BpmRuntimeErrorMessages.getString("IPPWS03001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 IPPWS_DATA_VALUE_INVALID = newArgs2("IPPWS03101", BpmRuntimeErrorMessages.getString("IPPWS03101")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Login related
    public static final Args0 LOGIN_LDAP_INVALID_USER_PASSWORD = newArgs0("LOGIN01001", BpmRuntimeErrorMessages.getString("LOGIN01001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -611,7 +617,7 @@ public class BpmRuntimeError extends ErrorCase
          return buildError(new Object[] { new Long(arg1), new Long(arg2), new Long(arg3), new Long(arg4) });
       }
    }
-   
+
    public static Args newArgs(String errorCode)
    {
       return new Args(errorCode, BpmRuntimeErrorMessages.getString(errorCode));
@@ -628,7 +634,7 @@ public class BpmRuntimeError extends ErrorCase
       {
          return buildError(arg);
       }
-   }   
+   }
 
    static abstract class AbstractErrorFactory
    {

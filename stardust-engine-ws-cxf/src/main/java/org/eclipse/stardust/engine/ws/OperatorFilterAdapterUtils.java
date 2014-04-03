@@ -507,6 +507,10 @@ public class OperatorFilterAdapterUtils
       {
          operator = Operator.NOT_IN;
       }
+      else if (predicateXto instanceof NotAnyOfPredicateXto)
+      {
+         operator = Operator.NOT_ANY_OF;
+      }
       else if (predicateXto instanceof BetweenPredicateXto)
       {
          operator = Operator.BETWEEN;

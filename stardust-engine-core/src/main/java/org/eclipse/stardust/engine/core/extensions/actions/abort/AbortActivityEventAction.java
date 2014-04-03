@@ -23,7 +23,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.Event;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.EventActionInstance;
 
-
 /**
  * @author fherinean
  * @version $Revision: 12382 $
@@ -49,8 +48,9 @@ public class AbortActivityEventAction implements EventActionInstance
 
    public Event execute(Event event)
    {
-      ActivityInstanceBean activityInstance = ActivityInstanceBean.findByOID(event
-            .getObjectOID());
+      ActivityInstanceBean activityInstance = ActivityInstanceUtils.lock(event
+              .getObjectOID());
+            
       if ( !activityInstance.isTerminated() && !activityInstance.isAborting())
       {
          ActivityInstanceUtils.abortActivityInstance(activityInstance, scope);

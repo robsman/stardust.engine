@@ -184,6 +184,10 @@ import org.eclipse.stardust.engine.api.dto.AuditTrailPersistence;
     */
    /* package-private */ static final String PROCESS_DEF_ID_MULTIPLE_RETRY = "MultipleRetry";
    
+   /**
+    * the ID of the process definition accessing data prior to an AND split
+    */
+   /* package-private */ static final String PROCESS_DEF_ID_DATA_ACCESS_PRIOR_TO_AND_SPLIT = "DataAccessPriorToANDSplit";
    
    /**
     * the name of the process definition started by a timer trigger

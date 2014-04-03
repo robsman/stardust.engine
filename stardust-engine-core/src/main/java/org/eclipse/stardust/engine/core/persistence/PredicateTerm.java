@@ -12,7 +12,7 @@ package org.eclipse.stardust.engine.core.persistence;
 
 /**
  * Marker interface for query predicates
- * 
+ *
  * @author sborn
  * @version $Revision$
  */

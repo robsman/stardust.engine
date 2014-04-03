@@ -15,9 +15,11 @@ import javax.xml.namespace.QName;
 public class QNameConstants
 {
    public static final QName QN_CHAR = new QName("http://eclipse.org/stardust/ws/v2012a/api","Char");
-   
+
    //public static final QName QN_CALENDAR = new QName("http://eclipse.org/stardust/ws/v2012a/api","Calendar");
-   
+
+   public static final QName QN_ENUMERATION = new QName("http://eclipse.org/stardust/ws/v2012a/api","Enumeration");
+
    public static final QName QN_QNAME = new QName("http://www.w3.org/2001/XMLSchema",
          "QName");
 

@@ -13,11 +13,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.annotation.Resource;
-
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.Produce;
@@ -39,52 +35,51 @@ import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironmen
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
 import org.eclipse.stardust.engine.extensions.camel.util.test.BpmAssert;
 import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
-//import com.infinity.bpm.util.test.BpmAssert;
-//import com.infinity.bpm.util.test.SpringTestUtils;
-
-@ContextConfiguration(locations = {
-      "ActivityEndpointTest-context.xml", "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml","classpath:default-camel-context.xml"})
-public class ActivityEndpointTest extends AbstractJUnit4SpringContextTests
+public class ActivityEndpointTest 
 {
 
+   private static ClassPathXmlApplicationContext ctx;
+   {
+      ctx = new ClassPathXmlApplicationContext(new String[] {
+            "org/eclipse/stardust/engine/extensions/camel/ActivityEndpointTest-context.xml", "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml","classpath:default-camel-context.xml"});
+      defaultCamelContext = (CamelContext) ctx.getBean("defaultCamelContext");
+      testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
+      serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
+      try
+      {
+         defaultCamelContext.addRoutes(createFullRoute());
+         testUtils.deployModel();
+      }
+      catch (Exception e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      
+      
+   }
+   
+   
    private static final transient Logger LOG = LoggerFactory.getLogger(ActivityEndpointTest.class);
    // URI constants
    private static final String FULL_ROUTE_BEGIN = "direct:startActivityEndpointTestRoute";
    private static final String FULL_ROUTE_END = "mock:endActivityEndpointTestRoute";
 
-   @Resource
-   private  CamelContext defaultCamelContext;
-   @Resource
-   private SpringTestUtils testUtils;
+   private static  CamelContext defaultCamelContext;
+   private static SpringTestUtils testUtils;
    /**
     * Use this service factory access for testing assumptions!
     */
-   @Resource
    private ServiceFactoryAccess serviceFactoryAccess;
 
    @Produce(uri = "direct:in")
    protected ProducerTemplate defaultProducerTemplate;
-   @Produce(uri = FULL_ROUTE_BEGIN)
-   protected ProducerTemplate fullRouteProducerTemplate;
-   @EndpointInject(uri = FULL_ROUTE_END)
-   protected MockEndpoint fullRouteResult;
-
-   private static boolean initiated = false; 
-
    @Test
-   // @DirtiesContext //TODO find out how DirtiesContext can be used. Currently it
-   // destroys the DB connection pool
    public void testFindActivities() throws Exception
    {
       String uri;
@@ -229,7 +224,6 @@ public class ActivityEndpointTest extends AbstractJUnit4SpringContextTests
 
 
    @Test
-   @DirtiesContext
    public void testFullRoute() throws Exception
    {
       Integer id = new Integer(2322244);
@@ -242,7 +236,12 @@ public class ActivityEndpointTest extends AbstractJUnit4SpringContextTests
       ProcessInstance pi = wfService.startProcess(PROCESS_ID_MESSAGE_TRANSFORMATION, null, true);
 
       // send corrupt input
-      fullRouteProducerTemplate.sendBodyAndHeader(id + "," + firstname + "," + lastname, "myPiOid", pi.getOID());
+      ProducerTemplate fullRouteProducerTemplate=defaultCamelContext.createProducerTemplate();
+//      ProducerTemplate fullRouteProducerTemplate = new DefaultProducerTemplate(defaultCamelContext);
+//      fullRouteProducerTemplate.setDefaultEndpointUri(FULL_ROUTE_BEGIN);
+//      fullRouteProducerTemplate.start();
+      fullRouteProducerTemplate.sendBodyAndHeader(FULL_ROUTE_BEGIN,id + "," + firstname + "," + lastname, "myPiOid", pi.getOID());
+      MockEndpoint fullRouteResult= defaultCamelContext.getEndpoint(FULL_ROUTE_END, MockEndpoint.class);
 
       fullRouteResult.setExpectedMessageCount(1);
       fullRouteResult.assertIsSatisfied();
@@ -266,38 +265,23 @@ public class ActivityEndpointTest extends AbstractJUnit4SpringContextTests
       }
     }
 
-//   @After
-//   public void tearDown()
+
+//   @Before
+//   public void setUp() throws Exception
 //   {
-//
-//      try
-//      {
-//         serviceFactoryAccess.getDefaultServiceFactory().getAdministrationService().cleanupRuntimeAndModels();
+//     
+//      if (!initiated){
+//         defaultCamelContext.addRoutes(createFullRoute());
+//         setUpGlobal();
 //      }
-//      catch (Exception e)
-//      {
-//         throw new RuntimeException(e);
-//      }
-//
 //   }
-
-   @Before
-   public void setUp() throws Exception
-   {
-     
-      if (!initiated){
-         defaultCamelContext.addRoutes(createFullRoute());
-         setUpGlobal();
-      }
-   }
-
-   @DirtiesContext
-   public void setUpGlobal() throws Exception
-   {
-      // initiate environment
-      testUtils.setUpGlobal();
-      initiated = true;
-   }
+//
+//   public void setUpGlobal() throws Exception
+//   {
+//      // initiate environment
+//      testUtils.setUpGlobal();
+//      initiated = true;
+//   }
 
    public static RouteBuilder createFullRoute()
    {

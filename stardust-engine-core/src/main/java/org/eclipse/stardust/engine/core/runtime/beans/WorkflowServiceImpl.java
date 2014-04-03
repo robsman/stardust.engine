@@ -211,6 +211,7 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       if (copyData)
       {
          DataCopyUtils.copyDataUsingDocumentCopyHeuristics(parentProcessInstance, processInstance, data == null ? Collections.EMPTY_SET: data.keySet());
+         DataCopyUtils.copyNotes(parentProcessInstance, processInstance);
       }
       runProcessInstance(processInstance, null);
 
@@ -680,18 +681,29 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
 
       PredefinedProcessInstanceLinkTypes linkType = PredefinedProcessInstanceLinkTypes.SWITCH;
 
-      String processId = qname.getLocalPart();
-      if (processId.equals(originatingProcessDefinition.getId()))
+      if (options == null)
       {
-         /*if (model == originatingProcessDefinition.getModel())
+         options = SpawnOptions.DEFAULT;
+      }
+      String processId = qname.getLocalPart();
+      if (options.isAbortProcessInstance())
+      {
+         if (processId.equals(originatingProcessDefinition.getId()))
          {
-            throw new IllegalOperationException(
-                  BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
+            /*if (model == originatingProcessDefinition.getModel())
+            {
+               throw new IllegalOperationException(
+                     BpmRuntimeError.BPMRT_PI_SWITCH_TO_SAME_PROCESS.raise(processId));
+            }
+            else
+            {*/
+               linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
+            /*}*/
          }
-         else
-         {*/ 
-            linkType = PredefinedProcessInstanceLinkTypes.UPGRADE;
-         /*}*/
+      }
+      else
+      {
+         linkType = PredefinedProcessInstanceLinkTypes.SPAWN;
       }
 
       IProcessDefinition processDefinition = model.findProcessDefinition(processId);
@@ -701,10 +713,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
                BpmRuntimeError.MDL_UNKNOWN_PROCESS_DEFINITION_ID.raise(processId), processId);
       }
 
-      if (options == null)
-      {
-         options = SpawnOptions.DEFAULT;
-      }
       if (options.isAbortProcessInstance())
       {
          BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
@@ -715,11 +723,6 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
          }
 
          abortProcessInstance(processInstanceOid, AbortScope.RootHierarchy);
-      }
-      else
-      {
-         throw new InvalidArgumentException(BpmRuntimeError.BPMRT_INVALID_ARGUMENT.raise(
-               "abortOriginatingProcessInstance", options.isAbortProcessInstance()));
       }
       
       DataCopyOptions dco = options.getDataCopyOptions();
@@ -733,10 +736,16 @@ public class WorkflowServiceImpl implements Serializable, WorkflowService
       assertNotTransientProcessInstance(processInstance);
       processInstance.setPriority(originatingProcessInstance.getPriority());
 
-      if (dco.copyAllData() && dco.useHeuristics())
+      if (dco.copyAllData())
       {
-         DataCopyUtils.copyDataUsingDocumentCopyHeuristics(originatingProcessInstance, processInstance,
-               data == null ? Collections.EMPTY_SET: data.ignoreDataIds);
+         if (dco.useHeuristics())
+         {
+            DataCopyUtils.copyDataUsingDocumentCopyHeuristics(originatingProcessInstance,
+                  processInstance, data == null
+                        ? Collections.EMPTY_SET
+                        : data.ignoreDataIds);
+         }
+         DataCopyUtils.copyNotes(originatingProcessInstance, processInstance);
       }
 
       IProcessInstanceLinkType link = ProcessInstanceLinkTypeBean.findById(linkType);

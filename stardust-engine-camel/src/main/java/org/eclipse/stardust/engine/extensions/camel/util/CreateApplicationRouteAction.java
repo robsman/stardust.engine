@@ -1,10 +1,8 @@
 package org.eclipse.stardust.engine.extensions.camel.util;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.ADDITIONAL_SPRING_BEANS_DEF_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_CONTEXT_ID_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DEFAULT_CAMEL_CONTEXT_ID;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.createSpringFileContent;
-import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.loadBeanDefinition;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.*;
+import static org.eclipse.stardust.engine.extensions.camel.Util.*;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +24,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.AbstractLogin
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
-import org.eclipse.stardust.engine.extensions.camel.app.CamelApplicationRouteHelper;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
@@ -128,16 +126,11 @@ public class CreateApplicationRouteAction implements Action<Object>
 
       try
       {
-         String contextId = (String) application.getAttribute(CAMEL_CONTEXT_ID_ATT);
+         String contextId = getCamelContextId(application);
 
-         String springBeans = (String) application.getAttribute(ADDITIONAL_SPRING_BEANS_DEF_ATT);
+         String springBeans = getAdditionalBeansDefinition(application);
 
-         String invocationPattern = (String) application.getAttribute(CamelConstants.INVOCATION_PATTERN_EXT_ATT);
-
-         if (StringUtils.isEmpty(contextId))
-         {
-            contextId = DEFAULT_CAMEL_CONTEXT_ID;
-         }
+         String invocationPattern = getInvocationPattern( application);
 
          CamelContext camelContext = (CamelContext) springContext.getBean(contextId);
 
@@ -147,29 +140,29 @@ public class CreateApplicationRouteAction implements Action<Object>
                   (AbstractApplicationContext) springContext);
          }
 
-         if (CamelConstants.CAMEL_CONSUMER_APPLICATION_TYPE.equals(application.getType().getId()))
+         if (isConsumerApplication(application))
          {
 
             if (StringUtils.isNotEmpty(invocationPattern)
                   && CamelConstants.InvocationPatterns.SENDRECEIVE.equals(invocationPattern))
             {
-               CamelApplicationRouteHelper.createAndStartProducerRoute(application, camelContext, partition);
+               createAndStartProducerRoute(application, camelContext, partition);
             }
 
-            CamelApplicationRouteHelper.createAndStartConsumerRoute(application, camelContext, partition);
+            createAndStartConsumerRoute(application, camelContext, partition);
 
          }
          else if (CamelConstants.CAMEL_PRODUCER_APPLICATION_TYPE.equals(application.getType().getId()))
          {
 
-            CamelApplicationRouteHelper.createAndStartProducerRoute(application, camelContext, partition);
+            createAndStartProducerRoute(application, camelContext, partition);
 
          }
          else
          {
 
             // old behaviour
-            CamelApplicationRouteHelper.createAndStartProducerRoute(application, camelContext, partition);
+            createAndStartProducerRoute(application, camelContext, partition);
 
          }
       }

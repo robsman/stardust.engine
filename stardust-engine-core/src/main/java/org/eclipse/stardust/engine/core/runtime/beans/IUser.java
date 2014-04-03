@@ -20,7 +20,6 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.IRole;
 import org.eclipse.stardust.engine.api.runtime.IDynamicParticipant;
 
-
 /**
  *
  */
@@ -35,34 +34,34 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
     * @return the probability for this user
     */
    Integer getQualityAssuranceProbability();
-   
+
    /**
     * Set the probability for quality assurance.
-    * The current user is not allowed to change his own probability. 
-    * 
+    * The current user is not allowed to change his own probability.
+    *
     * @param probability - if null, this value will be ignored.
     */
    void setQualityAssuranceProbability(Integer probability);
-   
+
    /**
     * Returns if the password is expired.
-    * 
+    *
     * @return true if password is expired.
     */
    public boolean isPasswordExpired();
-   
+
    /**
     * Set password expired for this user.
-    * 
+    *
     * @param expired
     */
    public void setPasswordExpired(boolean expired);
-   
+
    /**
    *
    */
-  Date getLastLoginTime();   
-   
+  Date getLastLoginTime();
+
    /**
     *
     */
@@ -138,7 +137,7 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
    *
    */
    String getPassword();
-   
+
    /**
     *
     */
@@ -189,15 +188,15 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
    Iterator<IOrganization> getAllOrganizations();
 
    Iterator<UserParticipantLink> getAllParticipantLinks();
-   
+
    Iterator<UserUserGroupLink> getAllUserGroupLinks();
-   
+
    Iterator getAllParticipants();
 
    void addToParticipants(IModelParticipant participant, IDepartment department);
 
    void addToParticipants(IModelParticipant participant, IDepartment department, long onBehalfOf);
-   
+
    void removeFromParticipants(IModelParticipant participant, IDepartment department);
 
    boolean hasRole(String name);
@@ -227,19 +226,18 @@ public interface IUser extends AttributedIdentifiablePersistent, IDynamicPartici
    boolean isAuthorizedForStarting(IProcessDefinition process);
 
    public IUserRealm getRealm();
-   
+
    public void setRealm(IUserRealm realm);
-   
+
    public long getDomainOid();
-   
+
    public String getDomainId();
-   
+
    public Map getProfile();
-   
+
    public void setProfile(Map profile);
 
    public boolean hasGrant(IModelParticipant participant);
-   
+
    boolean isPropertyAvailable(int pattern);
-   
 }

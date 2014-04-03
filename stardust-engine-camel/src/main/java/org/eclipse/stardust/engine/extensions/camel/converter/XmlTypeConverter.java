@@ -36,27 +36,29 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
          ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
          String typeDeclarationId = this.getTypeDeclarationId(dataMapping);
-    
-         // TODO: is that the correct OID?
-         long modelOid = new Long(dataMapping.getModelOID());
-         SDTConverter converter = new SDTConverter(typeDeclarationId, modelOid);
-
-         Node[] nodes = converter.toDom(dataMap, true);
-         Document document = new Document((Element) nodes[0]);
-
-         IMessageFormat messageFormat = RuntimeFormatManager.getMessageFormat("XML");
-
-         try
+         
+         if (typeDeclarationId != null) // data is an SDT and needs to be converted
          {
-            org.w3c.dom.Document w3cDocument = DOMConverter.convert(document, getDOMImplementation());
-            messageFormat.serialize(w3cDocument, stream, converter.getXsdSchema()); 
+             long modelOid = new Long(dataMapping.getModelOID());
+	         SDTConverter converter = new SDTConverter(dataMapping, modelOid);
+	
+	         Node[] nodes = converter.toDom(dataMap, true);
+	         Document document = new Document((Element) nodes[0]);
+	
+	         IMessageFormat messageFormat = RuntimeFormatManager.getMessageFormat("XML");
+	
+	         try
+	         {
+	            org.w3c.dom.Document w3cDocument = DOMConverter.convert(document, getDOMImplementation());
+	            messageFormat.serialize(w3cDocument, stream, converter.getXsdSchema()); 
+	         }
+	         catch (Exception e)
+	         {
+	            new RuntimeException(e);
+	         }
+	
+	         replaceDataValue(dataMapping, new String(stream.toByteArray()), extendedAttributes);
          }
-         catch (Exception e)
-         {
-            new RuntimeException(e);
-         }
-
-         replaceDataValue(dataMapping, new String(stream.toByteArray()), extendedAttributes);
       }
    }
 
@@ -70,7 +72,7 @@ public class XmlTypeConverter extends AbstractBpmTypeConverter
          String typeDeclarationId = this.getTypeDeclarationId(dataMapping);
 
          long modelOid = new Long(dataMapping.getModelOID());
-         SDTConverter converter = new SDTConverter(typeDeclarationId, modelOid);
+         SDTConverter converter = new SDTConverter(dataMapping, modelOid);
 
          Object dataMap = converter.toCollection(xml, true);
          replaceDataValue(dataMapping, dataMap, extendedAttributes);

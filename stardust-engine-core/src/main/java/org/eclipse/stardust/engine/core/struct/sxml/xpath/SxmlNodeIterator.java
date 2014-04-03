@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.struct.sxml.xpath;
 import static org.eclipse.stardust.common.CompareHelper.areEqual;
 import static org.eclipse.stardust.common.StringUtils.isEmpty;
 
+import org.apache.commons.jxpath.ri.Compiler;
 import org.apache.commons.jxpath.ri.QName;
 import org.apache.commons.jxpath.ri.compiler.NodeNameTest;
 import org.apache.commons.jxpath.ri.compiler.NodeTest;
@@ -23,7 +24,7 @@ import org.apache.commons.jxpath.ri.model.NodePointer;
 import org.eclipse.stardust.engine.core.struct.sxml.NamedNode;
 import org.eclipse.stardust.engine.core.struct.sxml.Node;
 import org.eclipse.stardust.engine.core.struct.sxml.ParentNode;
-
+import org.eclipse.stardust.engine.core.struct.sxml.Text;
 
 public class SxmlNodeIterator implements NodeIterator
 {
@@ -175,7 +176,15 @@ public class SxmlNodeIterator implements NodeIterator
       }
       else if (test instanceof NodeTypeTest)
       {
-         // TODO
+         switch (((NodeTypeTest) test).getNodeType())
+         {
+         case Compiler.NODE_TYPE_NODE :
+            return true;
+         case Compiler.NODE_TYPE_TEXT :
+            return node instanceof Text;
+         default:
+            return false;
+         }
       }
       else if (test instanceof ProcessingInstructionTest)
       {

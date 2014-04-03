@@ -74,4 +74,17 @@ public class ProcessDefinitionFilter implements FilterCriterion
    {
       return visitor.visit(this, context);
    }
+
+   @Override
+   public String toString()
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append("ProcessId = ");
+      sb.append(processID);
+      if (includingSubProcesses)
+      {
+         sb.append(" WITH SUBPROCESSES");
+      }
+      return sb.toString();
+   }
 }

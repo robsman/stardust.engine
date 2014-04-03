@@ -20,7 +20,7 @@ import org.eclipse.stardust.common.StringUtils;
 /**
  * OrTerm can hold an arbitrary number of <code>PredicateTerm</code>s which are
  * combined by the operator OR.
- * 
+ *
  * @author sborn
  * @version $Revision$
  */
@@ -38,7 +38,7 @@ public class OrTerm implements MultiPartPredicateTerm
 
    /**
     * Constructs an <code>OrTerm</code> with the given <code>PredicateTerm</code>s.
-    * 
+    *
     * @param predicates An array of <code>PredicateTerm</code>s
     */
    public OrTerm(PredicateTerm[] predicates)
@@ -56,31 +56,31 @@ public class OrTerm implements MultiPartPredicateTerm
          }
       }
    }
-   
+
    /**
     * Adds an <code>PredicateTerm</code> to this <code>OrTerm</code>.
-    * 
+    *
     * @param part The <code>PredicateTerm</code> to be added
-    * 
+    *
     * @return This <code>OrTerm</code>
     */
    public MultiPartPredicateTerm add(PredicateTerm part)
    {
       this.parts.add(part);
-      
+
       return this;
    }
-   
+
    /**
     * Returns the <code>PredicateTerm</code>s currently hold by this <code>OrTerm</code>.
-    * 
+    *
     * @return A list <code>PredicateTerm</code>s
     */
    public List<PredicateTerm> getParts()
    {
       return Collections.unmodifiableList(parts);
    }
-   
+
    public String toString()
    {
       if (null == parts || parts.size() == 0)

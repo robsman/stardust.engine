@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.EventHandlerOwner;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.EventConditionValidator;
 
 
@@ -32,19 +33,19 @@ public class ExceptionConditionValidator implements EventConditionValidator
                PredefinedConstants.EXCEPTION_CLASS_ATT));
          if (!Exception.class.isAssignableFrom(o))
          {
-            list.add(new Inconsistency(o.getName() + " is not an Exception",
-                  Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.COND_NOT_AN_EXCEPTION_CLASS.raise(o.getName());
+            list.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
       catch (Exception ex)
       {
          list.add(new Inconsistency(ex.getMessage(), Inconsistency.WARNING));
       }
-      catch (NoClassDefFoundError e) 
+      catch (NoClassDefFoundError e)
       {
          list.add(new Inconsistency(e.getMessage(), Inconsistency.WARNING));
       }
-      
+
       return list;
    }
 }

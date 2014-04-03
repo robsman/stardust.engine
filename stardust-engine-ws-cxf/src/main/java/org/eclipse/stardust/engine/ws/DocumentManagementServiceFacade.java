@@ -62,8 +62,6 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
       try
       {
-         Model model = wsEnv.getActiveModel();
-
          if (createMissingFolders)
          {
             ensureFolderExists(dms, folderId);
@@ -72,7 +70,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          Set<TypedXPath> metaDataXPaths = null;
          if ((null != xto.getMetaData()) && (null != xto.getMetaDataType()))
          {
-            metaDataXPaths = inferStructDefinition(xto.getMetaDataType(), model);
+            metaDataXPaths = inferStructDefinition(xto.getMetaDataType());
          }
 
          Document doc = storeDocumentIntoDms(dms, folderId, xto, metaDataXPaths,
@@ -124,9 +122,16 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       {
          doc = dms.getDocument(documentId);
 
-         if ((null != doc) && !isEmpty(doc.getProperties()) && (null != metaDataType))
+         if ((null != doc) && !isEmpty(doc.getProperties()))
          {
-            metaDataXPaths = inferStructDefinition(metaDataType, wsEnv.getActiveModel());
+            if (null == metaDataType && doc.getDocumentType() != null)
+            {
+               metaDataType = QName.valueOf(doc.getDocumentType().getDocumentTypeId());
+            }
+            if (null != metaDataType)
+            {
+               metaDataXPaths = inferStructDefinition(metaDataType);
+            }
          }
       }
       catch (ApplicationException e)
@@ -169,6 +174,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       return null;
    }
 
+   @SuppressWarnings("unchecked")
    public DocumentsXto getDocumentVersions(String documentId, QName metaDataType)
          throws BpmFault
    {
@@ -184,7 +190,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
          if (null != documents && !documents.isEmpty() && (null != metaDataType))
          {
-            metaDataXPaths = inferStructDefinition(metaDataType, wsEnv.getActiveModel());
+            metaDataXPaths = inferStructDefinition(metaDataType);
          }
       }
       catch (ApplicationException e)
@@ -213,7 +219,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
 
          if (null != documents && !documents.isEmpty() && (null != metaDataType))
          {
-            metaDataXPaths = inferStructDefinition(metaDataType, wsEnv.getActiveModel());
+            metaDataXPaths = inferStructDefinition(metaDataType);
          }
 
       }
@@ -247,8 +253,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          if (null != documents && !documents.isEmpty()
                && (null != documentQuery.getMetaDataType()))
          {
-            metaDataXPaths = inferStructDefinition(documentQuery.getMetaDataType(),
-                  wsEnv.getActiveModel());
+            metaDataXPaths = inferStructDefinition(documentQuery.getMetaDataType());
          }
       }
       catch (ApplicationException e)
@@ -321,11 +326,15 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
       {
          QName metaDataType = null;
          Set<TypedXPath> metaDataXPaths = null;
-         if (xto != null && (null != xto.getMetaData()) && (null != xto.getMetaDataType()))
+         if (xto != null && (null != xto.getMetaData()))
          {
-            metaDataXPaths = inferStructDefinition(xto.getMetaDataType(),
-                  wsEnv.getActiveModel());
             metaDataType = xto.getMetaDataType();
+            if (metaDataType == null && xto.getDocumentType() != null)
+            {
+               metaDataType = QName.valueOf(xto.getDocumentType().getDocumentTypeId());
+            }
+            if (null != metaDataType)
+            metaDataXPaths = inferStructDefinition(metaDataType);
          }
 
          DocumentInfo docInfo = fromXto(xto, metaDataXPaths);
@@ -631,7 +640,7 @@ public class DocumentManagementServiceFacade implements IDocumentManagementServi
          Map<Integer,Model> modelCache = new HashMap<Integer,Model>();
          for (DeployedModelDescription md : models)
          {
-            DeployedModel model = qs.getModel(md.getModelOID());
+            Model model = wsEnv.getModel(md.getModelOID());
             modelCache.put(model.getModelOID(), model);
          }
 

@@ -29,23 +29,23 @@ import org.eclipse.stardust.engine.core.preferences.PreferencesConstants;
 
 
 /**
- * Client side class for decorating the {@link AdministrationService}, 
+ * Client side class for decorating the {@link AdministrationService},
  * specific to the quality control feature
- * 
+ *
  * @author holger.prause
  * @version $Revision: $
  */
 public class QualityAssuranceAdminServiceFacade
 {
    final AdministrationService as;
-   final QueryService qs; 
-   
+   final QueryService qs;
+
    public QualityAssuranceAdminServiceFacade(ServiceFactory sf)
    {
       this.as = sf.getAdministrationService();
       this.qs = sf.getQueryService();
    }
-   
+
    /**
     * Set the probability set for all user
     * This value will be taken when new user are created.
@@ -54,12 +54,12 @@ public class QualityAssuranceAdminServiceFacade
     */
    public void setQualityAssuranceUserDefaultProbability(Integer probability)
    {
-      setQualityAssuranceProbability(probability, QualityAssuranceUtils.QUALITY_ASSURANCE_USER_DEFAULT_PROBABILITY);      
+      setQualityAssuranceProbability(probability, QualityAssuranceUtils.QUALITY_ASSURANCE_USER_DEFAULT_PROBABILITY);
    }
-   
+
    /**
     * Gets the probability set for all user
-    * 
+    *
     * @return the probability set for all user- if null , this value
     * will not be saved
     */
@@ -67,13 +67,13 @@ public class QualityAssuranceAdminServiceFacade
    {
       return getQualityAssuranceProbability(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_DEFAULT_PROBABILITY);
    }
-   
+
    /**
-    * Set the probability for a specific participant / department combination. 
+    * Set the probability for a specific participant / department combination.
     * The participant is specified by the activity instance.
     * See {@link Activity#getDefaultPerformer()}
-    * 
-    * 
+    *
+    *
     * @param a - the activity determining the participant, may be null
     * @param department - the department for this participant
     * @param probability - the probability to use - if null , this value
@@ -86,10 +86,10 @@ public class QualityAssuranceAdminServiceFacade
    }
 
    /**
-    * Gets the probability for a specific participant / department combination. 
+    * Gets the probability for a specific participant / department combination.
     * The participant is specified by the activity instance.
     * See {@link Activity#getDefaultPerformer()}
-    * 
+    *
     * @param a - the activity determining the participant
     * @param department - the department for this participant, may be null
     * @return the probability set or null otherwise
@@ -103,10 +103,10 @@ public class QualityAssuranceAdminServiceFacade
    private Integer getQualityAssuranceProbability(String probabilityKey)
    {
       Integer probabilityValue = null;
-      
-      Preferences preferences = as.getPreferences(PreferenceScope.PARTITION, 
-            PreferencesConstants.MODULE_ID_ENGINE_INTERNALS, 
-            PreferencesConstants.PREFERENCE_ID_QUALITY_CONTROL);      
+
+      Preferences preferences = as.getPreferences(PreferenceScope.PARTITION,
+            PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
+            PreferencesConstants.PREFERENCE_ID_QUALITY_CONTROL);
       Map<String, Serializable> preferencesValues = null;
       if(preferences != null)
       {
@@ -118,7 +118,7 @@ public class QualityAssuranceAdminServiceFacade
             {
                if(StringUtils.isEmpty((String) value))
                {
-                  return probabilityValue;               
+                  return probabilityValue;
                }
                else
                {
@@ -128,22 +128,22 @@ public class QualityAssuranceAdminServiceFacade
                   }
                   catch (NumberFormatException e)
                   {
-                     return probabilityValue;                                    
-                  } 
+                     return probabilityValue;
+                  }
                }
             }
-            
-            probabilityValue = (Integer) value;            
+
+            probabilityValue = (Integer) value;
          }
       }
       return probabilityValue;
    }
-   
+
    private void setQualityAssuranceProbability(Integer probability, String probabilityKey)
    {
-      Preferences preferences = as.getPreferences(PreferenceScope.PARTITION, 
-            PreferencesConstants.MODULE_ID_ENGINE_INTERNALS, 
-            PreferencesConstants.PREFERENCE_ID_QUALITY_CONTROL);      
+      Preferences preferences = as.getPreferences(PreferenceScope.PARTITION,
+            PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
+            PreferencesConstants.PREFERENCE_ID_QUALITY_CONTROL);
       Map<String, Serializable> preferencesValues = null;
       if(preferences != null)
       {
@@ -153,7 +153,7 @@ public class QualityAssuranceAdminServiceFacade
       {
          preferencesValues = CollectionUtils.newMap();
       }
-      
+
       if(probability != null)
       {
          preferencesValues.put(probabilityKey, probability);
@@ -161,18 +161,18 @@ public class QualityAssuranceAdminServiceFacade
 
       if(preferences == null)
       {
-         preferences = new Preferences(PreferenceScope.PARTITION, 
-               PreferencesConstants.MODULE_ID_ENGINE_INTERNALS, 
+         preferences = new Preferences(PreferenceScope.PARTITION,
+               PreferencesConstants.MODULE_ID_ENGINE_INTERNALS,
                PreferencesConstants.PREFERENCE_ID_QUALITY_CONTROL,
                preferencesValues);
       }
-      
+
       as.savePreferences(preferences);
    }
-   
+
    private String getProbabiltyKey(Activity a, DepartmentInfo department)
    {
-      DeployedModel model =  qs.getModel(a.getModelOID());
+      DeployedModel model =  qs.getModel(a.getModelOID(), false);
       return QualityAssuranceUtils.getParticipantProbabiltyKey(model.getId(), a, department);
    }
 }

@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.struct;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
 import org.eclipse.stardust.common.Period;
+import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.pojo.data.QNameConstants;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
@@ -33,14 +37,15 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
    private final static String XSD_DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
    // TODO remove this workaround for P&M
    private final static String P_AND_M_DATETIME_FORMAT = "EEE MMM dd HH:mm:ss z yyyy";
-   
+
+
    public static Object convertTo(int typeKey, String stringValue)
    {
-      if (stringValue == null) 
+      if (stringValue == null)
       {
          return null;
       }
-      
+
       if (typeKey == BigData.NULL)
       {
          return "";
@@ -78,9 +83,9 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
          {
             try
             {
-               //RPI: Workaround for CRNT-25389  
+               //RPI: Workaround for CRNT-25389
                SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd");
-               String dateString = sd.format(new Date()); 
+               String dateString = sd.format(new Date());
                String tempStrValue = dateString + "T" + stringValue;
                df = new SimpleDateFormat(XSD_DATETIME_FORMAT);
                df.setLenient(false);
@@ -130,17 +135,69 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
       else if (typeKey == BigData.BIG_STRING)
       {
          return stringValue;
-      } 
+      }
       else if (typeKey == BigData.PERIOD)
       {
          return new Period(stringValue);
-      } 
-      else 
+      }
+      else if (typeKey == BigData.DECIMAL)
+      {
+    	  return new BigDecimal(stringValue);
+      }
+      else
       {
          throw new PublicException("BigData type '"+typeKey+"' is supported yet");
       }
    }
-   
+
+   /**
+    * Validates the stringValue for a TypedXPath's XSD type which are not mapped to a specific
+    * BigData typeKey by parsing to the corresponding java type.
+    *
+    * @param xPath TypedXPath to determine target type.
+    * @param stringValue The value to validate.
+    */
+   public static void validate(TypedXPath xPath, String stringValue)
+   {
+      try
+      {
+         // Validate default types by attempting java conversion.
+         convertTo(xPath.getType(), stringValue);
+
+         if (stringValue != null)
+         {
+            if (QNameConstants.QN_DECIMAL.getLocalPart().equals(xPath.getXsdTypeName()))
+            {
+               // Decimal is handled as BigData.STRING so it needs explicit validation.
+               new BigDecimal(stringValue);
+            }
+            else if (QNameConstants.QN_BOOLEAN.getLocalPart().equals(
+                  xPath.getXsdTypeName()))
+            {
+               // xsd:boolean is strict unlike java boolean which is false for any string
+               // input that does not matching: equalsIgnoreCase("true").
+               if ( !(stringValue.equalsIgnoreCase("true") || stringValue.equalsIgnoreCase("false")))
+               {
+                  throw new PublicException("Boolean value must be 'true' or 'false'.");
+               }
+            }
+            else if ( !xPath.getEnumerationValues().isEmpty())
+            {
+               /* make sure the given value matches one of the allowed enum values */
+               if ( !xPath.getEnumerationValues().contains(stringValue))
+               {
+                  throw new PublicException("The enum value '" + stringValue + "' is not allowed for element '" + xPath.getXsdElementName() + "'.");
+               }
+            }
+         }
+      }
+      catch (Exception e)
+      {
+         throw new InvalidValueException(
+               BpmRuntimeError.BPMRT_INCOMPATIBLE_TYPE_FOR_DATA.raise(xPath.getXsdElementName()), e);
+      }
+   }
+
    public static String convertToString(int typeKey, String xsdTypeName, Object value)
    {
       if (value == null)
@@ -150,7 +207,7 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
 
       if (value instanceof String)
       {
-         // no need to convert, since it is already a string 
+         // no need to convert, since it is already a string
          // (can occur if the map is filled by a JSF app)
          return (String)value;
       }
@@ -211,10 +268,15 @@ public class StructuredDataValueFactory implements IStructuredDataValueFactory
          df.setLenient(false);
          return df.format(value);
       }
+      else if (typeKey == BigData.DECIMAL)
+      {
+    	  return value.toString();
+      }
       else
       {
          throw new PublicException("BigData type '" + typeKey + "' is supported yet");
       }
+
    }
 
    public IStructuredDataValue createKeyedElementEntry(IProcessInstance scopeProcessInstance, long parentOid,

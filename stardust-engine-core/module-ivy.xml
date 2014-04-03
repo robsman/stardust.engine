@@ -71,9 +71,6 @@
       <conf name="ejb30-module-compile" extends="ejb30-interface-compile" description="IPP Engine - EJB 3.0 Module - Compile Scope" />
       <conf name="ejb30-module-runtime" extends="ejb30-module-compile" description="IPP Engine - EJB 3.0 Module - Runtime Scope" />
 
-      <conf name="carnot-emf-xsd-module-compile" extends="engine-module-compile" description="IPP Engine - Carnot EMF XSD Module - Compile Scope" />
-      <conf name="carnot-emf-xsd-module-runtime" extends="carnot-emf-xsd-module-compile" description="IPP Engine - Carnot EMF XSD Module - Runtime Scope" />
-
       <conf name="ant-module-compile" description="IPP Engine - ANT Module - Compile Scope"/>
       <conf name="ant-module-runtime" extends="ant-module-compile,ant-provider-runtime" description="IPP Engine - ANT Module - Runtime Scope"/>
 
@@ -91,13 +88,13 @@
       <conf name="compile" visibility="private" extends="client-module-compile, engine-module-compile, web-client-module-compile,
          swing-client-module-compile, logging-slf4j-log4j-module-compile, jta-jencks-module-compile, jta-api-module-compile,
          jcr-api-module-compile, jcr-vfs-module-compile, jms-activemq-module-compile, jms-api-module-compile, 
-         2nd-level-cache-hazelcast-module-compile, ejb21-module-compile, ejb30-module-compile, carnot-emf-xsd-module-compile,
+         2nd-level-cache-hazelcast-module-compile, ejb21-module-compile, ejb30-module-compile,
          ant-module-compile, qdox-module-compile" />
       <conf name="runtime" visibility="private" extends="client-module-runtime, engine-module-runtime, web-client-module-runtime,
          swing-client-module-runtime, logging-slf4j-log4j-module-runtime, jta-jencks-module-runtime, jta-api-module-runtime, 
          jcr-api-module-runtime, jcr-jackrabbit-module-runtime, jcr-jackrabbit-webapp-module-runtime, jcr-vfs-module-runtime, 
          jms-activemq-module-runtime, jms-api-module-runtime, 2nd-level-cache-hazelcast-module-runtime, ejb21-module-runtime, 
-         ejb30-module-runtime, carnot-emf-xsd-module-runtime, ant-module-runtime, xerces-module-runtime" />
+         ejb30-module-runtime, ant-module-runtime, xerces-module-runtime" />
       <conf name="all" visibility="private" extends="provided, compile, runtime" />
       
    </configurations>
@@ -119,7 +116,6 @@
       <artifact name="2nd-level-cache-hazelcast-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="ejb21-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="ejb30-module" type="pom" conf="module-pom" ext="pom" />
-      <artifact name="carnot-emf-xsd-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="ant-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="xerces-module" type="pom" conf="module-pom" ext="pom" />
       <artifact name="qdox-module" type="pom" conf="module-pom" ext="pom" />
@@ -130,8 +126,6 @@
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="client-module-runtime->carnot-client-runtime"/>
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-compile->carnot-engine-compile"/>
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="engine-module-runtime->carnot-engine-runtime"/>
-      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-compile->carnot-emf-xsd-integration-compile"/>
-      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine" rev="${ipp.version.full}" conf="carnot-emf-xsd-module-runtime->carnot-emf-xsd-integration-runtime"/>
       
       <!-- ******************** -->
       <!--    Override Rules    -->

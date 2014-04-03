@@ -13,9 +13,9 @@ package org.eclipse.stardust.engine.core.persistence;
 import org.eclipse.stardust.common.Pair;
 
 /**
- * ComparisonTerm holds a comparison description between an attribute and an 
+ * ComparisonTerm holds a comparison description between an attribute and an
  * value expression by an <code>Operator</code>.
- * 
+ *
  * @author sborn
  * @version $Revision$
  */
@@ -24,7 +24,7 @@ public class ComparisonTerm implements PredicateTerm
    private final FieldRef lhsField;
    private final Operator operator;
    private final Object valueExpr;
-   
+
    /**
     * Constructs an <code>ComparisonTerm</code> which describes an comparison
     * of an alias-qualified attribute by an unary operator.
@@ -42,7 +42,7 @@ public class ComparisonTerm implements PredicateTerm
    /**
     * Constructs an <code>ComparisonTerm</code> which describes an comparison
     * of an alias-qualified attribute by a binary operator with a value expression.
-    *  
+    *
     * @param lhsField The field to be compared
     * @param operator An binary operator
     * @param valueExpr The value expression
@@ -58,7 +58,7 @@ public class ComparisonTerm implements PredicateTerm
    /**
     * Constructs an <code>ComparisonTerm</code> which describes an comparison
     * of an alias-qualified attribute by a ternary operator with a pair of value expressions.
-    *  
+    *
     * @param lhsField The field to be compared
     * @param operator An ternary operator
     * @param valueExpr Two value expressions hold by a <code>Pair</code>
@@ -84,18 +84,18 @@ public class ComparisonTerm implements PredicateTerm
    {
       return valueExpr;
    }
-   
+
    public String toString()
    {
       StringBuffer buffer = new StringBuffer(50);
-      
+
       if (null != lhsField.getType().getTableAlias())
       {
          buffer.append(lhsField.getType().getTableAlias()).append(".");
       }
-      
+
       buffer.append(lhsField.fieldName).append(" ").append(operator).append(" ");
-      
+
       if (valueExpr instanceof String)
       {
          buffer.append("'").append(valueExpr).append("'");
@@ -104,7 +104,7 @@ public class ComparisonTerm implements PredicateTerm
       {
          buffer.append(valueExpr);
       }
-      
+
       return buffer.toString();
    }
 }

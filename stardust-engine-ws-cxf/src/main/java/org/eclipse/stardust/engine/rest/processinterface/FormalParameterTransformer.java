@@ -19,6 +19,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -34,13 +36,11 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ProcessInterface;
 import org.eclipse.stardust.engine.api.model.Reference;
-import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
+import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.ws.DataFlowUtils;
@@ -48,8 +48,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-
 
 /**
  * <p>
@@ -69,6 +67,10 @@ public class FormalParameterTransformer
 {
    private final ServiceFactory sf;
    private final String qualifiedProcessId;
+
+   private ConcurrentMap<Long, Model> modelCache = new ConcurrentHashMap<Long, Model>();
+
+   private ConcurrentMap<String, Model> activeModelCache = new ConcurrentHashMap<String, Model>();
 
    /**
     * Creates a new formal parameter transformer.
@@ -119,7 +121,7 @@ public class FormalParameterTransformer
     * @return the XML representation
     */
    public Document marshalDocument(ProcessInstance processInstance, final Map<String, Serializable> returnValues)
-   { 
+   {
       Document doc = XmlUtils.newDocument();
 
       Element root = (Element) doc.appendChild(doc.createElementNS(ProcessesRestlet.TYPES_NS, ProcessesRestlet.RESULTS_ELEMENT_NAME));
@@ -128,7 +130,7 @@ public class FormalParameterTransformer
 
       String processId = processInstance.getProcessID();
 
-      DeployedModel implModel = sf.getQueryService().getModel(processInstance.getModelOID());
+      Model implModel = resolveModel(processInstance.getModelOID());
       ProcessDefinition implProcessDefinition = implModel.getProcessDefinition(processId);
 
       ProcessInterface implementedProcessInterface = implProcessDefinition.getImplementedProcessInterface();
@@ -155,17 +157,14 @@ public class FormalParameterTransformer
                .build());
       }
 
-      final Models models = sf.getQueryService().getModels(DeployedModelQuery.findActiveForId(qualifiedProcessId.getNamespaceURI()));
-      if (models.isEmpty())
+      Model model = resolveActiveModel(qualifiedProcessId.getNamespaceURI());
+      if (null == model)
       {
          throw new WebApplicationException(Status.NOT_FOUND);
       }
-      final DeployedModelDescription modelDesc = models.get(0);
-      final int modelOID = modelDesc.getModelOID();
 
       ProcessDefinition processDefinition = null;
-      DeployedModel model = null;
-      if (modelOID == implModel.getModelOID()
+      if (model.getModelOID() == implModel.getModelOID()
             && implProcessDefinition.getQualifiedId().equals(qualifiedProcessId))
       {
          model = implModel;
@@ -173,9 +172,7 @@ public class FormalParameterTransformer
       }
       else
       {
-         model = sf.getQueryService().getModel(modelOID);
-         processDefinition = sf.getQueryService().getProcessDefinition(modelOID,
-               qualifiedProcessId.getLocalPart());
+         processDefinition = model.getProcessDefinition(qualifiedProcessId.getLocalPart());
       }
 
       final List<FormalParameter> fParameters = findFormalParametersFor(processDefinition);
@@ -215,7 +212,7 @@ public class FormalParameterTransformer
 
       final ProcessDefinition pd = sf.getQueryService().getProcessDefinition(qualifiedProcessId);
       final List<FormalParameter> fParameters = findFormalParametersFor(pd);
-      final Model model = sf.getQueryService().getModel(pd.getModelOID());
+      final Model model = resolveModel(pd.getModelOID());
 
       final NodeList nodes = doc.getDocumentElement().getChildNodes();
       for (int i=0; i<nodes.getLength(); i++)
@@ -244,15 +241,15 @@ public class FormalParameterTransformer
       {
          // resolve external reference
          Data data = model.getData(fp.getDataId());
-         
+
          if (data != null && data.getReference() != null)
          {
             Reference reference = data.getReference();
-            resolvedModel = sf.getQueryService().getModel(reference.getModelOid());
+            resolvedModel = resolveModel(reference.getModelOid());
             typeDeclarationId = reference.getId();
          }
       }
-      
+
       if (typeDeclarationId == null)
       {
          final Type type = getPrimitiveType(fp);
@@ -293,15 +290,15 @@ public class FormalParameterTransformer
       {
          // resolve external reference
          Data data = model.getData(fp.getDataId());
-         
+
          if (data != null && data.getReference() != null)
          {
             Reference reference = data.getReference();
-            resolvedModel = sf.getQueryService().getModel(reference.getModelOid());
+            resolvedModel = resolveModel(reference.getModelOid());
             typeDeclarationId = reference.getId();
          }
       }
-      
+
       Document doc = root.getOwnerDocument();
       if (typeDeclarationId == null)
       {
@@ -312,8 +309,8 @@ public class FormalParameterTransformer
       else
       {
          final Element formalParameterElement = doc.createElementNS(WADLGenerator.W3C_XML_SCHEMA, fp.getId());
-         root.appendChild(formalParameterElement);         
-         
+         root.appendChild(formalParameterElement);
+
          final Element structElement = DataFlowUtils.marshalStructValue(resolvedModel, typeDeclarationId, null, value).getAny().get(0);
          Node importNode = doc.importNode(structElement, true);
          formalParameterElement.appendChild(importNode);
@@ -361,6 +358,47 @@ public class FormalParameterTransformer
    private Type getPrimitiveType(final FormalParameter fp)
    {
       return (Type) fp.getAttribute(PredefinedConstants.TYPE_ATT);
+   }
+
+   private Model resolveModel(long modelOid)
+   {
+      Model model = modelCache.get(modelOid);
+      if (null == model)
+      {
+         DeployedModel deployedModel = (DeployedModel) sf.getWorkflowService().execute(
+               RetrieveModelDetailsCommand.retrieveModelByOid(modelOid));
+         if (null != deployedModel)
+         {
+            modelCache.putIfAbsent(modelOid, deployedModel);
+            if (deployedModel.isActive())
+            {
+               activeModelCache.putIfAbsent(deployedModel.getId(), deployedModel);
+            }
+         }
+
+         model = modelCache.get(modelOid);
+      }
+
+      return model;
+   }
+
+   private Model resolveActiveModel(String modelId)
+   {
+      Model model = activeModelCache.get(modelId);
+      if (null == model)
+      {
+         DeployedModel deployedModel = (DeployedModel) sf.getWorkflowService().execute(
+               RetrieveModelDetailsCommand.retrieveActiveModelById(modelId).notThrowing());
+         if (null != deployedModel)
+         {
+            activeModelCache.putIfAbsent(modelId, deployedModel);
+            modelCache.putIfAbsent((long) deployedModel.getModelOID(), deployedModel);
+         }
+
+         model = activeModelCache.get(modelId);
+      }
+
+      return model;
    }
 }
 

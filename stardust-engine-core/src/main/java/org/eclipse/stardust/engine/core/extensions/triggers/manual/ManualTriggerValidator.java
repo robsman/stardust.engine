@@ -13,10 +13,10 @@ package org.eclipse.stardust.engine.core.extensions.triggers.manual;
 import java.util.*;
 
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.spi.extensions.model.TriggerValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.TriggerValidatorEx;
-
 
 public class ManualTriggerValidator implements TriggerValidator, TriggerValidatorEx
 {
@@ -24,7 +24,7 @@ public class ManualTriggerValidator implements TriggerValidator, TriggerValidato
    {
       throw new IllegalOperationException("This method is no longer supported.");
    }
-   
+
    public List validate(ITrigger trigger)
    {
       List inconsistencies = new ArrayList();
@@ -35,23 +35,24 @@ public class ManualTriggerValidator implements TriggerValidator, TriggerValidato
       {
          typeId = type.getId();
       }
-      
+
       String participantId = (String) trigger.getAttribute(PredefinedConstants.MANUAL_TRIGGER_PARTICIPANT_ATT);
 
       if (participantId == null)
       {
-         inconsistencies.add(new Inconsistency(
-               "Unspecified participant for " + typeId + " trigger", Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.TRIGG_UNSPECIFIED_PARTICIPANT_FOR_TRIGGER.raise(typeId);
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
       else
       {
          IModel model = (IModel) trigger.getModel();
       IModelParticipant starter = model.findParticipant(participantId);
-      if (null == starter)
-      {
-            inconsistencies.add(new Inconsistency("Invalid participant '" + participantId
-                  + "' for " + typeId + " trigger", model.getElementOID(), Inconsistency.ERROR));
-      }
+         if (null == starter)
+         {
+            BpmValidationError error = BpmValidationError.TRIGG_INVALID_PARTICIPANT_FOR_TRIGGER.raise(
+                  participantId, model.getElementOID());
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
+         }
    }
 
       // todo: (fH) access points

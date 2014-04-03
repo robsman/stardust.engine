@@ -23,6 +23,7 @@ import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
@@ -37,7 +38,7 @@ public class WebserviceApplicationValidator implements ApplicationValidator,
 {
    /**
     * This method checks the type mapping
-    *  
+    *
     * @param inconsistencies List of Inconsisteny-entries to be filled by method
     * @param attribute Single attribute containing the tzpe mapping
     */
@@ -46,8 +47,9 @@ public class WebserviceApplicationValidator implements ApplicationValidator,
       String xmlType = key.substring(PredefinedConstants.WS_MAPPING_ATTR_PREFIX.length());
       if (StringUtils.isEmpty(clazz))
       {
-         inconsistencies.add(new Inconsistency(app.getId() + ": No type mapping defined for xml type '" + xmlType + "'",
-               app, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.APP_NO_TYPE_MAPPING_DEFINED_FOR_XML_TYPE.raise(
+               app.getId(), xmlType);
+         inconsistencies.add(new Inconsistency(error, app, Inconsistency.WARNING));
       }
       else
       {
@@ -57,22 +59,22 @@ public class WebserviceApplicationValidator implements ApplicationValidator,
          }
          catch (InternalException ex)
          {
-            inconsistencies.add(new Inconsistency(app.getId() + ": Xml type '" + xmlType
-                  + "' has an invalid type mapping: '" + clazz + "'",
-                  app, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.APP_XML_TYPE_HAS_INVALID_TYPE_MAPPING.raise(
+                  app.getId(), xmlType, clazz);
+            inconsistencies.add(new Inconsistency(error, app, Inconsistency.WARNING));
          }
          catch (NoClassDefFoundError e)
          {
-            inconsistencies.add(new Inconsistency(app.getId() + ": Xml type '" + xmlType
-                  + "' has an invalid type mapping: '" + clazz + "'",
-                  app, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.APP_XML_TYPE_HAS_INVALID_TYPE_MAPPING.raise(
+                  app.getId(), xmlType, clazz);
+            inconsistencies.add(new Inconsistency(error, app, Inconsistency.WARNING));
          }
       }
    }
 
    /**
     * This method checks the format of the XML template
-    *  
+    *
     * @param inconsistencies List of Inconsisteny-entries to be filled by method
     * @param attribute Single attribute containing the XML template
     */
@@ -87,16 +89,16 @@ public class WebserviceApplicationValidator implements ApplicationValidator,
          }
          catch (Exception ex)
          {
-            inconsistencies.add(new Inconsistency(app.getId() + ": Template for part '"
-                  + name + "' is invalid" + ex.getMessage(),
-                  app, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.APP_INVALID_TEMPLATE.raise(
+                  app.getId(), name, ex.getMessage());
+            inconsistencies.add(new Inconsistency(error, app, Inconsistency.WARNING));
          }
       }
    }
 
    /**
     * This method checks the format of the URL
-    *  
+    *
     * @param inconsistencies List of Inconsisteny-entries to be filled by method
     * @param attribute Single attribute containing the WSDL URL
     */
@@ -110,34 +112,35 @@ public class WebserviceApplicationValidator implements ApplicationValidator,
          }
          catch (Exception ex)
          {
-            inconsistencies.add(new Inconsistency(app.getId() + ": WSDL URL '" + uri
-                  + "' is invalid: " + ex.getMessage(),
-                  app, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.APP_INVALID_WSDL_URL.raise(
+                  app.getId(), uri, ex.getMessage());
+            inconsistencies.add(new Inconsistency(error, app, Inconsistency.WARNING));
          }
       }
    }
 
    /**
     * This method checks the existence of a given property
-    * 
+    *
     * @param inconsistencies List of Inconsisteny-entries to be filled by method
     * @param attributes All attributes of the application
-    * @param name Name of the attribute being looked up 
+    * @param name Name of the attribute being looked up
     */
    private void checkProperty(IApplication app, ArrayList inconsistencies, String name)
    {
       Object property = app.getAttribute(name);
       if (property == null || property.toString().trim().length() == 0)
       {
-         inconsistencies.add(new Inconsistency(app.getId() + ": Property '" + name + "' not set.",
-               app, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.APP_WS_PROPERTY_NOT_SET.raise(
+               app.getId(), name);
+         inconsistencies.add(new Inconsistency(error, app, Inconsistency.ERROR));
       }
    }
-   
+
    /**
     * This method implements consistency checks for a Web Service application.
-    * Similar checks are done in ApplicationPropertiesDialog.validateSettings() and 
-    * WebserviceApplicationPanel.validatePanel() 
+    * Similar checks are done in ApplicationPropertiesDialog.validateSettings() and
+    * WebserviceApplicationPanel.validatePanel()
     */
    public List validate(Map attributes, Map typeAttributes, Iterator accessPoints)
    {
@@ -147,12 +150,12 @@ public class WebserviceApplicationValidator implements ApplicationValidator,
    public List validate(IApplication application)
    {
       ArrayList inconsistencies = new ArrayList();
-      
+
       checkProperty(application, inconsistencies, PredefinedConstants.WS_WSDL_URL_ATT);
       checkProperty(application, inconsistencies, PredefinedConstants.WS_SERVICE_NAME_ATT);
       checkProperty(application, inconsistencies, PredefinedConstants.WS_PORT_NAME_ATT);
       checkProperty(application, inconsistencies, PredefinedConstants.WS_OPERATION_NAME_ATT);
-      
+
       Map<String, Object> attributes = application.getAllAttributes();
       Set<Map.Entry<String, Object>> entries = attributes.entrySet();
       for (Map.Entry<String, Object> entry : entries)
@@ -175,7 +178,7 @@ public class WebserviceApplicationValidator implements ApplicationValidator,
             }
          }
       }
-      
+
       return inconsistencies;
    }
 }

@@ -7,14 +7,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import javax.annotation.Resource;
-
 import junit.framework.Assert;
 
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
-import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -28,47 +24,63 @@ import org.eclipse.stardust.engine.extensions.camel.splitter.InstancesSplitter;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
 import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-
-@ContextConfiguration(locations = {
-      "InstancesSplitterTest-context.xml", "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml"})
-public class InstancesSplitterTest extends AbstractJUnit4SpringContextTests
+public class InstancesSplitterTest
 {
 
    private static final transient Logger LOG = LoggerFactory.getLogger(InstancesSplitterTest.class);
+
+   private static ClassPathXmlApplicationContext ctx;
+   {
+      ctx = new ClassPathXmlApplicationContext(new String[] {
+            "org/eclipse/stardust/engine/extensions/camel/InstancesSplitterTest-context.xml",
+            "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml"
+            });
+      camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
+      testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
+      serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
+      try
+      {
+         camelContext.addRoutes(createFullRoute());
+         testUtils.deployModel();
+      }
+      catch (Exception e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+    //  defaultProducerTemplate = camelContext.createProducerTemplate();
+      splitProcessProducerTemplate = camelContext.createProducerTemplate();
+  //    defaultProducerTemplate.setDefaultEndpointUri("direct:in");
+      splitProcessProducerTemplate.setDefaultEndpointUri(SPLIT_PROCESS_ROUTE_BEGIN);
+      fullRouteResult = camelContext.getEndpoint(SPLIT_PROCESS_ROUTE_END, MockEndpoint.class);
+   }
+
    // URI constants
    private static final String SPLIT_PROCESS_ROUTE_BEGIN = "direct:startProcessSplitterTestRoute";
+
    private static final String SPLIT_PROCESS_ROUTE_END = "mock:endProcessSplitterTestRoute";
 
-   @Resource
-   CamelContext camelContext;
-   @Resource
-   private SpringTestUtils testUtils;
-   /**
-    * Use this service factory access for testing assumptions!
-    */
-   @Resource
-   private ServiceFactoryAccess serviceFactoryAccess;
+   private static CamelContext camelContext;
 
-   @Produce(uri = "direct:in")
-   protected ProducerTemplate defaultProducerTemplate;
-   @Produce(uri = SPLIT_PROCESS_ROUTE_BEGIN)
-   protected ProducerTemplate splitProcessProducerTemplate;
-   @EndpointInject(uri = SPLIT_PROCESS_ROUTE_END)
-   protected MockEndpoint fullRouteResult;
+   private static SpringTestUtils testUtils;
 
-   private boolean initiated = false;
+   private static ServiceFactoryAccess serviceFactoryAccess;
+
+ //  private static ProducerTemplate defaultProducerTemplate;
+
+   private static ProducerTemplate splitProcessProducerTemplate;
+
+   private static MockEndpoint fullRouteResult;
 
    @Test
    public void testSplitProcesses() throws Exception
    {
+
       Set<Long> piOids = new HashSet<Long>();
       ProcessInstances pis = null;
 
@@ -84,9 +96,9 @@ public class InstancesSplitterTest extends AbstractJUnit4SpringContextTests
          piOids.add(wfService.startProcess(PROCESS_ID_STRAIGHT_THROUGH, null, true).getOID());
          piOids.add(wfService.startProcess(PROCESS_ID_STRAIGHT_THROUGH, null, true).getOID());
          piOids.add(wfService.startProcess(PROCESS_ID_STRAIGHT_THROUGH, null, true).getOID());
-         
+
          ProcessInstanceQuery piQuery = ProcessInstanceQuery.findAll();
-         piQuery.where( ProcessInstanceFilter.in(piOids));
+         piQuery.where(ProcessInstanceFilter.in(piOids));
          pis = qService.getAllProcessInstances(piQuery);
          assertEquals(3, pis.size());
       }
@@ -95,46 +107,27 @@ public class InstancesSplitterTest extends AbstractJUnit4SpringContextTests
          if (null != sf)
             sf.close();
       }
-
-      splitProcessProducerTemplate.sendBodyAndHeader(null, CamelConstants.MessageProperty.PROCESS_INSTANCES, pis);
+      
+      splitProcessProducerTemplate.sendBodyAndHeader(SPLIT_PROCESS_ROUTE_BEGIN, CamelConstants.MessageProperty.PROCESS_INSTANCES, pis);
 
       fullRouteResult.setExpectedMessageCount(3);
       fullRouteResult.assertIsSatisfied();
 
       // examine exchanges
       Iterator<Exchange> exchangeIter;
-      oidLoop:
-      for( Long oid : piOids )
+      oidLoop: for (Long oid : piOids)
       {
          exchangeIter = fullRouteResult.getReceivedExchanges().iterator();
-         while( exchangeIter.hasNext() )
+         while (exchangeIter.hasNext())
          {
-            if( oid == exchangeIter.next().getIn().getHeader(CamelConstants.MessageProperty.PROCESS_INSTANCE_OID, Long.class))
+            if (oid == exchangeIter.next().getIn()
+                  .getHeader(CamelConstants.MessageProperty.PROCESS_INSTANCE_OID, Long.class))
             {
                continue oidLoop;
             }
          }
-         Assert.fail("OID <"+oid+"> not found in received messages!");
+         Assert.fail("OID <" + oid + "> not found in received messages!");
       }
-    }
-
-   @Before
-   public void setUp() throws Exception
-   {
-      if (!initiated)
-         setUpGlobal();
-   }
-
-   public void setUpGlobal() throws Exception
-   {
-      // initiate environment
-      testUtils.setUpGlobal();
-      initiated = true;
-   }
-   
-   @After
-   public void tearDown() throws Exception {
-      testUtils.tearDown();
    }
 
    public static RouteBuilder createFullRoute()
@@ -142,12 +135,12 @@ public class InstancesSplitterTest extends AbstractJUnit4SpringContextTests
       return new RouteBuilder()
       {
          InstancesSplitter splitter = new InstancesSplitter();
+
          @Override
          public void configure() throws Exception
          {
-            from(SPLIT_PROCESS_ROUTE_BEGIN)
-            .split().method(splitter, "splitProcessInstances")
-            .to(SPLIT_PROCESS_ROUTE_END);
+            from(SPLIT_PROCESS_ROUTE_BEGIN).split().method(splitter, "splitProcessInstances")
+                  .to(SPLIT_PROCESS_ROUTE_END);
          }
       };
    }

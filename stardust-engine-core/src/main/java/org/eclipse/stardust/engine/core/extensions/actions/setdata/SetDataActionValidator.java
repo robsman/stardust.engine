@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.EventActionValidator;
 
 
@@ -28,12 +29,14 @@ public class SetDataActionValidator implements EventActionValidator
       if (StringUtils.isEmpty((String) attributes.get(
             PredefinedConstants.SET_DATA_ACTION_DATA_ID_ATT)))
       {
-         list.add(new Inconsistency("No Data specified.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.ACTN_NO_DATA_DEFINED.raise();
+         list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       if (StringUtils.isEmpty((String) attributes.get(
             PredefinedConstants.SET_DATA_ACTION_ATTRIBUTE_NAME_ATT)))
       {
-         list.add(new Inconsistency("No AccessPoint specified.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.ACTN_NO_ACCESS_POINT_DEFINED.raise();
+         list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       return list;
    }

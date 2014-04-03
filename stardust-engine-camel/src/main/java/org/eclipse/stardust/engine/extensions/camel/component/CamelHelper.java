@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.camel.Exchange;
+import org.apache.camel.Expression;
+import org.apache.camel.language.bean.BeanLanguage;
 import org.apache.camel.language.simple.SimpleLanguage;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.StringHelper;
@@ -26,10 +28,10 @@ import org.eclipse.stardust.common.log.Logger;
  */
 public final class CamelHelper
 {
-   public static String extractTokenFromExpression(String input)
-   {
-      return input.substring(2, input.length() - 1);
-   }
+//   public static String extractTokenFromExpression(String input)
+//   {
+//      return input.substring(2, input.length() - 1);
+//   }
 
    private static final transient Logger LOG = LogManager.getLogger(CamelHelper.class);
 
@@ -294,6 +296,14 @@ private static Map<String, Object> createTypedMap(String[] data, Exchange exchan
       return result;
    }
 
+private static Object evaluateExpression(String entry, Exchange exchange){
+   Expression expression= SimpleLanguage.simple(entry);
+   if(expression ==null)
+      expression=BeanLanguage.bean(entry);
+   
+   return expression.evaluate(exchange, Object.class);
+}
+
    /**
     * Evaluates the given entry using the Exchange and adds the result to the Map under the specified nameKey.
     * 
@@ -304,7 +314,7 @@ private static Map<String, Object> createTypedMap(String[] data, Exchange exchan
     */
    private static void evaluateAndAddToResult(String entry, Exchange exchange, Map<String, Object> resultMap, String nameKey)
    {
-      addToResult(resultMap, nameKey, SimpleLanguage.simple(entry).evaluate(exchange, Object.class));
+      addToResult(resultMap, nameKey,evaluateExpression(entry,exchange) );
    }
 
    /**

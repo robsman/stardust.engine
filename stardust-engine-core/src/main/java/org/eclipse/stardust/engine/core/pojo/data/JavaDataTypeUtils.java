@@ -14,10 +14,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import org.eclipse.stardust.common.Assert;
-import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.Direction;
-import org.eclipse.stardust.common.StringUtils;
+import javax.xml.namespace.QName;
+
+import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -25,11 +24,13 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.reflect.ResolvedMethod;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.pojo.utils.JavaAccessPointType;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
+import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluationContext;
+import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanConstants;
 
 
@@ -39,11 +40,13 @@ import org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanConstants;
  */
 public class JavaDataTypeUtils
 {
+   private static final String QUALIFIED_TYPE_DECLARATION_PREFIX = "typeDeclaration:";
+
    private static final Logger trace = LogManager.getLogger(JavaDataTypeUtils.class);
 
    private static final String PROTOCOL_SEPARATOR = "://";
    private static final String PATH_SEPARATOR = ".";
-   
+
    private static final String CACHED_REFERENCE_CLASS = JavaDataTypeUtils.class.getName()
          + ".CachedReferenceClass";
 
@@ -74,49 +77,124 @@ public class JavaDataTypeUtils
 
    public static String getReferenceClassName(AccessPoint data)
    {
-      if (data.getType().getId().equals(PredefinedConstants.PRIMITIVE_DATA))
+      return getReferenceClassName(data, true);
+   }
+
+   public static String getReferenceClassName(AccessPoint data, boolean javaExpected)
+   {
+      PluggableType dataType = data.getType();
+      if (dataType != null)
       {
-         Type type = (Type) data.getAttribute(PredefinedConstants.TYPE_ATT);
-         return Reflect.getClassFromAbbreviatedName(type.getName()).getName();
+         String typeId = dataType.getId();
+         if (PredefinedConstants.PRIMITIVE_DATA.equals(typeId))
+         {
+            Type type = data.getAttribute(PredefinedConstants.TYPE_ATT);
+            return Type.Enumeration == type
+                  ? getJavaEnumClassName(data, javaExpected)
+                  : Reflect.getClassFromAbbreviatedName(type.getName()).getName();
+         }
+         else if (PredefinedConstants.SERIALIZABLE_DATA.equals(typeId))
+         {
+            return data.getAttribute(PredefinedConstants.CLASS_NAME_ATT);
+         }
+         else if (PredefinedConstants.ENTITY_BEAN_DATA.equals(typeId))
+         {
+            boolean is3x = EntityBeanConstants.VERSION_3_X.equals(
+                  data.getAttribute(EntityBeanConstants.VERSION_ATT));
+            return data.getAttribute(is3x ?
+                  PredefinedConstants.CLASS_NAME_ATT : PredefinedConstants.REMOTE_INTERFACE_ATT);
+         }
       }
-      else if (data.getType().getId().equals(PredefinedConstants.SERIALIZABLE_DATA))
-      {
-         return (String) data.getAttribute(PredefinedConstants.CLASS_NAME_ATT);
-      }
-      else if (data.getType().getId().equals(PredefinedConstants.ENTITY_BEAN_DATA))
-      {
-         boolean is3x = EntityBeanConstants.VERSION_3_X.equals(
-               data.getAttribute(EntityBeanConstants.VERSION_ATT));
-         return (String) data.getAttribute(is3x ?
-               PredefinedConstants.CLASS_NAME_ATT : PredefinedConstants.REMOTE_INTERFACE_ATT);
-      }
-      else
-      {
-         throw new PublicException("Not a Java data type.");
-      }
+      throw new PublicException("Not a Java data type.");
    }
 
    public static Class getReferenceClass(AccessPoint data)
    {
-      Class referenceClass = (data instanceof ModelElement)
-            ? (Class) ((ModelElement) data).getRuntimeAttribute(CACHED_REFERENCE_CLASS)
+      return getReferenceClass(data, true);
+   }
+
+   public static Class getReferenceClass(AccessPoint accessPoint, boolean javaExpected)
+   {
+      Class referenceClass = (accessPoint instanceof RuntimeAttributeHolder)
+            ? (Class) ((RuntimeAttributeHolder) accessPoint).getRuntimeAttribute(CACHED_REFERENCE_CLASS)
             : null;
-      if (null == referenceClass)
+      if (referenceClass == null)
       {
-         final String referenceClassName = getReferenceClassName(data);
-         
-         if ( !StringUtils.isEmpty(referenceClassName))
+         String referenceClassName = getReferenceClassName(accessPoint, javaExpected);
+         if (!StringUtils.isEmpty(referenceClassName))
          {
-            referenceClass = Reflect.getClassFromAbbreviatedName(referenceClassName);
-            
-            if ((null != referenceClass) && (data instanceof ModelElement))
+            try
             {
-               ((ModelElement) data).setRuntimeAttribute(CACHED_REFERENCE_CLASS, referenceClass);
+               referenceClass = Reflect.getClassFromAbbreviatedName(referenceClassName);
+               if ((null != referenceClass) && isCacheable(accessPoint))
+               {
+                  ((RuntimeAttributeHolder) accessPoint).setRuntimeAttribute(CACHED_REFERENCE_CLASS, referenceClass);
+               }
+            }
+            catch (Exception ex)
+            {
+               // (fh) ignore, since that will return null
+               // (fh) shall we cache the null value ?
             }
          }
       }
-      
+
       return referenceClass;
+   }
+
+   private static boolean isCacheable(AccessPoint data)
+   {
+      return (data instanceof RuntimeAttributeHolder) && !isJavaEnumeration(data);
+   }
+
+   public static boolean isJavaEnumeration(AccessPoint data)
+   {
+      PluggableType type = data.getType();
+      if (type != null && PredefinedConstants.PRIMITIVE_DATA.equals(type.getId()))
+      {
+         Object primitiveType = data.getAttribute(PredefinedConstants.TYPE_ATT);
+         if (primitiveType == Type.Enumeration && (data instanceof ModelElement))
+         {
+            return !String.class.getName().equals(getJavaEnumClassName(data, true));
+         }
+      }
+      return false;
+   }
+
+   private static String getJavaEnumClassName(AccessPoint data, boolean javaExpected)
+   {
+      if (javaExpected && data instanceof ModelElement)
+      {
+         String typeDeclarationId = data.getStringAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
+         if (typeDeclarationId != null)
+         {
+            IModel model = (IModel) ((ModelElement) data).getModel();
+            if (typeDeclarationId.startsWith(QUALIFIED_TYPE_DECLARATION_PREFIX))
+            {
+               QName qname = QName.valueOf(typeDeclarationId.substring(QUALIFIED_TYPE_DECLARATION_PREFIX.length()));
+               String modelId = qname.getNamespaceURI();
+               if (!model.getId().equals(modelId))
+               {
+                  IExternalPackage pkg = model.findExternalPackage(modelId);
+                  if (pkg != null)
+                  {
+                     model = pkg.getReferencedModel();
+                  }
+               }
+               typeDeclarationId = qname.getLocalPart();
+            }
+            ITypeDeclaration typeDeclaration = model.findTypeDeclaration(typeDeclarationId);
+            if (typeDeclaration != null)
+            {
+               String className = typeDeclaration.getStringAttribute(PredefinedConstants.CLASS_NAME_ATT);
+               if (className != null)
+               {
+                  return className;
+               }
+            }
+         }
+      }
+      return String.class.getName();
    }
 
    public static AccessPoint createIntrinsicAccessPoint(ModelElement parent, String id,
@@ -190,7 +268,13 @@ public class JavaDataTypeUtils
 
    public static BridgeObject getBridgeObject(AccessPoint point, String path)
    {
-      Class accessPointType = getReferenceClass(point);
+      return getBridgeObject(point, path, null);
+   }
+
+   public static BridgeObject getBridgeObject(AccessPoint point, String path, AccessPathEvaluationContext context)
+   {
+      boolean javaExpected = (context == null) || (context.getTargetAccessPointDefinition() instanceof JavaAccessPoint);
+      Class accessPointType = getReferenceClass(point, javaExpected);
       Direction direction = null;
       Class currentType = accessPointType;
       if (!StringUtils.isEmpty(path))
@@ -304,21 +388,21 @@ public class JavaDataTypeUtils
    {
       Assert.condition(JavaAccessPointType.METHOD == apGetter.getAttribute(PredefinedConstants.FLAVOR_ATT));
       Assert.condition(Direction.OUT == apGetter.getDirection());
-      
+
       ResolvedMethod getter = null;
-      
+
       if (apGetter instanceof ModelElement)
       {
          Map methodCache = (Map) ((ModelElement) apGetter).getRuntimeAttribute(METHOD_CACHE);
-         
+
          getter = (null != methodCache)
          ? (ResolvedMethod) methodCache.get(instance.getClass())
                : null;
-         
+
          if (null == getter)
          {
             List parsedPath = parse(apGetter.getId());
-            
+
             if (1 == parsedPath.size())
             {
                Method mthdGetter = Reflect.decodeMethod(instance.getClass(),
@@ -326,7 +410,7 @@ public class JavaDataTypeUtils
                if (null != mthdGetter)
                {
                   getter = new ResolvedMethod(mthdGetter);
-                  
+
                   if ((null == methodCache) || methodCache.isEmpty())
                   {
                      methodCache = Collections.singletonMap(instance.getClass(), getter);
@@ -336,13 +420,13 @@ public class JavaDataTypeUtils
                      methodCache = CollectionUtils.copyMap(methodCache);
                      methodCache.put(instance.getClass(), getter);
                   }
-                  
+
                   ((ModelElement) apGetter).setRuntimeAttribute(METHOD_CACHE, methodCache);
                }
             }
          }
       }
-      
+
       Object value = null;
       if ((null != instance) && (null != getter))
       {
@@ -359,7 +443,7 @@ public class JavaDataTypeUtils
 
       return value;
    }
-   
+
    public static Object evaluateGetter(Method mthdGetter, Object instance)
          throws InvocationTargetException
    {
@@ -395,7 +479,7 @@ public class JavaDataTypeUtils
          trace.debug("Value of " + instance + "." + mthdGetter.getName() + " is: '"
                + result + "'");
       }
-      
+
       return result;
    }
 
@@ -410,15 +494,15 @@ public class JavaDataTypeUtils
       if (apSetter instanceof ModelElement)
       {
          Map methodCache = (Map) ((ModelElement) apSetter).getRuntimeAttribute(METHOD_CACHE);
-         
+
          setter = (null != methodCache)
                ? (ResolvedMethod) methodCache.get(instance.getClass())
                : null;
-         
+
          if (null == setter)
          {
             List parsedPath = parse(apSetter.getId());
-            
+
             if (1 == parsedPath.size())
             {
                Method mthdSetter = Reflect.decodeMethod(instance.getClass(),
@@ -426,7 +510,7 @@ public class JavaDataTypeUtils
                if (null != mthdSetter)
                {
                   setter = new ResolvedMethod(mthdSetter);
-                  
+
                   if ((null == methodCache) || methodCache.isEmpty())
                   {
                      methodCache = Collections.singletonMap(instance.getClass(), setter);
@@ -436,13 +520,13 @@ public class JavaDataTypeUtils
                      methodCache = CollectionUtils.copyMap(methodCache);
                      methodCache.put(instance.getClass(), setter);
                   }
-                  
+
                   ((ModelElement) apSetter).setRuntimeAttribute(METHOD_CACHE, methodCache);
                }
             }
          }
       }
-      
+
       if (trace.isDebugEnabled())
       {
          trace.debug("Access point is " + ((null != instance)
@@ -483,7 +567,7 @@ public class JavaDataTypeUtils
 
       return instance;
    }
-   
+
    public static Object evaluateSetter(Method mthdSetter, Object instance, Class argType,
          Object value) throws InvocationTargetException
    {

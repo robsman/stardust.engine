@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.core.struct.sxml;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
 
 import java.util.List;
@@ -45,6 +46,11 @@ public abstract class ParentNode extends Node
    public Node getChild(int pos)
    {
       return children.get(pos);
+   }
+   
+   public List<Node> getChildren()
+   {
+      return unmodifiableList(children);
    }
 
    /**

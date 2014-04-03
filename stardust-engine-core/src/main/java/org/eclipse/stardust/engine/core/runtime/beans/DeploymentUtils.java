@@ -33,6 +33,7 @@ import org.eclipse.stardust.engine.api.model.IReference;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -61,13 +62,13 @@ public class DeploymentUtils
       Version version = iModel.getCarnotVersion();
       if (version == null)
       {
-         inconsistencies.add(new Inconsistency(
-               "The model was created with an unknown CARNOT version.", iModel, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.MDL_UNKNOWN_MODEL_VERSION.raise();
+         inconsistencies.add(new Inconsistency(error, iModel, Inconsistency.WARNING));
       }
-      else if (version.compareTo(Version.createFixedVersion(3, 0, 0)) < 0 )
+      else if (version.compareTo(Version.createFixedVersion(3, 0, 0)) < 0)
       {
-         inconsistencies.add(new Inconsistency(
-               "The model was created with CARNOT version " + version, iModel, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.MDL_MODEL_VERSION.raise(version);
+         inconsistencies.add(new Inconsistency(error, iModel, Inconsistency.WARNING));
       }
       return inconsistencies;
    }

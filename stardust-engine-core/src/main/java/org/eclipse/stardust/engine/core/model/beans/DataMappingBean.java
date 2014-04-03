@@ -25,6 +25,7 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.SubProcessModeKey;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
@@ -87,27 +88,27 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
       IActivity activity = getActivity();
       if (activity == null)
       {
-         inconsistencies.add(new Inconsistency("No activity set for data mapping '"
-               + getErrorName() + "'.", this, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.DATA_NO_ACTIVITY_SET_FOR_DATAMAPPING.raise(getErrorName());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
 
       // Rule: associated data must be part of the same model
       if (getData() == null)
       {
-         inconsistencies.add(new Inconsistency("No data set for data mapping '"
-               + getErrorName() + "'.", this, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.DATA_NO_DATA_SET_FOR_DATAMAPPING.raise(getErrorName());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
       if (getId() == null || getId().length() == 0)
       {
-         inconsistencies.add(new Inconsistency("No useful ID set for data mapping '"
-               + getErrorName() + "'.", this, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.DATA_NO_USEFUL_ID_SET_FOR_DATAMAPPING.raise(getErrorName());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
       if (getName() == null || getName().length() == 0)
       {
-         inconsistencies.add(new Inconsistency("No useful Name set for data mapping '"
-               + getErrorName() + "'.", this, Inconsistency.WARNING));
-      }      
-      
+         BpmValidationError error = BpmValidationError.DATA_NO_USEFUL_NAME_SET_FOR_DATAMAPPING.raise(getErrorName());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
+      }
+
       if (activity != null)
       {
          ModelElementList mappings = activity.getDataMappings();
@@ -121,22 +122,20 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                {
                   if (dataMapping.getContext().equals(getContext()))
                   {
-                     inconsistencies.add(new Inconsistency("DataMapping '" + getErrorName()
-                           + "' has no unique ID for the direction '"
-                           + getDirection().toString() + "'.",
-                           this, Inconsistency.WARNING));
+                     BpmValidationError error = BpmValidationError.DATA_DATAMAPPING_HAS_NO_UNIQUE_ID_FOR_DIRECTION.raise(
+                           getErrorName(), getDirection().toString());
+                     inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                   }
                }
                else
                {
-                  inconsistencies.add(new Inconsistency("DataMapping '"
-                        + getErrorName() + "' has no unique ID for the direction '"
-                        + getDirection().toString() + "'.",
-                        this, Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.DATA_DATAMAPPING_HAS_NO_UNIQUE_ID_FOR_DIRECTION.raise(
+                        getErrorName(), getDirection().toString());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                }
             }
          }
-         
+
          AccessPoint accessPoint = null;
          try
          {
@@ -147,23 +146,22 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
             Throwable t = ie.getCause();
             if (t instanceof ClassNotFoundException || t instanceof NoClassDefFoundError)
             {
-               // For certain deployments (e.g. EJB) it may be possible that for interactive 
-               // applications (e.g. JSF) access points could not be evaluated on model 
+               // For certain deployments (e.g. EJB) it may be possible that for interactive
+               // applications (e.g. JSF) access points could not be evaluated on model
                // deployment time. For these interactive applications no warning is generated.
                if (!isInteractiveApplication())
                {
-                  inconsistencies.add(new Inconsistency(
-                        "Cannot resolve AccessPointProvider for data mapping '" + getId()
-                              + "'.", this, Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.DATA_CANNOT_RESOLVE_ACCESSPOINTPROVIDER_FOR_DATAMAPPING.raise(getId());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                   return;
                }
-            }            
+            }
             else
             {
                throw ie;
             }
          }
-         
+
          if (accessPoint != null)
          {
             boolean ctxMissing = false;
@@ -172,9 +170,9 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                IApplicationContext context = activity.getContext(getContext());
                if (null == context)
                {
-                  inconsistencies.add(new Inconsistency("Context '" + getContext()
-                        + "' of data mapping '" + getErrorName() + "' is invalid.",
-                        this, Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.DATA_INVALID_CONTEXT_FOR_DATAMAPPING.raise(
+                        getContext(), getErrorName());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                   ctxMissing = true;
                }
             }
@@ -185,39 +183,36 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                IApplication application = activity.getApplication();
                if (null == application)
                {
-                  inconsistencies.add(new Inconsistency("Application for data mapping '"
-                        + getErrorName() + "' is invalid.", this,
-                        Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.DATA_INVALID_APPLICATION_FOR_DATAMAPPING.raise(getErrorName());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                   ctxMissing = true;
                }
             }
             if ( !ctxMissing && getData() != null)
             {
                IData data = getData();
-               if (!BridgeObject.isValidMapping(direction, accessPoint, applicationPath,
+               if ( !BridgeObject.isValidMapping(direction, accessPoint, applicationPath,
                      data, dataPath, activity))
                {
-                  inconsistencies.add(new Inconsistency("Data '" + getData().getName()
-                        + "' is not of the correct type for data mapping '"
-                        + getErrorName() + "'.", this, Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.DATA_INVALID_DATATYPE_FOR_DATAMAPPING.raise(
+                        getData().getName(), getErrorName());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                }
             }
          }
          else
          {
-            if (ImplementationType.SubProcess == activity.getImplementationType() && activity.getExternalReference() != null)
+            if (ImplementationType.SubProcess == activity.getImplementationType()
+                  && activity.getExternalReference() != null)
             {
-               inconsistencies.add(new Inconsistency(
-                              "Formal parameter with id '"
-                                    + applicationAccessPointId
-                                    + "' couldn't be resolved for data mapping '"
-                                    + getErrorName() + "'.", this,
-                              Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.DATA_FORMAL_PARAMETER_NOT_RESOLVABLE_FOR_DATAMAPPING.raise(
+                     applicationAccessPointId, getErrorName());
+               inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
             }
             IApplicationContext context = activity.getContext(this.context);
             if (context != null)
             {
-               // If application path is set for non interactive application a warning is generated... 
+               // If application path is set for non interactive application a warning is generated...
                IApplicationContextType contextType = (IApplicationContextType) context.getType();
                if (contextType.hasApplicationPath()
                      && !isInteractiveApplication())
@@ -228,18 +223,18 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
                      // their access point information in data mappings for mode sync_seperate
                      if (SubProcessModeKey.SYNC_SEPARATE != activity.getSubProcessMode())
                      {
-                        inconsistencies.add(new Inconsistency(
-                              "Application access point with id '"
-                                    + applicationAccessPointId
-                                    + "' couldn't be resolved for data mapping '"
-                                    + getErrorName() + "'.", this,
-                              Inconsistency.WARNING));
+                        BpmValidationError error = BpmValidationError.DATA_APPLICATION_ACCESS_POINT_NOT_RESOLVABLE_FOR_DATAMAPPING.raise(
+                              applicationAccessPointId, getErrorName());
+                        inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                      }
                   }
                   else
                   {
-                     inconsistencies.add(new Inconsistency("No application access point set for data mapping '"
-                           + getErrorName() + "'.", this, Inconsistency.WARNING));
+                     {
+                        BpmValidationError error = BpmValidationError.DATA_NO_APPLICATION_ACCESS_POINT_SET_FOR_DATAMAPPING.raise(getErrorName());
+                        inconsistencies.add(new Inconsistency(error,
+                              this, Inconsistency.WARNING));
+                     }
                   }
                }
                else
@@ -257,13 +252,14 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
             {
                if (StringUtils.isEmpty(getContext()))
                {
-                  inconsistencies.add(new Inconsistency("No context set for data mapping '"
-                        + getErrorName() + "'.", this, Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.DATA_NO_CONTEXT_SET_FOR_DATAMAPPING.raise(getErrorName());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                }
                else
                {
-                  inconsistencies.add(new Inconsistency("Context '"+ getContext() + "' for data mapping '"
-                        + getErrorName() + "' is undefined.", this, Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.DATA_CONTEXT_FOR_DATAMAPPING_UNDEFINED.raise(
+                        getContext(), getErrorName());
+                  inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
                }
             }
          }
@@ -274,7 +270,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
    {
       try
       {
-         
+
          AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
                null, null, null, getActivity());
          leftValidator.getBridgeObject(getData(), dataPath, Direction.OUT
@@ -287,9 +283,8 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
       }
       catch (Exception e)
       {
-         inconsistencies.add(new Inconsistency(
-               "Data path is not valid for data mapping " + getErrorName()
-                     + "'.", this, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.DATA_INVALID_DATAPATH_FOR_DATAMAPPING.raise(getErrorName());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
    }
 
@@ -331,7 +326,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
       {
          return getId();
       }
-      
+
       return name;
    }
 
@@ -410,7 +405,7 @@ public class DataMappingBean extends ConnectionBean implements IDataMapping
    {
       this.id = id;
    }
-   
+
    public void setName(String name)
    {
       this.name = name;

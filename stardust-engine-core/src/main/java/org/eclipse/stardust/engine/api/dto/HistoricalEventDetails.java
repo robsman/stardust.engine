@@ -103,7 +103,7 @@ public class HistoricalEventDetails implements HistoricalEvent
       return userDetails;
    }
 
-   private static User getUser(HistoricalState histState)
+   public static User getUser(HistoricalState histState)
    {
       final long userOid = (null == histState.getUser())
             ? 0

@@ -35,9 +35,6 @@ import org.eclipse.stardust.engine.extensions.transformation.MessagingUtils;
 import org.eclipse.stardust.engine.extensions.transformation.format.IMessageFormat;
 import org.eclipse.stardust.engine.extensions.transformation.format.RuntimeFormatManager;
 
-/**
- * 
- */
 public class MessageParsingApplicationInstance implements
    SynchronousApplicationInstance
 {
@@ -67,7 +64,7 @@ public class MessageParsingApplicationInstance implements
 
    public void bootstrap(ActivityInstance activityInstance)
    {
-      trace.info("bootstrap()");
+      trace.debug("bootstrap()");
 
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       this.model = modelManager.findModel(activityInstance.getModelOID());
@@ -108,10 +105,13 @@ public class MessageParsingApplicationInstance implements
          throw new RuntimeException("Could not retrieve message format for ID '"+messageFormatId+"'", x);
       }
 
-      trace.info("Message Format: " + messageFormat);
       schema = (String) application.getAttribute(Constants.FORMAT_MODEL_FILE_PATH);
 
-      trace.info("Schema: " + schema);
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("Message Format: " + messageFormat);
+         trace.debug("Schema: " + schema);
+      }
    }
 
    /**
@@ -119,7 +119,10 @@ public class MessageParsingApplicationInstance implements
     */
    public void setInAccessPointValue(String name, Object value)
    {
-      trace.info("setInAccessPoint(" + name + ", " + value + ")");
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("setInAccessPoint(" + name + ", " + value + ")");
+      }
 
       Pair param = findAccessPointValue(name);
 
@@ -130,7 +133,10 @@ public class MessageParsingApplicationInstance implements
 
       inAccessPointValues.add(new Pair(name, value));
 
-      trace.info("inAccessPointValues.size() = " + inAccessPointValues.size());
+      if (trace.isDebugEnabled())
+      {
+         trace.debug("inAccessPointValues.size() = " + inAccessPointValues.size());
+      }
    }
 
    /**
@@ -141,12 +147,9 @@ public class MessageParsingApplicationInstance implements
       return outputValues.get(name);
    }
 
-   /**
-    * 
-    */
    public void cleanup()
    {
-      trace.info("cleanup()");
+      trace.debug("cleanup()");
    }
 
    /**
@@ -189,15 +192,10 @@ public class MessageParsingApplicationInstance implements
       return null;
    }
 
-   /**
-    * 
-    */
    public Map invoke(Set outDataTypes) throws InvocationTargetException
    {
-      trace.info("invoke()");
+      trace.debug("invoke()");
       
-      String outDataPath = "";
-
       try
       {
          DataMapping oudDataMapping = outAccessPoints.values().iterator().next();
@@ -214,8 +212,10 @@ public class MessageParsingApplicationInstance implements
 
             inputMessageString = (String) entry.getSecond();
 
-            trace.info("Setting input access point " + name
-                  + " to value " + inputMessageString + ".");
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Setting input access point " + name + " to value " + inputMessageString + ".");
+            }
          }
 
          org.w3c.dom.Document parsedDocument = messageFormat.parse(new StringReader(inputMessageString), schemaDocument);
@@ -233,7 +233,10 @@ public class MessageParsingApplicationInstance implements
 
          for (String accessPointID : outAccessPoints.keySet())
          {
-            trace.info("Setting input access point " + accessPointID + " to value " + outputMessage + ".");
+            if (trace.isDebugEnabled())
+            {
+               trace.debug("Setting output access point " + accessPointID + " to value " + outputMessage + ".");
+            }
 
             outputValues.put(accessPointID, outputMessage);
          }
@@ -247,22 +250,22 @@ public class MessageParsingApplicationInstance implements
       return doGetOutAccessPointValues(outDataTypes);
    }
    
-   /* package-private */ org.w3c.dom.Document getSchemaDocument(final IData data)
+   org.w3c.dom.Document getSchemaDocument(final IData data)
    {
       return MessagingUtils.getStructuredAccessPointSchema(data);
    }
    
-   /* package-private */ Document fromW3CDocument(final org.w3c.dom.Document document)
+   Document fromW3CDocument(final org.w3c.dom.Document document)
    {
       return DOMConverter.convert(document);
    }
    
-   /* package-private */ IXPathMap getXPathMap(final IData data)
+   IXPathMap getXPathMap(final IData data)
    {
       return DataXPathMap.getXPathMap(data);
    }
    
-   /* package-private */ StructuredDataConverter newStructuredDataConverter(final IXPathMap xPathMap)
+   StructuredDataConverter newStructuredDataConverter(final IXPathMap xPathMap)
    {
       return new StructuredDataConverter(xPathMap);
    }

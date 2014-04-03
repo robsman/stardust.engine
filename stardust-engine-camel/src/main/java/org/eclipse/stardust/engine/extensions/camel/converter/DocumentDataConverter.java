@@ -1,30 +1,20 @@
 package org.eclipse.stardust.engine.extensions.camel.converter;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMultipart;
-
 import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Handler;
 import org.apache.camel.component.file.GenericFile;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
-import org.eclipse.stardust.engine.api.runtime.Document;
-import org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty;
-import org.eclipse.stardust.engine.extensions.camel.util.DmsFileArchiver;
-import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
 
 
 @Converter
 public class DocumentDataConverter implements DataConverter {
-	private static final Logger logger = LogManager
-			.getLogger(DocumentDataConverter.class);
+   static Logger logger = LogManager.getLogger(DocumentDataConverter.class);
 	DmsUtils dmsUtils;
 	private String fromEndpoint;
 	private String targetType;
@@ -68,10 +58,10 @@ public class DocumentDataConverter implements DataConverter {
 	 * @throws IOException
 	 * @throws MessagingException
 	 */
-	@Converter
+	@SuppressWarnings("unchecked")
 	@Handler
-	public Document genericFileToDocument(Object messageContent,
-			Exchange exchange) throws IOException, MessagingException {
+	public String genericFileToDocument(Object messageContent,
+			Exchange exchange) throws IOException{
 		byte[] jcrDocumentContent = null;
 		if (exchange != null) {
 			if (messageContent instanceof GenericFile<?>) {
@@ -87,61 +77,14 @@ public class DocumentDataConverter implements DataConverter {
 			} else if (messageContent instanceof String) {
 				jcrDocumentContent =  ((String) messageContent).getBytes();
 			}
-			DmsFileArchiver dmsFileArchiver = new DmsFileArchiver(
-					ClientEnvironment.getCurrentServiceFactory());
-			dmsFileArchiver.setRootFolderPath("/");
-			String folder = "documents";
-			long scopeProcessInstanceOID = -1;
-			if (exchange.getIn().getHeader("ippProcessInstanceOid") != null) {
-				scopeProcessInstanceOID = (Long) exchange.getIn().getHeader(
-						"ippProcessInstanceOid");
-			}
-			logger.debug("scopeProcessInstanceOID = "+ scopeProcessInstanceOID);
-			Date scopeProcessInstanceStartTime = (Date) exchange.getIn().getHeader("CamelFileLastModified");
-			if ((scopeProcessInstanceStartTime != null)
-					&& (!("-1".equals(Long.toString(scopeProcessInstanceOID))))) {
-				folder = dmsUtils.composeDefaultPath(scopeProcessInstanceOID,scopeProcessInstanceStartTime);
-			}
-			
-			String path = "";
-			if (exchange.getIn().getHeader(MessageProperty.PROCESS_ID,
-					String.class) != null)
-				path += exchange.getIn().getHeader(MessageProperty.PROCESS_ID,
-						String.class)
-						+ "_";
-			if (exchange.getIn().getHeader("CamelFileNameOnly") != null)
-				path += exchange.getIn().getHeader("CamelFileNameOnly") + "_";
-			else {
-				SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-hhmmsss");
-				if (exchange.getIn().getHeader("breadcrumbId") != null)
-					path += ((String) exchange.getIn()
-							.getHeader("breadcrumbId")).replaceAll("-", "_")
-							.replaceAll(":", "_")
-							+ "_" + df.format(new Date());
-			}
-			MimeMultipart mimeMultipart = null;
-			if (jcrDocumentContent == null) {
-				mimeMultipart = (MimeMultipart) exchange.getIn().getBody();
-				if (mimeMultipart != null) {
-					try {
-						jcrDocumentContent = (byte[]) mimeMultipart
-								.getBodyPart(1).getContent();
-					} catch (Exception e) {
-						e.printStackTrace();
-						jcrDocumentContent = "".getBytes();
-					}
-				} else {
-					jcrDocumentContent ="".getBytes();
-				}
-			}
-			Document newDocument = dmsFileArchiver.archiveFile(
-					jcrDocumentContent, path, folder);
-			newDocument.setProperties(null);	
+
 			String fileName = (String) exchange.getIn().getHeader("CamelFileNameOnly");
-			newDocument.setContentType(getDocumentType(fileName));
-
-			return newDocument;
-
+			exchange.getIn().getHeaders().put("CamelAttachment", fileName);
+			exchange.getIn().getHeaders().put("CamelDocumentContent", jcrDocumentContent);
+			String document = fileName + "_";
+			exchange.getIn().setBody(document);
+			return document;
+			
 		} else {
 			return null;
 		}

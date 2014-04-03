@@ -16,6 +16,11 @@ package org.eclipse.stardust.engine.core.preferences.configurationvariables;
 public interface IConfigurationVariableDefinition
 {
    /**
+    * @return the type as defined in the model/name.
+    */
+   ConfigurationVariableScope getType();
+      
+   /**
     * @return the name as defined in the model.
     */
    String getName();

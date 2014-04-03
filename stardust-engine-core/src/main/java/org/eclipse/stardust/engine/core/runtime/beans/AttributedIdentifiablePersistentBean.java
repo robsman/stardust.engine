@@ -249,6 +249,38 @@ public abstract class AttributedIdentifiablePersistentBean
       {
          property.setValue(value);
       }
+   }
+   
+   public void addProperty(AbstractProperty existingProperty)
+   {
+      String name = existingProperty.getName();
+      Attribute property = getProperty(name);
+      if (property == null)
+      {
+         if (null == cachedProperties)
+         {
+            this.cachedProperties = newHashMap();
+         }
+         
+         property = existingProperty;
+
+         if (Arrays.asList(supportedMultiAttributes()).contains(name))
+         {
+            // properly wrap multi-attributes into container
+            MultiAttribute container = new MultiAttribute(name);
+            container.add(property);
+            cachedProperties.put(name, container);
+         }
+         else
+         {
+            cachedProperties.put(name, property);
+         }
+      }
+      else if (property instanceof MultiAttribute)
+      {
+         MultiAttribute container = (MultiAttribute) property;
+         container.add(existingProperty);
+      }
    }   
    
    public void setPropertyValue(String name, Serializable value)

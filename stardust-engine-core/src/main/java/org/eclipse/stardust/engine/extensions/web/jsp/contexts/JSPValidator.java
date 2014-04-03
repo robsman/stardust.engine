@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationContextValidator;
 
 
@@ -29,8 +30,8 @@ public class JSPValidator implements ApplicationContextValidator
       String htmlPath = (String) properties.get(PredefinedConstants.HTML_PATH_ATT);
       if (StringUtils.isEmpty(htmlPath))
       {
-         inconsistencies.add(new Inconsistency("Undefined html path for JSP "
-               + " application.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.APP_UNDEFINED_HTML_PATH_FOR_JSP_APPLICATION.raise();
+         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       return inconsistencies;
    }

@@ -1,6 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.app;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.DEFAULT_CAMEL_CONTEXT_ID;
+import static org.eclipse.stardust.engine.extensions.camel.Util.*;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationPatterns.RECEIVE;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,7 +16,6 @@ import org.apache.camel.ExchangePattern;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spring.spi.ApplicationContextRegistry;
 import org.eclipse.stardust.common.Pair;
-import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -25,7 +24,6 @@ import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AsynchronousApplicationInstance;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
-import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
 import org.eclipse.stardust.engine.extensions.camel.GenericProducer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
@@ -40,7 +38,9 @@ public class CamelProducerSpringBeanApplicationInstance
    private static final String PRP_APPLICATION_CONTEXT = "org.eclipse.stardust.engine.api.spring.applicationContext";
 
    private ActivityInstance activityInstance;
+
    private ApplicationContext springContext;
+
    private DefaultCamelContext camelContext;
 
    private String camelContextId;
@@ -56,14 +56,7 @@ public class CamelProducerSpringBeanApplicationInstance
 
       this.activityInstance = activityInstance;
       this.application = activityInstance.getActivity().getApplication();
-
-      this.camelContextId = (String) this.application.getAttribute(CamelConstants.CAMEL_CONTEXT_ID_ATT);
-
-      if (StringUtils.isEmpty(this.camelContextId))
-      {
-         this.camelContextId = DEFAULT_CAMEL_CONTEXT_ID;
-      }
-
+      this.camelContextId = getCamelContextId(this.application);
       this.springContext = (AbstractApplicationContext) Parameters.instance().get(PRP_APPLICATION_CONTEXT);
       this.camelContext = (DefaultCamelContext) this.springContext.getBean(this.camelContextId);
 
@@ -138,22 +131,23 @@ public class CamelProducerSpringBeanApplicationInstance
 
          if (exchange != null)
          {
-               if (exchange.getException() != null || exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class) != null)
+            if (exchange.getException() != null
+                  || exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class) != null)
+            {
+               if (exchange.getException() instanceof org.apache.camel.RuntimeCamelException)
                {
-            	   if (exchange.getException() instanceof org.apache.camel.RuntimeCamelException)
-            	   {
-            		   throw new InvocationTargetException(exchange.getException().getCause());
-            	   }
-            
-            	   Throwable caused = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
-            	   
-            	   if (caused != null)
-            	   {
-            		   throw new InvocationTargetException(caused);
-            	   }
-            
-            	   throw new InvocationTargetException(exchange.getException());
+                  throw new InvocationTargetException(exchange.getException().getCause());
                }
+
+               Throwable caused = exchange.getProperty(Exchange.EXCEPTION_CAUGHT, Throwable.class);
+
+               if (caused != null)
+               {
+                  throw new InvocationTargetException(caused);
+               }
+
+               throw new InvocationTargetException(exchange.getException());
+            }
          }
 
          if (exchange != null)
@@ -206,7 +200,7 @@ public class CamelProducerSpringBeanApplicationInstance
 
       try
       {
-         String invocationPattern = (String) application.getAttribute(CamelConstants.INVOCATION_PATTERN_EXT_ATT);
+         String invocationPattern = getInvocationPattern(application);
 
          if (!RECEIVE.equals(invocationPattern))
          {

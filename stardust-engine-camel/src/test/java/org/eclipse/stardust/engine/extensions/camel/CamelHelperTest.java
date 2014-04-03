@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -27,14 +28,22 @@ public class CamelHelperTest extends AbstractJUnit4SpringContextTests {
 
 	@Resource
 	CamelContext camelContext;
-
+	private static String dateString = "17.04.1833";
+	 public String getDateString() {
+	      return dateString;
+	   }
+	 public static Date getDate() throws ParseException {
+	       
+	      return KeyValueList.getDateFormat().parse(dateString);
+	   }
+	
 	@SuppressWarnings("unchecked")
    @Test
 	public void testTypedMapCreation() throws Exception
 	{
 	   String birthday = "24.04.1975";
 	   String testDatePattern = "yyyyMMdd";
-	   DateUtilsBean dateUtils = new DateUtilsBean();
+	   //DateUtilsBean dateUtils = new DateUtilsBean();
 	   
 	   String bookNameKey = "bookName";
 	   String bookName = "camel-ipp";
@@ -49,7 +58,7 @@ public class CamelHelperTest extends AbstractJUnit4SpringContextTests {
             "Account::${header.AccountNumber}::int," + // primitive header with fixed ID and integer conversion
 			"Person.name::${body}," + // struct field with Camel variable
 			"Person.birthday::"+birthday+"::date," + // struct field with date conversion
-			"BusinessData.arrivalDate::$simple{bean:dateUtils.dateString}::date," + // date conversion from String with bean reference
+			"BusinessData.arrivalDate::$simple{bean:camelHelperTest.dateString}::date," + // date conversion from String with bean reference
 			"Filename::file-${date:header.TestDate:"+testDatePattern+"}.txt,"+ // date formatting with prefix
 		
 			"$simple{header.BookNameKey}::"+bookName+","+ //dynamic ID with fix value
@@ -76,7 +85,7 @@ public class CamelHelperTest extends AbstractJUnit4SpringContextTests {
 		headerMap.put("ReferenceId", referenceId);
 		headerMap.put("PersonId", personId);
 		headerMap.put("AccountNumber", accountNumber);
-		headerMap.put("TestDate", dateUtils.getDate());
+		headerMap.put("TestDate", getDate());
 		
 		headerMap.put("PersonNameKey", personNameKey);
 		headerMap.put("PersonNameValue", personName);
@@ -112,8 +121,8 @@ public class CamelHelperTest extends AbstractJUnit4SpringContextTests {
 		assertEquals( personBirthday, (Date)((Map<String,Object>)result.get("Person")).get("birthday") );
 		assertEquals( personId, (Long)result.get("ID") ); // this one has a forced nameKey
 		assertEquals( new Integer(accountNumber), (Integer)result.get("Account") );
-        assertEquals( new DateUtilsBean().getDate(), (Date)((Map<String,Object>)result.get("BusinessData")).get("arrivalDate") );
-        assertEquals( "file-"+new SimpleDateFormat("yyyyMMdd").format(dateUtils.getDate())+".txt", result.get("Filename") );
+        assertEquals( getDate(), (Date)((Map<String,Object>)result.get("BusinessData")).get("arrivalDate") );
+        assertEquals( "file-"+new SimpleDateFormat("yyyyMMdd").format(getDate())+".txt", result.get("Filename") );
         assertEquals( bookName, (String)result.get(bookNameKey) );
         assertEquals( personName, (String)result.get(personNameKey) );
         assertEquals( dataValue, (String)result.get("DataField"+fieldIndex) );

@@ -54,9 +54,8 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    public static final int EXTENDED_STATE_FLAG_DEPUTY_OF_PROP = 4; // 3rd bit
 
    @SuppressWarnings("unused")
-   private static final int EXTENDED_STATE_FLAG_ALL = ~0; // all bits   
-   
-   
+   private static final int EXTENDED_STATE_FLAG_ALL = ~0; // all bits
+
    public static final String FIELD__OID = IdentifiablePersistentBean.FIELD__OID;
    public static final String FIELD__ACCOUNT = "account";
    public static final String FIELD__FIRST_NAME = "firstName";
@@ -120,25 +119,25 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    static final String participantLinks_OWNED = "true";
 
    static final boolean password_SECRET = true;
-   
+
    public PersistentVector userGroupLinks;
    static final String userGroupLinks_TABLE_NAME = UserUserGroupLink.TABLE_NAME;
    static final String userGroupLinks_CLASS = UserUserGroupLink.class.getName();
    static final String userGroupLinks_OTHER_ROLE = UserUserGroupLink.FIELD__USER;
    static final String userGroupLinks_OWNED = "true";
-   
+
    private UserRealmBean realm;
-   
+
    private transient Integer qualityAssurancePropability = null;
-   private transient PropertyIndexHandler propIndexHandler = new PropertyIndexHandler();   
-   
+   private transient PropertyIndexHandler propIndexHandler = new PropertyIndexHandler();
+
    /**
     * Holds a cached version of profile
     */
    private transient Map cachedProfile = null;
-   
+
    private transient Set<Long> grantsCache = null;
-   
+
    public static long countActiveUsers()
    {
       return (SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)).getCount(
@@ -148,7 +147,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
                         Predicates.greaterThan(FR__VALID_TO, System.currentTimeMillis()),
                         Predicates.isEqual(FR__VALID_TO, 0))));
    }
-   
+
    public static IUser createTransientUser(String account, String firstName,
          String lastName, UserRealmBean realm)
    {
@@ -159,7 +158,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       user.setFirstName(firstName);
       user.setLastName(lastName);
       user.setRealm(realm);
-      
+
       return user;
    }
 
@@ -171,7 +170,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    {
       return findByOid(oid);
    }
-   
+
    public static UserBean findByOid(long oid)
          throws org.eclipse.stardust.common.error.ObjectNotFoundException
    {
@@ -202,7 +201,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             return result;
          }
       }
-      
+
       result = (UserBean) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
             .findFirst(UserBean.class,
                   QueryExtension.where(Predicates.andTerm(
@@ -271,7 +270,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       fetch();
       return account;
    }
-   
+
    public String getRealmQualifiedAccount()
    {
       return MessageFormat.format("{0} (Realm: {1})", new Object[] { getAccount(),
@@ -417,7 +416,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    public boolean checkPassword(String password)
    {
       fetch();
-      
+
       boolean encryptionOn = isPasswordEncryption();
 
       if (this.password == null)
@@ -426,7 +425,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          trace.warn("Stored password is null, provided password is " + password);
          return true;
       }
-      
+
       if (!encryptionOn)
       {
          return this.password.equals(password);
@@ -436,7 +435,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          try
          {
             HMAC hmac = new HMAC(HMAC.MD5);
-            
+
             if(!hmac.isHashed(this.password))
             {
                setPassword(this.password);
@@ -489,13 +488,13 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    {
      fetch();
      return password;
-   }   
-   
+   }
+
    private boolean isPasswordEncryption()
    {
       return Parameters.instance().getBoolean(SecurityUtils.PASSWORD_ENCRYPTION, false);
    }
-   
+
    /**
     *
     */
@@ -523,7 +522,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    }
 
    public void addToParticipants(IModelParticipant participant, IDepartment department, long onBehalfOf)
-   {      
+   {
       fetch();
 
       int cardinality = participant.getCardinality();
@@ -563,7 +562,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       if (onBehalfOf != 0)
       {
          buffer.append(" on behalf of ").append(onBehalfOf);
-      }      
+      }
       buffer.append(".");
       AuditTrailLogger.getInstance(LogCode.SECURITY, this).info(buffer.toString());
 
@@ -587,7 +586,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             if(participantOID == linkParticipantOid && CompareHelper.areEqual(department, link.getDepartment()))
             {
                return link;
-            }            
+            }
          }
       }
       return null;
@@ -655,7 +654,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    public Iterator<UserParticipantLink> getAllParticipantLinks()
    {
       fetchVector(LINK__PARTICIPANT_LINKS);
-      
+
       for (Iterator<UserParticipantLink> i = participantLinks.scan(); i.hasNext();)
       {
          UserParticipantLink participantLink = i.next();
@@ -666,7 +665,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             trace.warn("ParticipantLink without Participant will be removed: " + participantLink.toString());
          }
       }
-         
+
       return participantLinks.scan();
    }
 
@@ -750,7 +749,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       }
       return false;
    }
-   
+
    public boolean hasGrant(IModelParticipant participant)
    {
       if (null == grantsCache)
@@ -791,18 +790,18 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
                public boolean accept(Object o)
                {
                   boolean isAcceptable = true;
-                  
+
                   if (true == validOnly)
                   {
                      final UserUserGroupLink link = (UserUserGroupLink) o;
                      IUserGroup result = link.getUserGroup();
-                     
+
                      if (null == result || false == result.isValid())
                      {
-                        isAcceptable = false;                        
+                        isAcceptable = false;
                      }
                   }
-                  
+
                   return isAcceptable;
                }
             });
@@ -921,7 +920,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       fetch();
       return lastLoginTime;
    }
-   
+
    public long getFailedLoginCount()
    {
       fetch();
@@ -958,7 +957,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    {
       return UserProperty.class;
    }
-   
+
    protected Map getAllPropertiesFromAuditTrail()
    {
       Map propsWithNoScope = CollectionUtils.newHashMap();
@@ -970,14 +969,14 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          Attribute rawProperty = (Attribute) entry.getValue();
          if (rawProperty instanceof MultiAttribute)
          {
-        	 propsWithNoScope.put(entry.getKey(), rawProperty);
+            propsWithNoScope.put(entry.getKey(), rawProperty);
          }
          else {
-         UserProperty property = (UserProperty) entry.getValue();
-				if (StringUtils.isEmpty(property.getScope())) {
-            propsWithNoScope.put(entry.getKey(), property);
+            UserProperty property = (UserProperty) entry.getValue();
+            if (StringUtils.isEmpty(property.getScope())) {
+               propsWithNoScope.put(entry.getKey(), property);
+            }
          }
-      }
 
       }
 
@@ -989,7 +988,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       fetchLink(FIELD__REALM);
       return realm;
    }
-   
+
    public void setRealm(IUserRealm realm)
    {
       if (this.realm != realm)
@@ -998,7 +997,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          this.realm = (UserRealmBean) realm;
       }
    }
-   
+
    public String getDomainId()
    {
       IUserDomain domain = SecurityProperties.getUserDomain();
@@ -1006,7 +1005,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       {
          return domain.getId();
       }
-      
+
       return null;
    }
 
@@ -1014,7 +1013,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
    {
       return SecurityProperties.getUserDomainOid();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.runtime.beans.IUser#getProfile()
     */
@@ -1049,7 +1048,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
 
    public boolean isPasswordExpired()
    {
-      fetch();      
+      fetch();
       return (extendedState & EXTENDED_STATE_PASSWORD_EXPIRED) == EXTENDED_STATE_PASSWORD_EXPIRED;
    }
 
@@ -1061,9 +1060,9 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       }
       else
       {
-         extendedState = extendedState & ~EXTENDED_STATE_PASSWORD_EXPIRED;         
-      }      
-      markModified(FIELD__EXTENDED_STATE);      
+         extendedState = extendedState & ~EXTENDED_STATE_PASSWORD_EXPIRED;
+      }
+      markModified(FIELD__EXTENDED_STATE);
    }
 
    public void retrieve(byte[] bytes) throws IOException
@@ -1088,9 +1087,9 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          this.realm = (UserRealmBean) session.
             findByOID(UserRealmBean.class, realm);
       }
-      
+
       extendedState = cis.readInt();
-      
+
       // read participantLinks
       int size = cis.readInt();
       for (int i = 0; i < size; i++)
@@ -1109,7 +1108,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             participantLinks.add(link);
          }
       }
-      
+
       // read usergroupLinks
       size = cis.readInt();
       for (int i = 0; i < size; i++)
@@ -1128,9 +1127,9 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             userGroupLinks.add(link);
          }
       }
-      
+
       // TODO: (fh) user properties
-                  
+
       cis.close();
    }
 
@@ -1164,12 +1163,12 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       cos.writeString(description);
       cos.writeLong(failedLoginCount);
       cos.writeDate(lastLoginTime);
-      
+
       fetchLink(FIELD__REALM);
       cos.writeLong(realm == null ? 0 : realm.getOID());
-      
+
       cos.writeInt(extendedState);
-      
+
       // write participantLinks
       fetchVector(LINK__PARTICIPANT_LINKS);
       int size = participantLinks.size();
@@ -1182,7 +1181,7 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          cos.writeLong(link.getRuntimeParticipantOid());
          cos.writeLong(link.getDepartmentOid());
       }
-      
+
       // write userGroupLinks
       fetchVector(LINK__USER_GROUP_LINKS);
       size = userGroupLinks.size();
@@ -1195,34 +1194,34 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
          cos.writeLong(link.getOID());
          cos.writeLong(group == null ? 0 : group.getOID());
       }
-      
+
       // TODO: (fh) user properties
-                  
+
       cos.flush();
       byte[] bytes = cos.getBytes();
       cos.close();
       return bytes;
    }
-   
+
    public void setQualityAssuranceProbability(Integer probability)
    {
       if(probability != null)
-      {           
-         qualityAssurancePropability = probability;      
-         
-         setPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY, probability);          
-      } 
+      {
+         qualityAssurancePropability = probability;
+
+         setPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY, probability);
+      }
       else
       {
-         qualityAssurancePropability = probability;      
-         
-         removeProperty(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);         
+         qualityAssurancePropability = probability;
+
+         removeProperty(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);
       }
-   }   
-   
+   }
+
    public Integer getQualityAssuranceProbability()
    {
-      fetch();      
+      fetch();
       if((extendedState & EXTENDED_STATE_QUALITY_CODE_SIZE) == EXTENDED_STATE_QUALITY_CODE_SIZE)
       {
          Serializable value = getPropertyValue(QualityAssuranceUtils.QUALITY_ASSURANCE_USER_PROBABILITY);
@@ -1231,10 +1230,10 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             qualityAssurancePropability = (Integer) value;
          }
       }
-      
+
       return qualityAssurancePropability;
    }
-   
+
    private boolean isQualityAssuranceProbabilitySet()
    {
       Attribute property = (Attribute) getAllProperties().get(
@@ -1253,14 +1252,14 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
       fetch();
       return (extendedState & pattern) == pattern ? true : false;
    }
-   
-         
-	@Override
-	protected String[] supportedMultiAttributes() {
-		return new String[] { UserUtils.IS_DEPUTY_OF };
-	}   
-	
-	   
+
+
+   @Override
+   protected String[] supportedMultiAttributes() {
+      return new String[] { UserUtils.IS_DEPUTY_OF };
+   }
+
+
    @Override
    public void addPropertyValues(Map attributes)
    {
@@ -1371,5 +1370,5 @@ public class UserBean extends AttributedIdentifiablePersistentBean implements IU
             markModified(FIELD__EXTENDED_STATE);
          }
       }
-   }	
+   }
 }

@@ -64,4 +64,10 @@ public abstract class AbstractPropertyWithUser extends AbstractProperty
          this.workflowUser = userOid;
       }
    }
+
+   public <T extends AbstractPropertyWithUser> T clone(long objectId, T property)
+   {
+     property.workflowUser = this.workflowUser;
+     return super.clone(objectId, property);
+   }
 }

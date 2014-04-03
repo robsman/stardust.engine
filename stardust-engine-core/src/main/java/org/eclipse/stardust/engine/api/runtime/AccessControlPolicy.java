@@ -25,7 +25,6 @@ import org.eclipse.stardust.engine.api.runtime.AccessControlEntry.EntryType;
  */
 public interface AccessControlPolicy 
 {
-
    /**
     * Creates a new access control entry and fills it with the principal and privileges 
     * passed.
@@ -59,5 +58,5 @@ public interface AccessControlPolicy
     * Empties the policy. Empty policies may be removed by the underlying implementation.
     */
    void removeAllAccessControlEntries();
-   
+
 }

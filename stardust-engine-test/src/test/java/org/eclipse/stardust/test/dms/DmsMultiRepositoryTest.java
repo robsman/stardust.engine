@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryConfiguration;
+import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryProvider;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
@@ -75,9 +76,11 @@ public class DmsMultiRepositoryTest
       Map<String, Serializable> attributes = CollectionUtils.newMap();
       attributes.put(IRepositoryConfiguration.PROVIDER_ID, TEST_PROVIDER_ID);
       attributes.put(IRepositoryConfiguration.REPOSITORY_ID, TEST_REPO_ID);
-      attributes.put(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO, "true");
+      attributes.put(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO, true);
+      attributes.put(JcrVfsRepositoryConfiguration.USER_LEVEL_AUTHORIZATION, true);
       attributes.put(JcrVfsRepositoryConfiguration.REPOSITORY_CONFIG_LOCATION, getClasspathPath("test-repo-no-sec.xml"));
-      attributes.put(JcrVfsRepositoryConfiguration.CONFIG_DISABLE_VERSIONING, "true");
+   
+      attributes.put(JcrVfsRepositoryConfiguration.DISABLE_CAPABILITY_VERSIONING, true);
       return new JcrVfsRepositoryConfiguration(attributes);
    }
 
@@ -92,10 +95,42 @@ public class DmsMultiRepositoryTest
          throw new RuntimeException(e);
       }
    }
+   
+   @Test
+   public void testConfigurationTemplate()
+   {
+      List<IRepositoryProviderInfo> providerInfos = getDms().getRepositoryProviderInfos();
+
+      IRepositoryProviderInfo jcrVfsProviderInfo = getJcrVfs(providerInfos);
+      IRepositoryConfiguration jcrVfsConfigurationTemplate = jcrVfsProviderInfo.getConfigurationTemplate();
+
+      Assert.assertEquals(
+            jcrVfsProviderInfo.getProviderId(),
+            jcrVfsConfigurationTemplate.getAttributes().get(
+                  JcrVfsRepositoryConfiguration.PROVIDER_ID));
+      Assert.assertTrue(jcrVfsConfigurationTemplate.getAttributes().containsKey(
+            JcrVfsRepositoryConfiguration.REPOSITORY_ID));
+      Assert.assertTrue(jcrVfsConfigurationTemplate.getAttributes().containsKey(
+            JcrVfsRepositoryConfiguration.JNDI_NAME));
+
+   }
+
+   private IRepositoryProviderInfo getJcrVfs(List<IRepositoryProviderInfo> providerInfos)
+   {
+      for (IRepositoryProviderInfo iRepositoryProviderInfo : providerInfos)
+      {
+         if (JcrVfsRepositoryProvider.PROVIDER_ID.equals(iRepositoryProviderInfo.getProviderId()))
+         {
+            return iRepositoryProviderInfo;
+         }
+      }
+      Assert.fail(JcrVfsRepositoryProvider.PROVIDER_ID + " provider not found.");
+      return null;
+   }
 
    @Test
    public void testBind()
-   {
+   {    
       getDms().bindRepository(createTestRepo2Config());
    }
 

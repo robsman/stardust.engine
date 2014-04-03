@@ -42,7 +42,7 @@ import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
  * 
  * Depending on the {@link IRepositoryCapabilities} the {@link IRepositoryProvider}
  * provides only a subset has to be implemented.<br>
- * If a method is not implemented a {@link UnsupportedOperationException} must be thrown.
+ * If a method is not implemented an {@link UnsupportedOperationException} must be thrown.
  * <p>
  * @author rsauer, roland.stamm
  * @version $Revision: 56243 $

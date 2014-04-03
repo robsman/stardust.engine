@@ -24,7 +24,7 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
 public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositoryProvider.Factory
 {
 
-   protected static final String PROVIDER_ID = "jcr-vfs";
+   public static final String PROVIDER_ID = "jcr-vfs";
 
    protected static final String DEFAULT_REPOSITORY_ID = "default";
 

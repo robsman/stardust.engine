@@ -20,13 +20,12 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 
 public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositoryProvider.Factory
 {
 
    public static final String PROVIDER_ID = "jcr-vfs";
-
-   protected static final String DEFAULT_REPOSITORY_ID = "default";
 
    public IRepositoryProvider getInstance()
    {
@@ -46,7 +45,7 @@ public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositor
 
       Map<String, Serializable> defaultInstance = CollectionUtils.newHashMap();
       defaultInstance.put(IRepositoryConfiguration.PROVIDER_ID, PROVIDER_ID);
-      defaultInstance.put(IRepositoryConfiguration.REPOSITORY_ID, DEFAULT_REPOSITORY_ID);
+      defaultInstance.put(IRepositoryConfiguration.REPOSITORY_ID, RepositoryProviderManager.DEFAULT_REPOSITORY_ID);
       defaultInstance.put(JcrVfsRepositoryConfiguration.IS_DEFAULT_REPOSITORY, "true");
       defaultInstance.put(JcrVfsRepositoryConfiguration.JNDI_NAME, "jcr/ContentRepository");
       configurations.add(new JcrVfsRepositoryConfiguration(defaultInstance));
@@ -73,12 +72,7 @@ public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositor
    
    @Override
    public void destroyInstance(IRepositoryInstance instance)
-   {
-      if (DEFAULT_REPOSITORY_ID.equals(instance.getRepositoryId()))
-      {
-         throw new PublicException("Unbinding this repository instance is not allowed: "+ DEFAULT_REPOSITORY_ID);
-      }
-      
+   {     
       instance.close(null);
       
       if (instance instanceof InMemoryJcrVfsRepositoryInstance)

@@ -28,13 +28,15 @@ public class RepositoryProviderManager
    private static String INSTANCE_CACHE_KEY = IRepositoryInstance.class.getName()
          + ".cache";
 
+   public static String DEFAULT_REPOSITORY_ID = "default";
+   
    private static RepositoryProviderManager INSTANCE;
    
    private Map<String, IRepositoryProvider> providers = CollectionUtils.newHashMap();
    
    private ConcurrentHashMap<String, IRepositoryInstance> instances;
    
-   private String defaultRepositoryId = "default";
+   private String defaultRepositoryId = DEFAULT_REPOSITORY_ID;
 
    public RepositoryProviderManager()
    {
@@ -114,11 +116,6 @@ public class RepositoryProviderManager
       }
    }
 
-   public String getDefaultRepositoryId()
-   {
-      return defaultRepositoryId;
-   }
-
    public void bindRepository(IRepositoryConfiguration configuration)
    {
       String providerId = (String) configuration.getAttributes().get(IRepositoryConfiguration.PROVIDER_ID);
@@ -146,7 +143,7 @@ public class RepositoryProviderManager
    
    public void unbindRepository(String repositoryId)
    {
-      if (repositoryId == null || defaultRepositoryId.equals(repositoryId))
+      if (repositoryId == null || defaultRepositoryId.equals(repositoryId) || DEFAULT_REPOSITORY_ID.equals(repositoryId))
       {
          throw new PublicException("Unbinding the default repository is not allowed!");
       }
@@ -160,6 +157,23 @@ public class RepositoryProviderManager
       IRepositoryProvider provider = providers.get(instance.getProviderId());
       provider.destroyInstance(instance);
       instances.remove(repositoryId);
+   }
+   
+   public String getDefaultRepository()
+   {
+      return defaultRepositoryId;
+   }
+
+   public void setDefaultRepository(String repositoryId)
+   {
+      if (repositoryId != null && !instances.containsKey(repositoryId))
+      {
+         throw new PublicException("Repository not bound: "+ repositoryId);
+      }
+      
+      this.defaultRepositoryId = repositoryId == null
+            ? DEFAULT_REPOSITORY_ID
+            : repositoryId;
    }
 
    public IRepositoryService getImplicitService()

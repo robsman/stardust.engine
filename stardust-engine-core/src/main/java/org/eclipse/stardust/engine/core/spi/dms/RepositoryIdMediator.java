@@ -84,7 +84,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    {
       // fallback to default
       String repositoryId = RepositoryProviderManager.getInstance()
-            .getDefaultRepositoryId();
+            .getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUser());
@@ -106,7 +106,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    {
       // fallback to default
       String repositoryId = RepositoryProviderManager.getInstance()
-            .getDefaultRepositoryId();
+            .getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUser());
@@ -177,7 +177,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    {
       // fallback to default
       String repositoryId = RepositoryProviderManager.getInstance()
-            .getDefaultRepositoryId();
+            .getDefaultRepository();
 
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUser());
@@ -200,7 +200,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    {
       // fallback to default
       String repositoryId = RepositoryProviderManager.getInstance()
-            .getDefaultRepositoryId();
+            .getDefaultRepository();
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       IRepositoryService service = instance.getService(getUser());
       if (service instanceof ILegacyRepositoryService)
@@ -432,7 +432,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    {
       // fallback to default
       String repositoryId = RepositoryProviderManager.getInstance()
-            .getDefaultRepositoryId();
+            .getDefaultRepository();
       
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       
@@ -445,7 +445,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    {
       // fallback to default
       String repositoryId = RepositoryProviderManager.getInstance()
-            .getDefaultRepositoryId();
+            .getDefaultRepository();
       
       IRepositoryInstance instance = manager.getInstance(repositoryId);
       
@@ -463,7 +463,7 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
       
       // fallback to default
       String repositoryId = RepositoryProviderManager.getInstance()
-            .getDefaultRepositoryId();
+            .getDefaultRepository();
       
       IRepositoryInstance defaultRepositoryInstance = manager.getInstance(repositoryId);
 

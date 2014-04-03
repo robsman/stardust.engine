@@ -415,6 +415,18 @@ public class DocumentManagementServiceImpl
    }
    
    @Override
+   public String getDefaultRepository()
+   {
+      return getProvider().getDefaultRepository();
+   }
+   
+   @Override
+   public void setDefaultRepository(String repositoryId)
+   {
+      getProvider().setDefaultRepository(repositoryId);
+   }
+   
+   @Override
    public RepositoryMigrationReport migrateRepository(int batchSize,
          boolean evaluateTotalCount, String repositoryId) throws DocumentManagementServiceException
    {

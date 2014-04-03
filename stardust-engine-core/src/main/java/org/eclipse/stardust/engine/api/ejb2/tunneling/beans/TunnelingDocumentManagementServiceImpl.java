@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 56243 
+ * Generated from  Revision: 71517 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling.beans;
  * </ul>
  *
  * @author rsauer
- * @version 56243
+ * @version 71517
  */
 public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust.engine.api.ejb2.tunneling.beans.AbstractTunnelingServiceImpl
 {
@@ -1895,6 +1895,73 @@ public class TunnelingDocumentManagementServiceImpl extends org.eclipse.stardust
          return
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             service).getRepositoryProviderInfos();
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+    /**
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#setDefaultRepository(
+     *     java.lang.String repositoryId)
+     */
+    public void setDefaultRepository(
+         java.lang.String repositoryId,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            service).setDefaultRepository(repositoryId);
+      }
+      catch(org.eclipse.stardust.common.error.PublicException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      catch(org.eclipse.stardust.common.error.ResourceException e)
+      {
+         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);
+      }
+      finally
+      {
+         clearInvocationContext(__tunneledContext, __invocationContextBackup);
+      }
+    }
+
+    /**
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDefaultRepository(
+     *     )
+     */
+    public java.lang.String
+         getDefaultRepository(
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException
+    {
+      java.util.Map __invocationContextBackup = null;
+      try
+      {
+         __invocationContextBackup = initInvocationContext(__tunneledContext);
+         return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            service).getDefaultRepository();
       }
       catch(org.eclipse.stardust.common.error.PublicException e)
       {

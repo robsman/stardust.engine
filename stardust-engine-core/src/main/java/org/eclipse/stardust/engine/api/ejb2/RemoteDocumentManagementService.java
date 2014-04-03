@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 56243 
+ * Generated from  Revision: 71517 
  */
 package org.eclipse.stardust.engine.api.ejb2;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2;
  * </ul>
  *
  * @author rsauer
- * @version 56243
+ * @version 71517
  */
 public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
 {
@@ -1027,6 +1027,28 @@ public interface RemoteDocumentManagementService extends javax.ejb.EJBObject
     public
          java.util.List<org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo>
          getRepositoryProviderInfos()
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#setDefaultRepository(
+     *     java.lang.String repositoryId)
+     */
+    public void setDefaultRepository(java.lang.String repositoryId)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
+         java.rmi.RemoteException;
+         
+    /**
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDefaultRepository(
+     *     )
+     */
+    public java.lang.String getDefaultRepository()
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException,
          java.rmi.RemoteException;
          

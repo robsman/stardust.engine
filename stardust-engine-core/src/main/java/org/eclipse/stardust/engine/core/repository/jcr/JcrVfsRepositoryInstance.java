@@ -95,7 +95,7 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
 
    protected void initRepositoryInfo(IRepositoryConfiguration configuration)
    {
-      this.repositoryInfo = new JcrVfsRepositoryInstanceInfo(repositoryId);
+      this.repositoryInfo = new JcrVfsRepositoryInstanceInfo(repositoryId, repository, configuration);
    }
 
    @Override
@@ -145,10 +145,8 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
                throw new PublicException(e);
             }
 
-            // TODO factory (admin + user)
             service = new JcrVfsRepositoryService(session, repository);
             rtEnv.registerJcrService(this, service);
- 
          }
          return service;
       }

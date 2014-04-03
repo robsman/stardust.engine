@@ -1,5 +1,5 @@
 /*
- * Generated from  Revision: 56243 
+ * Generated from  Revision: 71517 
  */
 package org.eclipse.stardust.engine.api.ejb2.tunneling;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.ejb2.tunneling;
  * </ul>
  *
  * @author rsauer
- * @version 56243
+ * @version 71517
  */
 public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLocalObject, org.eclipse.stardust.engine.api.ejb2.tunneling.TunnelingLocalService
 {
@@ -1051,6 +1051,30 @@ public interface TunnelingLocalDocumentManagementService extends javax.ejb.EJBLo
     public
          java.util.List<org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo>
          getRepositoryProviderInfos(
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#setDefaultRepository(
+     *     java.lang.String repositoryId)
+     */
+    public void setDefaultRepository(
+         java.lang.String repositoryId,
+         org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
+         throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+         
+    /**
+     * @throws org.eclipse.stardust.engine.api.ejb2.WorkflowException as a wrapper for
+     *         org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions
+     *
+     * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDefaultRepository(
+     *     )
+     */
+    public java.lang.String
+         getDefaultRepository(
          org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext)
          throws org.eclipse.stardust.engine.api.ejb2.WorkflowException;
          

@@ -552,6 +552,10 @@ public interface DocumentManagementService extends Service
    List<IRepositoryInstanceInfo> getRepositoryInstanceInfos();
 
    List<IRepositoryProviderInfo> getRepositoryProviderInfos();
+   
+   void setDefaultRepository(String repositoryId);
+   
+   String getDefaultRepository();
 
    ///////////////////////////////////////////////////////////////////////////////////////
    // Repository specific methods.

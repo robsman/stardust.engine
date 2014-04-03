@@ -36,24 +36,6 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
    private boolean versioningSupported;
    private boolean writeSupported;
 
-
-   public JcrVfsRepositoryInstanceInfo(String repositoryId)
-   {
-      this.repositoryId = repositoryId;
-      this.repositoryType = "JCR2.0";
-      this.repositoryName = "Jackrabbit default repository";
-      this.repositoryVersion = "2.6.1";
-      
-      this.accessControlPolicySupported = true;
-      this.fullTextSearchSupported = true;
-      this.metaDataSearchSupported = true;
-      this.metaDataStorageSupported = true;
-      this.streamingIOSupported = true;
-      this.transactionSupported = true;
-      this.versioningSupported = true;
-      this.writeSupported = true;
-   }
-
    public JcrVfsRepositoryInstanceInfo(String repositoryId, Repository repository, IRepositoryConfiguration configuration)
    {
       this.repositoryId = repositoryId;
@@ -66,7 +48,8 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
       this.metaDataSearchSupported = true;
       this.metaDataStorageSupported = true;
       this.streamingIOSupported = true;
-      this.transactionSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_TRANSACTIONS_SUPPORTED));
+      this.transactionSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_TRANSACTIONS_SUPPORTED))
+            && !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO); ;
       this.versioningSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_VERSIONING_SUPPORTED))
             && !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.DISABLE_CAPABILITY_VERSIONING);
       this.writeSupported = !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.DISABLE_CAPABILITY_WRITE);

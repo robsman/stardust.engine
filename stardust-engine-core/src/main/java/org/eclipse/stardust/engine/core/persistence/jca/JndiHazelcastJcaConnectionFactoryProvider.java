@@ -23,30 +23,37 @@ import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryPro
  * The class responsible for retrieving the <i>Hazelcast JCA Connection Factory</i>
  * from the <i>JNDI</i>.
  * </p>
- * 
+ *
  * <p>
  * If not specified otherwise (see property <code>Infinity.Engine.Caching.Hazelcast.ConnectionFactoryJndiName</code>)
  * it assumes that it's bound to <code>java:/HazelcastCF</code>.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaConnectionFactoryProvider
 {
    private static final String PRP_HAZELCAST_CF_JNDI_NAME = "Infinity.Engine.Caching.Hazelcast.ConnectionFactoryJndiName";
-   
+
    private static final String HAZELCAST_CF_DEFAULT_JNDI_NAME = "HazelcastCF";
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider#connectionFactory()
     */
    @Override
    public ConnectionFactory connectionFactory()
    {
-      return ConnectionFactoryHolder.connectionFactory;
+      try
+      {
+         return ConnectionFactoryHolder.connectionFactory;
+      }
+      catch (final ExceptionInInitializerError e)
+      {
+         throw new PublicException(e);
+      }
    }
-   
+
    /**
     * <p>
     * This class' only purpose is to ensure both safe publication and lazy initialization
@@ -56,7 +63,7 @@ public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaCo
    private static final class ConnectionFactoryHolder
    {
       public static final ConnectionFactory connectionFactory = getConnectionFactoryFromJndi();
-      
+
       private static ConnectionFactory getConnectionFactoryFromJndi()
       {
          try
@@ -70,6 +77,6 @@ public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaCo
          {
             throw new PublicException("Failed retrieving the Hazelcast Connection Factory from JNDI.", e);
          }
-      }      
+      }
    }
 }

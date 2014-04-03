@@ -645,6 +645,9 @@
                   <include>core/compatibility/gui/security/LoginDialog.java</include>
                   <!-- org/eclipse/stardust/engine/core/compatibility/ui/preferences/spi -->
                   <include>core/compatibility/ui/preferences/spi/IStaticConfigurationProvider.java</include>
+                  <!-- org/eclipse/stardust/engine/core/compatibility/spi/security -->
+                  <include>core/compatibility/spi/security/DefaultPrincipalNameProvider.java</include>
+                  <include>core/compatibility/spi/security/PrincipalNameProvider.java</include>
                   <!-- org/eclipse/stardust/engine/core/persistence -->
                   <include>core/persistence/Operator.java</include>
                   <!-- org/eclipse/stardust/engine/api/web -->

@@ -1,5 +1,5 @@
 /*
- * Generated from Revision: 56243 
+ * Generated from Revision: 71517 
  */
 package org.eclipse.stardust.engine.api.spring;
 
@@ -15,7 +15,7 @@ package org.eclipse.stardust.engine.api.spring;
  * </ul>
  *
  * @author rsauer
- * @version 56243
+ * @version 71517
  */
 public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean implements IDocumentManagementService
 {
@@ -496,6 +496,25 @@ public class DocumentManagementServiceBean extends org.eclipse.stardust.engine.a
       return
             ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
             serviceProxy).getRepositoryProviderInfos();
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#setDefaultRepository(java.lang.String repositoryId)
+    */
+   public void setDefaultRepository(java.lang.String repositoryId)
+   {
+      ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).setDefaultRepository(repositoryId);
+   }
+
+   /**
+    * @see org.eclipse.stardust.engine.api.runtime.DocumentManagementService#getDefaultRepository()
+    */
+   public java.lang.String getDefaultRepository()
+   {
+      return
+            ((org.eclipse.stardust.engine.api.runtime.DocumentManagementService)
+            serviceProxy).getDefaultRepository();
    }
 
    /**

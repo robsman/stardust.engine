@@ -163,6 +163,42 @@ public class DmsMultiRepositoryTest
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), DEFAULT_REPO_ID)));
       Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
    }
+   
+   @Test
+   public void testSwitchDefaultRepository()
+   {
+      getDms().setDefaultRepository(TEST_REPO_ID);
+
+      getDms().removeDocument("/test.txt");
+      
+      Document doc = getDms().createDocument("/", DmsUtils.createDocumentInfo("test.txt"));
+      
+      Assert.assertNotNull(getDms().getDocument(doc.getId()));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), DEFAULT_REPO_ID)));
+      Assert.assertNotNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+   }
+   
+   @Test
+   public void testSwitchBackDefaultRepository()
+   {
+      getDms().setDefaultRepository(null);
+
+      getDms().removeDocument(RepositoryIdUtils.addRepositoryId("/test.txt", TEST_REPO_ID));
+      
+      Document doc = getDms().createDocument(RepositoryIdUtils.addRepositoryId("/", TEST_REPO_ID), DmsUtils.createDocumentInfo("test.txt"));
+      
+      Assert.assertNotNull(getDms().getDocument(doc.getId()));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), DEFAULT_REPO_ID)));
+      Assert.assertNull(getDms().getDocument(RepositoryIdUtils.replaceRepositoryId(doc.getId(), null)));
+   }
+   
+   @Test(expected=PublicException.class)
+   public void testSetInvalidDefaultRepository()
+   {
+      getDms().setDefaultRepository("invalid");
+
+      Assert.fail();
+   }
 
    @Test(expected=PublicException.class)
    public void testBindAlreadyExisting()

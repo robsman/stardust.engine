@@ -26,8 +26,8 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
    {
       Map<String, Serializable> configurationTemplate = new TreeMap<String, Serializable>();
       configurationTemplate.put(IRepositoryConfiguration.PROVIDER_ID, JcrVfsRepositoryProvider.PROVIDER_ID);
-      configurationTemplate.put(IRepositoryConfiguration.REPOSITORY_ID, null);
-      configurationTemplate.put(JcrVfsRepositoryConfiguration.JNDI_NAME, null);
+      configurationTemplate.put(IRepositoryConfiguration.REPOSITORY_ID, "newJcrRepository");
+      configurationTemplate.put(JcrVfsRepositoryConfiguration.JNDI_NAME, "java:/jcr/newJcrRepository");
       
       return new JcrVfsRepositoryConfiguration(configurationTemplate);
    }
@@ -41,7 +41,7 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
    @Override
    public String getProviderName()
    {
-      return JcrVfsRepositoryProvider.PROVIDER_ID + " provider";
+      return "JCR 2.0 Provider";
    }
 
    @Override

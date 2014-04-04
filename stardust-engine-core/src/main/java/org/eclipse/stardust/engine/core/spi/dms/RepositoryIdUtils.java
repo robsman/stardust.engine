@@ -21,6 +21,10 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
 
 public class RepositoryIdUtils
 {
+   private RepositoryIdUtils()
+   {
+      // utility class
+   }
 
    public final static String REPOSITORY_ID_PREFIX = "{urn:repositoryId:";
 

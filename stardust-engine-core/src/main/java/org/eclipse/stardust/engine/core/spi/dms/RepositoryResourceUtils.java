@@ -21,7 +21,12 @@ import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
 public class RepositoryResourceUtils
 {
    
-   public Document createDocument(String id, String path, long size, String encoding, Date dateCreated, Date dateLastModified)
+   private RepositoryResourceUtils()
+   {
+      // utility class
+   }
+   
+   public static Document createDocument(String id, String path, long size, String encoding, Date dateCreated, Date dateLastModified)
    {
       DmsDocumentBean doc = new DmsDocumentBean();
       
@@ -37,7 +42,7 @@ public class RepositoryResourceUtils
       return doc;
    }
    
-   public Document createDocument(String id, String path, long size, String encoding, Date dateCreated, Date dateLastModified, String revisionId, String revisionName, String revisionComment, List<String> versionLabels)
+   public static Document createDocument(String id, String path, long size, String encoding, Date dateCreated, Date dateLastModified, String revisionId, String revisionName, String revisionComment, List<String> versionLabels)
    {
       DmsDocumentBean doc = new DmsDocumentBean();
       
@@ -59,7 +64,7 @@ public class RepositoryResourceUtils
       return doc;
    }
    
-   public Folder createFolder(String id, String path,  Date dateCreated, Date dateLastModified, List<Document> containedDocuments, List<Folder> subFolders, int levelOfDetail)
+   public static Folder createFolder(String id, String path,  Date dateCreated, Date dateLastModified, List<Document> containedDocuments, List<Folder> subFolders, int levelOfDetail)
    {
       DmsFolderBean folder = new DmsFolderBean();
       

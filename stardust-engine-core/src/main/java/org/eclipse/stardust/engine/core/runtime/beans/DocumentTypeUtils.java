@@ -583,6 +583,7 @@ public final class DocumentTypeUtils
 
    private static boolean isSecurityEnabled()
    {
+      // TODO rework to IRepositoryService
       BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
       IDocumentRepositoryService documentRepositoryService = rtEnv.getDocumentRepositoryService();
       return DmsVfsConversionUtils.isSecurityEnabled(documentRepositoryService, VfsUtils.REPOSITORY_ROOT);

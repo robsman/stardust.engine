@@ -486,8 +486,8 @@ public interface IRepositoryService
     * Retrieves all documents satisfying the criteria specified in the provided query.
     *
     * <p> Implementation of {@link DocumentQuery#META_DATA} is needed if {@link IRepositoryCapabilities#isMetaDataSearchSupported()} is true.
-    *     Implementation of {@link DocumentQuery#DOC_CONTENT} is needed if {@link IRepositoryCapabilities#isFullTextSearchSupported()} is true.
-    *     Implementation of all other options is optional.
+    * <br>Implementation of {@link DocumentQuery#DOC_CONTENT} is needed if {@link IRepositoryCapabilities#isFullTextSearchSupported()} is true.
+    * <br>Implementation of all other options is optional.
     *
     * @param query the document query.
     *

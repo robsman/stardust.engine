@@ -18,6 +18,11 @@ import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsFolderBean;
 
+/**
+ * Factory that should be used to create {@link Document} and {@link Folder} instances.
+ * 
+ * @author Roland.Stamm
+ */
 public class RepositoryResourceUtils
 {
    

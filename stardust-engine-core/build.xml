@@ -400,6 +400,16 @@
                <include name="org/eclipse/stardust/engine/api/query/WorklistLayoutPolicy.java" />
                <include name="org/eclipse/stardust/engine/api/query/WorklistQuery.java" />
 
+               <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryCapabilities.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryConfiguration.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryInstance.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryInstanceInfo.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryProvider.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryProviderInfo.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/dms/IRepositoryService.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/dms/RepositoryIdUtils.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/dms/RepositoryResourceUtils.java" />
+            	
                <include name="org/eclipse/stardust/engine/core/spi/extensions/model/AccessPoint.java" />
                <include name="org/eclipse/stardust/engine/core/spi/extensions/model/AccessPointProvider.java" />
                <include name="org/eclipse/stardust/engine/core/spi/extensions/model/ApplicationContextValidator.java" />

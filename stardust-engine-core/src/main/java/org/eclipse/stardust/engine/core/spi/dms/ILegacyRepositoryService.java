@@ -16,6 +16,13 @@ import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementServiceException;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 
+/**
+ * Contains deprecated methods that still need to be supported until they can be removed.
+ * All methods that should be implemented for the SPI contract can be found on {@link IRepositoryService}.
+ * 
+ * @author Roland.Stamm
+ *
+ */
 public abstract interface ILegacyRepositoryService extends IRepositoryService
 {
 

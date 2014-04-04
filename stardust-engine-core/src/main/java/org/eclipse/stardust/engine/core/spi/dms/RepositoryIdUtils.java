@@ -16,9 +16,15 @@ import java.util.List;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Documents;
+import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.Resource;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsResourceBean;
 
+/**
+ * Utility to handle the repositoryId prefix of {@link Document#getId()} and {@link Folder#getId()}.
+ * 
+ * @author Roland.Stamm
+ */
 public class RepositoryIdUtils
 {
    private RepositoryIdUtils()
@@ -26,6 +32,9 @@ public class RepositoryIdUtils
       // utility class
    }
 
+   /**
+    * The prefix that is used to identify a repositoryId.
+    */
    public final static String REPOSITORY_ID_PREFIX = "{urn:repositoryId:";
 
    public static String extractRepositoryId(String prefixedId)

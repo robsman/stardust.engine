@@ -140,11 +140,13 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       this.authorizedOnBehalfOf = authorizedOnBehalfOf;
    }      
    
+   @Deprecated
    public IDocumentRepositoryService getDocumentRepositoryService()
    {
       return documentRepositoryService;
    }
 
+   @Deprecated
    public void setDocumentRepositoryService(
          IDocumentRepositoryService documentRepositoryService)
    {

@@ -11,6 +11,7 @@
 package org.eclipse.stardust.engine.api.query;
 
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 /**
  * Evaluation Policy for specifying retrieval of only a subset of found data.
@@ -30,11 +31,11 @@ public final class SubsetPolicy implements EvaluationPolicy
          true);
 
    /**
-    * Predefined policy indicating an counting only subset. No items are fetched but 
+    * Predefined policy indicating an counting only subset. No items are fetched but
     * total count is evaluated.
     */
    public static final SubsetPolicy COUNT_ONLY = new SubsetPolicy(0, true);
-   
+
    /**
     * Creates a new subset policy for retrieving the chunk of data following the one
     * specified by the given <code>subset</code>.
@@ -109,7 +110,7 @@ public final class SubsetPolicy implements EvaluationPolicy
    /**
     * Same as {@link #SubsetPolicy(int, boolean)} with <code>evaluateTotalCount</code> set
     * to <code>false</code>.
-    * 
+    *
     * @param maxSize The maximum number of items to be retrieved.
     */
    public SubsetPolicy(int maxSize)
@@ -120,7 +121,7 @@ public final class SubsetPolicy implements EvaluationPolicy
    /**
     * Same as {@link #SubsetPolicy(int, int, boolean)} with <code>skippedEntries</code>
     * set to <code>0</code>.
-    * 
+    *
     * @param maxSize The maximum number of items to be retrieved.
     * @param evaluateTotalCount A flag indicating if the total number of items satisfying
     *       the query is to be evaluated or not.
@@ -133,11 +134,11 @@ public final class SubsetPolicy implements EvaluationPolicy
    /**
     * Same as {@link #SubsetPolicy(int, int, boolean)} with
     * <code>evaluateTotalCount</code> set to <code>false</code>.
-    * 
+    *
     * @param maxSize The maximum number of items to be retrieved.
     * @param skippedEntries The number of initial entries to be skipped before putting
     *       items to the query result. Must not be less than 0.
-    *       
+    *
     * @throws PublicException if skippedEntries is less than 0
     */
    public SubsetPolicy(int maxSize, int skippedEntries)
@@ -153,18 +154,20 @@ public final class SubsetPolicy implements EvaluationPolicy
     *       items to the query result. Must not be less than 0.
     * @param evaluateTotalCount A flag indicating if the total number of items satisfying
     *       the query is to be evaluated or not.
-    *       
+    *
     * @throws PublicException if skippedEntries is less than 0
     */
    public SubsetPolicy(int maxSize, int skippedEntries, boolean evaluateTotalCount)
    {
       this.maxSize = maxSize;
-      if(skippedEntries < 0) 
+      if(skippedEntries < 0)
       {
-         throw new PublicException("The value of skippedEntries must not be less than 0.");
+         throw new PublicException(
+               BpmRuntimeError.QUERY_VALUE_OF_SKIPPEDENTRIES_MUST_NOT_BE_LESS_THAN_ZERO
+                     .raise());
       }
       this.skippedEntries = skippedEntries;
-      
+
       this.evaluatingTotalCount = evaluateTotalCount;
    }
 

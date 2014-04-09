@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.Operator;
 
 
@@ -182,9 +183,10 @@ public class SubProcessDataFilter extends AbstractDataFilter
    {
       if (!lowerBound.getClass().equals(upperBound.getClass()))
       {
-         throw new PublicException("Types of lower and upper bound are inhomogeneous: ["
-               + "class " + lowerBound.getClass().getName()
-               + ", class " + upperBound.getClass().getName() + "]");
+         throw new PublicException(
+               BpmRuntimeError.QUERY_TYPES_OF_LOWER_AND_UPPER_BOUND_ARE_INHOMOGENEOUS
+                     .raise(lowerBound.getClass().getName(), upperBound.getClass()
+                           .getName()));
       }
 
       return new SubProcessDataFilter(dataID, Operator.BETWEEN, lowerBound, upperBound,

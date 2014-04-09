@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
@@ -34,12 +34,21 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.EvaluationOptions;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.Operator;
+import org.eclipse.stardust.engine.core.persistence.OrTerm;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
-import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
@@ -81,24 +90,24 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
          else
          {
             // for OR-Terms the evaluation is done per filter scope mode
-            // (simulating SQL-union). 
+            // (simulating SQL-union).
             Map filtersByMode = new HashMap();
             for (Iterator iter = dataFilters.iterator(); iter.hasNext();)
             {
                AbstractDataFilter dataFilter = (AbstractDataFilter) iter.next();
                Integer currentScopeMode = new Integer(dataFilter
                                     .getFilterMode());
-               
+
                List filters = (List) filtersByMode.get(currentScopeMode);
                if (null == filters)
                {
                   filters = new ArrayList();
                   filtersByMode.put(currentScopeMode, filters);
                }
-               
+
                filters.add(dataFilter);
             }
-            
+
             result = new Node(null, new HashSet());
             for (Iterator iter = filtersByMode.keySet().iterator(); iter.hasNext();)
             {
@@ -128,7 +137,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
    {
       // TODO
       //final String hint = Parameters.instance().getString(KernelTweakingProperties.DATA_FILTER_HINT, "");
-      
+
       final ModelManager modelManager = context.getEvaluationContext().getModelManager();
 
       QueryDescriptor query = QueryDescriptor//
@@ -151,8 +160,8 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
             AbstractDataFilter dataFilter = (AbstractDataFilter) filterItr.next();
             Map /*<Long,IData>*/ dataMap = this.findAllDataRtOids(dataFilter.getDataID(), modelManager);
             DataFilterExtension dataFilterExtension = SpiUtils.createDataFilterExtension(dataMap);
-            Join dvJoin = dataFilterExtension.createDvJoin(query, dataFilter, idx, dataFilterContext, true, joinFactory); 
-            
+            Join dvJoin = dataFilterExtension.createDvJoin(query, dataFilter, idx, dataFilterContext, true, joinFactory);
+
 
             if (dataMap.isEmpty())
             {
@@ -167,13 +176,13 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
                predicateTerm.add(dataFilterTerm);
             }
          }
-         
+
          // TODO reintroduce "hint"
       }
       else
       {
-    	 Map /*<String, Join>*/ dataFilterExtensions = new HashMap /*<String, Join> */(); 
-    	  
+    	 Map /*<String, Join>*/ dataFilterExtensions = new HashMap /*<String, Join> */();
+
          OrTerm dataPredicates = new OrTerm();
          int idx = 1;
          for (Iterator filtersByDataIdItr = dataFilterContext.getDataFiltersByDataId().entrySet().iterator(); filtersByDataIdItr.hasNext(); )
@@ -181,7 +190,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
             Entry e = (Entry) filtersByDataIdItr.next();
             String dataId = (String)e.getKey();
             List /*<AbstractDataFilter>*/ filtersForDataId = (List) e.getValue();
-            
+
             AndTerm dataTerm = null;
             OrTerm dvPredicateTerm = null;
             Map /*<Long,IData>*/ dataMap = findAllDataRtOids(dataId, modelManager);
@@ -190,7 +199,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
                   AbstractDataFilter dataFilter = (AbstractDataFilter) filterItr.next();
                   DataFilterExtension dataFilterExtension = SpiUtils.createDataFilterExtension(findAllDataRtOids(dataFilter.getDataID(), modelManager));
                   String extensionName = dataFilterExtension.getClass().getName();
-                                    
+
                   Join dvJoin = (Join) dataFilterExtensions.get(extensionName);
                   if(dvJoin == null)
                   {
@@ -198,7 +207,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
                 	  dvJoin.setRequired(false);
                 	  dataFilterExtensions.put(extensionName, dvJoin);
                   }
-                  
+
                   if (null == dataTerm)
                   {
                      if (dataMap.isEmpty())
@@ -212,23 +221,23 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
                      dataFilterExtension.appendDataIdTerm(dataTerm, dataMap, dvJoin, dataFilter);
                      dataTerm.add(dvPredicateTerm);
                   }
-                  
+
                   dvPredicateTerm.add(dataFilterExtension.createPredicateTerm(dvJoin, dataFilter, dataMap, dataFilterContext));
             }
-            
+
             if (null != dataTerm)
             {
                dataPredicates.add(dataTerm);
             }
          }
-         
+
          predicateTerm = new AndTerm();
          if ((null != dataPredicates) && !dataPredicates.getParts().isEmpty())
          {
             predicateTerm.add(dataPredicates);
          }
       }
-      
+
       QueryUtils.addModelVersionPredicate(predicateTerm,
             query.fieldRef(ProcessInstanceBean.FIELD__MODEL), context.getQuery(),
             modelManager);
@@ -315,28 +324,28 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
    private Map /*<Long,IData>*/ findAllDataRtOids(String dataID, ModelManager modelManager)
    {
       Map /*<Long,IData>*/ dataMap = new HashMap();
-      
+
       String namespace = null;
       if (dataID.startsWith("{"))
       {
          QName qname = QName.valueOf(dataID);
          namespace = qname.getNamespaceURI();
          dataID = qname.getLocalPart();
-      }               
+      }
 
       Iterator modelItr = null;
       if (namespace != null)
-      {      
+      {
          modelItr = modelManager.getAllModelsForId(namespace);
       }
       else
       {
-         modelItr = modelManager.getAllModels();         
+         modelItr = modelManager.getAllModels();
       }
-      
+
       while (modelItr.hasNext())
-      {                  
-         IModel model = (IModel) modelItr.next();                    
+      {
+         IModel model = (IModel) modelItr.next();
          IData data = model.findData(dataID);
          if (null != data)
          {
@@ -354,7 +363,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
       String dataID = dataFilter.getDataID();
       String xpath = dataFilter.getAttributeName();
       boolean isStructuredType = StringUtils.isNotEmpty(xpath);
-      
+
       ModelManager modelManager = context.getEvaluationContext().getModelManager();
 
       Set dataRtOids = new HashSet();
@@ -364,21 +373,21 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
          QName qname = QName.valueOf(dataID);
          namespace = qname.getNamespaceURI();
          dataID = qname.getLocalPart();
-      }               
+      }
 
       Iterator modelItr = null;
       if (namespace != null)
-      {      
+      {
          modelItr = modelManager.getAllModelsForId(namespace);
       }
       else
       {
-         modelItr = modelManager.getAllModels();         
+         modelItr = modelManager.getAllModels();
       }
-      
+
       while (modelItr.hasNext())
-      {                  
-         IModel model = (IModel) modelItr.next();                    
+      {
+         IModel model = (IModel) modelItr.next();
          IData data = model.findData(dataID);
          if (null != data)
          {
@@ -392,7 +401,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
             }
          }
       }
-           
+
       ResultIterator result = null;
       if (isStructuredType)
       {
@@ -435,8 +444,8 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
       if (filter == null || valueProvider == null)
       {
          return false;
-      }                     
-      
+      }
+
       boolean isMatching;
 
       Object lhsOperand = valueProvider.getValue();
@@ -453,7 +462,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
             rhsOperand = ((String) rhsOperand).toLowerCase();
          }
       }
-      
+
       if (filter.getOperator().equals(Operator.IS_EQUAL))
       {
          isMatching = (0 == CompareHelper.compare(lhsOperand, rhsOperand));
@@ -496,19 +505,20 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
       }
       else
       {
-         throw new PublicException("Unsupported DataFilter operator for big data value: "
-               + filter.getOperator());
+         throw new PublicException(
+               BpmRuntimeError.QUERY_UNSUPPORTED_DATAFILTER_OPERATOR_FOR_BIG_DATA_VALUE
+                     .raise(filter.getOperator()));
       }
 
       return isMatching;
    }
-   
-   
+
+
    // TODO (peekaboo): Refactor this and other classes with same name and semantic into common (base) class
    private static class JoinFactory implements IJoinFactory
    {
       final private QueryDescriptor query;
-      
+
       public JoinFactory(QueryDescriptor query)
       {
          this.query = query;
@@ -516,10 +526,10 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
 
       public Join createDataFilterJoins(int dataFilterMode, int index, Class dvClass, FieldRef dvProcessInstanceField)
       {
-         final Join dvJoin; 
+         final Join dvJoin;
          final String idx = index == -1 ? "" : "" + index;
          final String dvAlias = "PR_"+ dvProcessInstanceField.getType().getTableAlias()+ idx;
-         
+
          if (AbstractDataFilter.MODE_ALL_FROM_SCOPE == dataFilterMode)
          {
             dvJoin = query.innerJoin(dvClass, dvAlias)//
@@ -531,7 +541,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
             Join fromSubProcJoin = query.innerJoin(ProcessInstanceHierarchyBean.class, "PR_PIH" + idx)//
                   .on(query.fieldRef(ProcessInstanceBean.FIELD__OID),
                         ProcessInstanceHierarchyBean.FIELD__SUB_PROCESS_INSTANCE);
-            
+
             dvJoin = query.innerJoin(dvClass, dvAlias)//
                   .on(fromSubProcJoin.fieldRef(ProcessInstanceHierarchyBean.FIELD__PROCESS_INSTANCE),
                         dvProcessInstanceField.fieldName);
@@ -541,7 +551,7 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
             Join scopeJoin = query.innerJoin(ProcessInstanceScopeBean.class, "PR_PIS" + idx)//
                   .on(query.fieldRef(ProcessInstanceBean.FIELD__ROOT_PROCESS_INSTANCE),
                         ProcessInstanceScopeBean.FIELD__ROOT_PROCESS_INSTANCE);
-            
+
             dvJoin = query.innerJoin(dvClass, dvAlias)//
                   .on(scopeJoin.fieldRef(ProcessInstanceScopeBean.FIELD__SCOPE_PROCESS_INSTANCE),
                         dvProcessInstanceField.fieldName);
@@ -549,10 +559,10 @@ public class ProcessHierarchyAndDataPreprocessor extends ProcessHierarchyPreproc
          else
          {
             throw new InternalException(MessageFormat.format(
-                  "Invalid DataFilter mode: {0}.", new Object[] { new Integer(
-                        dataFilterMode) }));
+                  "Invalid DataFilter mode: {0}.", new Object[] {new Integer(
+                        dataFilterMode)}));
          }
-         
+
          return dvJoin;
       }
    }

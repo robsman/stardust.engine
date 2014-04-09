@@ -410,6 +410,19 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 QUERY_DATA_FILTER_EMPTY_VALUE_LIST_FOR_XXX_OPERATOR = newArgs1("QUERY02020", BpmRuntimeErrorMessages.getString("QUERY02020")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 QUERY_DATA_FILTER_VALUE_TYPES_ARE_INHOMOGENEOUS = newArgs1("QUERY02021", BpmRuntimeErrorMessages.getString("QUERY02021")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 QUERY_NULL_VALUES_NOT_SUPPORTED_WITH_OPERATOR = newArgs1("QUERY03001", BpmRuntimeErrorMessages.getString("QUERY03001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 QUERY_INCONSISTENT_OPERATOR_USE = newArgs2("QUERY03002", BpmRuntimeErrorMessages.getString("QUERY03002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 QUERY_TYPES_OF_LOWER_AND_UPPER_BOUND_ARE_INHOMOGENEOUS = newArgs2("QUERY03003", BpmRuntimeErrorMessages.getString("QUERY03003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 QUERY_ATTRIBUTE_NOT_SUPPORTED_FOR_ORDER_TERM = newArgs0("QUERY03004", BpmRuntimeErrorMessages.getString("QUERY03004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 QUERY_DOCUMENTQUERY_METADATA_ANY_ONLY_SUPPORTS_LIKE_OPERATOR = newArgs0("QUERY03005", BpmRuntimeErrorMessages.getString("QUERY03005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 QUERY_OPERATOR_NOT_SUPPORTED = newArgs1("QUERY03006", BpmRuntimeErrorMessages.getString("QUERY03006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 QUERY_ATTRIBUTE_METADATA_ANY_ONLY_SUPPORTS_LIKE_OPERATOR = newArgs0("QUERY03007", BpmRuntimeErrorMessages.getString("QUERY03007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 QUERY_ATTRIBUTE_NOT_SUPPORTED = newArgs0("QUERY03008", BpmRuntimeErrorMessages.getString("QUERY03008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 QUERY_ONLY_LONG_OR_STRING_REPRESENTATION_OF_DATE_SUPPORTED = newArgs1("QUERY03009", BpmRuntimeErrorMessages.getString("QUERY03009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 QUERY_UNSUPPORTED_DATAFILTER_OPERATOR_FOR_BIG_DATA_VALUE = newArgs1("QUERY03010", BpmRuntimeErrorMessages.getString("QUERY03010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 QUERY_FAILED_EVALUATING_PROCESS_INSTANCE_CLOSURE = newArgs0("QUERY03011", BpmRuntimeErrorMessages.getString("QUERY03011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 QUERY_VALUE_OF_SKIPPEDENTRIES_MUST_NOT_BE_LESS_THAN_ZERO = newArgs0("QUERY03012", BpmRuntimeErrorMessages.getString("QUERY03012")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    //// IPP WS related
 
@@ -430,6 +443,14 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 LOGIN_LDAP_INVALID_USER_PASSWORD = newArgs0("LOGIN01001", BpmRuntimeErrorMessages.getString("LOGIN01001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 LOGIN_LDAP_UNABLE_TO_CONNECT = newArgs0("LOGIN01002", BpmRuntimeErrorMessages.getString("LOGIN01002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 LOGIN_LDAP_NAMING_EXCEPTION = newArgs2("LOGIN01003", BpmRuntimeErrorMessages.getString("LOGIN01003")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   //// EJB related
+   public static final Args1 EJB_UNKNOWN_CARRIER_MESSAGE_TYPE = newArgs1("EJB01001", BpmRuntimeErrorMessages.getString("EJB01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 EJB_INVALID_SERVICE_FACTORY_CONFIGURATION = newArgs1("EJB01002", BpmRuntimeErrorMessages.getString("EJB01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 EJB_MISSING_DATA_SOURCE = newArgs1("EJB01003", BpmRuntimeErrorMessages.getString("EJB01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_INVALID_TUNNELING_SERVICE_ENDPOINT = newArgs0("EJB01004", BpmRuntimeErrorMessages.getString("EJB01004")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
 
    private static final Object[] NONE = {};
 

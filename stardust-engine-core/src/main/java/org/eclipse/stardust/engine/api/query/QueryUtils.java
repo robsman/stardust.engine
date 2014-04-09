@@ -12,7 +12,13 @@ package org.eclipse.stardust.engine.api.query;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
@@ -21,14 +27,41 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IActivity;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.IParticipant;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.model.IScopedModelParticipant;
+import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.model.ModelParticipantInfo;
+import org.eclipse.stardust.engine.api.model.ParticipantInfo;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.QualifiedModelParticipantInfo;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DepartmentInfo;
 import org.eclipse.stardust.engine.core.model.beans.ScopedModelParticipant;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.AndTerm;
+import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
+import org.eclipse.stardust.engine.core.persistence.FetchPredicate;
+import org.eclipse.stardust.engine.core.persistence.FieldRef;
+import org.eclipse.stardust.engine.core.persistence.Join;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.IDepartment;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.IUserGroup;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.AbstractAuthorization2Predicate;
@@ -141,7 +174,8 @@ public class QueryUtils
       catch (PublicException e)
       {
          trace.warn("Failed evaluating process instance closure.", e);
-         throw new PublicException("Failed evaluating process instance closure.");
+         throw new PublicException(
+               BpmRuntimeError.QUERY_FAILED_EVALUATING_PROCESS_INSTANCE_CLOSURE.raise());
       }
 
       // parent OIDs not being resolved via the rootProcessInstance column are possibly
@@ -181,7 +215,7 @@ public class QueryUtils
       Join aiJoin = query.innerJoin(ActivityInstanceBean.class, "ai")
             .on(query.fieldRef(ProcessInstanceBean.FIELD__STARTING_ACTIVITY_INSTANCE),
                   ActivityInstanceBean.FIELD__OID);
-      
+
       ComparisonTerm piOidTerm = Predicates
             .inList(aiJoin.fieldRef(ActivityInstanceBean.FIELD__PROCESS_INSTANCE),
                   new ArrayList());
@@ -254,7 +288,8 @@ public class QueryUtils
       catch (PublicException e)
       {
          trace.warn("Failed evaluating process instance closure.", e);
-         throw new PublicException("Failed evaluating process instance closure.");
+         throw new PublicException(
+               BpmRuntimeError.QUERY_FAILED_EVALUATING_PROCESS_INSTANCE_CLOSURE.raise());
       }
 
       return closure;
@@ -271,14 +306,14 @@ public class QueryUtils
       while ((null != resultSet) && resultSet.next())
       {
          Long modelOid = new Long(resultSet.getLong(MODEL_OID_COLUMN_INDEX));
-         
+
          Map modelEntry = (Map) hierarchyFlagMap.get(modelOid);
          if (null == modelEntry)
          {
             modelEntry = new HashMap();
             hierarchyFlagMap.put(modelOid, modelEntry);
          }
-         
+
          Long processRtOid = new Long(resultSet.getLong(DEFINITION_OID_COLUMN_INDEX));
          Boolean isHierarchyFlag = (Boolean) modelEntry.get(processRtOid);
 
@@ -315,16 +350,16 @@ public class QueryUtils
                .getAllParticipantLinks(); i.hasNext();)
          {
             UserParticipantLink participantLink = i.next();
-            
+
             if(isPredefinedParticipant(participantLink.getParticipant().getId()))
             {
-               IParticipant administrator = getPredefinedParticipant(participants, 
+               IParticipant administrator = getPredefinedParticipant(participants,
                      participantLink.getParticipant().getId());
                if(administrator == null)
-               {            
+               {
                   IScopedModelParticipant participant = new ScopedModelParticipant(participantLink
                         .getParticipant(), participantLink.getDepartment());
-                  addScopedParticipant(participants, participant, filter.isRecursively());            
+                  addScopedParticipant(participants, participant, filter.isRecursively());
                }
             }
             else
@@ -359,7 +394,7 @@ public class QueryUtils
             {
                UserGroupBean group = UserGroupBean.findById(filter.getParticipant()
                      .getId(), SecurityProperties.getPartitionOid());
-               
+
                if (null != group && group.isValid())
                {
                   participants.add(group);
@@ -377,7 +412,7 @@ public class QueryUtils
       }
 
       return participants;
-   }   
+   }
 
    public static Set<IParticipant> findContributingParticipants(
          PerformingOnBehalfOfFilter filter, EvaluationContext context)
@@ -398,7 +433,7 @@ public class QueryUtils
             while (iter.hasNext())
             {
                ParticipantInfo participant = iter.next();
-               addParticipant(participants, participant, 
+               addParticipant(participants, participant,
                      filter.isRecursively(), context);
             }
          }
@@ -472,7 +507,7 @@ public class QueryUtils
 
       return participants;
    }
-   
+
    /**
     * Returns a set of organizations which are selected by team leader role.
     * Furthermore it includes all manager-of and works-for roles related
@@ -490,8 +525,8 @@ public class QueryUtils
       if (null != participant)
       {
          final ModelManager modelManager = context.getModelManager();
-         
-         // get roles referred by participant 
+
+         // get roles referred by participant
          Set<IRole> allRoles = new HashSet();
          Iterator<IModelParticipant> participantIter = modelManager.getParticipantsForID(
                participant.getQualifiedId());
@@ -505,7 +540,7 @@ public class QueryUtils
          }
 
          IDepartment department = DepartmentUtils.getDepartment(participant);
-         
+
          // get all teams (i.e. organizations) for these roles and bind the department
          Set<IScopedModelParticipant> allTeams = new HashSet();
          for (Iterator<IRole> rolesIter = allRoles.iterator(); rolesIter.hasNext();)
@@ -515,7 +550,7 @@ public class QueryUtils
                   .hasNext();)
             {
                final IOrganization team = teamsIter.next();
-               
+
                // TODO: only add this ScopedParticipant if department is a valid binding for the participant?
                // Currently we trust the filter. And if it is not valid than this ScopedParticipant
                // should not find entries in the audit trail.
@@ -535,7 +570,7 @@ public class QueryUtils
 
       return organizations;
    }
-   
+
    public static Set<IParticipant> findScopedParticipantClosure(IUser user, boolean merged)
    {
       Set<IParticipant> participants = CollectionUtils.newHashSet();
@@ -576,7 +611,7 @@ public class QueryUtils
    {
       for (IParticipant contributor : participantClosure)
       {
-         // do contributors match the the filter and supported types?  
+         // do contributors match the the filter and supported types?
          IParticipant rawParticipant = contributor;
          IDepartment department = null;
          DepartmentInfo filterDepartment = null;
@@ -590,10 +625,10 @@ public class QueryUtils
          {
             filterDepartment = ((ModelParticipantInfo) filterParticipant).getDepartment();
          }
-         
+
          if (rawParticipant instanceof IModelParticipant)
          {
-            IModelParticipant participant = (IModelParticipant) rawParticipant;                      
+            IModelParticipant participant = (IModelParticipant) rawParticipant;
             if (CompareHelper.areEqual((participant).getQualifiedId(), filterParticipant.getQualifiedId())
                   && DepartmentUtils.areEqual(department, filterDepartment))
             {
@@ -608,19 +643,19 @@ public class QueryUtils
                return true;
             }
          }
-      }            
+      }
       return false;
-   }   
-   
+   }
+
    public static boolean isPredefinedParticipant(String id)
    {
       if(PredefinedConstants.ADMINISTRATOR_ROLE.equals(id))
       {
          return true;
-      }         
+      }
       return false;
-   }   
-   
+   }
+
    private static IParticipant getPredefinedParticipant(Set<IParticipant> participants, String id)
    {
       for (IParticipant participant : participants)
@@ -628,8 +663,8 @@ public class QueryUtils
          if(id.equals(participant.getId()))
          {
             return participant;
-         }         
-      }      
+         }
+      }
       return null;
    }
 
@@ -661,7 +696,7 @@ public class QueryUtils
    {
       // utility class
    }
-   
+
    private static final void addParticipant(Set<IParticipant> participants,
          ParticipantInfo participant, boolean recursively, EvaluationContext context)
    {
@@ -671,24 +706,24 @@ public class QueryUtils
             qualifiedModelParticipant.getQualifiedId()); i.hasNext();)
       {
          IModelParticipant modelParticipant = i.next();
-         
+
          if(isPredefinedParticipant(modelParticipant.getId()))
          {
             IParticipant administrator = getPredefinedParticipant(participants, modelParticipant.getId());
             if(administrator == null)
-            {            
+            {
                IScopedModelParticipant participant_ = new ScopedModelParticipant(modelParticipant, null);
-               addScopedParticipant(participants, participant_, recursively);            
+               addScopedParticipant(participants, participant_, recursively);
             }
          }
          else
          {
             addScopedParticipant(participants, new ScopedModelParticipant(modelParticipant,
-                  department), recursively);            
+                  department), recursively);
          }
       }
    }
-   
+
    private static final void addScopedParticipant(Set<IParticipant> participants,
          IScopedModelParticipant scopedParticipant, boolean recursively)
    {
@@ -707,7 +742,7 @@ public class QueryUtils
                ModelManager modelManager = ModelManagerFactory.getCurrent();
                long modelParticipantRtOid = modelManager.getRuntimeOid(modelParticipant);
 
-               // if the current participant is the one which defines the 
+               // if the current participant is the one which defines the
                // current department then next participant has to be scoped by parent department
                if (modelParticipantRtOid == department.getRuntimeOrganizationOID())
                {
@@ -736,9 +771,9 @@ public class QueryUtils
    /**
     * Adds organization to set of organizations if it is not already contained.
     * If recursively is true then all sub organizations are added as well.
-    * 
+    *
     * @param participants Target set of organizations.
-    * @param scopedOrg Scoped organization to be added. 
+    * @param scopedOrg Scoped organization to be added.
     * @param recursively If set to true the all sub organizations will be added as well.
     */
    private static final void addOrganizationAndRoles(Set<IModelParticipant> participants,
@@ -750,12 +785,12 @@ public class QueryUtils
          if ( !participants.contains(scopedOrg))
          {
             participants.add(scopedOrg);
-            
+
             IOrganization organization = (IOrganization) rawParticipant;
             IRole teamLead = organization.getTeamLead();
             if(teamLead != null)
             {
-               // include manager-of relations 
+               // include manager-of relations
                if (participants.contains(new ScopedModelParticipant(
                      organization.getTeamLead(), scopedOrg.getDepartment())))
                {
@@ -776,8 +811,8 @@ public class QueryUtils
                   }
                   participants.add(new ScopedModelParticipant(p, scopedOrg.getDepartment()));
                }
-            }            
-            
+            }
+
             if (recursively)
             {
                ModelManager modelManager = ModelManagerFactory.getCurrent();
@@ -799,8 +834,8 @@ public class QueryUtils
                         addOrganizationAndRoles(participants, nextScopedOrg, recursively);
                      }
                   }
-                 
-               }               
+
+               }
 
                // sub organization handling
                for (Iterator itr = organization.getSubOrganizations(); itr.hasNext();)
@@ -814,7 +849,7 @@ public class QueryUtils
          }
       }
    }
-   
+
    private static final void addProcess(Set hierarchy, IProcessDefinition process,
          boolean recursively)
    {
@@ -857,7 +892,7 @@ public class QueryUtils
       }
       return timeout;
    }
-   
+
    public static boolean isRestrictedToActiveModel(Query query)
    {
       ModelVersionPolicy modelVersionPolicy = (ModelVersionPolicy) query
@@ -869,11 +904,11 @@ public class QueryUtils
       }
       return timeout;
    }
-   
+
    /**
     * Checks whether an instance of {@link CurrentPartitionFilter} already exists as
     * toplevel predicate of given query. Otherwise an instance will be added.
-    * 
+    *
     * @param query
     *           The current query.
     * @param type
@@ -915,7 +950,7 @@ public class QueryUtils
          }
       }
    }
-   
+
    public static long getTotalCountThreshold(FetchPredicate fetchPredicate)
    {
       long totalCountThreshold = Long.MAX_VALUE;

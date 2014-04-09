@@ -16,6 +16,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.ejb2.ServiceFactoryLocator;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LinkingOptions;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 
@@ -40,7 +41,7 @@ public class SetPrimaryImplementationCommand extends ConsoleCommand
       argTypes.register("-implementationModelId", "-imid", IMPLEMENTATION_MODEL_ID, "implementationModelId", true);
       argTypes.register("-comment", "-c", COMMENT, "comment", true);
    }
-   
+
    //console engine setPrimaryImplementation -interfaceModelOid 'param1' -processId 'param2' -implementationModelId 'param3' -comment 'param4'
 
 
@@ -56,15 +57,18 @@ public class SetPrimaryImplementationCommand extends ConsoleCommand
       {
          if (options.get(INTERFACE_MODEL_OID) == null)
          {
-            throw new PublicException("'-interfaceModelOid' not provided.");
+            throw new PublicException(
+                  BpmRuntimeError.CLI_INTERFACE_MODEL_OID_NOT_PROVIDED.raise());
          }
-         if (options.get(INTERFACE_MODEL_OID) == null)
+         if (options.get(INTERFACE_PROCESS_ID) == null)
          {
-            throw new PublicException("'-processId' not provided.");
+            throw new PublicException(
+                  BpmRuntimeError.CLI_PROCESS_ID_NOT_PROVIDED.raise());
          }
          if (options.get(IMPLEMENTATION_MODEL_ID) == null)
          {
-            throw new PublicException("'-implementationModelId' not provided.");
+            throw new PublicException(
+                  BpmRuntimeError.CLI_IMPLEMENTATION_MODEL_ID_NOT_PROVIDED.raise());
          }
          long interfaceModelOID = Long.parseLong(((String) options
                .get(INTERFACE_MODEL_OID)));
@@ -73,19 +77,19 @@ public class SetPrimaryImplementationCommand extends ConsoleCommand
          String comment = (String) options.get(COMMENT);
          LinkingOptions linkingOptions = new LinkingOptions();
          linkingOptions.setComment(comment);
-         
+
          if (!confirm("Do you want to set model '" + implementationModelID + "' as primary implementation for process '" + processID + "'? (Y/N): "))
          {
             return -1;
          };
-         
+
          serviceFactory.getAdministrationService().setPrimaryImplementation(
                interfaceModelOID, processID, implementationModelID, linkingOptions);
          print("Primary implementation set.");
       }
       finally
       {
-         serviceFactory.close();         
+         serviceFactory.close();
       }
 
       return 0;

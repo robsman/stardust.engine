@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.Participant;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -67,9 +68,9 @@ public class DepartmentClientUtils
 
    /**
     * Splits the department path and returns the path segments as {@link List}
-    * 
+    *
     * @param path - the path to split, each segment separated with a '/'
-    * @return the splitted path as {@link List} 
+    * @return the splitted path as {@link List}
     */
    public List<String> parseDepartmentPath(String path)
    {
@@ -138,7 +139,8 @@ public class DepartmentClientUtils
    {
       if (departmentPath.size() > organizationHierarchy.size())
       {
-         throw new PublicException("Invalid Department path provided");
+         throw new PublicException(
+               BpmRuntimeError.CLI_INVALID_DEPARTMENT_PATH_PROVIDED.raise());
       }
       List<Department> departments = new LinkedList<Department>();
       Department parent = null;
@@ -204,7 +206,8 @@ public class DepartmentClientUtils
       if (superOrganizations.size() > 1)
       {
          throw new PublicException(
-               "Deprecated ProcessModel detected, only one parent organization is allowed!");
+               BpmRuntimeError.CLI_DEPRECATED_PROCESS_MODEL_ONLY_ONE_PARENT_ORG_ALLOWED
+                     .raise());
       }
       if (!superOrganizations.isEmpty())
       {

@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.CredentialProvider;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.api.runtime.PropertyAwareCredentialProvider;
@@ -123,8 +124,9 @@ public class ServiceFactoryLocator
       }
       catch (InternalException e)
       {
-         throw new PublicException("Invalid service factory configuration: "
-               + e.getMessage());
+			throw new PublicException(
+					BpmRuntimeError.EJB_INVALID_SERVICE_FACTORY_CONFIGURATION
+							.raise(e.getMessage()));
       }
    }
 
@@ -142,7 +144,7 @@ public class ServiceFactoryLocator
    {
       return get(user, password, Collections.EMPTY_MAP);
    }
-   
+
    /**
     * Retrieves a service factory using the given name/password pair as credentials.
     * <p />
@@ -163,7 +165,7 @@ public class ServiceFactoryLocator
 
       return __get__(credentials, properties);
    }
-   
+
    public static ServiceFactory get() throws PublicException
    {
       return __get__(Collections.EMPTY_MAP, Collections.EMPTY_MAP);
@@ -189,8 +191,9 @@ public class ServiceFactoryLocator
       }
       catch (InternalException e)
       {
-         throw new PublicException("Invalid service factory configuration: "
-               + e.getMessage());
+			throw new PublicException(
+					BpmRuntimeError.EJB_INVALID_SERVICE_FACTORY_CONFIGURATION
+							.raise(e.getMessage()));
       }
    }
 

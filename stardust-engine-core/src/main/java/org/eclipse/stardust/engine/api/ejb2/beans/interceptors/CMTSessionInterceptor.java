@@ -19,16 +19,15 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.rt.ITransactionStatus;
 import org.eclipse.stardust.common.rt.TransactionUtils;
 import org.eclipse.stardust.engine.api.ejb2.beans.EjbTxPolicy;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.EjbDocumentRepositoryService;
 import org.eclipse.stardust.engine.core.runtime.beans.RuntimeActivityThreadContext;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.AuditTrailPropertiesInterceptor;
 import org.eclipse.stardust.engine.core.runtime.interceptor.MethodInvocation;
-import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 
 
 /**
@@ -38,16 +37,16 @@ import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
       implements ITransactionStatus
 {
-   
+
    private static final long serialVersionUID = 1L;
 
    private static final String KEY_AUDIT_TRAIL_SESSION = SessionProperties.DS_NAME_AUDIT_TRAIL
          + SessionProperties.DS_SESSION_SUFFIX;
-   
+
    private final EjbTxPolicy ejbTxPolicy;
 
    private final EJBContext context;
-   
+
    public CMTSessionInterceptor(String sessionName, EJBContext context)
    {
       this(sessionName, context, null);
@@ -68,15 +67,15 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
 
       if (null == session)
       {
-         throw new PublicException("Missing data source for '" + sessionName
-               + "'");
+			throw new PublicException(
+					BpmRuntimeError.EJB_MISSING_DATA_SOURCE.raise(sessionName));
       }
-      
+
       final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
 
       rtEnv.setActivityThreadContext(new RuntimeActivityThreadContext());
       rtEnv.setAuditTrailSession(session);
-        
+
       rtEnv.setProperty("ActivityThread.Context", rtEnv.getActivityThreadContext());
 
       final String keySessionProperty = SessionProperties.DS_NAME_AUDIT_TRAIL.equals(sessionName)
@@ -89,7 +88,7 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
       {
          // provide TX status to callees
          TransactionUtils.registerTxStatus(rtEnv, this);
-         
+
          auditTrailProperties = getAuditTrailProperties(invocation.getParameters());
          if (null != auditTrailProperties)
          {
@@ -126,7 +125,7 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
          rtEnv.setAuditTrailSession(null);
       }
    }
-   
+
    public boolean isRollbackOnly()
    {
       return (null != context) ? context.getRollbackOnly() : false;

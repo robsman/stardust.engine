@@ -19,6 +19,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.model.Organization;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.cli.common.DepartmentClientUtils;
 
 
@@ -59,7 +60,8 @@ public abstract class DepartmentCommand extends ConsoleCommand
       List<String> parsedDepartmentPath = dh.parseDepartmentPath(departmentPath);
       if (parsedDepartmentPath.isEmpty())
       {
-         throw new PublicException("Invalid Department path provided");
+         throw new PublicException(
+               BpmRuntimeError.CLI_INVALID_DEPARTMENT_PATH_PROVIDED.raise());
       }
 
       config.setDepartmentPath(parsedDepartmentPath);

@@ -23,6 +23,7 @@ import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -125,7 +126,8 @@ public abstract class ModifyDepartmentCommand extends DepartmentCommand
             : null;
       if (participant == null)
       {
-         throw new PublicException("Organisation: '" + participantId + "'  not found.");
+         throw new PublicException(
+               BpmRuntimeError.CLI_ORGANIZATION_NOT_FOUND.raise(participantId));
       }
 
       DepartmentClientUtils dh = DepartmentClientUtils.getInstance(globalOptions);
@@ -134,7 +136,8 @@ public abstract class ModifyDepartmentCommand extends DepartmentCommand
       List<String> departmentPath = config.getDepartmentPath();
       if (departmentPath.size() != organizationHierarchy.size())
       {
-         throw new PublicException("Invalid Department path provided");
+         throw new PublicException(
+               BpmRuntimeError.CLI_INVALID_DEPARTMENT_PATH_PROVIDED.raise());
       }
 
       int lastElementIndex = organizationHierarchy.size() - 1;

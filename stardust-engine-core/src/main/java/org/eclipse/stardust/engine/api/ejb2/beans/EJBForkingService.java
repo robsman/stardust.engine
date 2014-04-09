@@ -26,6 +26,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.rt.IActionCarrier;
 import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.ActionCarrier;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
@@ -40,7 +41,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
 public class EJBForkingService implements ForkingService
 {
    private static final Logger trace = LogManager.getLogger(EJBForkingService.class);
-   
+
    private static final String KEY_CACHED_FORKING_SERVICE_HOME = EJBForkingService.class.getName()
          + ".CachedForkingServiceHome";
 
@@ -59,13 +60,13 @@ public class EJBForkingService implements ForkingService
             Object rawHome = context.lookup("java:comp/env/ejb/ForkingService");
             home = (LocalForkingServiceHome) PortableRemoteObject.narrow(rawHome,
                   LocalForkingServiceHome.class);
-            
+
             if (null != home)
             {
                globals.set(KEY_CACHED_FORKING_SERVICE_HOME, home);
             }
          }
-         
+
          inner = home.create();
       }
       catch (Exception e)
@@ -119,7 +120,7 @@ public class EJBForkingService implements ForkingService
          }
       }
    }
-   
+
    public void release()
    {
       if (null != inner)
@@ -174,8 +175,9 @@ public class EJBForkingService implements ForkingService
             }
             else
             {
-               throw new PublicException("Unknown carrier message type: "
-                     + action.getMessageType());
+					throw new PublicException(
+							BpmRuntimeError.EJB_UNKNOWN_CARRIER_MESSAGE_TYPE
+									.raise(action.getMessageType()));
             }
 
             Queue queue = params.getObject(queueName);

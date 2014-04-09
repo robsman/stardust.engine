@@ -46,6 +46,7 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.DeploymentElement;
 import org.eclipse.stardust.engine.api.runtime.DeploymentException;
@@ -258,7 +259,7 @@ public class DeployCommand extends ConsoleCommand
          {
             if (overwriteActive)
             {
-               throw new PublicException("No model active.");
+               throw new PublicException(BpmRuntimeError.CLI_NO_MODEL_ACTIVE.raise());
             }
             else
             {

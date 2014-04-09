@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 
@@ -81,7 +82,7 @@ public class ServiceFactoryLocator
                      PredefinedConstants.PLAIN_WEB_SERVICEFACTORY_CLASS),
                ServiceFactoryLocator.class.getClassLoader());
          result.setCredentials(credentials);
-         
+
          Map mergedProps = new HashMap(properties);
          LoginUtils.mergeCredentialProperties(mergedProps, credentials);
          LoginUtils.mergeDefaultCredentials(mergedProps);
@@ -92,8 +93,9 @@ public class ServiceFactoryLocator
       }
       catch (InternalException e)
       {
-         throw new PublicException("Invalid service factory configuration: "
-               + e.getMessage());
+         throw new PublicException(
+               BpmRuntimeError.EJB_INVALID_SERVICE_FACTORY_CONFIGURATION.raise(e
+                     .getMessage()));
       }
    }
 

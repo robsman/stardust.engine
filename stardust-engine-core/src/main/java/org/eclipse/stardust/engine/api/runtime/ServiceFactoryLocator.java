@@ -73,8 +73,9 @@ public class ServiceFactoryLocator
       }
       catch (InternalException e)
       {
-         throw new PublicException("Invalid service factory configuration: "
-               + e.getMessage());
+         throw new PublicException(
+               BpmRuntimeError.EJB_INVALID_SERVICE_FACTORY_CONFIGURATION.raise(e
+                     .getMessage()));
       }
    }
 
@@ -114,8 +115,9 @@ public class ServiceFactoryLocator
       }
       catch (InternalException e)
       {
-         throw new PublicException("Invalid service factory configuration: "
-               + e.getMessage());
+         throw new PublicException(
+               BpmRuntimeError.EJB_INVALID_SERVICE_FACTORY_CONFIGURATION.raise(e
+                     .getMessage()));
       }
    }
 
@@ -159,8 +161,9 @@ public class ServiceFactoryLocator
       }
       catch (InternalException e)
       {
-         throw new PublicException("Invalid service factory configuration: "
-               + e.getMessage());
+         throw new PublicException(
+               BpmRuntimeError.EJB_INVALID_SERVICE_FACTORY_CONFIGURATION.raise(e
+                     .getMessage()));
       }
    }
 
@@ -184,7 +187,7 @@ public class ServiceFactoryLocator
                .instance().getString(EngineProperties.CLIENT_SERVICE_FACTORY,
                      PredefinedConstants.POJO_SERVICEFACTORY_CLASS));
          sf.setCredentials(credentials);
-         
+
          Map mergedProps = new HashMap(properties);
          LoginUtils.mergeCredentialProperties(mergedProps, credentials);
          LoginUtils.mergeDefaultCredentials(mergedProps);
@@ -195,8 +198,9 @@ public class ServiceFactoryLocator
       }
       catch (InternalException e)
       {
-         throw new PublicException("Invalid service factory configuration: "
-               + e.getMessage());
+         throw new PublicException(
+               BpmRuntimeError.EJB_INVALID_SERVICE_FACTORY_CONFIGURATION.raise(e
+                     .getMessage()));
       }
    }
 

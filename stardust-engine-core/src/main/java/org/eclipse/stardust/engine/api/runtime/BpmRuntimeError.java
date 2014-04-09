@@ -388,6 +388,9 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED = newArgs1("BPMRT05001", BpmRuntimeErrorMessages.getString("BPMRT05001")); //$NON-NLS-1$
 
+   public static final Args1 BPMRT_INVALID_CREDENTIAL_PROVIDER_CONFIGURATION = newArgs1("BPMRT06001", BpmRuntimeErrorMessages.getString("BPMRT06001")); //$NON-NLS-1$
+
+
    //// JMS related
 
    public static final Args1 JMS_NO_MESSAGE_ACCEPTORS_FOUND = newArgs1("JMS01001", BpmRuntimeErrorMessages.getString("JMS01001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -450,6 +453,15 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 EJB_MISSING_DATA_SOURCE = newArgs1("EJB01003", BpmRuntimeErrorMessages.getString("EJB01003")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 EJB_INVALID_TUNNELING_SERVICE_ENDPOINT = newArgs0("EJB01004", BpmRuntimeErrorMessages.getString("EJB01004")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   //// CLI related
+
+   public static final Args0 CLI_INVALID_DEPARTMENT_PATH_PROVIDED = newArgs0("CLI01001", BpmRuntimeErrorMessages.getString("CLI01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_DEPRECATED_PROCESS_MODEL_ONLY_ONE_PARENT_ORG_ALLOWED = newArgs0("CLI01002", BpmRuntimeErrorMessages.getString("CLI01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_NO_MODEL_ACTIVE = newArgs0("CLI01003", BpmRuntimeErrorMessages.getString("CLI01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_ORGANIZATION_NOT_FOUND = newArgs1("CLI01004", BpmRuntimeErrorMessages.getString("CLI01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_INTERFACE_MODEL_OID_NOT_PROVIDED = newArgs0("CLI01005", BpmRuntimeErrorMessages.getString("CLI01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_PROCESS_ID_NOT_PROVIDED = newArgs0("CLI01006", BpmRuntimeErrorMessages.getString("CLI01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_IMPLEMENTATION_MODEL_ID_NOT_PROVIDED = newArgs0("CLI01007", BpmRuntimeErrorMessages.getString("CLI01007")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    private static final Object[] NONE = {};

@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.ejb2.WorkflowException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 
 
@@ -33,7 +34,7 @@ import org.eclipse.stardust.engine.core.security.InvokerPrincipal;
 public class TunnelingUtils
 {
    private static final Logger trace = LogManager.getLogger(TunnelingUtils.class);
-   
+
    public static Class getTunnelingHomeClass(Class homeClass)
    {
       String homeClassName = homeClass.getName();
@@ -41,10 +42,10 @@ public class TunnelingUtils
 
       String tunnelingHomeClassName = homeClassName.substring(0, insertIdx + 1)
             + "tunneling.Tunneling" + homeClassName.substring(insertIdx + 1);
-      
+
       return Reflect.getClassFromClassName(tunnelingHomeClassName);
    }
-   
+
    public static Pair/* <Class, Object> */castToTunnelingRemoteServiceHome(
          Object rawHome, Class homeClass)
    {
@@ -53,14 +54,14 @@ public class TunnelingUtils
       try
       {
          Object home = PortableRemoteObject.narrow(rawHome, tunnelingHomeClass);
-         
+
          // narrow succeeded, so tunneling will be used
          if (trace.isDebugEnabled())
          {
             trace.debug("Switching to tunneling mode for service with home class "
                   + homeClass);
          }
-         
+
          return new Pair(tunnelingHomeClass, home);
       }
       catch (ClassCastException cce)
@@ -74,7 +75,7 @@ public class TunnelingUtils
 
       return null;
    }
-   
+
    public static Pair/* <Class, Object> */castToTunnelingLocalServiceHome(Object rawHome,
          Class homeClass)
    {
@@ -86,10 +87,10 @@ public class TunnelingUtils
             trace.debug("Switching to tunneling mode service with home class "
                   + homeClass);
          }
-         
+
          return new Pair(tunnelingHomeClass, rawHome);
       }
-      
+
       return null;
    }
 
@@ -109,12 +110,14 @@ public class TunnelingUtils
       }
       else
       {
-         throw new PublicException("Invalid tunneling service endpoint.");
+			throw new PublicException(
+					BpmRuntimeError.EJB_INVALID_TUNNELING_SERVICE_ENDPOINT
+							.raise());
       }
 
       Assert.condition(null != loginResult, "Tunneling mode login must return an invoker principal.");
-         
+
       return new TunneledContext(loginResult);
    }
-   
+
 }

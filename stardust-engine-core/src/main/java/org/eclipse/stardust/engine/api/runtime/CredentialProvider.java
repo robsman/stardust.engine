@@ -36,12 +36,12 @@ public abstract class CredentialProvider
     * Indicates the usage of a console based login.
     */
    public static final int CONSOLE_LOGIN = 2;
-   
+
    /**
     * Indicates the usage of the current transaction.
-    * (The login of the current transaction will be reused.) 
+    * (The login of the current transaction will be reused.)
     */
-   public static final int CURRENT_TX = 3; 
+   public static final int CURRENT_TX = 3;
 
    public static final String SUBJECT = "subject";
 
@@ -59,8 +59,10 @@ public abstract class CredentialProvider
          }
          catch (InternalException e)
          {
-            throw new PublicException("Invalid credential provider configuration: "
-                  + e.getMessage());
+            throw new PublicException(
+                  BpmRuntimeError.BPMRT_INVALID_CREDENTIAL_PROVIDER_CONFIGURATION.raise(e
+                        .getMessage()));
+
          }
       }
       return instance;

@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
@@ -474,8 +475,9 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
             }
             else
             {
-               throw new PublicException("Null values are not supported with operator "
-                     + operator);
+					throw new PublicException(
+							BpmRuntimeError.QUERY_NULL_VALUES_NOT_SUPPORTED_WITH_OPERATOR
+									.raise(operator));
             }
          }
          else
@@ -539,8 +541,9 @@ public class ClusterAwareInlinedDataFilterSqlBuilder extends InlinedDataFilterSq
 
             if (!(matchValue instanceof Pair))
             {
-               throw new PublicException("Inconsistent operator use " + operator + " --> "
-                     + matchValue);
+						throw new PublicException(
+								BpmRuntimeError.QUERY_INCONSISTENT_OPERATOR_USE
+										.raise(operator, matchValue));
             }
 
             Pair pair = (Pair) matchValue;

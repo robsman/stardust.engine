@@ -19,7 +19,7 @@ import java.util.List;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery.MetadataFilterBuilder;
-
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.vfs.MetaDataLocation;
 
 
@@ -120,8 +120,9 @@ public class DocumentXPathQueryOrderEvaluator implements OrderEvaluationVisitor
          return localMetaDataAttribute + DocumentXPathQueryAttributes.ATTRIBUTES_TYPE_SCHEMA_LOCATION + sortDir;
 
       }
-
-      throw new PublicException("Attribute not supported for Order term");
+		throw new PublicException(
+				BpmRuntimeError.QUERY_ATTRIBUTE_NOT_SUPPORTED_FOR_ORDER_TERM
+						.raise());
    }
 
    public String visit(DataOrder order, Object context)

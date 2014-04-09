@@ -17,16 +17,13 @@ import java.text.SimpleDateFormat;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery.MetadataFilterBuilder;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.Operator;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Ternary;
 import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.core.thirdparty.encoding.Text;
-import org.eclipse.stardust.vfs.MetaDataLocation;
-import org.eclipse.stardust.vfs.impl.jcr.JcrVfsOperations;
-
-
 import org.eclipse.stardust.vfs.MetaDataLocation;
 import org.eclipse.stardust.vfs.impl.jcr.JcrVfsOperations;
 
@@ -139,8 +136,9 @@ public class DocumentXPathQueryTermFactory
       {
          if ( !Binary.LIKE.equals(operator))
          {
-            throw new PublicException(
-                  "DocumentQuery.META_DATA.any() only supports the LIKE operator.");
+				throw new PublicException(
+						BpmRuntimeError.QUERY_DOCUMENTQUERY_METADATA_ANY_ONLY_SUPPORTS_LIKE_OPERATOR
+								.raise());
          }
 
          // jackrabbit only supports . in conjunction with jcr:contains() (instead of @*
@@ -217,7 +215,9 @@ public class DocumentXPathQueryTermFactory
       }
       else
       {
-         throw new PublicException("Operator not supported: " + operator);
+			throw new PublicException(
+					BpmRuntimeError.QUERY_OPERATOR_NOT_SUPPORTED
+							.raise(operator));
       }
 
       StringBuffer buf = new StringBuffer();
@@ -282,8 +282,9 @@ public class DocumentXPathQueryTermFactory
       {
          if ( !Binary.LIKE.equals(operator))
          {
-            throw new PublicException(
-                  "Attribute META_DATA.any() only supports the LIKE operator.");
+				throw new PublicException(
+						BpmRuntimeError.QUERY_ATTRIBUTE_METADATA_ANY_ONLY_SUPPORTS_LIKE_OPERATOR
+								.raise());
          }
          // jackrabbit only supports . in conjunction with jcr:contains() (instead of @*
          // and all operators)
@@ -300,7 +301,8 @@ public class DocumentXPathQueryTermFactory
       }
       else
       {
-         throw new PublicException("Attribute not supported");
+			throw new PublicException(
+					BpmRuntimeError.QUERY_ATTRIBUTE_NOT_SUPPORTED.raise());
       }
 
       return jcrAttribute;
@@ -391,12 +393,10 @@ public class DocumentXPathQueryTermFactory
       {
          return "xs:dateTime('" + value + "')";
       }
-      // Calendar cal = Calendar.getInstance();
-      // cal.setTime(date);
-      // String time = DatatypeConverter.printDateTime(cal);
-      throw new PublicException(
-            "Only the long or string representation of a date is supported. "
-                  + dateFormat.getNumberFormat());
+		throw new PublicException(
+				BpmRuntimeError.QUERY_ONLY_LONG_OR_STRING_REPRESENTATION_OF_DATE_SUPPORTED
+						.raise(dateFormat.getNumberFormat()));
+
    }
 
    private String toJcr(Unary operator)
@@ -412,7 +412,9 @@ public class DocumentXPathQueryTermFactory
       }
       else
       {
-         throw new PublicException("Operator not supported: " + operator);
+			throw new PublicException(
+					BpmRuntimeError.QUERY_OPERATOR_NOT_SUPPORTED
+							.raise(operator));
       }
       return ret;
    }
@@ -457,7 +459,9 @@ public class DocumentXPathQueryTermFactory
       }
       else
       {
-         throw new PublicException("Operator not supported: " + operator);
+			throw new PublicException(
+					BpmRuntimeError.QUERY_OPERATOR_NOT_SUPPORTED
+							.raise(operator));
       }
       return ret;
    }

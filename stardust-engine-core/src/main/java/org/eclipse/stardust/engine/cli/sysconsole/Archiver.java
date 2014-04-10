@@ -82,7 +82,56 @@ import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceLogBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.AdminServiceUtils;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailActivityBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailEventHandlerBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailParticipantBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailProcessDefinitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTriggerBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.Constants;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DepartmentBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DepartmentHierarchyBean;
+import org.eclipse.stardust.engine.core.runtime.beans.EventBindingBean;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstanceLink;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.LogEntryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelDeploymentBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelPersistorBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelRefBean;
+import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceLinkTypeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.PropertyPersistor;
+import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
+import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.TransitionTokenBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserGroupBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserGroupProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.UserParticipantLink;
+import org.eclipse.stardust.engine.core.runtime.beans.UserProperty;
+import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserSessionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserUserGroupLink;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
@@ -178,7 +227,9 @@ public class Archiver
       {
          final String message = "Failed obtaining JDBC connection to audit trail db";
          trace.warn(message, e);
-         throw new PublicException(message);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_OBTAINING_JDBC_CONNECTION_TO_AUDIT_TRAIL_DB
+                     .raise());
       }
 
       this.srcSchema = !StringUtils.isEmpty(session.getSchemaName())
@@ -201,14 +252,16 @@ public class Archiver
          }
          else
          {
-            throw new PublicException(("Invalid partition ID '" + partitionId + "'."));
+            throw new PublicException(
+                  (BpmRuntimeError.ARCH_INVALID_PARTITION_ID.raise(partitionId)));
          }
       }
       catch (SQLException sqle)
       {
          final String message = "Failed resolving partition ID '" + partitionId + "'.";
          trace.warn(message, sqle);
-         throw new PublicException(message);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_RESOLVING_PARTITION_ID.raise(partitionId));
       }
       finally
       {
@@ -286,18 +339,18 @@ public class Archiver
       {
          if (0 < nAliveProcesses)
          {
-            throw new PublicException("Cannot archive models with nonterminated "
-                  + "process instances (found " + nAliveProcesses
-                  + " nonterminated process instances).");
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_CANNOT_ARCHIVE_MODELS_WITH_NONTERMINATED_PROCESS_INSTANCES
+                        .raise(nAliveProcesses));
          }
       }
       else
       {
          if (0 < nAliveProcesses)
          {
-            throw new PublicException("Unable to delete closure of model with OID "
-                  + modelOid + " as of " + nAliveProcesses
-                  + " nonterminated process instances.");
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_UNABLE_TO_DELETE_CLOSURE_OF_MODEL_WITH_OID.raise(
+                        modelOid, nAliveProcesses));
          }
       }
 
@@ -340,11 +393,18 @@ public class Archiver
 
          if (0 < nAliveProcesses)
          {
-            throw new PublicException(
-                  MessageFormat.format(
-                        "Cannot {0} process instances (found {1} nonterminated process instances).",
-                        new Object[] {
-                              archive ? "archive" : "delete", new Long(nAliveProcesses)}));
+            if (archive)
+            {
+               throw new PublicException(
+                     BpmRuntimeError.ARCH_CANNOT_ARCHIVE_PROCESS_INSTANCES.raise(new Long(
+                           nAliveProcesses)));
+            }
+            else
+            {
+               throw new PublicException(
+                     BpmRuntimeError.ARCH_CANNOT_DELETE_PROCESS_INSTANCES.raise(new Long(
+                           nAliveProcesses)));
+            }
          }
 
          // check if PIs are strictly terminated root PIs
@@ -369,7 +429,8 @@ public class Archiver
          }
          catch (SQLException sqle)
          {
-            throw new PublicException("Failed verifying preconditions.", sqle);
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_VERIFYING_PRECONDITIONS.raise(), sqle);
          }
          finally
          {
@@ -458,7 +519,8 @@ public class Archiver
          {
             // ignore
          }
-         throw new PublicException("Failed archiving log entries.", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_ARCHIVING_LOG_ENTRIES.raise(), e);
       }
    }
 
@@ -477,9 +539,9 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed archiving entries from "
-               + fSelect.getTableName()
-               + " included in transitive closure of already archived log entries.", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_ARCHIVING_ENTRIES_FROM_TABLE_INCLUDED_IN_TRANSITIVE_CLOSURE_FOR_ALREADY_ARCHIVED_LOG_ENTRIES
+                     .raise(fSelect.getTableName()), e);
       }
    }
 
@@ -552,7 +614,8 @@ public class Archiver
          {
             // ignore
          }
-         throw new PublicException("Failed deleting user sessions.", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_DELETING_USER_SESSIONS.raise(), e);
       }
    }
 
@@ -576,8 +639,9 @@ public class Archiver
    {
       if (archive)
       {
-         throw new PublicException("Data can only be deleted, standalone archiving is" +
-               " not supported.");
+         throw new PublicException(
+               BpmRuntimeError.ARCH_DATA_CAN_ONLY_BE_SELECTED_STANDALONE_ARCHIVING_NOT_SUPPORTED
+                     .raise());
       }
 
       Map<String, List<String>> values = extractID(ids);
@@ -650,7 +714,8 @@ public class Archiver
             }
             catch (Exception e)
             {
-               throw new PublicException("Failed to find starting time.", e);
+               throw new PublicException(
+                     BpmRuntimeError.ARCH_FAILED_TO_FIND_STARTING_TIME.raise(), e);
             }
 
             if (tsStart <= 0 || tsStart > tsStop)
@@ -695,7 +760,9 @@ public class Archiver
       }
       catch (SQLException sqle)
       {
-         throw new PublicException("Failed resolving process instance closure.", sqle);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_RESOLVING_PROCESS_INSTANCE_CLOSURE.raise(),
+               sqle);
       }
       finally
       {
@@ -789,7 +856,8 @@ public class Archiver
          {
             // ignore
          }
-         throw new PublicException("Failed archiving processes", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_ARCHIVING_PROCESSES.raise(), e);
       }
    }
 
@@ -879,7 +947,8 @@ public class Archiver
          {
             // ignore
          }
-         throw new PublicException("Failed archiving processes", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_ARCHIVING_PROCESSES.raise(), e);
       }
    }
 
@@ -939,7 +1008,8 @@ public class Archiver
       }
       catch (SQLException sqle)
       {
-         throw new PublicException("Failed verifying preconditions.", sqle);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_VERIFYING_PRECONDITIONS.raise(), sqle);
       }
       finally
       {
@@ -987,7 +1057,8 @@ public class Archiver
          }
          catch (SQLException sqle)
          {
-            throw new PublicException("Failed verifying preconditions.", sqle);
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_VERIFYING_PRECONDITIONS.raise(), sqle);
          }
          finally
          {
@@ -1201,9 +1272,32 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed to backup processes"
-            + (modelOid == null ? "" : " for model with OID " + modelOid)
-            + (before == null ? "" : " terminated before " + before), e);
+         if (modelOid == null && before == null)
+         {
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_ARCHIVING_PROCESSES.raise(), e);
+         }
+         if (modelOid == null && before != null)
+         {
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_ARCHIVING_PROCESSES_TERMINATED_BEFORE
+                        .raise(before),
+                  e);
+         }
+         if (modelOid != null && before == null)
+         {
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_ARCHIVING_PROCESSES_FOR_MODEL_WITH_OID
+                        .raise(modelOid),
+                  e);
+         }
+         if (modelOid != null && before != null)
+         {
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_ARCHIVING_PROCESSES_FOR_MODEL_WITH_OID_TERMINATED_BEFORE
+                        .raise(modelOid, before), e);
+         }
+
       }
 
       return new ArrayList<Long>(result);
@@ -1517,7 +1611,8 @@ public class Archiver
          {
             // this is fatal, but should never happen.
          }
-         throw new PublicException("Failed deleting model with OID " + modelOid, e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_DELETING_MODEL_WITH_OID.raise(modelOid), e);
       }
    }
 
@@ -1562,8 +1657,9 @@ public class Archiver
             }
             else
             {
-               throw new PublicException("Failed retrieving number of nonterminated"
-                     + " process instances for model with OID " + modelOid);
+               throw new PublicException(
+                     BpmRuntimeError.ARCH_FAILED_RETRIEVING_NUMBER_OF_NONTERMINATED_PROCESSES_FOR_MODEL_WTH_OID
+                           .raise(modelOid));
             }
          }
          finally
@@ -1573,8 +1669,9 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed retrieving number of nonterminated process "
-               + "instances for model with OID " + modelOid, e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_RETRIEVING_NUMBER_OF_NONTERMINATED_PROCESSES_FOR_MODEL_WTH_OID
+                     .raise(modelOid), e);
       }
 
       return nonterminatedInstances;
@@ -1625,7 +1722,8 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed retrieving models.", e);
+         throw new PublicException(BpmRuntimeError.ARCH_FAILED_RETRIEVING_MODELS.raise(),
+               e);
       }
 
       return unsortedModels;
@@ -1776,8 +1874,10 @@ public class Archiver
          {
             // ignore
          }
-         throw new PublicException("Failed deleting data " + stringLiteralList(ids)
-               + " for terminated processes.", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_DELETING_DATA_FOR_TERMINATED_PROCESSES
+                     .raise(stringLiteralList(ids)),
+               e);
       }
    }
 
@@ -1808,9 +1908,9 @@ public class Archiver
          {
             // ignore
          }
-         throw new PublicException(MessageFormat.format(
-               "Failed deleting log entries created before {}.", new Object[] {new Date(
-                     tsBefore)}), e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_DELETING_LOG_ENTRIES_BEFORE.raise(new Date(
+                     tsBefore)), e);
       }
    }
 
@@ -1855,9 +1955,9 @@ public class Archiver
             trace.error("Exception on rollback", rollbackExc);
          }
 
-         throw new PublicException(MessageFormat.format(
-               "Failed inserting user session entries expired before {0}.",
-               new Object[] { new Date(tsBefore) }), e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_INSERTING_USER_SESSION_ENTRIES_EXPIRED_BEFORE.raise(new Date(
+                     tsBefore)), e);
       }
    }
 
@@ -1889,9 +1989,9 @@ public class Archiver
             trace.error("Exception on rollback", rollbackExc);
          }
 
-         throw new PublicException(MessageFormat.format(
-               "Failed deleting user session entries expired before {0}.",
-               new Object[] { new Date(tsBefore) }), e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_DELETING_USER_SESSION_ENTRIES_EXPIRED_BEFORE.raise(new Date(
+                     tsBefore)), e);
       }
    }
 
@@ -1923,9 +2023,10 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException(MessageFormat.format(
-               "Failed finding minimum value for attribute ''{0}''.",
-               new Object[] {field.fieldName}), e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_FINDING_MINIMUM_VALUE_FOR_ATTRIBUTE
+                     .raise(field.fieldName),
+               e);
       }
       finally
       {
@@ -1950,9 +2051,10 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException(MessageFormat.format(
-               "Failed finding maximum value for attribute ''{0}''.",
-               new Object[] {field.fieldName}), e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_FINDING_MAXIMUM_VALUE_FOR_ATTRIBUTE
+                     .raise(field.fieldName),
+               e);
       }
       finally
       {
@@ -1986,7 +2088,8 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed finding unused models.", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_FINDING_UNUSED_MODELS.raise(), e);
       }
       finally
       {
@@ -2027,7 +2130,7 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed finding models.", e);
+         throw new PublicException(BpmRuntimeError.ARCH_FAILED_FINDING_MODELS.raise(), e);
       }
       finally
       {
@@ -2083,7 +2186,9 @@ public class Archiver
       }
       catch (SQLException e)
       {
-         throw new PublicException("Failed synchronizing archived utility tables", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_SYNCHRONIZING_ARCHIVED_UTILITY_TABLES.raise(),
+               e);
       }
       finally
       {
@@ -2118,7 +2223,8 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed synchronizing model table archive", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_SYNCHRONIZING_MODEL_TABLE_ARCHIVE.raise(), e);
       }
    }
 
@@ -2191,7 +2297,10 @@ public class Archiver
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed synchronizing organizational table archive", e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_SYNCHRONIZING_ORGANIZATIONAL_TABLE_ARCHIVE
+                     .raise(),
+               e);
       }
    }
 
@@ -2346,9 +2455,9 @@ public class Archiver
          }
          catch (SQLException e)
          {
-            throw new PublicException(MessageFormat.format(
-                  "Failed deleting entries from data cluster table ''{0}''. Reason: {1}.",
-                  new Object[] {getSrcObjName(dCluster.getTableName()), e.getMessage()}), e);
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_DELETING_ENTRIES_FROM_DATA_CLUSTER_TABLE.raise(
+                        getSrcObjName(dCluster.getTableName()), e.getMessage()), e);
          }
          finally
          {
@@ -2464,7 +2573,7 @@ public class Archiver
             if(models.isEmpty())
             {
                throw new PublicException(
-                     "No model with id '" + modelID + "'.");
+                     BpmRuntimeError.ARCH_NO_MODEL_WITH_ID.raise(modelID));
             }
          }
 
@@ -2483,7 +2592,8 @@ public class Archiver
             if (!dataIds.contains(dataID))
             {
                throw new PublicException(
-                     "Cannot delete data for nonexisting data id '" + dataID + "'.");
+                     BpmRuntimeError.ARCH_CANNOT_DELETE_DATA_FOR_NONEXISTING_DATA_ID
+                           .raise(dataID));
             }
          }
       }
@@ -2553,7 +2663,9 @@ public class Archiver
          String message = "Couldn't synchronize data cluster table '" + dcTableName
                + "'." + " Reason: " + x.getMessage();
          trace.error(message, x);
-         throw new PublicException(message, x);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_COULD_NOT_SYNCHRONIZE_DATA_CLUSTER_TABLE.raise(
+                     dcTableName, x.getMessage()));
       }
       finally
       {
@@ -2711,10 +2823,8 @@ public class Archiver
       catch (Exception e)
       {
          throw new PublicException(
-               "Failed archiving entries from "
-                     + fSelect.getTableName()
-                     + " included in transitive closure of already archived process instances.",
-               e);
+               BpmRuntimeError.ARCH_FAILED_ARCHIVING_ENTRIES_FROM_TABLE_INCLUDED_IN_TRANSITIVE_CLOSURE_FOR_ALREADY_ARCHIVED_PROCESS_INSTAMCES
+                     .raise(fSelect.getTableName()), e);
       }
    }
 
@@ -2861,10 +2971,8 @@ public class Archiver
       catch (Exception e)
       {
          throw new PublicException(
-               "Failed archiving entries from "
-                     + fSelect.getTableName()
-                     + " included in transitive closure of already archived process instances.",
-               e);
+               BpmRuntimeError.ARCH_FAILED_ARCHIVING_ENTRIES_FROM_TABLE_INCLUDED_IN_TRANSITIVE_CLOSURE_FOR_ALREADY_ARCHIVED_PROCESS_INSTAMCES
+                     .raise(fSelect.getTableName()), e);
       }
    }
 
@@ -3120,8 +3228,9 @@ public class Archiver
       }
       catch (SQLException e)
       {
-         throw new PublicException("Failed synchronizing PK-stable table "
-               + tdType.getTableName(), e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_SYNCHRONIZING_PK_STABLE_TABLE.raise(tdType
+                     .getTableName()), e);
       }
       finally
       {
@@ -3281,8 +3390,9 @@ public class Archiver
       }
       catch (SQLException e)
       {
-         throw new PublicException("Failed synchronizing PK-stable table "
-               + tdType.getTableName(), e);
+         throw new PublicException(
+               BpmRuntimeError.ARCH_FAILED_SYNCHRONIZING_PK_STABLE_TABLE.raise(tdType
+                     .getTableName()), e);
       }
       finally
       {
@@ -3674,7 +3784,7 @@ public class Archiver
          }
          else if(multiModel)
          {
-            throw new PublicException("Id:" + id + " - Qualified Id needed as we have different model id.");
+            throw new PublicException(BpmRuntimeError.ARCH_QUALIFIED_ID_NEEDED.raise(id));
          }
 
          if (namespace == null)
@@ -3775,7 +3885,10 @@ public class Archiver
             }
             catch (Exception e)
             {
-               throw new PublicException("Failed synchronizing string_data table archive", e);
+               throw new PublicException(
+                     BpmRuntimeError.ARCH_FAILED_SYNCHRONIZING_STRING_DATA_TABLE_ARCHIVE
+                           .raise(),
+                     e);
             }
          }
          commit();

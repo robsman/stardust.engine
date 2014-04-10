@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.cli.sysconsole;
 
-import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -19,8 +23,7 @@ import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.cli.sysconsole.patch.FixRuntimeOidCommand;
-import org.eclipse.stardust.engine.cli.sysconsole.utils.SysconsoleCommandExecuter;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.model.beans.IConfigurationVariablesProvider;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -63,8 +66,8 @@ public class ArchiveCommand extends AuditTrailCommand
    private static final String INTERVAL = "interval";
 
    private static final String BATCH_SIZE = "batchSize";
-   
-   private static final String DISCLAIMER = 
+
+   private static final String DISCLAIMER =
            "PLEASE NOTE: this archive sysconsole command with model deletion should only\n"
          + "             be performed in maintenance windows without workflow, otherwise\n"
          + "             this might lead to inconsistency in the audit trail.";
@@ -124,7 +127,7 @@ public class ArchiveCommand extends AuditTrailCommand
             "Performs any archive/delete operation in controlled batches (i.e.\n"
             + "transactions). If this option is missing, a default batch size of\n"
             + "1000 will be used.", true);
-      
+
       argTypes.addExclusionRule(new String[] {
          MODEL, PROCESSES_BY_OID, DEAD_MODELS, DEAD_PROCESSES, DEAD_DATA, LOG_ENTRIES, USER_SESSIONS}, true);
 
@@ -142,7 +145,7 @@ public class ArchiveCommand extends AuditTrailCommand
    {
       return argTypes;
    }
-   
+
    public int doRun(Map options)
    {
       try
@@ -165,9 +168,9 @@ public class ArchiveCommand extends AuditTrailCommand
       Date before = Options.getDateValue(options, TIMESTAMP);
       if ((null == before) && options.containsKey(TIMESTAMP))
       {
-         throw new PublicException(MessageFormat.format(
-               "Unsupported date format for option -timestamp: ''{0}''.",
-               new Object[] {options.get(TIMESTAMP)}));
+         throw new PublicException(
+               BpmRuntimeError.CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP
+                     .raise(options.get(TIMESTAMP)));
       }
       long interval = getIntervalOption(options, INTERVAL);
       Long batchSizeOption = Options.getLongValue(options, BATCH_SIZE);
@@ -175,14 +178,15 @@ public class ArchiveCommand extends AuditTrailCommand
       boolean noBackup = options.containsKey(NO_BACKUP);
       if (!noBackup && !options.containsKey(SCHEMA_NAME))
       {
-         throw new PublicException("No archive audittrail schema specified.");
+         throw new PublicException(
+               BpmRuntimeError.CLI_NO_ARCHIVE_AUDITTRAIL_SCHEMA_SPECIFIED.raise());
       }
       String archiveSchema = (String) options.get(SCHEMA_NAME);
 
       SchemaHelper.verifySysopPassword(
             (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL),
             (String) globalOptions.get("password"));
-      
+
       // evaluate partition, fall back to default partition, if configured
       String partitionSpec = (String) options.get(PARTITION);
       if (StringUtils.isEmpty(partitionSpec))
@@ -205,18 +209,19 @@ public class ArchiveCommand extends AuditTrailCommand
       }
       if (partitionIds.isEmpty())
       {
-         throw new PublicException("No audittrail partition specified.");
+         throw new PublicException(
+               BpmRuntimeError.CLI_NO_AUDITTRAIL_PARTITION_SPECIFIED.raise());
       }
       for (Iterator partitionItr = partitionIds.iterator(); partitionItr.hasNext();)
       {
          String partitionId = (String) partitionItr.next();
-         
+
          setConnectionOptions();
          Utils.initCarnotEngine(partitionId);
-         
+
          Archiver archiver = new Archiver( !noBackup, archiveSchema, txBatchSize,
                globalOptions.containsKey("force"), partitionId);
-         
+
          if (options.containsKey(MODEL))
          {
             archiver.archiveDeadModel(getIntegerOption(options, MODEL), interval);
@@ -263,20 +268,14 @@ public class ArchiveCommand extends AuditTrailCommand
             {
                return -1;
             }
-            
+
             archiver.archiveUserSessions(before, interval);
          }
       }
-      
-      //fix runtime oids which could be corrupted by the previous archive run
-//      String fixCommandName = FixRuntimeOidCommand.COMMAND_NAME;
-//      String[] args = { "-password", "sysop", "-force", "-dbschema", 
-//            archiveSchema, fixCommandName, FixRuntimeOidCommand.NO_LOG_ARG};
-//      SysconsoleCommandExecuter.main(args);
-      
+
       return 0;
    }
-   
+
    private long getIntervalOption(Map options, String name)
    {
       String[] types = {"days", "hours", "minutes"};
@@ -314,9 +313,8 @@ public class ArchiveCommand extends AuditTrailCommand
          catch (NumberFormatException e)
          {
             throw new PublicException(
-                  "Interval value '" + (String) options.get(name)
-                  + "' for option '" + name + "' is not in correct format. Format has to be "
-                  + "nn{d{ays}|h{ours}|m{inutes}}");
+                  BpmRuntimeError.CLI_INTERNAL_VALUE_FOR_OPTION_IS_NOT_IN_CORRECT_FORMAT
+                        .raise((String) options.get(name), name));
          }
       }
       else

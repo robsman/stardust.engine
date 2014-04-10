@@ -453,7 +453,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 EJB_MISSING_DATA_SOURCE = newArgs1("EJB01003", BpmRuntimeErrorMessages.getString("EJB01003")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 EJB_INVALID_TUNNELING_SERVICE_ENDPOINT = newArgs0("EJB01004", BpmRuntimeErrorMessages.getString("EJB01004")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   //// CLI related
+   //// General CLI related
 
    public static final Args0 CLI_INVALID_DEPARTMENT_PATH_PROVIDED = newArgs0("CLI01001", BpmRuntimeErrorMessages.getString("CLI01001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 CLI_DEPRECATED_PROCESS_MODEL_ONLY_ONE_PARENT_ORG_ALLOWED = newArgs0("CLI01002", BpmRuntimeErrorMessages.getString("CLI01002")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -462,6 +462,56 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 CLI_INTERFACE_MODEL_OID_NOT_PROVIDED = newArgs0("CLI01005", BpmRuntimeErrorMessages.getString("CLI01005")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 CLI_PROCESS_ID_NOT_PROVIDED = newArgs0("CLI01006", BpmRuntimeErrorMessages.getString("CLI01006")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 CLI_IMPLEMENTATION_MODEL_ID_NOT_PROVIDED = newArgs0("CLI01007", BpmRuntimeErrorMessages.getString("CLI01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_SQL_EXCEPTION_OCCURED = newArgs1("CLI01008", BpmRuntimeErrorMessages.getString("CLI01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_COULD_NOT_INITIALIZE_DDL_SPOOL_FILE = newArgs1("CLI01009", BpmRuntimeErrorMessages.getString("CLI01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 CLI_UNSUPPORTED_DATE_FORMAT_FOR_OPTION_TIMESTAMP = newArgs1("CLI01010", BpmRuntimeErrorMessages.getString("CLI01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_NO_ARCHIVE_AUDITTRAIL_SCHEMA_SPECIFIED = newArgs0("CLI01011", BpmRuntimeErrorMessages.getString("CLI01011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_NO_AUDITTRAIL_PARTITION_SPECIFIED = newArgs0("CLI01012", BpmRuntimeErrorMessages.getString("CLI01012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 CLI_INTERNAL_VALUE_FOR_OPTION_IS_NOT_IN_CORRECT_FORMAT = newArgs2("CLI01013", BpmRuntimeErrorMessages.getString("CLI01013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_NO_FILE_NAME_PROVIDED = newArgs0("CLI01014", BpmRuntimeErrorMessages.getString("CLI01014")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_NO_SCHEMA_NAME_PROVIDED = newArgs0("CLI01015", BpmRuntimeErrorMessages.getString("CLI01015")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   //// Archiver related
+   public static final Args0 ARCH_FAILED_VERIFYING_PRECONDITIONS = newArgs0("ARCH01001", BpmRuntimeErrorMessages.getString("ARCH01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_ARCHIVING_LOG_ENTRIES = newArgs0("ARCH01002", BpmRuntimeErrorMessages.getString("ARCH01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_ARCHIVING_ENTRIES_FROM_TABLE_INCLUDED_IN_TRANSITIVE_CLOSURE_FOR_ALREADY_ARCHIVED_LOG_ENTRIES = newArgs1("ARCH01003", BpmRuntimeErrorMessages.getString("ARCH01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_TO_FIND_STARTING_TIME = newArgs0("ARCH01004", BpmRuntimeErrorMessages.getString("ARCH01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_RESOLVING_PROCESS_INSTANCE_CLOSURE = newArgs0("ARCH01005", BpmRuntimeErrorMessages.getString("ARCH01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_ARCHIVING_PROCESSES = newArgs0("ARCH01006", BpmRuntimeErrorMessages.getString("ARCH01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_ARCHIVING_PROCESSES_TERMINATED_BEFORE = newArgs1("ARCH01007", BpmRuntimeErrorMessages.getString("ARCH01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_ARCHIVING_PROCESSES_FOR_MODEL_WITH_OID = newArgs1("ARCH01008", BpmRuntimeErrorMessages.getString("ARCH01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ARCH_FAILED_ARCHIVING_PROCESSES_FOR_MODEL_WITH_OID_TERMINATED_BEFORE = newArgs2("ARCH01009", BpmRuntimeErrorMessages.getString("ARCH01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_DELETING_MODEL_WITH_OID = newArgs1("ARCH01010", BpmRuntimeErrorMessages.getString("ARCH01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_DELETING_LOG_ENTRIES_BEFORE = newArgs1("ARCH01011", BpmRuntimeErrorMessages.getString("ARCH01011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_INSERTING_USER_SESSION_ENTRIES_EXPIRED_BEFORE = newArgs1("ARCH01012", BpmRuntimeErrorMessages.getString("ARCH01012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_DELETING_USER_SESSION_ENTRIES_EXPIRED_BEFORE = newArgs1("ARCH01013", BpmRuntimeErrorMessages.getString("ARCH01013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_FINDING_MINIMUM_VALUE_FOR_ATTRIBUTE = newArgs1("ARCH01014", BpmRuntimeErrorMessages.getString("ARCH01014")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_FINDING_MAXIMUM_VALUE_FOR_ATTRIBUTE = newArgs1("ARCH01015", BpmRuntimeErrorMessages.getString("ARCH01015")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_OBTAINING_JDBC_CONNECTION_TO_AUDIT_TRAIL_DB = newArgs0("ARCH01016", BpmRuntimeErrorMessages.getString("ARCH01016")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_INVALID_PARTITION_ID = newArgs1("ARCH01017", BpmRuntimeErrorMessages.getString("ARCH01017")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_RESOLVING_PARTITION_ID = newArgs1("ARCH01018", BpmRuntimeErrorMessages.getString("ARCH01018")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_CANNOT_ARCHIVE_MODELS_WITH_NONTERMINATED_PROCESS_INSTANCES = newArgs1("ARCH01019", BpmRuntimeErrorMessages.getString("ARCH01019")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ARCH_UNABLE_TO_DELETE_CLOSURE_OF_MODEL_WITH_OID = newArgs2("ARCH01020", BpmRuntimeErrorMessages.getString("ARCH01020")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_CANNOT_ARCHIVE_PROCESS_INSTANCES = newArgs1("ARCH01021", BpmRuntimeErrorMessages.getString("ARCH01021")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_CANNOT_DELETE_PROCESS_INSTANCES = newArgs1("ARCH01022", BpmRuntimeErrorMessages.getString("ARCH01022")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_DELETING_USER_SESSIONS = newArgs0("ARCH01023", BpmRuntimeErrorMessages.getString("ARCH01023")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_DATA_CAN_ONLY_BE_SELECTED_STANDALONE_ARCHIVING_NOT_SUPPORTED = newArgs0("ARCH01024", BpmRuntimeErrorMessages.getString("ARCH01024")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_RETRIEVING_NUMBER_OF_NONTERMINATED_PROCESSES_FOR_MODEL_WTH_OID = newArgs1("ARCH01025", BpmRuntimeErrorMessages.getString("ARCH01025")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_RETRIEVING_MODELS = newArgs0("ARCH01026", BpmRuntimeErrorMessages.getString("ARCH01026")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_DELETING_DATA_FOR_TERMINATED_PROCESSES = newArgs1("ARCH01027", BpmRuntimeErrorMessages.getString("ARCH01027")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_FINDING_UNUSED_MODELS = newArgs0("ARCH01028", BpmRuntimeErrorMessages.getString("ARCH01028")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_FINDING_MODELS = newArgs0("ARCH01029", BpmRuntimeErrorMessages.getString("ARCH01029")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_SYNCHRONIZING_ARCHIVED_UTILITY_TABLES = newArgs0("ARCH01030", BpmRuntimeErrorMessages.getString("ARCH01030")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_SYNCHRONIZING_MODEL_TABLE_ARCHIVE = newArgs0("ARCH01031", BpmRuntimeErrorMessages.getString("ARCH01031")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_SYNCHRONIZING_ORGANIZATIONAL_TABLE_ARCHIVE = newArgs0("ARCH01032", BpmRuntimeErrorMessages.getString("ARCH01032")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ARCH_FAILED_DELETING_ENTRIES_FROM_DATA_CLUSTER_TABLE = newArgs2("ARCH01033", BpmRuntimeErrorMessages.getString("ARCH01033")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_NO_MODEL_WITH_ID = newArgs1("ARCH01034", BpmRuntimeErrorMessages.getString("ARCH01034")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_CANNOT_DELETE_DATA_FOR_NONEXISTING_DATA_ID = newArgs1("ARCH01035", BpmRuntimeErrorMessages.getString("ARCH01035")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 ARCH_COULD_NOT_SYNCHRONIZE_DATA_CLUSTER_TABLE = newArgs2("ARCH01036", BpmRuntimeErrorMessages.getString("ARCH01036")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_ARCHIVING_ENTRIES_FROM_TABLE_INCLUDED_IN_TRANSITIVE_CLOSURE_FOR_ALREADY_ARCHIVED_PROCESS_INSTAMCES = newArgs1("ARCH01037", BpmRuntimeErrorMessages.getString("ARCH01037")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_FAILED_SYNCHRONIZING_PK_STABLE_TABLE = newArgs1("ARCH01038", BpmRuntimeErrorMessages.getString("ARCH01038")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ARCH_QUALIFIED_ID_NEEDED = newArgs1("ARCH01039", BpmRuntimeErrorMessages.getString("ARCH01039")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_SYNCHRONIZING_STRING_DATA_TABLE_ARCHIVE = newArgs0("ARCH01040", BpmRuntimeErrorMessages.getString("ARCH01040")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    private static final Object[] NONE = {};

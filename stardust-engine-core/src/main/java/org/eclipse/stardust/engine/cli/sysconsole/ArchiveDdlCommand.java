@@ -16,6 +16,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 
 
@@ -26,7 +27,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 public class ArchiveDdlCommand extends ConsoleCommand
 {
    private static final String FILE = "file";
-   
+
    private static final String SCHEMA_NAME = "schemaName";
 
    private static final Options argTypes = new Options();
@@ -55,12 +56,12 @@ public class ArchiveDdlCommand extends ConsoleCommand
       String file = (String) options.get(FILE);
       if (file == null)
       {
-         throw new PublicException("No file name provided.");
+         throw new PublicException(BpmRuntimeError.CLI_NO_FILE_NAME_PROVIDED.raise());
       }
       String schemaName = (String) options.get(SCHEMA_NAME);
       if (schemaName == null)
       {
-         throw new PublicException("No schema name provided.");
+         throw new PublicException(BpmRuntimeError.CLI_NO_SCHEMA_NAME_PROVIDED.raise());
       }
 
       print("Writing DDL for Infinity archive schema generation to '" + file + "'.");

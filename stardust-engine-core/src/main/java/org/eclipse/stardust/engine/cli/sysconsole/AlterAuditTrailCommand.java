@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.console.Options;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.cli.sysconsole.consistency.AuditTrailConsistencyChecker;
 import org.eclipse.stardust.engine.cli.sysconsole.consistency.SharedDocumentDataConsistencyCheck;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
@@ -46,7 +47,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    private static final String LOCKTABLE_ENABLE = "enableLockTables";
    private static final String LOCKTABLE_VERIFY = "verifyLockTables";
    private static final String LOCKTABLE_DROP = "dropLockTables";
-   
+
    private static final String SEQ_TABLE_ENABLE = "enableSequenceTable";
    private static final String SEQ_TABLE_VERIFY = "verifySequenceTable";
    private static final String SEQ_TABLE_DROP = "dropSequenceTable";
@@ -54,7 +55,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
    private static final String PARTITION_CREATE = "createPartition";
    private static final String PARTITIONS_LIST = "listPartitions";
    private static final String PARTITION_DROP = "dropPartition";
-   
+
    private static final String DATACLUSTER_UPGRADE = "upgradeDataClusters";
    private static final String DATACLUSTER_ENABLE = "enableDataClusters";
    private static final String DATACLUSTER_VERIFY = "verifyDataClusters";
@@ -80,7 +81,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             "Verifies existence of proxy locking tables and their consistency.", false);
       argTypes.register("-" + LOCKTABLE_DROP, "-dlt", LOCKTABLE_DROP,
             "Drops any existing proxy locking tables.", false);
-      
+
       argTypes.register("-" + SEQ_TABLE_ENABLE, "-est", SEQ_TABLE_ENABLE,
             "Creates 'sequence' table, 'next_sequence_value_for' function and synchronizes table content.", false);
       argTypes.register("-" + SEQ_TABLE_VERIFY, "-vst", SEQ_TABLE_VERIFY,
@@ -97,10 +98,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
       argTypes.register("-" + DATACLUSTER_ENABLE, "-edc", DATACLUSTER_ENABLE,
             "Creates missing data cluster tables and synchronizes table content.", false);
-      
+
       argTypes.register("-" + DATACLUSTER_UPGRADE, "-udc", DATACLUSTER_UPGRADE,
             "Upgrades data cluster tables and synchronizes table content.", false);
-      
+
       argTypes.register("-" + DATACLUSTER_VERIFY, "-vdc", DATACLUSTER_VERIFY,
             "Verifies existence of data cluster tables and their consistency.", false);
       argTypes.register("-" + DATACLUSTER_DROP, "-ddc", DATACLUSTER_DROP,
@@ -154,7 +155,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (SQLException e)
          {
             trace.warn("", e);
-            throw new PublicException("SQL Exception occured: " + e.getMessage());
+            throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                  .getMessage()));
          }
          catch (InternalException e)
          {
@@ -176,7 +178,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (SQLException e)
          {
             trace.warn("", e);
-            throw new PublicException("SQL Exception occured: " + e.getMessage());
+            throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                  .getMessage()));
          }
          catch (InternalException e)
          {
@@ -214,10 +217,10 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          }
          print("Creating missing data cluster tables and synchronizing their table content for Infinity schema.");
 
-         String configFileName = (String) options.get(DATACLUSTER_CONFIG_FILE);  
+         String configFileName = (String) options.get(DATACLUSTER_CONFIG_FILE);
          boolean skipDdl = options.containsKey(AUDITTRAIL_SKIPDDL);
          boolean skipDml = options.containsKey(AUDITTRAIL_SKIPDML);
-         
+
          try
          {
             SchemaHelper.alterAuditTrailDataClusterTables(password, configFileName,
@@ -226,7 +229,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (SQLException e)
          {
             trace.warn("", e);
-            throw new PublicException("SQL Exception occured: " + e.getMessage());
+            throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                  .getMessage()));
          }
          catch (InternalException e)
          {
@@ -248,7 +252,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (SQLException e)
          {
             trace.warn("", e);
-            throw new PublicException("SQL Exception occured: " + e.getMessage());
+            throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                  .getMessage()));
          }
          catch (InternalException e)
          {
@@ -293,7 +298,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (SQLException e)
          {
             trace.warn("", e);
-            throw new PublicException("SQL Exception occured: " + e.getMessage());
+            throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                  .getMessage()));
          }
          catch (InternalException e)
          {
@@ -327,7 +333,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (SQLException e)
          {
             trace.warn("", e);
-            throw new PublicException("SQL Exception occured: " + e.getMessage());
+            throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                  .getMessage()));
          }
          catch (InternalException e)
          {
@@ -338,11 +345,11 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
 
       return optionHandled;
    }
-   
+
    private Map getSysconsoleDBProperties()
    {
-      Map properties = CollectionUtils.newHashMap();      
-      
+      Map properties = CollectionUtils.newHashMap();
+
       if (globalOptions.containsKey("dbschema"))
       {
          properties.put(
@@ -380,7 +387,7 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
                SessionProperties.DS_NAME_AUDIT_TRAIL + SessionProperties.DS_TYPE_SUFFIX,
                globalOptions.get("dbtype"));
       }
-      return properties;        
+      return properties;
    }
 
    private boolean doRunCheckConsistencyOptions(Map options)
@@ -440,7 +447,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             catch (SQLException e)
             {
                trace.warn("", e);
-               throw new PublicException("SQL Exception occured: " + e.getMessage());
+               throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                     .getMessage()));
             }
             if (!skipDdl)
             {
@@ -462,7 +470,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             catch (SQLException e)
             {
                trace.warn("", e);
-               throw new PublicException("SQL Exception occured: " + e.getMessage());
+               throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                     .getMessage()));
             }
             print("Verification of 'sequence' table and its consistency done.");
          }
@@ -477,7 +486,8 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             catch (SQLException e)
             {
                trace.warn("", e);
-               throw new PublicException("SQL Exception occured: " + e.getMessage());
+               throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+                     .getMessage()));
             }
             print("'sequence' table dropped.");
          }
@@ -512,8 +522,9 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
             catch(FileNotFoundException x)
             {
                trace.warn("", x);
-               throw new PublicException("Could not initialize ddl spool file: "
-                     + x.getMessage());
+               throw new PublicException(
+                     BpmRuntimeError.CLI_COULD_NOT_INITIALIZE_DDL_SPOOL_FILE.raise(x
+                           .getMessage()));
             }
          }
       }

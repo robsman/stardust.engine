@@ -442,8 +442,9 @@ public class DocumentManagementServiceImpl
    
    private User getUser()
    {
-      return (User) DetailsFactory.create(SecurityProperties.getUser(),
-            IUser.class, UserDetails.class);
+      IUser user = SecurityProperties.getUser();
+      return user == null ? null : (User) DetailsFactory.create(user, IUser.class,
+            UserDetails.class);
    }
 
    // /////////////////////////////////////////////////////////////////////////////////////

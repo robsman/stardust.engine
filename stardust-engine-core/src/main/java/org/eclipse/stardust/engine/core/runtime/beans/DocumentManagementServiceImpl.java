@@ -10,12 +10,13 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
+import static org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils.getCurrentUser;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
@@ -28,7 +29,6 @@ import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.api.runtime.FolderInfo;
 import org.eclipse.stardust.engine.api.runtime.Privilege;
 import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
-import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.api.web.dms.DmsContentServlet;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.ILegacyRepositoryService;
@@ -430,21 +430,14 @@ public class DocumentManagementServiceImpl
    public RepositoryMigrationReport migrateRepository(int batchSize,
          boolean evaluateTotalCount, String repositoryId) throws DocumentManagementServiceException
    {
-      return getProvider().getInstance(repositoryId).getService(getUser()).migrateRepository(batchSize, evaluateTotalCount);
+      return getProvider().getInstance(repositoryId).getService(getCurrentUser()).migrateRepository(batchSize, evaluateTotalCount);
    }
    
    @Override
    public byte[] getSchemaDefinition(String schemaLocation, String repositoryId)
          throws ObjectNotFoundException
    {
-      return getProvider().getInstance(repositoryId).getService(getUser()).getSchemaDefinition(schemaLocation);
-   }
-   
-   private User getUser()
-   {
-      IUser user = SecurityProperties.getUser();
-      return user == null ? null : (User) DetailsFactory.create(user, IUser.class,
-            UserDetails.class);
+      return getProvider().getInstance(repositoryId).getService(getCurrentUser()).getSchemaDefinition(schemaLocation);
    }
 
    // /////////////////////////////////////////////////////////////////////////////////////

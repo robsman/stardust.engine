@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.spi.cache.CacheAdapterBase;
@@ -32,13 +33,13 @@ import com.hazelcast.core.IMap;
 public class HazelcastCacheAdapter extends CacheAdapterBase<IMap<Object, Object>>
 {
    private static final Logger trace = LogManager.getLogger(HazelcastCacheAdapter.class);
-   
+
    public static final String KEY_CURRENT_CONNECTION = HazelcastCacheAdapter.class.getName() + ".CurrentConnection";
-   
+
    public static final String PRP_HAZELCAST_GLOBAL_CACHE_NAME = "Infinity.Engine.Caching.Hazelcast.GlobalCacheName";
 
    private final String txMode;
-   
+
    private final ConnectionFactory hzCf;
 
    @SuppressWarnings("rawtypes")
@@ -55,7 +56,7 @@ public class HazelcastCacheAdapter extends CacheAdapterBase<IMap<Object, Object>
       }
 
       this.delegate = HazelcastUtils.getHazelcastInstance().getMap(cacheName);
-      
+
       if (trace.isDebugEnabled())
       {
          if (trace.isInfoEnabled())
@@ -78,7 +79,9 @@ public class HazelcastCacheAdapter extends CacheAdapterBase<IMap<Object, Object>
          }
          catch (final ResourceException e)
          {
-            throw new PublicException("Failed enlisting Hazelcast cache in the current transaction.", e);
+            throw new PublicException(
+                  BpmRuntimeError.HZLC_FAILES_ENLISTING_HAZLECAST_CACHE_IN_CURRENT_TRANSACTION
+                        .raise(), e);
          }
       }
    }

@@ -10,15 +10,19 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.compatibility.diagram;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.util.Iterator;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JPopupMenu;
 
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.gui.GUI;
 import org.eclipse.stardust.engine.core.model.utils.ConnectionBean;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
@@ -166,7 +170,8 @@ public abstract class AbstractConnectionSymbol extends ConnectionBean
          }
          catch (Exception x)
          {
-            throw new PublicException("Can not load Ressource \"images/connection.gif\".");
+            throw new PublicException(
+                  BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE_CONNECTION_GIF.raise());
          }
       }
       return icon;

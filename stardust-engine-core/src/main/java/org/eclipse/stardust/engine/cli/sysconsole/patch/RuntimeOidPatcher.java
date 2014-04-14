@@ -28,6 +28,7 @@ import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
@@ -159,9 +160,8 @@ public class RuntimeOidPatcher
       catch (SQLException sqle)
       {
          session.closeAndClearPersistenceControllers();
-
-         final String message = "Failed resolving partition oids";
-         throw new PublicException(message, sqle);
+         throw new PublicException(
+               BpmRuntimeError.CLI_FAILED_RESOLVING_PARTITION_OIDS.raise(), sqle);
       }
       finally
       {
@@ -236,8 +236,8 @@ public class RuntimeOidPatcher
          catch (SQLException sqle)
          {
             session.rollback(true);
-            final String message = "Failed patching archive " + sqle.getMessage();
-            throw new PublicException(message);
+            throw new PublicException(
+                  BpmRuntimeError.ARCH_FAILED_PATCHING_ARCHIVE.raise(), sqle);
          }
          finally
          {
@@ -652,7 +652,7 @@ public class RuntimeOidPatcher
                StructuredDataValueBean.FR__PROCESS_INSTANCE, ProcessInstanceBean.FR__OID,
                ProcessInstanceBean.FR__MODEL);
       }
-      //user_participant table has no model fk - join participant 
+      //user_participant table has no model fk - join participant
       else if (persistentClass.equals(UserParticipantLink.class))
       {
          appendJoinClause(buffer, modelOid, AuditTrailParticipantBean.class,

@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
@@ -73,11 +74,11 @@ public abstract class AuditTrailCommand extends ConsoleCommand
                globalOptions.get("dbtype"));
       }
    }
-   
+
    public int run(Map options)
    {
       setConnectionOptions();
-      
+
       printCommand(options);
 
       print("Database type   : "
@@ -100,7 +101,7 @@ public abstract class AuditTrailCommand extends ConsoleCommand
                + Parameters.instance().getString(
                      SessionProperties.DS_NAME_AUDIT_TRAIL
                            + SessionProperties.DS_SCHEMA_SUFFIX));
-      }      
+      }
       print("Database driver : "
             + Parameters.instance().getString(
                   SessionProperties.DS_NAME_AUDIT_TRAIL
@@ -113,7 +114,7 @@ public abstract class AuditTrailCommand extends ConsoleCommand
       }
       catch (InternalException e)
       {
-         throw new PublicException("Driver not found.");
+         throw new PublicException(BpmRuntimeError.CLI_DRIVER_NOT_FOUND.raise());
       }
       print("");
 

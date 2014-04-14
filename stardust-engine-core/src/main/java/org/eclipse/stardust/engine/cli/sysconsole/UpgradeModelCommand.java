@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.removethis.ModelProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.upgrade.framework.ModelItem;
@@ -72,7 +73,8 @@ public class UpgradeModelCommand extends ConsoleCommand
       {
          if (sourceFileName != null && targetFileName == null)
          {
-            throw new PublicException("Please provide a target filename.");
+            throw new PublicException(
+                  BpmRuntimeError.CLI_PLEASE_PROVIDE_TARGET_FILENAME.raise());
          }
          if (sourceFileName != null)
          {
@@ -83,7 +85,9 @@ public class UpgradeModelCommand extends ConsoleCommand
          {
             if (modelFileName == null)
             {
-               throw new PublicException("Neither a repository nor a model file were provided.");
+               throw new PublicException(
+                     BpmRuntimeError.CLI_NEITHER_REPOSITORY_NOR_MODEL_FILE_PROVIDED
+                           .raise());
             }
             print("Upgrading modelfile '" + modelFileName +
                   "' (will be overwritten):\n");

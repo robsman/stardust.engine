@@ -9,6 +9,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.ParametersFacade;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.cli.sysconsole.utils.Utils;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
@@ -48,7 +49,8 @@ public class AuditTrailConsistencyChecker
       }
       if (partitionIds.isEmpty())
       {
-         throw new PublicException("No audittrail partition specified.");
+         throw new PublicException(
+               BpmRuntimeError.CLI_NO_AUDITTRAIL_PARTITION_SPECIFIED.raise());
       }
    }
 

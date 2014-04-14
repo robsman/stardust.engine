@@ -16,6 +16,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.Options;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 
 
@@ -26,7 +27,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 public class DDLCommand extends ConsoleCommand
 {
    private static final Options argTypes = new Options();
-   
+
    private static final String STATEMENT_DELIMITER = "statementDelimiter";
 
    static
@@ -52,7 +53,7 @@ public class DDLCommand extends ConsoleCommand
       final String file = (String) options.get("file");
       if (file == null)
       {
-         throw new PublicException("No file name provided.");
+         throw new PublicException(BpmRuntimeError.CLI_NO_FILE_NAME_PROVIDED.raise());
       }
       final String schemaName = (String) options.get("schemaName");
       final String statementDelimiter = (String) options.get(STATEMENT_DELIMITER);

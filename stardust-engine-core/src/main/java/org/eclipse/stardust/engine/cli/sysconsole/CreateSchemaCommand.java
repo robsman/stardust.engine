@@ -17,6 +17,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.utils.console.Options;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.SchemaHelper;
 
 
@@ -47,7 +48,8 @@ public class CreateSchemaCommand extends AuditTrailCommand
       catch (SQLException e)
       {
          trace.warn("", e);
-         throw new PublicException("SQL Exception occured: " + e.getMessage());
+         throw new PublicException(BpmRuntimeError.CLI_SQL_EXCEPTION_OCCURED.raise(e
+               .getMessage()));
       }
       print("Schema created.");
       return 0;

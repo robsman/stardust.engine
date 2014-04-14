@@ -132,7 +132,8 @@ public class AuditTrailHealthReportGenerator
       }
       catch (SQLException e)
       {
-         throw new PublicException("Failed evaluating recovery status.", e);
+         throw new PublicException(
+               BpmRuntimeError.ATDB_FAILED_EVALUATING_RECOVERY_STATUS.raise(), e);
       }
       finally
       {
@@ -294,7 +295,8 @@ public class AuditTrailHealthReportGenerator
       }
       catch (SQLException e)
       {
-         throw new PublicException("Failed evaluating recovery status.", e);
+         throw new PublicException(
+               BpmRuntimeError.ATDB_FAILED_EVALUATING_RECOVERY_STATUS.raise(), e);
       }
       finally
       {

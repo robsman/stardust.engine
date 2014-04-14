@@ -157,6 +157,11 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 DMS_ANNOTATIONS_ID_PRESENT = newArgs1("DMS03001", BpmRuntimeErrorMessages.getString("DMS03001")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 DMS_FAILED_RETRIEVING_CONTENT_FOR_FILE = newArgs1("DMS04001", BpmRuntimeErrorMessages.getString("DMS04001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_FAILED_UPDATING_CONTENT_FOR_FILE = newArgs1("DMS04002", BpmRuntimeErrorMessages.getString("DMS04002")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
+
    //// Audittrail related
 
    public static final Args0 ATDB_NO_MATCHING_USER_REALM = newArgs0("ATDB02101", BpmRuntimeErrorMessages.getString("ATDB02101")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -206,6 +211,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 ATDB_UNKNOWN_LINK_TYPE_OID = newArgs1("ATDB02301", "Link type with OID ''{0}'' not found.");
    public static final Args2 ATDB_UNKNOWN_LINK_TYPE_ID  = newArgs2("ATDB02302", "Link type ''{0}'' for partition with oid ''{1}'' not found.");
    public static final Args1 ATDB_LINK_TYPE_ID_EXISTS   = newArgs1("ATDB02303", "Link type ''{0}'' exists.");
+
+   public static final Args0 ATDB_FAILED_EVALUATING_RECOVERY_STATUS = newArgs0("ATDB03001", BpmRuntimeErrorMessages.getString("ATDB03001")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    //// Authentication / Authorization
 
@@ -470,6 +478,11 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 CLI_INTERNAL_VALUE_FOR_OPTION_IS_NOT_IN_CORRECT_FORMAT = newArgs2("CLI01013", BpmRuntimeErrorMessages.getString("CLI01013")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 CLI_NO_FILE_NAME_PROVIDED = newArgs0("CLI01014", BpmRuntimeErrorMessages.getString("CLI01014")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 CLI_NO_SCHEMA_NAME_PROVIDED = newArgs0("CLI01015", BpmRuntimeErrorMessages.getString("CLI01015")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_DRIVER_NOT_FOUND = newArgs0("CLI01016", BpmRuntimeErrorMessages.getString("CLI01016")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_PLEASE_PROVIDE_TARGET_FILENAME = newArgs0("CLI01017", BpmRuntimeErrorMessages.getString("CLI01017")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_NEITHER_REPOSITORY_NOR_MODEL_FILE_PROVIDED = newArgs0("CLI01018", BpmRuntimeErrorMessages.getString("CLI01018")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 CLI_FAILED_RESOLVING_PARTITION_OIDS = newArgs0("CLI01019", BpmRuntimeErrorMessages.getString("CLI01019")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    //// Archiver related
    public static final Args0 ARCH_FAILED_VERIFYING_PRECONDITIONS = newArgs0("ARCH01001", BpmRuntimeErrorMessages.getString("ARCH01001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -512,6 +525,17 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 ARCH_FAILED_SYNCHRONIZING_PK_STABLE_TABLE = newArgs1("ARCH01038", BpmRuntimeErrorMessages.getString("ARCH01038")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ARCH_QUALIFIED_ID_NEEDED = newArgs1("ARCH01039", BpmRuntimeErrorMessages.getString("ARCH01039")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 ARCH_FAILED_SYNCHRONIZING_STRING_DATA_TABLE_ARCHIVE = newArgs0("ARCH01040", BpmRuntimeErrorMessages.getString("ARCH01040")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 ARCH_FAILED_PATCHING_ARCHIVE = newArgs0("ARCH01041", BpmRuntimeErrorMessages.getString("ARCH01041")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   ////Hazlecast related
+
+   public static final Args0 HZLC_FAILES_ENLISTING_HAZLECAST_CACHE_IN_CURRENT_TRANSACTION = newArgs0("HZLC01001", BpmRuntimeErrorMessages.getString("HZLC01001")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
+   ////Diagram related
+
+   public static final Args0 DIAG_CANNOT_LOAD_RESOURCE_CONNECTION_GIF = newArgs0("HZLC01001", BpmRuntimeErrorMessages.getString("HZLC01001")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
 
    private static final Object[] NONE = {};

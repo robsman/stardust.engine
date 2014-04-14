@@ -12,7 +12,6 @@ package org.eclipse.stardust.engine.api.web.dms;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +30,7 @@ import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
@@ -106,7 +106,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                   }
                   try
                   {
-                     
+
                      // as token still seems to be valid, verify file exists and if yes,
                      // provide its content
                      try
@@ -138,17 +138,17 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                      }
                      catch (RepositoryOperationFailedException rofe)
                      {
-                        throw new PublicException(MessageFormat.format(
-                              "Failed retrieving content for file ''{0}''.",
-                              new Object[] {request.resourceId}), rofe);
+                        throw new PublicException(
+                              BpmRuntimeError.DMS_FAILED_RETRIEVING_CONTENT_FOR_FILE
+                                    .raise(request.resourceId), rofe);
                      }
                      catch (IOException ioe)
                      {
-                        throw new PublicException(MessageFormat.format(
-                              "Failed retrieving content for file ''{0}''.",
-                              new Object[] {request.resourceId}), ioe);
-                     }   
-                     
+                        throw new PublicException(
+                              BpmRuntimeError.DMS_FAILED_RETRIEVING_CONTENT_FOR_FILE
+                                    .raise(request.resourceId), ioe);
+                     }
+
                   }
                   finally
                   {
@@ -195,7 +195,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
             {
                if (isAuthorized(request))
                {
-                      
+
                   IUser user = findUser(request);
 
                   if (user != null)
@@ -204,16 +204,16 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                   }
                   try
                   {
-                                          
+
                      try
                      {
                         RepositoryProviderManager provider = RepositoryProviderManager.getInstance();
                         IRepositoryService service = provider.getImplicitService();
                         Document document = service.getDocument(request.resourceId);
                         if (null != document)
-                        {   
+                        {
                            service.uploadDocumentContentStream(request.resourceId, contentStream, contentType, contentEncoding);
-   
+
                            result = HttpServletResponse.SC_OK;
                         }
                         else
@@ -224,9 +224,9 @@ public class DmsContentServlet extends AbstractVfsContentServlet
                      }
                      catch (RepositoryOperationFailedException rofe)
                      {
-                        throw new PublicException(MessageFormat.format(
-                              "Failed updating content for file ''{0}''.",
-                              new Object[] {request.resourceId}), rofe);
+                        throw new PublicException(
+                              BpmRuntimeError.DMS_FAILED_UPDATING_CONTENT_FOR_FILE
+                                    .raise(request.resourceId), rofe);
                      }
                   }
                   finally
@@ -268,7 +268,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
 
       pushLayer.setProperty(SecurityProperties.CURRENT_PARTITION, user.getRealm().getPartition());
       pushLayer.setProperty(SecurityProperties.CURRENT_PARTITION_OID, user.getRealm().getPartition().getOID());
-      
+
       pushLayer.setProperty(SynchronizationService.PRP_DISABLE_SYNCHRONIZATION, true);
       pushLayer.setProperty(SecurityProperties.AUTHORIZATION_SYNC_LOAD_PROPERTY, false);
    }
@@ -359,13 +359,13 @@ public class DmsContentServlet extends AbstractVfsContentServlet
 
       return 0 < nSessions;
    }
-   
+
    private static IUser findUser(DecodedRequest request)
    {
       QueryDescriptor query = QueryDescriptor.from(UserBean.class)//
             .where(Predicates.isEqual(UserBean.FR__OID, request.userOid));
 
-      
+
       IUser user;
       try
       {
@@ -373,7 +373,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
 
          pushLayer.setProperty(SynchronizationService.PRP_DISABLE_SYNCHRONIZATION, true);
          pushLayer.setProperty(SecurityProperties.AUTHORIZATION_SYNC_LOAD_PROPERTY, false);
-         
+
          user = (IUser) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).findFirst(
                query.getType(), query.getQueryExtension());
       }
@@ -385,7 +385,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
       {
          ParametersFacade.popLayer();
       }
-      
+
       return user;
    }
 
@@ -399,7 +399,7 @@ public class DmsContentServlet extends AbstractVfsContentServlet
 
       public String resourceId;
    }
-   
+
    public static interface ExecutionServiceProvider
    {
       ForkingService getExecutionService(String clientContext);

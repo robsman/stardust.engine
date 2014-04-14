@@ -12,6 +12,12 @@ package org.eclipse.stardust.engine.core.spi.dms;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.PropertyLayer;
+import org.eclipse.stardust.engine.api.dto.UserDetails;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class RepositoryProviderUtils
 {
@@ -30,6 +36,14 @@ public class RepositoryProviderUtils
    public static void setAdminSessionFlag(boolean enabled, PropertyLayer layer)
    {
       layer.setProperty(DMS_ADMIN_SESSION, enabled);
+   }
+   
+   public static User getCurrentUser()
+   {
+      IUser user = SecurityProperties.getUser();
+      return user == null || PredefinedConstants.SYSTEM.equals(user.getId())
+            ? null
+            : (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
    }
 
 

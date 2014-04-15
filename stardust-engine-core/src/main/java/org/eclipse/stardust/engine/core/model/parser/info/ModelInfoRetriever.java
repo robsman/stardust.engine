@@ -20,6 +20,7 @@ import javax.xml.transform.sax.SAXSource;
 import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
 import org.eclipse.stardust.engine.core.model.parser.filters.NamespaceFilter;
 import org.eclipse.stardust.engine.core.model.parser.filters.StopFilter;
+import org.eclipse.stardust.engine.core.model.xpdl.XpdlUtils;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
@@ -122,9 +123,16 @@ public class ModelInfoRetriever
     */
    public static ModelInfo get(InputSource inputSource) throws SAXException, JAXBException
    {
-      XMLFilter fixer = NamespaceFilter.createXMLFilter(XMLConstants.NS_XPDL_2_1, XMLConstants.NS_XPDL_2_0, XMLConstants.NS_XPDL_1_0);
-      StopFilter stopper = new StopFilter(fixer);
+      NamespaceFilter filter = new NamespaceFilter(XMLConstants.NS_XPDL_2_1, XMLConstants.NS_XPDL_2_0, XMLConstants.NS_XPDL_1_0);
+      filter.addReplacement("", XMLConstants.NS_CARNOT_WORKFLOWMODEL_31);
+      filter.addReplacement(XMLConstants.NS_CARNOT_WORKFLOWMODEL_30, XMLConstants.NS_CARNOT_WORKFLOWMODEL_31);
+
+      XMLFilter xpdlNamespaceFixer = NamespaceFilter.createXMLFilter(filter);
+      StopFilter stopper = new StopFilter(xpdlNamespaceFixer);
       stopper.addStopCondition(XMLConstants.NS_XPDL_2_1, "TypeDeclarations", "Participants", "Applications", "DataFields", "WorkflowProcesses", "ExtendedAttributes");
+
+      stopper.setEntityResolver(XpdlUtils.DEFAULT_SAX_HANDLER);
+
       SAXSource source = new SAXSource(stopper, inputSource);
 
       JAXBContext context = getContext();

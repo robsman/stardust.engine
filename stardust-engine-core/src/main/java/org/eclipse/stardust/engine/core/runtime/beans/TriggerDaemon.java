@@ -52,16 +52,16 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.TriggerMatch;
 public class TriggerDaemon implements IDaemon
 {
    private static final Logger trace = LogManager.getLogger(TriggerDaemon.class);
-   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;
 
    private ITriggerType triggerType;
    private Object evaluator;
    private String type;
 
-   public TriggerDaemon(ITriggerType triggerType, String type)
+   public TriggerDaemon(ITriggerType triggerType)
    {
       this.triggerType = triggerType;
-      this.type = type;
+      this.type = triggerType.getId() + ".trigger";
       evaluator = Reflect.createInstance(triggerType.getStringAttribute(
                   PredefinedConstants.PULL_TRIGGER_EVALUATOR_ATT));
       if (evaluator instanceof PullTriggerEvaluator)
@@ -80,13 +80,11 @@ public class TriggerDaemon implements IDaemon
    public ExecutionResult execute(long batchSize)
    {
       List<IModel> models = ModelManagerFactory.getCurrent().findActiveModels();
-      
-      //IModel model = ModelManagerFactory.getCurrent().findActiveModel();
       if (models == null)
       {
          return IDaemon.WORK_DONE;
       }
-      
+
       long nTriggers = 0;
       for (IModel model : models)
       {
@@ -173,7 +171,7 @@ public class TriggerDaemon implements IDaemon
             }
          }
       }
-      
+
       }
       return (nTriggers >= batchSize) ? IDaemon.WORK_PENDING : IDaemon.WORK_DONE;
    }
@@ -185,7 +183,7 @@ public class TriggerDaemon implements IDaemon
       ITrigger trigger;
       Map data;
       boolean isSync;
-      
+
       public ExecutionAction(String processId, ITrigger trigger, Map data, boolean isSync)
       {
          this.processId = processId;
@@ -193,17 +191,17 @@ public class TriggerDaemon implements IDaemon
          this.data = data;
          this.isSync = isSync;
       }
-      
+
       @Override
       public Void execute()
       {
          new WorkflowServiceImpl().startProcess(this.processId,
                performParameterMapping(this.trigger, this.data), this.isSync);
-         return null;         
+         return null;
       }
-      
+
    }
-   
+
    public String getType()
    {
       return type;
@@ -236,7 +234,7 @@ public class TriggerDaemon implements IDaemon
                AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(null, null);
                parameterValue = evaluator.evaluate(ap, parameterValue, parameterPath, evaluationContext);
             }
-            
+
             String dataPath = mapping.getDataPath();
             if (dataPath != null)
             {
@@ -248,14 +246,14 @@ public class TriggerDaemon implements IDaemon
       }
       return result;
    }
-   
+
    private boolean isTransientExecution(final IProcessDefinition processDef)
    {
       if ( !ProcessInstanceUtils.isTransientPiSupportEnabled())
       {
          return false;
       }
-      
+
       /* (1) process definition settings */
       final String auditTrailPersistenceStr = (String) processDef.getAttribute(PredefinedConstants.TRANSIENT_PROCESS_AUDIT_TRAIL_PERSISTENCE);
       if (auditTrailPersistenceStr != null)
@@ -267,7 +265,7 @@ public class TriggerDaemon implements IDaemon
             return true;
          }
       }
-      
+
       /* (2) global settings */
       final Parameters params = Parameters.instance();
       final String globalSetting = params.getString(KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES, KernelTweakingProperties.SUPPORT_TRANSIENT_PROCESSES_OFF);
@@ -275,7 +273,7 @@ public class TriggerDaemon implements IDaemon
       {
          return true;
       }
-      
+
       return false;
    }
 }

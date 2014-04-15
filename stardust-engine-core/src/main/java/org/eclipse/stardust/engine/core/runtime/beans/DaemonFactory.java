@@ -10,92 +10,36 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.ITriggerType;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-
 
 /**
  * @author ubirkemeyer
  * @version $Revision$
  */
-public class DaemonFactory
+public final class DaemonFactory
 {
-   private static final String CACHED_DAEMON_FACTORY = "cached.daemon.factory";
+   private static final ServiceLoader<IDaemon.Factory> factoryLoader = ServiceLoader.load(IDaemon.Factory.class);
 
-   private static Map<Short, DaemonFactory> daemonFactoryPartitions = CollectionUtils.newHashMap();
-
-   private volatile Map<String, IDaemon> daemons;
-
-   private final Map<String, IDaemon> defaultDaemons;
+   private Map<String, IDaemon> daemons = CollectionUtils.newMap();
 
    private DaemonFactory()
    {
-      defaultDaemons = CollectionUtils.newMap();
-      defaultDaemons.put(EventDaemon.ID, new EventDaemon());
-      defaultDaemons.put(CriticalityDaemon.ID, new CriticalityDaemon());
-      defaultDaemons.put(SystemDaemon.ID, new SystemDaemon());
-   }
-
-   private void bootstrap()
-   {
-      List<IModel> models = ModelManagerFactory.getCurrent().findActiveModels();
-      if (models != null && !models.isEmpty())
+      for (IDaemon.Factory factory : DaemonFactory.factoryLoader)
       {
-         // Initialize daemons map with default daemons as these are not model dependent
-         Map<String, IDaemon> computedDaemons = CollectionUtils.copyMap(defaultDaemons);
-
-         for (IModel model : models)
+         for (IDaemon daemon : factory.getDaemons())
          {
-            // Compute and store the model dependent daemons in model for faster lookup
-            Map<String, IDaemon> modelDependentDaemons = (Map<String, IDaemon>) model
-                  .getRuntimeAttribute(CACHED_DAEMON_FACTORY);
-            if (modelDependentDaemons == null)
-            {
-               modelDependentDaemons = CollectionUtils.newMap();
-               for (Iterator i = model.getAllTriggerTypes(); i.hasNext();)
-               {
-                  ITriggerType type = (ITriggerType) i.next();
-                  if (type.isPullTrigger())
-                  {
-                     String name = type.getId() + ".trigger";
-                     modelDependentDaemons.put(name, new TriggerDaemon(type, name));
-                  }
-               }
-               model.setRuntimeAttribute(CACHED_DAEMON_FACTORY, modelDependentDaemons);
-            }
-
-            // Compute union of all daemons
-            // This always has to be computed as the daemons of a model might change
-            // if new model version is deployed
-            computedDaemons.putAll(modelDependentDaemons);
+            daemons.put(daemon.getType(), daemon);
          }
-
-         // set union of daemons for all active models
-         daemons = computedDaemons;
-      }
-      else
-      {
-         daemons = defaultDaemons;
       }
    }
 
-   public static synchronized DaemonFactory instance()
+   public static DaemonFactory instance()
    {
-      Short partitionOid = new Short(SecurityProperties.getPartitionOid());
-      DaemonFactory instance = (DaemonFactory) daemonFactoryPartitions.get(partitionOid);
-      if (instance == null)
-      {
-         instance = new DaemonFactory();
-         daemonFactoryPartitions.put(partitionOid, instance);
-      }
-      instance.bootstrap();
-      return instance;
+      return new DaemonFactory();
    }
 
    public IDaemon get(String type)
@@ -106,5 +50,73 @@ public class DaemonFactory
    public Iterator<IDaemon> getAllDaemons()
    {
       return daemons.values().iterator();
+   }
+
+   public static final class PredefinedDaemonsFactory implements IDaemon.Factory
+   {
+      private static final Collection<IDaemon> predefinedDaemons = Arrays.asList(new IDaemon[] {
+            new EventDaemon(),
+            new CriticalityDaemon(),
+            new SystemDaemon()
+      });
+
+      @Override
+      public Collection<IDaemon> getDaemons()
+      {
+         return predefinedDaemons;
+      }
+   }
+
+   public static final class TriggerDaemonsFactory implements IDaemon.Factory
+   {
+      private static final String CACHED_DAEMON_FACTORY = "cached.daemon.factory";
+
+      @Override
+      public Collection<IDaemon> getDaemons()
+      {
+         List<IModel> models = ModelManagerFactory.getCurrent().findActiveModels();
+         if (!models.isEmpty())
+         {
+            Set<String> ids = CollectionUtils.newSet();
+            List<IDaemon> daemons = CollectionUtils.newList();
+            for (IModel model : models)
+            {
+               // Compute and store the model dependent daemons in model for faster lookup
+               List<IDaemon> modelDependentDaemons;
+               synchronized (model)
+               {
+                  modelDependentDaemons = (List<IDaemon>)
+                        model.getRuntimeAttribute(CACHED_DAEMON_FACTORY);
+                  if (modelDependentDaemons == null)
+                  {
+                     modelDependentDaemons = CollectionUtils.newList();
+                     for (Iterator i = model.getAllTriggerTypes(); i.hasNext();)
+                     {
+                        ITriggerType type = (ITriggerType) i.next();
+                        if (type.isPullTrigger())
+                        {
+                           modelDependentDaemons.add(new TriggerDaemon(type));
+                        }
+                     }
+                     model.setRuntimeAttribute(CACHED_DAEMON_FACTORY, modelDependentDaemons);
+                  }
+               }
+               // Compute union of all daemons
+               // This always has to be computed as the daemons of a model might change
+               // if new model version is deployed
+               for (IDaemon daemon : modelDependentDaemons)
+               {
+                  String type = daemon.getType();
+                  if (!ids.contains(type))
+                  {
+                     daemons.add(daemon);
+                     ids.add(type);
+                  }
+               }
+            }
+            return daemons;
+         }
+         return Collections.emptyList();
+      }
    }
 }

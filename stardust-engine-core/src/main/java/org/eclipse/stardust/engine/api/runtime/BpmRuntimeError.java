@@ -91,6 +91,26 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_INVALID_QA_CODE_ID = newArgs1("MDL03004", BpmRuntimeErrorMessages.getString("MDL03004")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 MDL_DUPLICATE_QA_CODE = newArgs2("MDL03005", BpmRuntimeErrorMessages.getString("MDL03005")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   public static final Args1 MDL_CONTEXT_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04001", BpmRuntimeErrorMessages.getString("MDL04001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_EXCEPTION_DURING_CONSISTENCY_CHECK_OF_CONDITIONAL_PERFORMER = newArgs1("MDL04002", BpmRuntimeErrorMessages.getString("MDL04002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_UNSUPPORTED_CONDITIONAL_PERFORMER_KIND = newArgs1("MDL04003", BpmRuntimeErrorMessages.getString("MDL04003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_FAILED_RESOLVING_CONDITIONAL_PERFORMER_IDENTITY = newArgs0("MDL04004", BpmRuntimeErrorMessages.getString("MDL04004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_CONDITIONAL_PERFORMER_WAS_RESOLVED_AS = newArgs1("MDL04005", BpmRuntimeErrorMessages.getString("MDL04005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_CANNOT_RETRIEVE_CONDITIONAL_PARTICIPANT_PERFORMER_FOR_HANDLE = newArgs1("MDL04006", BpmRuntimeErrorMessages.getString("MDL04006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_CANNOT_CREATE_MODEL_FROM_FILE = newArgs1("MDL04007", BpmRuntimeErrorMessages.getString("MDL04007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_CANNOT_WRITE_TO_FILE = newArgs1("MDL04008", BpmRuntimeErrorMessages.getString("MDL04008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_THE_USER_DOES_NOT_EXIST_OR_PASSWORD_INCORRECT = newArgs1("MDL04009", BpmRuntimeErrorMessages.getString("MDL04009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_TYPEDECLARATION_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04010", BpmRuntimeErrorMessages.getString("MDL04010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_APPLICATION_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04011", BpmRuntimeErrorMessages.getString("MDL04011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_WORKFLOW_DATA_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04012", BpmRuntimeErrorMessages.getString("MDL04012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_PROCESS_DEFINITION_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04013", BpmRuntimeErrorMessages.getString("MDL04013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_INVALID_SYMBOL = newArgs1("MDL04014", BpmRuntimeErrorMessages.getString("MDL04014")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_ORGANIZATION_CANNOT_BE_IST_OWN_SUB_SUPERORGANIZATION = newArgs1("MDL04015", BpmRuntimeErrorMessages.getString("MDL04015")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_ORGANIZATION_IS_ALREADY_SUBORGANIZATION_OF_ORGANIZATION = newArgs1("MDL04016", BpmRuntimeErrorMessages.getString("MDL04016")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   public static final Args0 MDL_PARTITION_NOT_INITIALIZED = newArgs0("MDL04017", BpmRuntimeErrorMessages.getString("MDL04017")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
    //// Audittrail related
 
    public static final Args0 ATDB_AUDIT_TRAIL_UNAVAILABLE = newArgs0("ATDB00001", BpmRuntimeErrorMessages.getString("ATDB00001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -159,10 +179,11 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 DMS_FAILED_RETRIEVING_CONTENT_FOR_FILE = newArgs1("DMS04001", BpmRuntimeErrorMessages.getString("DMS04001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_FAILED_UPDATING_CONTENT_FOR_FILE = newArgs1("DMS04002", BpmRuntimeErrorMessages.getString("DMS04002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DMS_FAILED_READING_ENTITY_BEAN_ATTRIBUTE = newArgs0("DMS04003", BpmRuntimeErrorMessages.getString("DMS04003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DMS_FAILED_SETTING_DOCUMENT_ATTRIBUTE = newArgs0("DMS04004", BpmRuntimeErrorMessages.getString("DMS04004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_INVALID_HANLDE = newArgs1("DMS04005", BpmRuntimeErrorMessages.getString("DMS04005")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
-
-   //// Audittrail related
 
    public static final Args0 ATDB_NO_MATCHING_USER_REALM = newArgs0("ATDB02101", BpmRuntimeErrorMessages.getString("ATDB02101")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 ATDB_UNKNOWN_USER_REALM_OID = newArgs1("ATDB02102", BpmRuntimeErrorMessages.getString("ATDB02102")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -534,7 +555,14 @@ public class BpmRuntimeError extends ErrorCase
 
    ////Diagram related
 
-   public static final Args0 DIAG_CANNOT_LOAD_RESOURCE_CONNECTION_GIF = newArgs0("HZLC01001", BpmRuntimeErrorMessages.getString("HZLC01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DIAG_CANNOT_LOAD_RESOURCE = newArgs1("DIAG01001", BpmRuntimeErrorMessages.getString("DIAG01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DIAG_UNEXPECTED_ARROW_TYPE = newArgs0("DIAG01002", BpmRuntimeErrorMessages.getString("DIAG01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 DIAG_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_INTEGER = newArgs2("DIAG01003", BpmRuntimeErrorMessages.getString("DIAG01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 DIAG_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_TRUE_OR_FALSE = newArgs2("DIAG01004", BpmRuntimeErrorMessages.getString("DIAG01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DIAG_FAILED_TO_CREATE_STROKE_THE_PROPERTY_SET = newArgs1("DIAG01005", BpmRuntimeErrorMessages.getString("DIAG01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 DIAG_FAILED_TO_CREATE_FONT_FOR_THE_PROPERTY_MALFORMED_SIZE_STRING = newArgs2("DIAG01006", BpmRuntimeErrorMessages.getString("DIAG01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_CURLY_BRACE = newArgs0("DIAG01007", BpmRuntimeErrorMessages.getString("DIAG01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_COLON = newArgs0("DIAG01008", BpmRuntimeErrorMessages.getString("DIAG01008")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
 

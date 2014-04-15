@@ -15,6 +15,7 @@ import java.awt.geom.Point2D;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 
 /**
@@ -132,7 +133,7 @@ public class GraphicsHelper
             }
             else
             {
-                throw new PublicException("Unexpected value for arrow-type");
+            throw new PublicException(BpmRuntimeError.DIAG_UNEXPECTED_ARROW_TYPE.raise());
             }
         }
     }

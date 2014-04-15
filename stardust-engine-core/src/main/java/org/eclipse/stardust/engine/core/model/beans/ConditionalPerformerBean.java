@@ -38,6 +38,7 @@ import org.eclipse.stardust.engine.api.model.IParticipant;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.ParticipantType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.SingleRef;
 import org.eclipse.stardust.engine.core.runtime.beans.IDataValue;
@@ -146,8 +147,9 @@ public class ConditionalPerformerBean extends ModelParticipantBean
       catch (Exception e)
       {
          trace.warn("", e);
-         throw new PublicException("Exception during the consistency check of " +
-               "conditional performer '" + getId() + "'\n" + e.getMessage());
+         throw new PublicException(
+               BpmRuntimeError.MDL_EXCEPTION_DURING_CONSISTENCY_CHECK_OF_CONDITIONAL_PERFORMER
+                     .raise(getId()), e);
       }
    }
 
@@ -206,8 +208,9 @@ public class ConditionalPerformerBean extends ModelParticipantBean
          }
          else
          {
-            throw new PublicException("Unsupported conditional performer kind: "
-                  + performerKind);
+            throw new PublicException(
+                  BpmRuntimeError.MDL_UNSUPPORTED_CONDITIONAL_PERFORMER_KIND
+                        .raise(performerKind));
          }
       }
       else
@@ -301,7 +304,10 @@ public class ConditionalPerformerBean extends ModelParticipantBean
       }
       catch (InvalidHandleTypeException e)
       {
-         throw new PublicException("Failed resolving conditional performer identity.", e);
+         throw new PublicException(
+               BpmRuntimeError.MDL_FAILED_RESOLVING_CONDITIONAL_PERFORMER_IDENTITY
+                     .raise(),
+               e);
       }
 
       if (trace.isDebugEnabled())
@@ -311,8 +317,9 @@ public class ConditionalPerformerBean extends ModelParticipantBean
 
       if (null == performer)
       {
-         throw new PublicException("Cannot retrieve conditional participant "
-               + "performer for handle '" + performerHandle + "'.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CANNOT_RETRIEVE_CONDITIONAL_PARTICIPANT_PERFORMER_FOR_HANDLE
+                     .raise(performerHandle));
       }
 
       return performer;

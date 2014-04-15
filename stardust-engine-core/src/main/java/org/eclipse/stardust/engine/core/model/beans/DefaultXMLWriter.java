@@ -28,6 +28,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.GroupSymbol;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
@@ -37,6 +38,7 @@ import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
@@ -489,7 +491,8 @@ public class DefaultXMLWriter implements XMLWriter, XMLConstants
       }
       catch (IOException x)
       {
-         throw new PublicException("Cannot write to file " + file.getName());
+         throw new PublicException(BpmRuntimeError.MDL_CANNOT_WRITE_TO_FILE.raise(file
+               .getName()));
       }
    }
 
@@ -548,7 +551,7 @@ public class DefaultXMLWriter implements XMLWriter, XMLConstants
                return null;
             }
          }
-         
+
          Object result = method.invoke(factory, args);
 
          if (modelElement != null && method.getName().startsWith("create"))

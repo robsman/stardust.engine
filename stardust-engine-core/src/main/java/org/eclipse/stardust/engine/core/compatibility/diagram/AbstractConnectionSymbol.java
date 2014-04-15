@@ -171,7 +171,7 @@ public abstract class AbstractConnectionSymbol extends ConnectionBean
          catch (Exception x)
          {
             throw new PublicException(
-                  BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE_CONNECTION_GIF.raise());
+                  BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE.raise("/images/connection.gif"));
          }
       }
       return icon;

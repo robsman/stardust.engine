@@ -10,22 +10,74 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.FilteringIterator;
+import org.eclipse.stardust.common.Predicate;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Version;
 import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.CardinalityKey;
+import org.eclipse.stardust.engine.api.model.EventType;
+import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IApplicationContextType;
+import org.eclipse.stardust.engine.api.model.IApplicationType;
+import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
+import org.eclipse.stardust.engine.api.model.IData;
+import org.eclipse.stardust.engine.api.model.IDataType;
+import org.eclipse.stardust.engine.api.model.IEventActionType;
+import org.eclipse.stardust.engine.api.model.IEventConditionType;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
+import org.eclipse.stardust.engine.api.model.ILinkType;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IModelParticipant;
+import org.eclipse.stardust.engine.api.model.IModeler;
+import org.eclipse.stardust.engine.api.model.IOrganization;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.IQualityAssurance;
+import org.eclipse.stardust.engine.api.model.IQualityAssuranceCode;
+import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.model.ITriggerType;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.IView;
+import org.eclipse.stardust.engine.api.model.IXpdlType;
+import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.Scripting;
 import org.eclipse.stardust.engine.api.query.UserQuery;
-import org.eclipse.stardust.engine.api.runtime.*;
-import org.eclipse.stardust.engine.core.compatibility.diagram.*;
-import org.eclipse.stardust.engine.core.model.utils.*;
+import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
+import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.UnresolvedExternalReference;
+import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.api.runtime.UserService;
+import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
+import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
+import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
+import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
+import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
+import org.eclipse.stardust.engine.core.model.utils.Link;
+import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
+import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
+import org.eclipse.stardust.engine.core.model.utils.RootElementBean;
+import org.eclipse.stardust.engine.core.model.utils.SearchableList;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableDefinition;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableScope;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
@@ -155,7 +207,8 @@ public class ModelBean extends RootElementBean
       {
          return modeler;
       }
-      throw new PublicException("The user '" + id + "' does not exist or is using an incorrect password.");
+      throw new PublicException(
+            BpmRuntimeError.MDL_THE_USER_DOES_NOT_EXIST_OR_PASSWORD_INCORRECT.raise(id));
    }
 
    /**
@@ -563,7 +616,8 @@ public class ModelBean extends RootElementBean
    {
       if (null != findTypeDeclaration(id))
       {
-         throw new PublicException("There is already a type declaration with ID '" + id + "'.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_TYPEDECLARATION_WITH_ID_ALREADY_EXISTS.raise(id));
       }
       
       markModified();
@@ -585,7 +639,8 @@ public class ModelBean extends RootElementBean
    {
       if (findApplication(id) != null)
       {
-         throw new PublicException("There is already an application with ID '" + id + "'.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_APPLICATION_WITH_ID_ALREADY_EXISTS.raise(id));
       }
 
       markModified();
@@ -603,7 +658,8 @@ public class ModelBean extends RootElementBean
    {
       if (findData(id) != null)
       {
-         throw new PublicException("There is already a workflow data with ID '" + id + "'.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_WORKFLOW_DATA_WITH_ID_ALREADY_EXISTS.raise(id));
       }
 
       markModified();
@@ -675,7 +731,8 @@ public class ModelBean extends RootElementBean
    {
       if (findProcessDefinition(id) != null)
       {
-         throw new PublicException("There is already a process definition with ID '" + id + "'.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_PROCESS_DEFINITION_WITH_ID_ALREADY_EXISTS.raise(id));
       }
 
       markModified();
@@ -1084,7 +1141,7 @@ public class ModelBean extends RootElementBean
 
       if (null == data)
       {
-         throw new PublicException("Invalid symbol '" + name + "'");
+         throw new PublicException(BpmRuntimeError.MDL_INVALID_SYMBOL.raise(name));
       }
 
       return data;
@@ -1097,7 +1154,7 @@ public class ModelBean extends RootElementBean
    {
       if (null == findData(name))
       {
-         throw new PublicException("Invalid symbol '" + name + "'");
+         throw new PublicException(BpmRuntimeError.MDL_INVALID_SYMBOL.raise(name));
       }
 
       return null;
@@ -1107,7 +1164,6 @@ public class ModelBean extends RootElementBean
    {
       markModified();
       typeDeclarations.add(typeDeclaration);
-      //defaultTypeDeclarationId = nextID(TYPE_DECLARATION_STRING, defaultTypeDeclarationId, typeDeclaration.getId());
    }
 
    public void addToApplications(IApplication application)

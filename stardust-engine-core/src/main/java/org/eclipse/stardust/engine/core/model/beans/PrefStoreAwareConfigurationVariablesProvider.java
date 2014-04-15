@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.configurationvariables.ConfigurationVariableUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
@@ -84,7 +85,7 @@ public class PrefStoreAwareConfigurationVariablesProvider
 
       if (partition == null)
       {
-         throw new PublicException("Partition not initialized.");
+         throw new PublicException(BpmRuntimeError.MDL_PARTITION_NOT_INITIALIZED.raise());
       }
 
       UserRealmBean transientRealm = UserRealmBean.createTransientRealm(

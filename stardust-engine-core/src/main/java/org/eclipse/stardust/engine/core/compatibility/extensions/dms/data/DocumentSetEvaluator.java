@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionProperties;
@@ -45,7 +46,8 @@ public class DocumentSetEvaluator implements AccessPathEvaluator
       }
       catch (InvocationTargetException e)
       {
-         throw new PublicException("Failed reding entity bean attribute.",
+         throw new PublicException(
+               BpmRuntimeError.DMS_FAILED_READING_ENTITY_BEAN_ATTRIBUTE.raise(),
                e.getTargetException());
       }
 
@@ -82,7 +84,7 @@ public class DocumentSetEvaluator implements AccessPathEvaluator
          }
          else if (value instanceof Long)
          {
-            // Find original storage by its referencing oid provided in value.  
+            // Find original storage by its referencing oid provided in value.
             storage = findDocumentSetMemento(attribs, value);
             // In order to create a new copy for this storage the oid has to be set to 0.
             storage.setOid(0);
@@ -110,8 +112,9 @@ public class DocumentSetEvaluator implements AccessPathEvaluator
          }
          catch (InvocationTargetException e)
          {
-            throw new PublicException("Failed setting document attribute.", e
-                  .getTargetException());
+            throw new PublicException(
+                  BpmRuntimeError.DMS_FAILED_SETTING_DOCUMENT_ATTRIBUTE.raise(),
+                  e.getTargetException());
          }
       }
 
@@ -185,7 +188,7 @@ public class DocumentSetEvaluator implements AccessPathEvaluator
       else
       {
          // TODO warn
-         throw new PublicException("Invalid handle:" + handle);
+         throw new PublicException(BpmRuntimeError.DMS_INVALID_HANLDE.raise(handle));
       }
 
       if (null != doc)
@@ -205,7 +208,7 @@ public class DocumentSetEvaluator implements AccessPathEvaluator
             lsh.delete();
             doc.setOid(lsh.getOID());
          }
-         
+
          String memento = DocumentStorageMediator.serializeDocumentSet(doc);
 
          LargeStringHolder.setLargeString(doc.getOid(), DocumentSetTypeDescription.class,
@@ -231,7 +234,7 @@ public class DocumentSetEvaluator implements AccessPathEvaluator
    {
       public static final String TABLE_NAME = DocumentSetStorageBean.TABLE_NAME;
       public static final String PK_FIELD = IdentifiablePersistentBean.FIELD__OID;
-   
+
       long oid;
    }
 }

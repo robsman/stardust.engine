@@ -26,6 +26,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.IOrganization;
 import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 
@@ -38,7 +39,7 @@ public class OrganizationBean extends ModelParticipantBean
       implements IOrganization
 {
    private static final long serialVersionUID = 1L;
-   
+
    private List participants = null;
 
    private IRole teamLead = null;
@@ -101,15 +102,16 @@ public class OrganizationBean extends ModelParticipantBean
    {
       if (organization == this)
       {
-         throw new PublicException("An organization definition \"" + getId()
-               + "\" cannot be its own suborganization/superorganization.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_ORGANIZATION_CANNOT_BE_IST_OWN_SUB_SUPERORGANIZATION
+                     .raise(getId()));
       }
 
       if (isDirectOrIndirectSubOrganizationOf(organization))
       {
-         throw new PublicException("The organization \"" + getId()
-               + "\" is already a direct or indirect suborganization of organization \""
-               + organization.getId() + "\". Cyclic references are illegal.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_ORGANIZATION_IS_ALREADY_SUBORGANIZATION_OF_ORGANIZATION
+                     .raise(getId()));
       }
 
       addToParticipants(organization);
@@ -161,7 +163,7 @@ public class OrganizationBean extends ModelParticipantBean
    {
       return isAuthorized(participant, ModelManagerFactory.getCurrent());
    }
-   
+
    private boolean isAuthorized(IModelParticipant participant, ModelManager manager)
    {
       if (participant == null)
@@ -174,7 +176,7 @@ public class OrganizationBean extends ModelParticipantBean
       {
          return true;
       }
-      
+
       if ((null != getTeamLead()) && getTeamLead().isAuthorized(participant))
       {
          return true;
@@ -214,7 +216,7 @@ public class OrganizationBean extends ModelParticipantBean
    {
       // TODO (sb): provide a decent implementation for authorization checking
       boolean returnValue = false;
-      
-      return returnValue;      
+
+      return returnValue;
    }
 }

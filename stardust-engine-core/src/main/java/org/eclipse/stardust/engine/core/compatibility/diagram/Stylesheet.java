@@ -27,6 +27,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.removethis.DiagramProperties;
 
 
@@ -107,8 +108,9 @@ public class Stylesheet
         }
         catch (NumberFormatException x)
         {
-            throw new PublicException("The entry '" + value + "' for the property " +
-                                      "'" + name + "'\n cannot be mapped to an integer.");
+         throw new PublicException(
+               BpmRuntimeError.DIAG_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_INTEGER.raise(
+                     value, name));
         }
     }
 
@@ -132,8 +134,9 @@ public class Stylesheet
         }
         catch (NumberFormatException x)
         {
-            throw new PublicException("The entry '" + value + "' for the property " +
-                                      "'" + name + "'\n cannot be mapped to an integer.");
+           throw new PublicException(
+                 BpmRuntimeError.DIAG_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_INTEGER.raise(
+                       value, name));
         }
     }
 
@@ -162,7 +165,9 @@ public class Stylesheet
             if (falseWords[i].equals(value))
                 return false;
 
-        throw new PublicException("The entry '" + value + "' for the property '" + name + "'\n can neither be mapped to 'true' nor to 'false'.");
+      throw new PublicException(
+            BpmRuntimeError.DIAG_ENTRY_FOR_PROPERTY_CANNOT_BE_MAPPED_TO_TRUE_OR_FALSE
+                  .raise(value, name));
     }
 
     /**
@@ -226,7 +231,8 @@ public class Stylesheet
         }
         catch (NumberFormatException e)
         {
-            throw new PublicException("Failed to create stroke the property set '" + name + "'.");
+         throw new PublicException(
+               BpmRuntimeError.DIAG_FAILED_TO_CREATE_STROKE_THE_PROPERTY_SET.raise(name));
         }
     }
 
@@ -263,8 +269,9 @@ public class Stylesheet
         }
         catch (NumberFormatException e)
         {
-            throw new PublicException("Failed to create font for the property set '"
-                  + name + "'\n. Malformed size string: '" + sizeString.trim() + "'.");
+         throw new PublicException(
+               BpmRuntimeError.DIAG_FAILED_TO_CREATE_FONT_FOR_THE_PROPERTY_MALFORMED_SIZE_STRING
+                     .raise(name, sizeString.trim()));
         }
     }
 
@@ -346,14 +353,14 @@ public class Stylesheet
                             {
                                 if (properties == null)
                                 {
-                                    throw new PublicException("No tag specified before {");
+                                    throw new PublicException(BpmRuntimeError.DIAG_NO_TAG_SPECIFED_BEFORE_CURLY_BRACE.raise());
                                 }
                             }
                             else if (token == ':')
                             {
                                 if (name == null)
                                 {
-                                    throw new PublicException("No name specified before :");
+                                   throw new PublicException(BpmRuntimeError.DIAG_NO_TAG_SPECIFED_BEFORE_COLON.raise());
                                 }
                             }
 

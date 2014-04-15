@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IConditionalPerformer;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.ConnectionSymbol;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
@@ -157,7 +158,9 @@ public class ConditionalPerformerSymbol extends NamedSymbol
          }
          catch (Exception x)
          {
-            throw new PublicException("Cannot load resource \"images/conditional_symbol.gif\".");
+            throw new PublicException(
+                  BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE
+                        .raise("images/conditional_symbol.gif"));
          }
       }
    }

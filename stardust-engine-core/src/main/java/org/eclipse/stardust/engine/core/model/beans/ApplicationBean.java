@@ -26,6 +26,7 @@ import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PluggableType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElementBean;
 import org.eclipse.stardust.engine.core.model.utils.Link;
@@ -158,7 +159,8 @@ public class ApplicationBean extends IdentifiableElementBean
    {
       if (findContext(id) != null)
       {
-         throw new PublicException("Context with id '" + id + "' already exists.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CONTEXT_WITH_ID_ALREADY_EXISTS.raise(id));
       }
       IApplicationContext context = new ApplicationContextBean(id, false);
       contexts.add(context);

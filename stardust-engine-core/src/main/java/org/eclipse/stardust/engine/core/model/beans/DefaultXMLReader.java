@@ -1553,7 +1553,8 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
       }
       catch (FileNotFoundException x)
       {
-         throw new PublicException("Cannot create model from file '" + file.getPath() + "'.", x);
+         throw new PublicException(
+               BpmRuntimeError.MDL_CANNOT_CREATE_MODEL_FROM_FILE.raise(file.getPath()), x);
       }
    }
 

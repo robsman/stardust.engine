@@ -29,6 +29,7 @@ import org.eclipse.stardust.common.FilteringIterator;
 import org.eclipse.stardust.common.Predicate;
 import org.eclipse.stardust.common.SplicingIterator;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.utils.Connections;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.Link;
@@ -387,7 +388,8 @@ public class DefaultDiagram extends ModelElementBean implements Diagram
          }
          catch (Exception x)
          {
-            throw new PublicException("Cannot load resource \"images/diagram.gif\".");
+            throw new PublicException(
+                  BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE.raise("images/diagram.gif"));
          }
       }
 

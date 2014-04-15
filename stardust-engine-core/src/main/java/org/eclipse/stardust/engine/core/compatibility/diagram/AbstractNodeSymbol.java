@@ -22,6 +22,7 @@ import javax.swing.undo.UndoableEdit;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.gui.GUI;
 import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
@@ -191,7 +192,8 @@ public abstract class AbstractNodeSymbol extends ModelElementBean
          }
          catch (Exception x)
          {
-            throw new PublicException("Can not load Ressource \"images/symbol.gif\".");
+            throw new PublicException(
+                  BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE.raise("images/symbol.gif"));
          }
       }
       return icon;

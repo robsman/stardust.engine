@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Class-Path: ipp-engine-core-7.3.1.jar ipp-product-nls-7.3.1.jar jcr-vf
+ s-7.3.1.jar commons-fileupload-1.2.1.jar commons-httpclient-3.0.jar c
+ ommons-codec-1.3.jar carnot-hibernate-7.3.1.jar carnot-engine-7.3.1.j
+ ar wstx-asl-3.2.8.jar org.eclipse.xsd-2.9.1.v20130902-0605.jar org.ec
+ lipse.emf.common-2.9.1.v20130827-0309.jar org.eclipse.emf.ecore-2.9.1
+ .v20130827-0309.jar org.eclipse.emf.ecore.xmi-2.9.1.v20130827-0309.ja
+ r carnot-base-7.3.1.jar commons-jxpath-1.3.jar hibernate-3.1.3.jar eh
+ cache-1.1.jar cglib-nodep-2.1_3.jar commons-collections-3.2.jar sprin
+ g-orm-3.2.4.RELEASE.jar carnot-spring-7.3.1.jar spring-beans-3.2.4.RE
+ LEASE.jar spring-core-3.2.4.RELEASE.jar spring-jdbc-3.2.4.RELEASE.jar
+  spring-jms-3.2.4.RELEASE.jar aopalliance-1.0.jar spring-aop-3.2.4.RE
+ LEASE.jar spring-context-3.2.4.RELEASE.jar spring-expression-3.2.4.RE
+ LEASE.jar spring-context-support-3.2.4.RELEASE.jar spring-tx-3.2.4.RE
+ LEASE.jar
+
+

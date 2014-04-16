@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+extraProperties=sonar.host.url\=http\://localhost\:9000\r\nsonar.jdbc.password\=admin\r\nsonar.jdbc.username\=system\r\nsonar.jdbc.url\=jdbc\:oracle\:thin\:@localhost/XE
+projectKey=stardust-engine-ejb3\:stardust-engine-ejb3
+serverUrl=http\://localhost\:9000
+version=2

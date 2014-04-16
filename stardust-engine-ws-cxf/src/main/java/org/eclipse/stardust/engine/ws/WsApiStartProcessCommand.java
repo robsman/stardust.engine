@@ -185,7 +185,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
                      IModel imodel = modelManager.findModel(model.getModelOID());
                      IData idata = imodel.findData(DataUtils.getUnqualifiedProcessId(dataId));
 
-                     DocumentTypeUtils.inferDocumentTypeAndStoreDocument(idata, document);
+                     DocumentTypeUtils.inferDocumentTypeAndStoreDocument(idata, document, sf.getDocumentManagementService());
 
                      ProcessInstanceBean iPi = ProcessInstanceBean.findByOID(pi.getOID());
                      iPi.setOutDataValue(idata, "", document);

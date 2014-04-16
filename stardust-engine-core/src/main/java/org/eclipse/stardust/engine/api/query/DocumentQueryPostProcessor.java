@@ -13,8 +13,6 @@ package org.eclipse.stardust.engine.api.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.core.persistence.ResultIterator;
@@ -41,23 +39,6 @@ public class DocumentQueryPostProcessor
                   : null);
 
       return new Documents(query, rawQueryResult);
-   }
-
-   public static Document findFirstMatchingDocument(DocumentQuery query,
-         ResultIterator queryResult)
-   {
-      List<Document> results = new ArrayList<Document>();
-
-      if (queryResult.hasNext())
-      {
-         return (Document) queryResult.next();
-      }
-      else
-      {
-         throw new ObjectNotFoundException(
-               BpmRuntimeError.DMS_NO_MATCHING_DOC_FOUND.raise());
-      }
-
    }
 
 }

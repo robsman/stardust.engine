@@ -167,14 +167,6 @@ public class VfsOperationApplicationInstance
    {
       try
       {
-         // TODO support multiple repositories
-         // BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         // IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
-         // if (vfs == null)
-         // {
-         // throw new PublicException(
-         // "No JCR document repository service is set. Check the configuration.");
-         // }
          if (dms == null)
          {
             throw new PublicException(
@@ -317,28 +309,27 @@ public class VfsOperationApplicationInstance
          else if (DmsOperation.OP_UPDATE_DOCUMENT == operation)
          {
             Map legoDocument = (Map) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_DOCUMENT);
-
-            VfsMediator vfsMediator = new VfsMediator();
-            vfsMediator.writeDocumentToVfs(legoDocument, shouldVersion(),
-                  getVersionLabel(), false);
+            
+            Document document = new DmsDocumentBean(legoDocument);
+            document = dms.updateDocument(document, shouldVersion(), null, getVersionLabel(), false);
 
             if (outDataTypes.contains(VfsOperationAccessPointProvider.AP_ID_DOCUMENT))
             {
                result.put(VfsOperationAccessPointProvider.AP_ID_DOCUMENT,
-                     new DmsDocumentBean(legoDocument));
+                     document);
             }
          }
          else if (DmsOperation.OP_UPDATE_FOLDER == operation)
          {
             Map legoFolder = (Map) getMandatoryArgument(VfsOperationAccessPointProvider.AP_ID_FOLDER);
 
-            VfsMediator vfsMediator = new VfsMediator();
-            vfsMediator.writeFolderToVfs(legoFolder);
+            Folder folder = new DmsFolderBean(legoFolder);
+            folder = dms.updateFolder(folder);
 
             if (outDataTypes.contains(VfsOperationAccessPointProvider.AP_ID_FOLDER))
             {
                result.put(VfsOperationAccessPointProvider.AP_ID_FOLDER,
-                     new DmsFolderBean(legoFolder));
+                     folder);
             }
          }
          else if (DmsOperation.OP_REMOVE_DOCUMENT == operation)

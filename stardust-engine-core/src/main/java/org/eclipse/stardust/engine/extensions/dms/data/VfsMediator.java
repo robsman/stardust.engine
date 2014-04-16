@@ -20,14 +20,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
-
-
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-import org.eclipse.stardust.vfs.IFile;
 import org.eclipse.stardust.vfs.IFileInfo;
-import org.eclipse.stardust.vfs.IFolder;
 import org.eclipse.stardust.vfs.IFolderInfo;
 import org.eclipse.stardust.vfs.IResourceInfo;
 
@@ -37,84 +30,6 @@ import org.eclipse.stardust.vfs.IResourceInfo;
  */
 public class VfsMediator
 {
-
-   public boolean writeDocumentToVfs(Map legoDocument, boolean createNewRevision,
-         String versionLabel, boolean forceUpdate)
-   {
-      // TODO support multiple repositories
-      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
-      if (vfs == null)
-      {
-         throw new PublicException(
-               "No JCR document repository service is set. Check the configuration.");
-      }
-
-      final String docId = (String) legoDocument.get(AuditTrailUtils.RES_ID);
-
-      IFile vfsFile = !StringUtils.isEmpty(docId) ? vfs.getFile(docId) : null;
-
-      if (null != vfsFile)
-      {
-         // TODO compare revisions
-         boolean modified = updateVfsFile(vfsFile, legoDocument);
-
-         if (modified || forceUpdate)
-         {
-            // locally modified, write change to VFS
-            vfsFile = vfs.updateFile(vfsFile, false, false);
-            if (createNewRevision)
-            {
-               vfsFile = vfs.createFileVersion(vfsFile, versionLabel, false);
-            }
-         }
-
-         return AuditTrailUtils.updateFileFromVfs(legoDocument, vfsFile);
-      }
-      else
-      {
-         // TODO
-
-         return false;
-      }
-   }
-
-   public boolean writeFolderToVfs(Map legoFolder)
-   {
-      // TODO support multiple repositories
-      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
-      if (vfs == null)
-      {
-         throw new PublicException(
-               "No JCR document repository service is set. Check the configuration.");
-      }
-
-      final String folderId = (String) legoFolder.get(AuditTrailUtils.RES_ID);
-
-      IFolder vfsFolder = !StringUtils.isEmpty(folderId) ? vfs.getFolder(folderId,
-            IFolder.LOD_LIST_MEMBERS) : null;
-
-      if (null != vfsFolder)
-      {
-         // TODO compare revisions
-         boolean modified = updateVfsFolder(vfsFolder, legoFolder);
-
-         if (modified)
-         {
-            // locally modified, write change to VFS
-            vfsFolder = vfs.updateFolder(vfsFolder);
-         }
-
-         return AuditTrailUtils.updateFolderFromVfs(legoFolder, vfsFolder);
-      }
-      else
-      {
-         // TODO
-
-         return false;
-      }
-   }
 
    public static boolean updateVfsFile(IFileInfo target, Map source)
    {

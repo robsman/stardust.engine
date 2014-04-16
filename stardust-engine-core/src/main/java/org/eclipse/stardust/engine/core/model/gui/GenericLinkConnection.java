@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.ILinkType;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
 import org.eclipse.stardust.engine.core.compatibility.diagram.ColorKey;
 import org.eclipse.stardust.engine.core.compatibility.diagram.LineKey;
@@ -315,7 +316,9 @@ public class GenericLinkConnection extends AbstractWorkflowLineConnection
       }
       else
       {
-         throw new PublicException("The Userobject of the first Symbol is not valid for the LinkType!");
+         throw new PublicException(
+               BpmRuntimeError.MDL_USEROBJECT_OF_THE_FIRST_SYMBOL_IS_NOT_VALID_FOR_THE_LINKTYPE
+                     .raise());
       }
    }
 
@@ -352,7 +355,9 @@ public class GenericLinkConnection extends AbstractWorkflowLineConnection
       }
       else
       {
-         throw new PublicException("The Userobject of the second Symbol is not valid for the LinkType!");
+         throw new PublicException(
+               BpmRuntimeError.MDL_USEROBJECT_OF_THE_FIRST_SYMBOL_IS_NOT_VALID_FOR_THE_LINKTYPE
+                     .raise());
       }
 
    }

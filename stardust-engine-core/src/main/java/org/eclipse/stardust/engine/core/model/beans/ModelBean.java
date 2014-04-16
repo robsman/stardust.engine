@@ -208,7 +208,7 @@ public class ModelBean extends RootElementBean
          return modeler;
       }
       throw new PublicException(
-            BpmRuntimeError.MDL_THE_USER_DOES_NOT_EXIST_OR_PASSWORD_INCORRECT.raise(id));
+            BpmRuntimeError.MDL_USER_DOES_NOT_EXIST_OR_PASSWORD_INCORRECT.raise(id));
    }
 
    /**

@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 
 /**
@@ -46,7 +47,7 @@ public class JDBCConnectionPool
    private final String password;
 
    private Driver driver;
-   
+
    /**
     * Maximum number of (open) connections which can be retrieved from the datasource.
     */
@@ -89,7 +90,7 @@ public class JDBCConnectionPool
          String password, int startTotal, int maxConnections, int returnConnections)
    {
       this(databaseURL, user, password, maxConnections, returnConnections);
-      
+
       if (trace.isDebugEnabled())
       {
          trace.debug("Trying to register the driver to the DriverManager (class="
@@ -101,7 +102,8 @@ public class JDBCConnectionPool
       }
       catch (Throwable x)
       {
-         throw new PublicException("Failed to load JDBC driver '" + driverClazz + "'", x);
+         throw new PublicException(
+               BpmRuntimeError.JDBC_FAILED_TO_LOAD_JDBC_DRIVER.raise(driverClazz), x);
       }
       if (trace.isDebugEnabled())
       {
@@ -130,7 +132,7 @@ public class JDBCConnectionPool
          throw new IllegalArgumentException(
                "Maximum number of connections must not be less than average.");
       }
-      
+
       this.user = user;
       this.password = password;
       this.databaseURL = databaseURL;
@@ -186,8 +188,9 @@ public class JDBCConnectionPool
       {
          if (getTotalConnections() == getMaxConnections())
          {
-            throw new PublicException("Maximum number of connections " + getMaxConnections()
-                  + " in connection pool exceeded.");
+            throw new PublicException(
+                  BpmRuntimeError.JDBC_MAXIMUM_NUMBER_OF_CONNECTIONS_IN_CONNECTION_POOL_EXCEEDED
+                        .raise(getMaxConnections()));
          }
 
          connection = newConnection();
@@ -243,7 +246,7 @@ public class JDBCConnectionPool
          {
             // if a suitable driver instance was provided, skip use of DriverManager to
             // prevent class loading issues in an OSGI environment
-            
+
             // wrap user/password in properties instance (see implementation of
             // DriverManager.getConnection(...))
             Properties props = new Properties();
@@ -255,13 +258,13 @@ public class JDBCConnectionPool
             {
                props.put("password", password);
             }
-            
+
             jdbcConnection = driver.connect(databaseURL, props);
          }
          else
          {
             jdbcConnection = DriverManager.getConnection(databaseURL, user, password);
-         }         
+         }
 
          LocalJDBCConnection connection = new LocalJDBCConnection(jdbcConnection, this);
 
@@ -352,7 +355,7 @@ public class JDBCConnectionPool
    {
       shutDown(true);
    }
-   
+
    private synchronized void shutDown(boolean removeReleaseHook)
    {
       if (removeReleaseHook && (null != shutdownHook))
@@ -360,13 +363,13 @@ public class JDBCConnectionPool
          Runtime.getRuntime().removeShutdownHook(shutdownHook);
          this.shutdownHook = null;
       }
-      
+
       if (pool.size() < connections.size())
       {
          trace.warn("Releasing pooled connections while "
                + (connections.size() - pool.size()) + " connections are still in use.");
       }
-      
+
       for (Iterator i = connections.iterator(); i.hasNext(); )
       {
          LocalJDBCConnection connection = (LocalJDBCConnection) i.next();
@@ -417,10 +420,11 @@ public class JDBCConnectionPool
       }
       catch (Throwable x)
       {
-         throw new PublicException("Failed to load JDBC driver '" + driverClazz + "'", x);
+         throw new PublicException(
+               BpmRuntimeError.JDBC_FAILED_TO_LOAD_JDBC_DRIVER.raise(driverClazz), x);
       }
    }
-   
+
    /**
     * Shutdown hook for cleaning up all JDBC connectiones maintained by this
     * pool.

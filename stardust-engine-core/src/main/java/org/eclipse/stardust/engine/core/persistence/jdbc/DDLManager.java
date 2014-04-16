@@ -40,6 +40,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.PredefinedProcessInstanceLinkTypes;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailDataBean;
@@ -57,12 +58,12 @@ import org.eclipse.stardust.engine.core.runtime.beans.UserDomainBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserDomainHierarchyBean;
 import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster;
-import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
-import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataCluster.DataClusterEnableState;
+import org.eclipse.stardust.engine.core.runtime.setup.DataClusterHelper;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterIndex;
 import org.eclipse.stardust.engine.core.runtime.setup.DataClusterSetupAnalyzer.DataClusterSynchronizationInfo;
 import org.eclipse.stardust.engine.core.runtime.setup.DataSlot;
+import org.eclipse.stardust.engine.core.runtime.setup.DataSlotFieldInfo;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataValueBean;
 
@@ -153,19 +154,19 @@ public class DDLManager
    {
       if (null == spoolFile)
       {
-         org.eclipse.stardust.engine.core.persistence.Session auditTrailSession 
+         org.eclipse.stardust.engine.core.persistence.Session auditTrailSession
             = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
          org.eclipse.stardust.engine.core.persistence.jdbc.Session jdbcSession = null;
          if (auditTrailSession instanceof org.eclipse.stardust.engine.core.persistence.jdbc.Session)
          {
             jdbcSession = (org.eclipse.stardust.engine.core.persistence.jdbc.Session) auditTrailSession;
          }
-         
+
          Statement stmt = null;
          try
          {
             stmt = connection.createStatement();
-            
+
             long start = System.currentTimeMillis();
             stmt.executeUpdate(statement);
             long stop = System.currentTimeMillis();
@@ -346,7 +347,7 @@ public class DDLManager
          {
             return;
          }
-         
+
          Statement stmt = null;
          try
          {
@@ -375,7 +376,7 @@ public class DDLManager
          {
             return;
          }
-         
+
          Statement stmt = null;
          try
          {
@@ -394,7 +395,7 @@ public class DDLManager
          }
       }
    }
-   
+
    public void createTableForClass(String schemaName, Class type, Connection connection)
    {
       try
@@ -527,7 +528,7 @@ public class DDLManager
                type.getName() + "'.", x);
       }
    }
-   
+
    public void createSequenceTable(String schemaName, Connection connection,
          PrintStream spoolFile) throws SQLException
    {
@@ -544,7 +545,7 @@ public class DDLManager
                connection, spoolFile);
       }
    }
-   
+
    public void synchronizeSequenceTable(String schemaName, Connection connection,
          PrintStream spoolFile) throws SQLException
    {
@@ -602,7 +603,7 @@ public class DDLManager
          }
       }
    }
-   
+
    public void dropSequenceTable(String schemaName, Connection connection,
          PrintStream spoolFile) throws SQLException
    {
@@ -619,7 +620,7 @@ public class DDLManager
                connection, spoolFile);
       }
    }
-   
+
    public void verifySequenceTable(Connection connection, String schemaName)
          throws SQLException
    {
@@ -773,7 +774,7 @@ public class DDLManager
          {
             return;
          }
-         
+
          Statement stmt = null;
          try
          {
@@ -792,7 +793,7 @@ public class DDLManager
          }
       }
    }
-   
+
    public void dropSequenceStoredProcedureIfAny(final String schemaName, final Connection connection)
    {
       if (dbDescriptor.supportsSequences())
@@ -802,7 +803,7 @@ public class DDLManager
          {
             return;
          }
-         
+
          Statement stmt = null;
          try
          {
@@ -821,7 +822,7 @@ public class DDLManager
          }
       }
    }
-   
+
    public void dropTableForClass(String schemaName, Class type, Connection connection)
    {
       TypeDescriptor typeManager = TypeDescriptor.get(type);
@@ -933,7 +934,7 @@ public class DDLManager
             ps.println(statementDelimiter);
             ps.println();
          }
-         
+
          final String createSequenceStoredProcedureStmt = dbDescriptor.getCreateSequenceStoredProcedureStatementString(schemaName);
          if (dbDescriptor.supportsSequences() && createSequenceStoredProcedureStmt != null)
          {
@@ -945,7 +946,7 @@ public class DDLManager
             ps.println(delimiterLiteral + " " + statementDelimiter);
             ps.println();
          }
-         
+
          for (Iterator i = classes.iterator(); i.hasNext();)
          {
             Class clazz = (Class) i.next();
@@ -1052,8 +1053,8 @@ public class DDLManager
                columns.add(AuditTrailPartitionBean.FIELD__OID);
                ps.println(
                      "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
-                     + buildColumnsFragment(dbDescriptor, columns) 
-                     + "SELECT " + "p.oid " 
+                     + buildColumnsFragment(dbDescriptor, columns)
+                     + "SELECT " + "p.oid "
                      + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME))  + " p "
                      + "WHERE p.id = 'default'");
                ps.println(statementDelimiter);
@@ -1158,8 +1159,8 @@ public class DDLManager
                columns.add(AuditTrailPartitionBean.FIELD__OID);
                ps.println(
                      "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
-                     + buildColumnsFragment(dbDescriptor, columns) 
-                     + "SELECT " + "p.oid " 
+                     + buildColumnsFragment(dbDescriptor, columns)
+                     + "SELECT " + "p.oid "
                      + "FROM " +  getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.TABLE_NAME)) + " p "
                      + "WHERE p.id = 'default'");
                ps.println(statementDelimiter);
@@ -1264,7 +1265,7 @@ public class DDLManager
                columns.add(AuditTrailPartitionBean.FIELD__OID);
                ps.println(
                      "INSERT INTO " + getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.LOCK_TABLE_NAME))
-                     + buildColumnsFragment(dbDescriptor, columns) 
+                     + buildColumnsFragment(dbDescriptor, columns)
                      + "VALUES (1)");
                ps.println(statementDelimiter);
             }
@@ -1353,7 +1354,8 @@ public class DDLManager
       }
       catch (IOException x)
       {
-         throw new PublicException("Cannot write to file " + file.getName(), x);
+         throw new PublicException(BpmRuntimeError.JDBC_CANNOT_WRITE_TO_FILE.raise(file
+               .getName()), x);
       }
    }
 
@@ -1486,7 +1488,8 @@ public class DDLManager
       }
       catch (IOException x)
       {
-         throw new PublicException("Cannot write to file " + file.getName(), x);
+         throw new PublicException(BpmRuntimeError.JDBC_CANNOT_WRITE_TO_FILE.raise(file
+               .getName()), x);
       }
    }
 
@@ -1511,7 +1514,7 @@ public class DDLManager
             outStream.println(statementDelimiter);
             outStream.println();
          }
-         
+
          final String dropSequenceStoredProcedureStmt = dbDescriptor.getDropSequenceStoredProcedureStatementString(schemaName);
          if (dbDescriptor.supportsSequences() && dropSequenceStoredProcedureStmt != null)
          {
@@ -1519,7 +1522,7 @@ public class DDLManager
             outStream.println(statementDelimiter);
             outStream.println();
          }
-         
+
          for (Iterator i = classes.iterator(); i.hasNext();)
          {
             Class type = (Class) i.next();
@@ -1557,7 +1560,8 @@ public class DDLManager
       }
       catch (IOException x)
       {
-         throw new PublicException("Cannot write to file " + file.getName());
+         throw new PublicException(BpmRuntimeError.JDBC_CANNOT_WRITE_TO_FILE.raise(file
+               .getName()), x);
       }
    }
 
@@ -1850,8 +1854,9 @@ public class DDLManager
    {
       if (isPersistentDataTable(dataCluster.getTableName()))
       {
-         throw new PublicException("Data cluster table '" + dataCluster.getTableName()
-               + "' is not allowed because this name is predefined by IPP engine.");
+         throw new PublicException(
+               BpmRuntimeError.JDBC_DATA_CLUSTER_TABLE_NOT_ALLOWED_BECAUSE_NAME_PREDEFINED_BY_IPP_ENGINE
+                     .raise(dataCluster.getTableName()));
       }
       try
       {
@@ -1973,7 +1978,7 @@ public class DDLManager
                dataCluster.getTableName() + "'.", x);
       }
    }
-      
+
    private String getDataValueField(DataSlotFieldInfo dataSlotField)
    {
       if(dataSlotField.isOidColumn())
@@ -1983,34 +1988,30 @@ public class DDLManager
       else if(dataSlotField.isTypeColumn())
       {
          return DataValueBean.FIELD__TYPE_KEY;
-      }     
+      }
       else if(dataSlotField.isSValueColumn())
       {
          return DataValueBean.FIELD__STRING_VALUE;
-      }      
+      }
       else if(dataSlotField.isNValueColumn())
       {
          return DataValueBean.FIELD__NUMBER_VALUE;
-      } 
+      }
       else if(dataSlotField.isDValueColumn())
       {
          return DataValueBean.FIELD__DOUBLE_VALUE;
-      } 
+      }
       else
       {
-         StringBuffer errorMsg = new StringBuffer();
-         errorMsg.append("Cannot create data value field for slot column: '");
-         errorMsg.append(dataSlotField.getName());
-         errorMsg.append("'. ");
-         errorMsg.append(dataSlotField.getSlotType());
-         
-         throw new PublicException(errorMsg.toString());
+         throw new PublicException(
+               BpmRuntimeError.JDBC_CANNOT_CREATE_DATA_VALUE_FIELD_FOR_SLOT_COLUMN.raise(
+                     dataSlotField.getName(), dataSlotField.getSlotType()));
       }
    }
-   
+
    private String getColumnValuesSelect(Collection<DataSlotFieldInfo> columns, String dataValuePrefix, String dataValueSelect)
    {
-      StringBuilder builder = new StringBuilder(); 
+      StringBuilder builder = new StringBuilder();
       builder.append("SELECT ");
       Iterator<DataSlotFieldInfo> i = columns.iterator();
       while(i.hasNext())
@@ -2024,11 +2025,11 @@ public class DDLManager
             builder.append(", ");
          }
       }
-      
+
       builder.append(dataValueSelect);
       return builder.toString();
    }
-   
+
    private String getColumnValueSelect(DataSlotFieldInfo fieldInfo, String dataValuePrefix, String dataValueSelect)
    {
       StringBuilder builder = new StringBuilder();
@@ -2043,7 +2044,7 @@ public class DDLManager
       return builder.toString();
 
    }
-   
+
    private static String getStateListValues(DataCluster dataCluster)
    {
       StringBuilder stateListBuilder = new StringBuilder();
@@ -2054,27 +2055,27 @@ public class DDLManager
          for(int i=0; i< piStates.length; i++)
          {
             ProcessInstanceState piState = piStates[i];
-            int stateValue = piState.getValue();        
+            int stateValue = piState.getValue();
             stateListBuilder.append(stateValue);
             if(i + 1 < piStates.length)
             {
                stateListBuilder.append(", ");
-            } 
+            }
          }
       }
-      
+
       return stateListBuilder.toString();
    }
-      
+
    public void synchronizeDataCluster(boolean performDeleteOrInsert, DataClusterSynchronizationInfo syncInfo, Connection connection,
          String schemaName, PrintStream spoolFile, String statementDelimiter)
-   {     
+   {
       for(DataCluster dataCluster : syncInfo.getClusters())
       {
          final String processInstanceScopeTable = getQualifiedName(schemaName,
                TypeDescriptor.get(ProcessInstanceScopeBean.class).getTableName());
          final String processInstanceTable = getQualifiedName(schemaName, TypeDescriptor.get(
-               ProcessInstanceBean.class).getTableName());         
+               ProcessInstanceBean.class).getTableName());
          final String dataValueTable = getQualifiedName(schemaName, TypeDescriptor.get(
                DataValueBean.class).getTableName());
          final String dataTable = getQualifiedName(schemaName, TypeDescriptor.get(
@@ -2088,7 +2089,7 @@ public class DDLManager
          final String clusterTable = getQualifiedName(schemaName, dataCluster.getTableName());
 
          try
-         {       
+         {
             if(performDeleteOrInsert)
             {
                String syncDelSql = MessageFormat.format(
@@ -2096,8 +2097,8 @@ public class DDLManager
                    + " WHERE NOT EXISTS ("
                    + "  SELECT ''x'' "
                    + "   FROM {2} PIS "
-                   + "    INNER JOIN {4} PI ON(" 
-                   + "     PI.{5} = PIS.{3}   " 
+                   + "    INNER JOIN {4} PI ON("
+                   + "     PI.{5} = PIS.{3}   "
                    + "      AND PI.{6} IN({7})    "
                    + "    )"
                    + "   WHERE PIS.{3} = {0}.{1}"
@@ -2114,15 +2115,15 @@ public class DDLManager
                    });
                syncDelSql = syncDelSql.trim();
                executeOrSpoolStatement(syncDelSql, connection, spoolFile);
-                         
+
                String syncInsSql = MessageFormat.format(
                      "INSERT INTO {0} ({1}) "
                    + "SELECT DISTINCT PIS.{3} "
                    + "  FROM {2} PIS "
                    + "   INNER JOIN {4} PI ON("
                    + "    PI.{5} = PIS.{3}"
-                   + "      AND PI.{6} IN({7})" 
-                   + "   )                    "                  
+                   + "      AND PI.{6} IN({7})"
+                   + "   )                    "
                    + " WHERE NOT EXISTS ("
                    + "  SELECT ''x'' "
                    + "    FROM {0} DC "
@@ -2139,7 +2140,7 @@ public class DDLManager
                          getStateListValues(dataCluster)});
                executeOrSpoolStatement(syncInsSql, connection, spoolFile);
             }
-                        
+
             // synchronizing slot values
             for (DataSlot dataSlot : syncInfo.getDataSlots(dataCluster))
             {
@@ -2198,15 +2199,15 @@ public class DDLManager
                             });
                   dataValuePrefix = "sdv";
                }
-   
-               Collection<DataSlotFieldInfo> 
+
+               Collection<DataSlotFieldInfo>
                   dataSlotColumnsToSynch = syncInfo.getDataSlotColumns(dataSlot);
                if(dataSlotColumnsToSynch.size() != 0)
-               {              
+               {
                   StringBuffer buffer = new StringBuffer(1000);
                   buffer.append("UPDATE ").append(clusterTable)
                         .append(" SET ");
-                  
+
                   if (dbDescriptor.supportsMultiColumnUpdates())
                   {
                      buffer.append("(");
@@ -2214,7 +2215,7 @@ public class DDLManager
                      Iterator<DataSlotFieldInfo> i = dataSlotColumnsToSynch.iterator();
                      while(i.hasNext())
                      {
-                        DataSlotFieldInfo dataSlotColumn = i.next(); 
+                        DataSlotFieldInfo dataSlotColumn = i.next();
                         buffer.append(dataSlotColumn.getName());
                         if(i.hasNext())
                         {
@@ -2234,16 +2235,16 @@ public class DDLManager
                      {
                         DataSlotFieldInfo dataSlotColumn = i.next();
                         String updateColumnValueStmt = getColumnValueSelect(dataSlotColumn, dataValuePrefix, subselectSql);
-                        buffer.append(updateColumnValueStmt); 
+                        buffer.append(updateColumnValueStmt);
                         if(i.hasNext())
                         {
                            buffer.append(", ");
                         }
                      }
                   }
-   
+
                   executeOrSpoolStatement(buffer.toString(), connection, spoolFile);
-               }            
+               }
             }
          }
          catch (SQLException x)
@@ -2256,7 +2257,7 @@ public class DDLManager
          }
       }
    }
-   
+
    public String getGenericCreateTableStatementString(String schemaName, String tableName,
          List columnDescriptors)
    {
@@ -2619,8 +2620,9 @@ public class DDLManager
    {
       if (isPersistentDataTable(dataCluster.getTableName()))
       {
-         throw new PublicException("Data cluster table '" + dataCluster.getTableName()
-               + "' is not allowed because this name is predefined by carnot engine.");
+         throw new PublicException(
+               BpmRuntimeError.JDBC_DATA_CLUSTER_TABLE_NOT_ALLOWED_BECAUSE_NAME_PREDEFINED_BY_IPP_ENGINE
+                     .raise(dataCluster.getTableName()));
       }
 
       try
@@ -2662,7 +2664,8 @@ public class DDLManager
       if (!dbDescriptor.supportsSequences() && !dbDescriptor.supportsIdentityColumns())
       {
          throw new PublicException(
-               "Database has to support sequences or automatic identity columns.");
+               BpmRuntimeError.JDBC_DATABASE_HAS_TO_SUPPORT_SEQUENCES_OR_AUTOMATIC_IDENTITY_COLUMNS
+                     .raise());
       }
 
       // insert partition
@@ -2705,20 +2708,20 @@ public class DDLManager
                .append(" VALUES").append(valuesPart);
 
          executeOrSpoolStatement(insBuffer.toString(), connection, spoolFile);
-         
+
          // insert entry into partition's lock table if required
          if (isUsingLockTables() && typeManager.isDistinctLockTableName())
          {
             String lockTableName = typeManager.getLockTableName();
             lockTableName = getQualifiedName(schemaName, dbDescriptor.quoteIdentifier(lockTableName));
-            
+
             List columns = new ArrayList();
             columns.add(AuditTrailPartitionBean.FIELD__OID);
 
             columnPart = buildColumnsFragment(dbDescriptor, columns);
             valuesPart = MessageFormat.format("{0}",
                   dbDescriptor.quoteIdentifier(AuditTrailPartitionBean.FIELD__OID));
-            
+
             insBuffer = new StringBuffer(200);
             insBuffer//
                   .append("INSERT INTO ").append(lockTableName).append(columnPart)//

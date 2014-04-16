@@ -99,7 +99,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_CANNOT_RETRIEVE_CONDITIONAL_PARTICIPANT_PERFORMER_FOR_HANDLE = newArgs1("MDL04006", BpmRuntimeErrorMessages.getString("MDL04006")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_CANNOT_CREATE_MODEL_FROM_FILE = newArgs1("MDL04007", BpmRuntimeErrorMessages.getString("MDL04007")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_CANNOT_WRITE_TO_FILE = newArgs1("MDL04008", BpmRuntimeErrorMessages.getString("MDL04008")); //$NON-NLS-1$ //$NON-NLS-2$
-   public static final Args1 MDL_THE_USER_DOES_NOT_EXIST_OR_PASSWORD_INCORRECT = newArgs1("MDL04009", BpmRuntimeErrorMessages.getString("MDL04009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_USER_DOES_NOT_EXIST_OR_PASSWORD_INCORRECT = newArgs1("MDL04009", BpmRuntimeErrorMessages.getString("MDL04009")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_TYPEDECLARATION_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04010", BpmRuntimeErrorMessages.getString("MDL04010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_APPLICATION_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04011", BpmRuntimeErrorMessages.getString("MDL04011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_WORKFLOW_DATA_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04012", BpmRuntimeErrorMessages.getString("MDL04012")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -107,8 +107,27 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_INVALID_SYMBOL = newArgs1("MDL04014", BpmRuntimeErrorMessages.getString("MDL04014")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_ORGANIZATION_CANNOT_BE_IST_OWN_SUB_SUPERORGANIZATION = newArgs1("MDL04015", BpmRuntimeErrorMessages.getString("MDL04015")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_ORGANIZATION_IS_ALREADY_SUBORGANIZATION_OF_ORGANIZATION = newArgs1("MDL04016", BpmRuntimeErrorMessages.getString("MDL04016")); //$NON-NLS-1$ //$NON-NLS-2$
-
    public static final Args0 MDL_PARTITION_NOT_INITIALIZED = newArgs0("MDL04017", BpmRuntimeErrorMessages.getString("MDL04017")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_ACTIVITY_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04018", BpmRuntimeErrorMessages.getString("MDL04018")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_TRANSITION_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04019", BpmRuntimeErrorMessages.getString("MDL04019")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_RELOCATION_TRANSITION_MUST_NOT_HAVE_ANY_SOURCE_OR_TARGET_ACTIVITY_ATTACHED = newArgs1("MDL04020", BpmRuntimeErrorMessages.getString("MDL04020")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 MDL_FROM_ACTIVITY_DOES_NOT_BELONG_TO = newArgs2("MDL04021", BpmRuntimeErrorMessages.getString("MDL04021")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 MDL_TO_ACTIVITY_DOES_NOT_BELONG_TO = newArgs2("MDL04022", BpmRuntimeErrorMessages.getString("MDL04022")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS = newArgs2("MDL04023", BpmRuntimeErrorMessages.getString("MDL04023")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 MDL_MULTIPLE_OUTGOING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_SPLITS = newArgs2("MDL04024", BpmRuntimeErrorMessages.getString("MDL04024")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_THE_SELECTED_SYMBOL_DOES_NOT_REPRESENT_AN_ACTIVITY = newArgs0("MDL04025", BpmRuntimeErrorMessages.getString("MDL04025")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST = newArgs0("MDL04026", BpmRuntimeErrorMessages.getString("MDL04026")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_ROUTE_ACTIVITY_DOES_NOT_PARTICIPATE_IN_DATA_FLOW = newArgs0("MDL04027", BpmRuntimeErrorMessages.getString("MDL04027")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_USEROBJECT_OF_THE_FIRST_SYMBOL_IS_NOT_VALID_FOR_THE_LINKTYPE = newArgs0("MDL04028", BpmRuntimeErrorMessages.getString("MDL04028")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_SELECTED_SYMBOL_DOES_NOT_REPRESENT_AN_ORGANIZATION = newArgs0("MDL04029", BpmRuntimeErrorMessages.getString("MDL04029")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_ONE_OF_THE_CONNECTED_SYMBOLS_MUST_BE_AN_ANNOTATION = newArgs0("MDL04030", BpmRuntimeErrorMessages.getString("MDL04030")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_ANNOTATION_CANNOT_REFER_TO_ITSELF = newArgs0("MDL04031", BpmRuntimeErrorMessages.getString("MDL04031")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_ROUTE_ACTIVITY_CANNOT_HAVE_A_PERFORMER = newArgs0("MDL04032", BpmRuntimeErrorMessages.getString("MDL04032")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_SUBPROCESS_ACTIVITY_CANNOT_HAVE_A_PERFORMER = newArgs0("MDL04033", BpmRuntimeErrorMessages.getString("MDL04033")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_ACTIVITY_PERFORMING_NON_INTERACTIVE_APPLICATION_CANNOT_HAVE_PERFORMER = newArgs0("MDL04034", BpmRuntimeErrorMessages.getString("MDL04034")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_SELECTED_SYMBOL_DOES_NOT_REPRESENT_A_PROCESS_DEFINITION = newArgs0("MDL04035", BpmRuntimeErrorMessages.getString("MDL04035")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_BOTH_CONNECTED_SYMBOLS_MUST_BE_ACTIVITIES = newArgs0("MDL04036", BpmRuntimeErrorMessages.getString("MDL04036")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_ROOT_MODEL_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04037", BpmRuntimeErrorMessages.getString("MDL04037")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    //// Audittrail related
@@ -415,9 +434,18 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args1 BPMRT_NO_CHANGES_TO_MODEL = newArgs1("BPMRT03850"); //$NON-NLS-1$
 
-   public static final Args1 BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED = newArgs1("BPMRT05001", BpmRuntimeErrorMessages.getString("BPMRT05001")); //$NON-NLS-1$
+   public static final Args1 BPMRT_DMS_DOCUMENT_DATA_SYNC_FAILED = newArgs1("BPMRT05001", BpmRuntimeErrorMessages.getString("BPMRT05001")); //$NON-NLS-1$ //$NON-NLS-2$
 
-   public static final Args1 BPMRT_INVALID_CREDENTIAL_PROVIDER_CONFIGURATION = newArgs1("BPMRT06001", BpmRuntimeErrorMessages.getString("BPMRT06001")); //$NON-NLS-1$
+   public static final Args1 BPMRT_INVALID_CREDENTIAL_PROVIDER_CONFIGURATION = newArgs1("BPMRT06001", BpmRuntimeErrorMessages.getString("BPMRT06001")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   public static final Args1 BPMRT_MODEL_REPOSITORY_IS_NO_DIRECTORY = newArgs1("BPMRT07001", BpmRuntimeErrorMessages.getString("BPMRT07001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_IO_ERROR_DURING_SAVE = newArgs0("BPMRT07002", BpmRuntimeErrorMessages.getString("BPMRT07002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 BPMRT_CANNOT_LOCK_FILE = newArgs1("BPMRT07003", BpmRuntimeErrorMessages.getString("BPMRT07003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_UNABLE_TO_LOAD_XPDL_EXPORT_STYLESHEET = newArgs0("BPMRT07004", BpmRuntimeErrorMessages.getString("BPMRT07004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_INVALID_JAXP_SETUP = newArgs0("BPMRT07005", BpmRuntimeErrorMessages.getString("BPMRT07005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_FAILED_READING_XPDL_MODEL_FILE = newArgs0("BPMRT07006", BpmRuntimeErrorMessages.getString("BPMRT07006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_COULD_NOT_RETRIEVE_ACTIVITY_INSTANCE_FOR_CRITICALITY_UPDATE = newArgs0("BPMRT07007", BpmRuntimeErrorMessages.getString("BPMRT07007")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
 
    //// JMS related
@@ -551,6 +579,7 @@ public class BpmRuntimeError extends ErrorCase
    ////Hazlecast related
 
    public static final Args0 HZLC_FAILES_ENLISTING_HAZLECAST_CACHE_IN_CURRENT_TRANSACTION = newArgs0("HZLC01001", BpmRuntimeErrorMessages.getString("HZLC01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 HZLC_FAILED_RETRIEVING_HAZLECAST_CONNECTION_FACTORY_FROM_JNDI = newArgs0("HZLC01002", BpmRuntimeErrorMessages.getString("HZLC01002")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    ////Diagram related
@@ -564,6 +593,20 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_CURLY_BRACE = newArgs0("DIAG01007", BpmRuntimeErrorMessages.getString("DIAG01007")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_COLON = newArgs0("DIAG01008", BpmRuntimeErrorMessages.getString("DIAG01008")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   ////JDBC related
+
+   public static final Args1 JDBC_CANNOT_WRITE_TO_FILE = newArgs1("JDBC01001", BpmRuntimeErrorMessages.getString("JDBC01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JDBC_COULD_NOT_VERIFY_LOCK_TABLE = newArgs1("JDBC01002", BpmRuntimeErrorMessages.getString("JDBC01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JDBC_DATA_CLUSTER_TABLE_NOT_ALLOWED_BECAUSE_NAME_PREDEFINED_BY_IPP_ENGINE = newArgs1("JDBC01003", BpmRuntimeErrorMessages.getString("JDBC01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JDBC_ERROR_CREATING_DATA_CLUSTER_TABLE = newArgs1("JDBC01004", BpmRuntimeErrorMessages.getString("JDBC01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 JDBC_CANNOT_CREATE_DATA_VALUE_FIELD_FOR_SLOT_COLUMN = newArgs2("JDBC01005", BpmRuntimeErrorMessages.getString("JDBC01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JDBC_DATABASE_HAS_TO_SUPPORT_SEQUENCES_OR_AUTOMATIC_IDENTITY_COLUMNS = newArgs0("JDBC01006", BpmRuntimeErrorMessages.getString("JDBC01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JDBC_INSERT_VALUES_NOT_YET_IMPLEMENTED = newArgs0("JDBC01007", BpmRuntimeErrorMessages.getString("JDBC01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JDBC_FAILED_TO_LOAD_JDBC_DRIVER = newArgs1("JDBC01008", BpmRuntimeErrorMessages.getString("JDBC01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JDBC_MAXIMUM_NUMBER_OF_CONNECTIONS_IN_CONNECTION_POOL_EXCEEDED = newArgs1("JDBC01009", BpmRuntimeErrorMessages.getString("JDBC01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES = newArgs0("JDBC01010", BpmRuntimeErrorMessages.getString("JDBC01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 JDBC_INVALID_TX_ISOLATION_LEVEL = newArgs2("JDBC01011", BpmRuntimeErrorMessages.getString("JDBC01011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JDBC_DERBY_SESSION_ROLLED_BACK = newArgs0("JDBC01012", BpmRuntimeErrorMessages.getString("JDBC01012")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    private static final Object[] NONE = {};

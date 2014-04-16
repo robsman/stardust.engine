@@ -10,16 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.gui;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.util.Iterator;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IRole;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.ConnectionSymbol;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
@@ -182,7 +188,9 @@ public class RoleSymbol extends NamedSymbol
          }
          catch (Exception x)
          {
-            throw new PublicException("Cannot load resource \"images/role_symbol.gif\".");
+            throw new PublicException(
+                  BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE
+                        .raise("images/role_symbol.gif"));
          }
       }
    }

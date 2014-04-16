@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.compatibility.el.BooleanExpression;
 import org.eclipse.stardust.engine.core.compatibility.el.EvaluationError;
@@ -83,7 +84,8 @@ public class TransitionBean extends ConnectionBean implements ITransition
       {
          if (getProcessDefinition().findTransition(id) != null)
          {
-            throw new PublicException("There is already a transition with ID \"" + id + "\".");
+            throw new PublicException(
+                  BpmRuntimeError.MDL_TRANSITION_WITH_ID_ALREADY_EXISTS.raise(id));
          }
 
          markModified();

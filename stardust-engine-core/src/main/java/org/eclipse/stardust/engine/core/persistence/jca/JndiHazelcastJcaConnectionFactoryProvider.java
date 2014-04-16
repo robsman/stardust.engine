@@ -16,6 +16,7 @@ import javax.resource.cci.ConnectionFactory;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.spi.jca.HazelcastJcaConnectionFactoryProvider;
 
 /**
@@ -75,7 +76,9 @@ public class JndiHazelcastJcaConnectionFactoryProvider implements HazelcastJcaCo
          }
          catch (final NamingException e)
          {
-            throw new PublicException("Failed retrieving the Hazelcast Connection Factory from JNDI.", e);
+            throw new PublicException(
+                  BpmRuntimeError.HZLC_FAILED_RETRIEVING_HAZLECAST_CONNECTION_FACTORY_FROM_JNDI
+                        .raise());
          }
       }
    }

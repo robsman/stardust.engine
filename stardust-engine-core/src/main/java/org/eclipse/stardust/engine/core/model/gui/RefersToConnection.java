@@ -10,16 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.gui;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Stroke;
 import java.awt.event.ActionListener;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
 import org.eclipse.stardust.engine.core.compatibility.gui.CI;
-import org.eclipse.stardust.engine.core.model.gui.AbstractWorkflowLineConnection;
-import org.eclipse.stardust.engine.core.model.gui.AnnotationSymbol;
 
 
 /**
@@ -133,16 +135,20 @@ public class RefersToConnection extends AbstractWorkflowLineConnection
             && (!(secondSymbol instanceof AnnotationSymbol))
       )
       {
-         throw new PublicException("One of the connected symbols must be an annotation.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_ONE_OF_THE_CONNECTED_SYMBOLS_MUST_BE_AN_ANNOTATION
+                     .raise());
       }
       else if (getFirstSymbol().equals(secondSymbol))
       {
-         throw new PublicException("An annotation can't refer to itself.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_ANNOTATION_CANNOT_REFER_TO_ITSELF.raise());
       }
       else if ((getDiagram() != null) && getDiagram().existConnectionBetween(getFirstSymbol(), secondSymbol
             , RefersToConnection.class, false))
       {
-         throw new PublicException("Such a connection already exist between this symbols.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST.raise());
       }
 
       super.setSecondSymbol(secondSymbol, link);

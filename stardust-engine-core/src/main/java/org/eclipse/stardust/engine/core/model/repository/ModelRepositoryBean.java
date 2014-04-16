@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.repository.plain.FileSystemStore;
 
 
@@ -41,7 +42,7 @@ public class ModelRepositoryBean implements ModelRepository
       if (findRootModel(id) != null)
       {
          throw new PublicException(
-               "There is already a root model with id '" + id + "'.");
+               BpmRuntimeError.MDL_ROOT_MODEL_WITH_ID_ALREADY_EXISTS.raise(id));
       }
       ModelNode result = new ModelNodeBean(this, id, name, "1");
       result.setDescription(description);
@@ -102,7 +103,8 @@ public class ModelRepositoryBean implements ModelRepository
    {
       if (findRootModel(id) != null)
       {
-         throw new PublicException("There is already a root model with id '" + id + "'.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_ROOT_MODEL_WITH_ID_ALREADY_EXISTS.raise(id));
       }
       ModelNodeBean result = new ModelNodeBean(this, id, name, "1");
       result.setVersionCount(versionCount);

@@ -10,12 +10,19 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.gui;
 
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Stroke;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 
-import javax.swing.*;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.error.PublicException;
@@ -23,6 +30,7 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.JoinSplitType;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.DecorationStrategy;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Stylesheet;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
@@ -372,12 +380,14 @@ public class TransitionConnection extends AbstractWorkflowPathConnection
       if (!(getFirstSymbol() instanceof ActivitySymbol)
             || !(secondSymbol instanceof ActivitySymbol))
       {
-         throw new PublicException("Both connected symbols must be activities.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_BOTH_CONNECTED_SYMBOLS_MUST_BE_ACTIVITIES.raise());
       }
       else if ((getDiagram() != null) && getDiagram().existConnectionBetween(getFirstSymbol(), secondSymbol
             , TransitionConnection.class, true))
       {
-         throw new PublicException("Such a connection already exists between these symbols.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST.raise());
       }
 
       if (link)
@@ -391,8 +401,9 @@ public class TransitionConnection extends AbstractWorkflowPathConnection
             if (toActivity.getJoinType().equals(JoinSplitType.None) &&
                   toActivity.getAllInTransitions().hasNext())
             {
-               throw new PublicException("Multiple incoming transitions are only allowed for "
-                     + "AND or XOR activity joins.");
+               throw new PublicException(
+                     BpmRuntimeError.MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS
+                           .raise(getTransition().getOID(), toActivity.getOID()));
             }
             getTransition().setSecond(toActivity);
          }

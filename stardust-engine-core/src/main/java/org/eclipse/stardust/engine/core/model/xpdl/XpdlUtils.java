@@ -10,31 +10,52 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.xpdl;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.StringTokenizer;
 
-import javax.xml.transform.*;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.eclipse.stardust.common.StringUtils;
-import org.eclipse.stardust.common.config.CurrentVersion;
-import org.eclipse.stardust.common.error.InternalException;
-import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.api.model.IModel;
-import org.eclipse.stardust.engine.core.model.beans.*;
-import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
-import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.CurrentVersion;
+import org.eclipse.stardust.common.error.InternalException;
+import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.model.beans.DefaultConfigurationVariablesProvider;
+import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
+import org.eclipse.stardust.engine.core.model.beans.DefaultXMLWriter;
+import org.eclipse.stardust.engine.core.model.beans.IConfigurationVariablesProvider;
+import org.eclipse.stardust.engine.core.model.beans.ModelBean;
+import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
+import org.eclipse.stardust.engine.core.model.beans.XMLConstants;
+import org.eclipse.stardust.engine.core.runtime.logging.RuntimeLog;
+import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 
 public class XpdlUtils
 {
@@ -361,7 +382,8 @@ public class XpdlUtils
          }
          catch (IOException e)
          {
-            throw new PublicException("Unable to load XPDL export stylesheet", e);
+            throw new PublicException(
+                  BpmRuntimeError.BPMRT_UNABLE_TO_LOAD_XPDL_EXPORT_STYLESHEET.raise(), e);
          }
 
          final long tsAfterStylesheetLoaded = System.currentTimeMillis();
@@ -391,7 +413,7 @@ public class XpdlUtils
       }
       catch (TransformerConfigurationException e)
       {
-         throw new PublicException("Invalid JAXP setup", e);
+         throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), e);
       }
    }
 
@@ -491,7 +513,8 @@ public class XpdlUtils
          }
          catch (IOException e)
          {
-            throw new PublicException("Unable to load XPDL import stylesheet", e);
+            throw new PublicException(
+                  BpmRuntimeError.BPMRT_UNABLE_TO_LOAD_XPDL_EXPORT_STYLESHEET.raise(), e);
          }
 
          final long tsAfterStylesheetLoaded = System.currentTimeMillis();
@@ -521,7 +544,7 @@ public class XpdlUtils
       }
       catch (TransformerConfigurationException e)
       {
-         throw new PublicException("Invalid JAXP setup", e);
+         throw new PublicException(BpmRuntimeError.BPMRT_INVALID_JAXP_SETUP.raise(), e);
       }
    }
 
@@ -550,21 +573,13 @@ public class XpdlUtils
       Document xpdlDoc;
       try
       {
-//         xpdlDoc = XmlUtils.parseSource(new InputSource(new FileReader(xpdlFile)),
-//               DEFAULT_SAX_HANDLER);
-//         xpdlDoc = XmlUtils.parseSource(new InputSource(new InputStreamReader(new FileInputStream(xpdlFile),
-//               UTF8_ENCODING)), DEFAULT_SAX_HANDLER);
          xpdlDoc = XmlUtils.parseSource(new InputSource(new FileInputStream(xpdlFile)), DEFAULT_SAX_HANDLER);
       }
       catch (FileNotFoundException e)
       {
-         throw new PublicException("Failed reading XPDL model file.", e);
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_FAILED_READING_XPDL_MODEL_FILE.raise(), e);
       }
-/*      catch (UnsupportedEncodingException e)
-      {
-         throw new PublicException("Failed reading XPDL model file.", e);
-      }*/
-
       return loadXpdlModel(new DOMSource(xpdlDoc.getDocumentElement()), confVarProvider,
             includeDiagrams);
    }

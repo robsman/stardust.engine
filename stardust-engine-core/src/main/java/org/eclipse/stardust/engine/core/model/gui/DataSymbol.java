@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Stylesheet;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
@@ -226,30 +227,30 @@ public class DataSymbol extends NamedSymbol
 
    public void loadImage()
    {
-      //if (image == null)
-      //{
-         try
-         {
-            ImageIcon icon;
-            if (getData() != null)
-            {
-               icon = SymbolIconProvider.instance().getIcon(getData());
-            }
-            else
-            {
-               icon= new ImageIcon(DataSymbol.class.getResource("images/data_symbol.gif"));
-            }
 
-            image = icon.getImage();
-            imageWidth = icon.getIconWidth();
-            imageHeight = icon.getIconHeight();
-         }
-         catch (Exception x)
+      try
+      {
+         ImageIcon icon;
+         if (getData() != null)
          {
-            throw new PublicException(
-                  "Resource 'images/data_symbol.gif' cannot be loaded.", x);
+            icon = SymbolIconProvider.instance().getIcon(getData());
          }
-      //}
+         else
+         {
+            icon = new ImageIcon(DataSymbol.class.getResource("images/data_symbol.gif"));
+         }
+
+         image = icon.getImage();
+         imageWidth = icon.getIconWidth();
+         imageHeight = icon.getIconHeight();
+      }
+      catch (Exception x)
+      {
+         throw new PublicException(
+               BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE.raise("images/data_symbol.gif"),
+               x);
+      }
+
    }
 
    /*

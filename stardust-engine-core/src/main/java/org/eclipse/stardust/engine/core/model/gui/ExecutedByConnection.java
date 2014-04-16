@@ -10,16 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.gui;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.ActionListener;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
 import org.eclipse.stardust.engine.core.compatibility.gui.CI;
 
@@ -104,12 +106,14 @@ public class ExecutedByConnection extends AbstractWorkflowLineConnection
    {
       if (!(secondSymbol instanceof ActivitySymbol))
       {
-         throw new PublicException("The selected symbol does not represent an activity.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST.raise());
       }
       else if ((getDiagram() != null) && getDiagram().existConnectionBetween(getFirstSymbol(), secondSymbol
             , ExecutedByConnection.class, true))
       {
-         throw new PublicException("Such a connection already exist between this symbols.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST.raise());
       }
 
       if (link)

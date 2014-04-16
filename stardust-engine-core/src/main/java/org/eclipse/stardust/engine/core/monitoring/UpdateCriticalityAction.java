@@ -28,6 +28,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
@@ -42,7 +43,6 @@ import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.beans.CriticalityEvaluator;
 import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
-import org.eclipse.stardust.engine.core.runtime.internal.SyncCriticalitiesToDiskAction;
 import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListenerAction;
 
 
@@ -50,9 +50,9 @@ import org.eclipse.stardust.engine.core.spi.persistence.IPersistentListenerActio
 /**
  * This class implements a listener action to update the criticalities of activity
  * instances of a specific process instance triggered by a modified priority
- * 
+ *
  * @author thomas.wolfram
- * 
+ *
  */
 public class UpdateCriticalityAction implements IPersistentListenerAction
 {
@@ -103,7 +103,7 @@ public class UpdateCriticalityAction implements IPersistentListenerAction
 
    /**
     * Checks, if one or more fields of a give field array have been modified
-    * 
+    *
     * @return {@link Boolean}
     */
    private static boolean hasModifiedFields(IProcessInstance pi, String[] fieldRefs)
@@ -120,7 +120,7 @@ public class UpdateCriticalityAction implements IPersistentListenerAction
       }
       return false;
    }
-   
+
    /**
     * Checks if the state has been changed in a process instance
     * @param pi
@@ -141,7 +141,7 @@ public class UpdateCriticalityAction implements IPersistentListenerAction
    }
 
    /**
-    * 
+    *
     * @param piOid
     * @return
     */
@@ -181,14 +181,15 @@ public class UpdateCriticalityAction implements IPersistentListenerAction
       catch (SQLException sqlex)
       {
          throw new PublicException(
-               "Could not retrieve activity instance for criticality update.");
+               BpmRuntimeError.BPMRT_COULD_NOT_RETRIEVE_ACTIVITY_INSTANCE_FOR_CRITICALITY_UPDATE
+                     .raise());
       }
 
       return updateList;
    }
 
    /**
-    * 
+    *
     * @param updateList
     */
    private void synchronizeCriticality(List updateList)

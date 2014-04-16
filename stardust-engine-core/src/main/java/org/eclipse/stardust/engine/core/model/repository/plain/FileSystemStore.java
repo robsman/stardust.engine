@@ -10,12 +10,22 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.repository.plain;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 
 import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.eclipse.stardust.common.DateUtils;
 import org.eclipse.stardust.common.StringUtils;
@@ -25,6 +35,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLReader;
 import org.eclipse.stardust.engine.core.model.beans.DefaultXMLWriter;
 import org.eclipse.stardust.engine.core.model.beans.NullConfigurationVariablesProvider;
@@ -34,10 +45,6 @@ import org.eclipse.stardust.engine.core.model.repository.ModelNode;
 import org.eclipse.stardust.engine.core.model.repository.ModelRepository;
 import org.eclipse.stardust.engine.core.model.repository.RepositoryStore;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 
 /**
@@ -81,8 +88,9 @@ public class FileSystemStore implements RepositoryStore
 
       if (!repositoryDirectory.isDirectory())
       {
-         throw new PublicException("The model repository '"
-               + repositoryDirectory.getName() + "' is no directory.");
+         throw new PublicException(
+               BpmRuntimeError.BPMRT_MODEL_REPOSITORY_IS_NO_DIRECTORY
+                     .raise(repositoryDirectory.getName()));
       }
    }
 
@@ -215,7 +223,7 @@ public class FileSystemStore implements RepositoryStore
       }
       catch (IOException x)
       {
-         throw new PublicException("I/O Error during save.", x);
+         throw new PublicException(BpmRuntimeError.BPMRT_IO_ERROR_DURING_SAVE.raise(), x);
       }
       finally
       {
@@ -488,7 +496,8 @@ public class FileSystemStore implements RepositoryStore
 
             if (lockFile.exists())
             {
-               throw new PublicException("Cannot lock file '" + path + "'. ");
+               throw new PublicException(
+                     BpmRuntimeError.BPMRT_CANNOT_LOCK_FILE.raise(path));
             }
          }
 

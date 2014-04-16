@@ -10,9 +10,10 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.repository;
 
-import javax.swing.*;
+import javax.swing.ImageIcon;
 
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.gui.IconProvider;
 
 
@@ -66,7 +67,8 @@ public class RepositoryIconProvider implements IconProvider
       }
       catch (Exception x)
       {
-         throw new PublicException("Resource 'images/model.gif' cannot be loaded.");
+         throw new PublicException(
+               BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE.raise("images/model.gif"));
       }
 
       try
@@ -75,7 +77,9 @@ public class RepositoryIconProvider implements IconProvider
       }
       catch (Exception x)
       {
-         throw new PublicException("Resource 'images/released_version.gif' cannot be loaded.");
+         throw new PublicException(
+               BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE
+                     .raise("images/released_version.gif"));
       }
 
       try
@@ -84,7 +88,9 @@ public class RepositoryIconProvider implements IconProvider
       }
       catch (Exception x)
       {
-         throw new PublicException("Resource 'images/private_version.gif' cannot be loaded.");
+         throw new PublicException(
+               BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE
+                     .raise("images/private_version.gif"));
       }
 
       try
@@ -93,7 +99,8 @@ public class RepositoryIconProvider implements IconProvider
       }
       catch (Exception x)
       {
-         throw new PublicException("Resource 'images/open_version.gif' cannot be loaded.");
+         throw new PublicException(
+               BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE.raise("images/open_version.gif"));
       }
       try
       {
@@ -101,7 +108,9 @@ public class RepositoryIconProvider implements IconProvider
       }
       catch (Exception e)
       {
-         throw new PublicException("Resource 'images/broken_version.gif' cannot be loaded.");
+         throw new PublicException(
+               BpmRuntimeError.DIAG_CANNOT_LOAD_RESOURCE
+                     .raise("images/broken_version.gif"));
       }
    }
 

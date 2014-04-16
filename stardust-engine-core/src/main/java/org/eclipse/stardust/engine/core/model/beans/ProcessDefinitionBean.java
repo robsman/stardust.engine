@@ -18,6 +18,7 @@ import java.util.Map;
 import javax.xml.namespace.QName;
 
 import org.apache.commons.collections.IteratorUtils;
+
 import org.eclipse.stardust.common.*;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
@@ -25,6 +26,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.DefaultDiagram;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Diagram;
@@ -376,7 +378,8 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    {
       if (findActivity(id) != null)
       {
-         throw new PublicException("There is already an activity with ID '" + id + "'.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_ACTIVITY_WITH_ID_ALREADY_EXISTS.raise(id));
       }
 
       markModified();
@@ -433,47 +436,50 @@ public class ProcessDefinitionBean extends IdentifiableElementBean
    {
       if (findTransition(id) != null)
       {
-         throw new PublicException("There is already a transition with ID '" + id + "'."
-               + ". Transition OID: " + elementOID);
+         throw new PublicException(
+               BpmRuntimeError.MDL_TRANSITION_WITH_ID_ALREADY_EXISTS.raise(id));
       }
 
       if (PredefinedConstants.RELOCATION_TRANSITION_ID.equals(id))
       {
          if (fromActivity != null || toActivity != null)
          {
-            throw new PublicException("Relocation transition in process '" + getId()
-                  + "' must not have any source or target activity attached.");
+            throw new PublicException(
+                  BpmRuntimeError.MDL_RELOCATION_TRANSITION_MUST_NOT_HAVE_ANY_SOURCE_OR_TARGET_ACTIVITY_ATTACHED
+                        .raise(getId()));
          }
       }
       else
       {
          if (fromActivity.getProcessDefinition() != this)
          {
-            throw new PublicException("From Activity does not belong to " + this
-                  + ". Activity OID: " + fromActivity);
+            throw new PublicException(
+                  BpmRuntimeError.MDL_FROM_ACTIVITY_DOES_NOT_BELONG_TO.raise(this,
+                        fromActivity));
          }
 
          if (toActivity.getProcessDefinition() != this)
          {
-            throw new PublicException("To Activity does not belong to " + this
-                  + ". Activity OID: " + toActivity);
+            throw new PublicException(
+                  BpmRuntimeError.MDL_TO_ACTIVITY_DOES_NOT_BELONG_TO.raise(this,
+                        fromActivity));
          }
 
          if (toActivity.getJoinType() == JoinSplitType.None &&
                !toActivity.getInTransitions().isEmpty())
          {
-            throw new PublicException("Multiple incoming transitions are only allowed for "
-                  + "AND or XOR activity joins. Transition OID: " + elementOID
-                  + ", target activity OID: " + toActivity.getElementOID());
+            throw new PublicException(
+                  BpmRuntimeError.MDL_MULTIPLE_INCOMING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_JOINS
+                        .raise(elementOID, toActivity.getElementOID()));
          }
 
          if (fromActivity.getSplitType() == JoinSplitType.None &&
                !fromActivity.getOutTransitions().isEmpty() &&
                !TransitionBean.ON_BOUNDARY_EVENT_CONDITION.matcher(condition).matches())
          {
-            throw new PublicException("Multiple outgoing transitions are only allowed for "
-                  + "AND or XOR activity splits. Transition OID: " + elementOID
-                  + ", source activity OID: " + fromActivity.getElementOID());
+            throw new PublicException(
+                  BpmRuntimeError.MDL_MULTIPLE_OUTGOING_TRANSITIONS_ARE_ONLY_ALLOWED_FOR_AND_OR_XOR_ACTIVITY_SPLITS
+                        .raise(elementOID, toActivity.getElementOID()));
          }
       }
 

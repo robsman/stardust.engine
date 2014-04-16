@@ -10,13 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.gui;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.Vector;
 
-import javax.swing.*;
+import javax.swing.ButtonGroup;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JRadioButtonMenuItem;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.error.PublicException;
@@ -25,6 +30,7 @@ import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IDataMapping;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.ArrowKey;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
 import org.eclipse.stardust.engine.core.compatibility.gui.CI;
@@ -333,12 +339,15 @@ public class DataMappingConnection extends AbstractWorkflowLineConnection
    {
       if (!(secondSymbol instanceof DataSymbol))
       {
-         throw new PublicException("The selected Symbol does not represent an activity.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_THE_SELECTED_SYMBOL_DOES_NOT_REPRESENT_AN_ACTIVITY
+                     .raise());
       }
       else if ((getDiagram() != null) && getDiagram().existConnectionBetween(
             getFirstSymbol(), secondSymbol, DataMappingConnection.class, true))
       {
-         throw new PublicException("Connection between symbols already exists.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST.raise());
       }
       data.setElement(((DataSymbol) secondSymbol).getData());
       if (link)
@@ -351,18 +360,22 @@ public class DataMappingConnection extends AbstractWorkflowLineConnection
    {
       if (!(secondSymbol instanceof ActivitySymbol))
       {
-         throw new PublicException("The selected Symbol does not represent an activity.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_THE_SELECTED_SYMBOL_DOES_NOT_REPRESENT_AN_ACTIVITY
+                     .raise());
       }
       else if (((ActivitySymbol) secondSymbol).getActivity().
             getImplementationType().equals(ImplementationType.Route))
       {
          throw new PublicException(
-               "A route activity does not participate in data flow.");
+               BpmRuntimeError.MDL_ROUTE_ACTIVITY_DOES_NOT_PARTICIPATE_IN_DATA_FLOW
+                     .raise());
       }
       else if ((getDiagram() != null) && getDiagram().existConnectionBetween(
             getFirstSymbol(), secondSymbol, DataMappingConnection.class, true))
       {
-         throw new PublicException("Connection between symbols already exists.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST.raise());
       }
 
       activity.setElement(((ActivitySymbol) secondSymbol).getActivity());

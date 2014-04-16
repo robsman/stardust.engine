@@ -10,15 +10,17 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.gui;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.event.ActionListener;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IModelParticipant;
 import org.eclipse.stardust.engine.api.model.ImplementationType;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.diagram.Symbol;
 import org.eclipse.stardust.engine.core.compatibility.gui.CI;
 
@@ -136,30 +138,36 @@ public class PerformsConnection extends AbstractWorkflowLineConnection
    {
       if (!(secondSymbol instanceof ActivitySymbol))
       {
-         throw new PublicException("The symbol does not represent an activity.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_THE_SELECTED_SYMBOL_DOES_NOT_REPRESENT_AN_ACTIVITY
+                     .raise());
       }
-      
+
       IActivity activity = ((ActivitySymbol) secondSymbol).getActivity();
 
       if (ImplementationType.Route.equals(activity.getImplementationType()))
       {
-         throw new PublicException("A route activity can't have a performer.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_ROUTE_ACTIVITY_CANNOT_HAVE_A_PERFORMER.raise());
       }
       else if (ImplementationType.SubProcess.equals(activity.getImplementationType()))
       {
-         throw new PublicException("A subprocss activity can't have a performer.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_SUBPROCESS_ACTIVITY_CANNOT_HAVE_A_PERFORMER.raise());
       }
       else if (ImplementationType.Application.equals(activity.getImplementationType())
             && !activity.getApplication().isInteractive())
       {
-         throw new PublicException("An activity performing a non-interactive "
-               + "application can't have a performer.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_ACTIVITY_PERFORMING_NON_INTERACTIVE_APPLICATION_CANNOT_HAVE_PERFORMER
+                     .raise());
       }
       else if ((getDiagram() != null)
             && getDiagram().existConnectionBetween(getFirstSymbol(), secondSymbol,
                   PerformsConnection.class, true))
       {
-         throw new PublicException("Such a connection already exist between this symbols.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_CONNECTION_BETWEEN_SYMBOLS_ALREADY_EXIST.raise());
       }
 
       super.setSecondSymbol(secondSymbol, link);

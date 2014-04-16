@@ -527,12 +527,8 @@ public final class DocumentTypeUtils
          log("UnversionedPath: " + getUnversionedInfoPath(documentTypeId));
       }
 
-      PropertyLayer layer = null;
-      if (isSecurityEnabled())
-      {
-         layer = ParametersFacade.pushLayer(new HashMap<String, Serializable>());
-         RepositoryProviderUtils.setAdminSessionFlag(true, layer);
-      }
+      PropertyLayer layer = ParametersFacade.pushLayer(new HashMap<String, Serializable>());
+      RepositoryProviderUtils.setAdminSessionFlag(true, layer);
 
       ServiceFactory sf = null;
       try
@@ -579,14 +575,6 @@ public final class DocumentTypeUtils
          }
          sf.close();
       }
-   }
-
-   private static boolean isSecurityEnabled()
-   {
-      // TODO rework to IRepositoryService
-      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      IDocumentRepositoryService documentRepositoryService = rtEnv.getDocumentRepositoryService();
-      return DmsVfsConversionUtils.isSecurityEnabled(documentRepositoryService, VfsUtils.REPOSITORY_ROOT);
    }
 
    private static boolean schemaEquals(XSDSchema xsdSchema, XSDSchema existingXsdSchema)

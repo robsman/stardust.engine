@@ -14,19 +14,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider.Factory;
 
 public class RepositoryProviderManager
 {
-   
-   private static String INSTANCE_CACHE_KEY = IRepositoryInstance.class.getName()
-         + ".cache";
 
    public static String DEFAULT_REPOSITORY_ID = "default";
    
@@ -34,7 +29,7 @@ public class RepositoryProviderManager
    
    private Map<String, IRepositoryProvider> providers = CollectionUtils.newHashMap();
    
-   private ConcurrentHashMap<String, IRepositoryInstance> instances;
+   private RepositoryInstanceCache instances;
    
    private String defaultRepositoryId = DEFAULT_REPOSITORY_ID;
 
@@ -49,7 +44,7 @@ public class RepositoryProviderManager
          providers.put(provider.getProviderId(), provider); 
       }
       
-      initializeInstanceCache();
+      instances = new RepositoryInstanceCache();
       
       registerDefaultInstances();
    }
@@ -68,25 +63,6 @@ public class RepositoryProviderManager
       }
       return INSTANCE;
    }
-
-   private void initializeInstanceCache()
-   {
-      final GlobalParameters globals = GlobalParameters.globals();
-      Map instanceCache = (Map) globals.get(INSTANCE_CACHE_KEY);
-      if (instanceCache == null)
-      {
-         synchronized (INSTANCE_CACHE_KEY)
-         {
-            instanceCache = (Map) globals.get(INSTANCE_CACHE_KEY);
-            if (instanceCache == null)
-            {
-               instanceCache = new ConcurrentHashMap<String, IRepositoryInstance>();
-               globals.set(INSTANCE_CACHE_KEY, instanceCache);
-            }
-         }
-      }
-      this.instances = (ConcurrentHashMap<String, IRepositoryInstance>) instanceCache;
-   }
    
    private void registerDefaultInstances()
    {
@@ -95,21 +71,29 @@ public class RepositoryProviderManager
          List<IRepositoryConfiguration> defaultInstanceConfigurations = provider.getDefaultConfigurations();
          for (IRepositoryConfiguration configuration : defaultInstanceConfigurations)
          {
-            String repositoryId = (String) configuration.getAttributes().get(IRepositoryConfiguration.REPOSITORY_ID);
-            if ( !instances.containsKey(repositoryId))
+            String repositoryId = (String) configuration.getAttributes().get(
+                  IRepositoryConfiguration.REPOSITORY_ID);
+            synchronized (instances)
             {
-               bindRepository(configuration);
-            }
-            else
-            {
-               // instance already registered
-               String providerId = (String) configuration.getAttributes().get(IRepositoryConfiguration.PROVIDER_ID);
-               IRepositoryInstance boundInstance = instances.get(repositoryId);
-               if ( !boundInstance.getProviderId().equals(providerId))
+               if ( !instances.containsGlobalKey(repositoryId))
                {
-                  throw new PublicException("Loading default providers failed: The repositoryId '"
-                        + repositoryId + "' is already bound by provider '" + providerId
-                        + "'.");
+                  IRepositoryInstance instance = provider.createInstance(configuration,
+                        SecurityProperties.getPartition().getId());
+                  instances.putGlobal(repositoryId, instance);
+               }
+               else
+               {
+                  // instance already registered
+                  String providerId = (String) configuration.getAttributes().get(
+                        IRepositoryConfiguration.PROVIDER_ID);
+                  IRepositoryInstance boundInstance = instances.getGlobal(repositoryId);
+                  if ( !boundInstance.getProviderId().equals(providerId))
+                  {
+                     throw new PublicException(
+                           "Loading default providers failed: The repositoryId '"
+                                 + repositoryId + "' is already bound by provider '"
+                                 + providerId + "'.");
+                  }
                }
             }
          }

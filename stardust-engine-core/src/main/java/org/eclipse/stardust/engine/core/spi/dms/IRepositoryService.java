@@ -94,6 +94,7 @@ public interface IRepositoryService
     * full content will be materialized in memory both on the server as well as on the
     * client. It is recommended to us the facilities provided by
     * {@link DmsContentServlet} for memory efficient content access.
+    * The {@link DmsContentServlet} will use {@link #retrieveDocumentContentStream(String, OutputStream)}.
     *
     * <p>Implementation is mandatory.
     *
@@ -102,14 +103,14 @@ public interface IRepositoryService
     *       encoded according to the document's {@link Document#getEncoding()} attribute.
     * @throws DocumentManagementServiceException on DMS specific errors
     *
-    * @see #requestDocumentContentDownload(String)
+    * @see #retrieveDocumentContentStream(String, OutputStream)
     */
    byte[] retrieveDocumentContent(String documentId) throws DocumentManagementServiceException;
 
    /**
     * Retrieves an OutputStream for the document.
     * 
-    * <p> Implementation is needed if {@link IRepositoryCapabilities#isStreamingIOSupported()} is true.
+    * <p> Implementation is mandatory.
     * 
     * @param documentId The ID or path of the document stream should be retrieved for.
     * @param target The target OutputStream
@@ -277,6 +278,7 @@ public interface IRepositoryService
     * full content will be materialized in memory both on the server as well as on the
     * client. It is recommended to us the facilities provided by
     * {@link DmsContentServlet} for memory efficient content access.
+    * The {@link DmsContentServlet} will use {@link #uploadDocumentContentStream(String, InputStream, String, String)}.
     * 
     * <p> Implementation is needed if {@link IRepositoryCapabilities#isWriteSupported()} and {@link IRepositoryCapabilities#isVersioningSupported()} is true.
     *     
@@ -290,7 +292,7 @@ public interface IRepositoryService
     * @return the updated document
     * @throws DocumentManagementServiceException on DMS specific errors
     *
-    * @see #requestDocumentContentUpload(String)
+    * @see #uploadDocumentContentStream(String, InputStream, String, String)
     */
    Document updateDocument(Document document, byte[] content, String encoding,
          boolean createNewRevision, String versionComment, String versionLabel, boolean keepLocked) throws DocumentManagementServiceException;
@@ -299,7 +301,7 @@ public interface IRepositoryService
    /**
     * Allows to set a InputStream for content upload.
     * 
-    * <p> Implementation is needed if {@link IRepositoryCapabilities#isWriteSupported()} and {@link IRepositoryCapabilities#isStreamingIOSupported()} is true.
+    * <p> Implementation is mandatory.
     * 
     * @param documentId The ID or path of the document stream should be uploaded for.
     * @param source The source InputStream.

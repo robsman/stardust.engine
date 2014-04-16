@@ -73,17 +73,6 @@ public interface IRepositoryCapabilities extends Serializable
    public boolean isTransactionSupported();
 
    /**
-    * Indicates if direct streaming IO is supported.
-    * By supporting streaming IO the file content never has to be fully loaded into memory.
-    * 
-    * @return <code>true</code> if the capability is supported.
-    * 
-    * @see IRepositoryService#retrieveDocumentContentStream(String, java.io.OutputStream)
-    * @see IRepositoryService#uploadDocumentContentStream(String, java.io.InputStream, String, String)
-    */
-   public boolean isStreamingIOSupported();
-
-   /**
     * Indicates if access control policies are supported.
     * 
     * @return <code>true</code> if the capability is supported.

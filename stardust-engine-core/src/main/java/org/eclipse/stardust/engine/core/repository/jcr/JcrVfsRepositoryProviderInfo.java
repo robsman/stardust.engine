@@ -57,12 +57,6 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
    }
 
    @Override
-   public boolean isStreamingIOSupported()
-   {
-      return true;
-   }
-
-   @Override
    public boolean isMetaDataSearchSupported()
    {
       return true;
@@ -106,8 +100,6 @@ public class JcrVfsRepositoryProviderInfo implements IRepositoryProviderInfo
       builder.append(isVersioningSupported());
       builder.append(", isTransactionSupported()=");
       builder.append(isTransactionSupported());
-      builder.append(", isStreamingIOSupported()=");
-      builder.append(isStreamingIOSupported());
       builder.append(", isMetaDataSearchSupported()=");
       builder.append(isMetaDataSearchSupported());
       builder.append(", isMetaDataWriteSupported()=");

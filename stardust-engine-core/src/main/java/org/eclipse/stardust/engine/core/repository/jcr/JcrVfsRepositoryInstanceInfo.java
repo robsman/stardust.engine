@@ -31,7 +31,6 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
    private boolean fullTextSearchSupported;
    private boolean metaDataSearchSupported;
    private boolean metaDataStorageSupported;
-   private boolean streamingIOSupported;
    private boolean transactionSupported;
    private boolean versioningSupported;
    private boolean writeSupported;
@@ -47,7 +46,6 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
       this.fullTextSearchSupported = Boolean.valueOf(repository.getDescriptor(Repository.QUERY_FULL_TEXT_SEARCH_SUPPORTED));
       this.metaDataSearchSupported = true;
       this.metaDataStorageSupported = true;
-      this.streamingIOSupported = true;
       this.transactionSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_TRANSACTIONS_SUPPORTED))
             && !configuration.getAttributes().containsKey(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO); ;
       this.versioningSupported = Boolean.valueOf(repository.getDescriptor(Repository.OPTION_VERSIONING_SUPPORTED))
@@ -98,12 +96,6 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
    }
 
    @Override
-   public boolean isStreamingIOSupported()
-   {
-      return streamingIOSupported;
-   }
-
-   @Override
    public boolean isMetaDataSearchSupported()
    {
       return metaDataSearchSupported;
@@ -151,8 +143,6 @@ public class JcrVfsRepositoryInstanceInfo implements IRepositoryInstanceInfo
       builder.append(isVersioningSupported());
       builder.append(", isTransactionSupported()=");
       builder.append(isTransactionSupported());
-      builder.append(", isStreamingIOSupported()=");
-      builder.append(isStreamingIOSupported());
       builder.append(", isMetaDataSearchSupported()=");
       builder.append(isMetaDataSearchSupported());
       builder.append(", isMetaDataWriteSupported()=");

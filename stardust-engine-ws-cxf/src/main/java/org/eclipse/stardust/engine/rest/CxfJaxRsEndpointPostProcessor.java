@@ -31,7 +31,7 @@ public class CxfJaxRsEndpointPostProcessor
    public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory)
          throws BeansException
    {
-      String[] beanNamesForType = beanFactory.getBeanNamesForType(SpringJAXRSServerFactoryBean.class);
+      String[] beanNamesForType = beanFactory.getBeanNamesForType(SpringJAXRSServerFactoryBean.class, true,  false);
 
       for (String beanName : beanNamesForType)
       {

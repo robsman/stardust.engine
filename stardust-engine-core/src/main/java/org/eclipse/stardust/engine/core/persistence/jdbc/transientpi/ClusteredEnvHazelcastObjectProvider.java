@@ -17,6 +17,7 @@ import javax.resource.cci.ConnectionFactory;
 
 import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -33,16 +34,16 @@ import com.hazelcast.core.Transaction;
  * transaction aware, i.e. it enlists in the running <i>JTA</i> transaction so that
  * operations on the objects returned are transactional.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectProvider
 {
    private static final ConnectionFactory HZ_CONNECTION_FACTORY;
-   
+
    private static final HazelcastInstance HZ_INSTANCE;
-  
+
    static
    {
       final HazelcastJcaConnectionFactoryProvider cfProvider = ExtensionProviderUtils.getFirstExtensionProvider(HazelcastJcaConnectionFactoryProvider.class, KernelTweakingProperties.HZ_JCA_CONNECTION_FACTORY_PROVIDER);
@@ -51,10 +52,10 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
          throw new IllegalStateException("No Hazelcast JCA connection factory provider could be found.");
       }
       HZ_CONNECTION_FACTORY = cfProvider.connectionFactory();
-      
+
       HZ_INSTANCE = HazelcastUtils.getHazelcastInstance();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#clusterSafeMap(java.lang.String)
     */
@@ -65,7 +66,7 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       {
          throw new NullPointerException("Map ID for Hazelcast map must not be null.");
       }
-      
+
       return HZ_INSTANCE.getMap(mapId);
    }
 
@@ -76,7 +77,7 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
    public void beforeAccess()
    {
       final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      
+
       try
       {
          /* Hazelcast can only cope with one transaction per thread */
@@ -88,10 +89,12 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
       }
       catch (final ResourceException e)
       {
-         throw new PublicException("Failed enlisting Hazelcast objects in the current transaction.", e);
+         throw new PublicException(
+               BpmRuntimeError.HZLC_FAILES_ENLISTING_HAZLECAST_OBJECTS_IN_CURRENT_TRANSACTION
+                     .raise(), e);
       }
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#exception(java.lang.Exception)
     */
@@ -100,7 +103,7 @@ public class ClusteredEnvHazelcastObjectProvider implements ClusterSafeObjectPro
    {
       /* nothing to do */
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.core.spi.cluster.ClusterSafeObjectProvider#afterAccess()
     */

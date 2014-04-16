@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DBDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
@@ -147,7 +148,9 @@ public class FastCachingSequenceGenerator extends ThreadLocal implements Sequenc
          }
          else
          {
-            throw new PublicException("Failed obtaining new sequence values, result set was empty.");
+            throw new PublicException(
+                  BpmRuntimeError.JDBC_FAILED_OBTAINING_NEW_SEQUECMCE_VALUES_RESULT_SET_EMPTY
+                        .raise());
          }
       }
       catch (SQLException e)

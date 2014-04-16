@@ -10,12 +10,20 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.jms;
 
-import javax.jms.*;
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueReceiver;
+import javax.jms.QueueSession;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
@@ -27,7 +35,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
  */
 public class AuditTrailQueueBlobReader extends AbstractJmsBytesMessageReader
 {
-   
+
    private static final Logger trace = LogManager.getLogger(AuditTrailQueueBlobReader.class);
 
    private Queue queue;
@@ -39,7 +47,7 @@ public class AuditTrailQueueBlobReader extends AbstractJmsBytesMessageReader
    public BytesMessage nextBlobContainer() throws PublicException
    {
       BytesMessage result = null;
-      
+
       try
       {
          final Message nextMsg = blobReceiver.receiveNoWait();
@@ -66,16 +74,17 @@ public class AuditTrailQueueBlobReader extends AbstractJmsBytesMessageReader
       {
          // TODO: handle exception
          throw new PublicException(
-               "Failed reading process BLOB from JMS AuditTrail queue.");
+               BpmRuntimeError.JMS_FAILED_READING_PROCESS_BLOB_FROM_JMS_AUDITTRAIL_QUEUE
+                     .raise());
       }
-      
+
       return result;
    }
-   
+
    public void init(Parameters params) throws PublicException
    {
       super.init(params);
-      
+
       final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
 
       try
@@ -95,7 +104,8 @@ public class AuditTrailQueueBlobReader extends AbstractJmsBytesMessageReader
       }
       catch (JMSException jmse)
       {
-         throw new PublicException("Failed connecting to JMS AuditTrail queue.");
+         throw new PublicException(
+               BpmRuntimeError.JMS_FAILED_CONNECTING_TO_JMS_AUDITTRAIL_QUEUE.raise());
       }
    }
 
@@ -113,11 +123,11 @@ public class AuditTrailQueueBlobReader extends AbstractJmsBytesMessageReader
 */
       }
       this.blobReceiver = null;
-      
+
       // JMS resources will be closed by RT environment
       this.queueSession = null;
       this.queue = null;
-      
+
       super.close();
    }
 

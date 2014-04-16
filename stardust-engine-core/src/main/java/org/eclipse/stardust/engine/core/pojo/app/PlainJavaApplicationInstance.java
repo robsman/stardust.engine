@@ -31,6 +31,7 @@ import org.eclipse.stardust.engine.api.model.IActivity;
 import org.eclipse.stardust.engine.api.model.IApplication;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.pojo.utils.JavaAccessPointType;
 import org.eclipse.stardust.engine.core.runtime.beans.ModelManager;
@@ -42,7 +43,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.StatelessSynchron
 
 /**
  * ApplicationInstance implementation for the PlainJavaApplicationInstance
- * 
+ *
  * @author jmahmood, ubirkemeyer
  * @version $Revision$
  */
@@ -51,26 +52,26 @@ public class PlainJavaApplicationInstance
 {
    public static final Logger trace = LogManager
          .getLogger(PlainJavaApplicationInstance.class);
-   
+
    private static final String CACHED_CLASS = PlainJavaApplicationInstance.class.getName()
          + ".CachedClass";
 
    private static final String CACHED_CTOR = PlainJavaApplicationInstance.class.getName()
          + ".CachedCtor";
-   
+
    private static final String CACHED_METHOD = PlainJavaApplicationInstance.class.getName()
          + ".CachedMethod";
 
    /**
     * Initializes the plain java application instance. Retrieves the application, the type
     * of application and data mappings from the activity instance.
-    * 
+    *
     * @param activityInstance
     */
    public ApplicationInvocationContext bootstrap(ActivityInstance activityInstance)
    {
       InvocationContext c = new InvocationContext(activityInstance);
-      
+
       IActivity activity = null;
       ModelManager modelManager = ModelManagerFactory.getCurrent();
       if (null != modelManager)
@@ -83,7 +84,7 @@ public class PlainJavaApplicationInstance
       {
          // TODO
          c.application = activity.getApplication();
-         
+
          c.theType = (Class) activity.getApplication().getRuntimeAttribute(CACHED_CLASS);
          c.ctor = (ResolvedCtor) activity.getApplication().getRuntimeAttribute(CACHED_CTOR);
          c.method = (ResolvedMethod) activity.getApplication().getRuntimeAttribute(CACHED_METHOD);
@@ -93,7 +94,7 @@ public class PlainJavaApplicationInstance
       {
          c.theType = Reflect.getClassFromClassName((String) c.application
                .getAttribute(PredefinedConstants.CLASS_NAME_ATT));
-         
+
          if (null != activity)
          {
             activity.getApplication().setRuntimeAttribute(CACHED_CLASS, c.theType);
@@ -111,7 +112,7 @@ public class PlainJavaApplicationInstance
             activity.getApplication().setRuntimeAttribute(CACHED_CTOR, c.ctor);
          }
       }
-      
+
       if (null == c.method)
       {
          c.method = new ResolvedMethod(Reflect.decodeMethod(c.theType,
@@ -122,7 +123,7 @@ public class PlainJavaApplicationInstance
             activity.getApplication().setRuntimeAttribute(CACHED_METHOD, c.method);
          }
       }
-      
+
       final List allOutDataMappings = activityInstance.getActivity()
             .getApplicationContext(PredefinedConstants.APPLICATION_CONTEXT)
             .getAllOutDataMappings();
@@ -132,22 +133,22 @@ public class PlainJavaApplicationInstance
 
          c.outDataMappingOrder.add(mapping.getApplicationAccessPoint().getId());
       }
-      
+
       // create instance right now, if the default ctor is used and thus no ctor argument
       // mappings might exist
-      
+
       if ((null != c.ctor) && (0 == c.ctor.argTypes.length))
       {
          createObject(c);
       }
-      
+
       return c;
    }
 
    /**
     * Adds a new pair with an access point name and value. If a pair with the specified
     * name already exists, the old value will be replaced with the new one.
-    * 
+    *
     * @param name
     *           The name of the access point.
     * @param value
@@ -185,7 +186,7 @@ public class PlainJavaApplicationInstance
          right++;
       }
       name = sb.toString();
-      
+
       Pair param = findAccessPointValue(((InvocationContext) c), name);
       if (null != param)
       {
@@ -196,7 +197,7 @@ public class PlainJavaApplicationInstance
 
    /**
     * Returns the value of the access point with the given name.
-    * 
+    *
     * @param name
     *           The name of the access point.
     * @return The value of the access point.
@@ -221,7 +222,7 @@ public class PlainJavaApplicationInstance
    /**
     * Callback used by the CARNOT engine when the corresponding activity instance is run.
     * Invokes the method of the application.
-    * 
+    *
     * @param outDataTypes
     *           A set of AccessPointBean names to be expected as return values. This is
     *           filled by the CARNOT engine and is an optimization hint to prevent the
@@ -310,13 +311,13 @@ public class PlainJavaApplicationInstance
       }
       catch (Exception x)
       {
-         throw new PublicException("Cannot create object.", x);
+         throw new PublicException(BpmRuntimeError.POJO_CANNOT_CREATE_OBJECT.raise(), x);
       }
    }
 
    /**
     * Sets in access point values invoking the setter methods.
-    * 
+    *
     * @throws InvocationTargetException
     *            Any exception thrown during execution of the application is delivered via
     *            this exception.
@@ -326,15 +327,16 @@ public class PlainJavaApplicationInstance
       for (int i = 0; i < pojoContext.accessPointValues.size(); ++i)
       {
          Pair entry = (Pair) pojoContext.accessPointValues.get(i);
-         
+
          String name = (String) entry.getFirst();
          Object value = entry.getSecond();
 
          final AccessPoint inAccessPoint = pojoContext.application.findAccessPoint(name);
          if (null == inAccessPoint)
          {
-            throw new PublicException("Access point '" + name + "' does not exist, "
-                  + pojoContext.theType);
+            throw new PublicException(
+                  BpmRuntimeError.POJO_ACCESS_POINT_DOES_NOT_EXIST.raise(name,
+                        pojoContext.theType));
          }
 
          if (JavaAccessPointType.METHOD.equals(inAccessPoint.getAttribute(PredefinedConstants.FLAVOR_ATT)))
@@ -365,7 +367,7 @@ public class PlainJavaApplicationInstance
    /**
     * Returns all out access points of the activity application context with the
     * corresponding values in the out-data-mapping order.
-    * 
+    *
     * @param outDataTypes
     *           The out access points of the activity application context.
     * @return A map with the access point name as key and the access point value as value.
@@ -397,7 +399,7 @@ public class PlainJavaApplicationInstance
    /**
     * If a return value is allowed, the stored return value of the last method invocation
     * is returned. Otherwise invokes the getter method to retrieve the return value.
-    * 
+    *
     * @param name
     *           The name of the access point.
     * @param allowReturnValue
@@ -420,7 +422,7 @@ public class PlainJavaApplicationInstance
       else if (JavaAccessPointType.METHOD.equals(characteristics))
       {
          // MUST be getter
-         
+
          try
          {
             return JavaDataTypeUtils.evaluateGetter(outAp, c.theObject);
@@ -446,7 +448,7 @@ public class PlainJavaApplicationInstance
 
    /**
     * Returns a pair of the given access point name and the corresponding value.
-    * 
+    *
     * @param name
     *           The access point name.
     * @return The pair with name and value. Null if no access point pair could be found.
@@ -465,7 +467,7 @@ public class PlainJavaApplicationInstance
       }
       return result;
    }
-   
+
    private static class InvocationContext extends ApplicationInvocationContext
    {
       public InvocationContext(ActivityInstance ai)
@@ -480,9 +482,9 @@ public class PlainJavaApplicationInstance
       private IApplication application;
 
       private Class theType;
-      
+
       private ResolvedCtor ctor;
-      
+
       private ResolvedMethod method;
 
       private Object theObject;

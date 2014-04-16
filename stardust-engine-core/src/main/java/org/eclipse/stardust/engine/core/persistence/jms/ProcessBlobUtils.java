@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
@@ -35,18 +36,18 @@ public class ProcessBlobUtils
    public static void copyBlob(BlobReader sourceBlob, BlobBuilder targetBlob)
    {
       final TypeDescriptorRegistry tdRegistry = TypeDescriptorRegistry.current();
-      
+
       while (true)
       {
          final byte sectionMarker = sourceBlob.readByte();
-         
+
          if (BlobBuilder.SECTION_MARKER_EOF == sectionMarker)
          {
             if (trace.isDebugEnabled())
             {
                trace.debug("Reached end of BLOB. ");
             }
-            
+
             targetBlob.writeByte(BlobBuilder.SECTION_MARKER_EOF);
 
             break;
@@ -55,46 +56,46 @@ public class ProcessBlobUtils
          {
             final String tableName = sourceBlob.readString();
             final int nInstances = sourceBlob.readInt();
-            
+
             targetBlob.writeByte(BlobBuilder.SECTION_MARKER_INSTANCES);
             targetBlob.writeString(tableName);
             targetBlob.writeInt(nInstances);
-            
+
             final TypeDescriptor td = tdRegistry.getDescriptorForTable(tableName);
-            
+
             final List fields = td.getPersistentFields();
             final List links = td.getLinks();
-            
+
             try
             {
                if (trace.isDebugEnabled())
                {
                   trace.debug("Extracting " + nInstances + " of type " + td.getType());
                }
-               
+
                for (int i = 0; i < nInstances; ++i)
                {
                   if (trace.isDebugEnabled())
                   {
                      trace.debug("Reading instance " + i);
                   }
-                  
+
                   for (int j = 0; j < fields.size(); ++j)
                   {
                      FieldDescriptor field = (FieldDescriptor) fields.get(j);
-                     
+
                      Field javaField = field.getField();
                      copyField(sourceBlob, targetBlob, javaField.getType());
                   }
-                  
+
                   for (int j = 0; j < links.size(); ++j)
                   {
                      LinkDescriptor link = (LinkDescriptor) links.get(j);
-                     
+
                      copyField(sourceBlob, targetBlob, link.getFkField().getType());
                   }
                }
-               
+
                if (trace.isDebugEnabled())
                {
                   trace.debug("Finished reading instances");
@@ -102,13 +103,15 @@ public class ProcessBlobUtils
             }
             catch (InternalException ie)
             {
-               throw new PublicException("Failed persisting process BLOB at table "
-                     + td.getTableName(), ie);
+               throw new PublicException(
+                     BpmRuntimeError.JMS_FAILED_PERSISTING_BLOB_AT_TABLE.raise(td
+                           .getTableName()), ie);
             }
          }
          else
          {
-            throw new PublicException("Unexepected section amrker: " + sectionMarker);
+            throw new PublicException(
+                  BpmRuntimeError.JMS_UNEXPECTED_SECTION_MARKER.raise(sectionMarker));
          }
       }
    }

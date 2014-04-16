@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
@@ -38,13 +39,13 @@ public class ProcessBlobWriter
          if ( !instances.isEmpty())
          {
             blobBuilder.startInstancesSection(td.getTableName(), instances.size());
-            
+
             final List fields = td.getPersistentFields();
             final List links = td.getLinks();
             for (int i = 0; i < instances.size(); ++i)
             {
                final Persistent instance = (Persistent) instances.get(i);
-               
+
                for (int j = 0; j < fields.size(); ++j)
                {
                   FieldDescriptor field = (FieldDescriptor) fields.get(j);
@@ -54,16 +55,16 @@ public class ProcessBlobWriter
 
                   writeField(blobBuilder, instance, javaField, fieldType);
                }
-               
+
                for (int j = 0; j < links.size(); ++j)
                {
                   LinkDescriptor link = (LinkDescriptor) links.get(j);
-                  
+
                   Field javaField = link.getField();
-                  
+
                   Field fkJavaField = link.getFkField();
                   Class fkFieldType = fkJavaField.getType();
-                  
+
                   Persistent linkedInstance = (Persistent) javaField.get(instance);
                   if (linkedInstance == null)
                   {
@@ -84,18 +85,21 @@ public class ProcessBlobWriter
       }
       catch (InternalException ie)
       {
-         throw new PublicException("Failed writing process BLOB at table "
-               + td.getTableName(), ie);
+         throw new PublicException(
+               BpmRuntimeError.JMS_FAILED_PERSISTING_BLOB_AT_TABLE.raise(td
+                     .getTableName()), ie);
       }
       catch (IllegalArgumentException iae)
       {
-         throw new PublicException("Failed writing process BLOB at table "
-               + td.getTableName(), iae);
+         throw new PublicException(
+               BpmRuntimeError.JMS_FAILED_PERSISTING_BLOB_AT_TABLE.raise(td
+                     .getTableName()), iae);
       }
       catch (IllegalAccessException iae)
       {
-         throw new PublicException("Failed writing process BLOB at table "
-               + td.getTableName(), iae);
+         throw new PublicException(
+               BpmRuntimeError.JMS_FAILED_PERSISTING_BLOB_AT_TABLE.raise(td
+                     .getTableName()), iae);
       }
    }
 
@@ -110,13 +114,13 @@ public class ProcessBlobWriter
          throw new IllegalArgumentException("Foreign Key must be of type Long");
       }
    }
-   
+
    private static void writeField(BlobBuilder blobBuilder, Persistent instance,
          Field javaField, Class fieldType) throws InternalException,
          IllegalArgumentException, IllegalAccessException
    {
       // ordering by likelyhood of occurance
-      
+
       if (Long.TYPE == fieldType)
       {
          blobBuilder.writeLong((null != instance) ? javaField.getLong(instance) : 0L);

@@ -10,11 +10,18 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.persistence.jms;
 
-import javax.jms.*;
+import javax.jms.BytesMessage;
+import javax.jms.JMSException;
+import javax.jms.Queue;
+import javax.jms.QueueConnection;
+import javax.jms.QueueConnectionFactory;
+import javax.jms.QueueSender;
+import javax.jms.QueueSession;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.JmsProperties;
@@ -28,13 +35,13 @@ public class JmsBytesMessageBuilder implements BlobBuilder
 {
 
    private QueueSession queueSession;
-   
+
    private QueueSender queueSender;
 
    private Queue queue;
-   
+
    private BytesMessage msg;
-   
+
    public void init(Parameters params) throws PublicException
    {
       try
@@ -56,28 +63,30 @@ public class JmsBytesMessageBuilder implements BlobBuilder
       }
       catch (JMSException jmse)
       {
-         throw new PublicException("Failed initializing JMS BLOB builder.", jmse);
+         throw new PublicException(
+               BpmRuntimeError.JMS_FAILED_INITIALIZING_JMS_BLOB_BUILDER.raise(), jmse);
       }
    }
-   
+
    public void persistAndClose() throws PublicException
    {
       try
       {
          msg.writeByte(SECTION_MARKER_EOF);
-         
+
          queueSender.send(queue, msg);
 
          this.msg = null;
-         
+
          // sender, session and connection will be closed by RT Environment and end of TX
       }
       catch (JMSException jmse)
       {
-         throw new PublicException("Failed writing BLOB to JMS.", jmse);
+         throw new PublicException(
+               BpmRuntimeError.JMS_FAILED_WRITING_BLOB_TO_JMS.raise(), jmse);
       }
    }
-   
+
    public void startInstancesSection(String tableName, int nInstances)
          throws InternalException
    {
@@ -116,7 +125,7 @@ public class JmsBytesMessageBuilder implements BlobBuilder
          throw new InternalException("Failed writing value to JMS blob.", jmse);
       }
    }
-   
+
    public void writeByte(byte value) throws InternalException
    {
       try
@@ -140,7 +149,7 @@ public class JmsBytesMessageBuilder implements BlobBuilder
          throw new InternalException("Failed writing value to JMS blob.", jmse);
       }
    }
-   
+
    public void writeInt(int value) throws InternalException
    {
       try
@@ -176,7 +185,7 @@ public class JmsBytesMessageBuilder implements BlobBuilder
          throw new InternalException("Failed writing value to JMS blob.", jmse);
       }
    }
-   
+
    public void writeDouble(double value) throws InternalException
    {
       try
@@ -188,7 +197,7 @@ public class JmsBytesMessageBuilder implements BlobBuilder
          throw new InternalException("Failed writing value to JMS blob.", jmse);
       }
    }
-   
+
    public void writeString(String value) throws InternalException
    {
       try
@@ -200,5 +209,5 @@ public class JmsBytesMessageBuilder implements BlobBuilder
          throw new InternalException("Failed writing value to JMS blob.", jmse);
       }
    }
-   
+
 }

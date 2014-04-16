@@ -23,8 +23,24 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
+import org.eclipse.stardust.engine.core.persistence.jdbc.BatchStatementWrapper;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DmlManager;
+import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptorRegistry;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceHistoryBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ClobDataBean;
+import org.eclipse.stardust.engine.core.runtime.beans.DataValueBean;
+import org.eclipse.stardust.engine.core.runtime.beans.LargeStringHolder;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceHierarchyBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ProcessInstanceScopeBean;
+import org.eclipse.stardust.engine.core.runtime.beans.TransitionInstanceBean;
 
 
 /**
@@ -36,7 +52,7 @@ public class ProcessBlobAuditTrailPersistor
    private static final Logger trace = LogManager.getLogger(ProcessBlobAuditTrailPersistor.class);
 
    private final TypeDescriptorRegistry tdRegistry = TypeDescriptorRegistry.current();
-   
+
    private Map batchInsertStatements = CollectionUtils.newMap();
 
    public void writeIntoAuditTrail(Session session, int maxSqlBatchSize)
@@ -44,11 +60,11 @@ public class ProcessBlobAuditTrailPersistor
       for (Iterator i = batchInsertStatements.entrySet().iterator(); i.hasNext();)
       {
          Map.Entry entry = (Map.Entry) i.next();
-         
+
          final TypeDescriptor td = (TypeDescriptor) entry.getKey();
-         
+
          final List rows = (List) entry.getValue();
-         
+
          if (ProcessInstanceBean.class == td.getType())
          {
             batchInsertProcessInstances(session, maxSqlBatchSize, td, rows);
@@ -153,13 +169,13 @@ public class ProcessBlobAuditTrailPersistor
 
       final List fields = td.getPersistentFields();
       final List links = td.getLinks();
-      
+
       BatchStatementWrapper insertRowStatement = null;
       PreparedStatement stmt = null;
       try
       {
          insertRowStatement = dmlManager.prepareInsertRowStatement(session.getConnection());
-         
+
          stmt = insertRowStatement.getStatement();
 
          int batchSize = 0;
@@ -167,18 +183,18 @@ public class ProcessBlobAuditTrailPersistor
          for (Iterator rowItr = rows.iterator(); rowItr.hasNext();)
          {
             final Object[] rowValues = (Object[]) rowItr.next();
-            
+
             if (trace.isDebugEnabled())
             {
                trace.debug("Inserting instance " + rowCounter++);
             }
 
             int slot = 0;
-            
+
             for (int j = 0; j < fields.size(); ++j)
             {
                final FieldDescriptor field = (FieldDescriptor) fields.get(j);
-               
+
                if ( !(session.getDBDescriptor().supportsIdentityColumns()
                      && td.requiresPKCreation()
                      && td.isPkField(field.getField())))
@@ -188,19 +204,19 @@ public class ProcessBlobAuditTrailPersistor
                   ++slot;
                }
             }
-            
+
             for (int j = 0; j < links.size(); ++j)
             {
                final LinkDescriptor link = (LinkDescriptor) links.get(j);
-               
+
                DmlManager.setSQLValue(stmt, slot + 1, link.getFkField().getType(),
                      rowValues[slot], session.getDBDescriptor());
                ++slot;
             }
-            
+
             stmt.addBatch();
             ++batchSize;
-            
+
             if ((batchSize >= maxSqlBatchSize) || !rowItr.hasNext())
             {
                stmt.executeBatch();
@@ -210,11 +226,14 @@ public class ProcessBlobAuditTrailPersistor
       }
       catch (SQLException sqle)
       {
+         String sqlStatement = "<unknown>";
+         if (null != insertRowStatement)
+         {
+            sqlStatement = insertRowStatement.getStatementString();
+         }
          throw new PublicException(
-               "Failed persisting process BLOB. Failing SQL statement: "
-                     + ((null != insertRowStatement)
-                           ? insertRowStatement.getStatementString()
-                           : "<unknown>"), sqle);
+               BpmRuntimeError.JMS_FAILED_PERSISTING_PROCESS_BLOB.raise(sqlStatement),
+               sqle);
       }
       finally
       {
@@ -227,7 +246,7 @@ public class ProcessBlobAuditTrailPersistor
       while (true)
       {
          final byte sectionMarker = blob.readByte();
-         
+
          if (BlobBuilder.SECTION_MARKER_EOF == sectionMarker)
          {
             if (trace.isDebugEnabled())
@@ -241,70 +260,70 @@ public class ProcessBlobAuditTrailPersistor
          {
             final String tableName = blob.readString();
             final int nInstances = blob.readInt();
-            
+
             TypeDescriptor td = tdRegistry.getDescriptorForTable(tableName);
-            
+
             final List fields = td.getPersistentFields();
             final List links = td.getLinks();
-            
+
             try
             {
                if (trace.isDebugEnabled())
                {
                   trace.debug("Extracting " + nInstances + " of type " + td.getType());
                }
-               
+
                List rows = (List) batchInsertStatements.get(td);
                if (null == rows)
                {
                   rows = CollectionUtils.newLinkedList();
-                  
+
                   batchInsertStatements.put(td, rows);
                }
-               
+
                for (int i = 0; i < nInstances; ++i)
                {
                   if (trace.isDebugEnabled())
                   {
                      trace.debug("Reading instance " + i);
                   }
-                  
+
                   final Object[] rowValues = new Object[fields.size() + links.size()];
-                  
+
                   for (int j = 0; j < fields.size(); ++j)
                   {
                      FieldDescriptor field = (FieldDescriptor) fields.get(j);
-                     
+
                      Field javaField = field.getField();
                      Object value = readField(blob, javaField.getType());
-                     
+
                      if (trace.isDebugEnabled())
                      {
                         trace.debug("Extracted value " + javaField.getName() + " -> "
                               + value);
                      }
-                     
+
                      rowValues[j] = value;
                   }
-                  
+
                   for (int j = 0; j < links.size(); ++j)
                   {
                      LinkDescriptor link = (LinkDescriptor) links.get(j);
-                     
+
                      Object fkValue = readField(blob, link.getFkField().getType());
-                     
+
                      if (trace.isDebugEnabled())
                      {
                         trace.debug("Extracted foreign key " + link.getField().getName()
                               + " -> " + fkValue);
                      }
-                     
+
                      rowValues[fields.size() + j] = fkValue;
                   }
-                  
+
                   rows.add(rowValues);
                }
-               
+
                if (trace.isDebugEnabled())
                {
                   trace.debug("Finished reading instances");
@@ -312,13 +331,15 @@ public class ProcessBlobAuditTrailPersistor
             }
             catch (InternalException ie)
             {
-               throw new PublicException("Failed persisting process BLOB at table "
-                     + td.getTableName(), ie);
+               throw new PublicException(
+                     BpmRuntimeError.JMS_FAILED_PERSISTING_BLOB_AT_TABLE.raise(td
+                           .getTableName()), ie);
             }
          }
          else
          {
-            throw new PublicException("Unexepected section amrker: " + sectionMarker);
+            throw new PublicException(
+                  BpmRuntimeError.JMS_UNEXPECTED_SECTION_MARKER.raise(sectionMarker));
          }
       }
    }

@@ -17,6 +17,7 @@ import java.io.IOException;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 
 /**
@@ -30,27 +31,27 @@ public abstract class AbstractByteArrayBlobReader implements BlobReader
    private ByteArrayInputStream bais;
 
    private DataInputStream dis;
-   
+
    protected abstract byte[] nextByteArray();
 
    public byte[] getBlob()
    {
       return blob;
    }
-   
+
    public void setBlob(byte[] blob)
    {
       this.blob = blob;
-      
+
       if (null != dis)
       {
          close();
       }
-      
+
       this.bais = new ByteArrayInputStream(blob);
       this.dis = new DataInputStream(bais);
    }
-   
+
    public void init(Parameters params) throws PublicException
    {
       // nothing to be done
@@ -72,10 +73,11 @@ public abstract class AbstractByteArrayBlobReader implements BlobReader
          }
          catch (IOException ioe)
          {
-            throw new PublicException("Failed closing BLOB after reading.", ioe);
+            throw new PublicException(
+                  BpmRuntimeError.JMS_FAILED_CLOSING_BLOB_AFTER_READING.raise(), ioe);
          }
       }
-      
+
       this.blob = nextByteArray();
       if (null != blob)
       {
@@ -100,7 +102,9 @@ public abstract class AbstractByteArrayBlobReader implements BlobReader
       }
       catch (IOException ioe)
       {
-         throw new PublicException("Failed closing BLOB after reading.", ioe);
+         throw new PublicException(
+               BpmRuntimeError.JMS_FAILED_CLOSING_BLOB_AFTER_READING.raise(), ioe);
+
       }
    }
 

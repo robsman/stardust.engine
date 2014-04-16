@@ -451,6 +451,14 @@ public class BpmRuntimeError extends ErrorCase
    //// JMS related
 
    public static final Args1 JMS_NO_MESSAGE_ACCEPTORS_FOUND = newArgs1("JMS01001", BpmRuntimeErrorMessages.getString("JMS01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JMS_FAILED_CLOSING_BLOB_AFTER_READING = newArgs0("JMS01002", BpmRuntimeErrorMessages.getString("JMS01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JMS_FAILED_CONNECTING_TO_JMS_AUDITTRAIL_QUEUE = newArgs0("JMS01003", BpmRuntimeErrorMessages.getString("JMS01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JMS_FAILED_READING_PROCESS_BLOB_FROM_JMS_AUDITTRAIL_QUEUE = newArgs0("JMS01004", BpmRuntimeErrorMessages.getString("JMS01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JMS_FAILED_INITIALIZING_JMS_BLOB_BUILDER = newArgs0("JMS01005", BpmRuntimeErrorMessages.getString("JMS01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JMS_FAILED_WRITING_BLOB_TO_JMS = newArgs0("JMS01006", BpmRuntimeErrorMessages.getString("JMS01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JMS_FAILED_PERSISTING_PROCESS_BLOB = newArgs1("JMS01007", BpmRuntimeErrorMessages.getString("JMS01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JMS_FAILED_PERSISTING_BLOB_AT_TABLE = newArgs1("JMS01008", BpmRuntimeErrorMessages.getString("JMS01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JMS_UNEXPECTED_SECTION_MARKER = newArgs1("JMS01009", BpmRuntimeErrorMessages.getString("JMS01009")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Preference Store related
 
@@ -580,7 +588,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args0 HZLC_FAILES_ENLISTING_HAZLECAST_CACHE_IN_CURRENT_TRANSACTION = newArgs0("HZLC01001", BpmRuntimeErrorMessages.getString("HZLC01001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 HZLC_FAILED_RETRIEVING_HAZLECAST_CONNECTION_FACTORY_FROM_JNDI = newArgs0("HZLC01002", BpmRuntimeErrorMessages.getString("HZLC01002")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   public static final Args0 HZLC_FAILES_ENLISTING_HAZLECAST_OBJECTS_IN_CURRENT_TRANSACTION = newArgs0("HZLC01001", BpmRuntimeErrorMessages.getString("HZLC01001")); //$NON-NLS-1$ //$NON-NLS-2$
 
    ////Diagram related
 
@@ -607,6 +615,12 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 JDBC_ARCHIVE_AUDITTRAIL_DOES_NOT_ALLOW_CHANGES = newArgs0("JDBC01010", BpmRuntimeErrorMessages.getString("JDBC01010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 JDBC_INVALID_TX_ISOLATION_LEVEL = newArgs2("JDBC01011", BpmRuntimeErrorMessages.getString("JDBC01011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 JDBC_DERBY_SESSION_ROLLED_BACK = newArgs0("JDBC01012", BpmRuntimeErrorMessages.getString("JDBC01012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 JDBC_FAILED_OBTAINING_NEW_SEQUECMCE_VALUES_RESULT_SET_EMPTY = newArgs0("JDBC01013", BpmRuntimeErrorMessages.getString("JDBC01013")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   ////POJO related
+
+   public static final Args0 POJO_CANNOT_CREATE_OBJECT = newArgs0("POJO01001", BpmRuntimeErrorMessages.getString("POJO01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 POJO_ACCESS_POINT_DOES_NOT_EXIST = newArgs2("POJO01002", BpmRuntimeErrorMessages.getString("POJO01002")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    private static final Object[] NONE = {};

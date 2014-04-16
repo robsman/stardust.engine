@@ -48,7 +48,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPat
 import org.eclipse.stardust.engine.core.spi.jca.IJcaResourceProvider;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.core.spi.jms.IQueueConnectionProvider;
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 
 
@@ -63,8 +62,6 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    private ModelManager modelManager;
 
    private Session session;
-
-   private IDocumentRepositoryService documentRepositoryService;
 
    private IPreferenceStorageManager preferenceStore;
 
@@ -142,19 +139,6 @@ public class BpmRuntimeEnvironment extends PropertyLayer
    {
       this.authorizedOnBehalfOf = authorizedOnBehalfOf;
    }      
-   
-   @Deprecated
-   public IDocumentRepositoryService getDocumentRepositoryService()
-   {
-      return documentRepositoryService;
-   }
-
-   @Deprecated
-   public void setDocumentRepositoryService(
-         IDocumentRepositoryService documentRepositoryService)
-   {
-      this.documentRepositoryService = documentRepositoryService;
-   }
 
    public ActivityThreadContext getActivityThreadContext()
    {

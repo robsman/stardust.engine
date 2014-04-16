@@ -37,12 +37,12 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.runtime.utils.*;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderManager;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 import org.eclipse.xsd.util.XSDResourceImpl;
 
 
@@ -878,56 +878,25 @@ public class QueryServiceImpl implements QueryService, Serializable
 
    public Document findFirstDocument(DocumentQuery query) throws ObjectNotFoundException
    {
-      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
+      query.setPolicy(new SubsetPolicy(1));
 
-      if (vfs != null)
+      RepositoryProviderManager instance = RepositoryProviderManager.getInstance();
+      Documents documents = instance.getImplicitService().findDocuments(query);
+      if (documents.iterator().hasNext())
       {
-         query.setPolicy(new SubsetPolicy(1));
-         ResultIterator rawResult = new DocumentQueryEvaluator(query,
-               getDefaultEvaluationContext(), vfs).executeFetch();
-         try
-         {
-            return DocumentQueryPostProcessor.findFirstMatchingDocument(query, rawResult);
-         }
-         finally
-         {
-            rawResult.close();
-         }
+         return (Document) documents.iterator().next();
       }
       else
       {
          throw new ObjectNotFoundException(
-               BpmRuntimeError.DMS_FILE_STORE_UNAVAILABLE.raise());
+               BpmRuntimeError.DMS_NO_MATCHING_DOC_FOUND.raise());
       }
-
    }
 
    public Documents getAllDocuments(DocumentQuery query)
    {
-
-      BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-      IDocumentRepositoryService vfs = rtEnv.getDocumentRepositoryService();
-
-      if (vfs != null)
-      {
-         ResultIterator rawResult = new DocumentQueryEvaluator(query,
-               getDefaultEvaluationContext(), vfs).executeFetch();
-         try
-         {
-            return DocumentQueryPostProcessor.findMatchingDocuments(query, rawResult);
-         }
-         finally
-         {
-            rawResult.close();
-         }
-      }
-      else
-      {
-         return new Documents(query, new RawQueryResult<Document>(Collections.EMPTY_LIST,
-               QueryUtils.getSubset(query), false));
-      }
-
+      RepositoryProviderManager instance = RepositoryProviderManager.getInstance();
+      return instance.getImplicitService().findDocuments(query);
    }
 
    public Preferences getPreferences(PreferenceScope scope, String moduleId,

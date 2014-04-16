@@ -53,13 +53,11 @@ import org.eclipse.stardust.engine.api.model.XpdlType;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
-import org.eclipse.stardust.engine.api.runtime.DmsVfsConversionUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
-import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
@@ -67,9 +65,6 @@ import org.eclipse.stardust.engine.core.struct.emfxsd.XPathFinder;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsConstants;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.engine.extensions.dms.data.DocumentType;
-import org.eclipse.stardust.engine.extensions.dms.data.VfsMediator;
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-import org.eclipse.stardust.vfs.VfsUtils;
 import org.eclipse.xsd.XSDFactory;
 import org.eclipse.xsd.XSDSchema;
 import org.eclipse.xsd.XSDSchemaDirective;
@@ -357,23 +352,24 @@ public final class DocumentTypeUtils
     *
     * @param data
     * @param document
+    * @param documentManagementService 
     * @return
     *
     * @throws InvalidValueException if a incompatible document type is set on the document.
     */
-   public static DocumentType inferDocumentTypeAndStoreDocument(IData data, Document document)
+   public static DocumentType inferDocumentTypeAndStoreDocument(IData data, Document document, DocumentManagementService dms)
    {
       DocumentType inferredDocumentType = DocumentTypeUtils.inferDocumentType(data);
       if (inferredDocumentType != null)
       {
-         Map newAuditTrailDocument = ((DmsDocumentBean) document).vfsResource();
          {
             DocumentType inputDocumentType = document.getDocumentType();
             if (inputDocumentType == null)
             {
                document.setDocumentType(inferredDocumentType);
-               new VfsMediator().writeDocumentToVfs(newAuditTrailDocument,
-                     false, null, false);
+               
+               dms.updateDocument(document, false, null, null, false);
+               
                if (trace.isInfoEnabled())
                {
                   trace.info("Inferred document type of document '"

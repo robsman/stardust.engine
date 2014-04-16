@@ -15,10 +15,12 @@
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
    
-   <bean id="dmsProvider" class="org.eclipse.stardust.vfs.jcr.JcrDocumentRepositoryServiceBean">
-      <property name="sessionFactoryName" value="jcrSessionFactory" />
-   </bean>
-   
+   <!-- Make jcrSessionFactory available as JcaResource -->
+   <bean class="org.eclipse.stardust.engine.spring.integration.jca.JcaResourceBinding">
+      <property name="name" value="jcr/ContentRepository" />
+      <property name="resource" ref="jcrSessionFactory" />
+   </bean>   
+ 
    <bean id="jcrSessionFactory" class="org.eclipse.stardust.engine.api.spring.IppJcrSessionFactory" lazy-init="true">
       <property name="repository" ref="xaJcrConnectionFactory" />
    </bean>

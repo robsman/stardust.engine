@@ -25,10 +25,11 @@
    <bean id="abstractCarnotService" abstract="true" class="org.eclipse.stardust.engine.api.spring.AbstractSpringServiceBean">
       <property name="transactionManager" ref="jtaTxManager" />
       <property name="dataSource" ref="xaAuditTrailConnectionFactory" />
+      <property name="jcaResourceProvider" ref="carnotJcaResourceResolver" />
       <property name="jmsResourceProvider" ref="jmsResourceResolver" />
-      <property name="dmsProvider" ref="dmsProvider" />
-      <property name="carnotProperties" ref="customCarnotProperties" />
+      <property name="carnotProperties" ref="customCarnotProperties" />	
    </bean>
+   
    <bean id="carnotWorkflowService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.WorkflowServiceBean" />
    <bean id="carnotUserService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.UserServiceBean" />
    <bean id="carnotQueryService" parent="abstractCarnotService" class="org.eclipse.stardust.engine.api.spring.QueryServiceBean" />
@@ -69,6 +70,10 @@
       <property name="connectionMaxIdleMinutes" value="1" />
    </bean>
    
+   <!-- JCA Resource Resolver -->
+   <bean name="carnotJcaResourceResolver"
+		class="org.eclipse.stardust.engine.spring.integration.jca.DefaultJcaResourceResolver" />
+		  
    <!-- JMS Resource Resolver -->
    <bean id="jmsResourceResolver" class="org.eclipse.stardust.engine.spring.integration.jms.DefaultJmsResourceResolver" />
    

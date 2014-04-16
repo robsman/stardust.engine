@@ -23,21 +23,20 @@ import org.eclipse.stardust.vfs.jcr.ISessionFactory;
  */
 public class EjbDocumentRepositoryService extends JcrDocumentRepositoryService implements ISessionFactory
 {
-   private Session session;
-   
-   public EjbDocumentRepositoryService(Session session)
+   public EjbDocumentRepositoryService(ISessionFactory sessionFactory)
    {
-      this.session = session;
+      this.setSessionFactory(sessionFactory);
    }
 
    public Session getSession() throws RepositoryException
    {
-      return session;
+      return this.getSessionFactory().getSession();
    }
 
    @Override
    public void releaseSession(Session session)
    {
+      this.getSessionFactory().releaseSession(session);
    }
 
 }

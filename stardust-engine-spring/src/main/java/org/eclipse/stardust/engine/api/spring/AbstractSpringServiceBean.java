@@ -22,6 +22,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.InvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.LoggedInUser;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
+import org.eclipse.stardust.engine.core.spi.jca.IJcaResourceProvider;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.core.spi.security.PrincipalProvider;
 import org.springframework.beans.BeansException;
@@ -31,8 +32,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.PlatformTransactionManager;
-
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 
 
 public abstract class AbstractSpringServiceBean
@@ -50,7 +49,7 @@ public abstract class AbstractSpringServiceBean
 
    private DataSource dataSource;
    
-   private IDocumentRepositoryService dmsProvider;
+   private IJcaResourceProvider jcaResourceProvider;
    
    private IJmsResourceProvider jmsResourceProvider;
 
@@ -99,14 +98,14 @@ public abstract class AbstractSpringServiceBean
       this.dataSource = dataSource;
    }
 
-   public IDocumentRepositoryService getDmsProvider()
+   public IJcaResourceProvider getJcaResourceProvider()
    {
-      return dmsProvider;
+      return jcaResourceProvider;
    }
-
-   public void setDmsProvider(IDocumentRepositoryService dmsProvider)
+   
+   public void setJcaResourceProvider(IJcaResourceProvider jcaResourceProvider)
    {
-      this.dmsProvider = dmsProvider;
+      this.jcaResourceProvider = jcaResourceProvider;
    }
 
    public IJmsResourceProvider getJmsResourceProvider()

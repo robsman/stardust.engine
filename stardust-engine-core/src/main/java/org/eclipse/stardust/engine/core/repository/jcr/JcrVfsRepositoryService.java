@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +72,6 @@ import org.eclipse.stardust.engine.core.persistence.ResultIterator;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
 import org.eclipse.stardust.engine.core.runtime.beans.Constants;
 import org.eclipse.stardust.engine.core.runtime.beans.DocumentTypeUtils;
-import org.eclipse.stardust.engine.core.runtime.beans.EjbDocumentRepositoryService;
 import org.eclipse.stardust.engine.core.runtime.beans.EngineRepositoryMigrationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingService;
 import org.eclipse.stardust.engine.core.runtime.beans.ForkingServiceFactory;
@@ -115,7 +113,7 @@ import org.eclipse.stardust.vfs.jcr.ISessionFactory;
  * @version $Revision: 71122 $
  */
 public class JcrVfsRepositoryService
-      implements Serializable, ILegacyRepositoryService, ISessionFactory
+      implements Serializable, ILegacyRepositoryService
 {
    static final long serialVersionUID = 1L;
 
@@ -131,13 +129,13 @@ public class JcrVfsRepositoryService
    
    private transient List<IDmsResourceSyncListener> resourceSyncListeners;
 
-   private final Session session;
+   private final ISessionFactory sessionFactory;
 
    private final Repository repository;
 
-   public JcrVfsRepositoryService(Session session, Repository repository)
+   public JcrVfsRepositoryService(ISessionFactory sessionFactory, Repository repository)
    {
-      this.session = session;
+      this.sessionFactory = sessionFactory;
       this.repository = repository;
       
    }
@@ -1219,6 +1217,11 @@ public class JcrVfsRepositoryService
                BpmRuntimeError.DMS_UNKNOWN_FILE_ID.raise(documentPath));
       }
    }
+   
+   protected ISessionFactory getSessionFactory()
+   {
+      return sessionFactory;
+   }
 
    // /////////////////////////////////////////////////////////////////////////////////////
    // Utility methods.
@@ -1396,8 +1399,8 @@ public class JcrVfsRepositoryService
    {
       if (vfs == null)
       {
-         EjbDocumentRepositoryService vfsimpl = new EjbDocumentRepositoryService(session);
-         vfsimpl.setSessionFactory(this);
+         JcrDocumentRepositoryService vfsimpl = new JcrDocumentRepositoryService();
+         vfsimpl.setSessionFactory(sessionFactory);
          vfs = vfsimpl;
       }
       return vfs;
@@ -2031,24 +2034,6 @@ public class JcrVfsRepositoryService
             // }
          }
       }
-   }
-
-   public List<Session> getSessions()
-   {
-      // Order matters: create#1 session create#2 adminSession, close#1 adminSession, close#2 session
-      return Arrays.asList(session);
-   }
-
-   @Override
-   public Session getSession() throws RepositoryException
-   {
-      return session;
-   }
-
-   @Override
-   public void releaseSession(Session session)
-   {
-      // lifecycle is handled externally
    }
 
 }

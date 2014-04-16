@@ -221,7 +221,9 @@
                <include name="org/eclipse/stardust/common/error/ObjectNotFoundException.java" />
                <include name="org/eclipse/stardust/common/error/PublicException.java" />
                <include name="org/eclipse/stardust/common/error/ServiceCommandException.java" />
-
+            	
+               <include name="org/eclipse/stardust/common/config/Parameters.java" />
+               
                <include name="org/eclipse/stardust/common/security/InvalidPasswordException.java" />
                <include
                   name="org/eclipse/stardust/common/security/authentication/DefaultCallbackHandler.java" />

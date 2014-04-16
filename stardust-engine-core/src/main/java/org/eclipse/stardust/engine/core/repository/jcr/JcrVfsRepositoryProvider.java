@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider;
@@ -47,12 +47,18 @@ public class JcrVfsRepositoryProvider implements IRepositoryProvider, IRepositor
       defaultInstance.put(IRepositoryConfiguration.PROVIDER_ID, PROVIDER_ID);
       defaultInstance.put(IRepositoryConfiguration.REPOSITORY_ID, RepositoryProviderManager.DEFAULT_REPOSITORY_ID);
       defaultInstance.put(JcrVfsRepositoryConfiguration.IS_DEFAULT_REPOSITORY, "true");
-      defaultInstance.put(JcrVfsRepositoryConfiguration.JNDI_NAME, "jcr/ContentRepository");
+      defaultInstance.put(JcrVfsRepositoryConfiguration.JNDI_NAME, getDefaultJndiName());
       configurations.add(new JcrVfsRepositoryConfiguration(defaultInstance));
 
       return configurations;
    }
    
+   private String getDefaultJndiName()
+   {
+      final Parameters params = Parameters.instance();
+      return params.getString("Jcr.ContentRepository", "jcr/ContentRepository");
+   }
+
    @Override
    public IRepositoryInstance createInstance(IRepositoryConfiguration configuration, String partitionId)
    {

@@ -45,6 +45,7 @@ import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.ExtendedAccessPathEvaluatorRegistry;
+import org.eclipse.stardust.engine.core.spi.jca.IJcaResourceProvider;
 import org.eclipse.stardust.engine.core.spi.jms.IJmsResourceProvider;
 import org.eclipse.stardust.engine.core.spi.jms.IQueueConnectionProvider;
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
@@ -73,6 +74,8 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
    private ChangeLogDigester changeLogDigester;
 
+   private IJcaResourceProvider jcaResourceProvider;
+
    private IJmsResourceProvider jmsResourceProvider;
 
    private Map<QueueConnectionFactory, QueueConnection> jmsQueueConnections = Collections.emptyMap();
@@ -81,7 +84,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
 
    private Map<QueueSession, QueueSender> jmsQueueSenders = Collections.emptyMap();
 
-   private Map<IRepositoryInstance, IRepositoryService> jcrServices = Collections.emptyMap();
+   private Map<IRepositoryInstance, IRepositoryService> repositoryServices = Collections.emptyMap();
    
    private Map<ConnectionFactory, Connection> jcaConnections = Collections.emptyMap();
    
@@ -213,6 +216,16 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       this.jmsResourceProvider = jmsResourceProvider;
    }
 
+   public IJcaResourceProvider getJcaResourceProvider()
+   {
+      return jcaResourceProvider;
+   }
+   
+   public void setJcaResourceProvider(IJcaResourceProvider jcaResourceProvider)
+   {
+      this.jcaResourceProvider = jcaResourceProvider;
+   }
+   
    public ExtendedAccessPathEvaluatorRegistry getEvaluatorRegistry()
    {
       return evaluatorRegistry;
@@ -378,7 +391,7 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       closeQueueSessions();
       closeQueueConnections();
 
-      closeJcrServices();
+      closeRepositoryServices();
       closeJcaConnections();
    }
 
@@ -462,38 +475,38 @@ public class BpmRuntimeEnvironment extends PropertyLayer
       }
    }
    
-   public void registerJcrService(IRepositoryInstance instance, IRepositoryService service)
+   public void registerRepositoryService(IRepositoryInstance instance, IRepositoryService service)
    {
-      if (jcrServices.isEmpty())
+      if (repositoryServices.isEmpty())
       {
-         this.jcrServices = Collections.singletonMap(instance, service);
+         this.repositoryServices = Collections.singletonMap(instance, service);
       }
       else
       {
-         if (1 == jcrServices.size())
+         if (1 == repositoryServices.size())
          {
-            this.jcrServices = CollectionUtils.copyMap(jcrServices);
+            this.repositoryServices = CollectionUtils.copyMap(repositoryServices);
          }
-         jcrServices.put(instance, service);
+         repositoryServices.put(instance, service);
       }
    }
    
-   public IRepositoryService getJcrService(IRepositoryInstance instance)
+   public IRepositoryService getRepositoryService(IRepositoryInstance instance)
    {
-      return jcrServices.get(instance);
+      return repositoryServices.get(instance);
    }
 
-   private void closeJcrServices()
+   private void closeRepositoryServices()
    {
-      if ( !jcrServices.isEmpty())
+      if ( !repositoryServices.isEmpty())
       {
-         for (Entry<IRepositoryInstance, IRepositoryService> entry : jcrServices.entrySet())
+         for (Entry<IRepositoryInstance, IRepositoryService> entry : repositoryServices.entrySet())
          {
             entry.getKey().close(entry.getValue());
          }
       }
 
-      this.jcrServices = Collections.EMPTY_MAP;
+      this.repositoryServices = Collections.EMPTY_MAP;
    }
 
    private void closeJcaConnections()

@@ -109,7 +109,7 @@ public class StartProcessAndAttachDocumentCommand implements ServiceCommand {
 					.getUnqualifiedProcessId(dataId));
 
 			DocumentTypeUtils
-					.inferDocumentTypeAndStoreDocument(iData, document);
+					.inferDocumentTypeAndStoreDocument(iData, document, sFactory.getDocumentManagementService());
 
 			ProcessInstanceBean iPi = ProcessInstanceBean.findByOID(pInstance
 					.getOID());

@@ -47,6 +47,21 @@ public abstract class FilterTerm implements FilterCriterion
     */
    public static final Kind OR = new Kind("OR");
 
+   /**
+    * Constant marking OR NOT-terms.
+    *
+    * @see #AND
+    */
+   public static final Kind ORNOT = new Kind("ORNOT");
+
+   /**
+    * Constant marking AND NOT -terms.
+    *
+    * @see #AND
+    */
+   public static final Kind ANDNOT = new Kind("ANDNOT");
+
+
    private final FilterVerifier verifier;
 
    private final Kind kind;
@@ -100,7 +115,7 @@ public abstract class FilterTerm implements FilterCriterion
     *
     * @param filter The filter criterion to add.
     * @return The callee, thus allowing chained calls.
-    * 
+    *
     * @throws UnsupportedFilterException if the filter criterion to be added is not valid
     *       for thes query this filter term belongs to
     */
@@ -141,6 +156,30 @@ public abstract class FilterTerm implements FilterCriterion
    public FilterOrTerm addOrTerm()
    {
       FilterOrTerm term = new FilterOrTerm(verifier);
+      add(term);
+      return term;
+   }
+
+   /**
+    * Creates a new AND NOT-term and adds it to callee term.
+    *
+    * @return The newly created AND NOT-term, thus allowing chained calls.
+    */
+   public FilterAndNotTerm addAndNotTerm()
+   {
+      FilterAndNotTerm term = new FilterAndNotTerm(verifier);
+      add(term);
+      return term;
+   }
+
+   /**
+    * Creates a new OR NOT-term and adds and adds it to callee term.
+    *
+    * @return The newly created OR NOT-term, thus allowing chained calls.
+    */
+   public FilterOrNotTerm addOrNotTerm()
+   {
+      FilterOrNotTerm term = new FilterOrNotTerm(verifier);
       add(term);
       return term;
    }

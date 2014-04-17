@@ -20,6 +20,7 @@ import java.util.TreeSet;
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.query.FilterTerm.Kind;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 
@@ -121,6 +122,7 @@ public class ProcessHierarchyPreprocessor implements FilterEvaluationVisitor
       Set rootProcessOIDs = localRestriction.getRootProcessOIDs();
       Set processOIDs = localRestriction.getProcessOIDs();
 
+      Kind filterKind = filter.getKind();
       for (Iterator itr = filter.getParts().iterator(); itr.hasNext();)
       {
          Node node = null;
@@ -140,36 +142,36 @@ public class ProcessHierarchyPreprocessor implements FilterEvaluationVisitor
             result.add(node.getFilter());
          }
 
-         if (filter.getKind().equals(FilterTerm.AND))
+         if (filterKind.equals(FilterTerm.AND) || filterKind.equals(FilterTerm.ORNOT))
          {
             rootProcessOIDs = intersection(rootProcessOIDs, node.getRootProcessOIDs());
             processOIDs = intersection(processOIDs, node.getProcessOIDs());
          }
-         else if (filter.getKind().equals(FilterTerm.OR))
+         else if (filterKind.equals(FilterTerm.OR) || filterKind.equals(FilterTerm.ANDNOT))
          {
             rootProcessOIDs = union(rootProcessOIDs, node.getRootProcessOIDs());
             processOIDs = union(processOIDs, node.getProcessOIDs());
          }
          else
          {
-            Assert.lineNeverReached("Invalid filter term: " + filter.getKind());
+            Assert.lineNeverReached("Invalid filter term: " + filterKind);
          }
       }
 
       Node node;
-      if (filter.getKind().equals(FilterTerm.AND))
+      if (filterKind.equals(FilterTerm.AND) || filterKind.equals(FilterTerm.ORNOT))
       {
          node = new Node(result, null, intersection(QueryUtils.findProcessClosure(
                rootProcessOIDs, context.getEvaluationContext()), processOIDs));
       }
-      else if (filter.getKind().equals(FilterTerm.OR))
+      else if (filterKind.equals(FilterTerm.OR) || filterKind.equals(FilterTerm.ANDNOT))
       {
          node = new Node(result, null, union(QueryUtils.findProcessClosure(
                rootProcessOIDs, context.getEvaluationContext()), processOIDs));
       }
       else
       {
-         Assert.lineNeverReached("Invalid filter term: " + filter.getKind());
+         Assert.lineNeverReached("Invalid filter term: " + filterKind);
 
          node = new Node(result);
       }

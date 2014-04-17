@@ -46,32 +46,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.CasePolicy;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.core.persistence.AndTerm;
-import org.eclipse.stardust.engine.core.persistence.Column;
-import org.eclipse.stardust.engine.core.persistence.ComparisonTerm;
-import org.eclipse.stardust.engine.core.persistence.DefaultPersistentVector;
-import org.eclipse.stardust.engine.core.persistence.DeleteDescriptor;
-import org.eclipse.stardust.engine.core.persistence.FieldRef;
-import org.eclipse.stardust.engine.core.persistence.FieldRefResolver;
-import org.eclipse.stardust.engine.core.persistence.Function;
-import org.eclipse.stardust.engine.core.persistence.Functions;
-import org.eclipse.stardust.engine.core.persistence.InsertDescriptor;
-import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.JoinElement;
-import org.eclipse.stardust.engine.core.persistence.Joins;
-import org.eclipse.stardust.engine.core.persistence.MultiPartPredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Operator;
-import org.eclipse.stardust.engine.core.persistence.OrTerm;
-import org.eclipse.stardust.engine.core.persistence.OrderCriterion;
-import org.eclipse.stardust.engine.core.persistence.PersistenceController;
-import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.PersistentVector;
-import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.persistence.PredicateTerm;
-import org.eclipse.stardust.engine.core.persistence.Predicates;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
-import org.eclipse.stardust.engine.core.persistence.QueryExtension;
-import org.eclipse.stardust.engine.core.persistence.ResultIterator;
+import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor.CompositeKey;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 
@@ -936,6 +911,11 @@ public class DmlManager
          whereClause = buildSqlFragment((ComparisonTerm) predicateTerm, bindValues,
                fieldRefResolver, setDefaultAlias, useLiteralsWhereAppropriate);
       }
+      else if (predicateTerm instanceof NotTerm)
+      {
+         whereClause = buildSqlFragment((NotTerm) predicateTerm, bindValues,
+               fieldRefResolver, setDefaultAlias, useLiteralsWhereAppropriate);
+      }
       else if (predicateTerm instanceof AndTerm)
       {
          whereClause = buildSqlFragment((AndTerm) predicateTerm, bindValues, " AND ",
@@ -1004,6 +984,40 @@ public class DmlManager
          buffer.append(" ").append(secondOp);
          buffer.append(" ").append(buildValueExpression(op, lhsField, pair.getSecond(), bindValues,
                useLiteralsWhereAppropriate));
+      }
+
+      return buffer;
+   }
+
+   private StringBuffer buildSqlFragment(NotTerm notTerm, List<Pair<Class<?>, ?>> bindValues, FieldRefResolver fieldRefResolver,
+         boolean setDefaultAlias, boolean useLiteralsWhereAppropriate)
+   {
+      StringBuffer buffer = null;
+      if (!notTerm.getParts().isEmpty())
+      {
+         buffer = new StringBuffer(4 * DEFAULT_STMT_BUFFER_SIZE);
+         String condition;
+
+         int count = 0;
+         for(PredicateTerm pt: notTerm.getParts())
+         {
+            count ++;
+            if(count == 1)
+            {
+               condition = notTerm.getSinglePredicateCondition();
+            }
+            else
+            {
+               condition = notTerm.getMultiPredicateCondition();
+            }
+
+            buffer.append(condition);
+            buffer.append("(");
+            StringBuffer fragment = buildWhereClause(pt,
+                  bindValues, fieldRefResolver, setDefaultAlias, useLiteralsWhereAppropriate);
+            buffer.append(fragment);
+            buffer.append(")");
+         }
       }
 
       return buffer;

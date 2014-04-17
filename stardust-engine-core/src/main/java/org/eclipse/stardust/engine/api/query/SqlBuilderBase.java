@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.query.FilterTerm.Kind;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
@@ -341,14 +342,24 @@ public abstract class SqlBuilderBase implements SqlBuilder, FilterEvaluationVisi
       {
          try
          {
-            context.pushFilterKind(filter.getKind());
-            if (FilterTerm.AND == filter.getKind())
+            Kind filterKind = filter.getKind();
+            context.pushFilterKind(filterKind);
+
+            if (FilterTerm.AND == filterKind)
             {
                resultTerm = new AndTerm();
             }
-            else
+            else if(FilterTerm.OR == filterKind)
             {
                resultTerm = new OrTerm();
+            }
+            else if (FilterTerm.ANDNOT == filterKind)
+            {
+               resultTerm = new AndNotTerm();
+            }
+            else if (FilterTerm.ORNOT == filterKind)
+            {
+               resultTerm = new OrNotTerm();
             }
 
             for (Iterator itr = filter.getParts().iterator(); itr.hasNext();)

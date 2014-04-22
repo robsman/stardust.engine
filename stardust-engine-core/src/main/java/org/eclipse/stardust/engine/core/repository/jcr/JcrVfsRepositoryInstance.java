@@ -23,7 +23,6 @@ import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
 import org.eclipse.stardust.engine.core.spi.jca.IJcaResourceProvider;
 import org.eclipse.stardust.vfs.impl.jcr.jackrabbit.JackrabbitRepositoryContext;
-import org.eclipse.stardust.vfs.impl.spi.JcrSession;
 import org.eclipse.stardust.vfs.jcr.ISessionFactory;
 import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
 
@@ -72,8 +71,7 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
       if (jndiName != null && repository == null)
       {
          // lookup in local context
-         this.repository = JackrabbitRepositoryContext.getRepositoryContext().get(
-               jndiName);
+         this.repository = JackrabbitRepositoryContext.getRepository(jndiName);
          
          if (repository == null)
          {
@@ -85,7 +83,7 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
             // lookup repository via jndi
             try
             {
-               this.repository = (Repository) JackrabbitRepositoryContext.getJndiContext().lookup(jndiName);
+               this.repository = JackrabbitRepositoryContext.lookup(jndiName);
             }
             catch (NamingException e)
             {

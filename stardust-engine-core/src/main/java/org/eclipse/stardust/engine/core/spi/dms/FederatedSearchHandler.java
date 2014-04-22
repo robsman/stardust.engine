@@ -61,6 +61,13 @@ public class FederatedSearchHandler
                involvedInstances.add(instance);
             }
          }
+         else if (repositoryIds.size() == 1)
+         {
+            // Optimization: If only one repository is selected no special handling is required.
+            IRepositoryInstance instance = manager.getInstance(repositoryIds.get(0));
+            IRepositoryService service = instance.getService(getCurrentUser());
+            return service.findDocuments(query);
+         }
          else
          {
             // Search in selected repositories in order.

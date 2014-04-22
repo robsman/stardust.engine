@@ -37,7 +37,9 @@
 		<property name="translator" ref="structuredDataTranslator" />
 	</bean>
 	<bean id="structuredDataTranslator"
-		class="org.eclipse.stardust.engine.extensions.camel.util.converter.StructuredDataTranslator" />
+		class="org.eclipse.stardust.engine.extensions.camel.util.converter.StructuredDataTranslator">
+		<property name="forkingService" ref="carnotForkingService" />
+	</bean>
 
 	<bean id="docListFileConverter"
 		class="org.eclipse.stardust.engine.extensions.camel.converter.DocumentListFileConverter">
@@ -53,9 +55,11 @@
 	<bean name="mapAppenderProcessor"
 		class="org.eclipse.stardust.engine.extensions.camel.enricher.MapAppenderProcessor" />
 
-	<bean id="required" class="org.apache.camel.spring.spi.SpringTransactionPolicy"
-		lazy-init="true">
-		<property name="transactionManager" ref="jtaTxManager" />
+	<bean id="sqlPrepareStatementStrategy"
+		class="org.eclipse.stardust.engine.extensions.camel.sql.SqlPrepareStatementStrategy" />
+
+	<bean id="required" class="org.apache.camel.spring.spi.SpringTransactionPolicy">
+		<property name="transactionManager" ref="carnotTxManager" />
 		<property name="propagationBehaviorName" value="PROPAGATION_REQUIRED" />
 	</bean>
 	<errorHandler useOriginalMessage="true" id="myErrorHandler" type="TransactionErrorHandler"
@@ -63,7 +67,7 @@
 		<redeliveryPolicy maximumRedeliveries="4"
 			redeliveryDelay="10000"/>
 	</errorHandler>
-	<camelContext errorHandlerRef="myErrorHandler" id="defaultCamelContext" trace="true" shutdownRunningTask="CompleteCurrentTaskOnly" 
+	<camelContext errorHandlerRef="myErrorHandler" id="defaultCamelContext" trace="true"
 		xmlns="http://camel.apache.org/schema/spring">
 	</camelContext>
 

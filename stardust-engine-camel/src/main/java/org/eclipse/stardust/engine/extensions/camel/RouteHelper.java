@@ -15,6 +15,7 @@ import org.apache.camel.language.simple.types.SimpleIllegalSyntaxException;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.RoutesDefinition;
+import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
@@ -144,11 +145,12 @@ public class RouteHelper
                if (elt.getAttribute("id") != null && applicationcontext.containsBean(elt.getAttribute("id").getValue()))
                {
                   if (logger.isDebugEnabled())
-                     logger.debug("Bean <" + elt.getAttribute("id").getValue()
-                           + "> is already in the application context, it will not be added twice");
+                     logger.debug("Removing Bean <" + elt.getAttribute("id").getValue()
+                           + "> from the spring context");
+                  ((BeanDefinitionRegistry) applicationcontext.getBeanFactory()).removeBeanDefinition(elt.getAttribute("id").getValue());
                }
-               else
-               {
+//               else
+//               {
                   XMLOutputter outputter = new XMLOutputter(Format.getCompactFormat());
                   String xmlRepresentation = outputter.outputString(elt);
                   StringBuilder generatedXmlRepresentation = new StringBuilder();
@@ -167,14 +169,26 @@ public class RouteHelper
                         .toString().getBytes()));
                   if (logger.isDebugEnabled())
                      logger.debug(res + "beans loaded in the application context.");
-               }
-
+//               }
             }
          }
       }
 
    }
-
+   public static void restartCamelContext(CamelContext camelContext,
+         AbstractApplicationContext applicationcontext)
+   {
+      try
+      {
+         camelContext.stop();
+         ((SpringCamelContext)camelContext).setApplicationContext(applicationcontext);
+         camelContext.start();
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException("Route creation failed.", e);
+      }
+   }
    /**
     *
     * @param application
@@ -347,6 +361,7 @@ public class RouteHelper
          {
             loadBeanDefinition(createSpringFileContent(springBeans, false, null),
                   (AbstractApplicationContext) springContext);
+            restartCamelContext(camelContext, (AbstractApplicationContext) springContext);
          }
 
 

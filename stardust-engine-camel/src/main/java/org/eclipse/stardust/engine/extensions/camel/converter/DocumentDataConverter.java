@@ -92,7 +92,8 @@ public class DocumentDataConverter implements DataConverter {
 			} else if (messageContent instanceof String) {
 				jcrDocumentContent =  ((String) messageContent).getBytes();
 			} else if(messageContent instanceof MimeMultipart) {
-				jcrDocumentContent = ((String)(((MimeMultipart)messageContent).getBodyPart(0).getContent())).getBytes();
+				MimeMultipart mimeMultipart = (MimeMultipart)messageContent;
+				jcrDocumentContent = MimeMultipartTypeConverter.mimeMultipartToString(mimeMultipart).getBytes();
 			}
 
 			// check the invoked Endpoint

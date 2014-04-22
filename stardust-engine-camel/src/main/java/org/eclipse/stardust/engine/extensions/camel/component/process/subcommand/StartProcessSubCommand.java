@@ -53,7 +53,7 @@ public class StartProcessSubCommand extends AbstractSubCommand
       
       String camelDocumentName = (String) exchange.getIn().getHeader(CAMEL_DOCUMENT_NAME_KEY);
       Map<String, DataHandler> attachments = exchange.getIn().getAttachments();
-      ProcessDefinition processDefinition 	= sf.getQueryService().getProcessDefinition(processId);
+      ProcessDefinition processDefinition 	= sf.getQueryService().getProcessDefinition(fullyQualifiedName);
       DataPath attachmentsDefinition = processDefinition.getDataPath(PROCESS_ATTACHMENTS);
       Endpoint fromEndpoint =  exchange.getFromEndpoint();
       if(camelDocumentName == null && attachments.isEmpty() && attachmentsDefinition == null ||

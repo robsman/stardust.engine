@@ -15,6 +15,7 @@ import org.eclipse.stardust.engine.api.model.ApplicationContext;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.query.ActivityInstances;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
@@ -96,7 +97,15 @@ public class BpmTypeConverter
          for (Iterator<DataMapping> ai = dataMappings.iterator(); ai.hasNext();)
          {
             DataMapping mapping = ai.next();
+            if(!(mapping.getMappedType().getName().equals(Document.class.getName()))){
             converter.marshal(mapping, extendedAttributes);
+            }else{
+            	if (((AbstractBpmTypeConverter)converter).isStuctured(mapping))
+                {
+                   Object dataMap = ((AbstractBpmTypeConverter)converter).findDataValue(mapping, extendedAttributes);
+                   ((AbstractBpmTypeConverter)converter).replaceDataValue(mapping, dataMap, extendedAttributes);
+                }
+            }
          }
       }
    }
@@ -119,7 +128,9 @@ public class BpmTypeConverter
          for (Iterator<DataMapping> ai = dataMappings.iterator(); ai.hasNext();)
          {
             DataMapping mapping = ai.next();
+            if(!(mapping.getMappedType().getName().equals(Document.class.getName()))){
             converter.unmarshal(mapping, extendedAttributes);
+            }
          }
       }
    }

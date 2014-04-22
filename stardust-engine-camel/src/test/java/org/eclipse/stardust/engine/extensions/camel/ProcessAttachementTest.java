@@ -89,12 +89,12 @@ public class ProcessAttachementTest
 
    @SuppressWarnings("unchecked")
    @Test
-   public void testAttachTextFile() throws Exception
+   public void testAttachTextFolderNameWithoutLeadingSlash() throws Exception
    {
       camelContext.addRoutes(testAttachTextFileRoute());
       Exchange exchange = new DefaultExchange(camelContext);
       exchange.setProperty(ATTACHMENT_FILE_NAME, "test.txt");
-      exchange.setProperty(ATTACHMENT_FOLDER_NAME, "/example");
+      exchange.setProperty(ATTACHMENT_FOLDER_NAME, "testAttachTextFolderNameWithoutLeadingSlash");
       exchange.getIn().setBody("hello world");
 
       attachTextFileProducerTemplate.send(exchange);
@@ -111,7 +111,34 @@ public class ProcessAttachementTest
       assertTrue(attachments.size() == 1);
       Document ach = (Document) attachments.get(0);
       assertTrue(ach.getName().equals("test.txt"));
-      assertTrue(ach.getPath().equals("/example/test.txt"));
+      assertTrue(ach.getPath().equals("/testAttachTextFolderNameWithoutLeadingSlash/test.txt"));
+
+   }
+   @SuppressWarnings("unchecked")
+   @Test
+   public void testAttachTextByProvidingTheFullPath() throws Exception
+   {
+      camelContext.addRoutes(testAttachTextFileRoute());
+      Exchange exchange = new DefaultExchange(camelContext);
+      exchange.setProperty(ATTACHMENT_FILE_NAME, "test.txt");
+      exchange.setProperty(ATTACHMENT_FOLDER_NAME, "/testAttachTextFile");
+      exchange.getIn().setBody("hello world");
+
+      attachTextFileProducerTemplate.send(exchange);
+      attachProducerRouteResult.setExpectedMessageCount(1);
+      Long piOid1 = exchange.getIn().getHeader(PROCESS_INSTANCE_OID, Long.class);
+      assertNotNull(piOid1);
+
+      ServiceFactory sf = serviceFactoryAccess.getDefaultServiceFactory();
+      WorkflowService wfService = sf.getWorkflowService();
+      ProcessInstance pi = wfService.getProcessInstance(piOid1);
+      assertEquals(ProcessInstanceState.Active, pi.getState());
+      List<Document> attachments = (List<Document>) wfService.getInDataPath(pi.getOID(), PROCESS_ATTACHMENTS);
+      assertNotNull(attachments);
+      assertTrue(attachments.size() == 1);
+      Document ach = (Document) attachments.get(0);
+      assertTrue(ach.getName().equals("test.txt"));
+      assertTrue(ach.getPath().equals("/testAttachTextFile/test.txt"));
 
    }
 

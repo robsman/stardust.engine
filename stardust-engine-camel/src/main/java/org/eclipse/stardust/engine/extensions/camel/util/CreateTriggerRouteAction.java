@@ -7,13 +7,18 @@ import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SPRING_XML_ROUTES_FOOTER;
 import static org.eclipse.stardust.engine.extensions.camel.Util.createSpringFileContent;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.loadBeanDefinition;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.restartCamelContext;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.model.ModelCamelContext;
 import org.apache.camel.model.RoutesDefinition;
+import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.io.IOUtils;
+
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
@@ -31,6 +36,8 @@ import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayer
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.extensions.camel.converter.DataConverter;
 import org.eclipse.stardust.engine.extensions.camel.trigger.CamelTriggerRoute;
+
+import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
@@ -165,6 +172,7 @@ public class CreateTriggerRouteAction implements Action<Object>
          {
             loadBeanDefinition(createSpringFileContent(additionalBeanDefinition, false, null),
                   (AbstractApplicationContext) springContext);
+            restartCamelContext(camelContext, (AbstractApplicationContext) springContext);
          }
 
          CamelTriggerRoute route = new CamelTriggerRoute(camelContext, trigger, dataConverters, SecurityProperties

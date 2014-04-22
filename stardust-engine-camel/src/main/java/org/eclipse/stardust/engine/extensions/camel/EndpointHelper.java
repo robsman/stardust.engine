@@ -38,7 +38,10 @@ public class EndpointHelper
          answer = answer.replaceAll("&gt;", ">");
       if (answer.contains("&quot;"))
          answer = answer.replaceAll("&quot;", "\"");
-
+      if (answer.contains("&apos;"))
+         answer = answer.replaceAll("&apos;", "'");
+      
+         
       return answer;
    }
 

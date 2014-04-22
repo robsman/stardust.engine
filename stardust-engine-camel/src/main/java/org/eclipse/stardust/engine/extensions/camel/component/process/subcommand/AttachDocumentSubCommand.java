@@ -46,6 +46,10 @@ public class AttachDocumentSubCommand extends AbstractSubCommand
       if (pi != null && !pi.getState().equals(ProcessInstanceState.Completed)
             && !pi.getState().equals(ProcessInstanceState.Interrupted))
       {
+         if(!folderName.startsWith("/")){
+            folderName="/"+folderName;
+            LOG.debug("added leading / for the provided folder name, new folder location set to " + folderName);
+         }
          DmsFileArchiver dmsFileArchiver = new DmsFileArchiver(ClientEnvironment.getCurrentServiceFactory());
 
          Document newDocument = dmsFileArchiver.archiveFile(endpoint.evaluateContent(exchange), fileName, folderName);

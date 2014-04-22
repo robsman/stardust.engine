@@ -33,6 +33,8 @@ public class RepositoryProviderManager
    
    private String defaultRepositoryId = DEFAULT_REPOSITORY_ID;
 
+   private RepositoryIdMediator repositoryIdMediator;
+
    public RepositoryProviderManager()
    {
       ServiceLoader<IRepositoryProvider.Factory> loader = ServiceLoader.load(IRepositoryProvider.Factory.class);
@@ -45,6 +47,8 @@ public class RepositoryProviderManager
       }
       
       instances = new RepositoryInstanceCache();
+      
+      repositoryIdMediator = new RepositoryIdMediator(this);
       
       registerDefaultInstances();
    }
@@ -162,7 +166,7 @@ public class RepositoryProviderManager
 
    public IRepositoryService getImplicitService()
    {
-      return new RepositoryIdMediator(this);
+      return repositoryIdMediator;
    }
 
    public IRepositoryInstance getInstance(String repositoryId)

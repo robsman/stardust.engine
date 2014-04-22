@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
+import org.eclipse.stardust.engine.api.query.RepositoryPolicy;
 import org.eclipse.stardust.engine.api.runtime.AccessControlPolicy;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
@@ -35,10 +36,12 @@ import org.eclipse.stardust.engine.api.runtime.RepositoryMigrationReport;
 public class RepositoryIdMediator implements ILegacyRepositoryService
 {
    private RepositoryProviderManager manager;
+   private FederatedSearchHandler federatedSearchHandler;
 
    public RepositoryIdMediator(RepositoryProviderManager manager)
    {
       this.manager = manager;
+      this.federatedSearchHandler = new FederatedSearchHandler(manager);
    }
 
    @Override
@@ -451,20 +454,22 @@ public class RepositoryIdMediator implements ILegacyRepositoryService
    @Override
    public Documents findDocuments(DocumentQuery query)
    {
-      // RepositoryPolicy repositoryPolicy = query.getPolicy(RepositoryPolicy.class);
-      // if (repositoryPolicy != null)
-      // {
-      // TODO Federated Search
-      // } else
-      
-      // fallback to default
-      String repositoryId = RepositoryProviderManager.getInstance()
-            .getDefaultRepository();
-      
-      IRepositoryInstance defaultRepositoryInstance = manager.getInstance(repositoryId);
+      RepositoryPolicy repositoryPolicy = (RepositoryPolicy) query.getPolicy(RepositoryPolicy.class);
+      if (repositoryPolicy != null)
+      {
+         return federatedSearchHandler.findDocuments(query);
+      }
+      else
+      {
+         // fallback to default
+         String repositoryId = RepositoryProviderManager.getInstance()
+               .getDefaultRepository();
 
-      return addRepositoryId(defaultRepositoryInstance.getService(getCurrentUser()).findDocuments(query), repositoryId);
+         IRepositoryInstance defaultRepositoryInstance = manager.getInstance(repositoryId);
 
+         return addRepositoryId(defaultRepositoryInstance.getService(getCurrentUser())
+               .findDocuments(query), repositoryId);
+      }
    }
 
 }

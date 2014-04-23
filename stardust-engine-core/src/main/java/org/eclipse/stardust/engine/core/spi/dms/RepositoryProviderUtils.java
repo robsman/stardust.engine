@@ -18,51 +18,42 @@ import java.util.Map;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.PropertyLayer;
-import org.eclipse.stardust.engine.api.dto.UserDetails;
-import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.query.PreferenceQuery;
-import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
 import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
 import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
 import org.eclipse.stardust.engine.core.preferences.Preferences;
-import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
-import org.eclipse.stardust.engine.core.runtime.beans.IUser;
-import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class RepositoryProviderUtils
 {
    public static final String MODULE_ID_REPOSITORY_CONFIGURATIONS = "RepositoryConfigurations";
-   
+
    public static final String DMS_ADMIN_SESSION = RepositoryProviderUtils.class.getName() + ".AdminSessionFlag";
-   
+
    public RepositoryProviderUtils()
    {
       // utility class
    }
-   
+
    public static boolean isAdminSessionFlagEnabled()
    {
       return Parameters.instance().getBoolean(DMS_ADMIN_SESSION, false);
    }
-   
+
    public static void setAdminSessionFlag(boolean enabled, PropertyLayer layer)
    {
       layer.setProperty(DMS_ADMIN_SESSION, enabled);
    }
-   
-   public static User getCurrentUser()
+
+   public static UserContext getUserContext()
    {
-      IUser user = SecurityProperties.getUser();
-      return user == null || PredefinedConstants.SYSTEM.equals(user.getId())
-            ? null
-            : (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
+      return UserContext.getInstance();
    }
-   
+
    public static void saveConfiguration(IRepositoryConfiguration configuration)
    {
       IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
-      
+
       String repositoryId = (String) configuration.getAttributes().get(IRepositoryConfiguration.REPOSITORY_ID);
 
       preferenceStore.savePreferences(
@@ -77,7 +68,7 @@ public class RepositoryProviderUtils
 
       PreferenceQuery preferenceQuery = PreferenceQuery.findPreferences(
             PreferenceScope.PARTITION, MODULE_ID_REPOSITORY_CONFIGURATIONS, "*");
-      
+
       List<IRepositoryConfiguration> configurations = CollectionUtils.newArrayList();
       List<Preferences> allPreferences = preferenceStore.getAllPreferences(preferenceQuery, true);
       for (final Preferences preferences : allPreferences)

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.dms;
 
-import static org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils.getCurrentUser;
+import static org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils.getUserContext;
 
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +28,7 @@ import org.eclipse.stardust.engine.api.runtime.Documents;
 /**
  * Handles execution of {@link DocumentQuery} across multiple {@link IRepositoryInstance}.
  * Results are merged into {@link Documents}.
- * 
+ *
  * @author Roland.Stamm
  *
  */
@@ -65,7 +65,7 @@ public class FederatedSearchHandler
          {
             // Optimization: If only one repository is selected no special handling is required.
             IRepositoryInstance instance = manager.getInstance(repositoryIds.get(0));
-            IRepositoryService service = instance.getService(getCurrentUser());
+            IRepositoryService service = instance.getService(getUserContext());
             return service.findDocuments(query);
          }
          else
@@ -77,20 +77,20 @@ public class FederatedSearchHandler
                involvedInstances.add(instance);
             }
          }
-         
+
          // Disable subset skipping. It has to be done in post processing because total count
          // might not be known per subquery.
          SubsetPolicy originalSubset = QueryUtils.getSubset(query);
          int targetMaxCount = getTargetMaxCount(originalSubset);
          DocumentQuery modifiedQuery = modifySubsetPolicy(query, originalSubset);
-         
+
          Iterator<IRepositoryInstance> involvedInstancesIter = involvedInstances.iterator();
          boolean targetReached = false;
          while ( !targetReached && involvedInstancesIter.hasNext())
          {
             IRepositoryInstance instance = involvedInstancesIter.next();
 
-            IRepositoryService service = instance.getService(getCurrentUser());
+            IRepositoryService service = instance.getService(getUserContext());
             try
             {
                Documents foundDocuments = service.findDocuments(modifiedQuery);

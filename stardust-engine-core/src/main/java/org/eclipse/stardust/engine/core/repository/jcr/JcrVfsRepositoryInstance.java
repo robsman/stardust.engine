@@ -15,12 +15,12 @@ import javax.naming.NamingException;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.engine.api.runtime.User;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstance;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryService;
+import org.eclipse.stardust.engine.core.spi.dms.UserContext;
 import org.eclipse.stardust.engine.core.spi.jca.IJcaResourceProvider;
 import org.eclipse.stardust.vfs.impl.jcr.jackrabbit.JackrabbitRepositoryContext;
 import org.eclipse.stardust.vfs.jcr.ISessionFactory;
@@ -28,10 +28,8 @@ import org.eclipse.stardust.vfs.jcr.spring.JcrSpringSessionFactory;
 
 public class JcrVfsRepositoryInstance implements IRepositoryInstance
 {
-   private static final long serialVersionUID = -5256677063628195043L;
-
    protected String repositoryId;
-   
+
    protected String providerId;
 
    protected String partitionId;
@@ -54,9 +52,9 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
       this.providerId = (String) configuration.getAttributes().get(IRepositoryConfiguration.PROVIDER_ID);
       this.jndiName = (String) configuration.getAttributes().get(JcrVfsRepositoryConfiguration.JNDI_NAME);
       this.userLevelAuthorization = JcrVfsRepositoryConfiguration.getBoolean(configuration, JcrVfsRepositoryConfiguration.USER_LEVEL_AUTHORIZATION, false);
-      
+
       this.externalSessionFactory = retrieveExternalJcrSessionFactory(jndiName);
-      
+
       if (configuration.getAttributes().containsKey(
             JcrVfsRepositoryConfiguration.IS_DEFAULT_REPOSITORY))
       {
@@ -67,12 +65,12 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
             this.repository = (Repository) contentRepositoryRes;
          }
       }
-      
+
       if (jndiName != null && repository == null)
       {
          // lookup in local context
          this.repository = JackrabbitRepositoryContext.getRepository(jndiName);
-         
+
          if (repository == null)
          {
             this.repository = extractFromSessionFactory();
@@ -92,7 +90,7 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
             }
          }
       }
-            
+
       initRepositoryInfo(configuration);
    }
 
@@ -133,13 +131,13 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
    {
       return repositoryId;
    }
-   
+
    @Override
    public String getProviderId()
    {
       return providerId;
    }
-   
+
    public String getPartitionId()
    {
       return partitionId;
@@ -150,14 +148,13 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
    {
       return repositoryInfo;
    }
-   
+
    @Override
-   public IRepositoryService getService(User user)
+   public IRepositoryService getService(UserContext userContext)
    {
       synchronized (repository)
       {
-         final BpmRuntimeEnvironment rtEnv = PropertyLayerProviderInterceptor.getCurrent();
-         IRepositoryService service = rtEnv.getRepositoryService(this);
+         IRepositoryService service = userContext.getRepositoryService(this);
 
          if (service == null)
          {
@@ -172,14 +169,14 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
                      userLevelAuthorization);
             }
             service = new JcrVfsRepositoryService(sessionFactory, repository);
-            
-            rtEnv.registerRepositoryService(this, service);
+
+            userContext.registerRepositoryService(this, service);
          }
          return service;
       }
    }
-   
-   
+
+
    @Override
    public void close(IRepositoryService service)
    {

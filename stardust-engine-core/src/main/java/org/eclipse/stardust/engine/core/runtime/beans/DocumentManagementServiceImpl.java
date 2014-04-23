@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.runtime.beans;
 
-import static org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils.getCurrentUser;
+import static org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils.getUserContext;
 
 import java.io.Serializable;
 import java.util.List;
@@ -46,14 +46,14 @@ public class DocumentManagementServiceImpl
       implements Serializable, DocumentManagementService
 {
    static final long serialVersionUID = 1L;
-   
+
    public DocumentManagementServiceImpl()
    {
    }
 
    private RepositoryProviderManager getProvider()
    {
-      return RepositoryProviderManager.getInstance();  
+      return RepositoryProviderManager.getInstance();
    }
 
    @Override
@@ -351,7 +351,7 @@ public class DocumentManagementServiceImpl
    {
       return getProvider().getImplicitService().getPolicies(resourceId);
    }
-   
+
    @Override
    public Set<AccessControlPolicy> getApplicablePolicies(String resourceId)
    {
@@ -377,13 +377,13 @@ public class DocumentManagementServiceImpl
    {
       return getProvider().getImplicitService().getSchemaDefinition(schemaLocation);
    }
-   
+
    // ************************************************
    // *                                              *
    // *    Explicit Federated Repository Methods     *
    // *                                              *
    // ************************************************
-   
+
    @Override
    public Documents findDocuments(DocumentQuery query)
    {
@@ -413,31 +413,31 @@ public class DocumentManagementServiceImpl
    {
       getProvider().unbindRepository(repositoryId);
    }
-   
+
    @Override
    public String getDefaultRepository()
    {
       return getProvider().getDefaultRepository();
    }
-   
+
    @Override
    public void setDefaultRepository(String repositoryId)
    {
       getProvider().setDefaultRepository(repositoryId);
    }
-   
+
    @Override
    public RepositoryMigrationReport migrateRepository(int batchSize,
          boolean evaluateTotalCount, String repositoryId) throws DocumentManagementServiceException
    {
-      return getProvider().getInstance(repositoryId).getService(getCurrentUser()).migrateRepository(batchSize, evaluateTotalCount);
+      return getProvider().getInstance(repositoryId).getService(getUserContext()).migrateRepository(batchSize, evaluateTotalCount);
    }
-   
+
    @Override
    public byte[] getSchemaDefinition(String schemaLocation, String repositoryId)
          throws ObjectNotFoundException
    {
-      return getProvider().getInstance(repositoryId).getService(getCurrentUser()).getSchemaDefinition(schemaLocation);
+      return getProvider().getInstance(repositoryId).getService(getUserContext()).getSchemaDefinition(schemaLocation);
    }
 
    // /////////////////////////////////////////////////////////////////////////////////////

@@ -901,24 +901,24 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                xsdSchema = ((SchemaTypeBean) type).getSchema();
             }
 
-               if (xsdSchema != null)
+            if (xsdSchema != null)
+            {
+               if (needsPatching)
                {
-                  if (needsPatching)
-                  {
-                     // patch namespaces
-                     xsdSchema.getQNamePrefixToNamespaceMap().put(XSDPackage.eNS_PREFIX, XMLResource.XML_SCHEMA_URI);
-                     xsdSchema.setSchemaForSchemaQNamePrefix(XSDPackage.eNS_PREFIX);
-                     xsdSchema.getQNamePrefixToNamespaceMap().remove(TNS_PREFIX);
-                     String targetNamespace = intern(BASE_INFINITY_NAMESPACE + model.getId() + PATH_SEPARATOR + decl.getId());
-                     String prefix = computePrefix(decl.getId(), xsdSchema.getQNamePrefixToNamespaceMap().keySet());
-                     xsdSchema.getQNamePrefixToNamespaceMap().put(intern(prefix), targetNamespace);
-                     xsdSchema.setTargetNamespace(targetNamespace);
-                     schemas2namespace.put(xsdSchema, targetNamespace);
-                  }
-                  ((InternalEObject) xsdSchema).eSetResource(schemaResource, null);
-                  xsdSchema.setSchemaLocation(intern(StructuredDataConstants.URN_INTERNAL_PREFIX + decl.getId()));
+                  // patch namespaces
+                  xsdSchema.getQNamePrefixToNamespaceMap().put(XSDPackage.eNS_PREFIX, XMLResource.XML_SCHEMA_URI);
+                  xsdSchema.setSchemaForSchemaQNamePrefix(XSDPackage.eNS_PREFIX);
+                  xsdSchema.getQNamePrefixToNamespaceMap().remove(TNS_PREFIX);
+                  String targetNamespace = intern(BASE_INFINITY_NAMESPACE + model.getId() + PATH_SEPARATOR + decl.getId());
+                  String prefix = computePrefix(decl.getId(), xsdSchema.getQNamePrefixToNamespaceMap().keySet());
+                  xsdSchema.getQNamePrefixToNamespaceMap().put(intern(prefix), targetNamespace);
+                  xsdSchema.setTargetNamespace(targetNamespace);
+                  schemas2namespace.put(xsdSchema, targetNamespace);
                }
+               ((InternalEObject) xsdSchema).eSetResource(schemaResource, null);
+               xsdSchema.setSchemaLocation(intern(StructuredDataConstants.URN_INTERNAL_PREFIX + decl.getId()));
             }
+         }
 
          if (needsPatching)
          {
@@ -941,18 +941,18 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                   xsdSchema = ((SchemaTypeBean) type).getSchema();
                }
 
-                  if (xsdSchema != null)
-                  {
-                     resolveTypes(decl, xsdSchema, schemas2namespace);
-                     xsdSchema.reset();
-                     // test
-                     /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                     XSDResourceImpl.serialize(baos, xsdSchema.getElement());
-                     System.err.println("----");
-                     System.out.println(baos.toString());*/
-                  }
+               if (xsdSchema != null)
+               {
+                  resolveTypes(decl, xsdSchema, schemas2namespace);
+                  xsdSchema.reset();
+                  // test
+                  /*ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                  XSDResourceImpl.serialize(baos, xsdSchema.getElement());
+                  System.err.println("----");
+                  System.out.println(baos.toString());*/
                }
             }
+         }
 
          // remove adapter after type resolution to avoid a permanent reference to model
          schemaResource.eAdapters().remove(schemaLocatorAdapter);
@@ -1396,7 +1396,7 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
       if (declaration != null)
       {
          IXpdlType type = declaration.getXpdlType();
-         if (type instanceof SchemaTypeBean)
+         if(type instanceof SchemaTypeBean)
          {
             XSDSchema xsdSchema = ((SchemaTypeBean) type).getSchema();
             String name = declaration.getId();
@@ -1956,17 +1956,17 @@ public class DefaultXMLReader implements XMLReader, XMLConstants
                if (declaration != null)
                {
                   IXpdlType type = declaration.getXpdlType();
-                  if (type instanceof ISchemaType)
-                  {
-                     return ((ISchemaType) type).getSchema();
-                  }
-                  if (type instanceof IExternalReference)
+                  if(type instanceof IExternalReference)
                   {
                      String location = ((IExternalReference) type).getLocation();
                      if(location != null && (location.endsWith(".xsd") || location.endsWith(".xml")))
                      {
                         return ((IExternalReference) type).getSchema(model);
                      }
+                  }
+                  else if(type instanceof SchemaTypeBean)
+                  {
+                     return ((SchemaTypeBean) type).getSchema();
                   }
                   return null;
                }

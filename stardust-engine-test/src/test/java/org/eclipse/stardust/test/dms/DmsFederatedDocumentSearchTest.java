@@ -64,7 +64,7 @@ import org.springframework.core.io.ClassPathResource;
 public class DmsFederatedDocumentSearchTest
 {
    private static final Log LOG = LogFactory.getLog(DmsFederatedDocumentSearchTest.class);
-   
+
    // doc 1
    private static final String DOC_NAME1 = "test.txt";
 
@@ -105,24 +105,24 @@ public class DmsFederatedDocumentSearchTest
    private static final Map<String, Integer> META_DATA3 = Collections.singletonMap(META_KEY3, META_VALUE3);
 
    private static final int TOTAL_DOCS = 6;
-   
+
    private static final String TEST_PROVIDER_ID = "jcr-vfs";
-   
-   private static final String DEFAULT_REPO_ID = "default";
-   
+
    private static final String TEST_REPO_ID = "testRepo";
+
+   private static final Serializable TEST_REPO_JNDI = "jcr/ContentRepository2";
 
    // temporary documents
    private static final String DOC_NAME_TEMP = "test.tmp";
-   
+
    private static final UsernamePasswordPair ADMIN_USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private final TestServiceFactory sf = new TestServiceFactory(ADMIN_USER_PWD_PAIR);
    private final DmsAwareTestMethodSetup testMethodSetup = new DmsAwareTestMethodSetup(ADMIN_USER_PWD_PAIR, testClassSetup);
 
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(ADMIN_USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, DMS_MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
@@ -133,25 +133,11 @@ public class DmsFederatedDocumentSearchTest
       Map<String, Serializable> attributes = CollectionUtils.newMap();
       attributes.put(IRepositoryConfiguration.PROVIDER_ID, TEST_PROVIDER_ID);
       attributes.put(IRepositoryConfiguration.REPOSITORY_ID, repositoryId);
-      attributes.put(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO, true);
-      attributes.put(JcrVfsRepositoryConfiguration.USER_LEVEL_AUTHORIZATION, true);
-      attributes.put(JcrVfsRepositoryConfiguration.REPOSITORY_CONFIG_LOCATION, getClasspathPath("test-repo-no-sec.xml"));
-   
+      attributes.put(JcrVfsRepositoryConfiguration.JNDI_NAME, TEST_REPO_JNDI);
+
       return new JcrVfsRepositoryConfiguration(attributes);
    }
 
-   private String getClasspathPath(String classpathResource)
-   {
-      try
-      {
-         return new ClassPathFile(new ClassPathResource(classpathResource)).file().toURI().toString();
-      }
-      catch (IOException e)
-      {
-         throw new RuntimeException(e);
-      }
-   }
-   
    private DocumentQuery getFederatedQuery()
    {
       DocumentQuery query = DocumentQuery.findAll();
@@ -162,22 +148,22 @@ public class DmsFederatedDocumentSearchTest
    @Before
    public void setUp()
    {
-      
+
       initDocument(DOC_NAME1, OWNER1, CONTENT_TYPE1, META_DATA1, null);
       initDocument(DOC_NAME2, OWNER2, CONTENT_TYPE2, META_DATA2, null);
       initDocument(DOC_NAME3, OWNER3, CONTENT_TYPE3, META_DATA3, null);
-      
+
       sf.getDocumentManagementService().bindRepository(createTestRepoConfig(TEST_REPO_ID));
 
       initDocument(DOC_NAME1, OWNER1, CONTENT_TYPE1, META_DATA1, TEST_REPO_ID);
       initDocument(DOC_NAME2, OWNER2, CONTENT_TYPE2, META_DATA2, TEST_REPO_ID);
       initDocument(DOC_NAME3, OWNER3, CONTENT_TYPE3, META_DATA3, TEST_REPO_ID);
    }
-   
+
    @After
    public void cleanup()
    {
-      sf.getDocumentManagementService().unbindRepository(TEST_REPO_ID);      
+      sf.getDocumentManagementService().unbindRepository(TEST_REPO_ID);
    }
 
    @Test
@@ -243,7 +229,7 @@ public class DmsFederatedDocumentSearchTest
 
       assertEquals("SubSetPolicy(2, 0) Documents", 2, docs.size());
    }
-   
+
    @Test
    public void testSubSet4()
    {
@@ -256,7 +242,7 @@ public class DmsFederatedDocumentSearchTest
 
       assertEquals("SubSetPolicy(4, 1) Documents", 4, docs.size());
    }
-   
+
    @Test
    public void testSubSet5()
    {
@@ -329,7 +315,7 @@ public class DmsFederatedDocumentSearchTest
       query.where(DocumentQuery.OWNER.isEqual(OWNER1));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", 2, docs.size());
    }
 
@@ -340,7 +326,7 @@ public class DmsFederatedDocumentSearchTest
       query.where(DocumentQuery.CONTENT_TYPE.isEqual(CONTENT_TYPE1));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", 2, docs.size());
    }
 
@@ -355,7 +341,7 @@ public class DmsFederatedDocumentSearchTest
             .add(DocumentQuery.NAME.isEqual(DOC_NAME2));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", TOTAL_DOCS-2, docs.size());
    }
 
@@ -366,7 +352,7 @@ public class DmsFederatedDocumentSearchTest
       query.where(DocumentQuery.META_DATA.withName(META_KEY1).like(META_VALUE1+"*"));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", 2, docs.size());
    }
 
@@ -377,7 +363,7 @@ public class DmsFederatedDocumentSearchTest
       query.where(DocumentQuery.META_DATA.withName(META_KEY3).isEqual(META_VALUE3));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", 2, docs.size());
    }
 
@@ -389,7 +375,7 @@ public class DmsFederatedDocumentSearchTest
       query.where(DocumentQuery.META_DATA.any().like(META_VALUE1 + "*"));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", 2, docs.size());
    }
 
@@ -402,7 +388,7 @@ public class DmsFederatedDocumentSearchTest
       .and(DocumentQuery.NAME.like("*.txt"));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", 2, docs.size());
    }
 
@@ -411,7 +397,7 @@ public class DmsFederatedDocumentSearchTest
    {
       final int expectedDocSize = TOTAL_DOCS;
       final int retryCount = 3;
-      
+
       DocumentQuery query = getFederatedQuery();
       query.where(DocumentQuery.CONTENT.like("this is a test content"));
 
@@ -423,7 +409,7 @@ public class DmsFederatedDocumentSearchTest
          Thread.sleep(1000L);
          docs = sf.getQueryService().getAllDocuments(query);
       }
-      
+
       assertEquals("Documents", expectedDocSize, docs.size());
       assertEquals("text/plain", docs.get(0).getContentType());
    }
@@ -437,7 +423,7 @@ public class DmsFederatedDocumentSearchTest
       query.where(DocumentQuery.CONTENT.like(META_VALUE1));
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", 0, docs.size());
    }
 
@@ -448,7 +434,7 @@ public class DmsFederatedDocumentSearchTest
       query.where(DocumentQuery.CONTENT.isNotNull());
 
       Documents docs = sf.getQueryService().getAllDocuments(query);
-      
+
       assertEquals("Documents", TOTAL_DOCS, docs.size());
    }
 

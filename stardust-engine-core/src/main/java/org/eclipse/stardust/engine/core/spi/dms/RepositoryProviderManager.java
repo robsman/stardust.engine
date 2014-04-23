@@ -16,15 +16,19 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.common.log.LogManager;
+import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProvider.Factory;
 
 public class RepositoryProviderManager
 {
-
    public static String DEFAULT_REPOSITORY_ID = "default";
    
+   private static Logger trace = LogManager.getLogger(RepositoryProviderManager.class); 
+
    private static RepositoryProviderManager INSTANCE;
    
    private Map<String, IRepositoryProvider> providers = CollectionUtils.newHashMap();
@@ -51,6 +55,8 @@ public class RepositoryProviderManager
       repositoryIdMediator = new RepositoryIdMediator(this);
       
       registerDefaultInstances();
+      
+      loadConfigurations();
    }
    
    public static RepositoryProviderManager getInstance()
@@ -67,7 +73,7 @@ public class RepositoryProviderManager
       }
       return INSTANCE;
    }
-   
+
    private void registerDefaultInstances()
    {
       for (IRepositoryProvider provider : providers.values())
@@ -104,6 +110,23 @@ public class RepositoryProviderManager
       }
    }
 
+   private void loadConfigurations()
+   {
+      List<IRepositoryConfiguration> configurations = RepositoryProviderUtils.getAllConfigurations();
+      
+      for (IRepositoryConfiguration configuration : configurations)
+      {
+         try
+         {
+            bindRepository(configuration);
+         }
+         catch (Exception e)
+         {
+            trace.error("IRepositoryConfiguration could not be loaded.", e);
+         }
+      }
+   }
+
    public void bindRepository(IRepositoryConfiguration configuration)
    {
       String providerId = (String) configuration.getAttributes().get(IRepositoryConfiguration.PROVIDER_ID);
@@ -112,6 +135,10 @@ public class RepositoryProviderManager
       if (provider == null)
       {
          throw new PublicException("The repository provider '"+ providerId +"' was not found.");
+      }
+      if (StringUtils.isEmpty(repositoryId))
+      {
+         throw new IllegalArgumentException("The RepositoryId cannot be empty or null");
       }
       
       synchronized (instances)
@@ -126,9 +153,10 @@ public class RepositoryProviderManager
             throw new PublicException("The repositoryId '" + repositoryId
                   + "' is already bound. ");
          }
+         RepositoryProviderUtils.saveConfiguration(configuration);
       }
    }
-   
+
    public void unbindRepository(String repositoryId)
    {
       if (repositoryId == null || defaultRepositoryId.equals(repositoryId) || DEFAULT_REPOSITORY_ID.equals(repositoryId))
@@ -145,6 +173,7 @@ public class RepositoryProviderManager
       IRepositoryProvider provider = providers.get(instance.getProviderId());
       provider.destroyInstance(instance);
       instances.remove(repositoryId);
+      RepositoryProviderUtils.removeConfiguration(repositoryId);
    }
    
    public String getDefaultRepository()

@@ -10,18 +10,31 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.spi.dms;
 
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.PropertyLayer;
 import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.query.PreferenceQuery;
 import org.eclipse.stardust.engine.api.runtime.User;
+import org.eclipse.stardust.engine.core.preferences.IPreferenceStorageManager;
+import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
+import org.eclipse.stardust.engine.core.preferences.PreferenceStorageFactory;
+import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 public class RepositoryProviderUtils
 {
-   public final static String DMS_ADMIN_SESSION = RepositoryProviderUtils.class.getName() + ".AdminSessionFlag";
+   public static final String MODULE_ID_REPOSITORY_CONFIGURATIONS = "RepositoryConfigurations";
+   
+   public static final String DMS_ADMIN_SESSION = RepositoryProviderUtils.class.getName() + ".AdminSessionFlag";
    
    public RepositoryProviderUtils()
    {
@@ -44,6 +57,55 @@ public class RepositoryProviderUtils
       return user == null || PredefinedConstants.SYSTEM.equals(user.getId())
             ? null
             : (User) DetailsFactory.create(user, IUser.class, UserDetails.class);
+   }
+   
+   public static void saveConfiguration(IRepositoryConfiguration configuration)
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+      
+      String repositoryId = (String) configuration.getAttributes().get(IRepositoryConfiguration.REPOSITORY_ID);
+
+      preferenceStore.savePreferences(
+            new Preferences(PreferenceScope.PARTITION,
+                  MODULE_ID_REPOSITORY_CONFIGURATIONS, repositoryId,
+                  configuration.getAttributes()), false);
+   }
+
+   public static List<IRepositoryConfiguration> getAllConfigurations()
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+
+      PreferenceQuery preferenceQuery = PreferenceQuery.findPreferences(
+            PreferenceScope.PARTITION, MODULE_ID_REPOSITORY_CONFIGURATIONS, "*");
+      
+      List<IRepositoryConfiguration> configurations = CollectionUtils.newArrayList();
+      List<Preferences> allPreferences = preferenceStore.getAllPreferences(preferenceQuery, true);
+      for (final Preferences preferences : allPreferences)
+      {
+         if (preferences.getPreferences() != null && !preferences.getPreferences().isEmpty())
+         {
+            configurations.add(new IRepositoryConfiguration()
+            {
+               private static final long serialVersionUID = 1L;
+
+               @Override
+               public Map<String, Serializable> getAttributes()
+               {
+                  return preferences.getPreferences();
+               }
+            });
+         }
+      }
+      return configurations;
+   }
+
+   public static void removeConfiguration(String repositoryId)
+   {
+      IPreferenceStorageManager preferenceStore = PreferenceStorageFactory.getCurrent();
+
+      preferenceStore.savePreferences(new Preferences(PreferenceScope.PARTITION,
+            MODULE_ID_REPOSITORY_CONFIGURATIONS, repositoryId, Collections.EMPTY_MAP),
+            false);
    }
 
 

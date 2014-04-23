@@ -14,6 +14,7 @@ import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -22,12 +23,15 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.DmsUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
+import org.eclipse.stardust.engine.core.preferences.PreferenceScope;
+import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryProvider;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryInstanceInfo;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryProviderInfo;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
+import org.eclipse.stardust.engine.core.spi.dms.RepositoryProviderUtils;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
@@ -65,6 +69,8 @@ public class DmsMultiRepositoryTest
    private static final String DEFAULT_REPO_ID = "default";
    
    private static final String TEST_REPO_ID = "testRepo";
+
+   private static final Serializable TEST_REPO_JNDI = "jcr/ContentRepository2";
    
    private DocumentManagementService getDms()
    {
@@ -76,24 +82,10 @@ public class DmsMultiRepositoryTest
       Map<String, Serializable> attributes = CollectionUtils.newMap();
       attributes.put(IRepositoryConfiguration.PROVIDER_ID, TEST_PROVIDER_ID);
       attributes.put(IRepositoryConfiguration.REPOSITORY_ID, TEST_REPO_ID);
-      attributes.put(JcrVfsRepositoryConfiguration.IS_IN_MEMORY_TEST_REPO, true);
-      attributes.put(JcrVfsRepositoryConfiguration.USER_LEVEL_AUTHORIZATION, true);
-      attributes.put(JcrVfsRepositoryConfiguration.REPOSITORY_CONFIG_LOCATION, getClasspathPath("test-repo-no-sec.xml"));
+      attributes.put(JcrVfsRepositoryConfiguration.JNDI_NAME, TEST_REPO_JNDI);
    
       attributes.put(JcrVfsRepositoryConfiguration.DISABLE_CAPABILITY_VERSIONING, true);
       return new JcrVfsRepositoryConfiguration(attributes);
-   }
-
-   private String getClasspathPath(String classpathResource)
-   {
-      try
-      {
-         return new ClassPathFile(new ClassPathResource(classpathResource)).file().toURI().toString();
-      }
-      catch (IOException e)
-      {
-         throw new RuntimeException(e);
-      }
    }
    
    @Test
@@ -131,7 +123,11 @@ public class DmsMultiRepositoryTest
    @Test
    public void testBind()
    {    
-      getDms().bindRepository(createTestRepo2Config());
+      IRepositoryConfiguration config = createTestRepo2Config();
+      getDms().bindRepository(config);
+      
+      Preferences preferences = sf.getQueryService().getPreferences(PreferenceScope.PARTITION, RepositoryProviderUtils.MODULE_ID_REPOSITORY_CONFIGURATIONS, TEST_REPO_ID);
+      Assert.assertEquals(config.getAttributes(), preferences.getPreferences());
    }
 
    @Test
@@ -210,6 +206,9 @@ public class DmsMultiRepositoryTest
    public void testUnbind()
    {     
       getDms().unbindRepository(TEST_REPO_ID);
+      
+      Preferences preferences = sf.getQueryService().getPreferences(PreferenceScope.PARTITION, RepositoryProviderUtils.MODULE_ID_REPOSITORY_CONFIGURATIONS, TEST_REPO_ID);
+      Assert.assertEquals(Collections.EMPTY_MAP, preferences.getPreferences());
    }
    
    @Test(expected=PublicException.class)

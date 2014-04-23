@@ -17,23 +17,23 @@
    
    <!-- Make jcrSessionFactory available as JcaResource -->
    <bean class="org.eclipse.stardust.engine.spring.integration.jca.JcaResourceBinding">
-      <property name="name" value="jcr/ContentRepository" />
-      <property name="resource" ref="jcrSessionFactory" />
+      <property name="name" value="jcr/ContentRepository2" />
+      <property name="resource" ref="jcrSessionFactory2" />
    </bean>   
  
-   <bean id="jcrSessionFactory" class="org.eclipse.stardust.engine.api.spring.IppJcrSessionFactory" lazy-init="true">
-      <property name="repository" ref="xaJcrConnectionFactory" />
+   <bean id="jcrSessionFactory2" class="org.eclipse.stardust.engine.api.spring.IppJcrSessionFactory" lazy-init="true">
+      <property name="repository" ref="xaJcrConnectionFactory2" />
    </bean>
    
-   <bean id="xaJcrConnectionFactory" class="org.springframework.jca.support.LocalConnectionFactoryBean" lazy-init="true">
+   <bean id="xaJcrConnectionFactory2" class="org.springframework.jca.support.LocalConnectionFactoryBean" lazy-init="true">
       <property name="managedConnectionFactory">
-         <bean id="jackrabbitRepo" class="org.eclipse.stardust.vfs.jcr.jca.JackrabbitRepositoryMCF">
-            <property name="repository" ref="carnotJackrabbitRepository" />
+         <bean id="jackrabbitRepo2" class="org.eclipse.stardust.vfs.jcr.jca.JackrabbitRepositoryMCF">
+            <property name="repository" ref="carnotJackrabbitRepository2" />
             <property name="bindSessionToTransaction" value="true" />
          </bean>
       </property>
       <property name="connectionManager">
-         <bean id="connectionManagerFactory" class="org.jencks.factory.ConnectionManagerFactoryBean">
+         <bean id="connectionManagerFactory2" class="org.jencks.factory.ConnectionManagerFactoryBean">
             <property name="transactionManager" ref="xaTransactionManager" />
             <property name="transaction" value="xa" />
             <property name="partitionStrategy" value="by-connector-properties"/>
@@ -42,17 +42,17 @@
    </bean>
    
       <!-- Repository startup -->
-   <bean id="carnotJackrabbitRepository" class="org.eclipse.stardust.vfs.jcr.spring.JackrabbitRepositoryStartupBean">
-      <property name="jndiName" value="jcr/ContentRepository" />
+   <bean id="carnotJackrabbitRepository2" class="org.eclipse.stardust.vfs.jcr.spring.JackrabbitRepositoryStartupBean">
+      <property name="jndiName" value="jcr/ContentRepository2" />
       <property name="bindToJndi" value="false" />
-      <property name="repositoryConfig" value="test-repo.xml" />
+      <property name="repositoryConfig" value="test-repo-no-sec.xml" />
 	  <property name="repositoryHome" >
-         <bean factory-bean="jcrWorkspace" factory-method="filePath" />
+         <bean factory-bean="jcrWorkspace2" factory-method="filePath" />
 	  </property>
    </bean>
    
-   <bean id="jcrWorkspace" class="org.eclipse.stardust.test.impl.Workspace" init-method="create" destroy-method="remove">
-      <constructor-arg index="0" value="jcr" />
+   <bean id="jcrWorkspace2" class="org.eclipse.stardust.test.impl.Workspace" init-method="create" destroy-method="remove">
+      <constructor-arg index="0" value="jcr2" />
    </bean>
    
 </beans>

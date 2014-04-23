@@ -121,6 +121,16 @@ public class Workspace
       return workspace;
    }
    
+   public String filePath()
+   {
+      if (state != State.CREATED)
+      {
+         throw new IllegalStateException(state.toString());
+      }
+      
+      return workspace.getAbsolutePath();
+   }
+   
    public State state()
    {
       return state;

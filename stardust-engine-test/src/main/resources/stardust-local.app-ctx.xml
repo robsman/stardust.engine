@@ -17,6 +17,7 @@
 
    <!-- DMS Support -->
    <import resource="classpath:stardust-local-dms-jcr-jackrabbit.app-ctx.xml" />
+   <import resource="classpath:stardust-local-dms-jcr-jackrabbit2.app-ctx.xml" />
 
    <!-- Clustering Support -->
    <import resource="classpath:stardust-local-clustering-hazelcast.app-ctx.xml" />

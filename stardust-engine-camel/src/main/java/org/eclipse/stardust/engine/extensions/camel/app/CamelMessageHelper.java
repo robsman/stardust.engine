@@ -1,5 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.app;
 
+import static org.eclipse.stardust.engine.extensions.camel.Util.*;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,8 +44,9 @@ public class CamelMessageHelper
          if ((ap.getDirection().equals(Direction.IN_OUT) || ap.getDirection().equals(Direction.IN))
                && isValidAccessPoint(application, ap))
          {
-            Object bodyOutAP = application.getAttribute(CamelConstants.CAT_BODY_IN_ACCESS_POINT) != null ? application
-                  .getAttribute(CamelConstants.CAT_BODY_IN_ACCESS_POINT) : "oParam1";
+            Object bodyOutAP = getBodyInAccessPoint(application) != null
+                  ? getBodyInAccessPoint(application)
+                  : "oParam1";
 
             CamelMessageLocation location = ap.getId().equals(bodyOutAP) || bodyOutAP == null
                   ? CamelMessageLocation.BODY
@@ -79,12 +81,13 @@ public class CamelMessageHelper
          else if ((ap.getDirection().equals(Direction.IN_OUT) || ap.getDirection().equals(Direction.OUT))
                && isValidAccessPoint(application, ap))
          {
-            Object bodyOutAP = application.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT) != null ? application
-                  .getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT) : "returnValue";
+            Object bodyOutAP = getBodyOutAccessPoint(application) != null
+                  ? getBodyOutAccessPoint(application)
+                  : "returnValue";
             CamelMessageLocation location = ap.getId().equals(bodyOutAP) || bodyOutAP == null
                   ? CamelMessageLocation.BODY
                   : CamelMessageLocation.HEADER;
-           
+
             if (CamelMessageLocation.HEADER.equals(location))
             {
                outHeaders.put(ap.getId(), null);
@@ -105,11 +108,11 @@ public class CamelMessageHelper
          String accessPointIdString = null;
          accessPointIdString = (accessPointIds.substring(0, accessPointIds.length() - 1)).toString();
          outHeaders.put(CamelConstants.CAT_HEADERS_OUT_ACCESS_POINT, accessPointIdString);
-         for(String key:outHeaders.keySet())
-            if(!headers.containsKey(key))
-                  headers.put(key,outHeaders.get(key));
+         for (String key : outHeaders.keySet())
+            if (!headers.containsKey(key))
+               headers.put(key, outHeaders.get(key));
       }
-      
+
       anObject[1] = Reflect.castValue(headers, aClass[1]);
       return anObject;
    }
@@ -134,8 +137,8 @@ public class CamelMessageHelper
                   && isValidAccessPoint(application, ap))
             {
 
-               Object bodyOutAP = application.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT) != null
-                     ? application.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT)
+               Object bodyOutAP = getBodyOutAccessPoint(application) != null
+                     ? getBodyOutAccessPoint(application)
                      : "returnValue";
 
                CamelMessageLocation location = ap.getId().equals(bodyOutAP) || bodyOutAP == null
@@ -163,8 +166,9 @@ public class CamelMessageHelper
 
       Map<String, Object> map = new HashMap<String, Object>();
 
-      ApplicationContext context = ai.getActivity().getApplicationContext("application") != null ? ai.getActivity()
-            .getApplicationContext("application") : ai.getActivity().getApplicationContext("default");
+      ApplicationContext context = getActivityInstanceApplicationContext(ai) != null
+            ? getActivityInstanceApplicationContext(ai)
+            : getActivityInstanceDefaultContext(ai);
       if (context != null)
       {
          Iterator<DataMapping> outDataMappings = context.getAllOutDataMappings().iterator();
@@ -182,8 +186,8 @@ public class CamelMessageHelper
                                                                                     // not
                                                                                     // application
             {
-               Object bodyOutAP = application.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT) != null
-                     ? application.getAttribute(CamelConstants.CAT_BODY_OUT_ACCESS_POINT)
+               Object bodyOutAP = getBodyOutAccessPoint(application) != null
+                     ? getBodyOutAccessPoint(application)
                      : "returnValue";
 
                CamelMessageLocation location = accessPoint.getId().equals(bodyOutAP) || bodyOutAP == null
@@ -226,10 +230,9 @@ public class CamelMessageHelper
    {
 
       boolean supportsMultipleAccessPoints = false;
-      if (application.getAttribute(CamelConstants.SUPPORT_MULTIPLE_ACCESS_POINTS) != null)
+      if (getSupportMultipleAccessPointAttribute(application) != null)
       {
-         supportsMultipleAccessPoints = (Boolean) application
-               .getAttribute(CamelConstants.SUPPORT_MULTIPLE_ACCESS_POINTS);
+         supportsMultipleAccessPoints = (Boolean) getSupportMultipleAccessPointAttribute(application);
       }
 
       if (supportsMultipleAccessPoints)
@@ -259,9 +262,9 @@ public class CamelMessageHelper
 
    public static boolean supportsMultipleAccessPoints(Application application)
    {
-      if (application.getAttribute(CamelConstants.SUPPORT_MULTIPLE_ACCESS_POINTS) != null)
+      if (getSupportMultipleAccessPointAttribute(application) != null)
       {
-         return (Boolean) application.getAttribute(CamelConstants.SUPPORT_MULTIPLE_ACCESS_POINTS);
+         return (Boolean) getSupportMultipleAccessPointAttribute(application);
 
       }
       return false;

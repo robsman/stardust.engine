@@ -68,5 +68,4 @@ public interface IXPathMap
     * @return root XPath
     */
    public TypedXPath getRootXPath();
-   
 }

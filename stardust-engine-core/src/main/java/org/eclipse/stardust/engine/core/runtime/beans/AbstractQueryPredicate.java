@@ -13,6 +13,7 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.Predicate;
@@ -151,6 +152,11 @@ public abstract class AbstractQueryPredicate<T> implements Predicate<T>
          {
             return !((Collection) right).contains(left);
          }
+         if (Operator.NOT_ANY_OF == operator)
+         {
+            Assert.lineNeverReached("TODO: Still to be implemented");
+         }
+
          throw new IllegalArgumentException("Unsupported operator: " + operator);
       }
 

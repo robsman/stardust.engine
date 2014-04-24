@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.model.beans.AccessPointBean;
 import org.eclipse.stardust.engine.core.model.beans.DataBean;
 
@@ -68,7 +69,7 @@ public abstract class IdentifiableElementBean extends ModelElementBean
       markModified();
       this.id = id;
    }
-   
+
    protected void checkConsistency(List<Inconsistency> inconsistencies)
    {
       checkForVariables(inconsistencies, id, "ID");
@@ -76,19 +77,19 @@ public abstract class IdentifiableElementBean extends ModelElementBean
 
       super.checkConsistency(inconsistencies);
    }
-   
+
    protected void checkId(List<Inconsistency> inconsistencies)
    {
       if (id == null || id.length() == 0)
       {
-         inconsistencies.add(new Inconsistency(toString() + " has no ID.",
-               this, Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.VAL_HAS_NO_ID.raise(toString());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
       }
       else if ((this instanceof DataBean || this instanceof AccessPointBean)
             && !StringUtils.isValidIdentifier(getId()))
       {
-         inconsistencies.add(new Inconsistency(toString() + " has an invalid ID.",
-               this, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.VAL_HAS_INVALID_ID.raise(toString());
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
    }
 }

@@ -19,10 +19,11 @@ import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.*;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.Pair;
@@ -44,11 +45,6 @@ import org.eclipse.stardust.engine.core.struct.sxml.converters.DOMConverter;
 import org.eclipse.stardust.engine.extensions.transformation.Constants;
 import org.xml.sax.SAXException;
 
-
-
-/**
- * 
- */
 public class XSLMessageTransformationApplicationInstance implements
 		SynchronousApplicationInstance
 {
@@ -400,7 +396,7 @@ public class XSLMessageTransformationApplicationInstance implements
 		return doGetOutAccessPointValues(outDataTypes);
 	}
 
-	private void printXML(org.w3c.dom.Document xmlDoc) {
+	/*private void printXML(org.w3c.dom.Document xmlDoc) {
         try {
         	System.out.println("XML Input Doc:");
 			Transformer transformer = TransformerFactory.newInstance().newTransformer();			
@@ -412,7 +408,7 @@ public class XSLMessageTransformationApplicationInstance implements
 		} catch (TransformerFactoryConfigurationError e) {
 			e.printStackTrace();
 		}		
-	}
+	}*/
 
 	private org.w3c.dom.DOMImplementation getDOMImplementation()
 	{

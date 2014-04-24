@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlSeeAlso({
     NotInListPredicateXto.class,
     InListPredicateXto.class,
+    NotAnyOfPredicateXto.class,
     BetweenPredicateXto.class
 })
 public abstract class BinaryListValuedPredicateXto

@@ -96,7 +96,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
             if (processId != null && processId.startsWith("{"))
             {
                processDefinition = qs.getProcessDefinition(processId);
-               model = qs.getModel(processDefinition.getModelOID());
+               model = qs.getModel(processDefinition.getModelOID(), false);
                unqualifiedProcessId = QName.valueOf(processId).getLocalPart();
             }
             else
@@ -110,7 +110,7 @@ public class WsApiStartProcessCommand implements ServiceCommand
          {
             qs = null;
          }
-         
+
 
          @SuppressWarnings("unchecked")
          Map<String, Object> initialDataValues = (Map) unmarshalInitialDataValues(

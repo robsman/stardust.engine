@@ -117,7 +117,7 @@ public abstract class ModifyDepartmentCommand extends DepartmentCommand
       {
          DeployedModelDescriptionDetails details = (DeployedModelDescriptionDetails) models
                .get(0);
-         model = queryService.getModel(details.getModelOID());
+         model = queryService.getModel(details.getModelOID(), false);
       }
 
       Participant participant = model != null

@@ -19,6 +19,7 @@ import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceMode
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_ENGINE_DEFAULT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_IMMEDIATE;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_ASYNC_SUBPROCESS_TRANSIENT;
+import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_DATA_ACCESS_PRIOR_TO_AND_SPLIT;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FORKED_FAIL;
 import static org.eclipse.stardust.test.transientpi.TransientProcessInstanceModelConstants.PROCESS_DEF_ID_FROM_TRANSIENT_TO_NON_TRANSIENT;
@@ -2207,6 +2208,32 @@ public class TransientProcessInstanceTest
       
       final String logMsgRegex = "State change .*" + PROCESS_DEF_NAME_TIMER_TRIGGER + ".* Active-->Completed\\.";
       barrier.waitForLogMessage(logMsgRegex, new WaitTimeout(10, TimeUnit.SECONDS));
+   }
+   
+   /**
+    * <p>
+    * <b>Transient Process Support is {@link KernelTweakingProperties#SUPPORT_TRANSIENT_PROCESSES_ON}.</b>
+    * </p>
+    * 
+    * <p>
+    * Ensures that the transient process instance is processed correctly, even though
+    * {@link KernelTweakingProperties#TRANSIENT_PROCESSES_EXPOSE_IN_MEM_STORAGE}
+    * is set to <code>false</code>, i.e. the in-memory storage is <b>not</b> exposed.
+    * </p>
+    * 
+    * <p>
+    * See also <a href="https://www.csa.sungard.com/jira/browse/CRNT-30812">CRNT-30812</a>.
+    * </p>
+    */
+   @Test
+   public void testDataAccessPriorToAndSplitHavingInMemStorageExposalDisabled() throws Exception
+   {
+      enableTransientProcessesSupport();
+      disableInMemStorageExposal();
+      
+      final ProcessInstance pi = sf.getWorkflowService().startProcess(PROCESS_DEF_ID_DATA_ACCESS_PRIOR_TO_AND_SPLIT, null, true);
+
+      ProcessInstanceStateBarrier.instance().await(pi.getOID(), ProcessInstanceState.Completed);
    }
    
    private boolean hasEntryInDbForPi(final long oid) throws SQLException

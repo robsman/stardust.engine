@@ -36,19 +36,14 @@ import org.eclipse.stardust.engine.core.preferences.Preferences;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2;
-import org.eclipse.stardust.engine.core.runtime.utils.Authorization2Predicate;
-import org.eclipse.stardust.engine.core.runtime.utils.AuthorizationContext;
-import org.eclipse.stardust.engine.core.runtime.utils.DepartmentUtils;
-import org.eclipse.stardust.engine.core.runtime.utils.WorkItemAuthorization2Predicate;
+import org.eclipse.stardust.engine.core.runtime.utils.*;
 import org.eclipse.stardust.engine.core.spi.query.CustomActivityInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomProcessInstanceQuery;
 import org.eclipse.stardust.engine.core.spi.query.CustomQueryUtils;
 import org.eclipse.stardust.engine.core.spi.query.CustomUserQuery;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
-import org.eclipse.xsd.util.XSDResourceImpl;
-
 import org.eclipse.stardust.vfs.IDocumentRepositoryService;
+import org.eclipse.xsd.util.XSDResourceImpl;
 
 
 /**
@@ -85,14 +80,14 @@ public class QueryServiceImpl implements QueryService, Serializable
             // evaluating custom query
             return CustomQueryUtils.evaluateCustomQuery((CustomActivityInstanceQuery) query);
          }
-         
+
          RuntimeInstanceQueryEvaluator queryEvaluator;
          if(isFilteringWorkitemsOnly(query))
          {
-            rte.setAuthorizationPredicate(new WorkItemAuthorization2Predicate(
+            rte.setAuthorizationPredicate(new WorkItemAuthorizationForAIQuery2Predicate(
                   AuthorizationContext.create(QueryService.class,
-                        "getAllActivityInstances", ActivityInstanceQuery.class)));            
-            
+                        "getAllActivityInstances", ActivityInstanceQuery.class)));
+
             queryEvaluator = new WorkItemQueryEvaluator(query, getDefaultEvaluationContext());
          }
          else
@@ -181,7 +176,7 @@ public class QueryServiceImpl implements QueryService, Serializable
          {   // evaluating custom query
             return CustomQueryUtils.evaluateCustomQuery((CustomProcessInstanceQuery) query);
          }
-   
+
          ResultIterator rawResult = new ProcessInstanceQueryEvaluator(query,
                getDefaultEvaluationContext()).executeFetch();
          try
@@ -238,7 +233,7 @@ public class QueryServiceImpl implements QueryService, Serializable
       if(isFilteringWorkitemsOnly(query))
       {
          final BpmRuntimeEnvironment runtimeEnvironment = PropertyLayerProviderInterceptor.getCurrent();
-         runtimeEnvironment.setAuthorizationPredicate(new WorkItemAuthorization2Predicate(
+         runtimeEnvironment.setAuthorizationPredicate(new WorkItemAuthorizationForAIQuery2Predicate(
                AuthorizationContext.create(QueryService.class, "getActivityInstancesCount",
                      ActivityInstanceQuery.class)));
          // removal of state filters necessary before processing as WorkItemQuery??
@@ -938,7 +933,7 @@ public class QueryServiceImpl implements QueryService, Serializable
    {
       return new RuntimeEnvironmentInfoDetails();
    }
-   
+
    private static boolean isFilteringWorkitemsOnly(ActivityInstanceQuery query)
    {
       if (query.getPolicy(EvaluateByWorkitemsPolicy.class) != null)
@@ -946,6 +941,6 @@ public class QueryServiceImpl implements QueryService, Serializable
          return true;
       }
       return false;
-   }   
-   
+   }
+
 }

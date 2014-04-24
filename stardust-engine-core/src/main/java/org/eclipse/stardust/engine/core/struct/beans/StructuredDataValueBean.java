@@ -74,7 +74,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
 
    public static final FieldRef FR__NUMBER_VALUE = new FieldRef(
          StructuredDataValueBean.class, FIELD__NUMBER_VALUE);
-   
+
    public static final FieldRef FR__DOUBLE_VALUE = new FieldRef(
          StructuredDataValueBean.class, FIELD__DOUBLE_VALUE);
 
@@ -86,7 +86,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    public static final String PK_SEQUENCE = "structured_data_value_seq";
 
    public static final boolean TRY_DEFERRED_INSERT = true;
-   
+
    public static final String[] struct_dv_index1_UNIQUE_INDEX = new String[] {FIELD__OID};
    public static final String[] struct_dv_index2_INDEX = new String[] {FIELD__PARENT};
    public static final String[] struct_dv_index3_INDEX = new String[] {FIELD__XPATH};
@@ -100,7 +100,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    public static final int entryKey_COLUMN_LENGTH = 50;
 
    protected static final Class LOADER = StructuredDataValueLoader.class;
-   
+
    public ProcessInstanceBean processInstance;
    public long parent;
    public String entryKey;
@@ -109,15 +109,15 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    public String string_value;
    public long number_value;
    public double double_value;
-   
+
    static final boolean type_key_USE_LITERALS = true;
 
    private transient LargeStringHolderBigDataHandler dataHandler;
-   
+
    public static final String processInstance_REGISTRAR = "addStructuredDataValue";
 
    /**
-    * 
+    *
     */
    public StructuredDataValueBean()
    {
@@ -130,7 +130,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
     * literal, a literal PersistenceController is created. <p/> If the type is an entity
     * bean reference, a serializable PersistenceController is created to hold the primary
     * key of the entity bean.
-    * 
+    *
     * @param parent
     * @param entry_key
     * @param xpath
@@ -176,7 +176,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
 
    /**
     * Retrieves the value of the data value.
-    * 
+    *
     * @return If the type of the data value's data is a literal, the java wrapper object (<code>Integer</code>,
     *         <code>Long</code> etc.) is returned. If the type is an (entity bean)
     *         reference, the entity bean is returned.
@@ -185,7 +185,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    {
       return dataHandler.read();
    }
-   
+
    // @todo (france, ub): how the forceRefresh semantics precisely works
    /**
     * Sets the PersistenceController of this data value either to the literal provided as
@@ -205,7 +205,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    // @todo (france, ub): investigate usage of this method in the context of plethora
    /**
     * Retrieves the serialized value of the data value.
-    * 
+    *
     * @return If the type of the data value's data is a literal, the java wrapper object (<code>Integer</code>,
     *         <code>Long</code> etc.) is returned. If the type is an (entity bean)
     *         reference, the pk of the entity bean is returned.
@@ -220,7 +220,7 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
    public String getShortStringValue()
    {
       fetch();
-      return string_value;
+      return string_value == null && type_key == BigData.STRING ? "" : string_value;
    }
 
    public void setShortStringValue(String value)
@@ -328,13 +328,13 @@ public class StructuredDataValueBean extends IdentifiablePersistentBean
             + this.parent + "> xPathOid=<" + this.xpath + "> value=<"
             + this.getValue() + "> key=<" + this.entryKey + "> type=<" + this.type_key + ">";
    }
-   
+
    public double getDoubleValue()
    {
       fetch();
       return double_value;
    }
-   
+
    @Override
    public void setDoubleValue(double value)
    {

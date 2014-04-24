@@ -198,11 +198,11 @@ public class DataFlowUtils
       return dataPath.getQualifiedId().startsWith(
             "{" + PredefinedConstants.PREDEFINED_MODEL_ID);
    }
-   
+
    public static InstancePropertiesXto marshalInstanceProperties(ProcessInstance pi, boolean includeDescriptors)
    {
       Model model = currentWebServiceEnvironment().getModel(pi.getModelOID());
-      
+
       return marshalInstanceProperties(pi, includeDescriptors, model);
    }
 
@@ -964,7 +964,7 @@ public class DataFlowUtils
    {
       Type typeAttribute = (Type) data.getAttribute(TYPE_ATT);
 
-      if (type == null && Type.String.equals(typeAttribute))
+      if (type == null && Type.String.equals(typeAttribute) || Type.Enumeration.equals(typeAttribute))
       {
          // default to string
          return;
@@ -1017,7 +1017,8 @@ public class DataFlowUtils
       QName targetType = param.getType();
       String value = param.getPrimitive();
 
-      if ((null == targetType) || (QNameConstants.QN_STRING.equals(targetType)))
+      if (null == targetType || QNameConstants.QN_STRING.equals(targetType)
+            || QNameConstants.QN_ENUMERATION.equals(targetType))
       {
          return parseString(value);
       }
@@ -1097,7 +1098,6 @@ public class DataFlowUtils
    {
       QName result = null;
 
-      // TODO convert remaining types
       if (Type.String == type)
       {
          result = QNameConstants.QN_STRING;
@@ -1141,6 +1141,10 @@ public class DataFlowUtils
       else if (Type.Char == type)
       {
          result = QNameConstants.QN_CHAR;
+      }
+      else if (Type.Enumeration == type)
+      {
+         result = QNameConstants.QN_ENUMERATION;
       }
       else
       {
@@ -1246,6 +1250,10 @@ public class DataFlowUtils
       else if (QNameConstants.QN_CHAR.equals(type))
       {
          return Type.Char;
+      }
+      else if (QNameConstants.QN_ENUMERATION.equals(type))
+      {
+         return Type.Enumeration;
       }
       else if (QNameConstants.QN_BASE64BINARY.equals(type))
       {
@@ -1397,6 +1405,10 @@ public class DataFlowUtils
          cal.setTime((Date) value);
          ret = printDateTime(cal);
       }
+      else if (value instanceof Enum<?>)
+      {
+         ret = printString(((Enum<?>) value).name());
+      }
       return ret;
    }
 
@@ -1446,6 +1458,10 @@ public class DataFlowUtils
       else if (Character.class.equals(value))
       {
          ret = QNameConstants.QN_CHAR;
+      }
+      else if (value != null && value.getClass().isEnum())
+      {
+         ret = QNameConstants.QN_ENUMERATION;
       }
       return ret;
    }
@@ -1506,8 +1522,7 @@ public class DataFlowUtils
 
    public static Serializable unmarshalPrimitiveValue(Type targetType, String value)
    {
-      // TODO consider type codes
-      if ((null == targetType) || (Type.String == targetType))
+      if ((null == targetType) || (Type.String == targetType) || (Type.Enumeration == targetType))
       {
          return parseString(value);
       }
@@ -1865,7 +1880,7 @@ public class DataFlowUtils
       XmlValueXto result = null;
       if (null != value)
       {
-         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
+         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
          Node[] dom = structConverter.toDom(value, derefPath, true);
 
@@ -1886,7 +1901,7 @@ public class DataFlowUtils
          if (null != value)
          {
             StructuredDataConverter structConverter = new StructuredDataConverter(
-                  xPathMap);
+                  xPathMap, true);
 
             Node[] dom = structConverter.toDom(value, derefPath, true);
 
@@ -1984,7 +1999,6 @@ public class DataFlowUtils
       return result;
    }
 
-   @SuppressWarnings("unchecked")
    public static Serializable unmarshalStructValue(Set<TypedXPath> xPaths,
          String rootXPath, Object value)
    {
@@ -2003,7 +2017,7 @@ public class DataFlowUtils
       {
          IXPathMap xPathMap = new ClientXPathMap(xPaths);
 
-         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
+         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
 
          String xmlValue = XmlUtils.toString((Element) value);
          org.eclipse.stardust.engine.core.struct.sxml.Document xomDoc;
@@ -2021,10 +2035,11 @@ public class DataFlowUtils
                result = (Serializable) ((List) result).get(0);
             }
          }
-         catch (Exception e)
+         catch (IOException ioex)
          {
-            trace.error("Failed unmarshalling structured data value.", e);
+            trace.debug("Failed unmarshalling structured data value.", ioex);
          }
+
       }
       else if (value instanceof String)
       {
@@ -2034,15 +2049,11 @@ public class DataFlowUtils
 
          IXPathMap xPathMap = new ClientXPathMap(xPaths);
 
-         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap);
-         try
-         {
-            result = (Serializable) structConverter.toCollection(element, rootXPath, true);
-         }
-         catch (Exception e)
-         {
-            trace.error("Failed unmarshalling structured data value.", e);
-         }
+         StructuredDataConverter structConverter = new StructuredDataConverter(xPathMap, true);
+
+         result = (Serializable) structConverter.toCollection(element, rootXPath, true);
+
+
       }
       else if (value instanceof List)
       {
@@ -2283,6 +2294,7 @@ public class DataFlowUtils
          String dataType = getTypeId(data);
          isPrimitive = PRIMITIVE_DATA.equals(dataType);
       }
+      isPrimitive |= data.getAttribute(PredefinedConstants.TYPE_ATT) instanceof Type;
 
       return isPrimitive;
    }

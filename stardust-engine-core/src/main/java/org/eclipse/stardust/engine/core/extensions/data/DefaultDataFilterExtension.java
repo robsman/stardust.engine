@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.extensions.data;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.IllegalOperationException;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
+import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.beans.*;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtension;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensionContext;
@@ -30,7 +32,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataFilterExtensi
 
 
 /**
- * Default behavior for most of data types 
+ * Default behavior for most of data types
  */
 public class DefaultDataFilterExtension implements DataFilterExtension
 {
@@ -39,9 +41,25 @@ public class DefaultDataFilterExtension implements DataFilterExtension
          AbstractDataFilter dataFilter,
          Map<Long, IData> dataMap, DataFilterExtensionContext dataFilterContext)
    {
+      Serializable operand = dataFilter.getOperand();
+      if (operand instanceof Enum)
+      {
+         for (IData data : dataMap.values())
+         {
+            if (JavaDataTypeUtils.isJavaEnumeration(data))
+            {
+               Class enumClass = JavaDataTypeUtils.getReferenceClass(data, true);
+               if (enumClass != null && enumClass.isEnum() && enumClass.isInstance(operand))
+               {
+                  operand = ((Enum) operand).name();
+                  break;
+               }
+            }
+         }
+      }
       return DataValueBean.matchDataInstancesPredicate(
             dvJoin, dataFilter.getOperator(),
-            dataFilter.getOperand(), dataFilter);
+            operand, dataFilter);
    }
 
    public void extendOrderCriteria(Join piJoin, Join pisJoin,
@@ -75,11 +93,11 @@ public class DefaultDataFilterExtension implements DataFilterExtension
       dvJoin.where(Predicates.inList(dvJoin.fieldRef(DataValueBean.FIELD__DATA),
             dataMap.keySet().iterator()));
       dvJoin.setRequired(false);
-      
+
       boolean useNumericColumn = false;
       boolean useStringColumn = false;
       boolean useDoubleColumn = false;
-   
+
       for (IData data: dataMap.values())
       {
          final int typeClassification = LargeStringHolderBigDataHandler
@@ -88,7 +106,7 @@ public class DefaultDataFilterExtension implements DataFilterExtension
          useStringColumn |= (BigData.STRING_VALUE == typeClassification);
          useDoubleColumn |= (BigData.DOUBLE_VALUE == typeClassification);
       }
-      
+
       if (useNumericColumn)
       {
          orderCriteria.add(dvJoin.fieldRef(DataValueBean.FIELD__NUMBER_VALUE),
@@ -100,13 +118,13 @@ public class DefaultDataFilterExtension implements DataFilterExtension
          orderCriteria.add(dvJoin.fieldRef(DataValueBean.FIELD__STRING_VALUE),
                order.isAscending());
       }
-      
+
       if (useDoubleColumn)
       {
          orderCriteria.add(dvJoin.fieldRef(DataValueBean.FIELD__DOUBLE_VALUE),
                order.isAscending());
       }
-      
+
       dataOrderJoins.put(order.getDataID(), dvJoin);
    }
 
@@ -132,10 +150,10 @@ public class DefaultDataFilterExtension implements DataFilterExtension
                BpmRuntimeError.QUERY_XPATH_ON_NON_STRUCT_DATA.raise(dataFilter
                      .getDataID()));
       }
-      
+
       return joinFactory.createDataFilterJoins(dataFilter.getFilterMode(), index, DataValueBean.class, DataValueBean.FR__PROCESS_INSTANCE);
    }
-   
+
    public List<FieldRef> getPrefetchSelectExtension(ITableDescriptor descriptor)
    {
       List<FieldRef> cols = CollectionUtils.newArrayList();

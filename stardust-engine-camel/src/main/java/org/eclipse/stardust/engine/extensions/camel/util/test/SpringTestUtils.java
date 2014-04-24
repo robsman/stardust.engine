@@ -43,7 +43,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.Resource;
 
-
 public class SpringTestUtils implements InitializingBean, ApplicationContextAware
 {
 
@@ -53,13 +52,18 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
    private static SpringTestUtils _INSTANCE;
 
    private DataSource auditTrailDataSource;
+
    private ServiceFactoryAccess serviceFactoryAccess;
+
    /**
-    * Filename of model file which is searched for in a directory "models" on the classpath
+    * Filename of model file which is searched for in a directory "models" on the
+    * classpath
     */
    private String modelFilename = "TestModel.xpdl";
+
    // the model as a Resource
    private Resource modelFile;
+
    /**
     * Specifies whether the test environment is dependent on a deployed model
     */
@@ -69,12 +73,17 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
 
    // Default values are read from carnot.properties
    private String auditTrailUser;
+
    private String auditTrailPassword;
+
    private String auditTrailUrl;
+
    private String auditTrailType;
+
    private String auditTrailDriverClass;
 
    private static final transient Logger log = LogManager.getLogger(SpringTestUtils.class);
+
    /**
     * The model OID of the model deployed during this test.
     */
@@ -97,11 +106,12 @@ public class SpringTestUtils implements InitializingBean, ApplicationContextAwar
       this.auditTrailPassword = (String) bundle.get("AuditTrail.Password");
    }
 
-/**
- * boot and prepare embedded Derby DB and make sure a model is deployed
- * @throws Exception
- */
-public void setUpGlobal() throws Exception
+   /**
+    * boot and prepare embedded Derby DB and make sure a model is deployed
+    * 
+    * @throws Exception
+    */
+   public void setUpGlobal() throws Exception
    {
       // boot and prepare embedded Derby DB
       prepareAuditTrailDatabase();
@@ -109,11 +119,12 @@ public void setUpGlobal() throws Exception
       prepareModel();
    }
 
-/**
- * make sure a model is deployed
- * @throws Exception
- */
-private void prepareModel() throws Exception
+   /**
+    * make sure a model is deployed
+    * 
+    * @throws Exception
+    */
+   private void prepareModel() throws Exception
    {
       if (deployModelIfNoneExists && (null != modelFile | StringUtils.isNotEmpty(modelFilename)))
       {
@@ -133,12 +144,13 @@ private void prepareModel() throws Exception
       }
    }
 
-/**
- * deploy the model
- * @throws IOException
- * @throws Exception
- */
-public void deployModel() throws IOException, Exception
+   /**
+    * deploy the model
+    * 
+    * @throws IOException
+    * @throws Exception
+    */
+   public void deployModel() throws IOException, Exception
    {
       String modelXml = null;
       try
@@ -168,7 +180,7 @@ public void deployModel() throws IOException, Exception
       try
       {
          AdministrationService admin = sf.getAdministrationService();
-         
+
          // TODO : change to new model deployment approach
          DeploymentInfo info = admin.deployModel(modelXml, null, 0, null, null, null, false, true);
          if (info.getErrors().size() > 0)
@@ -407,7 +419,8 @@ public void deployModel() throws IOException, Exception
       }
       catch (SQLIntegrityConstraintViolationException e)
       {
-         // this exception is already caught by the DDLManager and logged as a warning. But just in case the exception
+         // this exception is already caught by the DDLManager and logged as a warning.
+         // But just in case the exception
          // is ever thrown up to here ...
          log.info("Partition " + partitionId + " might exist already. Ignoring SQL Constraint Violation Exception ...");
       }
@@ -420,11 +433,12 @@ public void deployModel() throws IOException, Exception
    /**
     * Converts an inputSream to String
     * 
-    * @param is an InputStream
+    * @param is
+    *           an InputStream
     * @return convert an input stream to string
     * @throws IOException
     */
-public static String convertStreamToString(InputStream is) throws IOException
+   public static String convertStreamToString(InputStream is) throws IOException
    {
 
       if (null == is)

@@ -14,7 +14,13 @@ import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.CollectionUtils.newHashSet;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -26,7 +32,12 @@ import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.core.persistence.IdentifiablePersistent;
 import org.eclipse.stardust.engine.core.persistence.PersistenceController;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
-import org.eclipse.stardust.engine.core.persistence.jdbc.*;
+import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
+import org.eclipse.stardust.engine.core.persistence.jdbc.FieldDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.LinkDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptor;
+import org.eclipse.stardust.engine.core.persistence.jdbc.TypeDescriptorRegistry;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.PersistentKey;
 import org.eclipse.stardust.engine.core.persistence.jdbc.transientpi.TransientProcessInstanceStorage.ProcessInstanceGraphBlob;
 import org.eclipse.stardust.engine.core.persistence.jms.BlobBuilder;
@@ -50,7 +61,7 @@ import org.eclipse.stardust.engine.core.runtime.beans.IProcessInstance;
 public class TransientProcessInstanceSupport
 {
    private static final Logger LOGGER = LogManager.getLogger(TransientProcessInstanceSupport.class);
-   
+
    private final boolean enabled;
    
    private final Set<Long> rootPiOids = newHashSet();
@@ -326,7 +337,7 @@ public class TransientProcessInstanceSupport
       if (blob == null)
       {
          return null;
-      }      
+      }
       
       return loadProcessInstanceGraph(blob, session, pk);
    }
@@ -496,7 +507,7 @@ public class TransientProcessInstanceSupport
       Persistent result = null;
       for (final Persistent p : persistents)
       {
-         if (isPkNotSet(p, session))
+         if (isPkNotSet(p, session) || hasParents(p, session))
          {
             deferredPersistents.add(p);
             continue;
@@ -535,6 +546,13 @@ public class TransientProcessInstanceSupport
       }
       
       return false;
+   }
+   
+   private static boolean hasParents(final Persistent persistent, final Session session)
+   {
+      final TypeDescriptor typeDesc = session.getTypeDescriptor(persistent.getClass());
+      final List<LinkDescriptor> parents = typeDesc.getParents();
+      return !parents.isEmpty();
    }
    
    private static void ensurePkLinksAreFetched(final Persistent persistent, final Session session)

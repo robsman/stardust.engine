@@ -1,6 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.component;
 
-import static org.eclipse.stardust.engine.extensions.camel.component.CamelHelper.*;
+import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.*;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_ID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_INSTANCE_OID;
 import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.MessageProperty.PROCESS_INSTANCE_PROPERTIES;
@@ -12,7 +12,6 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Expression;
 import org.apache.camel.impl.DefaultEndpoint;
-import org.apache.camel.language.simple.SimpleLanguage;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
@@ -30,20 +29,26 @@ public abstract class AbstractIppEndpoint extends DefaultEndpoint
 
    // attributes shared by more than one IPP endpoint
    protected Expression processId;
+
    protected Expression processInstanceOid;
+
    protected String dataOutput;
+
    protected Expression dataOutputMap;
+
    protected String properties;
+
    protected Expression propertiesMap;
+
    protected String dataFilters;
 
    protected Expression dataFiltersMap;
 
- /**
- * @param uri
- * @param component
- */
-public AbstractIppEndpoint(String uri, IppComponent component)
+   /**
+    * @param uri
+    * @param component
+    */
+   public AbstractIppEndpoint(String uri, IppComponent component)
    {
       super(uri, component);
    }
@@ -72,7 +77,8 @@ public AbstractIppEndpoint(String uri, IppComponent component)
    }
 
    /**
-    * Sets the subcommand for this endpoint. See extending classes for possible subcommand.
+    * Sets the subcommand for this endpoint. See extending classes for possible
+    * subcommand.
     * 
     * @param subCommand
     */
@@ -81,102 +87,112 @@ public AbstractIppEndpoint(String uri, IppComponent component)
       this.subCommand = subCommand;
    }
 
-/**
- * @param processInstanceOid the Oid of process Instance
- */
-public void setProcessInstanceOid(String processInstanceOid)
+   /**
+    * @param processInstanceOid
+    *           the Oid of process Instance
+    */
+   public void setProcessInstanceOid(String processInstanceOid)
    {
-      if (processInstanceOid.startsWith("${") && processInstanceOid.endsWith("}"))
-         this.processInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(processInstanceOid));
-      else
-
-         this.processInstanceOid = SimpleLanguage.simple(processInstanceOid);
-   }
-
-/**
- * @param processId the Id of process
- */
-public void setProcessId(String processId)
-   {
-      if (processId.startsWith("${") && processId.endsWith("}"))
-         this.processId = SimpleLanguage.simple(extractTokenFromExpression(processId));
-      else
-         this.processId = SimpleLanguage.simple(processId);
+      this.processInstanceOid =    parseSimpleExpression(processInstanceOid);
+//      if (processInstanceOid.startsWith("${") && processInstanceOid.endsWith("}"))
+//         this.processInstanceOid = SimpleLanguage.simple(extractTokenFromExpression(processInstanceOid));
+//      else
+//
+//         this.processInstanceOid = SimpleLanguage.simple(processInstanceOid);
    }
 
    /**
- * @param dataOutput the data output
- */
-public void setDataOutput(String dataOutput)
+    * @param processId
+    *           the Id of process
+    */
+   public void setProcessId(String processId)
+   {
+//      if (processId.startsWith("${") && processId.endsWith("}"))
+//         this.processId = SimpleLanguage.simple(extractTokenFromExpression(processId));
+//      else
+//         this.processId = SimpleLanguage.simple(processId);
+      this.processId =    parseSimpleExpression(processId);
+   }
+
+   /**
+    * @param dataOutput
+    *           the data output
+    */
+   public void setDataOutput(String dataOutput)
    {
       this.dataOutput = dataOutput;
    }
 
-/**
- * @return properties 
- */
-public String getProperties()
+   /**
+    * @return properties
+    */
+   public String getProperties()
    {
       return properties;
    }
 
-/**
- * @param properties
- */
-public void setProperties(String properties)
+   /**
+    * @param properties
+    */
+   public void setProperties(String properties)
    {
       this.properties = properties;
    }
 
-/**
- * @param dataFilters
- */
-public void setDataFilters(String dataFilters)
+   /**
+    * @param dataFilters
+    */
+   public void setDataFilters(String dataFilters)
    {
       this.dataFilters = dataFilters;
    }
 
-/**
- * @param dataOutputMap
- */
-public void setDataOutputMap(String dataOutputMap)
+   /**
+    * @param dataOutputMap
+    */
+   public void setDataOutputMap(String dataOutputMap)
    {
-      if (dataOutputMap.startsWith("${") && dataOutputMap.endsWith("}"))
-         this.dataOutputMap = SimpleLanguage.simple(extractTokenFromExpression(dataOutputMap));
-      else
-         this.dataOutputMap = SimpleLanguage.simple(dataOutputMap);
+//      if (dataOutputMap.startsWith("${") && dataOutputMap.endsWith("}"))
+      //   this.dataOutputMap = SimpleLanguage.simple(extractTokenFromExpression(dataOutputMap));
+//      else
+//         this.dataOutputMap = SimpleLanguage.simple(dataOutputMap);
+      this.dataOutputMap =    parseSimpleExpression(dataOutputMap);
    }
 
-/**
- * @param propertiesMap
- */
-public void setPropertiesMap(String propertiesMap)
+   /**
+    * @param propertiesMap
+    */
+   public void setPropertiesMap(String propertiesMap)
    {
-      if (propertiesMap.startsWith("${") && propertiesMap.endsWith("}"))
-         this.propertiesMap = SimpleLanguage.simple(extractTokenFromExpression(propertiesMap));
-      else
-         this.propertiesMap = SimpleLanguage.simple(propertiesMap);
+//      if (propertiesMap.startsWith("${") && propertiesMap.endsWith("}"))
+//         this.propertiesMap = SimpleLanguage.simple(extractTokenFromExpression(propertiesMap));
+//      else
+//         this.propertiesMap = SimpleLanguage.simple(propertiesMap);
+      this.propertiesMap =    parseSimpleExpression(propertiesMap);
    }
 
-/**
- * @param dataFiltersMap
- */
-public void setDataFiltersMap(String dataFiltersMap)
+   /**
+    * @param dataFiltersMap
+    */
+   public void setDataFiltersMap(String dataFiltersMap)
    {
-      if (dataFiltersMap.startsWith("${") && dataFiltersMap.endsWith("}"))
-         this.dataFiltersMap = SimpleLanguage.simple(extractTokenFromExpression(dataFiltersMap));
-      else
-         this.dataFiltersMap = SimpleLanguage.simple(dataFiltersMap);
+//      if (dataFiltersMap.startsWith("${") && dataFiltersMap.endsWith("}"))
+//         this.dataFiltersMap = SimpleLanguage.simple(extractTokenFromExpression(dataFiltersMap));
+//      else
+//         this.dataFiltersMap = SimpleLanguage.simple(dataFiltersMap);
+      this.dataFiltersMap=    parseSimpleExpression(dataFiltersMap);
    }
 
-/**
- * Returns the Oid value of the process instance  
- * 
- * @param exchange the camel exchange
- * @param strict (boolean)
- * @return the value of the ProcessInstanceOid attribute
- */
-protected Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
+   /**
+    * Returns the Oid value of the process instance
+    * 
+    * @param exchange
+    *           the camel exchange
+    * @param strict
+    *           (boolean)
+    * @return the value of the ProcessInstanceOid attribute
+    */
+   public Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
    {
       if (null != this.processInstanceOid)
          return this.processInstanceOid.evaluate(exchange, Long.class);
@@ -190,14 +206,17 @@ protected Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
          return piOid;
       }
    }
-/**
- * Returns the Id value of the process instance  
- * 
- * @param exchange the camel exchange
- * @param strict (boolean)
- * @return the value of the ProcessId attribute
- */
-   protected String evaluateProcessId(Exchange exchange, boolean strict)
+
+   /**
+    * Returns the Id value of the process instance
+    * 
+    * @param exchange
+    *           the camel exchange
+    * @param strict
+    *           (boolean)
+    * @return the value of the ProcessId attribute
+    */
+   public String evaluateProcessId(Exchange exchange, boolean strict)
    {
       if (null != this.processId)
          return this.processId.evaluate(exchange, String.class);
@@ -214,11 +233,12 @@ protected Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
 
    /**
     * Returns a Map of DataOutputs
+    * 
     * @param exchange
     * @return a Map of DataOutput
     */
-@SuppressWarnings("unchecked")
-   protected Map<String, ? > evaluateDataOutput(Exchange exchange)
+   @SuppressWarnings("unchecked")
+   public Map<String, ? > evaluateDataOutput(Exchange exchange)
    {
       if (null != this.dataOutputMap)
       {
@@ -233,9 +253,11 @@ protected Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
 
    /**
     * Returns the value of the properties on the given exchange
-    *
-    * @param exchange the message exchange on which to evaluate the properties
-    * @param strict if true, throws exception if properties not found
+    * 
+    * @param exchange
+    *           the message exchange on which to evaluate the properties
+    * @param strict
+    *           if true, throws exception if properties not found
     * @return the value of process instance properties as a map
     */
    @SuppressWarnings("unchecked")
@@ -260,15 +282,18 @@ protected Long evaluateProcessInstanceOid(Exchange exchange, boolean strict)
       }
       return props;
    }
+
    /**
     * Returns the value of the filters on the given exchange
-    *
-    * @param exchange the message exchange on which to evaluate the filters
-    * @param strict if true, throws exception if the filters are not found
+    * 
+    * @param exchange
+    *           the message exchange on which to evaluate the filters
+    * @param strict
+    *           if true, throws exception if the filters are not found
     * @return the value of process instance filters as a map
     */
    @SuppressWarnings("unchecked")
-   protected Map<String, Serializable> evaluateDataFilters(Exchange exchange, boolean strict)
+   public Map<String, Serializable> evaluateDataFilters(Exchange exchange, boolean strict)
    {
       Map<String, Serializable> filters = null;
       if (null != this.dataFiltersMap)

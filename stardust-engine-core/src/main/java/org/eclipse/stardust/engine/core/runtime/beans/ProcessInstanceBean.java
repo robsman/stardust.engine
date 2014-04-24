@@ -75,6 +75,8 @@ import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.DefaultPersistenceController;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
+import org.eclipse.stardust.engine.core.pojo.data.JavaAccessPoint;
+import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.runtime.audittrail.management.ExecutionPlan;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -106,6 +108,8 @@ import org.eclipse.stardust.engine.runtime.utils.TimestampProviderUtils;
 public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       implements IProcessInstance
 {
+   private static final JavaAccessPoint JAVA_ENUM_ACCESS_POINT = new JavaAccessPoint("enum", "enum", Direction.IN_OUT);
+
    private static final long serialVersionUID = -9116897207696130951L;
 
    private static final Logger trace = LogManager.getLogger(ProcessInstanceBean.class);
@@ -1234,7 +1238,9 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
             PredefinedConstants.VALIDATOR_CLASS_ATT);
       ExtendedDataValidator validator = SpiUtils.createExtendedDataValidator(validatorClass);
       // TODO fix fragility of test in case of non-Java data
-      BridgeObject dataBridge = validator.getBridgeObject(data, path, Direction.IN, null);
+      AccessPathEvaluationContext context = new AccessPathEvaluationContext(this,
+            value instanceof Enum && JavaDataTypeUtils.isJavaEnumeration(data) ? JAVA_ENUM_ACCESS_POINT : null);
+      BridgeObject dataBridge = validator.getBridgeObject(data, path, Direction.IN, context);
       // (fh) we perform the check only if we're using the default BridgeObject and not a
       // specialized subclass
       if ((null != value) && dataBridge.getClass().equals(BridgeObject.class)
@@ -1266,8 +1272,7 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
          }
       }
 
-      OutDataMappingValueProvider dvProvider = new OutDataMappingValueProvider(data,
-            path, value);
+      OutDataMappingValueProvider dvProvider = new OutDataMappingValueProvider(data, path, value, context);
       IDataValue dataValue = getDataValue(data, dvProvider);
 
       Assert.isNotNull(dataValue);
@@ -1315,8 +1320,10 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       IDataValue dataValue = getDataValue(data);
       ExtendedAccessPathEvaluator evaluator = SpiUtils
             .createExtendedAccessPathEvaluator(data, path);
-      AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(
-            this, targetActivityAccessPoint, targetPath, activity);
+      AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(this,
+            targetActivityAccessPoint == null && JavaDataTypeUtils.isJavaEnumeration(data)
+               ? JAVA_ENUM_ACCESS_POINT : targetActivityAccessPoint,
+            targetPath, activity);
       return evaluator.evaluate(data, dataValue.getValue(), path, evaluationContext);
    }
 
@@ -1519,6 +1526,15 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
          setPropertyValue(PI_NOTE, buffer.toString());
       }
+   }
+   
+   public void addExistingNote(ProcessInstanceProperty srcNote)
+   {
+      super.addProperty(srcNote.clone(this.getOID()));
+      
+      propIndexHandler.handleIndexForGeneralProperties();
+      propIndexHandler.handleIndexForNoteProperty(noteExists());
+      propIndexHandler.handleIndexForPiAbortingProperty(abortingPiExists());
    }
 
    public List/*<Attribute>*/ getNotes()
@@ -1919,12 +1935,14 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
       private Object currentValue;
 
       private final ExtendedAccessPathEvaluator evaluator;
+      private AccessPathEvaluationContext context;
 
-      public OutDataMappingValueProvider(IData data, String path, Object value)
+      public OutDataMappingValueProvider(IData data, String path, Object value, AccessPathEvaluationContext context)
       {
          this.data = data;
          this.path = path;
          this.value = value;
+         this.context = context;
 
          currentValue = DataValueUtils.createNewValueInstance(data, ProcessInstanceBean.this);
 
@@ -1933,9 +1951,8 @@ public class ProcessInstanceBean extends AttributedIdentifiablePersistentBean
 
       public EvaluatedValue getEvaluatedValue()
       {
-         AccessPathEvaluationContext evaluationContext = new AccessPathEvaluationContext(ProcessInstanceBean.this, null);
          final Object evaluationResult = evaluator.evaluate(data,
-               currentValue, path, evaluationContext, value);
+               currentValue, path, context, value);
 
          return AccessPathEvaluator.UNMODIFIED_HANDLE == evaluationResult
                ? new EvaluatedValue(currentValue, false)

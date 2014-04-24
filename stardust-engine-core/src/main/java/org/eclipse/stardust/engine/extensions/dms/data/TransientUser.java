@@ -294,7 +294,7 @@ public class TransientUser implements IUser
          long onBehalfOf)
    {
    }
-   
+
    public void removeFromParticipants(IModelParticipant participant,
          IDepartment department)
    {
@@ -370,11 +370,10 @@ public class TransientUser implements IUser
    {
       return false;
    }
-  
+
    @Override
    public boolean isPropertyAvailable(int pattern)
    {
       return false;
    }
-   
 }

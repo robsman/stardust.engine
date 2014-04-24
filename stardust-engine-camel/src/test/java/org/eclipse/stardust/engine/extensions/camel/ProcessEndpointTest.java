@@ -33,15 +33,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.annotation.Resource;
-
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
-import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -60,46 +55,58 @@ import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ServiceFactoryAccess;
 import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
-import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-@ContextConfiguration(locations = {
-      "ProcessEndpointTest-context.xml", "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml"})
-public class ProcessEndpointTest extends AbstractJUnit4SpringContextTests
+public class ProcessEndpointTest 
 {
-
    private static final transient Logger LOG = LoggerFactory.getLogger(ProcessEndpointTest.class);
    // URI constants
    private static final String FULL_ROUTE_BEGIN = "direct:startProcessEndpointTestRoute";
    private static final String FULL_ROUTE_END = "mock:endProcessEndpointTestRoute";
+   
+   private static ClassPathXmlApplicationContext ctx;
+   {
+      ctx = new ClassPathXmlApplicationContext(new String[] {
+            "org/eclipse/stardust/engine/extensions/camel/ProcessEndpointTest-context.xml", "classpath:carnot-spring-context.xml", "classpath:jackrabbit-jcr-context.xml","classpath:default-camel-context.xml"});
+      camelContext = (CamelContext) ctx.getBean("defaultCamelContext");
+      testUtils = (SpringTestUtils) ctx.getBean("ippTestUtils");
+      serviceFactoryAccess = (ServiceFactoryAccess) ctx.getBean("ippServiceFactoryAccess");
+      try
+      {
+         camelContext.addRoutes(createFullRoute());
+         testUtils.deployModel();
+      }
+      catch (Exception e)
+      {
+         // TODO Auto-generated catch block
+         e.printStackTrace();
+      }
+      
+      defaultProducerTemplate=camelContext.createProducerTemplate();
+      fullRouteProducerTemplate=camelContext.createProducerTemplate();
+      fullRouteResult=camelContext.getEndpoint(FULL_ROUTE_END, MockEndpoint.class);
+   }
+   
+   
 
-   @Resource
-   CamelContext camelContext;
-   @Resource
-   private SpringTestUtils testUtils;
-   /**
-    * Use this service factory access for testing assumptions!
-    */
-   @Resource
-   private ServiceFactoryAccess serviceFactoryAccess;
 
-   @Produce(uri = "direct:in")
-   protected ProducerTemplate defaultProducerTemplate;
-   @Produce(uri = FULL_ROUTE_BEGIN)
+   private static CamelContext camelContext;
+   private static SpringTestUtils testUtils;
+   private static ServiceFactoryAccess serviceFactoryAccess;
+
+   //@Produce(uri = "direct:in")
+  protected static ProducerTemplate defaultProducerTemplate;
+   //@Produce(uri = FULL_ROUTE_BEGIN)
    protected ProducerTemplate fullRouteProducerTemplate;
-   @EndpointInject(uri = FULL_ROUTE_END)
-   protected MockEndpoint fullRouteResult;
+   //@EndpointInject(uri = FULL_ROUTE_END)
+   protected static MockEndpoint fullRouteResult;
 
-   private boolean initiated = false;
+   //private boolean initiated = false;
 
    @Test
-   // @DirtiesContext //TODO find out how DirtiesContext can be used. Currently it
-   // destroys the DB connection pool
    public void testStartProcess() throws Exception
    {
       String uri;
@@ -182,7 +189,6 @@ public class ProcessEndpointTest extends AbstractJUnit4SpringContextTests
    }
 
    @Test
-   // @DirtiesContext
    public void testContinueProcess() throws Exception
    {
       String uri;
@@ -251,7 +257,6 @@ public class ProcessEndpointTest extends AbstractJUnit4SpringContextTests
     */
    @SuppressWarnings("unchecked")
    @Test
-   // @DirtiesContext
    public void testGetSetProperties() throws Exception
    {
 
@@ -431,9 +436,9 @@ public class ProcessEndpointTest extends AbstractJUnit4SpringContextTests
       String lastname = "Schwarzenegger";
 
       // send valid input
-      fullRouteProducerTemplate.sendBody(id + "," + firstname + "," + lastname);
+      fullRouteProducerTemplate.sendBody(FULL_ROUTE_BEGIN,id + "," + firstname + "," + lastname);
       // send corrupt input
-      fullRouteProducerTemplate.sendBody(id + "ttt" + firstname + ":" + lastname);
+      fullRouteProducerTemplate.sendBody(FULL_ROUTE_BEGIN,id + "ttt" + firstname + ":" + lastname);
 
       fullRouteResult.setExpectedMessageCount(2);
       fullRouteResult.assertIsSatisfied();
@@ -480,20 +485,19 @@ public class ProcessEndpointTest extends AbstractJUnit4SpringContextTests
       }
    }
 
-   @Before
-   public void setUp() throws Exception
-   {
-      if (!initiated)
-         setUpGlobal();
-   }
-
-   @DirtiesContext
-   public void setUpGlobal() throws Exception
-   {
-      // initiate environment
-      testUtils.setUpGlobal();
-      initiated = true;
-   }
+//   @Before
+//   public void setUp() throws Exception
+//   {
+//      if (!initiated)
+//         setUpGlobal();
+//   }
+//
+//   public void setUpGlobal() throws Exception
+//   {
+//      // initiate environment
+//      testUtils.setUpGlobal();
+//      initiated = true;
+//   }
 
    public static RouteBuilder createFullRoute()
    {

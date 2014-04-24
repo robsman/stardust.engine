@@ -161,6 +161,11 @@ public class CollectionUtils
       return newHashSet();
    }
 
+   public static <E> Set<E> newSetFromIterator(Iterator<E> iterator)
+   {
+      return newHashSetFromIterator(iterator);
+   }
+
    /**
     * @deprecated Superseded by {@link #newSet()}
     */
@@ -172,6 +177,16 @@ public class CollectionUtils
    public static <E> HashSet<E> newHashSet()
    {
       return new HashSet<E>();
+   }
+
+   public static <E> HashSet<E> newHashSetFromIterator(Iterator<E> iterator)
+   {
+      HashSet<E> result = newHashSet();
+      while (iterator.hasNext())
+      {
+         result.add(iterator.next());
+      }
+      return result;
    }
 
    /**
@@ -245,7 +260,7 @@ public class CollectionUtils
    {
       return new HashMap<K, V>(initialCapacity);
    }
-   
+
    /**
     * @deprecated Superseded by {@link #newHashMap()}
     */
@@ -299,10 +314,10 @@ public class CollectionUtils
          target.add(transformer.execute(iterator.next()));
       }
    }
-   
+
    /**
     * Returns a list of sublist containing content of source with each sublist size maximal chunkSize.
-    * 
+    *
     * @param source List of elements
     * @param chunkSize maximum size of sublists
     * @return List containing sublists
@@ -318,7 +333,7 @@ public class CollectionUtils
       {
          int fromIdx = 0;
          int toIdx = chunkSize;
-         
+
          List<E> oidSubList = source.subList(fromIdx, toIdx);
          result.add(oidSubList);
 
@@ -326,21 +341,21 @@ public class CollectionUtils
          while (hasMoreOids)
          {
             fromIdx = fromIdx + chunkSize;
-            toIdx = source.size() >= toIdx + chunkSize 
-                  ? toIdx + chunkSize 
+            toIdx = source.size() >= toIdx + chunkSize
+                  ? toIdx + chunkSize
                   : source.size();
             oidSubList = source.subList(fromIdx, toIdx);
             result.add(oidSubList);
             hasMoreOids = source.size() > toIdx;
          }
       }
-      
+
       return result;
    }
-   
+
    /**
     * Returns a list of sublist containing content of source with each sublist size maximal chunkSize.
-    * 
+    *
     * @param source Collection of elements
     * @param chunkSize maximum size of sublists
     * @return List containing sublists
@@ -357,7 +372,6 @@ public class CollectionUtils
          return split(srcList, chunkSize);
       }
    }
-   
    public static <E> List<E> intersect(List<E> lhs, List<E> rhs)
    {
       if (isEmpty(lhs) || isEmpty(rhs))
@@ -369,6 +383,7 @@ public class CollectionUtils
       return result;
    }
    
+
 
    public static <E> List<E> union(List<E> lhs, List<E> rhs)
    {
@@ -443,7 +458,7 @@ public class CollectionUtils
       // (fh) double casting to avoid eclipse compiler errors
       return (Map<String, ? extends Serializable>) ((Map<String, ?>) legacyParams);
    }
-   
+
    public static <K, V> void remove(Map<K, V> map, Set<K> set)
    {
       for (K k : set)

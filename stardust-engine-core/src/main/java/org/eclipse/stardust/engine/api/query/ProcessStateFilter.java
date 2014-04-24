@@ -112,4 +112,43 @@ public class ProcessStateFilter implements FilterCriterion
       return dest;
    }
 
+   @Override
+   public String toString()
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append("STATE");
+      if (state != null && state.length > 0)
+      {
+         switch (state.length)
+         {
+         case 0:
+            break;
+         case 1:
+            sb.append(" = ");
+            sb.append(state[0]);
+            break;
+         default:
+            sb.append(" IN (");
+            boolean first = true;
+            for (ProcessInstanceState piState : state)
+            {
+               if (first)
+               {
+                  first = false;
+               }
+               else
+               {
+                  sb.append(' ');
+               }
+               sb.append(piState);
+            }
+            sb.append(')');
+         }
+      }
+      if (inclusive)
+      {
+         sb.append(" INCLUSIVE");
+      }
+      return sb.toString();
+   }
 }

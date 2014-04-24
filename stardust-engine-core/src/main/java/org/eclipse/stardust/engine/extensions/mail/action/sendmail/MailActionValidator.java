@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.EventActionValidator;
 
 
@@ -28,7 +29,8 @@ public class MailActionValidator implements EventActionValidator
       Object receiverType = attributes.get(PredefinedConstants.MAIL_ACTION_RECEIVER_TYPE_ATT);
       if (!(receiverType instanceof ReceiverType))
       {
-         list.add(new Inconsistency("No ReceiverType specified.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.ACTN_NO_RECEIVER_TYPE_SPECIFIED.raise();
+         list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       else
       {
@@ -38,7 +40,8 @@ public class MailActionValidator implements EventActionValidator
             Object receiver = attributes.get(PredefinedConstants.MAIL_ACTION_RECEIVER_ATT);
             if (!(receiver instanceof String) || StringUtils.isEmpty((String) receiver))
             {
-               list.add(new Inconsistency("No receiving participant selected.", Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.ACTN_NO_RECEIVING_PARTICIPANT_SPECIFIED.raise();
+               list.add(new Inconsistency(error, Inconsistency.WARNING));
             }
          }
          else if (type.equals(ReceiverType.EMail))
@@ -46,7 +49,8 @@ public class MailActionValidator implements EventActionValidator
             Object address = attributes.get(PredefinedConstants.MAIL_ACTION_ADDRESS_ATT);
             if (!(address instanceof String) || StringUtils.isEmpty((String) address))
             {
-               list.add(new Inconsistency("No email address specified.", Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.ACTN_NO_RECEIVING_PARTICIPANT_SPECIFIED.raise();
+               list.add(new Inconsistency(error, Inconsistency.WARNING));
             }
          }
       }

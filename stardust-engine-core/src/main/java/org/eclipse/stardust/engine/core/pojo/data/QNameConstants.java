@@ -15,9 +15,9 @@ import javax.xml.namespace.QName;
 public class QNameConstants
 {
    public static final QName QN_CHAR = new QName("http://infinity.com/bpm/ws/v2009a/api","Char");
-   
+
    //public static final QName QN_CALENDAR = new QName("http://infinity.com/bpm/ws/v2009a/api","Calendar");
-   
+
    public static final QName QN_QNAME = new QName("http://www.w3.org/2001/XMLSchema",
          "QName");
 
@@ -46,6 +46,9 @@ public class QNameConstants
 
    public static final QName QN_DATETIME = new QName("http://www.w3.org/2001/XMLSchema",
          "dateTime");
+
+   public static final QName QN_DECIMAL = new QName("http://www.w3.org/2001/XMLSchema",
+         "decimal");
 
    public static final QName QN_DATE = new QName("http://www.w3.org/2001/XMLSchema",
          "date");

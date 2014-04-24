@@ -22,7 +22,7 @@ package org.eclipse.stardust.engine.api.query;
 public final class DataOrder extends AbstractSingleOrderCriterion
 {
    private static final long serialVersionUID = 2L;
-   
+
    private final String dataID;
    private final String attributeName;
 
@@ -41,7 +41,7 @@ public final class DataOrder extends AbstractSingleOrderCriterion
    {
       this(dataID, true);
    }
-   
+
    /**
     * Initializes the criterion to order according to ascending values of the given
     * workflow data.
@@ -51,7 +51,7 @@ public final class DataOrder extends AbstractSingleOrderCriterion
     *
     * @param dataID The ID of the workflow data to order according to
     * @param attributeName The name of the data attribute to search for (XPath, etc.)
-    * 
+    *
     * @see #DataOrder(String, boolean)
     */
    public DataOrder(String dataID, String attributeName)
@@ -76,7 +76,7 @@ public final class DataOrder extends AbstractSingleOrderCriterion
    {
       this(dataID, null, ascending);
    }
-   
+
    /**
     * Initializes the criterion to order according to ascending or descending values of
     * the given workflow data.
@@ -109,19 +109,28 @@ public final class DataOrder extends AbstractSingleOrderCriterion
    }
 
    /**
-    * Returns 
+    * Returns
     * @return
     */
-   public String getAttributeName() 
+   public String getAttributeName()
    {
-      return this.attributeName;
+      return attributeName;
    }
-   
+
+   /**
+    * Returns the name of the data attribute or an empty string if the name is null.
+    * @return
+    */
+   public String getNormalizedAttributeName()
+   {
+      return attributeName == null ? "" : attributeName;
+   }
+
    public Object accept(OrderEvaluationVisitor visitor, Object context)
    {
       return visitor.visit(this, context);
    }
-   
+
    @Override
    public String toString()
    {

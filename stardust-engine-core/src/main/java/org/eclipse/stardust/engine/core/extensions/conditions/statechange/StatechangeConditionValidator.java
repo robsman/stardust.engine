@@ -18,6 +18,7 @@ import org.eclipse.stardust.common.IntKey;
 import org.eclipse.stardust.engine.api.model.EventHandlerOwner;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.EventConditionValidator;
 
 
@@ -30,8 +31,8 @@ public class StatechangeConditionValidator implements EventConditionValidator
       ArrayList list = new ArrayList();
       if (sourceState != null && sourceState == targetState)
       {
-         list.add(new Inconsistency("Target State is the same with Source State.",
-               Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.COND_TARGET_STATE_IN_SAME_STATE_AS_SOURCE_STATE.raise();
+         list.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       return list;
    }

@@ -12,10 +12,13 @@ package org.eclipse.stardust.engine.api.model;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
+import java.util.Locale;
 
+import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.engine.core.model.utils.Identifiable;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.Nameable;
+import org.eclipse.stardust.engine.core.runtime.ValidationErrorMessageProvider;
 
 
 /**
@@ -27,12 +30,12 @@ import org.eclipse.stardust.engine.core.model.utils.Nameable;
 public class Inconsistency implements Serializable
 {
    private static final long serialVersionUID = 2L;
-   
+
    /**
     * Specifies a warning inconsistency.
     */
    public static final int WARNING = 0;
-   
+
    /**
     * Specifies an error inconsistency.
     */
@@ -43,6 +46,7 @@ public class Inconsistency implements Serializable
    private int sourceElementOID;
    private String sourceElementId;
    private String sourceElementName;
+   private ErrorCase error;
 
    /**
     * Constructs an Inconsistency.
@@ -69,7 +73,7 @@ public class Inconsistency implements Serializable
       this(message, null, severity);
       this.sourceElementOID = sourceElementOID;
    }
-   
+
    /**
     * Constructs an Inconsistency for a specific model element.
     *
@@ -93,6 +97,41 @@ public class Inconsistency implements Serializable
             sourceElementName = ((Nameable) sourceElement).getName();
          }
       }
+   }
+
+   public Inconsistency(ErrorCase error, String message, ModelElement sourceElement,
+         int severity)
+   {
+      this(message, sourceElement, severity);
+      this.error = error;
+   }
+
+   public Inconsistency(ErrorCase error, ModelElement sourceElement, int severity)
+   {
+      this.severity = severity;
+      if (sourceElement != null)
+      {
+         sourceElementOID = sourceElement.getElementOID();
+         if (sourceElement instanceof Identifiable)
+         {
+            sourceElementId = ((Identifiable) sourceElement).getId();
+         }
+         if (sourceElement instanceof Nameable)
+         {
+            sourceElementName = ((Nameable) sourceElement).getName();
+         }
+      }
+      this.error = error;
+      if (error != null)
+      {
+         ValidationErrorMessageProvider provider = new ValidationErrorMessageProvider();
+         message = provider.getErrorMessage(error, null, Locale.ENGLISH);
+      }
+   }
+
+   public Inconsistency(ErrorCase error, int severity)
+   {
+      this(error, null, severity);
    }
 
    public Inconsistency(int severity, ModelElement sourceElement, String pattern, Object ... arguments)
@@ -148,6 +187,25 @@ public class Inconsistency implements Serializable
    public String getMessage()
    {
       return message;
+   }
+
+   /**
+    * Gets the errorID contained in the inconsistency.
+    *
+    * @return the error id
+    */
+   public String getErrorID()
+   {
+      if (error != null)
+      {
+         return error.getId();
+      }
+      return null;
+   }
+
+   public ErrorCase getError()
+   {
+      return error;
    }
 
    public String toString()

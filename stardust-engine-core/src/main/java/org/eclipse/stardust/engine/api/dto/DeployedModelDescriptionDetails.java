@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.dto;
 
-import java.util.ArrayList;
+import static java.util.Collections.emptySet;
+import static org.eclipse.stardust.common.CollectionUtils.newArrayList;
+import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
+
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.engine.api.model.IModel;
 import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -37,6 +40,11 @@ public class DeployedModelDescriptionDetails extends ModelElementDetails
       implements DeployedModelDescription
 {
    private static final long serialVersionUID = 9122671017836602371L;
+
+   public static enum LevelOfDetail
+   {
+      NoProvidersNorConsumers
+   }
 
    private final boolean active;
 
@@ -62,89 +70,96 @@ public class DeployedModelDescriptionDetails extends ModelElementDetails
 
       ModelManager modelManager = ModelManagerFactory.getCurrent();
 
-      active = modelManager.isActive(model);
-      validFrom = (Date) model.getAttribute(PredefinedConstants.VALID_FROM_ATT);
-      deploymentComment = (String) model
+      this.active = modelManager.isActive(model);
+      this.validFrom = (Date) model.getAttribute(PredefinedConstants.VALID_FROM_ATT);
+      this.deploymentComment = (String) model
             .getAttribute(PredefinedConstants.DEPLOYMENT_COMMENT_ATT);
-      version = (String) model.getAttribute(PredefinedConstants.VERSION_ATT);
-      deploymentTime = (Date) model.getAttribute(PredefinedConstants.DEPLOYMENT_TIME_ATT);
-      revision = model.getIntegerAttribute(PredefinedConstants.REVISION_ATT);
+      this.version = (String) model.getAttribute(PredefinedConstants.VERSION_ATT);
+      this.deploymentTime = (Date) model.getAttribute(PredefinedConstants.DEPLOYMENT_TIME_ATT);
+      this.revision = model.getIntegerAttribute(PredefinedConstants.REVISION_ATT);
 
-      // Retrieving Consumer Models
-      consumerModels = new ArrayList<Long>();
-      List<IModel> usingModels = new ArrayList<IModel>();
-      List<IModel> models = ModelRefBean.getUsingModels(model);
-      for (Iterator<IModel> j = models.iterator(); j.hasNext();)
+      Set<LevelOfDetail> levelOfDetail = (Set<LevelOfDetail>) Parameters.instance().get(LevelOfDetail.class.getName());
+      if (null == levelOfDetail)
       {
-         IModel usingModel = j.next();
-         if (model.getModelOID() != usingModel.getModelOID())
-         {         
-            consumerModels.add(new Integer(usingModel.getModelOID()).longValue());
-            usingModels.add(usingModel);
-         }
+         levelOfDetail = emptySet();
       }
 
-      // Retrieving Provider Models
-      providerModels = new ArrayList<Long>();
-      List<IModel> usedModels = ModelRefBean.getUsedModels(model);
-      for (Iterator<IModel> i = usedModels.iterator(); i.hasNext();)
-      {
-         int oid = i.next().getModelOID();
-         if (oid != model.getModelOID())
-         {
-            providerModels.add(new Integer(oid).longValue());
-         }
-      }
+      this.consumerModels = newArrayList();
+      this.providerModels = newArrayList();
+      this.implementationProcesses = newHashMap();
 
-      // Retrieving ImplementationProcesses
-      implementationProcesses = new HashMap();
-      List<IProcessDefinition> processInterfaces = ModelRefBean
-            .getProcessInterfaces(model);
-      for (Iterator<IProcessDefinition> i = processInterfaces.iterator(); i.hasNext();)
+      if ( !levelOfDetail.contains(LevelOfDetail.NoProvidersNorConsumers))
       {
-         IProcessDefinition interfaceProcess = i.next();
-         IProcessDefinition primaryImplementation = ModelRefBean
-               .getPrimaryImplementation(interfaceProcess, null, null);
-         List<ImplementationDescription> details = new ArrayList<ImplementationDescription>();
-         for (Iterator<IModel> j = usingModels.iterator(); j.hasNext();)
+         List<IModel> usingModels = ModelRefBean.getUsingModels(model);
+         List<IModel> usedModels = ModelRefBean.getUsedModels(model);
+
+         // Retrieving Consumer Models
+         for (IModel usingModel : usingModels)
          {
-            IModel usingModel = j.next();
-            ModelElementList modelElementList = usingModel.getProcessDefinitions();
-            for (int k = 0; k < modelElementList.size(); k++)
+            if (model.getModelOID() != usingModel.getModelOID())
             {
-               IProcessDefinition process = (IProcessDefinition) modelElementList.get(k);
-               if (process.getExternalReference() != null)
+               consumerModels.add(new Integer(usingModel.getModelOID()).longValue());
+            }
+         }
+
+         // Retrieving Provider Models
+         for (IModel usedModel : usedModels)
+         {
+            if (usedModel.getModelOID() != model.getModelOID())
+            {
+               providerModels.add(new Integer(usedModel.getModelOID()).longValue());
+            }
+         }
+
+         // Retrieving ImplementationProcesses
+         List<IProcessDefinition> processInterfaces = ModelRefBean.getProcessInterfaces(model);
+         for (IProcessDefinition interfaceProcess : processInterfaces)
+         {
+            IProcessDefinition primaryImplementation = ModelRefBean
+                  .getPrimaryImplementation(interfaceProcess, null, null);
+
+            List<ImplementationDescription> implementations = newArrayList();
+
+            // As the model itself provides the default implementation, add a details object
+            // for the providing model as well
+            implementations.add(new ImplementationDescriptionDetails(
+                  interfaceProcess.getId(), new Integer(model.getModelOID()).longValue(),
+                  interfaceProcess.getId(), primaryImplementation.equals(interfaceProcess),
+                  new Integer(model.getModelOID()).longValue(), modelManager.isActive(model)));
+
+            // append external providers
+            for (IModel usingModel : usingModels)
+            {
+               if (model.getModelOID() == usingModel.getModelOID())
                {
-                  if (interfaceProcess.getId().equals(
-                        process.getExternalReference().getId()))
+                  continue;
+               }
+
+               ModelElementList modelElementList = usingModel.getProcessDefinitions();
+               for (int i = 0; i < modelElementList.size(); i++)
+               {
+                  IProcessDefinition process = (IProcessDefinition) modelElementList.get(i);
+                  if (process.getExternalReference() != null)
                   {
-                     boolean primary = false;
-                     if (primaryImplementation != null)
+                     if (interfaceProcess.getId().equals(
+                           process.getExternalReference().getId()))
                      {
-                        if (primaryImplementation.equals(process))
-                        {
-                           primary = true;
-                        }
+                        boolean isPrimary = (primaryImplementation != null)
+                              && primaryImplementation.equals(process);
+
+                        ImplementationDescription detail = new ImplementationDescriptionDetails(
+                              interfaceProcess.getId(),
+                              new Integer(usingModel.getModelOID()).longValue(),
+                              process.getId(), isPrimary,
+                              new Integer(model.getModelOID()).longValue(),
+                              modelManager.isActive(usingModel));
+                        implementations.add(detail);
                      }
-                     ImplementationDescription detail = new ImplementationDescriptionDetails(
-                           interfaceProcess.getId(),
-                           new Integer(usingModel.getModelOID()).longValue(),
-                           process.getId(), primary,
-                           new Integer(model.getModelOID()).longValue(),
-                           modelManager.isActive(usingModel));
-                     details.add(detail);
                   }
                }
             }
+            implementationProcesses.put(interfaceProcess.getId(), implementations);
          }
-         // As the model itself provides the default implementation, add a details object
-         // for the providing model as well
-         ImplementationDescription detail = new ImplementationDescriptionDetails(
-               interfaceProcess.getId(), new Integer(model.getModelOID()).longValue(),
-               interfaceProcess.getId(), primaryImplementation.equals(interfaceProcess),
-               new Integer(model.getModelOID()).longValue(), modelManager.isActive(model));
-         details.add(0, detail);
-         implementationProcesses.put(interfaceProcess.getId(), details);
       }
    }
 

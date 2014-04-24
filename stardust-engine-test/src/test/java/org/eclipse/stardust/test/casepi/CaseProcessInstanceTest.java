@@ -26,6 +26,7 @@ import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsLevel;
 import org.eclipse.stardust.engine.api.dto.ProcessInstanceDetailsOptions;
 import org.eclipse.stardust.engine.api.model.DataPath;
+import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.model.ParticipantInfo;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
@@ -45,7 +46,6 @@ import org.eclipse.stardust.engine.api.query.ProcessInstances;
 import org.eclipse.stardust.engine.api.query.SubProcessDataFilter;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.Department;
-import org.eclipse.stardust.engine.api.runtime.DeployedModel;
 import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
 import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.PermissionState;
@@ -68,6 +68,7 @@ import org.eclipse.stardust.test.api.util.DepartmentHome;
 import org.eclipse.stardust.test.api.util.ProcessInstanceStateBarrier;
 import org.eclipse.stardust.test.api.util.UserHome;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -79,45 +80,45 @@ import org.junit.rules.TestRule;
 /**
  * <p>
  * This class contains tests for the <i>Case Process Instance</i> functionality,
- * which allows for grouping process instances (refer to the Stardust documentation 
+ * which allows for grouping process instances (refer to the Stardust documentation
  * for details about <i>Case Process Instances</i>).
  * </p>
- * 
+ *
  * @author Roland.Stamm
  * @version $Revision$
  */
 public class CaseProcessInstanceTest
 {
    private static final Log LOG = LogFactory.getLog(CaseProcessInstanceTest.class);
-   
+
    /* package-private */ static final String MODEL_NAME = "CaseModel";
 
    private static final String U1 = "u1";
    private static final String U2 = "u2";
 
    private static final String D1 = "d1";
-   
+
    private static final UsernamePasswordPair USER_PWD_PAIR = new UsernamePasswordPair(MOTU, MOTU);
-   
+
    private final TestMethodSetup testMethodSetup = new TestMethodSetup(USER_PWD_PAIR, testClassSetup);
    private final TestServiceFactory sf = new TestServiceFactory(USER_PWD_PAIR);
-   
+
    @ClassRule
    public static final LocalJcrH2TestSetup testClassSetup = new LocalJcrH2TestSetup(USER_PWD_PAIR, ForkingServiceMode.NATIVE_THREADING, MODEL_NAME);
-   
+
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
-   
+
    private WorkflowService wfService;
-   
+
    @Before
    public void setUp()
    {
       wfService = sf.getWorkflowService();
 
       UserHome.create(sf, U1, "Org1");
-      
+
       final Organization scopedOrg1 = getTestModel().getOrganization("ScopedOrg1");
       final Department dept = DepartmentHome.create(sf, D1, "ScopedOrg1", null);
       UserHome.create(sf, U2, dept.getScopedParticipant(scopedOrg1));
@@ -189,7 +190,7 @@ public class CaseProcessInstanceTest
       assertSameProcessInstance(rootCaseProcess1, rootCaseProcess2);
 
       ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Aborted);
-      
+
       ProcessInstance processInstance = wfService.getProcessInstance(casePi.getOID());
       assertEquals(ProcessInstanceState.Aborted, processInstance.getState());
    }
@@ -215,7 +216,7 @@ public class CaseProcessInstanceTest
 
       wfService.abortProcessInstance(caseProcess1.getOID(), AbortScope.SubHierarchy);
       ProcessInstanceStateBarrier.instance().await(caseProcess1.getOID(), ProcessInstanceState.Aborted);
-      
+
       ActivityInstance ai = wfService.activateNextActivityInstanceForProcessInstance(caseProcess2.getOID());
       wfService.complete(ai.getOID(), null, null);
 
@@ -315,7 +316,7 @@ public class CaseProcessInstanceTest
 
       wfService.startProcess("{CaseModel}CaseProcess1", null, true);
       createCases(4);
-      
+
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
       ProcessInstances allProcessInstances = queryService.getAllProcessInstances(
             query);
@@ -350,7 +351,7 @@ public class CaseProcessInstanceTest
       QueryService queryService = sf.getQueryService();
 
       createCases(4);
-      
+
       ProcessInstanceQuery query = ProcessInstanceQuery.findAll();
       ProcessInstances allPis = queryService.getAllProcessInstances(query);
       int all = allPis.size();
@@ -392,9 +393,9 @@ public class CaseProcessInstanceTest
 
       ProcessInstance joinProcessInstance = wfService.joinProcessInstance(caseProcess1.getOID(), caseProcess4.getOID(), "joined by test case");
       assertEquals(joinProcessInstance.getOID(), caseProcess4.getOID());
-      
+
       ProcessInstanceStateBarrier.instance().await(caseProcess1.getOID(), ProcessInstanceState.Aborted);
-      
+
       assertEquals(ProcessInstanceState.Aborted, getPiWithHierarchy(caseProcess1.getOID(), sf.getQueryService()).getState());
       assertEquals(ProcessInstanceState.Active, getPiWithHierarchy(casePi.getOID(), sf.getQueryService()).getState());
 
@@ -465,16 +466,16 @@ public class CaseProcessInstanceTest
 
    @Test
    public void testQueryDescriptorsOnAI()
-   {      
+   {
       QueryService queryService = sf.getQueryService();
-      
+
       createCases(4);
       ProcessInstance caseProcess = wfService.startProcess("{CaseModel}CaseProcess2", null, true);
       long[] members = {caseProcess.getOID()};
       ProcessInstance casePi = wfService.createCase("Case1", "Description", members);
       assertNotNull(casePi);
       wfService.setOutDataPath(casePi.getOID(), "FirmId", Long.valueOf(126));
-      
+
       ActivityInstanceQuery query = ActivityInstanceQuery.findAll();
 
       String dataId = "FirmId";
@@ -523,7 +524,7 @@ public class CaseProcessInstanceTest
       ProcessInstance spawnedPi = wfService.spawnSubprocessInstance(caseProcess1.getOID(), "{CaseModel}CaseProcess2", true, null);
       /* make sure that spawning is completed before moving on */
       ActivityInstanceStateBarrier.instance().awaitAlive(spawnedPi.getOID());
-      
+
       wfService.leaveCase(casePi.getOID(), new long[]{caseProcess1.getOID()});
 
       ProcessInstanceStateBarrier.instance().await(casePi.getOID(), ProcessInstanceState.Aborted);
@@ -580,9 +581,9 @@ public class CaseProcessInstanceTest
       ProcessInstance rootCaseProcess = wfService.createCase("Case1", null, members);
       assertNotNull(rootCaseProcess);
       wfService.abortProcessInstance(caseProcess.getOID(), AbortScope.SubHierarchy);
-      
+
       ProcessInstanceStateBarrier.instance().await(caseProcess.getOID(), ProcessInstanceState.Aborted);
-      
+
       ProcessInstanceQuery queryRoot0 = ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted);
       queryRoot0.setPolicy(CasePolicy.INCLUDE_CASES);
       ProcessInstances pis0 = queryService.getAllProcessInstances(
@@ -608,7 +609,7 @@ public class CaseProcessInstanceTest
       assertNotNull(rootCaseProcess);
       wfService.abortProcessInstance(caseProcess.getOID(), AbortScope.SubHierarchy);
       ProcessInstanceStateBarrier.instance().await(caseProcess.getOID(), ProcessInstanceState.Aborted);
-      
+
       ProcessInstanceQuery queryRoot0 = ProcessInstanceQuery.findInState(ProcessInstanceState.Aborted);
       queryRoot0.setPolicy(CasePolicy.INCLUDE_CASES);
       long pis0 = queryService.getProcessInstancesCount(
@@ -703,7 +704,7 @@ public class CaseProcessInstanceTest
 
       ActivityInstances delegatedAis = queryService.getAllActivityInstances(ActivityInstanceQuery.findForProcessInstance(delegatedPi.getOID()));
       assertNotNull(delegatedAis);
-      
+
       ActivityInstance delegatedAi = null;
       for (ActivityInstance ai : delegatedAis)
       {
@@ -712,7 +713,7 @@ public class CaseProcessInstanceTest
             delegatedAi = ai;
          }
       }
-      
+
       assertNotNull(delegatedAi);
       assertEquals("ScopedOrg1", delegatedAi.getParticipantPerformerID());
       assertEquals(0, delegatedAi.getUserPerformerOID());
@@ -745,7 +746,7 @@ public class CaseProcessInstanceTest
       assertHierarchy(rootCaseProcess3, caseProcess2, true);
 
       assertSameProcessInstance(rootCaseProcess2, rootCaseProcess3);
-      
+
       ProcessInstanceStateBarrier.instance().await(rootCaseProcess1.getOID(), ProcessInstanceState.Aborted);
    }
 
@@ -765,19 +766,19 @@ public class CaseProcessInstanceTest
          assertNotNull(rootCaseProcess);
       }
    }
-   
-   private DeployedModel getTestModel()
+
+   private Model getTestModel()
    {
       final QueryService qs = sf.getQueryService();
       final DeployedModelQuery query = DeployedModelQuery.findActiveForId(MODEL_NAME);
       final Models models = qs.getModels(query);
-      return qs.getModel(((DeployedModelDescription) models.get(0)).getModelOID());
+      return qs.getModel(((DeployedModelDescription) models.get(0)).getModelOID(), false);
    }
-   
+
    private void assertHierarchy(ProcessInstance rootPi, ProcessInstance subPi,
          boolean contained)
    {
-      DeployedModel model = sf.getQueryService().getModel(rootPi.getModelOID());
+      Model model = sf.getQueryService().getModel(rootPi.getModelOID(), false);
       ProcessDefinition processDefinition = model.getProcessDefinition(rootPi.getProcessID());
 
       ProcessInstanceQuery query = ProcessInstanceQuery.findForProcess(

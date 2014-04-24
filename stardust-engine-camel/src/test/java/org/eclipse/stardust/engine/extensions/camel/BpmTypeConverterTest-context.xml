@@ -7,6 +7,6 @@
 
 	<import resource="SharedTestContext.xml" />
 	
-	<bean name="switchPerson" class="org.eclipse.stardust.engine.extensions.camel.SwitchPerson" />
+	
 	
 </beans>

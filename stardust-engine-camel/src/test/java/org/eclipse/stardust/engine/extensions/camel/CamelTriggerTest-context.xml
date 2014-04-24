@@ -6,5 +6,6 @@
     http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
 	<import resource="SharedTestContext.xml" />
-	
+	<bean name="switchPerson"
+      class="org.eclipse.stardust.engine.extensions.camel.SwitchPerson" />
 </beans>

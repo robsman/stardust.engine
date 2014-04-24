@@ -88,31 +88,40 @@ public class StringKey implements Serializable, Comparable
       return result;
    }
 
-   public static List getKeys(Class type)
+   public static <T> List<T> getKeys(Class<T> type)
    {
-      List result = getKeys(type, type);
-      Class outer = type.getDeclaringClass();
+      return getKeys(type, true);
+   }
+
+   public static <T> List<T> getKeys(Class<T> type, boolean includeDeprecatedKeys)
+   {
+      List<T> result = getKeys(type, type, includeDeprecatedKeys);
+      Class<?> outer = type.getDeclaringClass();
       if (outer != null)
       {
-         result.addAll(getKeys(outer, type));
+         result.addAll(getKeys(outer, type, includeDeprecatedKeys));
       }
       return result;
    }
 
-   private static List getKeys(Class type, Class target)
+   private static <T> List<T> getKeys(Class<?> type, Class<T> target, boolean includeDeprecatedKeys)
    {
       Field[] fields = type.getFields();
-      List result = new ArrayList();
+      List<T> result = new ArrayList<T>();
       for (int i = 0; i < fields.length; i++)
       {
          Field field = fields[i];
          int modifiers = field.getModifiers();
          if (field.getType().equals(target)
-               && Modifier.isStatic(modifiers) && Modifier.isPublic(modifiers))
+               && Modifier.isStatic(modifiers)
+               && Modifier.isPublic(modifiers)
+               && (includeDeprecatedKeys || !isDeprecated(field)))
          {
             try
             {
-               result.add(field.get(null));
+               @SuppressWarnings("unchecked")
+               T key = (T) field.get(null);
+               result.add(key);
             }
             catch (Exception e)
             {
@@ -121,6 +130,11 @@ public class StringKey implements Serializable, Comparable
          }
       }
       return result;
+   }
+
+   private static boolean isDeprecated(Field field)
+   {
+      return field.getAnnotation(Deprecated.class) != null;
    }
 
    /**

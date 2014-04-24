@@ -62,6 +62,7 @@ public class Main
       commands.put("bindeventhandler", BindEventHandlerCommand.class.getName());
       commands.put("unbindeventhandler", UnbindEventHandlerCommand.class.getName());
       commands.put("migraterepository", MigrateRepositoryCommand.class.getName());
+      commands.put("abort", AbortCommand.class.getName());
       
    }
 

@@ -14,29 +14,29 @@
 	<bean name="testBean2"
 		class="org.eclipse.stardust.engine.extensions.camel.test.TestBean2" />
 
-	<bean id="jmsFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+<!-- 	<bean id="jmsFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
 		<property name="brokerURL">
 			<value>vm://localhost</value>
 		</property>
 	</bean>
 
-	<!-- JMS Resource Adapter -->
+	JMS Resource Adapter
 	<bean id="jmsResourceAdapter" class="org.apache.activemq.ra.ActiveMQResourceAdapter"
 		depends-on="broker">
 		<property name="serverUrl" value="vm://localhost" />
-	</bean>
+	</bean> -->
 
 	<!-- ActiveMQ Broker -->
-	<amq:broker id="broker" useJmx="false" persistent="false"
+<!-- 	<amq:broker id="broker" useJmx="false" persistent="false"
 		useShutdownHook="false">
-		<!-- TODO inject data source to be able to persist? -->
+		TODO inject data source to be able to persist?
 		<amq:transportConnectors>
 			<amq:transportConnector uri="vm://localhost" />
 		</amq:transportConnectors>
-	</amq:broker>
+	</amq:broker> -->
 
 	<!-- JMS Connection Factory -->
-	<bean name="jmsConnectionFactory"
+<!-- 	<bean name="jmsConnectionFactory"
 		class="org.springframework.jms.connection.TransactionAwareConnectionFactoryProxy">
 		<property name="targetConnectionFactory">
 			<bean class="org.springframework.jca.support.LocalConnectionFactoryBean">
@@ -48,10 +48,10 @@
 				<property name="connectionManager" ref="jmsConnectionManager" />
 			</bean>
 		</property>
-	</bean>
+	</bean> -->
 
 	<!-- JMS Connection Manager -->
-	<bean id="jmsConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
+<!-- 	<bean id="jmsConnectionManager" class="org.jencks.factory.ConnectionManagerFactoryBean">
 		<property name="transactionManager" ref="xaTransactionManager" />
 		<property name="transaction" value="xa" />
 		<property name="pooling" value="true" />
@@ -59,6 +59,6 @@
 		<property name="poolMaxSize" value="50" />
 	</bean>
 
-	<amq:queue id="jmsOutboundQueue" physicalName="Outbound" />
+	<amq:queue id="jmsOutboundQueue" physicalName="Outbound" /> -->
 
 </beans>

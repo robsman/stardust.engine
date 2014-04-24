@@ -17,6 +17,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 
@@ -29,8 +30,8 @@ public class JMSValidator implements ApplicationValidator
       JMSDirection key = (JMSDirection) attributes.get(PredefinedConstants.TYPE_ATT);
       if (key == null)
       {
-         inconsistencies.add(new Inconsistency("Property '"
-               + PredefinedConstants.TYPE_ATT + "' not set.", Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.APP_PROPERTY_NOT_SET.raise(PredefinedConstants.TYPE_ATT);
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          return inconsistencies;
       }
       if (key.equals(JMSDirection.OUT) || key.equals(JMSDirection.INOUT))
@@ -67,20 +68,20 @@ public class JMSValidator implements ApplicationValidator
          AccessPoint ap = (AccessPoint) accessPoints.next();
          if (StringUtils.isEmpty(ap.getId()))
          {
-            inconsistencies.add(new Inconsistency("Parameter has no id defined.",
-                  Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.TRIGG_PARAMETER_HAS_NO_ID.raise();
+            inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
          }
          else if (!StringUtils.isValidIdentifier(ap.getId()))
          {
-            inconsistencies.add(new Inconsistency("Parameter has invalid id defined.",
-                  Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.TRIGG_PARAMETER_HAS_INVALID_ID_DEFINED.raise();
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
          else
          {
             if (ap.getAttribute(PredefinedConstants.JMS_LOCATION_PROPERTY) == null)
             {
-               inconsistencies.add(new Inconsistency("No location specified for parameter '" + ap.getName() + "'.",
-                     Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.TRIGG_NO_LOCATION_FOR_PARAMETER_SPECIFIED.raise(ap.getName());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
             String className = (String) ap.getAttribute(
                   PredefinedConstants.CLASS_NAME_ATT);
@@ -90,24 +91,22 @@ public class JMSValidator implements ApplicationValidator
             }
             catch (InternalException e)
             {
-               inconsistencies.add(new Inconsistency("No valid Type for Parameter '"
-                     + ap.getName() + "' (Class '"
-                     + className + "' cannot be found).",
-                     Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.TRIGG_NO_VALID_TYPE_FOR_PARAMETER_CLASS_CANNOT_BE_FOUND.raise(
+                     ap.getName(), className);
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
             catch (NoClassDefFoundError e)
             {
-               inconsistencies.add(new Inconsistency("No valid Type for Parameter '"
-                     + ap.getName() + "' (Class '"
-                     + className + "' could not be loaded).",
-                     Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.TRIGG_NO_VALID_TYPE_FOR_PARAMETER_CLASS_COULD_NOT_BE_LOADED.raise(
+                     ap.getName(), className);
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
-            
+
             String idKey = ap.getDirection().toString() + ":" + ap.getId();
             if (ids.contains(idKey))
             {
-               inconsistencies.add(new Inconsistency("Duplicate Id used: '" + ap.getName() + "'.",
-                     Inconsistency.ERROR));
+               BpmValidationError error = BpmValidationError.APP_DUPLICATE_ID_USED.raise(ap.getName());
+               inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
             }
             ids.add(idKey);
          }
@@ -120,8 +119,8 @@ public class JMSValidator implements ApplicationValidator
       Object property = attributes.get(name);
       if (property == null || property.toString().trim().length() == 0)
       {
-         inconsistencies.add(new Inconsistency("Property '" + name + "' not set.",
-               Inconsistency.ERROR));
+         BpmValidationError error = BpmValidationError.APP_PROPERTY_NOT_SET.raise(name);
+         inconsistencies.add(new Inconsistency(error, Inconsistency.ERROR));
       }
    }
 }

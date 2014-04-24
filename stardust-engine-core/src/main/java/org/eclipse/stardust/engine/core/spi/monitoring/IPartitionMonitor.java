@@ -75,5 +75,12 @@ public interface IPartitionMonitor
     * @param model
     * @throws DeploymentException
     */
-   void modelDeleted(IModel model) throws DeploymentException;   
+   void modelDeleted(IModel model) throws DeploymentException;
+
+   /**
+    * Client can analyze and monitor argument and method call.
+    * 
+    * @param model
+    */
+   void modelLoaded(IModel model);   
 }

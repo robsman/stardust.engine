@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 SunGard CSA LLC and others.
+ * Copyright (c) 2011. 2013 SunGard CSA LLC and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.query.DataPrefetchHint;
-import org.eclipse.stardust.engine.api.query.FilterAndTerm;
 import org.eclipse.stardust.engine.api.query.Query;
 import org.eclipse.stardust.engine.api.runtime.PerformerType;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
@@ -27,9 +26,9 @@ import org.eclipse.stardust.engine.core.runtime.beans.WorkItemAdapter;
 import org.eclipse.stardust.engine.core.runtime.beans.WorkItemBean;
 
 /**
- * Predicate class which is used to restrict access to work items based on its activity 
+ * Predicate class which is used to restrict access to work items based on its activity
  * declarative security permission.
- * 
+ *
  * @author stephan.born
  * @version $Revision: 5162 $
  */
@@ -37,13 +36,11 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
 {
    private static final Logger trace = LogManager.getLogger(WorkItemAuthorization2Predicate.class);
 
-   public boolean addPrefetchDataHints(Query query)
+   @Override
+   protected boolean queryRequiresExcludeUserHandling(Query query)
    {
-      boolean returnValue = super.addPrefetchDataHints(query);
-      FilterAndTerm queryFilter = query.getFilter();            
-      getExcludeUserFilter(queryFilter);
-      
-      return returnValue;
+      // ExcludeUser handling always required for Worklistworklist queries.
+      return true;
    }
 
    private static final FieldRef[] LOCAL_STRINGS = {
@@ -83,7 +80,7 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
                long modelOid = rs.getLong(WorkItemBean.FIELD__MODEL);
                int performerKind = rs.getInt(WorkItemBean.FIELD__PERFORMER_KIND);
                long performer = rs.getLong(WorkItemBean.FIELD__PERFORMER);
-               
+
                Map<String, Long> dataValueOids = CollectionUtils.newMap();
                long scopeProcessInstanceOid = 0;
                try
@@ -131,13 +128,13 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
 
                      return false;
                }
-               
+
                if (isExcludedUser(activityRtOid, scopeProcessInstanceOid, modelOid,
                      dataValueOids))
                {
                   return false;
                }
-               
+
                context.setActivityDataWithScopePi(scopeProcessInstanceOid, activityRtOid, modelOid, currentPerformer,
                      currentUserPerformer, departmentOid);
                return Authorization2.hasPermission(context);
@@ -156,5 +153,5 @@ public class WorkItemAuthorization2Predicate extends AbstractAuthorization2Predi
          }
       }
       return result;
-   }      
+   }
 }

@@ -11,25 +11,14 @@
 
 package org.eclipse.stardust.common.config;
 
-import static org.eclipse.stardust.common.CollectionUtils.copyMap;
-import static org.eclipse.stardust.common.CollectionUtils.newHashMap;
 import static org.eclipse.stardust.common.CollectionUtils.newLinkedList;
 import static org.eclipse.stardust.common.CollectionUtils.newSet;
 import static org.eclipse.stardust.common.CollectionUtils.newSortedMap;
 import static org.eclipse.stardust.common.config.ValueProviderUtils.precalculatedValueProvider;
 
 import java.text.MessageFormat;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.MissingResourceException;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -39,7 +28,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import org.eclipse.stardust.common.Assert;
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.config.Parameters.IDisposable;
-import org.eclipse.stardust.common.error.ApplicationException;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.LogUtils;
@@ -64,7 +52,8 @@ public class GlobalParameters
 
    private static boolean constructing = false;
 
-   private final AtomicReference<Map<String, Object>> propertiesHolder = new AtomicReference<Map<String, Object>>();
+   private ConcurrentMap<String, Object> localProperties = CollectionUtils.newConcurrentHashMap();
+
    private final Map<String, Object> systemProperties;
 
    private Set<String> userBundleNames;
@@ -128,7 +117,7 @@ public class GlobalParameters
       {
          systemProperties.clear();
       }
-      this.propertiesHolder.set(new HashMap<String, Object>());
+      this.localProperties = CollectionUtils.newConcurrentHashMap();
       this.userBundleNames = CollectionUtils.newSet();
 
       // initSharedResources must only be called if it was not already called before and
@@ -214,7 +203,7 @@ public class GlobalParameters
    {
       if ((0 != closing.get()) && (0 >= usageCount.get()))
       {
-         Map<String, Object> properties = this.propertiesHolder.get();
+         Map<String, Object> properties = this.localProperties;
          for (Map.Entry<String, Object> prop : properties.entrySet())
          {
             if (prop.getValue() instanceof IDisposable)
@@ -224,7 +213,7 @@ public class GlobalParameters
          }
 
          this.userBundleNames.clear();
-         this.propertiesHolder.set(new HashMap<String, Object>());
+         this.localProperties.clear();
          this.systemProperties.clear();
          this.userBundleNames = null;
       }
@@ -265,8 +254,7 @@ public class GlobalParameters
          }
       }
 
-      final Map<String, Object> currentProperties = newHashMap();
-      this.propertiesHolder.set(currentProperties);
+      this.localProperties = CollectionUtils.newConcurrentHashMap();
 
       for (GlobalParametersProviderFactory providerFactory : factoriesByPriority.values())
       {
@@ -291,7 +279,7 @@ public class GlobalParameters
 
                if ( !key.equals("AuditTrail.Password"))
                {
-                  final Object oldValue = currentProperties.get(key);
+                  final Object oldValue = this.localProperties.get(key);
 
                   StringBuffer logMsg = new StringBuffer();
                   logMsg.append("  ").append(key).append(" = ").append(value);
@@ -302,7 +290,12 @@ public class GlobalParameters
                   }
                   providerTrace.info(logMsg);
                }
-               currentProperties.put(key, value);
+
+               if (value == null)
+               {
+                  trace.warn("Removing property with key '" + key + "' as value is null.");
+               }
+               set(key, value);
             }
 
             // for bundle based providers: register bundle as loaded
@@ -324,7 +317,7 @@ public class GlobalParameters
       {
          try
          {
-            addProperties(currentProperties, dep, getClass().getClassLoader());
+            addProperties(dep, getClass().getClassLoader());
          }
          catch (Exception e)
          {
@@ -364,14 +357,10 @@ public class GlobalParameters
     */
    public synchronized void addProperties(String fileName)
    {
-      Map<String, Object> properties = CollectionUtils.copyMap(propertiesHolder.get());
-
-      addProperties(properties, fileName, getClass().getClassLoader());
-
-      propertiesHolder.set(properties);
+      addProperties(fileName, getClass().getClassLoader());
    }
 
-   private void addProperties(Map<String, Object> properties, String fileName, ClassLoader classLoader)
+   private void addProperties(String fileName, ClassLoader classLoader)
    {
       if (userBundleNames.contains(fileName))
       {
@@ -390,7 +379,12 @@ public class GlobalParameters
          {
             String key = i.nextElement();
             Object value = bundle.getObject(key);
-            properties.put(key, value);
+
+            if (value == null)
+            {
+               trace.warn("Removing property with key '" + key + "' as value is null.");
+            }
+            set(key, value);
             trace.info("  " + key + " = " + value);
          }
          userBundleNames.add(fileName);
@@ -405,27 +399,34 @@ public class GlobalParameters
 
    public Object get(String name)
    {
-      final Map<String, Object> properties = propertiesHolder.get();
+      Object value = localProperties.get(name);
 
-      final Object value = properties.get(name);
+      if (value == null)
+      {
+         if (name != null)
+         {
+            value = systemProperties.get(name);
+         }
+      }
 
-      return value == null ? name == null ? null : systemProperties.get(name) : value;
+      return value;
    }
 
    public void set(String name, Object value)
    {
-      final Map<String, Object> properties = copyMap(propertiesHolder.get());
+      if (name == null)
+      {
+         trace.warn("Undefinded Behavior for properties with name equal to null.");
+      }
 
       if (null != value)
       {
-         properties.put(name, value);
+         localProperties.put(name, value);
       }
       else
       {
-         properties.remove(name);
+         localProperties.remove(name);
       }
-
-      propertiesHolder.set(properties);
    }
 
    /**
@@ -459,18 +460,18 @@ public class GlobalParameters
          throw new NullPointerException("Initial value provider must not be null.");
       }
 
-      final Map<String, Object> properties = propertiesHolder.get();
-      if ( !properties.containsKey(name))
+      if ( !localProperties.containsKey(name))
       {
          // perform initialization
 
          Object initialValue = initializationCallback.getValue();
-         Map<String, Object> updatedProperties = copyMap(properties);
-         if (null != updatedProperties.put(name, initialValue))
+         if (null != initialValue)
          {
-            trace.warn("Race condition while initializing property '" + name + "'.");
+            if (null != localProperties.putIfAbsent(name, initialValue))
+            {
+               trace.warn("Race condition while initializing property '" + name + "'.");
+            }
          }
-         propertiesHolder.set(updatedProperties);
       }
 
       return get(name);

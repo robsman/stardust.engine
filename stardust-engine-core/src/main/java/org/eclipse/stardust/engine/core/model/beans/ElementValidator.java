@@ -10,13 +10,16 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.core.model.beans;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
+
 import org.eclipse.xsd.XSDAttributeDeclaration;
 import org.eclipse.xsd.XSDAttributeGroupContent;
 import org.eclipse.xsd.XSDAttributeUse;
@@ -37,6 +40,20 @@ public class ElementValidator
    public static List<Inconsistency> validateElements(ITypeDeclaration declaration)
    {
       messages = new ArrayList<Inconsistency>();
+      String className = declaration.getStringAttribute(PredefinedConstants.CLASS_NAME_ATT);
+      if (className != null)
+      {
+         try
+         {
+            Class clazz = Reflect.getClassFromClassName(className);
+         }
+         catch (Exception e)
+         {
+            BpmValidationError error = BpmValidationError.JAVA_CLASS_COULD_NOT_BE_LOADED.raise(className);
+            messages.add(new Inconsistency(error, declaration, Inconsistency.WARNING));
+         }
+      }
+
       XSDComplexTypeDefinition complexType = TypeDeclarationUtils.getComplexType(declaration);
       if(complexType != null)
       {
@@ -58,11 +75,8 @@ public class ElementValidator
             {
                 if (attributeNames.contains(name))
                 {
-                   String message = MessageFormat.format(
-                         "Duplicate identifier: ''{0}''", //$NON-NLS-1$
-                         name);
-                   messages.add(new Inconsistency(message, declaration,
-                         Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.VAL_DUPLICATE_IDENTIFIER.raise(name);
+                  messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
                 }
                 attributeNames.add(name);
             }
@@ -87,11 +101,8 @@ public class ElementValidator
                     {
                     	if (names.contains(name))
                     	{
-                        String message = MessageFormat.format(
-                              "Duplicate identifier: ''{0}''", //$NON-NLS-1$
-                              name);
-                        messages.add(new Inconsistency(message, declaration,
-                              Inconsistency.ERROR));
+                        BpmValidationError error = BpmValidationError.VAL_DUPLICATE_IDENTIFIER.raise(name);
+                        messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
                     	}
                     	names.add(name);
                     }
@@ -140,11 +151,8 @@ public class ElementValidator
             {
                 if (names.contains(name))
                 {
-                   String message = MessageFormat.format(
-                         "Duplicate identifier: ''{0}''", //$NON-NLS-1$
-                         name);
-                   messages.add(new Inconsistency(message, declaration,
-                         Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.VAL_DUPLICATE_IDENTIFIER.raise(name);
+                  messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
                 }
                 names.add(name);
             }
@@ -165,11 +173,8 @@ public class ElementValidator
          String name = element.getName();
          if (!isValidElementName(name))
          {
-            String message = MessageFormat.format(
-                  "''{0}'' is not a valid identifier.", //$NON-NLS-1$
-                  name);
-            messages.add(new Inconsistency(message, declaration,
-                  Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.VAL_INVALID_IDENTIFIER.raise(name);
+            messages.add(new Inconsistency(error, declaration, Inconsistency.ERROR));
          }
       }
    }

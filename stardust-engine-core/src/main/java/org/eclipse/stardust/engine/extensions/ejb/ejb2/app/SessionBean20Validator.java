@@ -16,6 +16,7 @@ import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 
 
@@ -53,8 +54,8 @@ public class SessionBean20Validator implements ApplicationValidator
       String clazzName = (String) attributes.get(classAttrNames[type]);
       if (clazzName == null)
       {
-         inconsistencies.add(new Inconsistency(interfaceNames[type] +
-               " interface not specified.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.JAVA_INTERFACE_NOT_SPECIFIED.raise(interfaceNames[type]);
+         inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       else
       {
@@ -65,8 +66,8 @@ public class SessionBean20Validator implements ApplicationValidator
 
             if (methodName == null)
             {
-               inconsistencies.add(new Inconsistency(methodNames[type] +
-                     " method not specified.", Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.JAVA_METHOD_NOT_SPECIFIED.raise(methodNames[type]);
+               inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
             }
             else
             {
@@ -76,21 +77,21 @@ public class SessionBean20Validator implements ApplicationValidator
                }
                catch (InternalException e)
                {
-                  inconsistencies.add(new Inconsistency("Couldn't find method '"
-                        + methodName + "' in class '" + clazz.getName() + "'.",
-                        Inconsistency.WARNING));
+                  BpmValidationError error = BpmValidationError.JAVA_COULD_NOT_FIND_METHOD_IN_CLASS.raise(
+                        methodName, clazz.getName());
+                  inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
                }
             }
          }
          catch (InternalException e)
          {
-            inconsistencies.add(new Inconsistency("Class '" + clazzName
-                  + "' not found.", Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.JAVA_CLASS_NOT_FOUND.raise(clazzName);
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
          catch (NoClassDefFoundError e)
          {
-            inconsistencies.add(new Inconsistency("Class '" + clazzName
-                  + "' could not be loaded.", Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.JAVA_CLASS_COULD_NOT_BE_LOADED.raise(clazzName);
+            inconsistencies.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
    }

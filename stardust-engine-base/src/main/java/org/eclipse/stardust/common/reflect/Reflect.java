@@ -28,8 +28,6 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.spi.ITypeNameResolver;
 
-
-
 /**
  * Various getter methods returning common metamodel information.
  * Extension of the java.lang.reflect package.
@@ -1268,6 +1266,10 @@ public class Reflect
       else if ((value instanceof Long) && (targetType.equals(java.util.Date.class)))
       {
          result = new Date((Long) value);
+      }
+      else if ((value instanceof String) && isAssignable(Enum.class, targetType))
+      {
+         result = Enum.valueOf(targetType, (String) value);
       }
       else
       {

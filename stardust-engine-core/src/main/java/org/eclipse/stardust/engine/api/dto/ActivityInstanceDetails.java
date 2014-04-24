@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.stardust.engine.api.dto;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -561,8 +562,30 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                {
                   if (isEventTypeSet(eventTypes, HistoricalEventType.STATE_CHANGE))
                   {
-                     historicalEvents.add(new HistoricalEventDetails(
-                           HistoricalEventType.StateChange, histState, prevHistState));
+                     if (activityInstance.isTerminated() && histState.getState() == state)
+                     {
+                        // handle termination elements differently - if available at all
+                        // (there was change in behavior).
+                        UserDetails performedByDetails = null;
+                        IUser performedBy = activityInstance.getPerformedBy();
+                        if (performedBy != null)
+                        {
+                           performedByDetails = (UserDetails) DetailsFactory.create(
+                                 performedBy, IUser.class, UserDetails.class);
+                        }
+
+                        final Serializable descriptionDetails = new HistoricalEventDescriptionStateChangeDetails(
+                              prevHistState.getState(), state, performedByDetails);
+                        historicalEvents.add(new HistoricalEventDetails(
+                              HistoricalEventType.StateChange, activityInstance
+                                    .getLastModificationTime(), HistoricalEventDetails
+                                    .getUser(histState), descriptionDetails));
+                     }
+                     else
+                     {
+                        historicalEvents.add(new HistoricalEventDetails(
+                              HistoricalEventType.StateChange, histState, prevHistState));
+                     }
                   }
                }
             }
@@ -574,7 +597,8 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
          // e.g completed, terminated.
          if (null != prevHistState
                && prevHistState.getState() != state
-               && activityInstance.isTerminated())
+               && activityInstance.isTerminated()
+               && isEventTypeSet(eventTypes, HistoricalEventType.STATE_CHANGE))
          {
             UserDetails performedByDetails = null;
             IUser performedBy = activityInstance.getPerformedBy();
@@ -675,7 +699,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
       {
          eventHandlers = activityInstance.getActivity().getEventHandlers();
       }
-      
+
       // try to fetch event handler by event handler runtime oid
       String subject = logEntry.getSubject();
       Matcher matcher = handlerOidPattern.matcher(subject);
@@ -689,7 +713,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             handler = EventUtils.getEventHandler(modelOid, eventHandlerRuntimeOid);
          }
       }
-      
+
       //try to fetch event handler by event handler model element oid
       if(handler == null)
       {
@@ -701,9 +725,9 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
             {
                handler = EventUtils.getEventHandler(eventHandlers, eventHandlerModelElementOid);
             }
-         }         
+         }
       }
-            
+
       if(handler != null)
       {
          EventHandler eventHandlerDetails = new EventHandlerDetails(
@@ -714,7 +738,7 @@ public class ActivityInstanceDetails extends RuntimeObjectDetails
                eventHandlerDetails);
          historicalEvents.add(histEvent);
       }
-         
+
       return eventHandlers;
    }
 

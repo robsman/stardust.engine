@@ -26,7 +26,7 @@ public interface AttributeHolder
 
    // @todo (france, ub): let this return Attribute and attach the interface
    // to IUser and IActivityInstance
-   Object getAttribute(String name);
+   <T> T getAttribute(String name);
 
    void setAttribute(String name, Object value);
 

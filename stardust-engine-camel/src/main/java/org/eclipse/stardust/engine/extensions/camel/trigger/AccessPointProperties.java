@@ -1,11 +1,9 @@
 package org.eclipse.stardust.engine.extensions.camel.trigger;
 
 import org.eclipse.stardust.engine.api.model.IData;
-import org.eclipse.stardust.engine.extensions.camel.runtime.Endpoint;
+
 
 public class AccessPointProperties {
-
-	private Endpoint endPoint;
 
 	private String accessPointType;
 
@@ -18,14 +16,6 @@ public class AccessPointProperties {
 	private String dataPath;
 
 	private String xsdName;
-
-	public Endpoint getEndPoint() {
-		return endPoint;
-	}
-
-	public void setEndPoint(Endpoint endPoint) {
-		this.endPoint = endPoint;
-	}
 
 	public String getAccessPointType() {
 		return accessPointType;

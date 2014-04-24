@@ -29,7 +29,7 @@ public class ValidationConfigurationVariablesProvider extends
       DefaultConfigurationVariablesProvider
 {
    private Map<String, Serializable> preferences;
-   
+
    public ValidationConfigurationVariablesProvider(Map<String, Serializable> preferences)
    {
       super();
@@ -47,7 +47,7 @@ public class ValidationConfigurationVariablesProvider extends
       {
          final ConfigurationVariables configurationVariables = ConfigurationVariableUtils
                .getConfigurationVariables(PreferenceStorageFactory.getCurrent(), modelId,
-                     false);
+                     true, true);
          Map<String, Serializable> workingPrefs = CollectionUtils.copyMap(this.preferences);
          List<ConfigurationVariable> newList = CollectionUtils.newArrayList();
 
@@ -78,18 +78,19 @@ public class ValidationConfigurationVariablesProvider extends
                newList.add(variable);
             }
          }
-         
+
          // add variables which did not exist before
          for (Entry<String, Serializable> prefName : workingPrefs.entrySet())
          {
             Serializable serializable = prefName.getValue();
             String value = serializable == null ? "" : serializable.toString();
             ConfigurationVariableDefinition definition = new ConfigurationVariableDefinition(
-                  prefName.getKey(), value, "", 0);
+                  ConfigurationVariableUtils.getName(prefName.getKey()),
+                  ConfigurationVariableUtils.getType(prefName.getKey()),
+                  value, "", 0);
             newList.add(new ConfigurationVariable(definition, value));
          }
-         
-         
+
          configurationVariables.setConfigurationVariables(newList);
 
          setConfVariables(configurationVariables);

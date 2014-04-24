@@ -17,13 +17,14 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidator;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ApplicationValidatorEx;
 import org.eclipse.stardust.engine.extensions.mail.utils.MailValidationUtils;
 
 
 /**
- * 
+ *
  */
 public class MailValidator implements ApplicationValidator, ApplicationValidatorEx
 {
@@ -52,15 +53,16 @@ public class MailValidator implements ApplicationValidator, ApplicationValidator
    public List validate(IApplication app)
    {
       List result = new ArrayList();
-      
+
       if (!isValidEmailAddress((String) app.getAttribute(MailConstants.DEFAULT_MAIL_FROM))
             || !isValidEmailAddress((String) app.getAttribute(MailConstants.DEFAULT_MAIL_TO))
             || !isValidEmailAddress((String) app.getAttribute(MailConstants.DEFAULT_MAIL_BCC))
             || !isValidEmailAddress((String) app.getAttribute(MailConstants.DEFAULT_MAIL_CC)))
       {
-         result.add(new Inconsistency("Invalid mail address.", app, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.APP_INVALID_MAIL_ADDRESS.raise();
+         result.add(new Inconsistency(error, app, Inconsistency.WARNING));
       }
-      
+
       return result;
    }
 }

@@ -146,8 +146,8 @@ public class ExtractPageCommand implements ServiceCommand
       WorkflowService workflowService = sf.getWorkflowService();
       List<SubprocessSpawnInfo> infoList = CollectionUtils.newArrayList();
 
-      Map<String, Object> data = null;
-
+      Map<String, Document> data = null;
+      List<ProcessInstance> spawnProcesses = new ArrayList<ProcessInstance>();
       for (PageModel page : pages)
       {
          String newDocumentName = generateName();
@@ -164,14 +164,31 @@ public class ExtractPageCommand implements ServiceCommand
             data.put(page.getDataId(), document);
             page.setDocument(document);
          }
-
-         SubprocessSpawnInfo info = new SubprocessSpawnInfo(page.getProcessId(), page.isCopyData(), data);
-         infoList.add(info);
+         
+         if(!page.isAbortProcessInstance())
+         {
+            spawnProcesses.add(sf.getWorkflowService().spawnPeerProcessInstance(processInstance.getOID(), page.getProcessId(), page.isCopyData(), data, page.isAbortProcessInstance(), page.getLinkComment()));
+         }
+         else
+         {
+            SubprocessSpawnInfo info = new SubprocessSpawnInfo(page.getProcessId(), page.isCopyData(), data);
+            infoList.add(info);   
+         }
       }
 
       // spawn process
-      List<ProcessInstance> spawnProcesses = workflowService.spawnSubprocessInstances(processInstance.getOID(),
-            infoList);
+      if(!infoList.isEmpty())
+      {
+         if (spawnProcesses.isEmpty())
+         {
+            spawnProcesses = workflowService.spawnSubprocessInstances(processInstance.getOID(), infoList);
+         }
+         else
+         {
+            spawnProcesses.addAll(workflowService.spawnSubprocessInstances(processInstance.getOID(), infoList));
+         }
+      }
+      
 
       // start process
       for (int i = 0; i < spawnProcesses.size(); i++)
@@ -262,11 +279,13 @@ public class ExtractPageCommand implements ServiceCommand
       private final String processId;
       private final boolean copyData;
       private final String dataId;
+      private final boolean abortProcessInstance;
       private Document document;
       private ProcessInstance startedProcessInstance;
+      private String linkComment;
 
       public PageModel(byte[] content, String versionComment, String description, DocumentAnnotations annotations,
-            String processId, boolean copyData, String dataId)
+            String processId, boolean copyData, String dataId, boolean abortProcessInstance)
       {
          this.content = content;
          this.versionComment = versionComment;
@@ -276,6 +295,7 @@ public class ExtractPageCommand implements ServiceCommand
          this.processId = processId;
          this.copyData = copyData;
          this.dataId = dataId;
+         this.abortProcessInstance = abortProcessInstance;
       }
 
       public byte[] getContent()
@@ -336,6 +356,21 @@ public class ExtractPageCommand implements ServiceCommand
       public void setStartedProcessInstance(ProcessInstance startedProcessInstance)
       {
          this.startedProcessInstance = startedProcessInstance;
+      }
+
+      public boolean isAbortProcessInstance()
+      {
+         return abortProcessInstance;
+      }
+
+      public String getLinkComment()
+      {
+         return linkComment;
+      }
+
+      public void setLinkComment(String linkComment)
+      {
+         this.linkComment = linkComment;
       }
 
    }

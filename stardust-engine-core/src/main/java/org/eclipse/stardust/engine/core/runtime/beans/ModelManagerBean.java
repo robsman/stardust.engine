@@ -30,6 +30,7 @@ import org.eclipse.stardust.engine.core.model.utils.IdentifiableElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.model.utils.ModelElementList;
 import org.eclipse.stardust.engine.core.model.utils.ModelUtils;
+import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
 import org.eclipse.stardust.engine.core.persistence.QueryExtension;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -213,7 +214,7 @@ public class ModelManagerBean implements ModelManager
    {
       return getModelManagerPartition().findTransition(modelOid, runtimeOid);
    }
-   
+
    @Override
    public IData findDataForStructuredData(long modelOid, long runtimeOid)
    {
@@ -249,13 +250,13 @@ public class ModelManagerBean implements ModelManager
    {
       return getModelManagerPartition().getAllAliveModels();
    }
-   
-   public void resetLastDeployment() 
+
+   public void resetLastDeployment()
    {
        getModelManagerPartition().resetLastDeployment();
    }
 
-   public long getLastDeployment() 
+   public long getLastDeployment()
    {
 	   return getModelManagerPartition().getLastDeployment();
    }
@@ -712,10 +713,6 @@ public class ModelManagerBean implements ModelManager
    // TODO (kafka): assure that models belong to the current partition.
    public class ModelManagerPartition implements ModelManager
    {
-      private static final String NO_MODEL_WITH_OID = "No model with oid {0} found.";
-      private static final String NO_ACTIVE_MODEL = "No model active.";
-      private static final String NO_MODELS = "No model deployed.";
-
       private final Object LAST_DEPLOYMENT_LOCK = new Object();
 
       private final short partitionOid;
@@ -731,11 +728,11 @@ public class ModelManagerBean implements ModelManager
       private MyDependentObjectsCache dependentObjectCache = new MyDependentObjectsCache();
 
       private final IRuntimeOidRegistry rtOidRegistry;
-      
+
       // (fh) used for lazy initialization of lastDeployment and managing
       // of dynamic resets.
       private volatile boolean lastDeploymentSet = false;
-      
+
       // (fh) both variables are volatile because they might be accessed concurrently from multiple threads
       private volatile long lastDeployment;
 
@@ -767,7 +764,7 @@ public class ModelManagerBean implements ModelManager
             IModelPersistor persistor = (IModelPersistor) i.next();
             loadedModels.put(persistor.getModelOID(), persistor);
          }
-         
+
          for (IModelPersistor persistor : loadedModels.values())
          {
             IModel model = persistor.fetchModel();
@@ -959,12 +956,16 @@ public class ModelManagerBean implements ModelManager
                }
             }
          }
+         for (IModel model : models)
+         {
+            MonitoringUtils.partitionMonitors().modelLoaded(model);
+         }
       }
 
       private void addRelocationTransition(IModel model)
       {
          for (int p = 0; p < model.getProcessDefinitions().size(); ++p)
-         {            
+         {
             IProcessDefinition process = (IProcessDefinition) model
                   .getProcessDefinitions().get(p);
             ITransition transition = process.findTransition(PredefinedConstants.RELOCATION_TRANSITION_ID);
@@ -975,12 +976,12 @@ public class ModelManagerBean implements ModelManager
                   IActivity activity = (IActivity) process.getActivities().get(a);
                   if (activity.getBooleanAttribute(PredefinedConstants.ACTIVITY_IS_RELOCATE_SOURCE_ATT)
                         || activity.getBooleanAttribute(PredefinedConstants.ACTIVITY_IS_RELOCATE_TARGET_ATT))
-                  {                   
+                  {
                      ITransition relocateTransition = process.createTransition(PredefinedConstants.RELOCATION_TRANSITION_ID, "Relocation Transition", "", null, null);
                      relocateTransition.setForkOnTraversal(false);
-                     ITransition transition_ = process.findTransition(PredefinedConstants.RELOCATION_TRANSITION_ID);                     
+                     ITransition transition_ = process.findTransition(PredefinedConstants.RELOCATION_TRANSITION_ID);
                      rtOidRegistry.registerNewRuntimeOid(
-                           IRuntimeOidRegistry.TRANSITION, RuntimeOidUtils.getFqId(transition_));                     
+                           IRuntimeOidRegistry.TRANSITION, RuntimeOidUtils.getFqId(transition_));
                      break;
                   }
                }
@@ -1217,9 +1218,9 @@ public class ModelManagerBean implements ModelManager
                String primaryImplementationId = entry.getValue();
                IProcessDefinition process = entry.getKey();
                IModel interfaceModel = (IModel) process.getModel();
-               
+
                ModelRefBean.setPrimaryImplementation(process, primaryImplementationId, ModelDeploymentBean.getLastDeployment());
-               
+
                DeploymentInfoDetails info = new DeploymentInfoDetails(
                      (Date) interfaceModel.getAttribute(PredefinedConstants.VALID_FROM_ATT), interfaceModel.getId(),
                      "Primary implementation for process '{" + interfaceModel.getId() + "}" + process.getId()
@@ -1248,7 +1249,7 @@ public class ModelManagerBean implements ModelManager
        * Collects the primary implementations which needs to be set for the deployment units.
        * The code tries to detect existing relationships in the auditrail database and if corresponding
        * model / process definitions can be found in the deployment units, they will be set
-       * 
+       *
        * @param elements - the models to deploy
        * @return the primary implementations to be set
        */
@@ -1256,7 +1257,7 @@ public class ModelManagerBean implements ModelManager
       {
          long referenceDeployment = ModelDeploymentBean.getLastDeployment();
          ModelManager mm = ModelManagerFactory.getCurrent();
-         
+
          Map<IProcessDefinition, String> impls = null;
          for (ParsedDeploymentUnit unit : elements)
          {
@@ -1315,7 +1316,7 @@ public class ModelManagerBean implements ModelManager
                }
             }
          }
-         
+
          return impls;
       }
 
@@ -1388,8 +1389,8 @@ public class ModelManagerBean implements ModelManager
                   && !id.equals(PredefinedConstants.PREDEFINED_MODEL_ID))
             {
                continue;
-            }            
-            
+            }
+
             if (model.getBooleanAttribute(PredefinedConstants.IS_DISABLED_ATT))
             {
                continue;
@@ -1871,7 +1872,9 @@ public class ModelManagerBean implements ModelManager
 
          if (getModelCount() == 0)
          {
-            info.addInconsistency(new Inconsistency(Inconsistency.ERROR, null, NO_MODELS));
+
+            BpmValidationError error = BpmValidationError.MDL_NO_MODEL_DEPLOYED.raise();
+            info.addInconsistency(new Inconsistency(error, null, Inconsistency.ERROR));
             return info;
          }
 
@@ -1881,11 +1884,13 @@ public class ModelManagerBean implements ModelManager
          {
             if (modelOID == PredefinedConstants.ACTIVE_MODEL)
             {
-               info.addInconsistency(new Inconsistency(Inconsistency.ERROR, null, NO_ACTIVE_MODEL));
+               BpmValidationError error = BpmValidationError.MDL_NO_MODEL_ACTIVE.raise();
+               info.addInconsistency(new Inconsistency(error, null, Inconsistency.ERROR));
             }
             else
             {
-               info.addInconsistency(new Inconsistency(Inconsistency.ERROR, null, NO_MODEL_WITH_OID, modelOID));
+               BpmValidationError error = BpmValidationError.MDL_NO_MODEL_WITH_OID_FOUND.raise(modelOID);
+               info.addInconsistency(new Inconsistency(error, null, Inconsistency.ERROR));
             }
             return info;
          }
@@ -1905,7 +1910,7 @@ public class ModelManagerBean implements ModelManager
          models.set(index, model);
          dependentObjectCache.reload(model);
          recomputeAlivenessCache();
-
+         
          return info;
       }
 
@@ -1949,9 +1954,8 @@ public class ModelManagerBean implements ModelManager
          {
             if (pkg.getReferencedModel() == null)
             {
-               inconsistencies.add(new Inconsistency(
-                     "Referenced package with namespace '" + pkg.getHref()
-                           + "' not found.", null, Inconsistency.WARNING));
+               BpmValidationError error = BpmValidationError.MDL_REFERENCED_PACKAGE_WITH_NAMESPACE_NOT_FOUND.raise(pkg.getHref());
+               inconsistencies.add(new Inconsistency(error, null, Inconsistency.WARNING));
             }
          }
 
@@ -1964,10 +1968,9 @@ public class ModelManagerBean implements ModelManager
 
          if (!oldModel.getId().equals(newModel.getId()))
          {
-            inconsistencies.add(new Inconsistency("The audit trail database contains "
-                  + "a model with ID '" + oldModel.getId() + "' which differs from "
-                  + "the ID '" + newModel.getId() + "' of this model.",
-                  null, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.MDL_AUDITTRAIL_CONTAINS_MODEL_WHICH_DIFFERS_FROM_THIS_MODEL.raise(
+                  oldModel.getId(), newModel.getId());
+            inconsistencies.add(new Inconsistency(error, null, Inconsistency.ERROR));
             return inconsistencies;
          }
 
@@ -2093,7 +2096,7 @@ public class ModelManagerBean implements ModelManager
             {
                continue;
             }
-            
+
             if (model.getBooleanAttribute(PredefinedConstants.IS_DISABLED_ATT))
             {
                continue;
@@ -2130,8 +2133,8 @@ public class ModelManagerBean implements ModelManager
             if (model.getId().equals(PredefinedConstants.PREDEFINED_MODEL_ID))
             {
                continue;
-            }            
-            
+            }
+
             if (model.getBooleanAttribute(PredefinedConstants.IS_DISABLED_ATT))
             {
                continue;
@@ -2172,8 +2175,8 @@ public class ModelManagerBean implements ModelManager
          IModel predecessor = findModel(predecessorOID);
          if (predecessor == null)
          {
-            inconsistencies.add(new Inconsistency("Predecessor model with oid "
-                  + predecessorOID + " not found.", null, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.MDL_PREDECESSOR_MODEL_NOT_FOUND.raise(predecessorOID);
+            inconsistencies.add(new Inconsistency(error, null, Inconsistency.ERROR));
          }
          return inconsistencies;
       }
@@ -2239,7 +2242,7 @@ public class ModelManagerBean implements ModelManager
          }
          return null;
       }
-      
+
       public void resetLastDeployment()
       {
          // (fh) this is called whenever a new deployment is made.
@@ -2248,7 +2251,7 @@ public class ModelManagerBean implements ModelManager
     	  lastDeployment = ModelDeploymentBean.getLastDeployment();
     	  lastDeploymentSet = true;
       }
-      
+
       public long getLastDeployment()
       {
          if (!lastDeploymentSet)

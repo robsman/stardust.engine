@@ -1,1 +1,2 @@
 org.eclipse.stardust.engine.core.runtime.BpmRuntimeErrorMessageProvider$Factory
+org.eclipse.stardust.engine.core.runtime.ValidationErrorMessageProvider$Factory

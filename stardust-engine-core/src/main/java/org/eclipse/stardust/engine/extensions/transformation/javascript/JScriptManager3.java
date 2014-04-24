@@ -112,15 +112,14 @@ public void registerInAccessPointType(String apId, TypedXPath rootXPath)
    {
       if (!StringUtils.isEmpty(mappingExpression))
       {
-         Script expression = context.compileString(mappingExpression, mappingExpression,
-               1, null);
+         Script expression = context.compileString(mappingExpression, mappingExpression, 1, null);
          try
          {
             return expression.exec(context, scope);
          }
          catch (Throwable t)
          {
-            throw new RuntimeException("Could not execute mapping expression '"+mappingExpression+"'", t);
+            throw new RuntimeException("Could not execute mapping expression '" + mappingExpression + "'", t);
          }
       }
       return null;

@@ -70,7 +70,7 @@ public abstract class UserCommand extends ConsoleCommand
    {
       return argTypes;
    }
-   
+
    protected List<GrantHolder> toGrants(String grantString)
    {
       List<GrantHolder> result = CollectionUtils.newList();
@@ -85,7 +85,7 @@ public abstract class UserCommand extends ConsoleCommand
          if(departmentPartIndex != -1) {
         	 departmentPathOrOid = t.substring(departmentPartIndex + 1);
         	 t = t.substring(0, departmentPartIndex);
-         } 
+         }
          department = getDepartmentFromOidOrPath(departmentPathOrOid, t);
          result.add(new GrantHolder(department, t));
       }
@@ -130,7 +130,7 @@ public abstract class UserCommand extends ConsoleCommand
          return new ModelParticipantImpl(id, qualifiedId, department);
       }
    }
-   
+
    private static class ModelParticipantImpl implements QualifiedModelParticipantInfo
    {
       private static final long serialVersionUID = 2L;
@@ -165,7 +165,7 @@ public abstract class UserCommand extends ConsoleCommand
       {
          return null;
       }
-      
+
       public boolean definesDepartmentScope()
       {
          return false;
@@ -181,7 +181,7 @@ public abstract class UserCommand extends ConsoleCommand
          return false;
       }
    }
-   
+
    private DepartmentInfo getDepartmentFromOidOrPath(String departmentPathOrOid,
          String participantId)
    {
@@ -189,38 +189,38 @@ public abstract class UserCommand extends ConsoleCommand
       DepartmentClientUtils dh = DepartmentClientUtils.getInstance(globalOptions);
 
       ServiceFactory factory = ServiceFactoryLocator.get(globalOptions);
-      WorkflowService ws = factory.getWorkflowService();      
-      
+      WorkflowService ws = factory.getWorkflowService();
+
       String namespace = null;
       if (participantId.startsWith("{"))
       {
          QName qname = QName.valueOf(participantId);
          namespace = qname.getNamespaceURI();
          participantId = qname.getLocalPart();
-      }               
-      
+      }
+
       Model model = null;
       if (namespace != null)
-      {      
-          Models models = factory.getQueryService().getModels(DeployedModelQuery.findActiveForId(namespace));    	  
+      {
+          Models models = factory.getQueryService().getModels(DeployedModelQuery.findActiveForId(namespace));
           if(models.getSize() > 0)
           {
-             
+
              // model oid
         	 DeployedModelDescriptionDetails details = (DeployedModelDescriptionDetails) models.get(0);
-        	 model = factory.getQueryService().getModel(details.getModelOID());
+        	 model = factory.getQueryService().getModel(details.getModelOID(), false);
           }
       }
       else
       {
     	  model = ws.getModel();
       }
-      
+
       if (model == null)
       {
          throw new IllegalUsageException("invalid participant provided: " + participantId);
       }
-      
+
       Participant participant = model.getParticipant(participantId);
       if (participant == null)
       {

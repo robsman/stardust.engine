@@ -222,4 +222,6 @@ public interface IProcessInstance extends SymbolTable, AttributedIdentifiablePer
    public AuditTrailPersistence getAuditTrailPersistence();
    
    public void setAuditTrailPersistence(final AuditTrailPersistence auditTrailPersistence);
+
+   public void addExistingNote(ProcessInstanceProperty srcNote);
 }

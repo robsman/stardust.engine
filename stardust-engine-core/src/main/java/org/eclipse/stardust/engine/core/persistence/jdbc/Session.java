@@ -46,6 +46,7 @@ import org.eclipse.stardust.engine.core.cache.CacheHelper;
 import org.eclipse.stardust.engine.core.monitoring.MonitoringUtils;
 import org.eclipse.stardust.engine.core.monitoring.PersistentListenerUtils;
 import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.Functions.BoundFunction;
 import org.eclipse.stardust.engine.core.persistence.Session.FilterOperation.FilterResult;
 import org.eclipse.stardust.engine.core.persistence.jdbc.proxy.JdbcProxy;
 import org.eclipse.stardust.engine.core.persistence.jdbc.sequence.CachingSequenceGenerator;
@@ -1255,6 +1256,30 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
             Long.MAX_VALUE);
    }
 
+   private BoundFunction getCountFunction(Class type, QueryExtension queryExtension)
+   {
+      final BoundFunction countFunction;
+      if(queryExtension.isDistinct())
+      {
+         TypeDescriptor typeDescriptor = getDMLManager(type).getTypeDescriptor();
+         Field[] pkFields = typeDescriptor.getPkFields();
+         FieldRef[] fieldRefs = new FieldRef[pkFields.length];
+         for (int i = 0; i < pkFields.length; i++)
+         {
+            fieldRefs[i] = typeDescriptor.fieldRef(pkFields[i].getName());
+         }
+         
+         countFunction = Functions.countDistinct(fieldRefs);
+      }
+      else
+      {
+         countFunction = Functions.rowCount();
+      }
+      
+      
+      return countFunction;
+   }
+   
    public long getCount(Class type, QueryExtension queryExtension, boolean mayFail,
          FetchPredicate fetchPredicate, int timeout, long totalCountThreshold)
    {
@@ -1278,30 +1303,17 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
 
       try
       {
+         BoundFunction countFunction = getCountFunction(type, queryExtension);
+         
+         //distinction for count(if necessary) is realized via the count function itself 
+         //COUNT(DISTINCT myfield) not on the query itself
          QueryExtension innerQueryExtension = QueryExtension.deepCopy(queryExtension);
-
+         innerQueryExtension.setDistinct(false);
+         
          TypeDescriptor typeDescriptor = getDMLManager(type).getTypeDescriptor();
          if (null == fetchPredicate)
          {
-            Column countSelectList;
-            if (!innerQueryExtension.isDistinct())
-            {
-               countSelectList = Functions.rowCount();
-            }
-            else
-            {
-               Field[] pkFields = typeDescriptor.getPkFields();
-
-               FieldRef[] fields = new FieldRef[pkFields.length];
-               for (int i = 0; i < pkFields.length; i++ )
-               {
-                  fields[i] = typeDescriptor.fieldRef(pkFields[i].getName());
-               }
-               countSelectList = Functions.countDistinct(fields);
-            }
-            innerQueryExtension.setSelection(new Column[] {countSelectList});
-            innerQueryExtension.setDistinct(false);
-
+            innerQueryExtension.setSelection(new Column[] {countFunction});
             resultSet = executeQuery(type, innerQueryExtension, timeout);
 
             if (resultSet.next())
@@ -1317,13 +1329,9 @@ public class Session implements org.eclipse.stardust.engine.core.persistence.Ses
          {
             Set selectedFields = new HashSet();
             Field[] pkFields = typeDescriptor.getPkFields();
-            List selectList/*<Column>*/ = new ArrayList(pkFields.length);
-            selectList.add(Functions.rowCount());
-            /* for (int i = 0; i < pkFields.length; i++ )
-            {
-               selectedFields.add(pkFields[i].getName());
-               selectList.add(typeDescriptor.fieldRef(pkFields[i].getName()));
-            } */
+            List<Column> selectList = new ArrayList<Column>(pkFields.length);
+            selectList.add(countFunction);
+
             FieldRef[] fetchPredFields = fetchPredicate.getReferencedFields();
             if (null != fetchPredFields)
             {

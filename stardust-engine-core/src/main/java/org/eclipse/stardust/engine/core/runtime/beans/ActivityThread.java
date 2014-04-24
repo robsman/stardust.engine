@@ -229,8 +229,17 @@ public class ActivityThread implements Runnable
       {         
          Long oid = (Long) processInstance.getPropertyValue(ProcessInstanceBean.ABORTING_USER_OID);
          // TODO: trace the real state: aborted or aborting.
-         BpmRuntimeError error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE.raise(
+         BpmRuntimeError error;
+         if (activityInstance == null)
+         {
+            error = BpmRuntimeError.BPMRT_CANNOT_RUN_A_INVALID_PI_STATE.raise(activity,
+                  processInstance.getOID());
+         }
+         else
+         {
+            error = BpmRuntimeError.BPMRT_CANNOT_RUN_AI_INVALID_PI_STATE.raise(
                activityInstance.getOID(), processInstance.getOID());
+         }
          ProcessAbortionJanitor.scheduleJanitor(new AbortionJanitorCarrier(
                this.processInstance.getOID(),oid));
          throw new IllegalOperationException(error);

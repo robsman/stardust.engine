@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 import org.eclipse.stardust.engine.core.spi.extensions.model.BridgeObject;
 import org.eclipse.stardust.engine.core.spi.extensions.model.ExtendedDataValidator;
@@ -50,7 +51,8 @@ public class SerializableValidator implements ExtendedDataValidator, Stateless
 
       if (StringUtils.isEmpty(beanClassName))
       {
-         result.add(new Inconsistency("Empty class name.", Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.JAVA_EMPTY_CLASSNAME.raise();
+         result.add(new Inconsistency(error, Inconsistency.WARNING));
       }
       else
       {
@@ -67,20 +69,21 @@ public class SerializableValidator implements ExtendedDataValidator, Stateless
                }
                catch (Exception ex)
                {
-                  result.add(new Inconsistency("Class '" + beanClassName
-                     + "' has no default constructor.", Inconsistency.ERROR));
+                  BpmValidationError error = BpmValidationError.JAVA_CLASS_HAS_NO_DEFAULT_CONSTRUCTOR.raise(beanClassName);
+                  result.add(new Inconsistency(error, Inconsistency.ERROR));
                }
             }
          }
          catch (Exception e)
          {
-            result.add(new Inconsistency("Cannot load class '" + beanClassName
-                  + "': " + e.getMessage(), Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.JAVA_CANNOT_LOAD_CLASS.raise(
+                  beanClassName, e.getMessage());
+            result.add(new Inconsistency(error, Inconsistency.WARNING));
          }
       }
       return result;
    }
-   
+
    private class BridgeObjectWithContext extends BridgeObject
    {
       private AccessPathEvaluationContext context;
@@ -93,17 +96,17 @@ public class SerializableValidator implements ExtendedDataValidator, Stateless
          this.bridgeObject = bridgeObject;
          this.context = context;
       }
-      
+
       public Direction getDirection()
       {
          return bridgeObject.getDirection();
       }
-      
+
       public Class getEndClass()
       {
          return bridgeObject.getEndClass();
       }
-      
+
       public boolean acceptAssignmentFrom(BridgeObject rhs)
       {
          if (null != context

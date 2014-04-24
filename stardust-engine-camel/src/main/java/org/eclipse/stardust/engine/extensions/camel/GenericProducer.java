@@ -1,5 +1,9 @@
 package org.eclipse.stardust.engine.extensions.camel;
 
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.*;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationTypes.*;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.InvocationPatterns.*;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -14,18 +18,16 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 
-
 public class GenericProducer
 {
-   public static final Logger logger = LogManager.getLogger(GenericProducer.class
-         .getCanonicalName());
-   public static final String SEND_METHOD = "executeMessage(java.lang.Object)"; //$NON-NLS-1$
-   public static final String SEND_METHOD_WITH_HEADER = "executeMessage(java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>)"; //$NON-NLS-1$
-   public static final String SEND_RECEIVE_METHOD_WITH_HEADER = "sendBodyInOut(java.lang.Object,java.util.Map<java.lang.String,java.lang.Object>)"; //$NON-NLS-1$
+   public static final Logger logger = LogManager.getLogger(GenericProducer.class.getCanonicalName());
 
    private ProducerTemplate template;
+
    private CamelContext camelContext;
+
    private String endpointName;
+
    private String producerMethodName;
 
    public GenericProducer(ActivityInstance activityInstance, CamelContext camelContext)
@@ -33,59 +35,61 @@ public class GenericProducer
       try
       {
          this.template = camelContext.createProducerTemplate();
-         
+
          this.camelContext = camelContext;
-         this.endpointName = "direct://" + activityInstance.getActivity().getApplication().getId();
+         this.endpointName = DIRECT_ENDPOINT + activityInstance.getActivity().getApplication().getId();
 
          this.producerMethodName = (String) activityInstance.getActivity().getApplication()
-            .getAttribute(CamelConstants.PRODUCER_METHOD_NAME_ATT);
-         
+               .getAttribute(PRODUCER_METHOD_NAME_ATT);
+
          if (this.producerMethodName == null)
          {
-        	 String invocationPattern = (String) activityInstance.getActivity().getApplication()
-             	.getAttribute(CamelConstants.INVOCATION_PATTERN_EXT_ATT);
-        	 
-        	 String invocationType = (String) activityInstance.getActivity().getApplication()
-          		.getAttribute(CamelConstants.INVOCATION_TYPE_EXT_ATT);
-        	if (StringUtils.isEmpty(invocationPattern) )
-         {
-        	   logger.debug("Attribute "+CamelConstants.INVOCATION_PATTERN_EXT_ATT+" is missing");
-         }
-        	
-         if (StringUtils.isEmpty(invocationType) )
-         {
-            logger.debug("Attribute "+CamelConstants.INVOCATION_TYPE_EXT_ATT+" is missing");
-         }
-        	 
-        	 
-        	 if (StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
-        	 {
-        		 if (invocationPattern.equals(CamelConstants.InvocationPatterns.SEND))
-        		 {
-        			 if (invocationType.equals(CamelConstants.InvocationTypes.SYNCHRONOUS))
-        			 {
-        				 this.producerMethodName = SEND_METHOD_WITH_HEADER;
-        			 }
-        		 }
-        		 else if (invocationPattern.equals(CamelConstants.InvocationPatterns.SENDRECEIVE))
-        		 {
-        			 if (invocationType.equals(CamelConstants.InvocationTypes.SYNCHRONOUS))
-        			 {
-        				 this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
-        			 }
-        			 else if (invocationType.equals(CamelConstants.InvocationTypes.ASYNCHRONOUS))
-        			 {
-        				 this.producerMethodName = SEND_METHOD_WITH_HEADER;
-        			 }
-        				 
-        		 }
-        	 }
-        	 
-        	 if (this.producerMethodName == null)
-        	 {
-        		 this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER; 
-        	 }
-        	 
+            String invocationPattern = (String) activityInstance.getActivity().getApplication()
+                  .getAttribute(INVOCATION_PATTERN_EXT_ATT);
+
+            String invocationType = (String) activityInstance.getActivity().getApplication()
+                  .getAttribute(INVOCATION_TYPE_EXT_ATT);
+            if (StringUtils.isEmpty(invocationPattern))
+            {
+               logger.debug("Attribute " + INVOCATION_PATTERN_EXT_ATT + " is missing");
+            }
+
+            if (StringUtils.isEmpty(invocationType))
+            {
+               logger.debug("Attribute " + INVOCATION_TYPE_EXT_ATT + " is missing");
+            }
+
+            if (StringUtils.isNotEmpty(invocationPattern) && StringUtils.isNotEmpty(invocationType))
+            {
+               if (invocationPattern.equals(SEND))
+               {
+                  if (invocationType.equals(SYNCHRONOUS))
+                  {
+                     this.producerMethodName = SEND_METHOD_WITH_HEADER;
+                  }
+               }
+               else if (invocationPattern.equals(SENDRECEIVE))
+               {
+                  if (invocationType.equals(SYNCHRONOUS))
+                  {
+                     this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
+                  }
+                  else if (invocationType.equals(ASYNCHRONOUS))
+                  {
+                     this.producerMethodName = SEND_METHOD_WITH_HEADER;
+                  }
+
+               }
+            }
+
+            if (this.producerMethodName == null)
+            {
+               this.producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
+            }
+
+         }else{
+            if(this.producerMethodName.equalsIgnoreCase(SEND_METHOD))
+               this.producerMethodName=SEND_METHOD_WITH_HEADER;
          }
 
       }

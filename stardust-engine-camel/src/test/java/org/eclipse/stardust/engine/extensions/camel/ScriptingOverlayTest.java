@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.extensions.camel.util.test.SpringTestUtils;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.io.ClassPathResource;
+
 /*
  * To Run this test you need to add the following dependencies
  * 

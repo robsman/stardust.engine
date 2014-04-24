@@ -20,7 +20,6 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.eclipse.stardust.common.CollectionUtils;
-import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.model.Data;
 import org.eclipse.stardust.engine.api.model.FormalParameter;
 import org.eclipse.stardust.engine.api.model.Model;
@@ -28,17 +27,15 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.model.ProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ProcessInterface;
 import org.eclipse.stardust.engine.api.model.Reference;
-import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
-import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.Models;
-import org.eclipse.stardust.engine.api.runtime.QueryService;
+import org.eclipse.stardust.engine.api.runtime.WorkflowService;
 import org.eclipse.stardust.engine.api.ws.XmlValueXto;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
+import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.struct.StructuredDataConstants;
 import org.eclipse.stardust.engine.core.struct.StructuredTypeRtUtils;
 import org.eclipse.stardust.engine.ws.DataFlowUtils;
 import org.eclipse.stardust.engine.ws.WebServiceEnv;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -51,7 +48,7 @@ import org.w3c.dom.NodeList;
  * This class focuses on building a map of Serializable data based on an incoming WS
  * request and the underlying XPDL model and also in the reverse direction.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein, Roland.Stamm
  */
 public class FormalParameterConverter
@@ -83,9 +80,9 @@ public class FormalParameterConverter
                modelId, processId);
 
          TreeMap<String, Serializable> sortedMap = new TreeMap<String, Serializable>();
-         
+
          sortedMap.putAll(dataMap);
-         
+
          for (Map.Entry<String, Serializable> entry : sortedMap.entrySet())
          {
             marshalMapValue(doc, formalParameters, entry, fParameterMappings, modelId);
@@ -185,7 +182,7 @@ public class FormalParameterConverter
                if (reference != null)
                {
                   typeDeclarationId = reference.getId();
-                  resolvedModel = getModelForOid(reference.getModelOid());                  
+                  resolvedModel = getModelForOid(reference.getModelOid());
                }
             }
          }
@@ -200,7 +197,7 @@ public class FormalParameterConverter
                structuredDataElement = (Element) item;
             }
          }
-         
+
          value = DataFlowUtils.unmarshalStructValue(resolvedModel,
                typeDeclarationId, "", structuredDataElement);
       }
@@ -218,32 +215,19 @@ public class FormalParameterConverter
       }
       return value;
    }
-   private static Model getModelForOid(long modelOid)
+
+   private static Model getModelForOid(int modelOid)
    {
-      WebServiceEnv currentWebServiceEnvironment = WebServiceEnv.currentWebServiceEnvironment();
-      QueryService queryService = currentWebServiceEnvironment.getServiceFactory()
-            .getQueryService();
-      return queryService.getModel(modelOid);
+      WebServiceEnv wsEnv = WebServiceEnv.currentWebServiceEnvironment();
+
+      return wsEnv.getModel(modelOid);
    }
 
    private static Model getActiveModelForId(String modelId)
    {
       WebServiceEnv currentWebServiceEnvironment = WebServiceEnv.currentWebServiceEnvironment();
-      QueryService queryService = currentWebServiceEnvironment.getServiceFactory()
-            .getQueryService();
-      Models models = queryService.getModels(DeployedModelQuery.findActiveForId(modelId));
-
-      DeployedModelDescription modelDescription = null;
-      if (models.size() > 0)
-      {
-         modelDescription = models.get(0);
-      }
-      else
-         throw new ObjectNotFoundException(
-               BpmRuntimeError.MDL_NO_ACTIVE_MODEL_WITH_ID.raise(modelId));
-
-      Model model = queryService.getModel(modelDescription.getModelOID());
-      return model;
+      WorkflowService wfService = currentWebServiceEnvironment.getServiceFactory().getWorkflowService();
+      return (Model) wfService.execute(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId));
    }
 
    private static void marshalMapValue(Document targetDoc, Element targetElement,
@@ -291,20 +275,20 @@ public class FormalParameterConverter
                if (reference != null)
                {
                   typeDeclarationId = reference.getId();
-                  resolvedModel = getModelForOid(reference.getModelOid());                  
+                  resolvedModel = getModelForOid(reference.getModelOid());
                }
             }
          }
-         
+
          XmlValueXto marshalStructValue = DataFlowUtils.marshalStructValue(
                resolvedModel, typeDeclarationId, "", value);
          Element structParameterElement = marshalStructValue.getAny().get(0);
          Node structNode = targetDoc.importNode(structParameterElement, true);
-         
+
          Element parameterNode = targetDoc.createElementNS(targetElement.getNamespaceURI(), mapping.getId());
-         
+
          parameterNode.appendChild(structNode);
-         
+
          targetElement.appendChild(parameterNode);
       }
       else if (PredefinedConstants.PRIMITIVE_DATA.equals(typeId))

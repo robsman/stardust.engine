@@ -9,7 +9,6 @@
 
     <camelContext xmlns="http://camel.apache.org/schema/spring" trace="true">
     </camelContext>
-
-	<bean id="dateUtils" class="org.eclipse.stardust.engine.extensions.camel.DateUtilsBean"/>
+    <bean id="camelHelperTest" class="org.eclipse.stardust.engine.extensions.camel.CamelHelperTest"></bean>
 	
 </beans>

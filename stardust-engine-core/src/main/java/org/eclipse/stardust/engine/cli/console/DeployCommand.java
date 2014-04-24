@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
@@ -29,11 +30,15 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.stardust.common.CompareHelper;
 import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.config.ParametersFacade;
+import org.eclipse.stardust.common.error.ErrorCase;
+import org.eclipse.stardust.common.error.IErrorMessageProvider;
+import org.eclipse.stardust.common.error.IErrorMessageProvider.Factory;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
-import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.utils.console.ConsoleCommand;
 import org.eclipse.stardust.common.utils.console.IllegalUsageException;
 import org.eclipse.stardust.common.utils.console.Options;
@@ -354,7 +359,7 @@ public class DeployCommand extends ConsoleCommand
             deploymentOptions.setValidFrom(validFrom);
             deploymentOptions.setComment(deploymentComment);
             deploymentOptions.setIgnoreWarnings(ignoreWarnings);
-            
+
             if (overwrite != 0)
             {
                DeploymentUtils.overwriteFromFile(serviceFactory, callback,
@@ -387,15 +392,20 @@ public class DeployCommand extends ConsoleCommand
          Object warning = i.next();
          if (warning instanceof Inconsistency)
          {
-            if (((Inconsistency) warning).getSourceElementOID() == 0)
+            Inconsistency inc = (Inconsistency) warning;
+            String message = inc.getMessage();
+            if (inc.getError() != null)
             {
-               print("  WARN : " + ((Inconsistency) warning).getMessage());
+               message = getMessageFromErrorCase(inc.getError());
+            }
+            if (inc.getSourceElementOID() == 0)
+            {
+               print("  WARN : " + message);
             }
             else
             {
-               print("  WARN : " + ((Inconsistency) warning).getMessage()
-                     + "; element oid = "
-                     + ((Inconsistency) warning).getSourceElementOID());
+               print("  WARN : " + message + "; element oid = "
+                     + inc.getSourceElementOID());
             }
          }
          else
@@ -412,14 +422,20 @@ public class DeployCommand extends ConsoleCommand
          Object error = i.next();
          if (error instanceof Inconsistency)
          {
-            if (((Inconsistency) error).getSourceElementOID() == 0)
+            Inconsistency inc = (Inconsistency) error;
+            String message = inc.getMessage();
+            if (inc.getError() != null)
             {
-               print("  ERROR : " + ((Inconsistency) error).getMessage());
+               message = getMessageFromErrorCase(inc.getError());
+            }
+            if (inc.getSourceElementOID() == 0)
+            {
+               print("  ERROR : " + message);
             }
             else
             {
-               print("  ERROR : " + ((Inconsistency) error).getMessage()
-                     + "; element oid = " + ((Inconsistency) error).getSourceElementOID());
+               print("  ERROR : " + message + "; element oid = "
+                     + inc.getSourceElementOID());
             }
          }
          else
@@ -622,6 +638,26 @@ public class DeployCommand extends ConsoleCommand
          throw new PublicException(e1);
       }
       return bytesList;
+   }
+
+   public String getMessageFromErrorCase(ErrorCase errorCase)
+   {
+      ArrayList<Factory> translators = new ArrayList<IErrorMessageProvider.Factory>(
+            ExtensionProviderUtils.getExtensionProviders(IErrorMessageProvider.Factory.class));
+
+      Locale locale = Locale.getDefault();
+      Iterator<IErrorMessageProvider.Factory> tIter = translators.iterator();
+      while (tIter.hasNext())
+      {
+         IErrorMessageProvider.Factory msgFactory = (IErrorMessageProvider.Factory) tIter.next();
+         IErrorMessageProvider msgProvider = msgFactory.getProvider(errorCase);
+         if (msgProvider != null)
+         {
+            return msgProvider.getErrorMessage(errorCase, null, locale);
+         }
+      }
+
+      return null;
    }
 
 }

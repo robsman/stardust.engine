@@ -35,7 +35,6 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.DataLoader;
 import org.eclipse.stardust.engine.core.struct.*;
 import org.eclipse.stardust.engine.core.struct.beans.StructuredDataBean;
 
-
 /**
  * Data loader for structured data. When structured data is deployed, the xpath table is filled.
  * When runtime loads a structured data definition, the xpath map (attribute) is filled from
@@ -68,7 +67,7 @@ public class StructuredDataLoader implements DataLoader, Stateless
    public IXPathMap loadAccessPoint(AccessPoint accessPoint)
    {
       String declaredTypeId = (String) accessPoint.getAttribute(StructuredDataConstants.TYPE_DECLARATION_ATT);
-      if (null != declaredTypeId && accessPoint instanceof AccessPointBean)
+      if (declaredTypeId != null && accessPoint instanceof AccessPointBean)
       {
          IModel model = (IModel) ((AccessPointBean) accessPoint).getModel();
          Set<TypedXPath> allXPaths = StructuredTypeRtUtils.getAllXPaths(model, declaredTypeId);
@@ -81,17 +80,13 @@ public class StructuredDataLoader implements DataLoader, Stateless
       }
       else
       {
-         for (Iterator i = ExtensionProviderUtils.getExtensionProviders(
-               ISchemaTypeProvider.Factory.class).iterator(); i.hasNext();)
+         for (ISchemaTypeProvider.Factory stpFactory : ExtensionProviderUtils.getExtensionProviders(ISchemaTypeProvider.Factory.class))
          {
-            ISchemaTypeProvider.Factory stpFactory = (ISchemaTypeProvider.Factory) i.next();
-            
             ISchemaTypeProvider provider = stpFactory.getSchemaTypeProvider(accessPoint);
-            if (null != provider)
+            if (provider != null)
             {
-               Set/*<TypedXPath>*/ allXPaths = provider.getSchemaType(accessPoint);
-               
-               if (null != allXPaths)
+               Set<TypedXPath> allXPaths = provider.getSchemaType(accessPoint);
+               if (allXPaths != null)
                {
                    IXPathMap xPathMap = createXPathMap(allXPaths, accessPoint);
                    if (accessPoint instanceof RuntimeAttributeHolder)
@@ -106,14 +101,13 @@ public class StructuredDataLoader implements DataLoader, Stateless
       throw new InternalException("Could not find predefined XPaths for access point '"
             + accessPoint.getId()
             + "'. Check if schema providers are configured correctly.");
-
    }
 
    private IXPathMap loadLocalMode(IData data)
    {
       try
       {
-         Set /* <TypedXPath> */ allXPaths = this.findAllXPaths(data, data.getModel());
+         Set<TypedXPath> allXPaths = findAllXPaths(data, data.getModel());
          return createXPathMap(allXPaths, data);
       }
       catch (UnresolvedExternalReference ex)
@@ -141,7 +135,7 @@ public class StructuredDataLoader implements DataLoader, Stateless
          String hash = accessPoint.getId() + "." + p.getXPath();
          xPathMap.put(new Long(hash.hashCode()), p);
       }
-      return new DataXPathMap(xPathMap);
+      return new DataXPathMap(xPathMap, accessPoint instanceof IAccessPoint ? (IAccessPoint) accessPoint : null);
    }
 
    private IXPathMap loadFullMode(ModelManager modelManager, IData data)
@@ -167,7 +161,7 @@ public class StructuredDataLoader implements DataLoader, Stateless
             }
          }
 
-         return new DataXPathMap(allXPaths);
+         return new DataXPathMap(allXPaths, data);
       }
       catch (Exception e)
       {

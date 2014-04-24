@@ -123,7 +123,7 @@ public interface IModel extends SymbolTable, RootElement, ConfigurationVariableD
 
    IExternalPackage findExternalPackage(String id);
 
-   ModelElementList/*<ITypeDeclaration>*/ getTypeDeclarations();
+   ModelElementList<ITypeDeclaration> getTypeDeclarations();
 
    ITypeDeclaration findTypeDeclaration(String id);
 

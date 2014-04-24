@@ -54,66 +54,59 @@
       <!-- ********** -->
       <!--    Test    -->
       <!-- ********** -->
-      <conf name="test" visibility="private" description="Test dependencies" />
+      <conf name="test" visibility="private" description="Test dependencies"/>
 
       <!-- ********** -->
       <!--    POMs    -->
       <!-- ********** -->
-      <conf name="pom" description="IPP POMs" />
+      <conf name="pom" description="IPP POMs"/>
 
       <!-- ************** -->
       <!--    Internal    -->
       <!-- ************** -->
-      <conf name="carnot-engine-compile" extends="base-provider-compile" visibility="public" />
+      <conf name="carnot-engine-compile" extends="base-provider-compile,emf-xsd-provider-compile" visibility="public"/>
       <conf name="carnot-engine-compile-optional" extends="qdox-provider-compile, jcr-interface-compile, jcr-vfs-provider-compile,
-         ejb21-interface-provided, jta-interface-compile, ejb30-interface-compile" visibility="public" />
-      <conf name="carnot-engine-provided" extends="web-client-interface-provided" visibility="public" />
-      <conf name="carnot-engine-runtime" extends="carnot-engine-compile, base-provider-runtime" visibility="public" />
-      <conf name="carnot-engine-runtime-optional" extends="jackrabbit-provider-runtime,jencks-provider-runtime,activemq-provider-runtime,swing-client-provider-compile,hazelcast-provider-compile,jms-interface-runtime" visibility="public" />
+         ejb21-interface-provided, jta-interface-compile, ejb30-interface-compile" visibility="public"/>
+      <conf name="carnot-engine-provided" extends="web-client-interface-provided" visibility="public"/>
+      <conf name="carnot-engine-runtime" extends="carnot-engine-compile, base-provider-runtime" visibility="public"/>
+      <conf name="carnot-engine-runtime-optional" extends="jackrabbit-provider-runtime,jencks-provider-runtime,activemq-provider-runtime,swing-client-provider-compile,hazelcast-provider-compile,jms-interface-runtime" visibility="public"/>
       
       
-      <conf name="carnot-client-compile" extends="base-provider-compile" visibility="public" />
-      <conf name="carnot-client-runtime" extends="carnot-client-compile, base-provider-runtime" visibility="public" />
+      <conf name="carnot-client-compile" extends="base-provider-compile,emf-xsd-provider-compile" visibility="public"/>
+      <conf name="carnot-client-runtime" extends="carnot-client-compile, base-provider-runtime" visibility="public"/>
       
       <!-- main idea of this config is to include only carnot-engine.jar as a dependency -->
       <conf name="carnot-engine-jar" visibility="private"/>
       
-      <conf name="carnot-emf-xsd-integration-compile" extends="carnot-engine-jar" visibility="public" />
-      <conf name="carnot-emf-xsd-integration-runtime" extends="carnot-emf-xsd-integration-compile, carnot-engine-jar" visibility="public" />
+      <conf name="carnot-client-sources"/>
+      <conf name="carnot-engine-sources"/>
       
-      <conf name="carnot-client-sources" />
-      <conf name="carnot-emf-xsd-integration-sources" />
-      <conf name="carnot-engine-sources" />
-      
-      <conf name="carnot-engine-javadoc" />
+      <conf name="carnot-engine-javadoc"/>
       
       
-      <conf name="compile-secret" extends="swing-client-provider-compile" visibility="private" />
-      <conf name="build-lib" visibility="private" />
-      <conf name="ant-build-runtime" visibility="public" />
-      <conf name="integration-jars" extends="js-provider-runtime" visibility="private" />
+      <conf name="compile-secret" extends="swing-client-provider-compile" visibility="private"/>
+      <conf name="build-lib" visibility="private"/>
+      <conf name="ant-build-runtime" visibility="public"/>
+      <conf name="integration-jars" extends="js-provider-runtime" visibility="private"/>
 
       <!-- compound configurations which encapsulates the above mentioned configs -->
-      <conf name="compile" extends="carnot-engine-compile, carnot-engine-compile-optional, carnot-client-compile, carnot-emf-xsd-integration-compile, compile-secret, integration-jars" visibility="private" />
-      <conf name="runtime" extends="carnot-engine-runtime, carnot-engine-runtime-optional, carnot-client-runtime, carnot-emf-xsd-integration-runtime,build-lib,ant-build-runtime" visibility="private" />
-      <conf name="provided" extends="carnot-engine-provided" visibility="private" />
+      <conf name="compile" extends="carnot-engine-compile, carnot-engine-compile-optional, carnot-client-compile, compile-secret, integration-jars" visibility="private"/>
+      <conf name="runtime" extends="carnot-engine-runtime, carnot-engine-runtime-optional, carnot-client-runtime, build-lib,ant-build-runtime" visibility="private"/>
+      <conf name="provided" extends="carnot-engine-provided" visibility="private"/>
 
-      <conf name="all" extends="compile, runtime, provided, test" visibility="private" />
+      <conf name="all" extends="compile, runtime, provided, test" visibility="private"/>
    </configurations>
 
    <publications>
-      <artifact name="carnot-client" type="jar" conf="carnot-client-compile, carnot-client-runtime" ext="jar" />
-      <artifact name="carnot-client" type="source" ext="jar" conf="carnot-client-sources" m:classifier="sources" />
+      <artifact name="carnot-client" type="jar" conf="carnot-client-compile, carnot-client-runtime" ext="jar"/>
+      <artifact name="carnot-client" type="source" ext="jar" conf="carnot-client-sources" m:classifier="sources"/>
       <artifact name="carnot-engine" type="jar" ext="jar"
          conf="carnot-engine-compile, carnot-engine-runtime, carnot-engine-compile-optional, carnot-engine-runtime-optional, carnot-engine-provided, carnot-engine-jar" />
-      <artifact name="carnot-engine" type="source" ext="jar" conf="carnot-engine-sources" m:classifier="sources" />
-      <artifact name="carnot-engine" type="javadoc" ext="jar" conf="carnot-engine-javadoc" m:classifier="javadoc" />
-      <artifact name="carnot-emf-xsd-integration" type="jar" conf="carnot-emf-xsd-integration-compile, carnot-emf-xsd-integration-runtime" ext="jar" />
-      <artifact name="carnot-emf-xsd-integration" type="source" ext="jar" conf="carnot-emf-xsd-integration-sources" m:classifier="sources" />
+      <artifact name="carnot-engine" type="source" ext="jar" conf="carnot-engine-sources" m:classifier="sources"/>
+      <artifact name="carnot-engine" type="javadoc" ext="jar" conf="carnot-engine-javadoc" m:classifier="javadoc"/>
 
-      <artifact name="carnot-client" type="pom" conf="pom" ext="pom" />
-      <artifact name="carnot-engine" type="pom" conf="pom" ext="pom" />
-      <artifact name="carnot-emf-xsd-integration" type="pom" conf="pom" ext="pom" />
+      <artifact name="carnot-client" type="pom" conf="pom" ext="pom"/>
+      <artifact name="carnot-engine" type="pom" conf="pom" ext="pom"/>
    </publications>
 
    <dependencies>
@@ -129,7 +122,7 @@
       <!-- ********** -->
       <!-- JUnit -->
       <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default">
-         <exclude org="org.hamcrest" module="hamcrest-core" />
+         <exclude org="org.hamcrest" module="hamcrest-core"/>
       </dependency>
 
       <!-- Hamcrest -->
@@ -138,7 +131,7 @@
 
       <!-- Mockito -->
       <dependency org="org.mockito" name="mockito-core" rev="${mockito-core.version}" conf="test->default">
-         <exclude org="org.hamcrest" module="hamcrest-core" />
+         <exclude org="org.hamcrest" module="hamcrest-core"/>
       </dependency>
 
       <!-- ************** -->
@@ -147,16 +140,7 @@
       <!-- build-lib -->
 
       <dependency org="dom4j" name="dom4j" rev="${dom4j.version}" conf="build-lib->default">
-         <exclude org="xml-apis" module="xml-apis" />
-      </dependency>
-      
-      <dependency org="org.eclipse.emf" name="emf-runtime" rev="${emf-runtime.version}" transitive="false" conf="integration-jars->default">
-         <artifact name="org.eclipse.emf.common" type="jar"/>
-         <artifact name="org.eclipse.emf.ecore" type="jar"/>
-         <artifact name="org.eclipse.emf.ecore.xmi" type="jar"/>
-      </dependency>
-      <dependency org="org.eclipse.xsd" name="xsd-runtime" rev="${xsd-runtime.version}" transitive="false" conf="integration-jars->default">
-         <artifact name="org.eclipse.xsd" type="jar"/>
+         <exclude org="xml-apis" module="xml-apis"/>
       </dependency>
       
       <dependency org="com.googlecode.jarjar" name="jarjar" rev="${jarjar.version}" conf="ant-build-runtime->default"/>
@@ -177,8 +161,7 @@
       <!-- *************** -->
       <!--    Conflicts    -->
       <!-- *************** -->
-      <conflict org="org.apache.geronimo.components" module="geronimo-transaction" manager="strict" />
-      <conflict org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" manager="strict" />
+      <conflict org="org.apache.geronimo.components" module="geronimo-transaction" manager="strict"/>
+      <conflict org="org.apache.geronimo.specs" module="geronimo-jta_1.1_spec" manager="strict"/>
    </dependencies>
 </ivy-module>
-

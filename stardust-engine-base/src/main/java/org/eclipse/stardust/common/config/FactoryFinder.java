@@ -368,6 +368,25 @@ public class FactoryFinder
                         }
 
                         factoryClassName = serviceIdReader.readLine();
+                        while (factoryClassName != null)
+                        {
+                           // remove any comments
+                           int ci = factoryClassName.indexOf('#');
+                           if (ci >= 0)
+                           {
+                              factoryClassName = factoryClassName.substring(0, ci);
+                           }
+                           factoryClassName = factoryClassName.trim();
+                           if ( !isEmpty(factoryClassName)
+                                 && !blacklistedFactories.contains(factoryClassName))
+                           {
+                              trace.debug("Loaded from services: " + factoryId + " = "
+                                    + factoryClassName + " (" + serviceSpec + ")");
+   
+                              factories.add(newInstance(factoryClassName, classLoader));
+                           }
+                           factoryClassName = serviceIdReader.readLine();
+                        }
                      }
                      finally
                      {
@@ -380,15 +399,6 @@ public class FactoryFinder
                   finally
                   {
                      is.close();
-                  }
-
-                  if ( !isEmpty(factoryClassName)
-                        && !blacklistedFactories.contains(factoryClassName))
-                  {
-                     trace.debug("Loaded from services: " + factoryId + " = "
-                           + factoryClassName + " (" + serviceSpec + ")");
-
-                     factories.add(newInstance(factoryClassName, classLoader));
                   }
                }
                catch (Exception ex)

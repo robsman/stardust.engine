@@ -61,11 +61,11 @@
 		<property name="build.src" value="${build.dir}/src" />
 		<property name="build.src.none" location="${build.dir}/src-none" />
 
-		<property name="stardust-engine-camel.jarfile" value="stardust-engine-camel.jar" />
+		<property name="stardust-engine-camel.jarfile" value="${artifactId}.jar" />
 		<property name="stardust-engine-camel.jar" value="${build.lib}/${stardust-engine-camel.jarfile}" />
-		<property name="stardust-engine-camel-module.pom" value="${build.lib}/stardust-engine-camel-module.pom" />
+		<property name="stardust-engine-camel-module.pom" value="${build.lib}/${artifactId}-module.pom" />
 
-		<property name="stardust-engine-camel.src-jarfile" value="stardust-engine-camel-sources.jar" />
+		<property name="stardust-engine-camel.src-jarfile" value="${artifactId}-sources.jar" />
 		<property name="stardust-engine-camel.src-jar" value="${build.lib}/${stardust-engine-camel.src-jarfile}" />
 	</target>
 
@@ -96,10 +96,6 @@
 				<include name="**/*.java" />
 			</fileset>
 		</copy>
-		<replace dir="${build.src}" token="import org.eclipse.xsd" 
-         value="import com.infinity.bpm.thirdparty.xsd" summary="true"/>
-		<replace dir="${build.src}" token="import org.eclipse.stardust.engine.core.struct.emfxsd" 
-         value="import org.eclipse.stardust.engine.core.struct.emfxsd.runtime" summary="true"/>
 	</target>
 
 	<target name="compile" depends="initClasspath, initBuildDirectories, prepareSources" unless="skip.compile" description="Compiles the project's Java classes">
@@ -137,7 +133,7 @@
 		<ivy:resolve file="${project.dir}/ivy.xml" />
 		<ivy-make-module-poms ivyFile="${project.dir}/ivy.xml" pomFilePath="${build.lib}" moduleName="stardust-engine-camel-module" />
 		<ivy-publish-local artifactId="${artifactId}" artifactDir="${build.lib}" publishIvy="true" />
-      <ivy:retrieve file="${project.dir}/ivy.xml" conf="stardust-camel-module-runtime" 
+      <ivy:retrieve file="${project.dir}/ivy.xml" conf="stardust-engine-camel-module-runtime" 
          pattern="${build.lib}/[artifact]-[revision].[ext]" transitive="false" />
       <!-- remove duplicated dependencies -->
       <delete>
@@ -164,20 +160,22 @@
 
 	<target name="dist" depends="build">
 		<property name="stardust.dir" value="../../../stardust" />
-		<copy file="${stardust-engine-camel.jar}" todir="${stardust.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
-		<copy file="${stardust-engine-camel.src-jar}" todir="${stardust.dir}/modeler/ide/org.eclipse.stardust.modeling.integration.camel/lib" />
+		<copy file="${stardust-engine-camel.jar}" todir="${stardust.dir}/ide/modeling/org.eclipse.stardust.modeling.integration.camel/lib" />
+		<copy file="${stardust-engine-camel.src-jar}" todir="${stardust.dir}/ide/modeling/org.eclipse.stardust.modeling.integration.camel/lib" />
 	</target>
 
 	<target name="deploy" depends="build,dependencies:report " />
 
   <target name="install" if="maven.localRepository" depends="initBuild" description="installs the artifacts into a local Maven repository">
     <ipp:init-mvn localMavenRepository="${maven.localRepository}" />
-    <ipp:mvn-install file="${stardust-engine-camel.jar}" pomFile="${build.lib}/stardust-engine-camel.pom" />
+    <ipp:mvn-install file="${stardust-engine-camel.jar}" pomFile="${build.lib}/${artifactId}.pom" />
+    <ipp:mvn-install pomFile="${build.lib}/${artifactId}-module.pom" />
   </target>
 
   <target name="publish" depends="initBuild" description="publish artifacts into a remote Maven repository">
     <ipp:init-mvn />
-    <ipp:mvn-deploy file="${stardust-engine-camel.jar}" pomFile="${build.lib}/stardust-engine-camel.pom" />
+    <ipp:mvn-deploy file="${stardust-engine-camel.jar}" pomFile="${build.lib}/${artifactId}.pom" />
+    <ipp:mvn-deploy pomFile="${build.lib}/${artifactId}-module.pom" />
   </target> 
   
   <target name="dependencies:report" depends="init,initIvy">

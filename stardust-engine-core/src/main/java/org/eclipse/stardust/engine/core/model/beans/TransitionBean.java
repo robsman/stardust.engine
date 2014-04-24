@@ -24,6 +24,7 @@ import org.eclipse.stardust.engine.api.model.IProcessDefinition;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.Inconsistency;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmValidationError;
 import org.eclipse.stardust.engine.core.compatibility.el.BooleanExpression;
 import org.eclipse.stardust.engine.core.compatibility.el.EvaluationError;
 import org.eclipse.stardust.engine.core.compatibility.el.Interpreter;
@@ -39,11 +40,11 @@ import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailTransitionBean;
 public class TransitionBean extends ConnectionBean implements ITransition
 {
    private static final Logger trace = LogManager.getLogger(TransitionBean.class);
- 
+
    public static final String ON_BOUNDARY_EVENT_PREDICATE = "ON_BOUNDARY_EVENT";
-   
+
    /* package-private */ static final Pattern ON_BOUNDARY_EVENT_CONDITION = Pattern.compile(ON_BOUNDARY_EVENT_PREDICATE + "\\(.+\\)");
-   
+
    private static final String PARSED_EL_EXPRESSION = "ParsedElExpression";
 
    private static final String ID_ATT = "Id";
@@ -242,17 +243,16 @@ public class TransitionBean extends ConnectionBean implements ITransition
       else
       {
          checkForVariables(inconsistencies, id, "ID");
-         
+
          // check id to fit in maximum length
          if (getId().length() > AuditTrailTransitionBean.getMaxIdLength())
          {
-            inconsistencies.add(new Inconsistency("ID '" + getId() + "' for transition '"
-                  + getName() + "' exceeds maximum length of "
-                  + AuditTrailTransitionBean.getMaxIdLength() + " characters.",
-                  this, Inconsistency.ERROR));
+            BpmValidationError error = BpmValidationError.TRAN_ID_EXCEEDS_MAXIMUM_LENGTH.raise(
+                  getName(), AuditTrailTransitionBean.getMaxIdLength());
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.ERROR));
          }
       }
-      
+
       IModel model = (IModel) getModel();
       String type = model.getScripting().getType();
       if (ON_BOUNDARY_EVENT_CONDITION.matcher(getCondition()).matches())
@@ -261,7 +261,9 @@ public class TransitionBean extends ConnectionBean implements ITransition
          final IEventHandler eventHandler = getFromActivity().findHandlerById(eventHandlerId);
          if (eventHandler == null)
          {
-            inconsistencies.add(new Inconsistency("No boundary event handler with ID '" + eventHandlerId + "' for exception transition with ID '" + getId() + "' found.", this, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.TRAN_NO_BOUNDARY_EVENT_HANDLER_WITH_ID_FOR_EXCEPTION_TRANSITION_FOUND.raise(
+                  eventHandlerId, getId());
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
          }
       }
       else if ("text/carnotEL".equals(type))
@@ -272,9 +274,8 @@ public class TransitionBean extends ConnectionBean implements ITransition
       {
          if (getCondition().startsWith(PredefinedConstants.CARNOT_EL_PREFIX))
          {
-            inconsistencies.add(new Inconsistency(
-                  "Expression scripting language: \"text/carnotEL\" do not match the model scripting language: \"" + type + "\"",
-                  this, Inconsistency.WARNING));
+            BpmValidationError error = BpmValidationError.TRAN_EXPRESSION_SCRIPTING_LANGUAGE_DO_NOT_MATCH.raise(type);
+            inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
          }
          else
          {
@@ -283,9 +284,8 @@ public class TransitionBean extends ConnectionBean implements ITransition
       }
       else
       {
-         inconsistencies.add(new Inconsistency(
-               "Unsupported scripting language: \"" + type + "\"",
-               this, Inconsistency.WARNING));
+         BpmValidationError error = BpmValidationError.TRAN_UNSUPPORTED_SCRIPTING_LANGUAGE.raise(type);
+         inconsistencies.add(new Inconsistency(error, this, Inconsistency.WARNING));
       }
    }
 

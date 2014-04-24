@@ -39,7 +39,7 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
    public static final String FIELD__LAST_MODIFICATION_TIME = "lastModificationTime";
 
    // hard coded default column length
-   private static final int string_value_COLUMN_LENGTH = 128;
+   static final int string_value_COLUMN_LENGTH = 128;
    // during runtime once initialized concrete column length
    private static transient Integer stringValueColumnLength = new Integer(-1);
 
@@ -50,7 +50,7 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
    private long number_value;
    private String string_value;
    private long lastModificationTime;
-   
+
 
    private transient BigDataHandler dataHandler;
 
@@ -137,7 +137,7 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
          this.number_value = value;
       }
    }
-   
+
    @Override
    public void setDoubleValue(double value)
    {
@@ -170,7 +170,7 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
    public String getShortStringValue()
    {
       fetch();
-      return this.string_value;
+      return string_value == null && type_key == BigData.STRING ? "" : string_value;
    }
 
    public int getShortStringColumnLength()
@@ -187,16 +187,16 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
             }
          }
       }
-      
+
       return stringValueColumnLength.intValue();
    }
-   
+
    @Override
    public double getDoubleValue()
    {
       throw new UnsupportedOperationException();
    }
-   
+
    public Date getLastModificationTime()
    {
       fetch();
@@ -204,15 +204,15 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
       {
          return null;
       }
-      
+
       return new Date(lastModificationTime);
    }
-   
+
    protected void callOnChange()
    {
       setLastModificationTime(TimestampProviderUtils.getTimeStamp().getTime());
    }
-   
+
    private void setLastModificationTime(long lastModificationTime)
    {
       fetch();
@@ -221,5 +221,18 @@ public abstract class AbstractProperty extends IdentifiablePersistentBean
          markModified(FIELD__LAST_MODIFICATION_TIME);
          this.lastModificationTime = lastModificationTime;
       }
+   }
+
+   public <T extends AbstractProperty> T clone(long objectId, T property)
+   {
+      property.objectOID = objectId;
+
+      property.lastModificationTime = this.lastModificationTime;
+      property.number_value = this.number_value;
+      property.name = this.name;
+      property.string_value = this.string_value;
+      property.type_key = this.type_key;
+
+      return property;
    }
 }

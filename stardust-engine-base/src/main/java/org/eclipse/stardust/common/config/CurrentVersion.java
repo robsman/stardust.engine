@@ -11,6 +11,8 @@
 package org.eclipse.stardust.common.config;
 
 import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 
 /**
@@ -23,16 +25,28 @@ public class CurrentVersion
    private static final String BUILD_VERSION_NAME = "-buildVersionName";
    private static final String VERSION_NAME = "-versionName";
 
-   public static final String COPYRIGHT_YEARS = "2000-2013";
-   public static final String COPYRIGHT_MESSAGE = "@copyrightMessage@";
+   public static final String COPYRIGHT_YEARS = "2000-2014";
+   public static final String COPYRIGHT_MESSAGE;
 
-   public static final String MAJOR_VERSION = "@major@";
-   public static final String MINOR_VERSION = "@minor@";
-   public static final String MICRO_VERSION = "@micro@";
-   public static final String BUILD = "@build@";
+   public static final String VERSION;
+   public static final String BUILD;
 
-   public static final String VENDOR_NAME = "@vendor.name@";
-   public static final String PRODUCT_NAME = "@product.name@";
+   public static final String VENDOR_NAME;
+   public static final String PRODUCT_NAME;
+
+   static
+   {
+      // load version.properties from 
+      // org.eclipse.stardust.ui.web.viewscommon.common.spi.env.impl package
+      ResourceBundle versionBundle = ResourceBundle.getBundle(
+            CurrentVersion.class.getPackage().getName() + ".version",
+            Locale.getDefault(), CurrentVersion.class.getClassLoader());
+      VERSION = versionBundle.getString("version");
+      BUILD = versionBundle.getString("build");
+      COPYRIGHT_MESSAGE = versionBundle.getString("copyright.message");
+      VENDOR_NAME = versionBundle.getString("vendor.name");
+      PRODUCT_NAME = versionBundle.getString("product.name");
+   }
 
    public static String getProductName()
    {
@@ -49,15 +63,7 @@ public class CurrentVersion
     */
    public static String getVersionName()
    {
-      StringBuffer name = new StringBuffer();
-
-      name.append(MAJOR_VERSION);
-      name.append(".");
-      name.append(MINOR_VERSION);
-      name.append(".");
-      name.append(MICRO_VERSION);
-
-      return name.toString();
+      return VERSION;
    }
 
    public static Version getVersion()
@@ -72,13 +78,8 @@ public class CurrentVersion
 
    public static String getBuildVersionName()
    {
-      StringBuffer name = new StringBuffer();
+      StringBuffer name = new StringBuffer(VERSION);
 
-      name.append(MAJOR_VERSION);
-      name.append(".");
-      name.append(MINOR_VERSION);
-      name.append(".");
-      name.append(MICRO_VERSION);
       name.append(".");
       name.append(BUILD);
 

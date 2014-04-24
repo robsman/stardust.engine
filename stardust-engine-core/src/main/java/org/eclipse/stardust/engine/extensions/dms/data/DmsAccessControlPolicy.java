@@ -75,7 +75,7 @@ public class DmsAccessControlPolicy implements AccessControlPolicy, Serializable
    {
       this.aces.add(new DmsAccessControlEntry(principal, privileges));
    }
-
+   
    public void removeAccessControlEntry(AccessControlEntry ace)
    {
       this.aces.remove(ace);
@@ -92,13 +92,13 @@ public class DmsAccessControlPolicy implements AccessControlPolicy, Serializable
       }
       return sb.toString();
    }
-   
+
    public void addAccessControlEntry(Principal principal, Set<Privilege> privileges,
          EntryType type)
    {
       this.aces.add(new DmsAccessControlEntry(principal, privileges, type));
    }
-   
+
    public void removeAllAccessControlEntries()
    {
       this.aces.clear();
@@ -108,5 +108,5 @@ public class DmsAccessControlPolicy implements AccessControlPolicy, Serializable
    {
       return isReadonly;
    }   
-   
+
 }

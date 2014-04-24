@@ -14,7 +14,7 @@ import org.eclipse.stardust.common.StringKey;
 
 /**
  * Enum class listing all currently supported comparison operators.
- * 
+ *
  * @author rsauer
  * @version $Revision$
  */
@@ -69,6 +69,10 @@ public abstract class Operator extends StringKey
     * Resolves to true if the operand is not equal any of the values in the given list.
     */
    public static final Binary NOT_IN = new Binary("NOT IN");
+   /**
+    * Resolves to true if the operand does not match any of the values in the given list.
+    */
+   public static final Binary NOT_ANY_OF = new Binary("NOT ANY OF");
 
    /**
     * Resolves to true if the operand greater than or equal the first given value and less
@@ -83,28 +87,28 @@ public abstract class Operator extends StringKey
 
    /**
     * Indicates if the operator is unary, i.e. supports no comparison operands.
-    *  
+    *
     * @return <code>true</code> if the operator is unary, else <code>false</code>.
     */
    public abstract boolean isUnary();
 
    /**
     * Indicates if the operator is binary, i.e. supports one comparison operand.
-    *  
+    *
     * @return <code>true</code> if the operator is binary, else <code>false</code>.
     */
    public abstract boolean isBinary();
 
    /**
     * Indicates if the operator is ternary, i.e. supports two comparison operands.
-    *  
+    *
     * @return <code>true</code> if the operator is ternary, else <code>false</code>.
     */
    public abstract boolean isTernary();
 
    /**
     * Enum class listing all currently supported unary comparison operators.
-    * 
+    *
     * @author rsauer
     * @version $Revision$
     */
@@ -133,7 +137,7 @@ public abstract class Operator extends StringKey
 
    /**
     * Enum class listing all currently supported binary comparison operators.
-    * 
+    *
     * @author rsauer
     * @version $Revision$
     */
@@ -164,14 +168,14 @@ public abstract class Operator extends StringKey
 
    /**
     * Enum class listing all currently supported ternary comparison operators.
-    * 
+    *
     * @author rsauer
     * @version $Revision$
     */
    public static final class Ternary extends Operator
    {
       /**
-       * 
+       *
        */
       private static final long serialVersionUID = -7083917706180387538L;
       private final String secondOperator;

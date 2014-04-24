@@ -663,4 +663,10 @@ public class ProcessInstanceQuery extends Query
          super(ProcessInstanceQuery.class, name);
       }
    }
+
+   @Override
+   public String toString()
+   {
+      return "ProcessInstanceQuery: " + super.toString();
+   }
 }

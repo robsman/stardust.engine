@@ -1,1 +1,2 @@
-org.eclipse.stardust.engine.extensions.camel.monitoring.CamelPartitionMonitor
+org.eclipse.stardust.engine.extensions.camel.monitoring.CamelRouteCleanupMonitor
+org.eclipse.stardust.engine.extensions.camel.monitoring.CamelRouteUpdateMonitor

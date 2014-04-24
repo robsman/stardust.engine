@@ -1,10 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.app;
 
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CAMEL_CONTEXT_ID_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.CONSUMER_ROUTE_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.INVOCATION_PATTERN_EXT_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.INVOCATION_TYPE_EXT_ATT;
-import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.PRODUCER_ROUTE_ATT;
+import static org.eclipse.stardust.engine.extensions.camel.Util.*;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.getRouteId;
 import static org.eclipse.stardust.engine.extensions.camel.RouteHelper.stopAndRemoveRunningRoute;
 
@@ -69,7 +65,7 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
 
       List inconsistencies = CollectionUtils.newList();
 
-      String camelContextId = (String) application.getAttribute(CAMEL_CONTEXT_ID_ATT);
+      String camelContextId = getCamelContextId(application);
 
       // check for empty camel context ID.
       if (StringUtils.isEmpty(camelContextId))
@@ -79,10 +75,10 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
       }
 
       // check if route has been specified
-      String routeDefinition = (String) application.getAttribute(PRODUCER_ROUTE_ATT);
+      String routeDefinition = getProvidedRouteConfiguration(application);
 
-      String invocationPattern = (String) application.getAttribute(INVOCATION_PATTERN_EXT_ATT);
-      String invocationType = (String) application.getAttribute(INVOCATION_TYPE_EXT_ATT);
+      String invocationPattern = getInvocationPattern(application);
+      String invocationType = getInvocationType(application);
 
       if (invocationPattern == null && invocationType == null)
       {
@@ -106,19 +102,22 @@ public class CamelProducerSpringBeanValidator implements ApplicationValidator, A
          if (invocationPattern.equals(CamelConstants.InvocationPatterns.RECEIVE))
          {
 
-            if ((String) application.getAttribute(CONSUMER_ROUTE_ATT) == null)
+            if (getProvidedRouteConfiguration(application) == null)
             {
                inconsistencies.add(new Inconsistency("No route definition specified for application: "
                      + application.getId(), application, Inconsistency.ERROR));
 
             }
          }
-         
-         if(application.getAllOutAccessPoints().hasNext() && invocationPattern.equals(CamelConstants.InvocationPatterns.SEND)){
-            
-            inconsistencies.add(new Inconsistency("Application "+application.getName()+" contains Out AccessPoint while the Endpoint Pattern is set to "+
-                   invocationPattern, application, Inconsistency.ERROR));
-          
+
+         if (application.getAllOutAccessPoints().hasNext()
+               && invocationPattern.equals(CamelConstants.InvocationPatterns.SEND))
+         {
+
+            inconsistencies.add(new Inconsistency("Application " + application.getName()
+                  + " contains Out AccessPoint while the Endpoint Pattern is set to " + invocationPattern, application,
+                  Inconsistency.ERROR));
+
          }
       }
 

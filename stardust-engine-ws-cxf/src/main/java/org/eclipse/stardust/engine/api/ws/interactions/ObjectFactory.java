@@ -34,27 +34,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetDefinitionResponse }
+     * Create an instance of {@link GetInputParameters }
      * 
      */
-    public GetDefinitionResponse createGetDefinitionResponse() {
-        return new GetDefinitionResponse();
-    }
-
-    /**
-     * Create an instance of {@link SetOutputParametersResponse }
-     * 
-     */
-    public SetOutputParametersResponse createSetOutputParametersResponse() {
-        return new SetOutputParametersResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetInputParametersResponse }
-     * 
-     */
-    public GetInputParametersResponse createGetInputParametersResponse() {
-        return new GetInputParametersResponse();
+    public GetInputParameters createGetInputParameters() {
+        return new GetInputParameters();
     }
 
     /**
@@ -66,11 +50,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetOwnerResponse }
+     * Create an instance of {@link GetDefinitionResponse }
      * 
      */
-    public GetOwnerResponse createGetOwnerResponse() {
-        return new GetOwnerResponse();
+    public GetDefinitionResponse createGetDefinitionResponse() {
+        return new GetDefinitionResponse();
     }
 
     /**
@@ -82,11 +66,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link GetInputParameters }
+     * Create an instance of {@link GetInputParametersResponse }
      * 
      */
-    public GetInputParameters createGetInputParameters() {
-        return new GetInputParameters();
+    public GetInputParametersResponse createGetInputParametersResponse() {
+        return new GetInputParametersResponse();
     }
 
     /**
@@ -103,6 +87,22 @@ public class ObjectFactory {
      */
     public BpmInteractionFaultXto createBpmInteractionFaultXto() {
         return new BpmInteractionFaultXto();
+    }
+
+    /**
+     * Create an instance of {@link GetOwnerResponse }
+     * 
+     */
+    public GetOwnerResponse createGetOwnerResponse() {
+        return new GetOwnerResponse();
+    }
+
+    /**
+     * Create an instance of {@link SetOutputParametersResponse }
+     * 
+     */
+    public SetOutputParametersResponse createSetOutputParametersResponse() {
+        return new SetOutputParametersResponse();
     }
 
     /**

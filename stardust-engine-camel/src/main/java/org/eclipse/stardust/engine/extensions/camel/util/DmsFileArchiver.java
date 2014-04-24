@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
 import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.engine.api.runtime.Document;
 import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
@@ -21,6 +20,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceNotAvailableException;
 import org.eclipse.stardust.engine.extensions.camel.util.client.ClientEnvironment;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+
 /**
  * Class capable of archiving files into a JCR repository via IPP's
  * DocumentManagementService.
@@ -32,19 +32,26 @@ public class DmsFileArchiver
    private static Logger log = LogManager.getLogger(DmsFileArchiver.class);
 
    private String rootFolderPath = "";
+
    /**
     * The content-type of the files being archived. Default is 'text/plain'.
     */
    private String contentType = "text/plain";
+
    private String createOperator = "";
+
    private String documentType = "";
+
    private String documentIdPrefix = "Document-";
+
    /**
     * The format for the timestamp appended to the documentId of the file being archived.
     * Default is 'yyyy-MM-dd-hhmmsss'.
     */
    private String documentIdDateFormatPattern = "yyyy-MM-dd-hhmmsss";
+
    private SimpleDateFormat documentIdDateFormat;
+
    private ServiceFactory serviceFactory;
 
    public DmsFileArchiver()
@@ -86,14 +93,16 @@ public class DmsFileArchiver
     * parameter. If both are empty, the root folder "/" is used (which is not good
     * practice for production scenarios).
     * 
-    * @param fileContent the file content
-    * @param filename the file name
-    * @param folderName 
-    * 			the folder name 
-    * @param contentType 
-    * 			the content type
-    * @param owner 
-    * 			the owner 
+    * @param fileContent
+    *           the file content
+    * @param filename
+    *           the file name
+    * @param folderName
+    *           the folder name
+    * @param contentType
+    *           the content type
+    * @param owner
+    *           the owner
     * @param properties
     *           the document's metadata
     * @return document
@@ -126,12 +135,17 @@ public class DmsFileArchiver
          }
 
          // Assemble target folder path
-         String targetFolderPath = StringUtils.isEmpty(rootFolderPath) ? "/" : rootFolderPath;
+         String targetFolderPath=null;
          if (!StringUtils.isEmpty(folderName))
+            targetFolderPath = folderName;
+         else
          {
-            targetFolderPath += "/".equals(targetFolderPath) ? folderName : "/" + folderName;
+             targetFolderPath = StringUtils.isEmpty(rootFolderPath) ? "/" : rootFolderPath;
+            if (!StringUtils.isEmpty(folderName))
+            {
+               targetFolderPath += "/".equals(targetFolderPath) ? folderName : "/" + folderName;
+            }
          }
-
          DocumentManagementService dmService = sf.getDocumentManagementService();
 
          Folder targetFolder = ensureFolderHierarchyExists(targetFolderPath, dmService);
@@ -189,42 +203,42 @@ public class DmsFileArchiver
       }
    }
 
-/**
- * @param rootFolderPath
- */
-public void setRootFolderPath(String rootFolderPath)
+   /**
+    * @param rootFolderPath
+    */
+   public void setRootFolderPath(String rootFolderPath)
    {
       this.rootFolderPath = rootFolderPath;
    }
 
-/**
- * @param contentType
- */
-public void setContentType(String contentType)
+   /**
+    * @param contentType
+    */
+   public void setContentType(String contentType)
    {
       this.contentType = contentType;
    }
 
-/**
- * @param createOperator
- */
-public void setCreateOperator(String createOperator)
+   /**
+    * @param createOperator
+    */
+   public void setCreateOperator(String createOperator)
    {
       this.createOperator = createOperator;
    }
 
-/**
- * @param documentType
- */
-public void setDocumentType(String documentType)
+   /**
+    * @param documentType
+    */
+   public void setDocumentType(String documentType)
    {
       this.documentType = documentType;
    }
 
-/**
- * @param documentIdDateFormat
- */
-public void setDocumentIdDateFormatPattern(String documentIdDateFormat)
+   /**
+    * @param documentIdDateFormat
+    */
+   public void setDocumentIdDateFormatPattern(String documentIdDateFormat)
    {
       if (StringUtils.isEmpty(documentIdDateFormat))
          throw new IllegalArgumentException("Cannot set empty documentIdDateFormat: " + documentIdDateFormat);
@@ -232,10 +246,10 @@ public void setDocumentIdDateFormatPattern(String documentIdDateFormat)
       this.documentIdDateFormatPattern = documentIdDateFormat;
    }
 
-/**
- * @param serviceFactory
- */
-public void setServiceFactory(ServiceFactory serviceFactory)
+   /**
+    * @param serviceFactory
+    */
+   public void setServiceFactory(ServiceFactory serviceFactory)
    {
       this.serviceFactory = serviceFactory;
    }

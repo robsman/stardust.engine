@@ -60,7 +60,7 @@ public class PrefStoreAwareConfigurationVariablesProvider
             try
             {
                setConfVariables(ConfigurationVariableUtils.getConfigurationVariables(
-                     PreferenceStorageFactory.getCurrent(), modelId, false));
+                     PreferenceStorageFactory.getCurrent(), modelId, false, true));
             }
             finally
             {

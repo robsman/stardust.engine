@@ -36,12 +36,10 @@ import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.engine.api.ProcessInterfaceCommand;
 import org.eclipse.stardust.engine.api.model.Model;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
-import org.eclipse.stardust.engine.api.query.DeployedModelQuery;
 import org.eclipse.stardust.engine.api.runtime.DeployedModel;
-import org.eclipse.stardust.engine.api.runtime.DeployedModelDescription;
-import org.eclipse.stardust.engine.api.runtime.Models;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
+import org.eclipse.stardust.engine.core.runtime.command.impl.RetrieveModelDetailsCommand;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.w3c.dom.Document;
 
@@ -92,14 +90,14 @@ public class ProcessesRestlet extends EnvironmentAware
             serviceFactory(), qualifiedProcessId);
       final Map<String, Serializable> parameters = transformer.unmarshalParameters(in);
 
-      ProcessInterfaceCommand command = 
+      ProcessInterfaceCommand command =
     	  new ProcessInterfaceCommand(qualifiedProcessId, parameters, synchronously);
-      
+
       ProcessInterfaceCommand.Result result = null;
-      
+
       try
-      { 
-	      result = (ProcessInterfaceCommand.Result) 
+      {
+	      result = (ProcessInterfaceCommand.Result)
 	      		serviceFactory().getWorkflowService().execute(command);
       }
       catch(ObjectNotFoundException e)
@@ -158,10 +156,10 @@ public class ProcessesRestlet extends EnvironmentAware
       final String qualifiedProcessId = createQualifiedProcessId(modelId, processId);
       final FormalParameterTransformer transformer = new FormalParameterTransformer(
             serviceFactory(), qualifiedProcessId);
-      
-      ProcessInstance processInstance = 
+
+      ProcessInstance processInstance =
     	  serviceFactory().getWorkflowService().getProcessInstance(piOID);
-      
+
       return transformer.marshalDocument(processInstance, returnValues);
    }
 
@@ -200,7 +198,7 @@ public class ProcessesRestlet extends EnvironmentAware
                .entity(errorMsg)
                .build());
       }
-      getModel(getModelId());      
+      getModel(getModelId());
    }
 
    private void checkProcessId()
@@ -212,7 +210,7 @@ public class ProcessesRestlet extends EnvironmentAware
                .entity(errorMsg)
                .build());
       }
-      else if (getModel(getModelId()).getProcessDefinition(processId) == null) 
+      else if (getModel(getModelId()).getProcessDefinition(processId) == null)
       {
          final String errorMsg = "No such process ID found in model.";
          throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
@@ -246,11 +244,11 @@ public class ProcessesRestlet extends EnvironmentAware
       return result;
    }
 
-   private DeployedModel getModel(final String modelId)
+   private Model getModel(final String modelId)
    {
-      final Models models = serviceFactory().getQueryService().getModels(
-            DeployedModelQuery.findActiveForId(modelId));
-      if (models.isEmpty())
+      DeployedModel model = (DeployedModel) serviceFactory().getWorkflowService()
+            .execute(RetrieveModelDetailsCommand.retrieveActiveModelById(modelId).notThrowing());
+      if (null == model)
       {
          final String errorMsg = "No active model was found for modelId '" + modelId
                + "'.";
@@ -258,9 +256,7 @@ public class ProcessesRestlet extends EnvironmentAware
                .entity(errorMsg)
                .build());
       }
-      final DeployedModelDescription modelDesc = models.get(0);
-      final int modelOID = modelDesc.getModelOID();
-      return serviceFactory().getQueryService().getModel(modelOID);
+      return model;
    }
 
    private String createQualifiedProcessId(final String modelId, final String processId)

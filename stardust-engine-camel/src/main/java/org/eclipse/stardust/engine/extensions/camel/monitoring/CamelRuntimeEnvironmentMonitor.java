@@ -32,7 +32,7 @@ import org.springframework.context.support.AbstractApplicationContext;
  */
 public class CamelRuntimeEnvironmentMonitor implements IRuntimeEnvironmentMonitor
 {
-   public static final Logger logger = LogManager.getLogger(CamelPartitionMonitor.class);
+   public static final Logger logger = LogManager.getLogger(CamelRuntimeEnvironmentMonitor.class);
 
    public void partitionCreated(IAuditTrailPartition arg0)
    {}

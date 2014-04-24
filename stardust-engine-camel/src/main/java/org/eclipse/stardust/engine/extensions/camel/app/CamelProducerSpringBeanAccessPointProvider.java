@@ -1,5 +1,6 @@
 package org.eclipse.stardust.engine.extensions.camel.app;
-
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SEND_RECEIVE_METHOD_WITH_HEADER;
+import static org.eclipse.stardust.engine.extensions.camel.CamelConstants.SEND_METHOD_WITH_HEADER;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -12,7 +13,6 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.core.pojo.app.PlainJavaAccessPointProvider;
 import org.eclipse.stardust.engine.core.pojo.data.JavaAccessPoint;
 import org.eclipse.stardust.engine.extensions.camel.CamelConstants;
-import org.eclipse.stardust.engine.extensions.camel.GenericProducer;
 
 public class CamelProducerSpringBeanAccessPointProvider extends
 		PlainJavaAccessPointProvider {
@@ -52,7 +52,7 @@ public class CamelProducerSpringBeanAccessPointProvider extends
 			
 			if (producerMethodName == null)
 			{
-				producerMethodName = GenericProducer.SEND_RECEIVE_METHOD_WITH_HEADER;
+				producerMethodName = SEND_RECEIVE_METHOD_WITH_HEADER;
 			}
 			
 			JavaAccessPoint oParamAccessPoint = new JavaAccessPoint("oParam1",
@@ -80,7 +80,7 @@ public class CamelProducerSpringBeanAccessPointProvider extends
 			computedAccessPoints.put("header", headerAccessPoint);
 
 			if (!producerMethodName
-					.equalsIgnoreCase(GenericProducer.SEND_METHOD_WITH_HEADER)) {
+					.equalsIgnoreCase(SEND_METHOD_WITH_HEADER)) {
 				JavaAccessPoint returnValueAccessPoint = new JavaAccessPoint(
 						"returnValue", "returnValue", Direction.OUT);
 				returnValueAccessPoint.setAttribute(

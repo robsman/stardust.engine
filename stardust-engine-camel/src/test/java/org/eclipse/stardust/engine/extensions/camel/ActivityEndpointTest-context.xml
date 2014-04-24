@@ -26,5 +26,5 @@
 <!--     <bean id="activityEndpointRouteBuilder"
     	class="org.eclipse.stardust.engine.extensions.camel.ActivityEndpointTest"
     	factory-method="createFullRoute"/> -->
-
+<bean name="switchPerson" class="org.eclipse.stardust.engine.extensions.camel.SwitchPerson" />
 </beans>

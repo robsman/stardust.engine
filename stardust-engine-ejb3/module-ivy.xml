@@ -29,7 +29,7 @@
       <!-- compound configurations which encapsulates the above mentioned configs -->
       <conf name="provided" visibility="private" extends="ejb3-module-provided" />
       <conf name="compile" visibility="private" extends="ejb3-module-compile,ejb3-provider-compile" />
-      <conf name="runtime" visibility="private" extends="ejb3-module-runtime,client-spring-module-runtime" />
+      <conf name="runtime" visibility="private" extends="ejb3-module-runtime,client-ejb3-module-runtime" />
       <conf name="all" visibility="private" extends="provided, compile, runtime" />
 
       <conf name="module-pom" description="IPP Module POMs" />

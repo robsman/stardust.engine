@@ -29,6 +29,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.ejb.EJBUtils;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.extensions.ejb.data.IEntityPKEvaluator;
 
 
@@ -63,7 +64,9 @@ public class Entity20PKEvaluator implements IEntityPKEvaluator
             }
             catch (RemoteException e)
             {
-               throw new PublicException("Failed obtaining entity bean PK", e.detail);
+               throw new PublicException(
+                     BpmRuntimeError.EJB_FAILED_OBTAINING_ENTITY_BEAN_PK.raise(),
+                     e.detail);
             }
          }
          else if (value instanceof EJBLocalObject)
@@ -75,7 +78,9 @@ public class Entity20PKEvaluator implements IEntityPKEvaluator
             }
             catch (EJBException e)
             {
-               throw new PublicException("Failed obtaining entity bean PK", e);
+               throw new PublicException(
+                     BpmRuntimeError.EJB_FAILED_OBTAINING_ENTITY_BEAN_PK.raise(), e);
+
             }
          }
          else if (value instanceof Handle)
@@ -88,7 +93,9 @@ public class Entity20PKEvaluator implements IEntityPKEvaluator
             }
             catch (RemoteException e)
             {
-               throw new PublicException("Failed obtaining entity bean PK", e.detail);
+               throw new PublicException(
+                     BpmRuntimeError.EJB_FAILED_OBTAINING_ENTITY_BEAN_PK.raise(),
+                     e.detail);
             }
          }
          else
@@ -106,16 +113,19 @@ public class Entity20PKEvaluator implements IEntityPKEvaluator
                }
                catch (NoSuchMethodException e)
                {
-                  throw new PublicException("Failed obtaining entity bean PK: no "
-                        + "getPrimaryKey() method on " + value.getClass(), e);
+                  throw new PublicException(
+                        BpmRuntimeError.EJB_FAILED_OBTAINING_ENTITY_BEAN_NO_GETPK_METHOD
+                              .raise(value.getClass()), e);
                }
                catch (IllegalAccessException e)
                {
-                  throw new PublicException("Failed obtaining entity bean PK", e);
+                  throw new PublicException(
+                        BpmRuntimeError.EJB_FAILED_OBTAINING_ENTITY_BEAN_PK.raise(), e);
                }
                catch (InvocationTargetException e)
                {
-                  throw new PublicException("Failed obtaining entity bean PK", e);
+                  throw new PublicException(
+                        BpmRuntimeError.EJB_FAILED_OBTAINING_ENTITY_BEAN_PK.raise(), e);
                }
             }
             else
@@ -174,12 +184,14 @@ public class Entity20PKEvaluator implements IEntityPKEvaluator
       }
       catch (InvocationTargetException e)
       {
-         throw new PublicException("Failed looking up entity bean via PK",
+         throw new PublicException(
+               BpmRuntimeError.EJB_FAILED_LOOKING_UP_ENTITY_BEAN_VIA_PK.raise(),
                e.getTargetException());
       }
       catch (Exception e)
       {
-         throw new PublicException("Failed looking up entity bean via PK", e);
+         throw new PublicException(
+               BpmRuntimeError.EJB_FAILED_LOOKING_UP_ENTITY_BEAN_VIA_PK.raise(), e);
       }
    }
 

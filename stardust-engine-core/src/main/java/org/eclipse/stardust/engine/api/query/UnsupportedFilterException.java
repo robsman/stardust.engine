@@ -12,17 +12,18 @@ package org.eclipse.stardust.engine.api.query;
 
 import org.eclipse.stardust.common.error.ErrorCase;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 /**
  * Will be thrown if filter criteria are not supported in the envisioned context.
- * 
+ *
  * @author rsauer
  * @version $Revision$
  */
 public class UnsupportedFilterException extends PublicException
 {
    private final FilterCriterion filter;
-   
+
    /**
     * @deprecated
     */
@@ -46,8 +47,8 @@ public class UnsupportedFilterException extends PublicException
     */
    public UnsupportedFilterException(String message, FilterCriterion filter)
    {
-      super(message);
-      
+      super(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(message));
+
       this.filter = filter;
    }
 
@@ -61,13 +62,13 @@ public class UnsupportedFilterException extends PublicException
    public UnsupportedFilterException(ErrorCase errorCase, FilterCriterion filter)
    {
       super(errorCase);
-      
+
       this.filter = filter;
    }
 
    /**
     * Gets the unsupported filter criterion causing the exception.
-    * 
+    *
     * @return the filter criterion
     */
    public FilterCriterion getFilter()

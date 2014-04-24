@@ -22,6 +22,7 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.ejb2.beans.interceptors.SessionBeanInvocationManager;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.InvocationManager;
 import org.eclipse.stardust.engine.core.runtime.beans.ManagedService;
 
@@ -39,15 +40,15 @@ public abstract class AbstractEjbServiceImpl implements SessionBean
    protected SessionContext sessionContext;
 
    private InvocationManager invocationManager;
-   
+
    private String serviceTypeName;
    protected Object service;
-   
+
    public void init(Class serviceType, Class serviceImplType)
    {
       init(serviceType, serviceImplType, false);
    }
-   
+
    public void init(Class serviceType, Class serviceImplType, boolean stateless)
    {
       if (trace.isDebugEnabled())
@@ -127,7 +128,8 @@ public abstract class AbstractEjbServiceImpl implements SessionBean
       }
       catch (ClassNotFoundException e)
       {
-         throw new PublicException("Failed loading service interface class.", e);
+         throw new PublicException(
+               BpmRuntimeError.EJB_FAILED_LOADING_SERVICE_INTERFACE_CLASS.raise(), e);
       }
    }
 }

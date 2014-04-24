@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamWriter;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.utils.xml.stream.StaxUtils;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 
 /**
@@ -113,7 +114,7 @@ public class Element extends ParentNode implements NamedNode
       }
       catch (XMLStreamException e)
       {
-         throw new PublicException("Failed generating XML", e);
+         throw new PublicException(BpmRuntimeError.SDT_FAILED_GENERATING_XML.raise(), e);
       }
       finally
       {
@@ -319,7 +320,7 @@ public class Element extends ParentNode implements NamedNode
    {
       if (null != attr.getParent())
       {
-         throw new PublicException("Attribute must be detached.");
+         throw new PublicException(BpmRuntimeError.SDT_ATTRIBUTE_MUST_BE_DETACHED.raise());
       }
 
       if (attribs.isEmpty())
@@ -351,7 +352,7 @@ public class Element extends ParentNode implements NamedNode
       int pos = attribs.indexOf(attr);
       if ( -1 == pos)
       {
-         throw new PublicException("No such attribute: " + attr);
+         throw new PublicException(BpmRuntimeError.SDT_NO_SUCH_ATTRIBUTE.raise(attr));
       }
       else
       {

@@ -133,7 +133,12 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_NULL_VALUES_ARE_NOT_SUPPORTED_WITH_OPERATOR = newArgs1("MDL04040", BpmRuntimeErrorMessages.getString("MDL04040")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 MDL_INCONSISTENT_OPERATOR_USE = newArgs2("MDL04041", BpmRuntimeErrorMessages.getString("MDL04041")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_NO_WORKFLOW_DATA_DEFINED_WITH_ID_IN_THIS_MODEL_VERSION = newArgs1("MDL04042", BpmRuntimeErrorMessages.getString("MDL04042")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   public static final Args1 MDL_FAILED_EVALUATING_XPATH_EXPRESSION = newArgs1("MDL04043", BpmRuntimeErrorMessages.getString("MDL04043")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_CONTEXT_ELEMENT_NOT_INITIALIZED = newArgs0("MDL04044", BpmRuntimeErrorMessages.getString("MDL04044")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_XPATH_EXPRESSION_UNABLE_TO_FIND_ANY_SUITABLE_NODE = newArgs1("MDL04045", BpmRuntimeErrorMessages.getString("MDL04045")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_XPATH_EXPRESSION_EVALUATED_TO_MULTIPLE_NODES = newArgs1("MDL04046", BpmRuntimeErrorMessages.getString("MDL04046")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_XPATH_EXPRESSION_EVALUATED_TO_A_NON_NODE_VALUE = newArgs1("MDL04047", BpmRuntimeErrorMessages.getString("MDL04047")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_INVALID_XML_ACCESS_POINT = newArgs0("MDL04048", BpmRuntimeErrorMessages.getString("MDL04048")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    //// Audittrail related
@@ -264,6 +269,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 ATDB_LINK_TYPE_ID_EXISTS   = newArgs1("ATDB02303", "Link type ''{0}'' exists.");
 
    public static final Args0 ATDB_FAILED_EVALUATING_RECOVERY_STATUS = newArgs0("ATDB03001", BpmRuntimeErrorMessages.getString("ATDB03001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 ATDB_PARTITION_WITH_ID_ALREADY_EXISTS = newArgs1("ATDB03002", BpmRuntimeErrorMessages.getString("ATDB03002")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    //// Authentication / Authorization
@@ -466,6 +472,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 BPMRT_INCONSISTENT_COLLECTION_VALUES = newArgs2("BPMRT07015", BpmRuntimeErrorMessages.getString("BPMRT07015")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BPMRT_INPUT_NOT_SERIALIZABLE = newArgs0("BPMRT07016", BpmRuntimeErrorMessages.getString("BPMRT07016")); //$NON-NLS-1$ //$NON-NLS-2$
 
+
+
    //// JMS related
 
    public static final Args1 JMS_NO_MESSAGE_ACCEPTORS_FOUND = newArgs1("JMS01001", BpmRuntimeErrorMessages.getString("JMS01001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -477,6 +485,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 JMS_FAILED_PERSISTING_PROCESS_BLOB = newArgs1("JMS01007", BpmRuntimeErrorMessages.getString("JMS01007")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 JMS_FAILED_PERSISTING_BLOB_AT_TABLE = newArgs1("JMS01008", BpmRuntimeErrorMessages.getString("JMS01008")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 JMS_UNEXPECTED_SECTION_MARKER = newArgs1("JMS01009", BpmRuntimeErrorMessages.getString("JMS01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JMS_MESSAGE_TYPE_FOR_ID_NOT_SUPPORTED = newArgs1("JMS01010", BpmRuntimeErrorMessages.getString("JMS01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JMS_MATCHING_AI_FOUND_BUT_IT_IS_NOT_OF_RECEIVING_NATURE = newArgs1("JMS01011", BpmRuntimeErrorMessages.getString("JMS01011")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Preference Store related
 
@@ -520,7 +530,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 QUERY_FAILED_EVALUATING_PROCESS_INSTANCE_CLOSURE = newArgs0("QUERY03011", BpmRuntimeErrorMessages.getString("QUERY03011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 QUERY_VALUE_OF_SKIPPEDENTRIES_MUST_NOT_BE_LESS_THAN_ZERO = newArgs0("QUERY03012", BpmRuntimeErrorMessages.getString("QUERY03012")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 QUERY_FAILED_EXECUTING_QUERY = newArgs0("QUERY03013", BpmRuntimeErrorMessages.getString("QUERY03013")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   public static final Args0 QUERY_FAILED_EVALUATING_PROCESS_INSTANCE_CLOSURE_RESULTSET = newArgs0("QUERY03014", BpmRuntimeErrorMessages.getString("QUERY03014")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// IPP WS related
 
@@ -536,6 +546,7 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args2 IPPWS_META_DATA_TYPE_INVALID = newArgs2("IPPWS03001", BpmRuntimeErrorMessages.getString("IPPWS03001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 IPPWS_DATA_VALUE_INVALID = newArgs2("IPPWS03101", BpmRuntimeErrorMessages.getString("IPPWS03101")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 IPPWS_WS_SECURITY_AUTHENTICATION_REQUIRES_USERNAME = newArgs0("IPPWS03102", BpmRuntimeErrorMessages.getString("IPPWS03102")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Login related
    public static final Args0 LOGIN_LDAP_INVALID_USER_PASSWORD = newArgs0("LOGIN01001", BpmRuntimeErrorMessages.getString("LOGIN01001")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -547,6 +558,14 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 EJB_INVALID_SERVICE_FACTORY_CONFIGURATION = newArgs1("EJB01002", BpmRuntimeErrorMessages.getString("EJB01002")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 EJB_MISSING_DATA_SOURCE = newArgs1("EJB01003", BpmRuntimeErrorMessages.getString("EJB01003")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 EJB_INVALID_TUNNELING_SERVICE_ENDPOINT = newArgs0("EJB01004", BpmRuntimeErrorMessages.getString("EJB01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_FAILED_LOADING_SERVICE_INTERFACE_CLASS = newArgs0("EJB01005", BpmRuntimeErrorMessages.getString("EJB01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_FAILED_OBTAINING_ENTITY_BEAN_PK = newArgs0("EJB01006", BpmRuntimeErrorMessages.getString("EJB01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 EJB_FAILED_OBTAINING_ENTITY_BEAN_NO_GETPK_METHOD = newArgs1("EJB01007", BpmRuntimeErrorMessages.getString("EJB01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_FAILED_LOOKING_UP_ENTITY_BEAN_VIA_PK = newArgs0("EJB01008", BpmRuntimeErrorMessages.getString("EJB01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 EJB_INVALID_ID_ACCESS = newArgs1("EJB01009", BpmRuntimeErrorMessages.getString("EJB01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_FAILED_RETRIEVING_ENTITY_BEAN = newArgs0("EJB01010", BpmRuntimeErrorMessages.getString("EJB01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_NO_ENTITYMANAGER_COULD_BE_RETRIEVED = newArgs0("EJB01011", BpmRuntimeErrorMessages.getString("EJB01011")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    //// General CLI related
 
@@ -665,6 +684,18 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 POJO_SETTER_FOR_IN_PATH_DOES_NOT_ACCEPT_SINGLE_PARAMETER = newArgs1("POJO01011", BpmRuntimeErrorMessages.getString("POJO01011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 POJO_FINAL_SETTER_FOR_IN_PATH_DOES_NOT_ACCEPT_SINGLE_PARAMETER = newArgs1("POJO01012", BpmRuntimeErrorMessages.getString("POJO01012")); //$NON-NLS-1$ //$NON-NLS-2$
 
+   ////Structured Type related
+
+   public static final Args0 SDT_FAILED_GENERATING_XML = newArgs0("SDT01001", BpmRuntimeErrorMessages.getString("SDT01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 SDT_ATTRIBUTE_MUST_BE_DETACHED = newArgs0("SDT01002", BpmRuntimeErrorMessages.getString("SDT01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 SDT_NO_SUCH_ATTRIBUTE = newArgs1("SDT01003", BpmRuntimeErrorMessages.getString("SDT01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 SDT_FAILED_READING_XML_INPUT = newArgs0("SDT01004", BpmRuntimeErrorMessages.getString("SDT01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 SDT_EXPRESSION_WAS_EXPECTED_TO_RETURN_0_OR_1_HITS = newArgs2("SDT01005", BpmRuntimeErrorMessages.getString("SDT01005")); //$NON-NLS-1$ //$NON-NLS-2$
+
+   ////Generic Exception message
+
+   public static final Args0 GEN_AN_EXCEPTION_OCCURED = newArgs0("GEN01001", BpmRuntimeErrorMessages.getString("GEN01001")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE = newArgs1("GEN01002", BpmRuntimeErrorMessages.getString("GEN01002")); //$NON-NLS-1$ //$NON-NLS-2$
 
    private static final Object[] NONE = {};
 

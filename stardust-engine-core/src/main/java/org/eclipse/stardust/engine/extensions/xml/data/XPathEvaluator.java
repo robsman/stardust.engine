@@ -27,6 +27,16 @@ import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.transform.stream.StreamResult;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+
 import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.common.Stateless;
 import org.eclipse.stardust.common.StringUtils;
@@ -39,11 +49,6 @@ import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.utils.XmlUtils;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
-import org.w3c.dom.*;
-import org.xml.sax.ErrorHandler;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 /**
  * @author rsauer
@@ -87,7 +92,8 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
          catch (Exception e)
          {
             trace.debug(e.getMessage(), e);
-            throw new PublicException("Failed evaluating XPath expression: '" + outPath + "'");
+            throw new PublicException(
+                  BpmRuntimeError.MDL_FAILED_EVALUATING_XPATH_EXPRESSION.raise(outPath));
          }
       }
    }
@@ -119,7 +125,8 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
          contextElement = getContextElement(accessPoint);
          if (contextElement == null)
          {
-            throw new PublicException("Context element not initialized.");
+            throw new PublicException(
+                  BpmRuntimeError.MDL_CONTEXT_ELEMENT_NOT_INITIALIZED.raise());
          }
          Object result = null;
          try
@@ -130,24 +137,28 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
          catch (Exception e)
          {
             trace.debug(e.getMessage(), e);
-            throw new PublicException("Failed evaluating XPath expression: '" + inPath + "'");
+            throw new PublicException(
+                  BpmRuntimeError.MDL_FAILED_EVALUATING_XPATH_EXPRESSION.raise(inPath));
          }
          if ( !(result instanceof List) || ((List) result).isEmpty())
          {
-            throw new PublicException("XPath expression: '" + inPath
-                  + "' was unable to find any suitable node.");
+            throw new PublicException(
+                  BpmRuntimeError.MDL_XPATH_EXPRESSION_UNABLE_TO_FIND_ANY_SUITABLE_NODE
+                        .raise(inPath));
          }
 
          List<Node> nodes = (List<Node>) result;
          if (nodes.size() > 1)
          {
-            throw new PublicException("XPath expression: '" + inPath
-                  + "' evaluated to multiple nodes.");
+            throw new PublicException(
+                  BpmRuntimeError.MDL_XPATH_EXPRESSION_EVALUATED_TO_MULTIPLE_NODES
+                        .raise(inPath));
          }
          if ( !(nodes.get(0) instanceof Node))
          {
-            throw new PublicException("XPath expression: '" + inPath
-                  + "' evaluated to a non Node value.");
+            throw new PublicException(
+                  BpmRuntimeError.MDL_XPATH_EXPRESSION_EVALUATED_TO_A_NON_NODE_VALUE
+                        .raise(inPath));
          }
          Node node = (Node) nodes.get(0);
          if (node instanceof Attr)
@@ -268,11 +279,11 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
       }
       catch (SAXException e)
       {
-         throw new PublicException("", e);
+         throw new PublicException(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED.raise(), e);
       }
       catch (IOException e)
       {
-         throw new PublicException("", e);
+         throw new PublicException(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED.raise(), e);
       }
 
       if ( !errors.isEmpty())
@@ -325,11 +336,11 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
       }
       catch (SAXException e)
       {
-         throw new PublicException("", e);
+         throw new PublicException(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED.raise(), e);
       }
       catch (IOException e)
       {
-         throw new PublicException("", e);
+         throw new PublicException(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED.raise(), e);
       }
 
       if ( !errors.isEmpty())
@@ -484,7 +495,8 @@ public class XPathEvaluator implements AccessPathEvaluator, Stateless
          }
          catch (Exception e)
          {
-            throw new PublicException("Invalid XML access point.", e);
+            throw new PublicException(
+                  BpmRuntimeError.MDL_INVALID_XML_ACCESS_POINT.raise(), e);
          }
       }
    }

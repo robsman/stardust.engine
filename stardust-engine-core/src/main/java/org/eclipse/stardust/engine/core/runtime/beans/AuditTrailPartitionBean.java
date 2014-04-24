@@ -53,18 +53,18 @@ public class AuditTrailPartitionBean extends PersistentBean implements
    public static final FieldRef FR__OID = new FieldRef(AuditTrailPartitionBean.class, FIELD__OID);
    public static final FieldRef FR__ID = new FieldRef(AuditTrailPartitionBean.class, FIELD__ID);
    public static final FieldRef FR__DESCRIPTION = new FieldRef(AuditTrailPartitionBean.class, FIELD__DESCRIPTION);
-   
+
    public static final String LINK__USER_DOMAIN_LINKS = "userDomainLinks";
 
    public static final String TABLE_NAME = "partition";
    public static final String DEFAULT_ALIAS = "prt";
    public static final String LOCK_TABLE_NAME = "partition_lck";
-   public static final String LOCK_INDEX_NAME = "partition_lck_idx";   
+   public static final String LOCK_INDEX_NAME = "partition_lck_idx";
    public static final String PK_FIELD = FIELD__OID;
    protected static final String PK_SEQUENCE = "partition_seq";
    public static final String[] partition_idx1_UNIQUE_INDEX = new String[] {FIELD__OID};
    public static final String[] partition_idx2_UNIQUE_INDEX = new String[] {FIELD__ID};
-   
+
    public PersistentVector userDomains;
    private static final String userDomains_TABLE_NAME = UserDomainBean.TABLE_NAME;
    private static final String userDomains_CLASS = UserDomainBean.class.getName();
@@ -89,13 +89,13 @@ public class AuditTrailPartitionBean extends PersistentBean implements
       AuditTrailPartitionBean result = (AuditTrailPartitionBean) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL).findByOID(
                   AuditTrailPartitionBean.class, oid);
-      
+
       if (result == null)
       {
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_PARTITION_OID.raise(oid), oid);
       }
-      
+
       return result;
    }
 
@@ -111,7 +111,7 @@ public class AuditTrailPartitionBean extends PersistentBean implements
             return result;
          }
       }
-      
+
       result = (AuditTrailPartitionBean) SessionFactory
             .getSession(SessionFactory.AUDIT_TRAIL).findFirst(
                   AuditTrailPartitionBean.class,
@@ -134,21 +134,21 @@ public class AuditTrailPartitionBean extends PersistentBean implements
    {
       Assert.isNotEmpty(id, "Id must not be empty.");
       String trimmedId = StringUtils.cutString(id, id_COLUMN_LENGTH);
-      
+
       if (SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).exists(
             AuditTrailPartitionBean.class,
             QueryExtension.where(Predicates.isEqual(FR__ID, trimmedId))))
       {
-         throw new PublicException("Partition with id '" + trimmedId
-               + "' already exists.");
+         throw new PublicException(
+               BpmRuntimeError.ATDB_PARTITION_WITH_ID_ALREADY_EXISTS.raise(trimmedId));
       }
-      
+
       this.id = trimmedId;
-      
+
       this.userDomains = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL)
             .createPersistentVector();
 
-      
+
       SessionFactory.getSession(SessionFactory.AUDIT_TRAIL).cluster(this);
    }
 
@@ -164,7 +164,7 @@ public class AuditTrailPartitionBean extends PersistentBean implements
          getPersistenceController().getSession().lock(getClass(), getOID());
       }
    }
-   
+
    public short getOID()
    {
       fetch();
@@ -219,7 +219,7 @@ public class AuditTrailPartitionBean extends PersistentBean implements
          this.description = description;
       }
    }
-   
+
    public Iterator getAllUserDomains()
    {
       fetchVector(LINK__USER_DOMAIN_LINKS);
@@ -239,10 +239,10 @@ public class AuditTrailPartitionBean extends PersistentBean implements
          throw new ObjectNotFoundException(
                BpmRuntimeError.ATDB_UNKNOWN_DEFAULT_DOMAIN_FOR_PARTITION_ID.raise(id));
       }
-      
+
       return result;
    }
-   
+
    public AbstractProperty createProperty(String name, Serializable value)
    {
       return new UserProperty(getOID(), name, value);
@@ -256,7 +256,7 @@ public class AuditTrailPartitionBean extends PersistentBean implements
    public byte[] store() throws IOException
    {
       fetch();
-      
+
       CacheOutputStream cos = new CacheOutputStream();
       byte[] bytes;
 

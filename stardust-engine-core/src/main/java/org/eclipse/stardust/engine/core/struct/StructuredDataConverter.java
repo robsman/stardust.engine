@@ -12,9 +12,21 @@ package org.eclipse.stardust.engine.core.struct;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 import javax.xml.transform.TransformerException;
+
+import org.eclipse.xsd.util.XSDConstants;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.CompareHelper;
@@ -23,11 +35,17 @@ import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BigData;
 import org.eclipse.stardust.engine.core.struct.beans.IStructuredDataValue;
-import org.eclipse.stardust.engine.core.struct.sxml.*;
+import org.eclipse.stardust.engine.core.struct.sxml.Attribute;
+import org.eclipse.stardust.engine.core.struct.sxml.Document;
+import org.eclipse.stardust.engine.core.struct.sxml.DocumentBuilder;
+import org.eclipse.stardust.engine.core.struct.sxml.Element;
+import org.eclipse.stardust.engine.core.struct.sxml.NamedNode;
+import org.eclipse.stardust.engine.core.struct.sxml.Node;
+import org.eclipse.stardust.engine.core.struct.sxml.Text;
 import org.eclipse.stardust.engine.core.struct.sxml.xpath.XPathEvaluator;
-import org.eclipse.xsd.util.XSDConstants;
 
 /**
  * Conversions DOM -> Collection (Map/List/Primitive) and vice versa
@@ -76,7 +94,8 @@ public class StructuredDataConverter
       }
       catch (IOException e)
       {
-         throw new PublicException("Failed reading XML input.", e);
+         throw new PublicException(BpmRuntimeError.SDT_FAILED_READING_XML_INPUT.raise(),
+               e);
       }
    }
 
@@ -131,7 +150,9 @@ public class StructuredDataConverter
          // return primitive type
          if (nodelist.size() > 1)
          {
-            throw new PublicException("Expression '" + xPath + "' was expected to return 0 or 1 hits, but it returned '" + nodelist.size() + "'");
+            throw new PublicException(
+                  BpmRuntimeError.SDT_EXPRESSION_WAS_EXPECTED_TO_RETURN_0_OR_1_HITS
+                        .raise(xPath, nodelist.size()));
          }
          if (nodelist.isEmpty())
          {
@@ -179,7 +200,9 @@ public class StructuredDataConverter
          // return Map (complexType)
          if (nodelist.size() > 1)
          {
-            throw new PublicException("Expression '" + xPath + "' was expected to return 0 or 1 hits, but it returned '"+nodelist.size()+"'");
+            throw new PublicException(
+                  BpmRuntimeError.SDT_EXPRESSION_WAS_EXPECTED_TO_RETURN_0_OR_1_HITS
+                        .raise(xPath, nodelist.size()));
          }
 
          if (nodelist.isEmpty())
@@ -426,7 +449,7 @@ public class StructuredDataConverter
       // (fh) no xpaths found, giving up
       if (xPath == null && isStrict)
       {
-         throw new PublicException("Undefined XPath: '" + path + "'.");
+         throw new PublicException(BpmRuntimeError.MDL_UNKNOWN_XPATH.raise(path));
       }
       return xPath;
    }

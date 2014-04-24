@@ -155,7 +155,9 @@ public class QueryUtils
                catch (SQLException e)
                {
                   throw new PublicException(
-                        "Failed evaluating process instance closure result set.", e);
+                        BpmRuntimeError.QUERY_FAILED_EVALUATING_PROCESS_INSTANCE_CLOSURE_RESULTSET
+                              .raise(), e);
+
                }
                finally
                {
@@ -266,7 +268,8 @@ public class QueryUtils
                   catch (SQLException e)
                   {
                      throw new PublicException(
-                           "Failed evaluating process instance closure result set.", e);
+                           BpmRuntimeError.QUERY_FAILED_EVALUATING_PROCESS_INSTANCE_CLOSURE_RESULTSET
+                                 .raise(), e);
                   }
                   finally
                   {

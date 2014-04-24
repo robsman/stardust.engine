@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.Action;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
 import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
 import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
@@ -24,11 +25,11 @@ public class MailConfirmationAction
 {
    private long activityInstanceOID;
    private Map data;
-   
+
    public MailConfirmationAction(long aiOid, Map data)
 	{
 		super();
-		
+
 		this.activityInstanceOID = aiOid;
 		this.data = data;
 	}
@@ -36,7 +37,7 @@ public class MailConfirmationAction
 	public Object execute()
    {
       // TODO catch ObjectNotFoundException
-		
+
       IActivityInstance activityInstance = ActivityInstanceBean.findByOID(activityInstanceOID);
 
       if (null != activityInstance)
@@ -50,10 +51,11 @@ public class MailConfirmationAction
       }
       else
       {
-         throw new PublicException("Matching " + activityInstanceOID
-               + " found, but it is not of receiving nature.");
+         throw new PublicException(
+               BpmRuntimeError.JMS_MATCHING_AI_FOUND_BUT_IT_IS_NOT_OF_RECEIVING_NATURE
+                     .raise(activityInstanceOID));
       }
-      
+
       return null;
    }
 }

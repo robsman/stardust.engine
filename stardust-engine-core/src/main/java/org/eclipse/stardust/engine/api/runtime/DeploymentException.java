@@ -48,13 +48,13 @@ public class DeploymentException extends PublicException
     */
    public DeploymentException(String message, List<DeploymentInfo> infos)
    {
-      super(message);
+      super(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(message));
       this.infos = infos;
    }
 
    public DeploymentException(List<DeploymentInfo> infos, String pattern, Object... args)
    {
-      super(MessageFormat.format(pattern, args));
+      super(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(MessageFormat.format(pattern, args)));
       this.infos = infos;
    }
 

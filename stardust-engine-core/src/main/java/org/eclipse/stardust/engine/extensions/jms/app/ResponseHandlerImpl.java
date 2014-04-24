@@ -31,11 +31,32 @@ import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.dto.ProcessDefinitionDetails;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IApplication;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.IProcessDefinition;
+import org.eclipse.stardust.engine.api.model.ITrigger;
+import org.eclipse.stardust.engine.api.model.Modules;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.model.ProcessDefinition;
+import org.eclipse.stardust.engine.api.model.Trigger;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LoginUtils;
 import org.eclipse.stardust.engine.core.persistence.PhantomException;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
+import org.eclipse.stardust.engine.core.runtime.beans.ActivityThread;
+import org.eclipse.stardust.engine.core.runtime.beans.AdministrationServiceImpl;
+import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
+import org.eclipse.stardust.engine.core.runtime.beans.DetailsFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.IActivityInstance;
+import org.eclipse.stardust.engine.core.runtime.beans.IAuditTrailPartition;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.IUserDomain;
+import org.eclipse.stardust.engine.core.runtime.beans.ModelManagerFactory;
+import org.eclipse.stardust.engine.core.runtime.beans.SecurityContextAwareAction;
+import org.eclipse.stardust.engine.core.runtime.beans.TriggerDaemon;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
+import org.eclipse.stardust.engine.core.runtime.beans.WorkflowServiceImpl;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
@@ -52,16 +73,16 @@ import org.eclipse.stardust.engine.extensions.jms.utils.JMSUtils;
 public class ResponseHandlerImpl extends SecurityContextAwareAction
 {
    private static final Logger trace = LogManager.getLogger(ResponseHandlerImpl.class);
-   
+
    private static final String CACHED_JMS_TRIGGERS = ResponseHandlerImpl.class.getName() + ".JmsTriggers";
-   
+
    private static final TriggerMessageAcceptor DEFAULT_TRIGGER_MESSAGE_ACCEPTOR = new DefaultTriggerMessageAcceptor();
 
    private static final MessageAcceptor DEFAULT_MESSAGE_ACCEPTOR = new DefaultMessageAcceptor();
 
    private final String source;
    private final Message message;
-   
+
    private final String partitionId;
    private final String userDomainId;
 
@@ -70,14 +91,14 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
    public ResponseHandlerImpl(ResponseHandlerCarrier carrier)
    {
       super(carrier);
-      
+
       this.partitionId = carrier.getPartitionId();
       this.userDomainId = carrier.getUserDomainId();
-      
+
       this.source = carrier.getSource();
       this.message = carrier.getMessage();
    }
-   
+
    private void configureRuntimeEnvironment(BpmRuntimeEnvironment rtEnv)
    {
       final Parameters params = Parameters.instance();
@@ -102,7 +123,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       // optionally taking timestamp override into account
       boolean recordedEventTime = params.getBoolean(
             KernelTweakingProperties.EVENT_TIME_OVERRIDABLE, false);
-      
+
       if (recordedEventTime)
       {
          try
@@ -147,7 +168,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
                BpmRuntimeError.JMS_NO_MESSAGE_ACCEPTORS_FOUND.raise(JMSUtils
                      .messageToString(message)));
       }
-      
+
       return null;
    }
 
@@ -157,7 +178,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       {
          trace.debug("Bootstrapping trigger acceptors");
       }
-      
+
       String processId = null;
       try
       {
@@ -168,14 +189,14 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       }
 
       IModel findModel = null;
-      String namespace = null;         
+      String namespace = null;
       if(processId != null)
       {
          if (processId.startsWith("{"))
          {
             QName qname = QName.valueOf(processId);
-            namespace = qname.getNamespaceURI(); 
-         }         
+            namespace = qname.getNamespaceURI();
+         }
       }
 
       if(namespace != null)
@@ -186,19 +207,19 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
       {
          findModel = ModelManagerFactory.getCurrent().findActiveModel();
       }
-      
+
       final IModel model = findModel;
       if (null == model)
       {
-         throw new PublicException("No active model found.");
+         throw new PublicException(BpmRuntimeError.MDL_NO_ACTIVE_MODEL.raise());
       }
-      
+
       this.activeTriggers = (List<Trigger>) model.getRuntimeAttribute(CACHED_JMS_TRIGGERS);
       if (null == activeTriggers)
       {
          List<ProcessDefinition> processes = DetailsFactory.<ProcessDefinition, ProcessDefinitionDetails>
             createCollection(model.getProcessDefinitions(), IProcessDefinition.class, ProcessDefinitionDetails.class);
-         
+
          this.activeTriggers = newArrayList(processes.size());
          for (ProcessDefinition process : processes)
          {
@@ -211,7 +232,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
             }
          }
          this.activeTriggers = Collections.unmodifiableList(activeTriggers);
-         
+
          model.setRuntimeAttribute(CACHED_JMS_TRIGGERS, activeTriggers);
       }
    }
@@ -230,7 +251,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
             break;
          }
       }
-      
+
       if (null == match)
       {
          // no match so far, fall back to default acceptor
@@ -249,7 +270,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
             }
          }
       }
-      
+
       return match;
    }
 
@@ -311,7 +332,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
 
       return null;
    }
-   
+
    private Match findMatchForTriggerMessage(Message message, Trigger trigger)
    {
       TriggerMessageAcceptor acceptor = getAcceptorForTrigger(trigger);
@@ -330,7 +351,7 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
                + "criteria.Maybe it is not responsible for the message '"
                + JMSUtils.messageToString(message) + "'.", e);
       }
-      
+
       return null;
    }
 
@@ -401,8 +422,9 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
          }
          else
          {
-            throw new PublicException("Matching " + activityInstance
-                  + " found, but it is not of receiving nature.");
+            throw new PublicException(
+                  BpmRuntimeError.JMS_MATCHING_AI_FOUND_BUT_IT_IS_NOT_OF_RECEIVING_NATURE
+                        .raise(activityInstance));
          }
       }
    }
@@ -426,14 +448,14 @@ public class ResponseHandlerImpl extends SecurityContextAwareAction
          IModel model = ModelManagerFactory.getCurrent().findModel(triggerDetails.getModelOID());
          IProcessDefinition processDefinition = model.findProcessDefinition(processId);
          ITrigger trigger = processDefinition.findTrigger(triggerDetails.getId());
-         
+
          if (trace.isDebugEnabled())
          {
             trace.debug("Executing activity thread for incoming message");
          }
 
          boolean isSync = triggerDetails.isSynchronous();
-         
+
          if ( !isSync)
          {
             String syncFlag = Parameters.instance().getString(Modules.ENGINE.getId() + "."

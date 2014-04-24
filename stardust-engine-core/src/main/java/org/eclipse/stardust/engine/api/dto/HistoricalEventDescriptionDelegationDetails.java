@@ -14,6 +14,7 @@ import java.io.Serializable;
 
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.Participant;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.HistoricalEventDescriptionDelegation;
 
 
@@ -42,7 +43,7 @@ public class HistoricalEventDescriptionDelegationDetails implements
          case TO_PERFORMER_IDX:
             return toPerformer;
          default:
-            throw new PublicException("");
+            throw new PublicException(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED.raise());
       }
    }
 

@@ -31,7 +31,7 @@ public class IllegalOperationException extends PublicException
     */
    public IllegalOperationException(String message, Throwable e)
    {
-      super(message, e);
+      super(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(message), e);
    }
 
    /**
@@ -39,7 +39,7 @@ public class IllegalOperationException extends PublicException
     */
    public IllegalOperationException(String message)
    {
-      super(message);
+      super(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(message));
    }
 
    public IllegalOperationException(ErrorCase errorCase)

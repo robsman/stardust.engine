@@ -24,6 +24,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.utils.ejb.EJBUtils;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.extensions.ejb.data.EntityBeanConstants;
 import org.eclipse.stardust.engine.extensions.ejb.data.IEntityPKEvaluator;
 
@@ -82,7 +83,7 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
          // assume the value is the PK itself
          pk = value;
       }
-      
+
       return pk;
    }
 
@@ -96,7 +97,7 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
             EntityBeanConstants.PRIMARY_KEY_TYPE_ATT);
       String keyElements = (String) attributes.get(
             EntityBeanConstants.PRIMARY_KEY_ELEMENTS_ATT);
-  
+
       if (EntityBeanConstants.ID_CLASS_PK.equals(keyType))
       {
          key = createIdClass(pkClassName, keyElements, value);
@@ -152,10 +153,12 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
          }
          catch (Exception e)
          {
-            throw new PublicException("Invalid Id access: " + entry, e);
+            throw new PublicException(BpmRuntimeError.EJB_INVALID_ID_ACCESS.raise(entry),
+                  e);
          }
       }
-      throw new PublicException("Invalid Id access: " + entry);
+      throw new PublicException(BpmRuntimeError.EJB_INVALID_ID_ACCESS.raise(entry));
+
    }
 
    private void setValue(Object instance, String entry, Object value)
@@ -189,12 +192,13 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
          }
          catch (Exception e)
          {
-            throw new PublicException("Invalid Id access: " + entry, e);
+            throw new PublicException(BpmRuntimeError.EJB_INVALID_ID_ACCESS.raise(entry),
+                  e);
          }
       }
       else
       {
-         throw new PublicException("Invalid Id access: " + entry);
+         throw new PublicException(BpmRuntimeError.EJB_INVALID_ID_ACCESS.raise(entry));
       }
    }
 
@@ -221,7 +225,8 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
       }
       catch (InternalException e)
       {
-         throw new PublicException("Failed retrieving entity bean.", e);
+         throw new PublicException(
+               BpmRuntimeError.EJB_FAILED_RETRIEVING_ENTITY_BEAN.raise(), e);
       }
    }
 
@@ -232,7 +237,7 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
             EntityBeanConstants.JNDI_PATH_ATT);
       String emSource = (String) attributes.get(
             EntityBeanConstants.ENTITY_MANAGER_SOURCE_ATT);
-      
+
       EntityManager em = null;
       if (EntityBeanConstants.JNDI_SOURCE.equals(emSource))
       {
@@ -252,10 +257,11 @@ public class Entity30PKEvaluator implements IEntityPKEvaluator
          em = factory.createEntityManager();
          trace.debug("EntityManager from UnitName: " + em);
       }
-      
+
       if (em == null)
       {
-         throw new PublicException("No EntityManager could be retrieved.");
+         throw new PublicException(
+               BpmRuntimeError.EJB_NO_ENTITYMANAGER_COULD_BE_RETRIEVED.raise());
       }
       return em;
    }

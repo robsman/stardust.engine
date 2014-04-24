@@ -15,6 +15,7 @@ import java.io.Serializable;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.model.Participant;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.HistoricalEventDescriptionStateChange;
 
 
@@ -47,7 +48,7 @@ public class HistoricalEventDescriptionStateChangeDetails implements
          case TO_PERFORMER_IDX:
             return toPerformer;
          default:
-            throw new PublicException("");
+            throw new PublicException(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED.raise());
       }
    }
 
@@ -58,7 +59,7 @@ public class HistoricalEventDescriptionStateChangeDetails implements
    {
       return fromState;
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.dto.HistoricalEventDescriptionStateChange#getToState()
     */
@@ -66,7 +67,7 @@ public class HistoricalEventDescriptionStateChangeDetails implements
    {
       return toState;
    }
-   
+
    /* (non-Javadoc)
     * @see ag.carnot.workflow.runtime.HistoricalEventDescriptionStateChange#getToPerformer()
     */

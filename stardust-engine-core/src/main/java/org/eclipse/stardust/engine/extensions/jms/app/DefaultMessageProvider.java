@@ -13,11 +13,16 @@ package org.eclipse.stardust.engine.extensions.jms.app;
 import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.jms.*;
+import javax.jms.JMSException;
+import javax.jms.MapMessage;
+import javax.jms.Message;
+import javax.jms.ObjectMessage;
+import javax.jms.Session;
+import javax.jms.StreamMessage;
+import javax.jms.TextMessage;
 
 import org.eclipse.stardust.common.Direction;
 import org.eclipse.stardust.common.Stateless;
@@ -30,6 +35,7 @@ import org.eclipse.stardust.engine.api.model.AccessPoint;
 import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
@@ -84,11 +90,12 @@ public class DefaultMessageProvider implements MessageProvider, Stateless
          }
          else
          {
-            throw new PublicException("Message type for id " + id + " not supported");
+            throw new PublicException(
+                  BpmRuntimeError.JMS_MESSAGE_TYPE_FOR_ID_NOT_SUPPORTED.raise(id));
          }
          Boolean ioh = (Boolean) application
                .getAttribute(PredefinedConstants.INCLUDE_OID_HEADERS_PROPERTY);
-         fillHeader(message, accessPoints, activityInstance, 
+         fillHeader(message, accessPoints, activityInstance,
                null != ioh ? ioh.booleanValue() : false);
          mergeDefaultSecurityContextToHeader(message);
          fillMessage(message, application, accessPoints);
@@ -96,7 +103,7 @@ public class DefaultMessageProvider implements MessageProvider, Stateless
       catch (JMSException e)
       {
          trace.warn("", e);
-         throw new PublicException(e.getMessage());
+         throw new PublicException(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED.raise(), e);
       }
 
       return message;
@@ -106,7 +113,7 @@ public class DefaultMessageProvider implements MessageProvider, Stateless
    {
       return "Default provider";
    }
-   
+
    public boolean hasPredefinedAccessPoints(StringKey selection)
    {
       return DefaultMessageHelper.hasPredefinedAccessPoints(selection);
@@ -119,7 +126,7 @@ public class DefaultMessageProvider implements MessageProvider, Stateless
 
    /**
     * If security context is not set by access points then the current context is set.
-    * 
+    *
     * @param message
     * @throws JMSException
     */

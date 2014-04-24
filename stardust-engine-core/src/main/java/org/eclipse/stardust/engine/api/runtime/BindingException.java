@@ -24,7 +24,7 @@ public class BindingException extends PublicException
    */
    public BindingException(String message)
    {
-      super(message);
+      super(BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(message));
    }
 
    /**

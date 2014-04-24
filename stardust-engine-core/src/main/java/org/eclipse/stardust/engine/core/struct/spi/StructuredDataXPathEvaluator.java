@@ -92,8 +92,7 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
       }
       else
       {
-         // data value is in accessPointInstance
-         Node [] nodes = converter.toDom(accessPointInstance, outPath, true);
+         Node [] nodes = converter.toDom(accessPointInstance, "", true);
          Assert.condition(nodes.length == 1);
          document = new Document((Element)nodes[0]);
       }
@@ -307,11 +306,11 @@ public class StructuredDataXPathEvaluator implements ExtendedAccessPathEvaluator
          final long dataRtOid = modelManager.getRuntimeOid(data);
          final IXPathMap xPathMap = DataXPathMap.getXPathMap(data);
          final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-         IProcessInstance scopeProcessInstance 
+         IProcessInstance scopeProcessInstance
             = accessPathEvaluationContext.getProcessInstance().getScopeProcessInstance();
          long scopeProcessInstanceOid = scopeProcessInstance.getScopeProcessInstanceOID();
-         
-         
+
+
          Document document;
          if (null == accessPointInstance)
          {

@@ -57,10 +57,15 @@
        <!-- carnot-ejb3-compile -->
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-ejb3-compile->engine-module-compile" />
       <dependency org="javax.ejb" name="ejb-api" rev="3.0" conf="carnot-ejb3-compile->default" />      
+   	  <dependency org="javax.jms" name="jms" rev="${jms.version}"  conf="carnot-ejb3-compile->default" />
+	  <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-ejb3-compile-optional->jcr-vfs-module-compile" />   	  
+   	  
    
       <!-- carnot-ejb3-provided -->
       <dependency org="javax.servlet" name="servlet-api" rev="${servlet-api.version}" conf="carnot-ejb3-provided->default" />
-      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-ejb3-provided->ejb21-module-compile" />
+      <dependency org="javax.ejb" name="ejb-api" rev="3.0" conf="carnot-ejb3-provided->default" />      
+   	  <dependency org="javax.jms" name="jms" rev="${jms.version}"  conf="carnot-ejb3-provided->default" />      
+      <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-ejb3-provided->ejb30-module-compile" />
       
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="carnot-ejb3-compile-optional->qdox-module-compile" />
     </dependencies>

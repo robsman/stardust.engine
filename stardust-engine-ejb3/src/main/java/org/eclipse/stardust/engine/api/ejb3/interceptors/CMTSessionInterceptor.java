@@ -97,22 +97,6 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
 
       // repository will be retrieved from bean local JNDI location java:comp/env/jcr/ContentRepository
       Object contentRepositoryRes = serviceBean.getRepository();
-      if (null != contentRepositoryRes)
-      {
-         if (trace.isDebugEnabled())
-         {
-            trace.debug("Retrieved JCR repository from JNDI: " + contentRepositoryRes);
-         }
-
-         if (null == dmsServiceProvider)
-         {
-            this.dmsServiceProvider = new EjbDocumentRepositoryService();
-         }
-         dmsServiceProvider.setRepository((javax.jcr.Repository) contentRepositoryRes);
-         
-         // provide DMS service
-         rtEnv.setDocumentRepositoryService(dmsServiceProvider);
-      }
       
       rtEnv.setProperty("ActivityThread.Context", rtEnv.getActivityThreadContext());
 
@@ -160,8 +144,7 @@ public class CMTSessionInterceptor extends AuditTrailPropertiesInterceptor
          }
 
          rtEnv.setActivityThreadContext(null);
-         rtEnv.setAuditTrailSession(null);
-         rtEnv.setDocumentRepositoryService(null);
+         rtEnv.setAuditTrailSession(null);         
       }
    }
    

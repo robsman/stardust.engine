@@ -48,7 +48,9 @@
             
       <!-- ejb3-module-compile -->
       <dependency org="javax.ejb" name="ejb-api" rev="3.0" conf="carnot-ejb3-compile->default" /> 
-            
+      <dependency org="javax.ejb" name="ejb-api" rev="3.0" conf="carnot-ejb3-compile->default" />      
+   	  <dependency org="javax.jms" name="jms" rev="${jms.version}"  conf="carnot-ejb3-compile->default" />
+   	              
       
       <!-- client-ejb3-module-runtime -->
       <dependency org="org.eclipse.stardust.engine" name="infinity-process-engine-module" rev="${ipp.version.full}" conf="client-spring-module-runtime->client-module-runtime">

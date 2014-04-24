@@ -1,0 +1,22 @@
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+   <id>web</id>
+   <formats>
+      <format>zip</format>
+   </formats>
+   <includeBaseDirectory>false</includeBaseDirectory>
+   <fileSets>
+      <fileSet>
+         <directory>src/main/resources/META-INF</directory>
+         <includes>
+            <include>jax-ws-cxf-context.xml</include>
+            <include>wsdl/StardustBpmQueryTypes.xsd</include>
+            <include>wsdl/StardustBpmService.wsdl</include>
+            <include>wsdl/StardustBpmService.xsd</include>
+            <include>wsdl/StardustBpmTypes.xsd</include>
+         </includes>
+         <outputDirectory>WEB-INF</outputDirectory>
+      </fileSet>
+   </fileSets>
+</assembly>

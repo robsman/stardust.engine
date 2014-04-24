@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2011, 2013 SunGard CSA LLC and others.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
+
+    Contributors:
+       SunGard CSA LLC - initial API and implementation and/or initial documentation
+ -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <groupId>org.eclipse.stardust.engine</groupId>
+   <artifactId>jms-activemq-module</artifactId>
+   <packaging>pom</packaging>
+
+   <parent>
+      <groupId>org.eclipse.stardust</groupId>
+      <artifactId>product-parent</artifactId>
+      <version>9.9.9-SNAPSHOT</version>
+      <relativePath>../../../product/product-parent/pom.xml</relativePath>
+   </parent>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.apache.geronimo.specs</groupId>
+         <artifactId>geronimo-jms_1.1_spec</artifactId>
+         <scope>runtime</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-core</artifactId>
+         <scope>runtime</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.camel</groupId>
+               <artifactId>camel-core</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>activeio-core</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>kahadb</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.activemq.protobuf</groupId>
+               <artifactId>activemq-protobuf</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>commons-logging</groupId>
+               <artifactId>commons-logging-api</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-jms_1.1_spec</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.springframework</groupId>
+               <artifactId>spring-context</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>commons-net</groupId>
+               <artifactId>commons-net</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.jasypt</groupId>
+               <artifactId>jasypt</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>com.ibm.icu</groupId>
+               <artifactId>icu4j</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.osgi</groupId>
+               <artifactId>org.osgi.core</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.activemq</groupId>
+         <artifactId>activemq-ra</artifactId>
+         <scope>runtime</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>org.apache.geronimo.specs</groupId>
+               <artifactId>geronimo-j2ee-connector_1.5_spec</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>org.apache.activemq</groupId>
+               <artifactId>activemq-core</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.xbean</groupId>
+         <artifactId>xbean-spring</artifactId>
+         <scope>runtime</scope>
+         <exclusions>
+            <exclusion>
+               <groupId>commons-logging</groupId>
+               <artifactId>commons-logging-api</artifactId>
+            </exclusion>
+            <exclusion>
+               <groupId>commons-logging</groupId>
+               <artifactId>commons-logging</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
+      <dependency>
+         <groupId>commons-logging</groupId>
+         <artifactId>commons-logging</artifactId>
+         <scope>runtime</scope>
+      </dependency>
+   </dependencies>
+
+</project>

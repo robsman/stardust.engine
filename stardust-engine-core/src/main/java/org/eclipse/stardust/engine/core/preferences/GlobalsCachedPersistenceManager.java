@@ -25,6 +25,7 @@ import org.eclipse.stardust.common.config.ExtensionProviderUtils;
 import org.eclipse.stardust.common.config.GlobalParameters;
 import org.eclipse.stardust.common.config.ValueProvider;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.IUser;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 import org.eclipse.stardust.engine.core.spi.preferences.IStaticConfigurationProvider;
@@ -202,8 +203,9 @@ public class GlobalsCachedPersistenceManager
    {
       if (PreferenceScope.DEFAULT.equals(evaluatedQuery.getScope()))
       {
-         throw new PublicException("Querying is not supported for scope: "
-               + evaluatedQuery.getScope());
+         throw new PublicException(
+               BpmRuntimeError.PREF_QUERYING_NOT_SUPPORTED_FOR_SCOPE.raise(evaluatedQuery
+                     .getScope()));
       }
 
       List<Preferences> allPreferences = subPersistenceManager.getAllPreferences(
@@ -214,21 +216,21 @@ public class GlobalsCachedPersistenceManager
          putToCache(null, preferences);
          // addCacheHint(preferences);
       }
-      
+
       return filterEmptyPreferences(allPreferences);
    }
 
    private List<Preferences> filterEmptyPreferences(List<Preferences> allPreferences)
    {
       List<Preferences> nonEmptyPreferences = new ArrayList<Preferences>(allPreferences.size());
-      
+
       for (Preferences preferences : allPreferences)
       {
          if ( !CollectionUtils.isEmpty(preferences.getPreferences()))
          {
             nonEmptyPreferences.add(preferences);
          }
-      } 
+      }
       return nonEmptyPreferences;
    }
 
@@ -243,7 +245,8 @@ public class GlobalsCachedPersistenceManager
          if (user == null)
          {
             throw new PublicException(
-                  "No user specified. PreferenceScope USER and REALM not available.");
+                  BpmRuntimeError.PREF_NO_USER_SPECIFIED_PREFSCOPE_USER_AND_REALM_NOT_AVAILABLE
+                        .raise());
          }
 
          if (user != null)
@@ -255,7 +258,7 @@ public class GlobalsCachedPersistenceManager
       String partitionId = SecurityProperties.getPartition().getId();
 
       Preferences preferences = null;
-      Map<Pair, Map> cache = getCache(scope, moduleId, preferencesId, partitionId, realmId, userId);      
+      Map<Pair, Map> cache = getCache(scope, moduleId, preferencesId, partitionId, realmId, userId);
       if (cache != null)
       {
          Pair<String, String> cacheKey = new Pair(moduleId, preferencesId);
@@ -271,10 +274,10 @@ public class GlobalsCachedPersistenceManager
             preferences = getFromCache(scope, moduleId, preferencesId, partitionId, realmId, userId);
          }
       }
-      
+
       return preferences;
    }
-   
+
    public Preferences loadPreferences(PreferenceScope scope, String moduleId,
          String preferencesId, IPreferencesReader xmlPreferenceReader)
    {
@@ -291,7 +294,7 @@ public class GlobalsCachedPersistenceManager
       cleanCache(preferences);
    }
 
-   
+
    private Map<Pair, Map> getCache(PreferenceScope scope, String moduleId,
          String preferencesId, String partitionId, String realmId, String userId)
    {
@@ -316,12 +319,13 @@ public class GlobalsCachedPersistenceManager
       }
       else
       {
-         throw new PublicException("PreferenceScope not supported: " + scope);
+         throw new PublicException(
+               BpmRuntimeError.PREF_PREFERENCESSCOPE_NOT_SUPPORTED.raise(scope));
       }
-      
+
       return cache;
    }
-   
+
    private Preferences getFromCache(PreferenceScope scope, String moduleId,
          String preferencesId, String partitionId, String realmId, String userId)
    {
@@ -392,7 +396,8 @@ public class GlobalsCachedPersistenceManager
       }
       else
       {
-         throw new PublicException("PreferenceScope not supported: " + scope);
+         throw new PublicException(
+               BpmRuntimeError.PREF_PREFERENCESSCOPE_NOT_SUPPORTED.raise(scope));
       }
       return preferences;
    }
@@ -406,12 +411,12 @@ public class GlobalsCachedPersistenceManager
          {
             preferenceValues = preferences.getPreferences();
          }
-         
+
          PreferenceScope scope = preferences.getScope();
          String moduleId = preferences.getModuleId();
          String preferencesId = preferences.getPreferencesId();
          String partitionId = SecurityProperties.getPartition().getId();
-         
+
          final String realmId;
          final String userId;
          if(user != null)
@@ -424,14 +429,14 @@ public class GlobalsCachedPersistenceManager
             userId = preferences.getUserId();
             realmId = preferences.getRealmId();
          }
-         
+
          if (PreferenceScope.USER.equals(scope))
          {
             Map<Pair, Map> userPreferencesCache = getUserPreferencesCache(partitionId,
                   realmId, userId);
             userPreferencesCache.put(new Pair(moduleId, preferencesId),
                   preferenceValues);
-            
+
          }
          else if (PreferenceScope.REALM.equals(scope))
          {
@@ -440,7 +445,7 @@ public class GlobalsCachedPersistenceManager
             realmPreferencesCache.setLastModified(new Date(System.currentTimeMillis()));
             realmPreferencesCache.getMap().put(new Pair(moduleId, preferencesId),
                   preferenceValues);
-            
+
          }
          else if (PreferenceScope.PARTITION.equals(scope))
          {
@@ -449,17 +454,19 @@ public class GlobalsCachedPersistenceManager
             partitionPreferencesCache.setLastModified(new Date(System.currentTimeMillis()));
             partitionPreferencesCache.getMap().put(new Pair(moduleId, preferencesId),
                   preferenceValues);
-            
+
          }
          else if (PreferenceScope.DEFAULT.equals(scope))
          {
-            throw new PublicException("PreferenceScope.DEFAULT is read only");
+            throw new PublicException(
+                  BpmRuntimeError.PREF_PREFERENCESSCOPE_DEFAULT_IS_READ_ONLY.raise());
          }
          else
          {
-            throw new PublicException("PreferenceScope not supported: " + scope);
+            throw new PublicException(
+                  BpmRuntimeError.PREF_PREFERENCESSCOPE_NOT_SUPPORTED.raise(scope));
          }
-      }      
+      }
    }
 
    private Date fetchRealmCacheHint(String partitionId, String realmId)
@@ -485,11 +492,11 @@ public class GlobalsCachedPersistenceManager
    }
 
    private void cleanCache(Preferences preferences)
-   {          
+   {
       PreferenceScope scope = preferences.getScope();
       String moduleId = preferences.getModuleId();
       String preferencesId = preferences.getPreferencesId();
-      
+
       cleanCache(scope, moduleId, preferencesId);
    }
 
@@ -497,9 +504,9 @@ public class GlobalsCachedPersistenceManager
    {
       String partitionId = SecurityProperties.getPartition().getId();
       String userId = SecurityProperties.getUser().getId();
-      String realmId = SecurityProperties.getUser().getRealm().getId();     
+      String realmId = SecurityProperties.getUser().getRealm().getId();
 
-      Map<Pair, Map> cache 
+      Map<Pair, Map> cache
          = getCache(scope, moduleId, preferencesId, partitionId, realmId, userId);
       Pair<String, String> cacheKey = new Pair(moduleId, preferencesId);
       if(cache != null)

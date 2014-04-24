@@ -40,6 +40,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.compatibility.spi.model.gui.AccessPathEditor;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
 
@@ -167,7 +168,7 @@ public class JavaAccessPathEditor extends AccessPathEditor
       }
       catch (Exception x)
       {
-         throw new PublicException("Can't load image icon. Message was: " + x.getMessage());
+         throw new PublicException(BpmRuntimeError.DIAG_CANNOT_LOAD_IMAGE_ICON.raise(), x);
       }
       iconsLoaded = true;
    }

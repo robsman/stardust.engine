@@ -15,6 +15,7 @@ import java.util.StringTokenizer;
 
 import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 
 
 public class PreferencePathParser
@@ -93,7 +94,8 @@ public class PreferencePathParser
 
       if ( !valid)
       {
-         throw new PublicException("Not a valid preferences path: " + path);
+         throw new PublicException(
+               BpmRuntimeError.PREF_NOT_A_VALID_PREFERENCES_PATH.raise(path));
       }
    }
 

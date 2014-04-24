@@ -464,6 +464,17 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args0 PREF_PREF_STORE_READONLY = newArgs0("PREF01001", BpmRuntimeErrorMessages.getString("PREF01001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 PREF_EMPTY_PREF_STORE_READONLY = newArgs0("PREF01002", BpmRuntimeErrorMessages.getString("PREF01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 PREF_NO_USER_SPECIFIED_PREFSCOPE_USER_AND_REALM_NOT_AVAILABLE = newArgs0("PREF01003", BpmRuntimeErrorMessages.getString("PREF01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 PREF_NO_CURRENT_PARTITION_FOUND = newArgs0("PREF01004", BpmRuntimeErrorMessages.getString("PREF01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 PREF_AUDITTRAIL_PERSISTENCE_NOT_SUPPORTED_FOR_PREFERENCESSCOPE = newArgs1("PREF01005", BpmRuntimeErrorMessages.getString("PREF01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 PREF_NO_CURRENT_USER_FOUND = newArgs0("PREF01006", BpmRuntimeErrorMessages.getString("PREF01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 PREF_QUERYING_NOT_SUPPORTED_FOR_SCOPE = newArgs1("PREF01007", BpmRuntimeErrorMessages.getString("PREF01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 PREF_PREFERENCESSCOPE_NOT_SUPPORTED = newArgs1("PREF01008", BpmRuntimeErrorMessages.getString("PREF01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 PREF_PREFERENCESSCOPE_DEFAULT_IS_READ_ONLY = newArgs0("PREF01009", BpmRuntimeErrorMessages.getString("PREF01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 PREF_NOT_A_VALID_PREFERENCES_PATH = newArgs1("PREF01010", BpmRuntimeErrorMessages.getString("PREF01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 PREF_UNKNOWN_VALUE_FOR_PROPERTY_INFINITY_PREFERENCE_STORE = newArgs0("PREF01011", BpmRuntimeErrorMessages.getString("PREF01011")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
 
    //// Query related
 
@@ -490,6 +501,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 QUERY_UNSUPPORTED_DATAFILTER_OPERATOR_FOR_BIG_DATA_VALUE = newArgs1("QUERY03010", BpmRuntimeErrorMessages.getString("QUERY03010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 QUERY_FAILED_EVALUATING_PROCESS_INSTANCE_CLOSURE = newArgs0("QUERY03011", BpmRuntimeErrorMessages.getString("QUERY03011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 QUERY_VALUE_OF_SKIPPEDENTRIES_MUST_NOT_BE_LESS_THAN_ZERO = newArgs0("QUERY03012", BpmRuntimeErrorMessages.getString("QUERY03012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 QUERY_FAILED_EXECUTING_QUERY = newArgs0("QUERY03013", BpmRuntimeErrorMessages.getString("QUERY03013")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    //// IPP WS related
@@ -600,6 +612,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 DIAG_FAILED_TO_CREATE_FONT_FOR_THE_PROPERTY_MALFORMED_SIZE_STRING = newArgs2("DIAG01006", BpmRuntimeErrorMessages.getString("DIAG01006")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_CURLY_BRACE = newArgs0("DIAG01007", BpmRuntimeErrorMessages.getString("DIAG01007")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DIAG_NO_TAG_SPECIFED_BEFORE_COLON = newArgs0("DIAG01008", BpmRuntimeErrorMessages.getString("DIAG01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DIAG_CANNOT_LOAD_IMAGE_ICON = newArgs0("DIAG01009", BpmRuntimeErrorMessages.getString("DIAG01009")); //$NON-NLS-1$ //$NON-NLS-2$
 
    ////JDBC related
 
@@ -621,6 +634,16 @@ public class BpmRuntimeError extends ErrorCase
 
    public static final Args0 POJO_CANNOT_CREATE_OBJECT = newArgs0("POJO01001", BpmRuntimeErrorMessages.getString("POJO01001")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args2 POJO_ACCESS_POINT_DOES_NOT_EXIST = newArgs2("POJO01002", BpmRuntimeErrorMessages.getString("POJO01002")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 POJO_FAILED_READING_BEAN_ATTRIBUTE = newArgs0("POJO01003", BpmRuntimeErrorMessages.getString("POJO01003")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 POJO_FAILED_SETTING_BEAN_ATTRIBUTE = newArgs0("POJO01004", BpmRuntimeErrorMessages.getString("POJO01004")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 POJO_CANNOT_CONVERT_VALUT_TO_TYPE = newArgs2("POJO01005", BpmRuntimeErrorMessages.getString("POJO01005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 POJO_NOT_A_JAVA_DATA_TYPE = newArgs0("POJO01006", BpmRuntimeErrorMessages.getString("POJO01006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 POJO_INVALID_JAVA_BEAN_ACCESS_PATH_TYPE = newArgs1("POJO01007", BpmRuntimeErrorMessages.getString("POJO01007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 POJO_METHOD_FROM_CLASS_DOES_NOT_EXIST_OR_IS_NOT_ACCESSIBLE = newArgs2("POJO01008", BpmRuntimeErrorMessages.getString("POJO01008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 POJO_METHOD_NOT_ACCESSIBLE_IN_CLASS = newArgs2("POJO01009", BpmRuntimeErrorMessages.getString("POJO01009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 POJO_ILLEGAL_ARGUMENT_FOR_METHOD_IN_CLASS = newArgs2("POJO01010", BpmRuntimeErrorMessages.getString("POJO01010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 POJO_SETTER_FOR_IN_PATH_DOES_NOT_ACCEPT_SINGLE_PARAMETER = newArgs1("POJO01011", BpmRuntimeErrorMessages.getString("POJO01011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 POJO_FINAL_SETTER_FOR_IN_PATH_DOES_NOT_ACCEPT_SINGLE_PARAMETER = newArgs1("POJO01012", BpmRuntimeErrorMessages.getString("POJO01012")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    private static final Object[] NONE = {};

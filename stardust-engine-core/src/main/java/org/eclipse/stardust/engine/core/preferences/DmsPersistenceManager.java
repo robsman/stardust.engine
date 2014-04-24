@@ -39,7 +39,7 @@ public class DmsPersistenceManager implements IPreferencesPersistenceManager
    {
 
    }
-   
+
    @Override
    public Preferences loadPreferences(IUser user, PreferenceScope scope, String moduleId,
          String preferencesId, IPreferencesReader loader)
@@ -50,7 +50,8 @@ public class DmsPersistenceManager implements IPreferencesPersistenceManager
             && (PreferenceScope.USER.equals(scope) || PreferenceScope.REALM.equals(scope)))
       {
          throw new PublicException(
-               "No user specified. PreferenceScope USER and REALM not available.");
+               BpmRuntimeError.PREF_NO_USER_SPECIFIED_PREFSCOPE_USER_AND_REALM_NOT_AVAILABLE
+                     .raise());
       }
       else
       {
@@ -82,7 +83,7 @@ public class DmsPersistenceManager implements IPreferencesPersistenceManager
    {
       final IUser currentUser = SecurityProperties.getUser();
       return loadPreferences(currentUser, scope, moduleId, preferencesId, loader);
-      
+
    }
 
    private ServiceFactory getServiceFactory()

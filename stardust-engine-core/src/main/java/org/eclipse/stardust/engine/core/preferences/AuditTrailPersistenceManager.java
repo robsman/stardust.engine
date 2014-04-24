@@ -22,10 +22,18 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.ObjectNotFoundException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
-import org.eclipse.stardust.engine.core.persistence.*;
+import org.eclipse.stardust.engine.core.persistence.Predicates;
+import org.eclipse.stardust.engine.core.persistence.QueryExtension;
+import org.eclipse.stardust.engine.core.persistence.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
 import org.eclipse.stardust.engine.core.repository.DocumentRepositoryFolderNames;
-import org.eclipse.stardust.engine.core.runtime.beans.*;
+import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailPartitionBean;
+import org.eclipse.stardust.engine.core.runtime.beans.IAuditTrailPartition;
+import org.eclipse.stardust.engine.core.runtime.beans.IUser;
+import org.eclipse.stardust.engine.core.runtime.beans.IUserRealm;
+import org.eclipse.stardust.engine.core.runtime.beans.PreferencesBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserBean;
+import org.eclipse.stardust.engine.core.runtime.beans.UserRealmBean;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.SecurityProperties;
 
 
@@ -52,11 +60,12 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
    {
       final long oid;
       if (PreferenceScope.USER.equals(scope))
-      {         
+      {
          if (user == null)
          {
             throw new PublicException(
-                  "No user specified PreferenceScope USER and REALM not available.");
+                  BpmRuntimeError.PREF_NO_USER_SPECIFIED_PREFSCOPE_USER_AND_REALM_NOT_AVAILABLE
+                        .raise());
          }
          oid = user.getOID();
       }
@@ -65,25 +74,27 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
          if (user == null)
          {
             throw new PublicException(
-               "No user specified PreferenceScope USER and REALM not available.");
+                  BpmRuntimeError.PREF_NO_USER_SPECIFIED_PREFSCOPE_USER_AND_REALM_NOT_AVAILABLE
+                        .raise());
          }
          oid = user.getRealm().getOID();
       }
       else if (PreferenceScope.PARTITION.equals(scope))
       {
          IAuditTrailPartition partition = SecurityProperties.getPartition();
-         
+
          if (partition == null)
          {
             throw new PublicException(
-                  "No current partition was found. PreferenceScope PARTITION not available.");
+                  BpmRuntimeError.PREF_NO_CURRENT_PARTITION_FOUND.raise());
          }
          oid = partition.getOID();
       }
       else
       {
          throw new PublicException(
-               "AuditTrail persistence not supported for PreferenceScope: " + scope);
+               BpmRuntimeError.PREF_AUDITTRAIL_PERSISTENCE_NOT_SUPPORTED_FOR_PREFERENCESSCOPE
+                     .raise(scope));
       }
 
       PreferencesBean preferencesBean = PreferencesBean.find(oid, scope.name(),
@@ -93,12 +104,12 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
       setPreferencesOwnOrigin(preferences);
       return preferences;
    }
-   
+
    public Preferences loadPreferences(PreferenceScope scope, //
          String moduleId, String preferencesId, //
          IPreferencesReader loader)
    {
-      IUser user = SecurityProperties.getUser();      
+      IUser user = SecurityProperties.getUser();
       return loadPreferences(user, scope, moduleId, preferencesId, loader);
    }
 
@@ -199,7 +210,8 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
          if (userId == null)
          {
             throw new PublicException(
-                  "No current user was found. PreferenceScope USER and REALM not available.");
+                  BpmRuntimeError.PREF_NO_USER_SPECIFIED_PREFSCOPE_USER_AND_REALM_NOT_AVAILABLE
+                        .raise());
          }
 
          final UserBean userBean = UserBean.findByAccount(userId, getRealmBean(realmId,
@@ -220,7 +232,8 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
          if (realmId == null)
          {
             throw new PublicException(
-                  "No current user was found. PreferenceScope USER and REALM not available.");
+                  BpmRuntimeError.PREF_NO_USER_SPECIFIED_PREFSCOPE_USER_AND_REALM_NOT_AVAILABLE
+                        .raise());
          }
 
          UserRealmBean realmBean = getRealmBean(realmId, partitionOid);
@@ -243,7 +256,8 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
       else
       {
          throw new PublicException(
-               "AuditTrail persistence not supported for PreferenceScope: " + scope);
+               BpmRuntimeError.PREF_AUDITTRAIL_PERSISTENCE_NOT_SUPPORTED_FOR_PREFERENCESSCOPE
+                     .raise(scope));
       }
 
       byte[] content = writePreferencesContent(preferences, writer);
@@ -333,8 +347,8 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
       if (PreferenceScope.DEFAULT.equals(eval.getScope()))
       {
          throw new PublicException(
-               "AuditTrail persistence not supported for PreferenceScope: "
-                     + eval.getScope());
+               BpmRuntimeError.PREF_AUDITTRAIL_PERSISTENCE_NOT_SUPPORTED_FOR_PREFERENCESSCOPE
+                     .raise(eval.getScope()));
       }
       final Session session = SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       List<Preferences> prefList = CollectionUtils.newLinkedList();
@@ -400,7 +414,7 @@ public class AuditTrailPersistenceManager implements IPreferencesPersistenceMana
             preferences.setUserId(user.getId());
          }
       }
-      
+
    }
 
    private List<Long> fetchOwnerOids(Session session, PreferenceScope scope,

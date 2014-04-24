@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluator;
 
 
@@ -30,7 +31,7 @@ import org.eclipse.stardust.engine.core.spi.extensions.runtime.AccessPathEvaluat
 public class JavaBeanAccessPathEvaluator implements AccessPathEvaluator, Stateless
 {
    private static final Logger trace = LogManager.getLogger(JavaBeanAccessPathEvaluator.class);
-   
+
    public boolean isStateless()
    {
       return true;
@@ -44,7 +45,8 @@ public class JavaBeanAccessPathEvaluator implements AccessPathEvaluator, Statele
       }
       catch (InvocationTargetException e)
       {
-         throw new PublicException("Failed reading bean attribute.",
+         throw new PublicException(
+               BpmRuntimeError.POJO_FAILED_READING_BEAN_ATTRIBUTE.raise(),
                e.getTargetException());
       }
    }
@@ -58,7 +60,8 @@ public class JavaBeanAccessPathEvaluator implements AccessPathEvaluator, Statele
       }
       catch (InvocationTargetException e)
       {
-         throw new PublicException("Failed setting bean attribute.",
+         throw new PublicException(
+               BpmRuntimeError.POJO_FAILED_SETTING_BEAN_ATTRIBUTE.raise(),
                e.getTargetException());
       }
    }
@@ -98,8 +101,9 @@ public class JavaBeanAccessPathEvaluator implements AccessPathEvaluator, Statele
          }
          catch (Exception e)
          {
-            throw new PublicException("Can't convert value '" + defaultValue
-                  + "' to type '" + className + "'.", e);
+            throw new PublicException(
+                  BpmRuntimeError.POJO_CANNOT_CONVERT_VALUT_TO_TYPE.raise(defaultValue,
+                        className), e);
          }
       }
       return null;

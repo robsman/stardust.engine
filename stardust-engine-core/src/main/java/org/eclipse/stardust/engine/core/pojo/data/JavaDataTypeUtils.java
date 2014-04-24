@@ -12,11 +12,20 @@ package org.eclipse.stardust.engine.core.pojo.data;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Assert;
+import org.eclipse.stardust.common.CollectionUtils;
+import org.eclipse.stardust.common.Direction;
+import org.eclipse.stardust.common.RuntimeAttributeHolder;
+import org.eclipse.stardust.common.StringUtils;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.InvalidValueException;
 import org.eclipse.stardust.common.error.PublicException;
@@ -24,7 +33,12 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
 import org.eclipse.stardust.common.reflect.ResolvedMethod;
-import org.eclipse.stardust.engine.api.model.*;
+import org.eclipse.stardust.engine.api.model.IExternalPackage;
+import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.model.ITypeDeclaration;
+import org.eclipse.stardust.engine.api.model.PluggableType;
+import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.model.utils.ModelElement;
 import org.eclipse.stardust.engine.core.pojo.utils.JavaAccessPointType;
 import org.eclipse.stardust.engine.core.spi.extensions.model.AccessPoint;
@@ -105,7 +119,7 @@ public class JavaDataTypeUtils
                   PredefinedConstants.CLASS_NAME_ATT : PredefinedConstants.REMOTE_INTERFACE_ATT);
          }
       }
-      throw new PublicException("Not a Java data type.");
+      throw new PublicException(BpmRuntimeError.POJO_NOT_A_JAVA_DATA_TYPE.raise());
    }
 
    public static Class getReferenceClass(AccessPoint data)
@@ -234,8 +248,9 @@ public class JavaDataTypeUtils
             String protocol = pathExpression.substring(0, protocolIndex);
             if (!"java".equals(protocol))
             {
-               throw new PublicException("Invalid Java Bean access path type: "
-                     + pathExpression);
+               throw new PublicException(
+                     BpmRuntimeError.POJO_INVALID_JAVA_BEAN_ACCESS_PATH_TYPE
+                           .raise(pathExpression));
             }
             pathExpression = pathExpression.substring(
                   protocolIndex + PROTOCOL_SEPARATOR.length());
@@ -346,20 +361,23 @@ public class JavaDataTypeUtils
             }
             catch (InternalException x)
             {
-               throw new PublicException("The method " + element + " from class "
-                     + value.getClass() + " does not exist or is not accessible.");
+               throw new PublicException(
+                     BpmRuntimeError.POJO_METHOD_FROM_CLASS_DOES_NOT_EXIST_OR_IS_NOT_ACCESSIBLE
+                           .raise(element, value.getClass()));
             }
             catch (IllegalAccessException x)
             {
                trace.debug("", x);
-               throw new PublicException("The method " + element
-                     + " is not accessible in class " + value.getClass() + ".");
+               throw new PublicException(
+                     BpmRuntimeError.POJO_METHOD_NOT_ACCESSIBLE_IN_CLASS.raise(element,
+                           value.getClass()));
             }
             catch (IllegalArgumentException x)
             {
                trace.debug("", x);
-               throw new PublicException("Illegal argument for method " + element
-                     + " in class " + value.getClass() + ".");
+               throw new PublicException(
+                     BpmRuntimeError.POJO_ILLEGAL_ARGUMENT_FOR_METHOD_IN_CLASS.raise(
+                           element, value.getClass()));
             }
             catch (Exception x)
             {
@@ -544,9 +562,9 @@ public class JavaDataTypeUtils
             }
             else
             {
-               throw new PublicException("Setter for in path does not "
-                     + "accept a single parameter: "
-                     + Reflect.encodeMethod(setter.self));
+               throw new PublicException(
+                     BpmRuntimeError.POJO_SETTER_FOR_IN_PATH_DOES_NOT_ACCEPT_SINGLE_PARAMETER
+                           .raise(Reflect.encodeMethod(setter.self)));
             }
          }
          catch (InvocationTargetException ite)
@@ -644,9 +662,9 @@ public class JavaDataTypeUtils
                }
                catch (InternalException ie)
                {
-                  throw new PublicException("The method with name '" + element
-                        + "' in class '" + currentThis.getClass()
-                        + "' does not exist or is not accessible.");
+                  throw new PublicException(
+                        BpmRuntimeError.POJO_METHOD_FROM_CLASS_DOES_NOT_EXIST_OR_IS_NOT_ACCESSIBLE
+                              .raise(element, value.getClass()));
                }
 
                if (i.hasNext())
@@ -678,9 +696,9 @@ public class JavaDataTypeUtils
                   }
                   else
                   {
-                     throw new PublicException("Final setter for in path does not "
-                           + "accept a single parameter: "
-                           + Reflect.encodeMethod(method));
+                     throw new PublicException(
+                           BpmRuntimeError.POJO_FINAL_SETTER_FOR_IN_PATH_DOES_NOT_ACCEPT_SINGLE_PARAMETER
+                                 .raise(Reflect.encodeMethod(method)));
                   }
                }
             }

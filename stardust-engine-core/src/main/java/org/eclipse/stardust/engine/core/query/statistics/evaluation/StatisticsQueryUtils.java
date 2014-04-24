@@ -27,10 +27,11 @@ import org.eclipse.stardust.engine.api.query.ParticipantAssociationFilter;
 import org.eclipse.stardust.engine.api.query.ProcessDefinitionFilter;
 import org.eclipse.stardust.engine.api.query.ProcessInstanceQuery;
 import org.eclipse.stardust.engine.api.query.Query;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.FieldRef;
 import org.eclipse.stardust.engine.core.persistence.Join;
-import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.Operator.Binary;
+import org.eclipse.stardust.engine.core.persistence.QueryDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
 import org.eclipse.stardust.engine.core.persistence.jdbc.Session;
 import org.eclipse.stardust.engine.core.persistence.jdbc.SessionFactory;
@@ -66,7 +67,8 @@ public class StatisticsQueryUtils
       }
       catch (SQLException  sqle)
       {
-         throw new PublicException("Failed executing query.", sqle);
+         throw new PublicException(BpmRuntimeError.QUERY_FAILED_EXECUTING_QUERY.raise(),
+               sqle);
       }
       finally
       {
@@ -219,7 +221,7 @@ public class StatisticsQueryUtils
                   .on(ProcessInstanceScopeBean.FR__ROOT_PROCESS_INSTANCE,
                         ProcessInstanceBean.FIELD__OID);
          }
-         
+
          return join;
       }
       else

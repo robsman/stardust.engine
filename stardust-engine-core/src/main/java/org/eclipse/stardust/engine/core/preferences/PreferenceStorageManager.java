@@ -85,7 +85,8 @@ public class PreferenceStorageManager implements IPreferenceStorageManager
       else
       {
          throw new PublicException(
-               "Unknown value for property 'Infinity.Preferences.Store', only 'AuditTrail' or 'DMS_READ_ONLY' are allowed.");
+               BpmRuntimeError.PREF_UNKNOWN_VALUE_FOR_PROPERTY_INFINITY_PREFERENCE_STORE
+                     .raise());
       }
       this.persistenceManager = new GlobalsCachedPersistenceManager(subPersistenceManager);
    }
@@ -103,7 +104,7 @@ public class PreferenceStorageManager implements IPreferenceStorageManager
 
       return preferences;
    }
-   
+
    @Override
    public Preferences getPreferences(IUser user, PreferenceScope scope, String moduleId,
          String preferenceId)

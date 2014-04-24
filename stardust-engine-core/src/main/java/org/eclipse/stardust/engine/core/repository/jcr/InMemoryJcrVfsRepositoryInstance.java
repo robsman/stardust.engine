@@ -24,6 +24,7 @@ import javax.naming.NamingException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.vfs.impl.utils.RepositoryHelper;
 
@@ -49,7 +50,7 @@ public class InMemoryJcrVfsRepositoryInstance extends JcrVfsRepositoryInstance
             JcrVfsRepositoryConfiguration.REPOSITORY_CONFIG_LOCATION);
 
       Repository repository = initEmbeddedJNDIRepo();
-      
+
       this.repository = repository;
 
       this.repositoryInfo = new JcrVfsRepositoryInstanceInfo(repositoryId, repository,
@@ -65,11 +66,13 @@ public class InMemoryJcrVfsRepositoryInstance extends JcrVfsRepositoryInstance
       }
       catch (IOException e)
       {
-         throw new PublicException("In Memory Repository Init failed!", e);
+         throw new PublicException(
+               BpmRuntimeError.DMS_IN_MEMORY_REPOSITORY_FAILED.raise(), e);
       }
       catch (URISyntaxException e)
       {
-         throw new PublicException("In Memory Repository Init failed!", e);
+         throw new PublicException(
+               BpmRuntimeError.DMS_IN_MEMORY_REPOSITORY_FAILED.raise(), e);
       }
 
       return repository;

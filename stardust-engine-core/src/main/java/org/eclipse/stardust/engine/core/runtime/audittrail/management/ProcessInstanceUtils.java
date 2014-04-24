@@ -17,7 +17,6 @@ import static org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils.close
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -55,6 +54,7 @@ import org.eclipse.stardust.engine.api.dto.UserDetails;
 import org.eclipse.stardust.engine.api.dto.UserDetailsLevel;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstance;
 import org.eclipse.stardust.engine.api.runtime.ProcessInstanceState;
 import org.eclipse.stardust.engine.api.runtime.RuntimeObject;
@@ -553,9 +553,9 @@ public class ProcessInstanceUtils
          }
          catch (SQLException e)
          {
-            throw new PublicException(MessageFormat.format(
-                  "Failed deleting entries from data cluster table ''{0}''. Reason: {1}.",
-                  new Object[] {dCluster.getTableName(), e.getMessage()}), e);
+            throw new PublicException(
+                  BpmRuntimeError.JDBC_FAILED_DELETING_ENRIES_FROM_DATA_CLUSTER_TABLE
+                        .raise(dCluster.getTableName()), e);
          }
          finally
          {

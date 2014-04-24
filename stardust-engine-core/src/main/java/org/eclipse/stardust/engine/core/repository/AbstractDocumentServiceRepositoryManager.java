@@ -16,6 +16,7 @@ import java.net.URL;
 import org.eclipse.stardust.common.LRUCache;
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Folder;
 import org.eclipse.stardust.engine.core.runtime.beans.removethis.KernelTweakingProperties;
@@ -31,7 +32,7 @@ public abstract class AbstractDocumentServiceRepositoryManager
 
    private LRUCache folderCache;
    private LRUCache contentProviderCache;
-   
+
    protected abstract DocumentManagementService getDocumentService();
 
    protected abstract String getPartitionId();
@@ -45,7 +46,7 @@ public abstract class AbstractDocumentServiceRepositoryManager
       this.folderCache = new LRUCache(cacheTTL, maxCacheSize, true);
       this.contentProviderCache = new LRUCache(cacheTTL, maxCacheSize, true);
    }
-   
+
    public IRepositoryContentProvider getContentProvider(RepositorySpaceKey space)
    {
       // TODO setup root folder
@@ -77,7 +78,7 @@ public abstract class AbstractDocumentServiceRepositoryManager
    {
       StringBuffer folderPath = new StringBuffer(1024);
       folderPath.append(DocumentRepositoryFolderNames.getRepositoryRootFolder());
-      
+
       folderPath.append(DocumentRepositoryFolderNames.PARTITIONS_FOLDER)
             .append(getPartitionId())
             .append("/")
@@ -97,30 +98,31 @@ public abstract class AbstractDocumentServiceRepositoryManager
       }
       else
       {
-         throw new PublicException("Invalid repository space: " + spaceKey);
+         throw new PublicException(
+               BpmRuntimeError.DMS_INVALID_REPOSITORY_SPACE.raise(spaceKey));
       }
-      
+
       String folderPathString = folderPath.toString();
       if (folderPathString.endsWith("/"))
       {
          folderPath.deleteCharAt(folderPath.length() - 1);
          folderPathString = folderPath.toString();
       }
-      
+
       Folder contentFolder = (Folder) this.folderCache.get(folderPathString);
       if (contentFolder == null)
       {
          contentFolder = getDocumentService().getFolder(folderPathString);
          this.folderCache.put(folderPathString, contentFolder);
       }
-      
+
       if ((null == contentFolder) && create)
       {
          contentFolder = DocumentRepositoryUtils.getSubFolder(getDocumentService(),
                folderPathString);
          this.folderCache.put(folderPathString, contentFolder);
       }
-      
+
       return contentFolder;
    }
 
@@ -129,10 +131,10 @@ public abstract class AbstractDocumentServiceRepositoryManager
       this.contentProviderCache.clear();
       this.folderCache.clear();
    }
-   
+
    private static class NullContentProvider implements IRepositoryContentProvider
    {
-      
+
       static final IRepositoryContentProvider INSTANCE = new NullContentProvider();
 
       public InputStream getContentStream(String fileId)
@@ -144,6 +146,6 @@ public abstract class AbstractDocumentServiceRepositoryManager
       {
          return null;
       }
-      
+
    }
 }

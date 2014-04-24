@@ -21,6 +21,7 @@ import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.IModel;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.ITableDescriptor;
 import org.eclipse.stardust.engine.core.persistence.jdbc.IdentifiablePersistentBean;
@@ -262,8 +263,9 @@ public class DataValueBean extends IdentifiablePersistentBean
             }
             else
             {
-               throw new PublicException("Null values are not supported with operator "
-                     + operator);
+               throw new PublicException(
+                     BpmRuntimeError.MDL_NULL_VALUES_ARE_NOT_SUPPORTED_WITH_OPERATOR
+                           .raise(operator));
             }
          }
          else
@@ -338,8 +340,9 @@ public class DataValueBean extends IdentifiablePersistentBean
             {
                if ( !(matchValue instanceof Pair))
                {
-                  throw new PublicException("Inconsistent operator use " + operator
-                        + " --> " + matchValue);
+                  throw new PublicException(
+                        BpmRuntimeError.MDL_INCONSISTENT_OPERATOR_USE.raise(operator,
+                              matchValue));
                }
 
                Pair pair = (Pair) matchValue;
@@ -372,8 +375,9 @@ public class DataValueBean extends IdentifiablePersistentBean
 
       if (targetValue == null)
       {
-         throw new PublicException("No workflow data defined with ID '"
-               + srcValue.getData().getId() + "' in this model version.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_NO_WORKFLOW_DATA_DEFINED_WITH_ID_IN_THIS_MODEL_VERSION
+                     .raise(srcValue.getData().getId()));
       }
 
       if ( !dvProvider.isUsedForInitialization())

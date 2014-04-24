@@ -14,15 +14,26 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
-import org.eclipse.stardust.common.*;
+import org.eclipse.stardust.common.Base64;
+import org.eclipse.stardust.common.Money;
+import org.eclipse.stardust.common.Pair;
+import org.eclipse.stardust.common.Period;
+import org.eclipse.stardust.common.Serialization;
+import org.eclipse.stardust.common.StringUtils;
+import org.eclipse.stardust.common.Unknown;
 import org.eclipse.stardust.common.error.InternalException;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.engine.api.model.IData;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.Persistent;
 import org.eclipse.stardust.engine.core.pojo.data.Type;
 import org.eclipse.stardust.engine.core.struct.DataXPathMap;
@@ -235,8 +246,9 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          if (firstCanonicalValue.getSizeNeutralTypeKey()
                != secondCanonicalValue.getSizeNeutralTypeKey())
          {
-            throw new PublicException("Inconsistent pair values : "
-                  + pair.getFirst() + " - " + pair.getSecond());
+            throw new PublicException(
+                  BpmRuntimeError.BPMRT_INCONSISTENT_PAIR_VALUES.raise(pair.getFirst(),
+                        pair.getSecond()));
          }
 
          final Representation representationTemplate = firstCanonicalValue.isLarge()
@@ -262,9 +274,10 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
                   && (template.getSizeNeutralTypeKey()
                         != representation.getSizeNeutralTypeKey()))
             {
-               throw new PublicException("Inconsistent collection values : "
-                     + template.getRepresentation() + " - "
-                     + representation.getRepresentation());
+               throw new PublicException(
+                     BpmRuntimeError.BPMRT_INCONSISTENT_COLLECTION_VALUES.raise(
+                           template.getRepresentation(),
+                           representation.getRepresentation()));
             }
 
             values.add(representation.getRepresentation());
@@ -637,7 +650,7 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
       else if (value instanceof BigDecimal)
       {
     	  data.setShortStringValue(value.toString());
-          data.setDoubleValue(((BigDecimal) value).doubleValue());    	  
+          data.setDoubleValue(((BigDecimal) value).doubleValue());
     	  data.setType(BigData.STRING);
       }
       else if (value instanceof String)
@@ -718,8 +731,8 @@ public class LargeStringHolderBigDataHandler implements BigDataHandler
          }
          catch (NotSerializableException e)
          {
-            String message = "Input not serializable: " + e.getMessage();
-            throw new PublicException(message);
+            throw new PublicException(
+                  BpmRuntimeError.BPMRT_INPUT_NOT_SERIALIZABLE.raise(), e);
          }
          catch (IOException e)
          {

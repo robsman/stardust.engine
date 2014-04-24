@@ -128,6 +128,12 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 MDL_SELECTED_SYMBOL_DOES_NOT_REPRESENT_A_PROCESS_DEFINITION = newArgs0("MDL04035", BpmRuntimeErrorMessages.getString("MDL04035")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 MDL_BOTH_CONNECTED_SYMBOLS_MUST_BE_ACTIVITIES = newArgs0("MDL04036", BpmRuntimeErrorMessages.getString("MDL04036")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_ROOT_MODEL_WITH_ID_ALREADY_EXISTS = newArgs1("MDL04037", BpmRuntimeErrorMessages.getString("MDL04037")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_UNABLE_TO_DELETE_MODEL_IT_PROVIDES_A_PRIMARY_IMPLEMENTATION = newArgs0("MDL04038", BpmRuntimeErrorMessages.getString("MDL04038")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 MDL_UNABLE_TO_DELETE_MODEL_IT_IS_REFERENCED_BY_AT_LEAST_ONE_OTHER_MODEL = newArgs0("MDL04039", BpmRuntimeErrorMessages.getString("MDL04039")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_NULL_VALUES_ARE_NOT_SUPPORTED_WITH_OPERATOR = newArgs1("MDL04040", BpmRuntimeErrorMessages.getString("MDL04040")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 MDL_INCONSISTENT_OPERATOR_USE = newArgs2("MDL04041", BpmRuntimeErrorMessages.getString("MDL04041")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_NO_WORKFLOW_DATA_DEFINED_WITH_ID_IN_THIS_MODEL_VERSION = newArgs1("MDL04042", BpmRuntimeErrorMessages.getString("MDL04042")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
 
    //// Audittrail related
@@ -201,6 +207,11 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 DMS_FAILED_READING_ENTITY_BEAN_ATTRIBUTE = newArgs0("DMS04003", BpmRuntimeErrorMessages.getString("DMS04003")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 DMS_FAILED_SETTING_DOCUMENT_ATTRIBUTE = newArgs0("DMS04004", BpmRuntimeErrorMessages.getString("DMS04004")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 DMS_INVALID_HANLDE = newArgs1("DMS04005", BpmRuntimeErrorMessages.getString("DMS04005")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_INVALID_REPOSITORY_SPACE = newArgs1("DMS04006", BpmRuntimeErrorMessages.getString("DMS04006")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 DMS_IN_MEMORY_REPOSITORY_FAILED = newArgs0("DMS04007", BpmRuntimeErrorMessages.getString("DMS04007")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 DMS_REPOSITORY_NOT_FOUND_FOR_JNDI_NAME = newArgs1("DMS04008", BpmRuntimeErrorMessages.getString("DMS04008")); //$NON-NLS-1$ //$NON-NLS-2$
+
+
 
 
 
@@ -445,8 +456,15 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 BPMRT_INVALID_JAXP_SETUP = newArgs0("BPMRT07005", BpmRuntimeErrorMessages.getString("BPMRT07005")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BPMRT_FAILED_READING_XPDL_MODEL_FILE = newArgs0("BPMRT07006", BpmRuntimeErrorMessages.getString("BPMRT07006")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 BPMRT_COULD_NOT_RETRIEVE_ACTIVITY_INSTANCE_FOR_CRITICALITY_UPDATE = newArgs0("BPMRT07007", BpmRuntimeErrorMessages.getString("BPMRT07007")); //$NON-NLS-1$ //$NON-NLS-2$
-
-
+   public static final Args1 BPMRT_FAILED_RETRIEVING_NONTERMINATED_PROCESS_INSTANCES_FOR_MODEL = newArgs1("BPMRT07008", BpmRuntimeErrorMessages.getString("BPMRT07008")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_UNABLE_TO_DELETE_MODEL_WITH_OPEN_PROCESS_INSTANCES = newArgs0("BPMRT07009", BpmRuntimeErrorMessages.getString("BPMRT07009")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_FAILED_VERIFIYING_PRECONDITIONS = newArgs0("BPMRT07010", BpmRuntimeErrorMessages.getString("BPMRT07010")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_FAILED_RESOLVING_PROCESS_INSTANCE_CLOSURE = newArgs0("BPMRT07011", BpmRuntimeErrorMessages.getString("BPMRT07011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_ACTIVITY_INSTANCE_WAS_DELETED = newArgs0("BPMRT07012", BpmRuntimeErrorMessages.getString("BPMRT07012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_USER_IS_NOT_ALLOWED_TO_CHANGE_PROFILE_FOR_SCOPE = newArgs2("BPMRT07013", BpmRuntimeErrorMessages.getString("BPMRT07013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_INCONSISTENT_PAIR_VALUES = newArgs2("BPMRT07014", BpmRuntimeErrorMessages.getString("BPMRT07014")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 BPMRT_INCONSISTENT_COLLECTION_VALUES = newArgs2("BPMRT07015", BpmRuntimeErrorMessages.getString("BPMRT07015")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 BPMRT_INPUT_NOT_SERIALIZABLE = newArgs0("BPMRT07016", BpmRuntimeErrorMessages.getString("BPMRT07016")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// JMS related
 
@@ -629,6 +647,8 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 JDBC_INVALID_TX_ISOLATION_LEVEL = newArgs2("JDBC01011", BpmRuntimeErrorMessages.getString("JDBC01011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 JDBC_DERBY_SESSION_ROLLED_BACK = newArgs0("JDBC01012", BpmRuntimeErrorMessages.getString("JDBC01012")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 JDBC_FAILED_OBTAINING_NEW_SEQUECMCE_VALUES_RESULT_SET_EMPTY = newArgs0("JDBC01013", BpmRuntimeErrorMessages.getString("JDBC01013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 JDBC_FAILED_DELETING_ENRIES_FROM_DATA_CLUSTER_TABLE = newArgs1("JDBC01014", BpmRuntimeErrorMessages.getString("JDBC01014")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    ////POJO related
 

@@ -15,6 +15,7 @@ import javax.naming.NamingException;
 
 import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.runtime.beans.BpmRuntimeEnvironment;
 import org.eclipse.stardust.engine.core.runtime.beans.interceptors.PropertyLayerProviderInterceptor;
 import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
@@ -85,8 +86,10 @@ public class JcrVfsRepositoryInstance implements IRepositoryInstance
             }
             catch (NamingException e)
             {
-               throw new PublicException("Repository was not found for jndiName: "
-                     + jndiName, e);
+               throw new PublicException(
+                     BpmRuntimeError.DMS_REPOSITORY_NOT_FOUND_FOR_JNDI_NAME
+                           .raise(jndiName),
+                     e);
             }
          }
       }

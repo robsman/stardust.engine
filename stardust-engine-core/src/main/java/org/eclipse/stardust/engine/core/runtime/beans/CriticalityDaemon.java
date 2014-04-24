@@ -30,6 +30,7 @@ import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.rt.IJobManager;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstanceState;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.persistence.Join;
 import org.eclipse.stardust.engine.core.persistence.Predicates;
@@ -44,14 +45,14 @@ import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
 
 
 /**
- * 
+ *
  * @author thomas.wolfram
- * 
+ *
  */
 public class CriticalityDaemon implements IDaemon
 {
    private static final Logger trace = LogManager.getLogger(CriticalityDaemon.class);
-   public static final Logger daemonLogger = RuntimeLog.DAEMON;   
+   public static final Logger daemonLogger = RuntimeLog.DAEMON;
 
    public static final String ID = AdministrationService.CRITICALITY_DAEMON;
 
@@ -86,8 +87,8 @@ public class CriticalityDaemon implements IDaemon
             criticalityMap.put(oid, CriticalityEvaluator.recalculateCriticality(oid));
             lastAiOid = oid;
          }
-         
-         daemonLogger.info("Criticality Daemon, perform synchronisation.");                                       
+
+         daemonLogger.info("Criticality Daemon, perform synchronisation.");
          jobManager.performSynchronousJob(new SyncCriticalitiesToDiskAction(
                criticalityMap));
          currentAiOid = lastAiOid;
@@ -109,8 +110,8 @@ public class CriticalityDaemon implements IDaemon
                long oid = (Long) i.next();
                Map criticalityMap = CollectionUtils.newMap();
                criticalityMap.put(oid, CriticalityEvaluator.recalculateCriticality(oid));
-               
-               daemonLogger.info("Criticality Daemon, perform synchronisation.");                                                      
+
+               daemonLogger.info("Criticality Daemon, perform synchronisation.");
                jobManager.performSynchronousJob(new SyncCriticalitiesToDiskAction(
                      criticalityMap));
                lastAiOid = oid;
@@ -144,7 +145,7 @@ public class CriticalityDaemon implements IDaemon
       List updateList = CollectionUtils.newList();
 
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
-      
+
       QueryDescriptor query = from(ActivityInstanceBean.class).select(
             ActivityInstanceBean.FR__OID, ActivityInstanceBean.FR__MODEL);
       query.getQueryExtension()
@@ -180,7 +181,8 @@ public class CriticalityDaemon implements IDaemon
       catch (SQLException sqlex)
       {
          throw new PublicException(
-               "Could not retrieve activity instance for criticality update.");
+               BpmRuntimeError.BPMRT_COULD_NOT_RETRIEVE_ACTIVITY_INSTANCE_FOR_CRITICALITY_UPDATE
+                     .raise());
       }
       finally
       {

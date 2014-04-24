@@ -195,6 +195,7 @@
                <include name="org/eclipse/stardust/engine/api/model/Inconsistency.java" />
                <include name="org/eclipse/stardust/engine/api/model/Model.java" />
                <include name="org/eclipse/stardust/engine/api/model/ModelElement.java" />
+               <include name="org/eclipse/stardust/engine/api/model/ModelParsingException.java" />
                <include name="org/eclipse/stardust/engine/api/model/ModelParticipant.java" />
                <include name="org/eclipse/stardust/engine/api/model/ModelParticipantInfo.java" />
                <include name="org/eclipse/stardust/engine/api/model/Organization.java" />
@@ -262,11 +263,12 @@
                <include name="org/eclipse/stardust/engine/api/runtime/PasswordRules.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/Permission.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/PermissionState.java" />
+               <include name="org/eclipse/stardust/engine/api/runtime/ProcessDefinitions.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/ProcessInstance.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/ProcessInstanceLinkType.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/ProcessInstancePriority.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/ProcessInstanceState.java" />
-               <include name="org/eclipse/stardust/engine/api/runtime/QualityAssuranceUtils/QualityAssuranceState.java" />
+               <include name="org/eclipse/stardust/engine/api/runtime/QualityAssuranceUtils.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/QueryService.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/ReconfigurationInfo.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/RepositoryMigrationJobInfo.java" />
@@ -293,6 +295,7 @@
                <include name="org/eclipse/stardust/engine/api/runtime/UserGroupInfo.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/UserInfo.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/UserRealm.java" />
+               <include name="org/eclipse/stardust/engine/api/runtime/UserRealmExistsException.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/UserService.java" />
                <include name="org/eclipse/stardust/engine/api/runtime/WorkflowService.java" />
 
@@ -316,6 +319,7 @@
                <include name="org/eclipse/stardust/engine/api/dto/Note.java" />
                <include name="org/eclipse/stardust/engine/api/dto/ProcessDefinitionDetailsLevel.java" />
                <include name="org/eclipse/stardust/engine/api/dto/ProcessInstanceAttributes.java" />
+               <include name="org/eclipse/stardust/engine/api/dto/ProcessInstanceDetails.java" />
                <include name="org/eclipse/stardust/engine/api/dto/ProcessInstanceDetailsLevel.java" />
                <include name="org/eclipse/stardust/engine/api/dto/ProcessInstanceDetailsOptions.java" />
                <include name="org/eclipse/stardust/engine/api/dto/QualityAssuranceAdminServiceFacade.java" />
@@ -435,8 +439,9 @@
                <include name="org/eclipse/stardust/engine/core/spi/security/DynamicParticipantSynchronizationStrategy.java" />
                <include name="org/eclipse/stardust/engine/core/spi/security/ExternalDepartmentConfiguration.java" />
                <include name="org/eclipse/stardust/engine/core/spi/cluster/ClusterSafeObjectProvider.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/monitoring/IActivityInstanceMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IProcessExecutionMonitor.java" />
-               <include name="org/eclipse/stardust/engine/core/spi/monitoring/IWorklistMonitor.java" />
+               <include name="org/eclipse/stardust/engine/core/spi/monitoring/IProcessExecutionMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/monitoring/IPartitionMonitor.java" />
                <include name="org/eclipse/stardust/engine/core/spi/preferences/IStaticConfigurationProvider.java" />
                <include name="org/eclipse/stardust/engine/core/compatibility/spi/security/DefaultPrincipalNameProvider.java" />

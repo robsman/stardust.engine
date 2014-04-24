@@ -215,12 +215,15 @@
                <include name="org/eclipse/stardust/common/error/ApplicationException.java" />
                <include name="org/eclipse/stardust/common/error/ConcurrencyException.java" />
                <include name="org/eclipse/stardust/common/error/ErrorCase.java" />
+               <include name="org/eclipse/stardust/common/error/ExpectedFailureException.java" />
                <include name="org/eclipse/stardust/common/error/InternalException.java" />
                <include name="org/eclipse/stardust/common/error/InvalidArgumentException.java" />
                <include name="org/eclipse/stardust/common/error/InvalidValueException.java" />
+               <include name="org/eclipse/stardust/common/error/LoginFailedExceptionException.java" />
                <include name="org/eclipse/stardust/common/error/ObjectNotFoundException.java" />
                <include name="org/eclipse/stardust/common/error/PublicException.java" />
                <include name="org/eclipse/stardust/common/error/ServiceCommandException.java" />
+               <include name="org/eclipse/stardust/common/error/ValidationException.java" />
             	
                <include name="org/eclipse/stardust/common/config/Parameters.java" />
                

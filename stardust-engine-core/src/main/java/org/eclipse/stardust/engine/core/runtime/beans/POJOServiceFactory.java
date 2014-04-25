@@ -36,13 +36,13 @@ public class POJOServiceFactory extends AbstractSessionAwareServiceFactory
 
       Object inner = Reflect.createInstance(packageName + ".beans." + className + "Impl");
 
-      InvocationManager manager = new POJOInvocationManager(inner, serviceName);
+      InvocationManager invocationHandler = new POJOInvocationManager(inner, serviceName);
 
       Service result = (Service) Proxy.newProxyInstance(
-            service.getClassLoader(), new Class[]{service, ManagedService.class}, manager);
+            service.getClassLoader(), new Class[] {service, ManagedService.class}, invocationHandler);
 
       ((ManagedService)result).login(username, password, getProperties());
-      
+
       return result;
    }
 

@@ -45,10 +45,10 @@ import org.eclipse.stardust.engine.core.security.InvokerPrincipalUtils;
 /**
  * Retrieves IPP service homes from the EJB environment's JNDI context. Supports both
  * login- and principal-based authentication scenarios.
- * 
+ *
  * @author rsauer
  * @version $Revision$
- * 
+ *
  * @see org.eclipse.stardust.engine.api.ejb2.ServiceFactoryLocator
  */
 public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
@@ -57,9 +57,9 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
 
    private String userName;
    private String password;
-   
-   
-   public Object getService(Class type) throws ServiceNotAvailableException,
+
+
+   public <T extends Service> T getService(Class<T> type) throws ServiceNotAvailableException,
          LoginFailedException
    {
       InvokerPrincipal current = InvokerPrincipalUtils.removeCurrent();
@@ -72,14 +72,14 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
          InvokerPrincipalUtils.setCurrent(current);
       }
    }
-   
+
    /**
     * Retrieves an IPP session bean home from the EJB environment. If no implicit caller
     * principal propagation is to be used, an explicit login will be performed on any
     * freshly created session bean instance.
-    * First it tries to lookup local home object from "ejb/Local<ServiceName>". 
+    * First it tries to lookup local home object from "ejb/Local<ServiceName>".
     * If this fails it falls back to lookup remote home object from "ejb/<ServiceName>".
-    * 
+    *
     * @param service
     *           The interface type defining the service to be retrieved.
     * @return An instance of the requested service, either freshly created or retrieved
@@ -93,14 +93,14 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
          String serviceName = service.getName();
          int dot = serviceName.lastIndexOf(".");
          String className = serviceName.substring(dot + 1);
-         
+
          Context context = new InitialContext();
          Context javacomp = (Context) context.lookup("java:comp/env");
          if (javacomp == null)
          {
             throw new InternalException("java:comp/env context is null.");
          }
-         
+
          Pair homePair;
          try
          {
@@ -112,10 +112,10 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
             homePair = getRemoteHome(javacomp, className);
             trace.info("Using remote interface for service " + className);
          }
-         
+
          Class homeClass = (Class) homePair.getFirst();
          Object home = homePair.getSecond();
-         
+
          Method creationMethod = homeClass.getMethod("create", new Class[]{});
          Object inner = creationMethod.invoke(home, new Object[]{});
          LogUtils.traceObject(inner, false);
@@ -160,10 +160,10 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
                }
             }
          }
-         
+
+         ClientInvocationHandler invocationHandler = new ClientInvocationHandler(inner, tunneledContext);
          result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
-               new Class[]{service, ManagedService.class},
-               new ClientInvocationHandler(inner, tunneledContext));
+               new Class[]{service, ManagedService.class}, invocationHandler);
       }
       catch (Exception e)
       {
@@ -172,12 +172,12 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
 
       return result;
    }
-   
+
    private Pair getRemoteHome(Context javacomp, String className) throws NamingException
    {
       Object rawHome = javacomp.lookup("ejb/" + className);
       LogUtils.traceObject(rawHome, false);
-      
+
       String homeClassName = "org.eclipse.stardust.engine.api.ejb2.Remote" + className + "Home";
       Class homeClass = Reflect.getClassFromClassName(homeClassName);
       Object home;
@@ -190,7 +190,7 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
          // try to fall back to tunneling mode
          Pair tunnelingHome = TunnelingUtils.castToTunnelingRemoteServiceHome(rawHome,
                homeClass);
-         
+
          if (null != tunnelingHome)
          {
             homeClass = (Class) tunnelingHome.getFirst();
@@ -228,7 +228,7 @@ public class EjbEnvServiceFactory extends AbstractSessionAwareServiceFactory
    /**
     * Retrieves <code>username</code> and <code>password</code> credentials, if available,
     * for later use.
-    * 
+    *
     * @param credentials The credentials available in the current configuration.
     */
    public void setCredentials(Map credentials)

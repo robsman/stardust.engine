@@ -42,10 +42,10 @@ public class PlainWebServiceFactory extends AbstractSessionAwareServiceFactory
 
       Object inner = Reflect.createInstance(packageName + ".beans." + className + "Impl");
 
-      InvocationManager manager = new PlainWebInvocationManager(inner, serviceName, principal);
+      InvocationManager invocationHandler = new PlainWebInvocationManager(inner, serviceName, principal);
 
       Service result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
-            new Class[]{service, ManagedService.class}, manager);
+            new Class[]{service, ManagedService.class}, invocationHandler);
 
       if (principal == null)
       {

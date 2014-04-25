@@ -13,16 +13,13 @@ package org.eclipse.stardust.engine.core.runtime.beans;
 import java.util.*;
 
 import org.eclipse.stardust.common.config.Parameters;
+import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
 import org.eclipse.stardust.common.reflect.Reflect;
-import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.*;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
-
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-
 
 /**
  * @author ubirkemeyer
@@ -68,7 +65,7 @@ public abstract class DefaultServiceFactory implements ServiceFactory
    {
       return (DocumentManagementService) getService(DocumentManagementService.class);
    }
-   
+
    public void release(Service service)
    {
       if (null != service)
@@ -98,12 +95,12 @@ public abstract class DefaultServiceFactory implements ServiceFactory
       }
    }
 
-   protected Service getServiceFromPool(Class serviceType)
+   protected <T extends Service> T getServiceFromPool(Class<T> serviceType)
    {
-      return (Service) pool.get(serviceType);
+      return (T) pool.get(serviceType);
    }
 
-   protected void putServiceToPool(Class serviceType, Service service)
+   protected <T extends Service> void putServiceToPool(Class<T> serviceType, T service)
    {
       pool.put(serviceType, service);
    }
@@ -117,7 +114,7 @@ public abstract class DefaultServiceFactory implements ServiceFactory
     * TODO review contract, {@link ServiceFactoryPool} should be a {@link Map} or
     * {@link Collection}.
     */
-   protected Iterator getServicesFromPool()
+   protected Iterator<Service> getServicesFromPool()
    {
       return pool.iterator();
    }
@@ -133,7 +130,7 @@ public abstract class DefaultServiceFactory implements ServiceFactory
             ? Collections.EMPTY_MAP
             : new HashMap(properties);
    }
-   
+
    public String getSessionId()
    {
       return null;

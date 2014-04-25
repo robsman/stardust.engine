@@ -21,32 +21,32 @@ import org.junit.rules.ExternalResource;
 
 /**
  * <p>
- * A <code>ClientServiceFactory</code> is a Stardust Service Factory (see 
+ * A <code>ClientServiceFactory</code> is a Stardust Service Factory (see
  * {@linkplain org.eclipse.stardust.engine.api.runtime.ServiceFactory}) that will be
  * created and initialized before every test execution (even before test setup, i.e.
  * before the methods annotated with <code>@Before</code> are executed) and released
  * afterwards (after the methods annotated with <code>@After</code> have been called)
  * if a field of this class is annotated with <code>@Rule</code> in the test class.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 public class TestServiceFactory extends ExternalResource implements ServiceFactory
 {
    private static final Log LOG = LogFactory.getLog(TestServiceFactory.class);
-   
+
    private final UsernamePasswordPair userPwdPair;
-   
+
    private ServiceFactory sf;
-   
+
    /**
     * <p>
     * Sets up a client service factory with the given username and password.
     * The actual creation of the service factory will be done in
     * {@link TestServiceFactory#before()}.
     * </p>
-    * 
+    *
     * @param username the username password pair to use
     */
    public TestServiceFactory(final UsernamePasswordPair userPwdPair)
@@ -58,7 +58,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
 
       this.userPwdPair = userPwdPair;
    }
-   
+
    /**
     * <p>
     * Creates a newly initialized service factory.
@@ -67,10 +67,10 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
    @Override
    protected void before()
    {
-      LOG.debug("Retrieving service factory for '" + userPwdPair.username() + ":" + userPwdPair.password() + "'.");      
+      LOG.debug("Retrieving service factory for '" + userPwdPair.username() + ":" + userPwdPair.password() + "'.");
       sf = ServiceFactoryLocator.get(userPwdPair.username(), userPwdPair.password());
    }
-   
+
    /**
     * <p>
     * Releases the current service factory.
@@ -83,7 +83,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       close();
       sf = null;
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#close()
     */
@@ -93,7 +93,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       sf.close();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getAdministrationService()
     */
@@ -103,7 +103,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       return sf.getAdministrationService();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getDocumentManagementService()
     */
@@ -113,7 +113,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       return sf.getDocumentManagementService();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getQueryService()
     */
@@ -123,17 +123,17 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       return sf.getQueryService();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getService(java.lang.Class)
     */
    @Override
-   public Object getService(@SuppressWarnings("rawtypes") final Class type) throws ServiceNotAvailableException, LoginFailedException
+   public <T extends Service> T getService(final Class<T> type) throws ServiceNotAvailableException, LoginFailedException
    {
       ensureServiceFactoryIsInitialized();
       return sf.getService(type);
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getSessionId()
     */
@@ -143,7 +143,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       return sf.getSessionId();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getUserService()
     */
@@ -153,7 +153,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       return sf.getUserService();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#getWorkflowService()
     */
@@ -163,7 +163,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       return sf.getWorkflowService();
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#release(org.eclipse.stardust.engine.api.runtime.Service)
     */
@@ -173,7 +173,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       sf.release(service);
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#setCredentials(java.util.Map)
     */
@@ -183,7 +183,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       sf.setCredentials(credentials);
    }
-   
+
    /* (non-Javadoc)
     * @see org.eclipse.stardust.engine.api.runtime.ServiceFactory#setProperties(java.util.Map)
     */
@@ -193,7 +193,7 @@ public class TestServiceFactory extends ExternalResource implements ServiceFacto
       ensureServiceFactoryIsInitialized();
       sf.setProperties(properties);
    }
-   
+
    private void ensureServiceFactoryIsInitialized()
    {
       if (sf == null)

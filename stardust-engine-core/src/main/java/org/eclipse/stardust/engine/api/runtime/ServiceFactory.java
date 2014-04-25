@@ -14,9 +14,6 @@ import java.util.Map;
 
 import org.eclipse.stardust.common.error.LoginFailedException;
 
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-
-
 /**
  * The <code>ServiceFactory</code> is the central point to retrieve CARNOT services. Based
  * on the CARNOT configuration it shields several aspects from the programmer:
@@ -66,7 +63,7 @@ public interface ServiceFactory
     *
     * @return An instance of the requested service.
     */
-   Object getService(Class type)
+   <T extends Service> T getService(Class<T> type)
          throws ServiceNotAvailableException, LoginFailedException;
 
    /**
@@ -119,7 +116,7 @@ public interface ServiceFactory
 
    /**
     * Returns a document management service.
-    * 
+    *
     * @throws ServiceNotAvailableException In case the (possible remote) service could not
     *         be reached.
     * @throws LoginFailedException In case the authentication to the service fails.
@@ -151,9 +148,9 @@ public interface ServiceFactory
    void setCredentials(Map credentials);
 
    void setProperties(Map properties);
-   
+
    /**
-    * Gets the user session id 
+    * Gets the user session id
     * @return the user session id - may be null
     */
    String getSessionId();

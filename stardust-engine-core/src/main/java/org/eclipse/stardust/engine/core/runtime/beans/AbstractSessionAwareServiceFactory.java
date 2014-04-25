@@ -44,7 +44,7 @@ public abstract class AbstractSessionAwareServiceFactory extends DefaultServiceF
    protected abstract Service getNewServiceInstance(Class type)
          throws ServiceNotAvailableException, LoginFailedException;
 
-   public Object getService(Class type) throws ServiceNotAvailableException,
+   public <T extends Service> T getService(Class<T> type) throws ServiceNotAvailableException,
          LoginFailedException
    {
       if (StringUtils.isEmpty(sessionId))
@@ -57,12 +57,12 @@ public abstract class AbstractSessionAwareServiceFactory extends DefaultServiceF
       return getOrCreateService(type);
    }
 
-   private Service getOrCreateService(Class type)
+   private <T extends Service> T getOrCreateService(Class<T> type)
    {
-      Service result = getServiceFromPool(type);
+      T result = getServiceFromPool(type);
       if (null == result)
       {
-         result = getNewServiceInstance(type);
+         result = (T) getNewServiceInstance(type);
          putServiceToPool(type, result);
       }
       return result;
@@ -91,7 +91,7 @@ public abstract class AbstractSessionAwareServiceFactory extends DefaultServiceF
          {
             trace.warn("Service factory without an active session must not have service instances.");
          }
-   
+
          super.close();
       }
       finally

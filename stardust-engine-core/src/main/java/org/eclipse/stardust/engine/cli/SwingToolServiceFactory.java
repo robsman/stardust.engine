@@ -18,9 +18,6 @@ import javax.swing.JOptionPane;
 import org.eclipse.stardust.common.error.LoginFailedException;
 import org.eclipse.stardust.engine.api.runtime.*;
 
-import org.eclipse.stardust.vfs.IDocumentRepositoryService;
-
-
 /**
  * @user rsauer
  * @version $Revision$
@@ -28,26 +25,26 @@ import org.eclipse.stardust.vfs.IDocumentRepositoryService;
 public class SwingToolServiceFactory implements ServiceFactory
 {
    private final Component parent;
-   
+
    private Map properties = Collections.EMPTY_MAP;
-   
+
    private Set factories;
    private Map serviceFactoryMapping;
-   
+
    private ServiceFactory currentFactory;
-   
+
    public SwingToolServiceFactory(Component parent)
    {
       this.parent = parent;
-      
+
       this.factories = new HashSet();
       this.serviceFactoryMapping = new HashMap();
    }
 
-   public Object getService(Class type) throws ServiceNotAvailableException, LoginFailedException
+   public <T extends Service> T getService(Class<T> type) throws ServiceNotAvailableException, LoginFailedException
    {
-      Object service = null;
-      
+      T service = null;
+
       int loginCount = 0;
       do
       {
@@ -81,15 +78,15 @@ public class SwingToolServiceFactory implements ServiceFactory
          }
       }
       while (3 > loginCount);
-      
+
       if (null == service)
       {
          JOptionPane.showMessageDialog(parent, "Maximum number of login trials exceeded.\nTerminating application.",
                "Error", JOptionPane.ERROR_MESSAGE);
-         
+
          System.exit(-1);
       }
-      
+
       return service;
    }
 
@@ -112,7 +109,7 @@ public class SwingToolServiceFactory implements ServiceFactory
    {
       return (QueryService) getService(QueryService.class);
    }
-   
+
    public DocumentManagementService getDocumentManagementService() throws ServiceNotAvailableException, LoginFailedException
    {
       return (DocumentManagementService) getService(DocumentManagementService.class);
@@ -131,7 +128,7 @@ public class SwingToolServiceFactory implements ServiceFactory
    public void close()
    {
       currentFactory = null;
-      
+
       for (Iterator i = factories.iterator(); i.hasNext();)
       {
          ServiceFactory factory = (ServiceFactory) i.next();
@@ -153,7 +150,7 @@ public class SwingToolServiceFactory implements ServiceFactory
       this.properties = ((null == properties) || properties.isEmpty())
             ? Collections.EMPTY_MAP
             : new HashMap(properties);
-      
+
       if (null != currentFactory)
       {
          currentFactory.setProperties(this.properties);

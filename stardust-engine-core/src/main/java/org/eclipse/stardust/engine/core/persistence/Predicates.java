@@ -18,15 +18,11 @@ import org.eclipse.stardust.common.Pair;
 import org.eclipse.stardust.engine.api.query.BinaryOperatorFilter;
 import org.eclipse.stardust.engine.api.query.ScopedFilter;
 import org.eclipse.stardust.engine.api.query.TernaryOperatorFilter;
-import org.eclipse.stardust.engine.api.query.UnaryOperatorFilter;
-import org.eclipse.stardust.engine.core.persistence.Operator.Unary;
-import org.eclipse.stardust.engine.core.runtime.beans.ActivityInstanceBean;
-
 
 /**
  * Predicates is an abstract class which provides several factories for conveniently
  * creating <code>PredicateTerm</code>s.
- * 
+ *
  * @author sborn
  * @version $Revision$
  */
@@ -34,7 +30,7 @@ public abstract class Predicates
 {
    // TODO replace with something immutable
    public static final PredicateTerm TRUE = new AndTerm();
-   
+
    public static AndTerm andTerm(PredicateTerm lhs, PredicateTerm rhs)
    {
       return new AndTerm(new PredicateTerm[] { lhs, rhs });
@@ -65,7 +61,7 @@ public abstract class Predicates
 
    /**
     * Creates a <code>IS NULL</code> comparison predicate for a alphanumeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @return The comparison predicate.
@@ -78,7 +74,7 @@ public abstract class Predicates
    /**
     * Creates a <code>IS NOT NULL</code> comparison predicate for a alphanumeric
     * attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @return The comparison predicate.
@@ -90,7 +86,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValue
@@ -104,7 +100,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for an alphanumeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param sValue
@@ -118,7 +114,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for comparison with subqueries
-    * 
+    *
     * @param field
     *           The attribute name
     * @param sQuery
@@ -132,7 +128,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for comparison with other field.
-    * 
+    *
     * @param lhsField
     *           The left hand side attribute name
     * @param rhsField
@@ -146,7 +142,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValue
@@ -160,7 +156,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a alphanumeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param sValue
@@ -174,7 +170,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for comparison with other field.
-    * 
+    *
     * @param lhsField
     *           The left hand side attribute name
     * @param rhsField
@@ -188,7 +184,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValue
@@ -202,7 +198,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValue
@@ -216,7 +212,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValue
@@ -230,7 +226,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValue
@@ -244,7 +240,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a alphanumeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param pattern
@@ -258,7 +254,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValues
@@ -272,14 +268,14 @@ public abstract class Predicates
       {
          values.add(new Long(nValues[i]));
       }
-      
+
 
       return new ComparisonTerm(field, Operator.IN, values);
    }
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValues
@@ -293,13 +289,13 @@ public abstract class Predicates
       {
          values.add(new Long(nValues[i]));
       }
-      
+
       return new ComparisonTerm(field, Operator.IN, values);
    }
 
    /**
     * Creates a comparison predicate for a alphanumeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param sValues
@@ -313,13 +309,13 @@ public abstract class Predicates
       {
          values.add(sValues[i]);
       }
-      
+
       return new ComparisonTerm(field, Operator.IN, values);
    }
 
    /**
     * Creates a comparison predicate for a numeric or alphanumeric attributes attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param values
@@ -333,7 +329,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric or alphanumeric attributes attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param valuesIter
@@ -353,7 +349,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nValues
@@ -367,13 +363,13 @@ public abstract class Predicates
       {
          values.add(new Long(nValues[i]));
       }
-      
+
       return new ComparisonTerm(field, Operator.NOT_IN, values);
    }
 
    /**
     * Creates a comparison predicate for a numeric or alphanumeric attributes attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param values
@@ -387,7 +383,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric or alphanumeric attributes attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param valuesIter
@@ -407,7 +403,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric or alphanumeric attributes attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param values
@@ -418,11 +414,11 @@ public abstract class Predicates
    {
       return new ComparisonTerm(field, Operator.IN, subQuery);
    }
-   
+
    /**
    /**
     * Creates a comparison predicate for a numeric or alphanumeric attributes attribute.
-    * 
+    *
     * @param attribute
     *           The attribute name.
     * @param values
@@ -433,10 +429,10 @@ public abstract class Predicates
    {
       return new ComparisonTerm(attribute, Operator.NOT_IN, subQuery);
    }
-   
+
    /**
     * Creates a comparison predicate for a numeric attributes attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param nLowerBound
@@ -453,7 +449,7 @@ public abstract class Predicates
 
    /**
     * Creates a comparison predicate for a numeric or alphanumeric attributes attribute.
-    * 
+    *
     * @param field
     *           The attribute name.
     * @param sLowerBound
@@ -471,12 +467,12 @@ public abstract class Predicates
    /**
     * Creates a comparsion predicate for a alphanumeric attributes attribute based on a
     * generic compare operator
-    * 
+    *
     * @param field
-    *          The attribute name of type {@link FieldRef} 
+    *          The attribute name of type {@link FieldRef}
     * @param filter
     *          The compare filter of type {@link ScopedFilter}
-    * @return 
+    * @return
     *          The comparsion predicate of type {@link ComparisonTerm}.
     *          Will be <code>null</code> if filter type is invalid
     */
@@ -498,10 +494,10 @@ public abstract class Predicates
                ((TernaryOperatorFilter) filter).getValue());
          return activityCriticalityTerm;
 
-      }      
+      }
       return null;
    }
-   
+
    private Predicates()
    {
    // utility class

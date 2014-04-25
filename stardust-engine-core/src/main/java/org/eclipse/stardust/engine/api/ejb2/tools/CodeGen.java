@@ -34,9 +34,9 @@ public class CodeGen
    private static final String TAG_EMPTY = "";
    private static final String TAG_SEE = "see";
    private static final String TAG_THROWS = "throws";
-   
+
    private static final String TAB = "    ";
-   
+
    private static final String TUNNELING_PREFIX = "Tunneling";
 
    public String createRemoteServiceImpl(String longServiceName,
@@ -47,31 +47,29 @@ public class CodeGen
       String javaSourceName = longServiceName.substring(dot + 1);
 
       StringBuffer createMethod = new StringBuffer();
-      
+
       createMethod.append(TAB).append("public void ejbCreate() throws javax.ejb.CreateException\n");
       createMethod.append(TAB).append("{\n");
       createMethod.append("      super.init(").append(longServiceName + ".class,\n");
       createMethod.append("            ").append(packageName.replace(".api.", ".core.")).append(".beans.").
          append(javaSourceName).append("Impl.class);\n");
       createMethod.append(TAB).append("}");
-      
+
       String[] additionalMethods = new String[] {createMethod.toString()};
 
-      String basePackage = StringUtils.replace(destPackage.substring(1),"/",".");
-
-      String interfacePackage = basePackage;
+      String interfacePackage = StringUtils.replace(destPackage.substring(1),"/",".");
       if (tunneling)
       {
          interfacePackage += "tunneling.";
       }
       String implPackage = interfacePackage + "beans";
-      
+
       final String longWrapperImplName = implPackage + "."
             + (tunneling ? TUNNELING_PREFIX : "Remote") + javaSourceName + "Impl";
-      
+
       String baseClass = tunneling
             ? "org.eclipse.stardust.engine.api.ejb2.tunneling.beans.AbstractTunnelingServiceImpl"
-            : basePackage + "beans.RemoteServiceImpl";
+            : "org.eclipse.stardust.engine.api.ejb2.beans.RemoteServiceImpl";
 
       return createSource(longWrapperImplName, longServiceName, longPathJavaSourceName,
             null, baseClass, new String[] {},
@@ -87,7 +85,7 @@ public class CodeGen
 
       List<String> superInterfaces = CollectionUtils.newList();
       superInterfaces.add("javax.ejb.EJBObject");
-      
+
       String[] additionalMethods = StringUtils.EMPTY_STRING_ARRAY;
       if (tunneling)
       {
@@ -122,7 +120,7 @@ public class CodeGen
 
       List<String> superInterfaces = CollectionUtils.newList();
       superInterfaces.add("javax.ejb.EJBLocalObject");
-      
+
       String[] additionalMethods = StringUtils.EMPTY_STRING_ARRAY;
       if (tunneling)
       {
@@ -165,7 +163,7 @@ public class CodeGen
       List<String> longNameList = new ArrayList<String>();
 
       JavaDocBuilder builder = new JavaDocBuilder();
-      
+
       try
       {
          builder.addSource(new FileReader(longPathJavaSourceName));
@@ -176,7 +174,7 @@ public class CodeGen
       JavaSource src = builder.getSources()[0];
 
       JavaClass cls = src.getClasses()[0];
-      
+
       DocletTag versiontag;
       String revision;
       if ((versiontag = cls.getTagByName("version")) != null)
@@ -243,9 +241,9 @@ public class CodeGen
       result.append("\n{\n");
 
       JavaMethod[] methods = cls.getMethods();
-      
+
       String[] origImports = src.getImports();
-      
+
       for (int i = 0; i < origImports.length; i++)
       {
          importList.add(splitToLastWord('.',origImports[i]));
@@ -256,7 +254,7 @@ public class CodeGen
       for (int i = 0; i < methods.length; i++)
       {
          importList.add(methods[i].getName());
-         longNameList.add(packageName+"."+methods[i].getName()); 
+         longNameList.add(packageName+"."+methods[i].getName());
          returnValue = methods[i].getReturns().getValue();
          shortReturnValue = splitToLastWord('.', returnValue);
          if (shortReturnValue.length() > 0)
@@ -275,7 +273,7 @@ public class CodeGen
          result.append(methodGenerator.execute(methods[i], originalServiceName, importList,
                longNameList));
       }
-      
+
       if (additionalMethods != null && additionalMethods.length > 0)
       {
          for (int i = 0; i < additionalMethods.length; i++)
@@ -293,14 +291,14 @@ public class CodeGen
    {
       String root = ".";
       String destPackage = "/org/eclipse/stardust/engine/api/ejb2/";
-      
+
       if (args.length > 0)
       {
          root = args[0];
       }
-      
+
       String destinationRoot = root;
-      
+
       if (args.length > 1)
       {
          destinationRoot = args[1];
@@ -322,7 +320,7 @@ public class CodeGen
          createSources(root, destinationRoot, destPackage, "DocumentManagementService");
       }
    }
-   
+
    private static void createSources(String root, String destinationRoot,
          String destPackage, String serviceName) throws IOException, FileNotFoundException
    {
@@ -365,7 +363,7 @@ public class CodeGen
       writer.write(localService);
       writer.close();
    }
-   
+
    private static abstract class AbstractMethodGenerator
    {
       private final boolean tunneling;
@@ -382,14 +380,14 @@ public class CodeGen
       {
          return tunneling;
       }
-      
+
       protected String getMethodString(JavaMethod method)
       {
          StringBuffer result = new StringBuffer();
          String baseClass;
-         
+
          Type mReturns = method.getReturns();
-         
+
          JavaParameter[] parameters = method.getParameters();
 
          result.append(TAB).append("public ").append(mReturns.toGenericString()).append(" ");
@@ -405,7 +403,7 @@ public class CodeGen
                result.append(", ");
             }
          }
-         
+
          if (isTunneling())
          {
             if (parameters.length != 0)
@@ -414,9 +412,9 @@ public class CodeGen
             }
             result.append("org.eclipse.stardust.engine.api.ejb2.tunneling.TunneledContext __tunneledContext");
          }
-         
+
          result.append(")\n");
-         
+
          Type[] exceptions = method.getExceptions();
 
          result.append("throws org.eclipse.stardust.engine.api.ejb2.WorkflowException");
@@ -444,7 +442,7 @@ public class CodeGen
       public RemoteServiceImplMethodGenerator(String service, boolean tunneling)
       {
          super(tunneling);
-         
+
          this.service = service;
       }
 
@@ -453,12 +451,12 @@ public class CodeGen
       {
          Type mReturns = method.getReturns();
          Type[] exceptions = method.getExceptions();
-         
+
          int tabReturnLength;
-         
+
          StringBuffer result = new StringBuffer(getJavaDocMethodString(method,
                longServiceName, exceptions, importList, longNameList));
-         
+
          result = result.append(splitLongLines(getMethodString(method), -1, 9, 0));
 
          result.append("\n").append(TAB).append("{\n");
@@ -467,35 +465,35 @@ public class CodeGen
          {
             result.append("      java.util.Map __invocationContextBackup = null;\n");
          }
-         
+
          result.append("      try\n      {\n");
          tabReturnLength = 9;
-         
+
          StringBuffer addString = new StringBuffer();
-         
+
          if (isTunneling())
          {
             for (int i = 0; i < tabReturnLength; i++)
             {
                addString.append(" ");
             }
-            
+
             addString.append("__invocationContextBackup = initInvocationContext(__tunneledContext);");
             result.append(splitLongLines(addString.toString(), -1, 9, 0)).
             append("\n");
-            
+
             addString = new StringBuffer();
          }
-         
+
          for (int i = 0; i < tabReturnLength; i++) addString.append(" ");
          if (!mReturns.isVoid())
          {
             addString.append("return ");
          }
-         
+
          addString.append("((").append(service).append(") service).").append(
                method.getName()).append("(");
-         
+
          JavaParameter[] parameters = method.getParameters();
 
          for (int j = 0; j < parameters.length; j++)
@@ -511,7 +509,7 @@ public class CodeGen
 
          result.append(splitLongLines(addString.toString(), -1, 9, 3)).
          append("\n");
-      
+
          result.append("      }\n");
          result.append("      catch(org.eclipse.stardust.common.error.PublicException e)\n")
                .append("      {\n")
@@ -521,7 +519,7 @@ public class CodeGen
                .append("      {\n")
                .append("         throw new org.eclipse.stardust.engine.api.ejb2.WorkflowException(e);\n")
                .append("      }\n");
-         
+
          if(isTunneling())
          {
             result.append("      finally\n")
@@ -533,12 +531,12 @@ public class CodeGen
          result.append(TAB).append("}\n");
          return result;
       }
-      
+
    }
 
    private class RemoteServiceMethodGenerator extends AbstractMethodGenerator
    {
-      
+
       public RemoteServiceMethodGenerator(boolean tunneling)
       {
          super(tunneling);
@@ -658,14 +656,14 @@ public class CodeGen
       {
          tagName = tags[i].getName();
          tagValue = tags[i].getValue();
-         
+
          splitIndexLink = tagValue.indexOf("{@link");
          if (-1 != splitIndexLink)
          {
             splitIndexBlank = tagValue.indexOf(' ', splitIndexLink);
             if ((-1 != splitIndexBlank) && (splitIndexBlank < tagValue.length()))
             {
-               oldLinkString = tagValue.substring(splitIndexBlank + 1, 
+               oldLinkString = tagValue.substring(splitIndexBlank + 1,
                      tagValue.indexOf('}', splitIndexBlank));
                if (importList.contains(oldLinkString))
                {
@@ -693,11 +691,11 @@ public class CodeGen
             }
             else
             {
-               throwTag = 
+               throwTag =
                   lookForClassInPackage("org.eclipse.stardust.engine.api.runtime.", tagParameter);
             }
             tagValue = StringUtils.replace(tagValue, tagParameter, throwTag);
-            
+
             docString.append(TAB).append(" * @throws ");
             docString.append(splitLongLines(tagValue, 5, 4, 4));
             docString.append("\n").append(TAB).append(" *     ");
@@ -735,7 +733,7 @@ public class CodeGen
          docString.append(splitLongLines(tagValue, 5, 4, 4) + "\n");
          oldTagName = tagName;
       }
-      
+
       if (needsDefaultThrowsFragment)
       {
          if ( !oldTagName.equals(TAG_THROWS) && !oldTagName.equals(TAG_EMPTY))
@@ -749,12 +747,12 @@ public class CodeGen
          }
          needsDefaultThrowsFragment = false;
       }
-      
+
       if (!(oldTagName.equals(TAG_SEE)||(oldTagName.equals(TAG_EMPTY))))
       {
          docString.append(TAB).append(" *\n");
       }
-      tagComment = longServiceName + "#" + method.getName() 
+      tagComment = longServiceName + "#" + method.getName()
          + getParameterNameList(method);
       docString.append(TAB).append(" * @see " + splitLongLines(tagComment, 5, 4, 4));
       docString.append("\n").append(TAB).append(" */\n");
@@ -772,20 +770,20 @@ public class CodeGen
             .append("org.eclipse.stardust.engine.api.ejb2.PublicExceptions and org.eclipse.stardust.engine.api.ejb2.ResourceExceptions\n");
    }
 
-   private static String splitLongLines(String comment, int commentStarPos, 
+   private static String splitLongLines(String comment, int commentStarPos,
          int startTabLength, int newLineTabShift)
    {
       StringBuffer docString = new StringBuffer();
       String addString;
-      
+
       comment = comment.replaceAll("\\r", "");
-      
+
       int commentLength = comment.length();
       int countCharPerLine;
 
       countCharPerLine = startTabLength;
-      
-      int i = 0; 
+
+      int i = 0;
 
       while (i < commentLength)
       {
@@ -808,7 +806,7 @@ public class CodeGen
          }
          else
          {
-            addString = comment.substring(i); 
+            addString = comment.substring(i);
             countCharPerLine = countCharPerLine + addString.length();
             if (countCharPerLine > 90)
             {
@@ -828,9 +826,9 @@ public class CodeGen
       String newLineString = line;
       String oldLineString;
       String addString;
-      
+
       int newLineLength;
-      
+
       do
       {
          oldLineString = newLineString;
@@ -841,19 +839,19 @@ public class CodeGen
          }
          newLineLength = newLineString.length();
       } while ((newLineLength + tabStartLength) > 90);
-     
+
       String testSplitString = splitBeforeLastWord('(',oldLineString);
-      
+
       if (newLineLength == 0)
       {
          newLineString = oldLineString;
          newLineLength = oldLineString.length();
       }
-      
+
       int testSplitLength = testSplitString.length();
-      
+
       if ((testSplitLength > 0)&&(testSplitLength < newLineLength))
-      {         
+      {
          addString = splitToLastWord('(', line);
          newLineString = testSplitString + "(";
       }
@@ -870,10 +868,10 @@ public class CodeGen
          newLineString = newLineString + newLine(commentStarPos, tabStartLength, newLineTabShift)
                + addString;
       }
-      
+
       return newLineString;
    }
-   
+
    private StringBuffer getParameterNameList(JavaMethod method)
    {
       JavaParameter[] parameters = method.getParameters();
@@ -913,11 +911,11 @@ public class CodeGen
          result.append(" ");
          newLineTabShift--;
       }
-      
+
       return result.toString();
    }
-      
-   private static String splitFromIndex(char splitChar, String splitString, 
+
+   private static String splitFromIndex(char splitChar, String splitString,
          int startIndex)
    {
       int splitIndex = splitString.indexOf(splitChar, startIndex);
@@ -930,7 +928,7 @@ public class CodeGen
          return "";
       }
    }
-   
+
    private static String splitToLastWord(char splitChar, String splitString)
    {
       int splitIndex = splitString.lastIndexOf(splitChar);
@@ -943,10 +941,10 @@ public class CodeGen
          return "";
       }
    }
-   
+
    private static String splitBeforeLastWord(char splitChar, String splitString)
    {
-      int splitIndex = splitString.lastIndexOf(splitChar); 
+      int splitIndex = splitString.lastIndexOf(splitChar);
       if (splitIndex != -1)
       {
          return (splitString.substring(0, splitIndex));
@@ -956,15 +954,15 @@ public class CodeGen
          return "";
       }
    }
-   
+
    public static String lookForClassInPackage(String packageName, String className)
    {
       try
       {
          String testPath = packageName + className;
-         
+
          Class<?> testLinkClass = Class.forName(testPath);
-         
+
          if (testLinkClass != null)
          {
             return testPath;

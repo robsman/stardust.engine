@@ -91,7 +91,7 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
      this.autoFlush = autoFlush;
    }
 
-   public Object getService(Class service) throws ServiceNotAvailableException,
+   public <T extends Service> T getService(Class<T> service) throws ServiceNotAvailableException,
          LoginFailedException
    {
       String serviceName = service.getName();
@@ -101,11 +101,11 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
 
       Object inner = Reflect.createInstance(packageName + ".beans." + className + "Impl");
 
-      InvocationManager manager = new EmbeddedInvocationManager(inner,
+      InvocationManager invocationHandler = new EmbeddedInvocationManager(inner,
             serviceName, withPropertyLayer, withLogin, autoFlush);
 
-      Service result = (Service) Proxy.newProxyInstance(service.getClassLoader(),
-            new Class[] {service, ManagedService.class}, manager);
+      T result = (T) Proxy.newProxyInstance(service.getClassLoader(),
+            new Class[] {service, ManagedService.class}, invocationHandler);
 
       if (withLogin)
       {
@@ -168,7 +168,7 @@ public class EmbeddedServiceFactory extends DefaultServiceFactory
          return interceptors;
       }
    }
-   
+
    private static class FlushInterceptor implements MethodInterceptor
    {
       private static final long serialVersionUID = 1L;

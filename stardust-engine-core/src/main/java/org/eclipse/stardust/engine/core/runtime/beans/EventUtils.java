@@ -40,6 +40,7 @@ import org.eclipse.stardust.engine.api.model.IEventHandler;
 import org.eclipse.stardust.engine.api.model.ITransition;
 import org.eclipse.stardust.engine.api.model.IUnbindAction;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.EventActionBinding;
 import org.eclipse.stardust.engine.api.runtime.EventHandlerBinding;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
@@ -130,7 +131,8 @@ public class EventUtils
       {
          return ProcessInstanceBean.findByOID(event.getObjectOID());
       }
-      throw new PublicException("Unknown event type " + event.getType());
+      throw new PublicException(BpmRuntimeError.MDL_UNKNOWN_EVENT_TYPE.raise(event
+            .getType()));
    }
 
    public static EventHandlerOwner getEventSourceDefinition(
@@ -161,7 +163,8 @@ public class EventUtils
       {
          return ProcessInstanceBean.findByOID(event.getObjectOID());
       }
-      throw new PublicException("Unknown event type " + event.getType());
+      throw new PublicException(BpmRuntimeError.MDL_UNKNOWN_EVENT_TYPE.raise(event
+            .getType()));
    }
 
    public static Event processAutomaticEvent(EventHandlerOwner owner,

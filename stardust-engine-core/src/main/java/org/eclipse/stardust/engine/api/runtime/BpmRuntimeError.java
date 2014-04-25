@@ -139,7 +139,10 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 MDL_XPATH_EXPRESSION_EVALUATED_TO_MULTIPLE_NODES = newArgs1("MDL04046", BpmRuntimeErrorMessages.getString("MDL04046")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 MDL_XPATH_EXPRESSION_EVALUATED_TO_A_NON_NODE_VALUE = newArgs1("MDL04047", BpmRuntimeErrorMessages.getString("MDL04047")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 MDL_INVALID_XML_ACCESS_POINT = newArgs0("MDL04048", BpmRuntimeErrorMessages.getString("MDL04048")); //$NON-NLS-1$ //$NON-NLS-2$
-
+   public static final Args2 MDL_DEPARTMENT_HIERARCHY_ENTRY_ALREADY_EXISTS = newArgs2("MDL04049", BpmRuntimeErrorMessages.getString("MDL04049")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_UNKNOWN_EVENT_TYPE = newArgs1("MDL04050", BpmRuntimeErrorMessages.getString("MDL04050")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_NO_PROPERTY_SPECIFIED = newArgs1("MDL04051", BpmRuntimeErrorMessages.getString("MDL04051")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args1 MDL_CANNOT_SEND_NOTIFICATION_MESSAGE = newArgs1("MDL04052", BpmRuntimeErrorMessages.getString("MDL04052")); //$NON-NLS-1$ //$NON-NLS-2$
 
    //// Audittrail related
 
@@ -569,6 +572,11 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args1 EJB_INVALID_ID_ACCESS = newArgs1("EJB01009", BpmRuntimeErrorMessages.getString("EJB01009")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 EJB_FAILED_RETRIEVING_ENTITY_BEAN = newArgs0("EJB01010", BpmRuntimeErrorMessages.getString("EJB01010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 EJB_NO_ENTITYMANAGER_COULD_BE_RETRIEVED = newArgs0("EJB01011", BpmRuntimeErrorMessages.getString("EJB01011")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_FAILED_READING_ENTITY_BEAN_ATTRIBUTE = newArgs0("EJB01012", BpmRuntimeErrorMessages.getString("EJB01012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_FAILED_TRANSLATING_ENTITY_BEAN_HANLDE_TO_BEAN_REFERENCE = newArgs0("EJB01013", BpmRuntimeErrorMessages.getString("EJB01013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_FAILED_SETTING_ENTITY_BEAN_ATTRIBUTE = newArgs0("EJB01014", BpmRuntimeErrorMessages.getString("EJB01014")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 EJB_CANNOT_CREATE_SESSION_BEAN = newArgs0("EJB01015", BpmRuntimeErrorMessages.getString("EJB01015")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
 
    //// General CLI related
@@ -592,6 +600,7 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args0 CLI_PLEASE_PROVIDE_TARGET_FILENAME = newArgs0("CLI01017", BpmRuntimeErrorMessages.getString("CLI01017")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 CLI_NEITHER_REPOSITORY_NOR_MODEL_FILE_PROVIDED = newArgs0("CLI01018", BpmRuntimeErrorMessages.getString("CLI01018")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args0 CLI_FAILED_RESOLVING_PARTITION_OIDS = newArgs0("CLI01019", BpmRuntimeErrorMessages.getString("CLI01019")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args2 CLI_INVALID_DEPARTMENT_PATH_CREATE_IT_MANUALLY_OR_SPECIFIY_OPTION = newArgs2("CLI01020", BpmRuntimeErrorMessages.getString("CLI01020")); //$NON-NLS-1$ //$NON-NLS-2$
 
 
    //// Archiver related
@@ -690,6 +699,9 @@ public class BpmRuntimeError extends ErrorCase
    public static final Args2 POJO_ILLEGAL_ARGUMENT_FOR_METHOD_IN_CLASS = newArgs2("POJO01010", BpmRuntimeErrorMessages.getString("POJO01010")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 POJO_SETTER_FOR_IN_PATH_DOES_NOT_ACCEPT_SINGLE_PARAMETER = newArgs1("POJO01011", BpmRuntimeErrorMessages.getString("POJO01011")); //$NON-NLS-1$ //$NON-NLS-2$
    public static final Args1 POJO_FINAL_SETTER_FOR_IN_PATH_DOES_NOT_ACCEPT_SINGLE_PARAMETER = newArgs1("POJO01012", BpmRuntimeErrorMessages.getString("POJO01012")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 POJO_FAILED_READING_JAVA_VALUE = newArgs0("POJO01013", BpmRuntimeErrorMessages.getString("POJO01013")); //$NON-NLS-1$ //$NON-NLS-2$
+   public static final Args0 POJO_FAILED_SETTING_JAVA_VALUE = newArgs0("POJO01014", BpmRuntimeErrorMessages.getString("POJO01014")); //$NON-NLS-1$ //$NON-NLS-2$
+
 
    ////Structured Type related
 

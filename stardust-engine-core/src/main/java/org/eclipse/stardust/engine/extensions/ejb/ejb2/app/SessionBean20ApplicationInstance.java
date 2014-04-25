@@ -12,7 +12,12 @@ package org.eclipse.stardust.engine.extensions.ejb.ejb2.app;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.ejb.EJBObject;
 
@@ -31,6 +36,7 @@ import org.eclipse.stardust.engine.api.model.Application;
 import org.eclipse.stardust.engine.api.model.DataMapping;
 import org.eclipse.stardust.engine.api.model.PredefinedConstants;
 import org.eclipse.stardust.engine.api.runtime.ActivityInstance;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.pojo.data.JavaDataTypeUtils;
 import org.eclipse.stardust.engine.core.pojo.utils.JavaAccessPointType;
 import org.eclipse.stardust.engine.core.spi.extensions.runtime.SynchronousApplicationInstance;
@@ -39,7 +45,7 @@ import org.eclipse.stardust.engine.extensions.ejb.SessionBeanConstants;
 
 /**
  * ApplicationInstance implementation for the SessionBeanApplicationInstance
- * 
+ *
  * @author jmahmood, ubirkemeyer
  * @version $Revision: 52518 $
  */
@@ -75,7 +81,7 @@ public class SessionBean20ApplicationInstance implements SynchronousApplicationI
 
       Boolean loc = (Boolean) application.getAttribute(PredefinedConstants.IS_LOCAL_ATT);
       local = (loc != null ? loc.booleanValue() : false);
-      
+
       for (Iterator i = activityInstance.getActivity()
             .getApplicationContext(PredefinedConstants.APPLICATION_CONTEXT)
             .getAllOutDataMappings()
@@ -134,16 +140,16 @@ public class SessionBean20ApplicationInstance implements SynchronousApplicationI
       {
 
          lastReturnValue = null;
-   
+
          doCreateSessionBean();
-   
+
          doSetInAccessPointValues();
-   
+
          Method method = Reflect.decodeMethod(remoteInterfaceClass,
                (String) application.getAttribute(PredefinedConstants.METHOD_NAME_ATT));
-   
+
          Object[] parameters = new Object[method.getParameterTypes().length];
-   
+
          Class[] parameterTypes = method.getParameterTypes();
          for (int i = 0; i < parameterTypes.length; i++)
          {
@@ -162,7 +168,7 @@ public class SessionBean20ApplicationInstance implements SynchronousApplicationI
                      + Reflect.encodeMethod(method) + "'.");
             }
          }
-   
+
          try
          {
             lastReturnValue = method.invoke(sessionBean, parameters);
@@ -180,14 +186,14 @@ public class SessionBean20ApplicationInstance implements SynchronousApplicationI
             throw new InvocationTargetException(e, "Failed to invoke session bean method "
                   + Reflect.encodeMethod(method) + ".");
          }
-   
+
          return doGetOutAccessPointValues(outDataTypes);
       }
-      catch (InvocationTargetException ite) 
+      catch (InvocationTargetException ite)
       {
          throw ite;
       }
-      catch (Exception e) 
+      catch (Exception e)
       {
          throw new InvocationTargetException(e);
       }
@@ -228,11 +234,14 @@ public class SessionBean20ApplicationInstance implements SynchronousApplicationI
       }
       catch (InvocationTargetException x)
       {
-         throw new PublicException("Cannot create session bean.", x.getTargetException());
+         throw new PublicException(
+               BpmRuntimeError.EJB_CANNOT_CREATE_SESSION_BEAN.raise(),
+               x.getTargetException());
       }
       catch (Exception x)
       {
-         throw new PublicException("Cannot create session bean.", x);
+         throw new PublicException(
+               BpmRuntimeError.EJB_CANNOT_CREATE_SESSION_BEAN.raise(), x);
       }
    }
 

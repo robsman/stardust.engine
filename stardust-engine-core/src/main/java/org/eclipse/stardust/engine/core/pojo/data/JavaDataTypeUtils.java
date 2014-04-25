@@ -579,7 +579,9 @@ public class JavaDataTypeUtils
          catch (Exception x)
          {
             trace.debug("", x);
-            throw new PublicException(x.getMessage());
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(x
+                        .getMessage()));
          }
       }
 

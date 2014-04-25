@@ -173,7 +173,8 @@ public class UpgradeModelCommand extends ConsoleCommand
       catch (Exception x)
       {
          trace.warn("", x);
-         throw new PublicException(x.getMessage());
+         throw new PublicException(
+               BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(x.getMessage()));
       }
    }
 
@@ -188,7 +189,8 @@ public class UpgradeModelCommand extends ConsoleCommand
       catch (IOException x)
       {
          trace.warn("", x);
-         throw new PublicException(x.getMessage());
+         throw new PublicException(
+               BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(x.getMessage()));
       }
    }
 

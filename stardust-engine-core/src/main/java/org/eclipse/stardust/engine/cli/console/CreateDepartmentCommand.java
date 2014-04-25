@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.utils.console.Options;
 import org.eclipse.stardust.engine.api.ejb2.ServiceFactoryLocator;
 import org.eclipse.stardust.engine.api.model.Organization;
 import org.eclipse.stardust.engine.api.runtime.AdministrationService;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.Department;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
 import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
@@ -28,7 +29,7 @@ import org.eclipse.stardust.engine.api.runtime.ServiceFactory;
 /**
  * @author holger.prause
  * @version
- * 
+ *
  * Class for creating {@link Department}
  */
 public class CreateDepartmentCommand extends ModifyDepartmentCommand
@@ -98,14 +99,9 @@ public class CreateDepartmentCommand extends ModifyDepartmentCommand
             }
             else
             {
-               StringBuilder errorBuilder = new StringBuilder();
-               errorBuilder.append("Invalid Department Path!, Department: ");
-               errorBuilder.append(departmentId);
-               errorBuilder.append(" does not exists for Organization ");
-               errorBuilder.append(org.getId());
-               errorBuilder.append(" ,either create it manually or specify option -r");
-               errorBuilder.append(" to create it automatically");
-               throw new PublicException(errorBuilder.toString());
+               throw new PublicException(
+                     BpmRuntimeError.CLI_INVALID_DEPARTMENT_PATH_CREATE_IT_MANUALLY_OR_SPECIFIY_OPTION
+                           .raise(departmentId, org.getId()));
             }
          }
          parent = department;

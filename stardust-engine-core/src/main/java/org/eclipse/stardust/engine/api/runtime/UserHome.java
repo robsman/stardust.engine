@@ -48,7 +48,9 @@ public class UserHome
       }
       catch (InvocationTargetException x)
       {
-         throw new PublicException(x.getTargetException().getMessage());
+         throw new PublicException(
+               BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(x
+                     .getTargetException().getMessage()));
       }
       catch (Exception x)
       {
@@ -75,7 +77,9 @@ public class UserHome
       }
       catch (InvocationTargetException x)
       {
-         throw new PublicException(x.getTargetException().getMessage());
+         throw new PublicException(
+               BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(x
+                     .getTargetException().getMessage()));
       }
       catch (Exception x)
       {

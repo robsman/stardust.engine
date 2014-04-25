@@ -20,6 +20,7 @@ import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.core.persistence.*;
 import org.eclipse.stardust.engine.core.persistence.jdbc.PersistentBean;
 import org.eclipse.stardust.engine.core.persistence.jdbc.QueryUtils;
@@ -64,7 +65,7 @@ public class DepartmentHierarchyBean extends PersistentBean implements Serializa
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       QueryDescriptor piDescriptor = QueryDescriptor.from(DepartmentHierarchyBean.class)
             .select(DepartmentHierarchyBean.FR__SUBDEPARTMENT)
-            .where(Predicates.isEqual(DepartmentHierarchyBean.FR__SUPERDEPARTMENT, department));      
+            .where(Predicates.isEqual(DepartmentHierarchyBean.FR__SUPERDEPARTMENT, department));
       ResultSet resultSet = session.executeQuery(piDescriptor);
       try
       {
@@ -101,7 +102,7 @@ public class DepartmentHierarchyBean extends PersistentBean implements Serializa
       Session session = (Session) SessionFactory.getSession(SessionFactory.AUDIT_TRAIL);
       QueryDescriptor piDescriptor = QueryDescriptor.from(DepartmentHierarchyBean.class)
             .select(DepartmentHierarchyBean.FR__SUPERDEPARTMENT)
-            .where(Predicates.isEqual(DepartmentHierarchyBean.FR__SUBDEPARTMENT, department));      
+            .where(Predicates.isEqual(DepartmentHierarchyBean.FR__SUBDEPARTMENT, department));
       ResultSet resultSet = session.executeQuery(piDescriptor);
       try
       {
@@ -131,8 +132,9 @@ public class DepartmentHierarchyBean extends PersistentBean implements Serializa
                   Predicates.isEqual(FR__SUPERDEPARTMENT, superDepartment),//
                   Predicates.isEqual(FR__SUBDEPARTMENT, subDepartment)))))
       {
-         throw new PublicException("Department hierarchy entry for '" + superDepartment
-               + "' and '" + subDepartment + "' already exists.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_DEPARTMENT_HIERARCHY_ENTRY_ALREADY_EXISTS.raise(
+                     superDepartment, subDepartment));
       }
 
       this.superDepartment = superDepartment;
@@ -151,7 +153,7 @@ public class DepartmentHierarchyBean extends PersistentBean implements Serializa
       fetch();
       return DepartmentBean.findByOID(superDepartment);
    }
-   
+
    public IDepartment getSubDepartment()
    {
       fetch();

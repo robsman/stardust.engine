@@ -161,7 +161,9 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (InternalException e)
          {
             trace.warn("", e);
-            throw new PublicException(e.getMessage());
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(e
+                        .getMessage()));
          }
 
          print("Proxy locking tables created and synchronized.");
@@ -184,7 +186,9 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (InternalException e)
          {
             trace.warn("", e);
-            throw new PublicException(e.getMessage());
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(e
+                        .getMessage()));
          }
 
          print("Verification of proxy locking tables and their consistency done.");
@@ -235,7 +239,9 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (InternalException e)
          {
             trace.warn("", e);
-            throw new PublicException(e.getMessage());
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(e
+                        .getMessage()));
          }
 
          print("Data cluster tables created and synchronized.");
@@ -258,7 +264,9 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (InternalException e)
          {
             trace.warn("", e);
-            throw new PublicException(e.getMessage());
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(e
+                        .getMessage()));
          }
 
          print("Verification of data cluster tables and their consistency done.");
@@ -304,7 +312,9 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (InternalException e)
          {
             trace.warn("", e);
-            throw new PublicException(e.getMessage());
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(e
+                        .getMessage()));
          }
 
          print("Creation of partition in AuditTrail done.");
@@ -339,7 +349,9 @@ public class AlterAuditTrailCommand extends AuditTrailCommand
          catch (InternalException e)
          {
             trace.warn("", e);
-            throw new PublicException(e.getMessage());
+            throw new PublicException(
+                  BpmRuntimeError.GEN_AN_EXCEPTION_OCCURED_AND_MESSAGE.raise(e
+                        .getMessage()));
          }
       }
 

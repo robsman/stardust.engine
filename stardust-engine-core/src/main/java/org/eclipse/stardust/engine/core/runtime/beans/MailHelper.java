@@ -29,6 +29,7 @@ import org.eclipse.stardust.common.config.Parameters;
 import org.eclipse.stardust.common.error.PublicException;
 import org.eclipse.stardust.common.log.LogManager;
 import org.eclipse.stardust.common.log.Logger;
+import org.eclipse.stardust.engine.api.runtime.BpmRuntimeError;
 import org.eclipse.stardust.engine.api.runtime.LogCode;
 import org.eclipse.stardust.engine.core.runtime.beans.AuditTrailLogger;
 import org.eclipse.stardust.engine.core.runtime.removethis.EngineProperties;
@@ -61,15 +62,18 @@ public class MailHelper
 
       if (from == null)
       {
-         throw new PublicException("No property '" + EngineProperties.MAIL_SENDER
-               + "' specified.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_NO_PROPERTY_SPECIFIED
+                     .raise(EngineProperties.MAIL_SENDER));
       }
 
       String host = Parameters.instance().getString(EngineProperties.MAIL_HOST);
 
       if (host == null)
       {
-         throw new PublicException("No property 'Mail.Host' specified.");
+         throw new PublicException(
+               BpmRuntimeError.MDL_NO_PROPERTY_SPECIFIED
+                     .raise("Mail.Host"));
       }
 
       boolean debug = Parameters.instance()
@@ -172,7 +176,8 @@ public class MailHelper
       catch (MessagingException x)
       {
          trace.warn("", x);
-         throw new PublicException("Cannot send notification message: " + x);
+         throw new PublicException(
+               BpmRuntimeError.MDL_CANNOT_SEND_NOTIFICATION_MESSAGE.raise(x.getMessage()), x);
       }
    }
 

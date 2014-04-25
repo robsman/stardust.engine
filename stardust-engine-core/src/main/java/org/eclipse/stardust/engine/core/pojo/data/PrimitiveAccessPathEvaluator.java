@@ -127,7 +127,9 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       }
       catch (InvocationTargetException e)
       {
-         throw new PublicException("Failed reading java value.", e.getTargetException());
+         throw new PublicException(
+               BpmRuntimeError.POJO_FAILED_READING_JAVA_VALUE.raise(),
+               e.getTargetException());
       }
    }
 
@@ -170,7 +172,9 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
       }
       catch (InvocationTargetException e)
       {
-         throw new PublicException("Failed setting java value.", e.getTargetException());
+         throw new PublicException(
+               BpmRuntimeError.POJO_FAILED_SETTING_JAVA_VALUE.raise(),
+               e.getTargetException());
       }
    }
 
@@ -224,8 +228,9 @@ public class PrimitiveAccessPathEvaluator implements ExtendedAccessPathEvaluator
          }
          catch (Exception e)
          {
-            throw new PublicException("Can't convert value '" + defaultValue
-                  + "' to type '" + type + "'.", e);
+            throw new PublicException(
+                  BpmRuntimeError.POJO_CANNOT_CONVERT_VALUT_TO_TYPE.raise(defaultValue,
+                        type), e);
          }
       }
       return null;

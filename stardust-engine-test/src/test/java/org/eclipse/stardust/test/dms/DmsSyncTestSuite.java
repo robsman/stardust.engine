@@ -28,21 +28,21 @@ import org.junit.runners.Suite.SuiteClasses;
  * which allows for storing data in a JCR compliant repository (refer to the Stardust
  * documentation for details about <i>Document Management</i>).
  * </p>
- * 
+ *
  * <p>
  * This test suite focuses on DMS synchronization between the JCR repository and the
  * Audit Trail database.
  * </p>
- * 
+ *
  * @author Nicolas.Werlein
  * @version $Revision$
  */
 @RunWith(Suite.class)
-@SuiteClasses({ DmsDocumentAnnotationsTest.class, DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class })
+@SuiteClasses({ DmsDocumentAnnotationsTest.class, DmsSyncDocumentTest.class, DmsSyncTypedDocumentTest.class, DmsSyncDocumentMultiRepositoryTest.class })
 public class DmsSyncTestSuite
 {
    /* test suite */
-   
+
    @ClassRule
    public static final LocalJcrH2TestSuiteSetup testSuiteSetup = new LocalJcrH2TestSuiteSetup(new UsernamePasswordPair(MOTU, MOTU), ForkingServiceMode.NATIVE_THREADING, DMS_SYNC_MODEL_NAME);
 }

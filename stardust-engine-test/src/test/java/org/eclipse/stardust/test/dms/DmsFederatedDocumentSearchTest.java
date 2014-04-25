@@ -11,10 +11,10 @@
 package org.eclipse.stardust.test.dms;
 
 import static org.eclipse.stardust.test.dms.DmsModelConstants.DMS_MODEL_NAME;
+import static org.eclipse.stardust.test.dms.RepositoryTestUtils.TEST_REPO_ID;
 import static org.eclipse.stardust.test.util.TestConstants.MOTU;
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collections;
@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.eclipse.stardust.common.CollectionUtils;
 import org.eclipse.stardust.engine.api.query.DocumentQuery;
 import org.eclipse.stardust.engine.api.query.FilterOrTerm;
 import org.eclipse.stardust.engine.api.query.RepositoryPolicy;
@@ -33,8 +32,6 @@ import org.eclipse.stardust.engine.api.runtime.DocumentInfo;
 import org.eclipse.stardust.engine.api.runtime.DocumentManagementService;
 import org.eclipse.stardust.engine.api.runtime.Documents;
 import org.eclipse.stardust.engine.api.runtime.QueryService;
-import org.eclipse.stardust.engine.core.repository.jcr.JcrVfsRepositoryConfiguration;
-import org.eclipse.stardust.engine.core.spi.dms.IRepositoryConfiguration;
 import org.eclipse.stardust.engine.core.spi.dms.RepositoryIdUtils;
 import org.eclipse.stardust.engine.extensions.dms.data.DmsDocumentBean;
 import org.eclipse.stardust.test.api.setup.DmsAwareTestMethodSetup;
@@ -42,7 +39,6 @@ import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup;
 import org.eclipse.stardust.test.api.setup.LocalJcrH2TestSetup.ForkingServiceMode;
 import org.eclipse.stardust.test.api.setup.TestServiceFactory;
 import org.eclipse.stardust.test.api.util.UsernamePasswordPair;
-import org.eclipse.stardust.test.impl.ClassPathFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -50,7 +46,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
-import org.springframework.core.io.ClassPathResource;
 
 /**
  * <p>
@@ -106,12 +101,6 @@ public class DmsFederatedDocumentSearchTest
 
    private static final int TOTAL_DOCS = 6;
 
-   private static final String TEST_PROVIDER_ID = "jcr-vfs";
-
-   private static final String TEST_REPO_ID = "testRepo";
-
-   private static final Serializable TEST_REPO_JNDI = "jcr/ContentRepository2";
-
    // temporary documents
    private static final String DOC_NAME_TEMP = "test.tmp";
 
@@ -126,17 +115,6 @@ public class DmsFederatedDocumentSearchTest
    @Rule
    public final TestRule chain = RuleChain.outerRule(testMethodSetup)
                                           .around(sf);
-
-
-   private IRepositoryConfiguration createTestRepoConfig(String repositoryId)
-   {
-      Map<String, Serializable> attributes = CollectionUtils.newMap();
-      attributes.put(IRepositoryConfiguration.PROVIDER_ID, TEST_PROVIDER_ID);
-      attributes.put(IRepositoryConfiguration.REPOSITORY_ID, repositoryId);
-      attributes.put(JcrVfsRepositoryConfiguration.JNDI_NAME, TEST_REPO_JNDI);
-
-      return new JcrVfsRepositoryConfiguration(attributes);
-   }
 
    private DocumentQuery getFederatedQuery()
    {
@@ -153,7 +131,7 @@ public class DmsFederatedDocumentSearchTest
       initDocument(DOC_NAME2, OWNER2, CONTENT_TYPE2, META_DATA2, null);
       initDocument(DOC_NAME3, OWNER3, CONTENT_TYPE3, META_DATA3, null);
 
-      sf.getDocumentManagementService().bindRepository(createTestRepoConfig(TEST_REPO_ID));
+      sf.getDocumentManagementService().bindRepository(RepositoryTestUtils.createTestRepoConfig());
 
       initDocument(DOC_NAME1, OWNER1, CONTENT_TYPE1, META_DATA1, TEST_REPO_ID);
       initDocument(DOC_NAME2, OWNER2, CONTENT_TYPE2, META_DATA2, TEST_REPO_ID);
